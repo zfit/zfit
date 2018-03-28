@@ -23,6 +23,5 @@ T23_0 =  opt.FitParameter("T23_0", priors_ff.param_mean_FF[16], -10., 10., 0)
 T23_1 =  opt.FitParameter("T23_1", priors_ff.param_mean_FF[17], -10., 10., 0)
 T23_2 =  opt.FitParameter("T23_2", priors_ff.param_mean_FF[18], -20., 20., 0)
 
-
 # Form factors
 ff = [ A0_0, A0_1, A0_2, A1_0, A1_1, A1_2, A12_1, A12_2, V_0, V_1, V_2, T1_0, T1_1, T1_2, T2_1, T2_2, T23_0, T23_1, T23_2 ]

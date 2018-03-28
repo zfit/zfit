@@ -3,20 +3,20 @@ import tensorflow as tf
 import sys, os
 sys.path.append("../")
 
-from zfit.core import optimisation as opt
+from zfit.core import optimization as opt
 from zfit.core import kinematics as kin
 from zfit.physics import constants as const
 from zfit.physics.flavour.rare_decays.bToKstarll import decay_rates as dec
 
 
-if __name__ == "__main__" : 
+if __name__ == "__main__" :
 
   phsp = kin.FourBodyAngularPhaseSpace(1.,8.,)
 
-  
+
   ### Start of model description
 
-  def model(x) : 
+  def model(x) :
       return dec.d4Gamma(phsh, x, const.mMu)
 
   ### End of model description
