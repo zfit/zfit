@@ -1,6 +1,7 @@
 from . import amplitudes as ampl
 from zfit.physics import functions as funct
 from zfit.core import optimization
+from zfit.core.interface import Square, AbsSq, Real, Conj, Im
 
 # J's definition using C. Bobeth, G. Hiller and D. van Dyk, Phys.Rev. D87 (2013) 034016
 
