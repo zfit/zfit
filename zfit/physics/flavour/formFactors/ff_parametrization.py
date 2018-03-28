@@ -1,38 +1,39 @@
 from zfit.physics import constants as const
+from . import ff_parameters as ff
 from . import utils
 
 # Form factor parametrization for B0 -> K*ll
 
 # Polynomial expansion of Form factors
 def A0(q2):
-    return  1. / (1. - q2/Square(utils.MR_A0) ) * ( A0_0  + A0_1  * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                              + A0_2  * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    return  1. / (1. - q2/Square(utils.MR_A0) ) * ( ff.A0_0  + ff.A0_1  * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                              + ff.A0_2  * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 def A1(q2):
-    return 1. / (1. - q2/Square(utils.MR_A1) ) * ( A1_0  + A1_1  * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                             + A1_2  * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    return 1. / (1. - q2/Square(utils.MR_A1) ) * ( ff.A1_0  + ff.A1_1  * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                             + ff.A1_2  * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 def A12(q2):
-    A12_0 =  A0_0 * (Square(MB) - Square(MKst)) / (8.0 * MB * MKst) # from (17) of A. Bharucha, D. Straub and R. Zwicky
-    return 1. / (1. - q2/Square(utils.MR_A12)) * ( A12_0 + A12_1 * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                             + A12_2 * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    A12_0 =  ff.A0_0 * (Square(MB) - Square(MKst)) / (8.0 * MB * MKst) # from (17) of A. Bharucha, D. Straub and R. Zwicky
+    return 1. / (1. - q2/Square(utils.MR_A12)) * ( A12_0 + ff.A12_1 * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                             + ff.A12_2 * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 def V(q2):
-    return 1. / (1. - q2/Square(utils.MR_V)  ) * ( V_0   + V_1   * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                             + V_2   * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    return 1. / (1. - q2/Square(utils.MR_V)  ) * ( ff.V_0   + ff.V_1   * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                             + ff.V_2   * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 def T1(q2):
-    return 1. / (1. - q2/Square(utils.MR_T1 )) * ( T1_0  + T1_1  * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                             + T1_2  * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    return 1. / (1. - q2/Square(utils.MR_T1 )) * ( ff.T1_0  + ff.T1_1  * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                             + ff.T1_2  * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 def T2(q2):
-    T2_0  =  T1_0 
-    return 1. / (1. - q2/Square(utils.MR_T2) ) * ( T2_0  + T2_1  * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                             + T2_2  * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    T2_0  =  ff.T1_0 
+    return 1. / (1. - q2/Square(utils.MR_T2) ) * ( T2_0  + ff.T2_1  * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                             + ff.T2_2  * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 def T23(q2):
-    return 1. / (1. - q2/Square(utils.MR_T23)) * ( T23_0 + T23_1 * (utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) 
-                                             + T23_2 * Square(utils.z(q2,t_plus,t_zero) - utils.z(0.0,t_plus,t_zero)) )
+    return 1. / (1. - q2/Square(utils.MR_T23)) * ( ff.T23_0 + ff.T23_1 * (utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) 
+                                             + ff.T23_2 * Square(utils.z(q2,utils.t_plus,utils.t_zero) - utils.z(0.0,utils.t_plus,utils.t_zero)) )
 
 
 # Translation between the choise of form factors as in 

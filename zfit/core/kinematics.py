@@ -4,9 +4,9 @@ import tensorflow as tf
 import numpy as np
 import math
 import itertools
-import Optimisation
+import optimisation
 
-from Interface import *
+from interface import *
 
 def SpatialComponents(vector) :
   """

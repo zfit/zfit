@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 from ROOT import TVirtualFitter, TNtuple, TH1, TH2, TH3
-from Interface import *
+from interface import *
 
 cacheable_tensors = []
 
