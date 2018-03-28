@@ -1,3 +1,5 @@
+from zfit.zfit.flavour.form_factors import ff_parametrization as ff
+
 # Parametrization of H
 
 t_H_plus = 4.0 * Square(MD)
@@ -39,23 +41,24 @@ def zz(t, t_plus, t_zero): # t is complex
 
 # Definition of the hadronic correlators H's
 # different as in C. Bobeth, M. Chrzaszcz, D. van Dyk and J. Virto (arxiv:1707.07305)
-# ==> still needs to be multiplied by the corresponding form factor (h = H*F)
 
-def H_perp(z_q2):
+def H_perp(q2):
+  z_q2 = z(q2, t_H_plus, t_H_zero)
   return CastComplex((1.0 - z_q2 * z(Square(MJpsi),t_H_plus,t_H_zero)) * (1.0 - z_q2 * z(Square(Mpsi2S),t_H_plus,t_H_zero)) \
          / ((z_q2 - z(Square(MJpsi),t_H_plus,t_H_zero)) * (z_q2 - z(Square(Mpsi2S),t_H_plus,t_H_zero)))) \
-         * poly5C(alpha_perp_0, alpha_perp_1, alpha_perp_2, alpha_perp_3, alpha_perp_4, alpha_perp_5, z_q2)
+         * poly5C(alpha_perp_0, alpha_perp_1, alpha_perp_2, alpha_perp_3, alpha_perp_4, alpha_perp_5, z_q2) * CastComplex(ff.F_perp(q2))
 
-
-def H_para(z_q2):
+def H_para(q2):
+  z_q2 = z(q2, t_H_plus, t_H_zero)
   return CastComplex((1.0 - z_q2 * z(Square(MJpsi),t_H_plus,t_H_zero)) * (1.0 - z_q2 * z(Square(Mpsi2S),t_H_plus,t_H_zero)) \
          / ((z_q2 - z(Square(MJpsi),t_H_plus,t_H_zero)) * (z_q2 - z(Square(Mpsi2S),t_H_plus,t_H_zero)))) \
-         * poly5C(alpha_para_0, alpha_para_1, alpha_para_2, alpha_para_3, alpha_para_4, alpha_para_5, z_q2)
+         * poly5C(alpha_para_0, alpha_para_1, alpha_para_2, alpha_para_3, alpha_para_4, alpha_para_5, z_q2) * CastComplex(ff.F_para(q2))
 
 
-def H_zero(z_q2):
+def H_zero(q2):
+  z_q2 = z(q2, t_H_plus, t_H_zero)
   return CastComplex((1.0 - z_q2 * z(Square(MJpsi),t_H_plus,t_H_zero)) * (1.0 - z_q2 * z(Square(Mpsi2S),t_H_plus,t_H_zero)) \
            / ((z_q2 - z(Square(MJpsi),t_H_plus,t_H_zero)) * (z_q2 - z(Square(Mpsi2S),t_H_plus,t_H_zero)))) \
            * poly4C(alpha_zero_0, alpha_zero_1, alpha_zero_2, alpha_zero_3, alpha_zero_4, z_q2) \
-           * CastComplex(z_q2 - z(0.0,t_H_plus,t_H_zero))
+           * CastComplex(z_q2 - z(0.0,t_H_plus,t_H_zero)) * CastComplex(ff.F_zero(q2))
 
