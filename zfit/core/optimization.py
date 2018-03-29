@@ -1,7 +1,8 @@
 from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
-import array
+
+import array  # TODO: needed? numpy array?
 import numpy as np
 import math
 
@@ -11,10 +12,10 @@ from .interface import *
 cacheable_tensors = []
 
 
-class RootHistShape:
+class RootHistShape(object):
     """
       Class that creates a TensorFlow graph from a bilinear interpolation of
-      ROOT TH{1,2,3} histogram. Useful for e.g. efficienty and background shapes
+      ROOT TH{1,2,3} histogram. Useful for e.g. efficiency and background shapes
       stored in histograms.
     """
 

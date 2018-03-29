@@ -42,7 +42,7 @@ def Gauss4D(x, params):
     return MultivariateGauss(x, norm, mean, invcov)
 
 
-class GaussianMixture2D:
+class GaussianMixture2D(object):
     def __init__(self, prefix, n, x_range, y_range):
         self.params = []
         for i in range(n):
@@ -64,7 +64,7 @@ class GaussianMixture2D:
         return d
 
 
-class GaussianMixture4D:
+class GaussianMixture4D(object):
     def __init__(self, prefix, n, ranges):
         self.params = []
         for i in range(n):

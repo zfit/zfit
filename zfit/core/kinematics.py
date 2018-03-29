@@ -9,7 +9,7 @@ import itertools
 from . import optimization
 
 from .interface import *
-from functools import reduce
+from functools import reduce  # py23: does that work?
 
 
 def SpatialComponents(vector):
@@ -702,16 +702,11 @@ def HelicityCouplingsFromLS(ja, jb, jc, lb, lc, bls):
     Note that ALL j,l,s should be doubled, e.g. S=1 for spin-1/2, L=2 for P-wave etc.
   """
     a = 0.
-    for ls, b in bls.iteritems():
+    for ls, b in bls.items():
         l = ls[0]
         s = ls[1]
-        coeff = math.sqrt((l + 1) / (ja + 1)) * Clebsch(jb, lb, jc, -lc, s, lb - lc) * Clebsch(l, 0,
-                                                                                               s,
-                                                                                               lb
-                                                                                               - lc,
-                                                                                               ja,
-                                                                                               lb
-                                                                                               - lc)
+        coeff = (math.sqrt((l + 1) / (ja + 1)) * Clebsch(jb, lb, jc, -lc, s, lb - lc) *
+                 Clebsch(l, 0, s, lb - lc, ja, lb - lc))
         a += Const(coeff) * b
     return a
 
@@ -762,7 +757,7 @@ def FindBasicParticles(particle):
 
 
 def AllowedHelicities(particle):
-    return range(-particle.GetSpin2(), particle.GetSpin2(), 2) + [particle.GetSpin2()]
+    return list(range(-particle.GetSpin2(), particle.GetSpin2(), 2)) + [particle.GetSpin2()]
 
 
 def HelicityMatrixDecayChain(parent, helAmps):
@@ -909,7 +904,7 @@ def RotateFinalStateHelicity(matrixin, particlesfrom, particlesto):
     return matrixout
 
 
-class Particle:
+class Particle(object):
     """
   Class to describe a Particle
   """
@@ -1014,7 +1009,7 @@ class Particle:
         return eq
 
 
-class DalitzPhaseSpace:
+class DalitzPhaseSpace(object):
     """
   Class for Dalitz plot (2D) phase space for the 3-body decay D->ABC
   """
@@ -1232,7 +1227,7 @@ class DalitzPhaseSpace:
         return tf.stack([m2ab, m2bc], axis=1)
 
 
-class DoubleDalitzPhaseSpace:
+class DoubleDalitzPhaseSpace(object):
     """
     Phase space representing two (correlated) Dalitz plots.
   """
@@ -1328,7 +1323,7 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
         return (p4a, p4b, p4c)
 
 
-class FourBodyAngularPhaseSpace:
+class FourBodyAngularPhaseSpace(object):
     """
   Class for angular phase space of 4-body X->(AB)(CD) decay (3D).
   """
@@ -1478,7 +1473,7 @@ class FourBodyAngularPhaseSpace:
         return tf.placeholder(fptype, shape=(None, None), name=name)
 
 
-class PHSPGenerator:
+class PHSPGenerator(object):
     def __init__(self, m_mother, m_daughters):
         """
       Constructor
@@ -1555,7 +1550,7 @@ class PHSPGenerator:
         return phsp_model
 
 
-class NBody:
+class NBody(object):
     """
   Class for N-body decay expressed as:
     m_mother   : mass of the mother
@@ -1622,76 +1617,75 @@ class NBody:
         return tf.placeholder(fptype, shape=(None, None), name=name)
 
 
-'''
-class FourBody :
-  """
-  Class for 4-body decay phase space D->(A1 A2)(B1 B2) expressed as:
-    ma   : invariant mass of the A1 A2 combination
-    mb   : invariant mass of the B1 B2 combination
-    hela : cosine of the helicity angle of A1
-    helb : cosine of the helicity angle of B1
-    phi  : angle between the A1 A2 and B1 B2 planes in D rest frame
-  """
-  def __init__(self, ma1, ma2, mb1, mb2, md, useROOT=True ) :
-    """
-      Constructor
-    """
-    self.ma1 = ma1
-    self.ma2 = ma2
-    self.mb1 = mb1
-    self.mb2 = mb2
-    self.md = md
-    self.ndaughters=4
+# class FourBody :
+#   """
+#   Class for 4-body decay phase space D->(A1 A2)(B1 B2) expressed as:
+#     ma   : invariant mass of the A1 A2 combination
+#     mb   : invariant mass of the B1 B2 combination
+#     hela : cosine of the helicity angle of A1
+#     helb : cosine of the helicity angle of B1
+#     phi  : angle between the A1 A2 and B1 B2 planes in D rest frame
+#   """
+#   def __init__(self, ma1, ma2, mb1, mb2, md, useROOT=True ) :
+#     """
+#       Constructor
+#     """
+#     self.ma1 = ma1
+#     self.ma2 = ma2
+#     self.mb1 = mb1
+#     self.mb2 = mb2
+#     self.md = md
+#     self.ndaughters=4
+#
+#     self.PHSPGenerator = PHSPGenerator(md,[ma1,ma2,mb1,mb2])
+#     self.nev_ph = tf.placeholder(tf.int32)
+#     self.majorant_ph = tf.placeholder(tf.float64)
+#     self.phsp_model = self.PHSPGenerator.GenerateModel(self.nev_ph)
+#     self.phsp_model_majorant = tf.concat([self.phsp_model,Scalar(tf.random_uniform([self.nev_ph],
+#     minval=0.,maxval=self.majorant_ph,dtype=fptype))],axis=1)
+#
+#     self.data_placeholder = self.Placeholder("data")
+#     self.norm_placeholder = self.Placeholder("data")
+#
+#   def Density(self, x) :
+#     return tf.transpose(x)[4*self.ndaughters]
+#
+#   def UniformSample(self, size, majorant = -1) :
+#     """
+#       Generate uniform sample of point within phase space.
+#         size     : number of _initial_ points to generate. Not all of them will fall into phase
+#         space,
+#                    so the number of points in the output will be <size.
+#         majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+#                    uniform number from 0 to majorant. Useful for accept-reject toy MC.
+#       Note it does not actually generate the sample, but returns the data flow graph for
+# generation,
+#       which has to be run within TF session.
+#     """
+#     s = tf.Session()
+#     feed_dict = {self.nev_ph : size}
+#     if majorant>0: feed_dict.update({self.majorant_ph : majorant})
+#     uniform_sample = s.run( self.phsp_model_majorant if majorant > 0 else self.phsp_model,
+#                             feed_dict= feed_dict )
+#     s.close()
+#     return uniform_sample
+#
+#   def FinalStateMomenta(self, x) :
+#     """
+#        Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay
+#        defined by the phase space vector x. The momenta are calculated in the
+#        D rest frame.
+#     """
+#     p3s = [ Vector(tf.transpose(x)[4*i],tf.transpose(x)[4*i+1],tf.transpose(x)[4*i+2]) for i in
+#     range(self.ndaughters) ]
+#     pLs = [ LorentzVector(p3,tf.transpose(x)[4*i+3]) for p3,i in zip(p3s,range(self.ndaughters)) ]
+#     return tuple(pL for pL in pLs)
+#
+#   def Placeholder(self, name = None) :
+#     return tf.placeholder(fptype, shape = (None, None), name = name )
 
-    self.PHSPGenerator = PHSPGenerator(md,[ma1,ma2,mb1,mb2])
-    self.nev_ph = tf.placeholder(tf.int32)
-    self.majorant_ph = tf.placeholder(tf.float64)
-    self.phsp_model = self.PHSPGenerator.GenerateModel(self.nev_ph)
-    self.phsp_model_majorant = tf.concat([self.phsp_model,Scalar(tf.random_uniform([self.nev_ph],
-    minval=0.,maxval=self.majorant_ph,dtype=fptype))],axis=1)
 
-    self.data_placeholder = self.Placeholder("data")
-    self.norm_placeholder = self.Placeholder("data")
-
-  def Density(self, x) :
-    return tf.transpose(x)[4*self.ndaughters]
-
-  def UniformSample(self, size, majorant = -1) :
-    """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase 
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
-    s = tf.Session()
-    feed_dict = {self.nev_ph : size}
-    if majorant>0: feed_dict.update({self.majorant_ph : majorant})
-    uniform_sample = s.run( self.phsp_model_majorant if majorant > 0 else self.phsp_model,
-                            feed_dict= feed_dict )
-    s.close()
-    return uniform_sample
-
-  def FinalStateMomenta(self, x) :
-    """
-       Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay
-       defined by the phase space vector x. The momenta are calculated in the
-       D rest frame.
-    """
-    p3s = [ Vector(tf.transpose(x)[4*i],tf.transpose(x)[4*i+1],tf.transpose(x)[4*i+2]) for i in 
-    range(self.ndaughters) ]
-    pLs = [ LorentzVector(p3,tf.transpose(x)[4*i+3]) for p3,i in zip(p3s,range(self.ndaughters)) ]
-    return tuple(pL for pL in pLs)
-
-  def Placeholder(self, name = None) :
-    return tf.placeholder(fptype, shape = (None, None), name = name )
-'''
-
-
-class FourBodyHelicityPhaseSpace:
+class FourBodyHelicityPhaseSpace(object):
     """
   Class for 4-body decay phase space D->(A1 A2)(B1 B2) expressed as:
     ma   : invariant mass of the A1 A2 combination
@@ -1854,7 +1848,7 @@ class FourBodyHelicityPhaseSpace:
         return tf.placeholder(fptype, shape=(None, None), name=name)
 
 
-class RectangularPhaseSpace:
+class RectangularPhaseSpace(object):
     """
   Class for rectangular phase space in n dimensions
   """
