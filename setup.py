@@ -26,7 +26,7 @@ if not requirements_dev.count("") == 1 or requirements_dev.index("") == 0:
 requirements_dev_split = requirements_dev.index("")
 
 setup_requirements = requirements_dev[:requirements_dev_split]
-test_requirements = requirements_dev[requirements_dev_split+1:]
+test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip empty line
 
 setup(
     author="zfit",
@@ -61,4 +61,4 @@ setup(
     url='https://github.com/zfit/zfit',
     version='0.0.0',
     zip_safe=False,
-)
+    )
