@@ -1,14 +1,16 @@
+from __future__ import print_function, division, absolute_import
+
 import tensorflow as tf
 import array
 import numpy as np
 import math
 
-from interface import *
-from optimization import *
+from .interface import *
+from .optimization import *
 
 
 def MultivariateGauss(x, norm, mean, invCov):
-    print
+    print()
     norm
     dx = x - mean
     expArg = tf.einsum("ai,ij,aj->a", dx, invCov, dx)
@@ -16,7 +18,7 @@ def MultivariateGauss(x, norm, mean, invCov):
 
 
 def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr):
-    print
+    print()
     norm
     offdiag = abs(xsigma * ysigma) * corr
     array = [[xsigma ** 2, offdiag], [offdiag, ysigma ** 2]]

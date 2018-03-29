@@ -1,10 +1,12 @@
+from __future__ import print_function, division, absolute_import
+
 import tensorflow as tf
 import array
 import numpy as np
 import math
 
 from ROOT import TVirtualFitter, TNtuple, TH1, TH2, TH3
-from interface import *
+from .interface import *
 
 cacheable_tensors = []
 
@@ -376,7 +378,7 @@ def RunToyMC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, se
         first = False
         length += len(d)
         nchunk += 1
-        print
+        print()
         "  Chunk %d, size=%d, total length=%d" % (nchunk, len(d), length)
     if size > 0:
         return data[:size]
@@ -422,7 +424,7 @@ def ReadNTuple(ntuple, variables):
         for m, v in enumerate(code_list):
             array[n][m] = eval(v)
         if n % 100000 == 0:
-            print
+            print()
             n, "/", nentries
     return array
 
@@ -532,7 +534,7 @@ def RunMinuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, us
                 gin[i] = dnll[i]  # Pass gradient to MINUIT
         fcn.n += 1
         if fcn.n % printout == 0:
-            print
+            print()
             "  Iteration ", fcn.n, ", Flag=", istatus, " NLL=", f[0], ", pars=", sess.run(
                 float_tfpars)
             tmp_results = {'loglh': f[0], "status": -1}
@@ -638,16 +640,16 @@ def WriteFitResults(results, BR_names, BR_fit, BR_gen, filename):
         s = "%s " % p.par_name
         for i in results[p.par_name]:
             s += "%f " % i
-        print
+        print()
         s
         f.write(s + "\n")
     for i in range(len(BR_fit)):
         s = BR_names[i] + " %.15f %.15f" % (BR_fit[i], BR_gen[i])
-        print
+        print()
         s
         f.write(s + "\n")
     s = "loglh %f %d" % (results["loglh"], results["status"])
-    print
+    print()
     s
     f.write(s + "\n")
     f.close()
@@ -659,7 +661,7 @@ def ReadFitResults(sess, filename):
         sess     : TF session
         filename : file name
     """
-    print
+    print()
     "Reading results from ", filename
     tfpars = tf.trainable_variables()  # Create TF variables
     float_tfpars = [p for p in tfpars if p.floating()]
@@ -752,12 +754,12 @@ def WriteFitFractions(fit_fractions, names, filename):
     sum_fit_fractions = 0.
     for n, ff in zip(names, fit_fractions):
         s = "%s %f" % (n, ff)
-        print
+        print()
         s
         f.write(s + "\n")
         sum_fit_fractions += ff
     s = "Sum %f" % sum_fit_fractions
-    print
+    print()
     s
     f.write(s + "\n")
     f.close()

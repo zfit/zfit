@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 import sys
 import operator
 import tensorflow as tf
@@ -7,6 +9,7 @@ import itertools
 from . import optimization
 
 from .interface import *
+from functools import reduce
 
 
 def SpatialComponents(vector):
@@ -632,7 +635,7 @@ def WignerdExplicit(theta, j, m1, m2):
     if j ==  6  and m1 ==   2  and m2 ==   2  : return  tf.cos(theta)/32. + 5.*tf.cos(2*theta)/16. + 15.*tf.cos(3*theta)/32. + 3/16.
 
 
-    print("Error in Wignerd: j,m1,m2 = ", j, m1, m2)
+    print(("Error in Wignerd: j,m1,m2 = ", j, m1, m2))
 
     return None
 

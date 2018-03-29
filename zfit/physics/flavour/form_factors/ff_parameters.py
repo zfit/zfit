@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import
+
 from zfit.core import optimization as opt
 from .data import priors_ff
 
