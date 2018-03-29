@@ -11,11 +11,11 @@ def d4Gamma(phsp, x, ml):
   cosThetaL = phsp.CosTheta2(x)
   phi       = phsp.Phi(x)
   q2        = phsp.Q2(x)
-  
+
   cosTheta2K = cosThetaK * cosThetaK
-    
-  sinThetaK = Sqrt( 1.0 - cosThetaK * cosThetaK )
-  sinThetaL = Sqrt( 1.0 - cosThetaL * cosThetaL )
+
+  sinThetaK = tf.sqrt( 1.0 - cosThetaK * cosThetaK )
+  sinThetaL = tf.sqrt( 1.0 - cosThetaL * cosThetaL )
 
   sinTheta2K =  (1.0 - cosThetaK * cosThetaK)
   sinTheta2L =  (1.0 - cosThetaL * cosThetaL)
@@ -26,7 +26,7 @@ def d4Gamma(phsp, x, ml):
   cos2ThetaK = (2.0 * cosThetaK * cosThetaK - 1.0)
   cos2ThetaL = (2.0 * cosThetaL * cosThetaL - 1.0)
 
-  
+
   fullPDF = (3.0 /(8.0 *Pi())) * (  \
                                   ang.J1s(q2,ml) * sinTheta2K    \
                                 + ang.J1c(q2,ml) * cosTheta2K    \
@@ -39,15 +39,15 @@ def d4Gamma(phsp, x, ml):
                                 + ang.J7(q2,ml)  * sin2ThetaK * sinThetaL * tf.sin(phi)       \
                                 + ang.J8(q2,ml)  * sin2ThetaK * sin2ThetaL * tf.sin(phi)      \
                                 + ang.J9(q2,ml)  * sinTheta2K * sinTheta2L * tf.sin(2.*phi) )
-    
+
   return fullPDF
 
 
 
 
-def dGamma_dq2(q2,ml): 
+def dGamma_dq2(q2,ml):
   """
-  differential decay rate d2Gamma/dq2 of B0->K*mumu (prop to BR):  
+  differential decay rate d2Gamma/dq2 of B0->K*mumu (prop to BR):
   dGamma/dq^2 = 2*J1s+J1c -1/3(2*J2s+J2c)
   """
 

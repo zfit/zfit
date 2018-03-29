@@ -6,13 +6,13 @@ import math
 from Interface import *
 from Optimisation import *
 
-def MultivariateGauss(x, norm, mean, invCov) : 
+def MultivariateGauss(x, norm, mean, invCov) :
   print norm
   dx = x-mean
   expArg = tf.einsum("ai,ij,aj->a", dx, invCov, dx)
-  return (norm**2)*Exp(-0.5*expArg)
+  return (norm**2)*tf.exp(-0.5*expArg)
 
-def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr) : 
+def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr) :
   print norm
   offdiag = abs(xsigma*ysigma)*corr
   array = [[xsigma**2, offdiag ], [ offdiag, ysigma**2]]
@@ -21,23 +21,23 @@ def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr) :
   invcov = tf.matrix_inverse(cov)
   return MultivariateGauss(x, norm, mean, invcov)
 
-def Gauss4D(x, params) : 
+def Gauss4D(x, params) :
   norm = params[0]
   mean = tf.stack( params[1:5] )
   sigma = tf.stack( params[5:9] )
-  corr = tf.stack( [ [ Const(1.),  params[9],  params[10], params[11] ], 
-                     [ params[9],  Const(1.),  params[12], params[13] ], 
-                     [ params[10], params[12], Const(1.),  params[14] ], 
+  corr = tf.stack( [ [ Const(1.),  params[9],  params[10], params[11] ],
+                     [ params[9],  Const(1.),  params[12], params[13] ],
+                     [ params[10], params[12], Const(1.),  params[14] ],
                      [ params[11], params[13], params[14], Const(1.)  ] ] )
 
   cov = tf.einsum("i,ij,j->ij", sigma, corr, sigma)
   invcov = tf.matrix_inverse(cov)
   return MultivariateGauss(x, norm, mean, invcov)
 
-class GaussianMixture2D : 
-  def __init__(self, prefix, n, x_range, y_range ) : 
+class GaussianMixture2D :
+  def __init__(self, prefix, n, x_range, y_range ) :
     self.params = []
-    for i in range(n) : 
+    for i in range(n) :
       norm   = FitParameter(prefix + "n%d"  % i, 1./(1. + float(i)), 0., 2.)
       xmean  = FitParameter(prefix + "xm%d" % i, np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
       ymean  = FitParameter(prefix + "ym%d" % i, np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
@@ -47,16 +47,16 @@ class GaussianMixture2D :
       self.params += [ (norm, xmean, ymean, xsigma, ysigma, corr) ]
     self.params[0][0].step_size = 0. # Fix first normalisation term
 
-  def model(self, x) : 
+  def model(self, x) :
     d = Const(0.)
-    for i in self.params : 
+    for i in self.params :
       d += Gauss2D(x, i[0], i[1], i[2], i[3], i[4], i[5])
     return d
 
-class GaussianMixture4D : 
-  def __init__(self, prefix, n, ranges) : 
+class GaussianMixture4D :
+  def __init__(self, prefix, n, ranges) :
     self.params = []
-    for i in range(n) : 
+    for i in range(n) :
       norm   = FitParameter(prefix + "n%d"  % i, 1./(1. + float(i)), 0., 2.)
       xmean  = FitParameter(prefix + "xm%d" % i, np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
       ymean  = FitParameter(prefix + "ym%d" % i, np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
@@ -66,9 +66,9 @@ class GaussianMixture4D :
       self.params += [ (norm, xmean, ymean, xsigma, ysigma, corr) ]
     self.params[0][0].step_size = 0. # Fix first normalisation term
 
-  def model(self, x) : 
+  def model(self, x) :
     d = Const(0.)
-    for i in self.params : 
+    for i in self.params :
       d += Gauss2D(x, i[0], i[1], i[2], i[3], i[4], i[5])
     return d
 

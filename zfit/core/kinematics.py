@@ -68,7 +68,7 @@ def LorentzVector(space, time) :
   """
   return tf.concat([ space, tf.stack( [ time ], axis=1) ], axis = 1 )
 
-def MetricTensor() : 
+def MetricTensor() :
   """
   Metric tensor for Lorentz space (constant)
   """
@@ -79,7 +79,7 @@ def Mass(vector) :
   Calculate mass scalar for Lorentz 4-momentum
     vector : input Lorentz momentum vector
   """
-  return Sqrt(tf.reduce_sum( vector*vector*MetricTensor(), 1 ))
+  return tf.sqrt(tf.reduce_sum( vector*vector*MetricTensor(), 1 ))
 
 def ScalarProduct(vec1, vec2) :
   """
@@ -103,7 +103,7 @@ def Norm(vec) :
   """
   Calculate norm of 3-vector
   """
-  return Sqrt( tf.reduce_sum(vec*vec, 1) )
+  return tf.sqrt( tf.reduce_sum(vec*vec, 1) )
 
 def UnitVector(vec) :
   """
@@ -126,7 +126,7 @@ def LorentzBoost(vector, boostvector) :
   """
   boost = SpatialComponents(boostvector)
   b2 = ScalarProduct(boost, boost)
-  gamma = 1./Sqrt(1.-b2)
+  gamma = 1./tf.sqrt(1.-b2)
   gamma2 = (gamma-1.0)/b2
   ve = TimeComponent(vector)
   vp = SpatialComponents(vector)
@@ -142,7 +142,7 @@ def BoostToRest(vector, boostvector) :
   boost = -SpatialComponents(boostvector)/Scalar(TimeComponent(boostvector))
   return LorentzBoost(vector, boost)
 
-def BoostFromRest(vector, boostvector) : 
+def BoostFromRest(vector, boostvector) :
   """
     Perform Lorentz boost from the rest frame of the 4-vector boostvector.
   """
@@ -157,12 +157,12 @@ def RotateVector(v, phi, theta, psi) :
   """
 
   # Rotate Z (phi)
-  c1 = Cos(phi)
-  s1 = Sin(phi)
-  c2 = Cos(theta)
-  s2 = Sin(theta)
-  c3 = Cos(psi)
-  s3 = Sin(psi)
+  c1 = tf.cos(phi)
+  s1 = tf.sin(phi)
+  c2 = tf.cos(theta)
+  s2 = tf.sin(theta)
+  c3 = tf.cos(psi)
+  s3 = tf.sin(psi)
 
   # Rotate Y (theta)
   fzx2 =-s2*c1
@@ -213,28 +213,28 @@ def CosHelicityAngleDalitz(m2ab, m2bc, md, ma, mb, mc) :
   mb2 = mb**2
   mc2 = mc**2
   m2ac = md2 + ma2 + mb2 + mc2 - m2ab - m2bc
-  mab = Sqrt(m2ab)
-  mac = Sqrt(m2ac)
-  mbc = Sqrt(m2bc)
+  mab = tf.sqrt(m2ab)
+  mac = tf.sqrt(m2ac)
+  mbc = tf.sqrt(m2bc)
   p2a = 0.25/md2*(md2-(mbc+ma)**2)*(md2-(mbc-ma)**2)
   p2b = 0.25/md2*(md2-(mac+mb)**2)*(md2-(mac-mb)**2)
   p2c = 0.25/md2*(md2-(mab+mc)**2)*(md2-(mab-mc)**2)
   eb = (m2ab-ma2+mb2)/2./mab
   ec = (md2-m2ab-mc2)/2./mab
-  pb = Sqrt(eb**2-mb2)
-  pc = Sqrt(ec**2-mc2)
+  pb = tf.sqrt(eb**2-mb2)
+  pc = tf.sqrt(ec**2-mc2)
   e2sum = (eb+ec)**2
   m2bc_max = e2sum-(pb-pc)**2
   m2bc_min = e2sum-(pb+pc)**2
   return (m2bc_max + m2bc_min - 2.*m2bc)/(m2bc_max-m2bc_min)
 
-def SphericalAngles(pb) : 
+def SphericalAngles(pb) :
   """
     theta, phi : polar and azimuthal angles of the vector pb
   """
   z1 = UnitVector(SpatialComponents(pb))       # New z-axis is in the direction of pb
-  theta = Acos(ZComponent(z1))                 # Helicity angle
-  phi = Atan2(YComponent(pb), XComponent(pb))  # Phi angle
+  theta = tf.acos(ZComponent(z1))                 # Helicity angle
+  phi = tf.atan2(YComponent(pb), XComponent(pb))  # Phi angle
   return (theta, phi)
 
 def HelicityAngles(pb) :
@@ -255,14 +255,14 @@ def FourMomentaFromHelicityAngles(md, ma, mb, theta, phi) :
   # Calculate magnitude of momentum in D rest frame
   p = TwoBodyMomentum(md, ma, mb)
   # Calculate energy in D rest frame
-  Ea = Sqrt(p**2 + ma**2)
-  Eb = Sqrt(p**2 + mb**2)
+  Ea = tf.sqrt(p**2 + ma**2)
+  Eb = tf.sqrt(p**2 + mb**2)
   # Construct four-momenta with A aligned with D in D helicity frame
-  Pa = LorentzVector(Vector(Zeros(p), Zeros(p),  p), Ea)
-  Pb = LorentzVector(Vector(Zeros(p), Zeros(p), -p), Eb)
+  Pa = LorentzVector(Vector(tf.zeros_like(p), tf.zeros_like(p),  p), Ea)
+  Pb = LorentzVector(Vector(tf.zeros_like(p), tf.zeros_like(p), -p), Eb)
   # Rotate four-momenta
-  Pa = RotateFourVector(Pa, Zeros(phi), -theta, -phi)
-  Pb = RotateFourVector(Pb, Zeros(phi), -theta, -phi)
+  Pa = RotateFourVector(Pa, tf.zeros_like(phi), -theta, -phi)
+  Pb = RotateFourVector(Pb, tf.zeros_like(phi), -theta, -phi)
   return Pa,Pb
 
 def RecursiveSum( vectors ):
@@ -287,7 +287,7 @@ def CalculateHelicityAngles( pdecays ):
   angles = ()
   if len(pdecays)!=2:
     sys.exit('ERROR in CalculateHelicityAngles: lenght of the input list is different from 2')
-    
+
   for i,pdau in enumerate(pdecays):
     if i==0:
       angles += HelicityAngles( RecursiveSum(pdau) if isinstance(pdau,list) else pdau )
@@ -318,8 +318,8 @@ def RotatedAxes(pb, oldaxes = None ) :
   """
   z1 = UnitVector(SpatialComponents(pb))       # New z-axis is in the direction of pb
   eb = TimeComponent(pb)
-  zeros = Zeros(eb)
-  ones = Ones(eb)
+  zeros = tf.zeros_like(eb)
+  ones = tf.ones_like(eb)
   z0 = Vector(zeros, zeros, ones) if oldaxes==None else oldaxes[2]  # Old z-axis vector
   x0 = Vector(ones, zeros, zeros) if oldaxes==None else oldaxes[0]  # Old x-axis vector
   sp = ScalarProduct(z1, z0)
@@ -334,8 +334,8 @@ def OldAxes(pb) :
   """
   z1 = UnitVector(SpatialComponents(pb))       # New z-axis is in the direction of pb
   eb = TimeComponent(pb)
-  z0 = Vector(Zeros(eb), Zeros(eb), Ones(eb))  # Old z-axis vector
-  x0 = Vector(Ones(eb), Zeros(eb), Zeros(eb))  # Old x-axis vector
+  z0 = Vector(tf.zeros_like(eb), tf.zeros_like(eb), tf.ones_like(eb))  # Old z-axis vector
+  x0 = Vector(tf.ones_like(eb), tf.zeros_like(eb), tf.zeros_like(eb))  # Old x-axis vector
   sp = ScalarProduct(z1, z0)
   a0 = z0 - z1*Scalar(sp)   # Vector in z-pb plane perpendicular to z0
   x1 = tf.where(tf.equal(sp, 1.0), x0, -UnitVector(a0))
@@ -360,7 +360,7 @@ def RotationAndBoost(ps, pb) :
   """
   newaxes = RotatedAxes(pb)
   eb = TimeComponent(pb)
-  zeros = Zeros(eb)
+  zeros = tf.zeros_like(eb)
   boost = Vector(zeros, zeros, -Norm(SpatialComponents(pb))/eb) # Boost vector in the rotated coordinates along z axis
 
   return ApplyRotationAndBoost(ps,newaxes,boost)
@@ -370,21 +370,21 @@ def ApplyRotationAndBoost(ps,(x,y,z),boost):
   Helper function for RotationAndBoost. It applies RotationAndBoost iteratively on nested lists
   """
   ps1 = []
-  for p in ps : 
+  for p in ps :
     p1 = ProjectFourVector(p, (x1, y1, z1))
     p2 = LorentzBoost(p1, boost)
     ps1 += [ p2 ]
 
   return ps1
 
-def EulerAngles(x1, y1, z1, x2, y2, z2) : 
+def EulerAngles(x1, y1, z1, x2, y2, z2) :
   """
     Calculate Euler angles (phi, theta, psi in the ZYZ convention) which transform the coordinate basis (x1, y1, z1)
     to the basis (x2, y2, z2). Both x1,y1,z1 and x2,y2,z2 are assumed to be orthonormal and right-handed.
   """
-  theta = Acos(  ScalarProduct(z1, z2) )
-  phi   = Atan2( ScalarProduct(z1, y2), ScalarProduct(z1, x2) )
-  psi   = Atan2( ScalarProduct(y1, z2), ScalarProduct(x1, z2) )
+  theta = tf.acos(  ScalarProduct(z1, z2) )
+  phi   = tf.atan2( ScalarProduct(z1, y2), ScalarProduct(z1, x2) )
+  psi   = tf.atan2( ScalarProduct(y1, z2), ScalarProduct(x1, z2) )
   return (phi, theta, psi)
 
 def HelicityAngles3Body(pa, pb, pc) :
@@ -393,8 +393,8 @@ def HelicityAngles3Body(pa, pb, pc) :
     theta_r, phi_r : polar and azimuthal angles of the AB resonance in the D rest frame
     theta_a, phi_a : polar and azimuthal angles of the A in AB rest frame
   """
-  theta_r = Acos( -ZComponent(pc) / Norm( SpatialComponents(pc) ) )
-  phi_r = Atan2( -YComponent(pc), -XComponent(pc) )
+  theta_r = tf.acos( -ZComponent(pc) / Norm( SpatialComponents(pc) ) )
+  phi_r = tf.atan2( -YComponent(pc), -XComponent(pc) )
 
   pa_prime = LorentzVector( RotateVector(SpatialComponents(pa), -phi_r, Pi()-theta_r, phi_r), TimeComponent(pa) )
   pb_prime = LorentzVector( RotateVector(SpatialComponents(pb), -phi_r, Pi()-theta_r, phi_r), TimeComponent(pb) )
@@ -404,8 +404,8 @@ def HelicityAngles3Body(pa, pb, pc) :
   pab = LorentzVector( -(pa_prime + pb_prime)/Scalar(w), w)
   pa_prime2 = LorentzBoost(pa_prime, pab)
 
-  theta_a = Acos( -ZComponent(pa_prime2) / Norm( SpatialComponents(pa_prime2) ) )
-  phi_a = Atan2( -YComponent(pa_prime2), -XComponent(pa_prime2) )
+  theta_a = tf.acos( -ZComponent(pa_prime2) / Norm( SpatialComponents(pa_prime2) ) )
+  phi_a = tf.atan2( -YComponent(pa_prime2), -XComponent(pa_prime2) )
 
   return (theta_r, phi_r, theta_a, phi_a)
 
@@ -433,7 +433,7 @@ def Azimuthal4Body( p1, p2, p3, p4):
     z = UnitVector(v1+v2)
     cosPhi = ScalarProduct(n12, n34)
     sinPhi = ScalarProduct( VectorProduct(n12,n34),z )
-    phi = Atan2(sinPhi,cosPhi) # defined in [-pi,pi]
+    phi = tf.atan2(sinPhi,cosPhi) # defined in [-pi,pi]
     return phi
 
 def HelicityAngles4Body(pa, pb, pc, pd) :
@@ -449,8 +449,8 @@ def HelicityAngles4Body(pa, pb, pc, pd) :
     phi_ac_bd : azimuthal angle between AC and BD
     phi_ad_bc : azimuthal angle between AD and BC
   """
-  theta_r = Acos( -ZComponent(pc) / Norm( SpatialComponents(pc) ) )
-  phi_r = Atan2( -YComponent(pc), -XComponent(pc) )
+  theta_r = tf.acos( -ZComponent(pc) / Norm( SpatialComponents(pc) ) )
+  phi_r = tf.atan2( -YComponent(pc), -XComponent(pc) )
 
   pa_prime = LorentzVector( RotateVector(SpatialComponents(pa), -phi_r, Pi()-theta_r, phi_r), TimeComponent(pa) )
   pb_prime = LorentzVector( RotateVector(SpatialComponents(pb), -phi_r, Pi()-theta_r, phi_r), TimeComponent(pb) )
@@ -460,24 +460,24 @@ def HelicityAngles4Body(pa, pb, pc, pd) :
   pab = LorentzVector( -(pa_prime + pb_prime)/Scalar(w), w)
   pa_prime2 = LorentzBoost(pa_prime, pab)
 
-  theta_a = Acos( -ZComponent(pa_prime2) / Norm( SpatialComponents(pa_prime2) ) )
-  phi_a = Atan2( -YComponent(pa_prime2), -XComponent(pa_prime2) )
+  theta_a = tf.acos( -ZComponent(pa_prime2) / Norm( SpatialComponents(pa_prime2) ) )
+  phi_a = tf.atan2( -YComponent(pa_prime2), -XComponent(pa_prime2) )
 
   return (theta_r, phi_r, theta_a, phi_a)
 
 def WignerD(phi,theta,psi,j2,m2_1,m2_2):
   """
-  Calculate Wigner capital-D function. 
+  Calculate Wigner capital-D function.
     phi,
     theta,
     psi  : Rotation angles
     j : spin (in units of 1/2, e.g. 1 for spin=1/2)
     m1 and m2 : spin projections (in units of 1/2, e.g. 1 for projection 1/2)
   """
-  i = Complex(Const(0),Const(1))
+  i = tf.complex(Const(0),Const(1))
   m1 = m2_1/2.
   m2 = m2_2/2.
-  return Exp(-i*CastComplex(m1*phi))*CastComplex(Wignerd(theta,j2,m2_1,m2_2))*Exp(-i*CastComplex(m2*psi))
+  return tf.exp(-i*CastComplex(m1*phi))*CastComplex(Wignerd(theta,j2,m2_1,m2_2))*tf.exp(-i*CastComplex(m2*psi))
 
 def Wignerd(theta, j, m1, m2) :
   """
@@ -501,38 +501,38 @@ def WignerdExplicit(theta, j, m1, m2) :
     m1 and m2 : spin projections (in units of 1/2)
   """
   # Half-integer spins
-  if j ==  1  and m1 ==  -1  and m2 ==  -1  : return     Cos(theta/2)
-  if j ==  1  and m1 ==  -1  and m2 ==   1  : return     Sin(theta/2)
-  if j ==  1  and m1 ==   1  and m2 ==  -1  : return    -Sin(theta/2)
-  if j ==  1  and m1 ==   1  and m2 ==   1  : return     Cos(theta/2)
-  if j ==  3  and m1 ==  -3  and m2 ==  -3  : return     (1+Cos(theta))/2*Cos(theta/2)#ok
-  if j ==  3  and m1 ==  -3  and m2 ==  -1  : return     math.sqrt(3.)*(1+Cos(theta))/2*Sin(theta/2)#ok
-  if j ==  3  and m1 ==  -3  and m2 ==   1  : return     math.sqrt(3.)*(1-Cos(theta))/2*Cos(theta/2)#ok
-  if j ==  3  and m1 ==  -3  and m2 ==   3  : return     (1-Cos(theta))/2*Sin(theta/2)#ok
-  if j ==  3  and m1 ==  -1  and m2 ==  -3  : return    -math.sqrt(3.)*(1+Cos(theta))/2*Sin(theta/2)#ok
-  #if j ==  3  and m1 ==  -1  and m2 ==  -1  : return     Cos(theta/2)/4  +  3*Cos(3*theta/2)/4
-  #if j ==  3  and m1 ==  -1  and m2 ==   1  : return    -Sin(theta/2)/4  +  3*Sin(3*theta/2)/4
-  if j ==  3  and m1 ==  -1  and m2 ==  -1  : return     (3*Cos(theta)-1)/2*Cos(theta/2)#ok
-  if j ==  3  and m1 ==  -1  and m2 ==   1  : return     (3*Cos(theta)+1)/2*Sin(theta/2)#ok
-  if j ==  3  and m1 ==  -1  and m2 ==   3  : return     math.sqrt(3.)*(1-Cos(theta))/2*Cos(theta/2)#ok
-  if j ==  3  and m1 ==   1  and m2 ==  -3  : return     math.sqrt(3.)*(1-Cos(theta))/2*Cos(theta/2)#ok
-  #if j ==  3  and m1 ==   1  and m2 ==  -1  : return     Sin(theta/2)/4  -  3*Sin(3*theta/2)/4
-  #if j ==  3  and m1 ==   1  and m2 ==   1  : return     Cos(theta/2)/4  +  3*Cos(3*theta/2)/4
-  if j ==  3  and m1 ==   1  and m2 ==  -1  : return    -(3*Cos(theta)+1)/2*Sin(theta/2)#ok
-  if j ==  3  and m1 ==   1  and m2 ==   1  : return     (3*Cos(theta)-1)/2*Cos(theta/2)#ok
-  if j ==  3  and m1 ==   1  and m2 ==   3  : return     math.sqrt(3.)*(1+Cos(theta))/2*Sin(theta/2)#ok  
-  if j ==  3  and m1 ==   3  and m2 ==  -3  : return    -(1-Cos(theta))/2*Sin(theta/2)#ok
-  if j ==  3  and m1 ==   3  and m2 ==  -1  : return     math.sqrt(3.)*(1-Cos(theta))/2*Cos(theta/2)#ok
-  if j ==  3  and m1 ==   3  and m2 ==   1  : return    -math.sqrt(3.)*(1+Cos(theta))/2*Sin(theta/2)#ok
-  if j ==  3  and m1 ==   3  and m2 ==   3  : return     (1+Cos(theta))/2*Cos(theta/2)#ok
-  if j ==  5  and m1 ==  -1  and m2 ==  -1  : return     Cos(theta/2)/4  +    Cos(3*theta/2)/8  + 5*Cos(5*theta/2)/8
-  if j ==  5  and m1 ==  -1  and m2 ==   1  : return     Sin(theta/2)/4  -    Sin(3*theta/2)/8  + 5*Sin(5*theta/2)/8
-  if j ==  5  and m1 ==   1  and m2 ==  -1  : return    -Sin(theta/2)/4  +    Sin(3*theta/2)/8  - 5*Sin(5*theta/2)/8
-  if j ==  5  and m1 ==   1  and m2 ==   1  : return     Cos(theta/2)/4  +    Cos(3*theta/2)/8  + 5*Cos(5*theta/2)/8
-  if j ==  7  and m1 ==  -1  and m2 ==  -1  : return   9*Cos(theta/2)/64 + 15*Cos(3*theta/2)/64 + 5*Cos(5*theta/2)/64 + 35*Cos(7*theta/2)/64
-  if j ==  7  and m1 ==  -1  and m2 ==   1  : return  -9*Sin(theta/2)/64 + 15*Sin(3*theta/2)/64 - 5*Sin(5*theta/2)/64 + 35*Sin(7*theta/2)/64
-  if j ==  7  and m1 ==   1  and m2 ==  -1  : return   9*Sin(theta/2)/64 - 15*Sin(3*theta/2)/64 + 5*Sin(5*theta/2)/64 - 35*Sin(7*theta/2)/64
-  if j ==  7  and m1 ==   1  and m2 ==   1  : return   9*Cos(theta/2)/64 + 15*Cos(3*theta/2)/64 + 5*Cos(5*theta/2)/64 + 35*Cos(7*theta/2)/64
+  if j ==  1  and m1 ==  -1  and m2 ==  -1  : return     tf.cos(theta/2)
+  if j ==  1  and m1 ==  -1  and m2 ==   1  : return     tf.sin(theta/2)
+  if j ==  1  and m1 ==   1  and m2 ==  -1  : return    -tf.sin(theta/2)
+  if j ==  1  and m1 ==   1  and m2 ==   1  : return     tf.cos(theta/2)
+  if j ==  3  and m1 ==  -3  and m2 ==  -3  : return     (1+tf.cos(theta))/2*tf.cos(theta/2)#ok
+  if j ==  3  and m1 ==  -3  and m2 ==  -1  : return     math.sqrt(3.)*(1+tf.cos(theta))/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==  -3  and m2 ==   1  : return     math.sqrt(3.)*(1-tf.cos(theta))/2*tf.cos(theta/2)#ok
+  if j ==  3  and m1 ==  -3  and m2 ==   3  : return     (1-tf.cos(theta))/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==  -1  and m2 ==  -3  : return    -math.sqrt(3.)*(1+tf.cos(theta))/2*tf.sin(theta/2)#ok
+  #if j ==  3  and m1 ==  -1  and m2 ==  -1  : return     tf.cos(theta/2)/4  +  3*tf.cos(3*theta/2)/4
+  #if j ==  3  and m1 ==  -1  and m2 ==   1  : return    -tf.sin(theta/2)/4  +  3*tf.sin(3*theta/2)/4
+  if j ==  3  and m1 ==  -1  and m2 ==  -1  : return     (3*tf.cos(theta)-1)/2*tf.cos(theta/2)#ok
+  if j ==  3  and m1 ==  -1  and m2 ==   1  : return     (3*tf.cos(theta)+1)/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==  -1  and m2 ==   3  : return     math.sqrt(3.)*(1-tf.cos(theta))/2*tf.cos(theta/2)#ok
+  if j ==  3  and m1 ==   1  and m2 ==  -3  : return     math.sqrt(3.)*(1-tf.cos(theta))/2*tf.cos(theta/2)#ok
+  #if j ==  3  and m1 ==   1  and m2 ==  -1  : return     tf.sin(theta/2)/4  -  3*tf.sin(3*theta/2)/4
+  #if j ==  3  and m1 ==   1  and m2 ==   1  : return     tf.cos(theta/2)/4  +  3*tf.cos(3*theta/2)/4
+  if j ==  3  and m1 ==   1  and m2 ==  -1  : return    -(3*tf.cos(theta)+1)/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==   1  and m2 ==   1  : return     (3*tf.cos(theta)-1)/2*tf.cos(theta/2)#ok
+  if j ==  3  and m1 ==   1  and m2 ==   3  : return     math.sqrt(3.)*(1+tf.cos(theta))/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==   3  and m2 ==  -3  : return    -(1-tf.cos(theta))/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==   3  and m2 ==  -1  : return     math.sqrt(3.)*(1-tf.cos(theta))/2*tf.cos(theta/2)#ok
+  if j ==  3  and m1 ==   3  and m2 ==   1  : return    -math.sqrt(3.)*(1+tf.cos(theta))/2*tf.sin(theta/2)#ok
+  if j ==  3  and m1 ==   3  and m2 ==   3  : return     (1+tf.cos(theta))/2*tf.cos(theta/2)#ok
+  if j ==  5  and m1 ==  -1  and m2 ==  -1  : return     tf.cos(theta/2)/4  +    tf.cos(3*theta/2)/8  + 5*tf.cos(5*theta/2)/8
+  if j ==  5  and m1 ==  -1  and m2 ==   1  : return     tf.sin(theta/2)/4  -    tf.sin(3*theta/2)/8  + 5*tf.sin(5*theta/2)/8
+  if j ==  5  and m1 ==   1  and m2 ==  -1  : return    -tf.sin(theta/2)/4  +    tf.sin(3*theta/2)/8  - 5*tf.sin(5*theta/2)/8
+  if j ==  5  and m1 ==   1  and m2 ==   1  : return     tf.cos(theta/2)/4  +    tf.cos(3*theta/2)/8  + 5*tf.cos(5*theta/2)/8
+  if j ==  7  and m1 ==  -1  and m2 ==  -1  : return   9*tf.cos(theta/2)/64 + 15*tf.cos(3*theta/2)/64 + 5*tf.cos(5*theta/2)/64 + 35*tf.cos(7*theta/2)/64
+  if j ==  7  and m1 ==  -1  and m2 ==   1  : return  -9*tf.sin(theta/2)/64 + 15*tf.sin(3*theta/2)/64 - 5*tf.sin(5*theta/2)/64 + 35*tf.sin(7*theta/2)/64
+  if j ==  7  and m1 ==   1  and m2 ==  -1  : return   9*tf.sin(theta/2)/64 - 15*tf.sin(3*theta/2)/64 + 5*tf.sin(5*theta/2)/64 - 35*tf.sin(7*theta/2)/64
+  if j ==  7  and m1 ==   1  and m2 ==   1  : return   9*tf.cos(theta/2)/64 + 15*tf.cos(3*theta/2)/64 + 5*tf.cos(5*theta/2)/64 + 35*tf.cos(7*theta/2)/64
 
   # Integer spins
   if j ==  0  and m1 ==  -2  and m2 ==  -2  : return  0
@@ -544,33 +544,33 @@ def WignerdExplicit(theta, j, m1, m2) :
   if j ==  0  and m1 ==   2  and m2 ==  -2  : return  0
   if j ==  0  and m1 ==   2  and m2 ==   0  : return  0
   if j ==  0  and m1 ==   2  and m2 ==   2  : return  0
-  if j ==  2  and m1 ==  -2  and m2 ==  -2  : return  Cos(theta)/2. + 1/2.
-  if j ==  2  and m1 ==  -2  and m2 ==   0  : return  math.sqrt(2.)*Sin(theta)/2.
-  if j ==  2  and m1 ==  -2  and m2 ==   2  : return  -Cos(theta)/2. + 1/2.
-  if j ==  2  and m1 ==   0  and m2 ==  -2  : return  -math.sqrt(2.)*Sin(theta)/2.
-  if j ==  2  and m1 ==   0  and m2 ==   0  : return  Cos(theta)
-  if j ==  2  and m1 ==   0  and m2 ==   2  : return  math.sqrt(2.)*Sin(theta)/2.
-  if j ==  2  and m1 ==   2  and m2 ==  -2  : return  -Cos(theta)/2. + 1/2.
-  if j ==  2  and m1 ==   2  and m2 ==   0  : return  -math.sqrt(2.)*Sin(theta)/2.
-  if j ==  2  and m1 ==   2  and m2 ==   2  : return  Cos(theta)/2. + 1/2.
-  if j ==  4  and m1 ==  -2  and m2 ==  -2  : return  Cos(theta)/2. + Cos(2*theta)/2.
-  if j ==  4  and m1 ==  -2  and m2 ==   0  : return  math.sqrt(6.)*Sin(2*theta)/4.
-  if j ==  4  and m1 ==  -2  and m2 ==   2  : return  Cos(theta)/2. - Cos(2*theta)/2.
-  if j ==  4  and m1 ==   0  and m2 ==  -2  : return  -math.sqrt(6.)*Sin(2*theta)/4.
-  if j ==  4  and m1 ==   0  and m2 ==   0  : return  3.*Cos(2*theta)/4. + 1/4.
-  if j ==  4  and m1 ==   0  and m2 ==   2  : return  math.sqrt(6.)*Sin(2*theta)/4.
-  if j ==  4  and m1 ==   2  and m2 ==  -2  : return  Cos(theta)/2. - Cos(2*theta)/2.
-  if j ==  4  and m1 ==   2  and m2 ==   0  : return  -math.sqrt(6.)*Sin(2*theta)/4.
-  if j ==  4  and m1 ==   2  and m2 ==   2  : return  Cos(theta)/2. + Cos(2*theta)/2.
-  if j ==  6  and m1 ==  -2  and m2 ==  -2  : return  Cos(theta)/32. + 5.*Cos(2*theta)/16. + 15.*Cos(3*theta)/32. + 3/16.
-  if j ==  6  and m1 ==  -2  and m2 ==   0  : return  math.sqrt(3.)*(Sin(theta) + 5.*Sin(3*theta))/16.
-  if j ==  6  and m1 ==  -2  and m2 ==   2  : return  -Cos(theta)/32. + 5.*Cos(2*theta)/16. - 15.*Cos(3*theta)/32. + 3/16.
-  if j ==  6  and m1 ==   0  and m2 ==  -2  : return  -math.sqrt(3.)*(Sin(theta) + 5.*Sin(3*theta))/16.
-  if j ==  6  and m1 ==   0  and m2 ==   0  : return  3.*Cos(theta)/8. + 5.*Cos(3*theta)/8.
-  if j ==  6  and m1 ==   0  and m2 ==   2  : return  math.sqrt(3.)*(Sin(theta) + 5.*Sin(3*theta))/16.
-  if j ==  6  and m1 ==   2  and m2 ==  -2  : return  -Cos(theta)/32. + 5.*Cos(2*theta)/16. - 15.*Cos(3*theta)/32. + 3/16.
-  if j ==  6  and m1 ==   2  and m2 ==   0  : return  -math.sqrt(3.)*(Sin(theta) + 5.*Sin(3*theta))/16.
-  if j ==  6  and m1 ==   2  and m2 ==   2  : return  Cos(theta)/32. + 5.*Cos(2*theta)/16. + 15.*Cos(3*theta)/32. + 3/16.
+  if j ==  2  and m1 ==  -2  and m2 ==  -2  : return  tf.cos(theta)/2. + 1/2.
+  if j ==  2  and m1 ==  -2  and m2 ==   0  : return  math.sqrt(2.)*tf.sin(theta)/2.
+  if j ==  2  and m1 ==  -2  and m2 ==   2  : return  -tf.cos(theta)/2. + 1/2.
+  if j ==  2  and m1 ==   0  and m2 ==  -2  : return  -math.sqrt(2.)*tf.sin(theta)/2.
+  if j ==  2  and m1 ==   0  and m2 ==   0  : return  tf.cos(theta)
+  if j ==  2  and m1 ==   0  and m2 ==   2  : return  math.sqrt(2.)*tf.sin(theta)/2.
+  if j ==  2  and m1 ==   2  and m2 ==  -2  : return  -tf.cos(theta)/2. + 1/2.
+  if j ==  2  and m1 ==   2  and m2 ==   0  : return  -math.sqrt(2.)*tf.sin(theta)/2.
+  if j ==  2  and m1 ==   2  and m2 ==   2  : return  tf.cos(theta)/2. + 1/2.
+  if j ==  4  and m1 ==  -2  and m2 ==  -2  : return  tf.cos(theta)/2. + tf.cos(2*theta)/2.
+  if j ==  4  and m1 ==  -2  and m2 ==   0  : return  math.sqrt(6.)*tf.sin(2*theta)/4.
+  if j ==  4  and m1 ==  -2  and m2 ==   2  : return  tf.cos(theta)/2. - tf.cos(2*theta)/2.
+  if j ==  4  and m1 ==   0  and m2 ==  -2  : return  -math.sqrt(6.)*tf.sin(2*theta)/4.
+  if j ==  4  and m1 ==   0  and m2 ==   0  : return  3.*tf.cos(2*theta)/4. + 1/4.
+  if j ==  4  and m1 ==   0  and m2 ==   2  : return  math.sqrt(6.)*tf.sin(2*theta)/4.
+  if j ==  4  and m1 ==   2  and m2 ==  -2  : return  tf.cos(theta)/2. - tf.cos(2*theta)/2.
+  if j ==  4  and m1 ==   2  and m2 ==   0  : return  -math.sqrt(6.)*tf.sin(2*theta)/4.
+  if j ==  4  and m1 ==   2  and m2 ==   2  : return  tf.cos(theta)/2. + tf.cos(2*theta)/2.
+  if j ==  6  and m1 ==  -2  and m2 ==  -2  : return  tf.cos(theta)/32. + 5.*tf.cos(2*theta)/16. + 15.*tf.cos(3*theta)/32. + 3/16.
+  if j ==  6  and m1 ==  -2  and m2 ==   0  : return  math.sqrt(3.)*(tf.sin(theta) + 5.*tf.sin(3*theta))/16.
+  if j ==  6  and m1 ==  -2  and m2 ==   2  : return  -tf.cos(theta)/32. + 5.*tf.cos(2*theta)/16. - 15.*tf.cos(3*theta)/32. + 3/16.
+  if j ==  6  and m1 ==   0  and m2 ==  -2  : return  -math.sqrt(3.)*(tf.sin(theta) + 5.*tf.sin(3*theta))/16.
+  if j ==  6  and m1 ==   0  and m2 ==   0  : return  3.*tf.cos(theta)/8. + 5.*tf.cos(3*theta)/8.
+  if j ==  6  and m1 ==   0  and m2 ==   2  : return  math.sqrt(3.)*(tf.sin(theta) + 5.*tf.sin(3*theta))/16.
+  if j ==  6  and m1 ==   2  and m2 ==  -2  : return  -tf.cos(theta)/32. + 5.*tf.cos(2*theta)/16. - 15.*tf.cos(3*theta)/32. + 3/16.
+  if j ==  6  and m1 ==   2  and m2 ==   0  : return  -math.sqrt(3.)*(tf.sin(theta) + 5.*tf.sin(3*theta))/16.
+  if j ==  6  and m1 ==   2  and m2 ==   2  : return  tf.cos(theta)/32. + 5.*tf.cos(2*theta)/16. + 15.*tf.cos(3*theta)/32. + 3/16.
 
   print "Error in Wignerd: j,m1,m2 = ", j, m1, m2
 
@@ -588,12 +588,12 @@ def SpinRotationAngle(pa, pb, pc, bachelor = 2) :
   if bachelor == 0 :
     pa1 = SpatialComponents(LorentzBoost(pa, pboost))
     pc1 = SpatialComponents(LorentzBoost(pc, pboost))
-    return Acos( ScalarProduct(pa1, pc1)/Norm(pa1)/Norm(pc1) )
+    return tf.acos( ScalarProduct(pa1, pc1)/Norm(pa1)/Norm(pc1) )
   if bachelor == 1 :
     pac = pa + pc
     pac1 = SpatialComponents(LorentzBoost(pac, pboost))
     pa1  = SpatialComponents(LorentzBoost(pa, pboost))
-    return Acos( ScalarProduct(pac1, pa1)/Norm(pac1)/Norm(pa1) )
+    return tf.acos( ScalarProduct(pac1, pa1)/Norm(pac1)/Norm(pa1) )
   return None
 
 def HelicityAmplitude3Body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambdaR, lambdaA, lambdaB, lambdaC, cache = False) :
@@ -613,7 +613,7 @@ def HelicityAmplitude3Body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambdaR
   lambda2 = lambdaA - lambdaB
   ph = (mu-lambda1)/2.*phiR + (lambdaR-lambda2)/2.*phiA
   d_terms = Wignerd(thetaR, spinD, mu, lambda1)*Wignerd(thetaA, spinR, lambdaR, lambda2)
-  h = Complex(d_terms*Cos(ph), d_terms*Sin(ph))
+  h = tf.complex(d_terms*tf.cos(ph), d_terms*tf.sin(ph))
 
   if cache : Optimisation.cacheable_tensors += [ h ]
 
@@ -645,9 +645,9 @@ def ZemachTensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin, cache = False) :
     Zemach tensor for 3-body D->ABC decay
   """
   z = None
-  if spin == 0 : z = Complex( Const(1.), Const(0.))
-  if spin == 1 : z = Complex( m2ac-m2bc+(m2d-m2c)*(m2b-m2a)/m2ab, Const(0.))
-  if spin == 2 : z = Complex( (m2bc-m2ac+(m2d-m2c)*(m2a-m2b)/m2ab)**2-1./3.*(m2ab-2.*(m2d+m2c)+(m2d-m2c)**2/m2ab)*(m2ab-2.*(m2a+m2b)+(m2a-m2b)**2/m2ab), Const(0.))
+  if spin == 0 : z = tf.complex( Const(1.), Const(0.))
+  if spin == 1 : z = tf.complex( m2ac-m2bc+(m2d-m2c)*(m2b-m2a)/m2ab, Const(0.))
+  if spin == 2 : z = tf.complex( (m2bc-m2ac+(m2d-m2c)*(m2a-m2b)/m2ab)**2-1./3.*(m2ab-2.*(m2d+m2c)+(m2d-m2c)**2/m2ab)*(m2ab-2.*(m2a+m2b)+(m2a-m2b)**2/m2ab), Const(0.))
   if cache : Optimisation.cacheable_tensors += [ z ]
 
   return z
@@ -664,7 +664,7 @@ def ComplexTwoBodyMomentum(md, ma, mb) :
     Output value is a complex number, analytic continuation for the
     region below threshold.
   """
-  return Sqrt(Complex((md**2-(ma+mb)**2)*(md**2-(ma-mb)**2)/(4*md**2), Const(0.)))
+  return tf.sqrt(Complex((md**2-(ma+mb)**2)*(md**2-(ma-mb)**2)/(4*md**2), Const(0.)))
 
 def FindBasicParticles(particle):
   if particle.GetNDaughters()==0: return [particle]
@@ -682,7 +682,7 @@ def HelicityMatrixDecayChain(parent,helAmps):
   if all(dau.GetNDaughters()==0 for dau in daughters): return matrix_parent
 
   heldaug = list(itertools.product(*[AllowedHelicities(dau) for dau in daughters]))
-  
+
   d1basics = FindBasicParticles(daughters[0])
   d2basics = FindBasicParticles(daughters[1])
   d1helbasics = list(itertools.product(*[AllowedHelicities(bas) for bas in d1basics]))
@@ -759,16 +759,16 @@ def RotateFinalStateHelicity(matrixin,particlesfrom,particlesto):
   heldaugs = []
   axesfrom = [RotatedAxes(part.GetMomentum(),oldaxes=part.GetAxes()) for part in particlesfrom]
   axesto = [RotatedAxes(part.GetMomentum(),oldaxes=part.GetAxes()) for part in particlesto]
-  thetas = [Acos(ScalarProduct(axisfrom[2],axisto[2])) for axisfrom,axisto  in zip(axesfrom,axesto)]
-  phis = [Atan2(ScalarProduct(axisfrom[1],axisto[0]),ScalarProduct(axisfrom[0],axisto[0])) for axisfrom,axisto  in zip(axesfrom,axesto)]
-  
+  thetas = [tf.acos(ScalarProduct(axisfrom[2],axisto[2])) for axisfrom,axisto  in zip(axesfrom,axesto)]
+  phis = [tf.atan2(ScalarProduct(axisfrom[1],axisto[0]),ScalarProduct(axisfrom[0],axisto[0])) for axisfrom,axisto  in zip(axesfrom,axesto)]
+
   rot = []
   for part,theta,phi in zip(particlesfrom,thetas,phis):
     allhels = AllowedHelicities(part)
     rot.append({})
     for helfrom,helto in itertools.product(allhels,allhels):
       rot[-1][(helfrom,helto)] = Conjugate(WignerD(phi,theta,0,part.GetSpin2(),helfrom,helto))
-  
+
   for helsfrom in matrixin.keys():
     daughelsfrom = helsfrom[1:]
     for helsto in matrixout.keys():
@@ -793,8 +793,8 @@ class Particle:
     self._parityConserving = parityConserving
     self._parity = parity
     emom = TimeComponent(self._momentum)
-    zeros = Zeros(emom)
-    ones = Ones(emom)
+    zeros = tf.zeros_like(emom)
+    ones = tf.ones_like(emom)
     self._axes = ( Vector(ones,zeros,zeros),
                    Vector(zeros,ones,zeros),
                    Vector(zeros,zeros,ones) )
@@ -814,11 +814,11 @@ class Particle:
   def SetMomentum(self,momentum): self._momentum=momentum
   def SetParity(self,parity): self._parity=parity
   def Theta(self):
-    return Acos( ScalarProduct(UnitVector(SpatialComponents(self._momentum)),self._axes[2]) )
+    return tf.acos( ScalarProduct(UnitVector(SpatialComponents(self._momentum)),self._axes[2]) )
   def Phi(self):
     x = self._axes[0]
     y = self._axes[1]
-    return Atan2( ScalarProduct(UnitVector(SpatialComponents(self._momentum)),y), ScalarProduct(UnitVector(SpatialComponents(self._momentum)),x) )
+    return tf.atan2( ScalarProduct(UnitVector(SpatialComponents(self._momentum)),y), ScalarProduct(UnitVector(SpatialComponents(self._momentum)),x) )
 
   def ApplyRotationAndBoost(self,newaxes,boost):
     self._axes = newaxes
@@ -829,7 +829,7 @@ class Particle:
     if not isAtRest:
       newaxes = RotatedAxes(self._momentum, oldaxes = self._axes )
       eb = TimeComponent(self._momentum)
-      zeros = Zeros(eb)
+      zeros = tf.zeros_like(eb)
       boost = -SpatialComponents(self._momentum)/Scalar(eb)
       #boost = newaxes[2]*(-Norm(SpatialComponents(self._momentum))/eb)
       #boost = Vector(zeros, zeros, -Norm(SpatialComponents(self._momentum))/eb)
@@ -889,7 +889,7 @@ class DalitzPhaseSpace :
     """
     m2ab = self.M2ab(x)
     m2bc = self.M2bc(x)
-    mab = Sqrt(m2ab)
+    mab = tf.sqrt(m2ab)
 
     inside = tf.logical_and(tf.logical_and(tf.greater(m2ab, self.minab), tf.less(m2ab, self.maxab)), \
                             tf.logical_and(tf.greater(m2bc, self.minbc), tf.less(m2bc, self.maxbc)))
@@ -906,8 +906,8 @@ class DalitzPhaseSpace :
     p2b = eb**2 - self.mb2
     p2c = ec**2 - self.mc2
     inside = tf.logical_and(inside, tf.logical_and(tf.greater(p2c, 0), tf.greater(p2b, 0)))
-    pb = Sqrt(p2b)
-    pc = Sqrt(p2c)
+    pb = tf.sqrt(p2b)
+    pc = tf.sqrt(p2c)
     e2bc = (eb+ec)**2
     m2bc_max = e2bc - (pb - pc)**2
     m2bc_min = e2bc - (pb + pc)**2
@@ -997,107 +997,107 @@ class DalitzPhaseSpace :
     """
       Square Dalitz plot variable m'
     """
-    mac = Sqrt(self.M2ac(sample))
-    return Acos(2*(mac - math.sqrt(self.minac))/(math.sqrt(self.maxac) - math.sqrt(self.minac) ) - 1.)/math.pi
+    mac = tf.sqrt(self.M2ac(sample))
+    return tf.acos(2*(mac - math.sqrt(self.minac))/(math.sqrt(self.maxac) - math.sqrt(self.minac) ) - 1.)/math.pi
 
   def ThetaPrimeAC(self, sample) :
     """
       Square Dalitz plot variable theta'
     """
-    return Acos(self.CosHelicityAC(sample))/math.pi
+    return tf.acos(self.CosHelicityAC(sample))/math.pi
 
   def MPrimeAB(self, sample) :
     """
       Square Dalitz plot variable m'
     """
-    mab = Sqrt(self.M2ab(sample))
-    return Acos(2*(mab - math.sqrt(self.minab))/(math.sqrt(self.maxab) - math.sqrt(self.minab) ) - 1.)/math.pi
+    mab = tf.sqrt(self.M2ab(sample))
+    return tf.acos(2*(mab - math.sqrt(self.minab))/(math.sqrt(self.maxab) - math.sqrt(self.minab) ) - 1.)/math.pi
 
   def ThetaPrimeAB(self, sample) :
     """
       Square Dalitz plot variable theta'
     """
-    return Acos(-self.CosHelicityAB(sample))/math.pi
+    return tf.acos(-self.CosHelicityAB(sample))/math.pi
 
   def MPrimeBC(self, sample) :
     """
       Square Dalitz plot variable m'
     """
-    mbc = Sqrt(self.M2bc(sample))
-    return Acos(2*(mbc - math.sqrt(self.minbc))/(math.sqrt(self.maxbc) - math.sqrt(self.minbc) ) - 1.)/math.pi
+    mbc = tf.sqrt(self.M2bc(sample))
+    return tf.acos(2*(mbc - math.sqrt(self.minbc))/(math.sqrt(self.maxbc) - math.sqrt(self.minbc) ) - 1.)/math.pi
 
   def ThetaPrimeBC(self, sample) :
     """
       Square Dalitz plot variable theta'
     """
-    return Acos(-self.CosHelicityBC(sample))/math.pi
+    return tf.acos(-self.CosHelicityBC(sample))/math.pi
 
   def Placeholder(self, name = None) :
     """
-      Create a placeholder for a dataset in this phase space 
+      Create a placeholder for a dataset in this phase space
     """
     return tf.placeholder(fptype, shape = (None, None), name = name )
 
-  def FromVectors(self, m2ab, m2bc) : 
+  def FromVectors(self, m2ab, m2bc) :
     """
       Create Dalitz plot tensor from two vectors of variables, m2ab and m2bc
     """
     return tf.stack( [m2ab, m2bc], axis = 1 )
 
-class DoubleDalitzPhaseSpace : 
+class DoubleDalitzPhaseSpace :
   """
-    Phase space representing two (correlated) Dalitz plots. 
+    Phase space representing two (correlated) Dalitz plots.
   """
-  def __init__(self, dlz1, dlz2) : 
+  def __init__(self, dlz1, dlz2) :
     self.dlz1 = dlz1
     self.dlz2 = dlz2
     self.data_placeholder = self.Placeholder("data")
     self.norm_placeholder = self.Placeholder("norm")
 
-  def Data1(self, x) : 
+  def Data1(self, x) :
     return tf.slice(x, [0, 0], [-1, 2])
 
-  def Data2(self, x) : 
+  def Data2(self, x) :
     return tf.slice(x, [0, 2], [-1, 2])
 
-  def Inside(self, x) : 
+  def Inside(self, x) :
     return tf.logical_and(self.dlz1.Inside(self.Data1(x)), self.dlz2.Inside(self.Data2(x)))
 
-  def Filter(self, x) : 
+  def Filter(self, x) :
     return tf.boolean_mask(x, self.Inside(x) )
 
-  def UnfilteredSample(self, size, majorant = -1) : 
+  def UnfilteredSample(self, size, majorant = -1) :
     """
-      Generate uniform sample of point within phase space. 
-        size     : number of _initial_ points to generate. Not all of them will fall into phase space, 
-                   so the number of points in the output will be <size. 
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is 
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC. 
+      Generate uniform sample of point within phase space.
+        size     : number of _initial_ points to generate. Not all of them will fall into phase space,
+                   so the number of points in the output will be <size.
+        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
     """
-    v = [ 
-          np.random.uniform(self.dlz1.minab, self.dlz1.maxab, size ).astype('d'), 
-          np.random.uniform(self.dlz1.minbc, self.dlz1.maxbc, size ).astype('d'), 
-          np.random.uniform(self.dlz2.minab, self.dlz2.maxab, size ).astype('d'), 
-          np.random.uniform(self.dlz2.minbc, self.dlz2.maxbc, size ).astype('d') 
+    v = [
+          np.random.uniform(self.dlz1.minab, self.dlz1.maxab, size ).astype('d'),
+          np.random.uniform(self.dlz1.minbc, self.dlz1.maxbc, size ).astype('d'),
+          np.random.uniform(self.dlz2.minab, self.dlz2.maxab, size ).astype('d'),
+          np.random.uniform(self.dlz2.minbc, self.dlz2.maxbc, size ).astype('d')
         ]
     if majorant>0 : v += [ np.random.uniform( 0., majorant, size).astype('d') ]
     return np.transpose(np.array(v))
 
-  def UniformSample(self, size, majorant = -1) : 
+  def UniformSample(self, size, majorant = -1) :
     """
-      Generate uniform sample of point within phase space. 
-        size     : number of _initial_ points to generate. Not all of them will fall into phase space, 
-                   so the number of points in the output will be <size. 
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is 
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC. 
-      Note it does not actually generate the sample, but returns the data flow graph for generation, 
-      which has to be run within TF session. 
+      Generate uniform sample of point within phase space.
+        size     : number of _initial_ points to generate. Not all of them will fall into phase space,
+                   so the number of points in the output will be <size.
+        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
+      Note it does not actually generate the sample, but returns the data flow graph for generation,
+      which has to be run within TF session.
     """
     return self.Filter( self.UnfilteredSample(size, majorant) )
 
   def Placeholder(self, name = None) :
     """
-      Create a placeholder for a dataset in this phase space 
+      Create a placeholder for a dataset in this phase space
     """
     return tf.placeholder(fptype, shape = (None, None), name = name )
 
@@ -1117,16 +1117,16 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace) :
 
     m2ac = self.msqsum - m2ab - m2bc
 
-    p_a = TwoBodyMomentum(self.md, self.ma, Sqrt(m2bc))
-    p_b = TwoBodyMomentum(self.md, self.mb, Sqrt(m2ac))
-    p_c = TwoBodyMomentum(self.md, self.mc, Sqrt(m2ab))
+    p_a = TwoBodyMomentum(self.md, self.ma, tf.sqrt(m2bc))
+    p_b = TwoBodyMomentum(self.md, self.mb, tf.sqrt(m2ac))
+    p_c = TwoBodyMomentum(self.md, self.mc, tf.sqrt(m2ab))
 
     cos_theta_b = (p_a*p_a + p_b*p_b - p_c*p_c)/(2.*p_a*p_b)
     cos_theta_c = (p_a*p_a + p_c*p_c - p_b*p_b)/(2.*p_a*p_c)
 
-    p4a = LorentzVector(Vector(Zeros(p_a), Zeros(p_a), p_a), Sqrt(p_a**2 + self.ma2) )
-    p4b = LorentzVector(Vector( p_b*Sqrt(1. - cos_theta_b**2), Zeros(p_b), -p_b*cos_theta_b), Sqrt(p_b**2 + self.mb2) )
-    p4c = LorentzVector(Vector(-p_c*Sqrt(1. - cos_theta_c**2), Zeros(p_c), -p_c*cos_theta_c), Sqrt(p_c**2 + self.mc2) )
+    p4a = LorentzVector(Vector(tf.zeros_like(p_a), tf.zeros_like(p_a), p_a), tf.sqrt(p_a**2 + self.ma2) )
+    p4b = LorentzVector(Vector( p_b*tf.sqrt(1. - cos_theta_b**2), tf.zeros_like(p_b), -p_b*cos_theta_b), tf.sqrt(p_b**2 + self.mb2) )
+    p4c = LorentzVector(Vector(-p_c*tf.sqrt(1. - cos_theta_c**2), tf.zeros_like(p_c), -p_c*cos_theta_c), tf.sqrt(p_c**2 + self.mc2) )
 
     return (p4a, p4b, p4c)
 
@@ -1145,7 +1145,7 @@ class FourBodyAngularPhaseSpace :
     self.Bmass_max = Bmass_window[1]
     self.Kpimass_min = Kpimass_window[0]
     self.Kpimass_max = Kpimass_window[1]
-    
+
     self.data_placeholder = self.Placeholder("data")
     self.norm_placeholder = self.Placeholder("norm")
 
@@ -1165,9 +1165,9 @@ class FourBodyAngularPhaseSpace :
     inside = tf.logical_and(inside, \
                             tf.logical_and(tf.greater(phi, -math.pi), tf.less(phi, math.pi )))
     inside = tf.logical_and(inside, \
-                            tf.logical_and(tf.greater(q2, self.q2_min), tf.less(q2, self.q2_max )))  
+                            tf.logical_and(tf.greater(q2, self.q2_min), tf.less(q2, self.q2_max )))
     inside = tf.logical_and(inside, tf.logical_and(tf.greater(Bmass, self.Bmass_min),
-                                                   tf.less(Bmass, self.Bmass_max )))  
+                                                   tf.less(Bmass, self.Bmass_max )))
     inside = tf.logical_and(inside, tf.logical_and(tf.greater(Kpimass, self.Kpimass_min),
                                                    tf.less(Kpimass, self.Kpimass_max )))
 
@@ -1223,8 +1223,8 @@ class FourBodyAngularPhaseSpace :
     v6 = mgrid[0:size_cos_1,0:size_cos_2,0:size_phi,0:size_q2,0:size_Bmass,0:size_Kpimass][5]*\
         (self.Kpimass_max - self.Kpimass_min)/float(size_Kpimass) + self.Kpimass_min
 
-    v = [ v1.reshape(size).astype('d'), v2.reshape(size).astype('d'), 
-          v3.reshape(size).astype('d'), v4.reshape(size).astype('d'), 
+    v = [ v1.reshape(size).astype('d'), v2.reshape(size).astype('d'),
+          v3.reshape(size).astype('d'), v4.reshape(size).astype('d'),
           v5.reshape(size).astype('d'), v6.reshape(size).astype('d')]
     x = tf.stack(v , axis=1)
     return tf.boolean_mask(x, self.Inside(x) )
@@ -1264,7 +1264,7 @@ class FourBodyAngularPhaseSpace :
       Return Kpi-Mass variable (vector) for the input sample
     """
     return sample[:,5]
-    
+
 
   def Placeholder(self, name = None) :
     return tf.placeholder(fptype, shape = (None, None), name = name )
@@ -1294,9 +1294,9 @@ class PHSPGenerator :
 
   def RotateVector(self,vec, costheta,phi):
     cZ = costheta
-    sZ = Sqrt(1-cZ**2)
-    cY = Cos(phi)
-    sY = Sin(phi)
+    sZ = tf.sqrt(1-cZ**2)
+    cY = tf.cos(phi)
+    sY = tf.sin(phi)
     x = XComponent(vec)
     y = YComponent(vec)
     z = ZComponent(vec)
@@ -1318,19 +1318,19 @@ class PHSPGenerator :
     weights = tf.ones([nev],dtype=tf.float64)
     for i in range(self.ndaughters-1):
       submass = tf.unstack(SubMasses,axis=1)[i]
-      zeros = Zeros(submass)
-      ones = Ones(submass)
+      zeros = tf.zeros_like(submass)
+      ones = tf.ones_like(submass)
       if i==0:
         MassDaughterA = self.m_daughters[i]*ones
         MassDaughterB = self.m_daughters[i+1]*ones
       else:
         MassDaughterA = tf.unstack(SubMasses,axis=1)[i-1]
-        MassDaughterB = self.m_daughters[i+1]*Ones(MassDaughterA)
+        MassDaughterB = self.m_daughters[i+1]*tf.ones_like(MassDaughterA)
       pMag = TwoBodyMomentum(submass, MassDaughterA, MassDaughterB )
       (costheta,phi) = self.GenerateFlatAngles(nev)
       vecArot = self.RotateVector( Vector(zeros,pMag,zeros), costheta, phi )
-      pArot = LorentzVector( vecArot, Sqrt( MassDaughterA**2+pMag**2 ) )
-      pBrot = LorentzVector( -vecArot, Sqrt(MassDaughterB**2+pMag**2) )
+      pArot = LorentzVector( vecArot, tf.sqrt( MassDaughterA**2+pMag**2 ) )
+      pBrot = LorentzVector( -vecArot, tf.sqrt(MassDaughterB**2+pMag**2) )
       pout = [LorentzBoost(p, SpatialComponents(pArot)/Scalar(TimeComponent(pArot)) ) for p in pout]
       if i==0:
         pout.append(pArot)
@@ -1600,20 +1600,20 @@ class FourBodyHelicityPhaseSpace :
     pA = TwoBodyMomentum(ma1a2, self.ma1, self.ma2)
     pB = TwoBodyMomentum(mb1b2, self.mb1, self.mb2)
 
-    zeros = Zeros(pA)
+    zeros = tf.zeros_like(pA)
 
-    p3A = RotateVector( Vector(zeros, zeros, pA), zeros, Acos(ctha), zeros)
-    p3B = RotateVector( Vector(zeros, zeros, pB), zeros, Acos(cthb), phi)
-    
-    ea = Sqrt(p0**2 + ma1a2**2)
-    eb = Sqrt(p0**2 + mb1b2**2)
+    p3A = RotateVector( Vector(zeros, zeros, pA), zeros, tf.acos(ctha), zeros)
+    p3B = RotateVector( Vector(zeros, zeros, pB), zeros, tf.acos(cthb), phi)
+
+    ea = tf.sqrt(p0**2 + ma1a2**2)
+    eb = tf.sqrt(p0**2 + mb1b2**2)
     v0a = Vector(zeros, zeros,  p0/ea)
     v0b = Vector(zeros, zeros, -p0/eb)
 
-    p4A1 = LorentzBoost(LorentzVector( p3A, Sqrt(self.ma1**2 + Norm(p3A)**2 ) ), v0a )
-    p4A2 = LorentzBoost(LorentzVector(-p3A, Sqrt(self.ma2**2 + Norm(p3A)**2 ) ), v0a )
-    p4B1 = LorentzBoost(LorentzVector( p3B, Sqrt(self.mb1**2 + Norm(p3B)**2 ) ), v0b )
-    p4B2 = LorentzBoost(LorentzVector(-p3B, Sqrt(self.mb2**2 + Norm(p3B)**2 ) ), v0b )
+    p4A1 = LorentzBoost(LorentzVector( p3A, tf.sqrt(self.ma1**2 + Norm(p3A)**2 ) ), v0a )
+    p4A2 = LorentzBoost(LorentzVector(-p3A, tf.sqrt(self.ma2**2 + Norm(p3A)**2 ) ), v0a )
+    p4B1 = LorentzBoost(LorentzVector( p3B, tf.sqrt(self.mb1**2 + Norm(p3B)**2 ) ), v0b )
+    p4B2 = LorentzBoost(LorentzVector(-p3B, tf.sqrt(self.mb2**2 + Norm(p3B)**2 ) ), v0b )
 
     return (p4A1, p4A2, p4B1, p4B2)
 
