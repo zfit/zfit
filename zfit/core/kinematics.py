@@ -5,7 +5,6 @@ import operator
 import tensorflow as tf
 import numpy as np
 import math
-import itertools
 from . import optimization
 
 from .interface import *
@@ -14,136 +13,137 @@ from functools import reduce  # py23: does that work?
 
 def SpatialComponents(vector):
     """
-  Return spatial components of the input Lorentz vector
-    vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
-  """
+    Return spatial components of the input Lorentz vector
+        vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
+    """
     #  return tf.slice(vector, [0, 0], [-1, 3])
     return vector[:, 0:3]
 
 
 def TimeComponent(vector):
     """
-  Return time component of the input Lorentz vector
-    vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
-  """
+    Return time component of the input Lorentz vector
+        vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
+    """
     #  return tf.unstack(vector, axis=1)[3]
     return vector[:, 3]
 
 
 def XComponent(vector):
     """
-  Return spatial X component of the input Lorentz or 3-vector
-    vector : input vector
-  """
+    Return spatial X component of the input Lorentz or 3-vector
+        vector : input vector
+    """
     #  return tf.unstack(vector, axis=1)[0]
     return vector[:, 0]
 
 
 def YComponent(vector):
     """
-  Return spatial Y component of the input Lorentz or 3-vector
-    vector : input vector
-  """
+    Return spatial Y component of the input Lorentz or 3-vector
+        vector : input vector
+    """
     return vector[:, 1]
 
 
 def ZComponent(vector):
     """
-  Return spatial Z component of the input Lorentz or 3-vector
-    vector : input vector
-  """
+    Return spatial Z component of the input Lorentz or 3-vector
+        vector : input vector
+    """
     return vector[:, 2]
 
 
 def Vector(x, y, z):
     """
-  Make a 3-vector from components
-    x, y, z : vector components
-  """
+    Make a 3-vector from components
+        x, y, z : vector components
+    """
     return tf.stack([x, y, z], axis=1)
 
 
 def Scalar(x):
     """
-  Create a scalar (e.g. tensor with only one component) which can be used to e.g. scale a vector
-  One cannot do e.g. Const(2.)*Vector(x, y, z), needs to do Scalar(Const(2))*Vector(x, y, z)
-  """
+    Create a scalar (e.g. tensor with only one component) which can be used to e.g. scale a vector
+    One cannot do e.g. Const(2.)*Vector(x, y, z), needs to do Scalar(Const(2))*Vector(x, y, z)
+    """
     return tf.stack([x], axis=1)
 
 
 def LorentzVector(space, time):
     """
-  Make a Lorentz vector from spatial and time components
-    space : 3-vector of spatial components
-    time  : time component
-  """
+    Make a Lorentz vector from spatial and time components
+        space : 3-vector of spatial components
+        time  : time component
+    """
     return tf.concat([space, tf.stack([time], axis=1)], axis=1)
 
 
 def MetricTensor():
     """
-  Metric tensor for Lorentz space (constant)
-  """
+    Metric tensor for Lorentz space (constant)
+    """
     return tf.constant([-1., -1., -1., 1.], dtype=fptype)
 
 
 def Mass(vector):
     """
-  Calculate mass scalar for Lorentz 4-momentum
-    vector : input Lorentz momentum vector
-  """
+    Calculate mass scalar for Lorentz 4-momentum
+        vector : input Lorentz momentum vector
+    """
     return tf.sqrt(tf.reduce_sum(vector * vector * MetricTensor(), 1))
 
 
 def ScalarProduct(vec1, vec2):
     """
-  Calculate scalar product of two 3-vectors
-  """
+    Calculate scalar product of two 3-vectors
+    """
     return tf.reduce_sum(vec1 * vec2, 1)
 
 
 def VectorProduct(vec1, vec2):
     """
-  Calculate vector product of two 3-vectors
-  """
+    Calculate vector product of two 3-vectors
+    """
     return tf.cross(vec1, vec2)
 
 
 def CrossProduct(vec1, vec2):
     """
-  Calculate cross product of two 3-vectors
-  """
+    Calculate cross product of two 3-vectors
+    """
     return tf.cross(vec1, vec2)
 
 
 def Norm(vec):
     """
-  Calculate norm of 3-vector
-  """
+    Calculate norm of 3-vector
+    """
     return tf.sqrt(tf.reduce_sum(vec * vec, 1))
 
 
 def UnitVector(vec):
     """
     Return unit vector in the direction of vec
-  """
+    """
     return vec / Scalar(Norm(vec))
 
 
 def PerpendicularUnitVector(vec1, vec2):
     """
     Return unit vector perpendicular to the plane formed by vec1 and vec2
-  """
+    """
     v = VectorProduct(vec1, vec2)
     return v / Scalar(Norm(v))
 
 
 def LorentzBoost(vector, boostvector):
     """
-  Perform Lorentz boost
-    vector :     4-vector to be boosted
-    boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components are used)
-  """
+    Perform Lorentz boost
+        vector :     4-vector to be boosted
+        boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components
+        are used)
+    """
     boost = SpatialComponents(boostvector)
     b2 = ScalarProduct(boost, boost)
     gamma = 1. / tf.sqrt(1. - b2)
@@ -159,7 +159,7 @@ def LorentzBoost(vector, boostvector):
 def BoostToRest(vector, boostvector):
     """
     Perform Lorentz boost to the rest frame of the 4-vector boostvector.
-  """
+    """
     boost = -SpatialComponents(boostvector) / Scalar(TimeComponent(boostvector))
     return LorentzBoost(vector, boost)
 
@@ -167,17 +167,17 @@ def BoostToRest(vector, boostvector):
 def BoostFromRest(vector, boostvector):
     """
     Perform Lorentz boost from the rest frame of the 4-vector boostvector.
-  """
+    """
     boost = SpatialComponents(boostvector) / TimeComponent(boostvector)
     return LorentzBoost(vector, boost)
 
 
 def RotateVector(v, phi, theta, psi):
     """
-  Perform 3D rotation of the 3-vector
-    v : vector to be rotated
-    phi, theta, psi : Euler angles in Z-Y-Z convention
-  """
+    Perform 3D rotation of the 3-vector
+        v : vector to be rotated
+        phi, theta, psi : Euler angles in Z-Y-Z convention
+    """
 
     # Rotate Z (phi)
     c1 = tf.cos(phi)
@@ -214,10 +214,10 @@ def RotateVector(v, phi, theta, psi):
 
 def RotateLorentzVector(v, phi, theta, psi):
     """
-  Perform 3D rotation of the 4-vector
-    v : vector to be rotated
-    phi, theta, psi : Euler angles in Z-Y-Z convention
-  """
+    Perform 3D rotation of the 4-vector
+        v : vector to be rotated
+        phi, theta, psi : Euler angles in Z-Y-Z convention
+    """
     return LorentzVector(RotateVector(SpatialComponents(v), phi, theta, psi), TimeComponent(v))
 
 
@@ -231,11 +231,11 @@ def ProjectLorentzVector(p, spatial):
 
 def CosHelicityAngleDalitz(m2ab, m2bc, md, ma, mb, mc):
     """
-  Calculate cos(helicity angle) for set of two Dalitz plot variables
-    m2ab, m2bc : Dalitz plot variables (inv. masses squared of AB and BC combinations)
-    md : mass of the decaying particle
-    ma, mb, mc : masses of final state particles
-  """
+    Calculate cos(helicity angle) for set of two Dalitz plot variables
+        m2ab, m2bc : Dalitz plot variables (inv. masses squared of AB and BC combinations)
+        md : mass of the decaying particle
+        ma, mb, mc : masses of final state particles
+    """
     md2 = md ** 2
     ma2 = ma ** 2
     mb2 = mb ** 2
@@ -244,9 +244,9 @@ def CosHelicityAngleDalitz(m2ab, m2bc, md, ma, mb, mc):
     mab = tf.sqrt(m2ab)
     mac = tf.sqrt(m2ac)
     mbc = tf.sqrt(m2bc)
-    p2a = 0.25 / md2 * (md2 - (mbc + ma) ** 2) * (md2 - (mbc - ma) ** 2)
-    p2b = 0.25 / md2 * (md2 - (mac + mb) ** 2) * (md2 - (mac - mb) ** 2)
-    p2c = 0.25 / md2 * (md2 - (mab + mc) ** 2) * (md2 - (mab - mc) ** 2)
+    p2a = 0.25 / md2 * (md2 - (mbc + ma) ** 2) * (md2 - (mbc - ma) ** 2)  # TODO: smell, unused?
+    p2b = 0.25 / md2 * (md2 - (mac + mb) ** 2) * (md2 - (mac - mb) ** 2)  # TODO: smell, unused?
+    p2c = 0.25 / md2 * (md2 - (mab + mc) ** 2) * (md2 - (mab - mc) ** 2)  # TODO: smell, unused?
     eb = (m2ab - ma2 + mb2) / 2. / mab
     ec = (md2 - m2ab - mc2) / 2. / mab
     pb = tf.sqrt(eb ** 2 - mb2)
@@ -259,8 +259,8 @@ def CosHelicityAngleDalitz(m2ab, m2bc, md, ma, mb, mc):
 
 def SphericalAngles(pb):
     """
-    theta, phi : polar and azimuthal angles of the vector pb
-  """
+        theta, phi : polar and azimuthal angles of the vector pb
+    """
     z1 = UnitVector(SpatialComponents(pb))  # New z-axis is in the direction of pb
     theta = tf.acos(ZComponent(z1))  # Helicity angle
     phi = tf.atan2(YComponent(pb), XComponent(pb))  # Phi angle
@@ -270,7 +270,7 @@ def SphericalAngles(pb):
 def HelicityAngles(pb):
     """
     theta, phi : polar and azimuthal angles of the vector pb
-  """
+    """
     return SphericalAngles(pb)
 
 
@@ -282,7 +282,7 @@ def FourMomentaFromHelicityAngles(md, ma, mb, theta, phi):
       mb:    mass of B
       theta: angle between A momentum in D rest frame and D momentum in its helicity frame
       phi:   angle of plane formed by A & B in D helicity frame
-  """
+    """
     # Calculate magnitude of momentum in D rest frame
     p = TwoBodyMomentum(md, ma, mb)
     # Calculate energy in D rest frame
@@ -301,22 +301,22 @@ def RecursiveSum(vectors):
     """
     Helper function fro CalculateHelicityAngles. It sums all the vectors in
     a list or nested list
-  """
+    """
     return sum([RecursiveSum(vector) if isinstance(vector, list) else vector for vector in vectors])
 
 
 def CalculateHelicityAngles(pdecays):
     """
-  Calculate the Helicity Angles for every decay topology specified with brackets []
-  examples:
-     - input:
-       A -> B (-> C D) E (-> F G) ==> CalculateHelicityAngles([[C,D],[F,G]])
-       A -> B (-> C (-> D E) F) G ==> CalculateHelicityAngles([ [ [ D, E] , F ] , G ])
-     - output:
-       A -> B (-> C D) E (-> F G) ==> (thetaB,phiB,thetaC,phiC,thetaF,phiF)
-       A -> B (-> C (-> D E) F) G ==> (thetaB,phiB,thetaC,phiC,thetaD,phiD)
-       where thetaX,phiX are the polar and azimuthal angles of X in the mother rest frame
-  """
+    Calculate the Helicity Angles for every decay topology specified with brackets []
+        examples:
+        - input:
+           A -> B (-> C D) E (-> F G) ==> CalculateHelicityAngles([[C,D],[F,G]])
+           A -> B (-> C (-> D E) F) G ==> CalculateHelicityAngles([ [ [ D, E] , F ] , G ])
+        - output:
+           A -> B (-> C D) E (-> F G) ==> (thetaB,phiB,thetaC,phiC,thetaF,phiF)
+           A -> B (-> C (-> D E) F) G ==> (thetaB,phiB,thetaC,phiC,thetaD,phiD)
+        where thetaX,phiX are the polar and azimuthal angles of X in the mother rest frame
+    """
     angles = ()
     if len(pdecays) != 2:
         sys.exit('ERROR in CalculateHelicityAngles: lenght of the input list is different from 2')
@@ -336,8 +336,8 @@ def CalculateHelicityAngles(pdecays):
 def ChangeAxes(ps, spatial_new):
     """
     Return a list of LorentzVector with the component described by the
-    new axes (x,y,z).
-  """
+        new axes (x,y,z).
+    """
     xnew, ynew, znew = spatial_new
     pout = []
     for p in ps:
@@ -355,7 +355,7 @@ def ChangeAxes(ps, spatial_new):
 def RotatedAxes(pb, oldaxes=None):
     """
     Return new (rotated) axes aligned with the momentum vector pb
-  """
+    """
     z1 = UnitVector(SpatialComponents(pb))  # New z-axis is in the direction of pb
     eb = TimeComponent(pb)
     zeros = tf.zeros_like(eb)
@@ -372,7 +372,7 @@ def RotatedAxes(pb, oldaxes=None):
 def OldAxes(pb):
     """
     Return old (before rotation) axes in the frame aligned with the momentum vector pb
-  """
+    """
     z1 = UnitVector(SpatialComponents(pb))  # New z-axis is in the direction of pb
     eb = TimeComponent(pb)
     z0 = Vector(tf.zeros_like(eb), tf.zeros_like(eb), tf.ones_like(eb))  # Old z-axis vector
@@ -399,7 +399,7 @@ def RotationAndBoost(ps, pb):
     pb : Lorentz vector defining the new frame
     Returns:
       ps1        : list of transformed Lorentz vectors
-  """
+    """
     newaxes = RotatedAxes(pb)
     eb = TimeComponent(pb)
     zeros = tf.zeros_like(eb)
@@ -411,12 +411,12 @@ def RotationAndBoost(ps, pb):
 
 def ApplyRotationAndBoost(ps, spatial, boost):
     """
-  Helper function for RotationAndBoost. It applies RotationAndBoost iteratively on nested lists
-  """
+    Helper function for RotationAndBoost. It applies RotationAndBoost iteratively on nested lists
+    """
     x, y, z = spatial
     ps1 = []
     for p in ps:
-        p1 = ProjectFourVector(p, (x1, y1, z1))
+        p1 = ProjectFourVector(p, (x1, y1, z1))  # TODO: smell, should be x,y,z?
         p2 = LorentzBoost(p1, boost)
         ps1 += [p2]
 
@@ -429,7 +429,7 @@ def EulerAngles(x1, y1, z1, x2, y2, z2):
     basis (x1, y1, z1)
     to the basis (x2, y2, z2). Both x1,y1,z1 and x2,y2,z2 are assumed to be orthonormal and
     right-handed.
-  """
+    """
     theta = tf.acos(ScalarProduct(z1, z2))
     phi = tf.atan2(ScalarProduct(z1, y2), ScalarProduct(z1, x2))
     psi = tf.atan2(ScalarProduct(y1, z2), ScalarProduct(x1, z2))
@@ -438,10 +438,10 @@ def EulerAngles(x1, y1, z1, x2, y2, z2):
 
 def HelicityAngles3Body(pa, pb, pc):
     """
-  Calculate 4 helicity angles for the 3-body D->ABC decay defined as:
+    Calculate 4 helicity angles for the 3-body D->ABC decay defined as:
     theta_r, phi_r : polar and azimuthal angles of the AB resonance in the D rest frame
     theta_a, phi_a : polar and azimuthal angles of the A in AB rest frame
-  """
+    """
     theta_r = tf.acos(-ZComponent(pc) / Norm(SpatialComponents(pc)))
     phi_r = tf.atan2(-YComponent(pc), -XComponent(pc))
 
@@ -462,11 +462,11 @@ def HelicityAngles3Body(pa, pb, pc):
 
 
 def CosHelicityAngle(p1, p2):
-    '''
+    """
     The helicity angle is defined as the angle between one of the two momenta in the p1+p2 rest
     frame
     with respect to the momentum of the p1+p2 system in the decaying particle rest frame (ptot)
-    '''
+    """
     p12 = LorentzVector(SpatialComponents(p1) + SpatialComponents(p2),
                         TimeComponent(p1) + TimeComponent(p2))
     pcm1 = BoostToRest(p1, p12)
@@ -475,9 +475,9 @@ def CosHelicityAngle(p1, p2):
 
 
 def Azimuthal4Body(p1, p2, p3, p4):
-    '''
+    """
     Calculates the angle between the plane defined by (p1,p2) and (p3,p4)
-    '''
+    """
     v1 = SpatialComponents(p1)
     v2 = SpatialComponents(p2)
     v3 = SpatialComponents(p3)
@@ -541,10 +541,10 @@ def WignerD(phi, theta, psi, j2, m2_1, m2_2):
 
 def Wignerd(theta, j, m1, m2):
     """
-     Calculate Wigner small-d function. Needs sympy.
+    Calculate Wigner small-d function. Needs sympy.
         theta : angle
         j : spin (in units of 1/2, e.g. 1 for spin=1/2)
-      m1 and m2 : spin projections (in units of 1/2)
+        m1 and m2 : spin projections (in units of 1/2)
     """
     from sympy import Rational
     from sympy.abc import x
@@ -556,10 +556,10 @@ def Wignerd(theta, j, m1, m2):
 
 def WignerdExplicit(theta, j, m1, m2):
     """
-     Calculate Wigner small-d function. Does not need sympy
-    theta : angle
-    j : spin (in units of 1/2, e.g. 1 for spin=1/2)
-    m1 and m2 : spin projections (in units of 1/2)
+    Calculate Wigner small-d function. Does not need sympy
+        theta : angle
+        j : spin (in units of 1/2, e.g. 1 for spin=1/2)
+        m1 and m2 : spin projections (in units of 1/2)
     """
     # Half-integer spins
 
@@ -635,9 +635,7 @@ def WignerdExplicit(theta, j, m1, m2):
     if j ==  6  and m1 ==   2  and m2 ==   2  : return  tf.cos(theta)/32. + 5.*tf.cos(2*theta)/16. + 15.*tf.cos(3*theta)/32. + 3/16.
 
 
-    print(("Error in Wignerd: j,m1,m2 = ", j, m1, m2))
-
-    return None
+    print("Error in Wignerd: j,m1,m2 = ", j, m1, m2)
 
 
 def SpinRotationAngle(pa, pb, pc, bachelor=2):
@@ -646,7 +644,7 @@ def SpinRotationAngle(pa, pb, pc, bachelor=2):
     aligned along the particle B and particle A.
       pa, pb, pc : 4-momenta of the final-state particles
       bachelor : index of the "bachelor" particle (0=A, 1=B, or 2=C)
-  """
+    """
     if bachelor == 2:
         return Const(0.)
     pboost = LorentzVector(-SpatialComponents(pb) / Scalar(TimeComponent(pb)), TimeComponent(pb))
@@ -665,17 +663,17 @@ def SpinRotationAngle(pa, pb, pc, bachelor=2):
 def HelicityAmplitude3Body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambdaR, lambdaA, lambdaB,
                            lambdaC, cache=False):
     """
-  Calculate complex helicity amplitude for the 3-body decay D->ABC
-    thetaR, phiR : polar and azimuthal angles of AB resonance in D rest frame
-    thetaA, phiA : polar and azimuthal angles of A in AB rest frame
-    spinD : D spin
-    spinR : spin of the intermediate R resonance
-    mu : D spin projection onto z axis
-    lambdaR : R resonance helicity
-    lambdaA : A helicity
-    lambdaB : B helicity
-    lambdaC : C helicity
-  """
+    Calculate complex helicity amplitude for the 3-body decay D->ABC
+        thetaR, phiR : polar and azimuthal angles of AB resonance in D rest frame
+        thetaA, phiA : polar and azimuthal angles of A in AB rest frame
+        spinD : D spin
+        spinR : spin of the intermediate R resonance
+        mu : D spin projection onto z axis
+        lambdaR : R resonance helicity
+        lambdaA : A helicity
+        lambdaB : B helicity
+        lambdaC : C helicity
+    """
     lambda1 = lambdaR - lambdaC
     lambda2 = lambdaA - lambdaB
     ph = (mu - lambda1) / 2. * phiR + (lambdaR - lambda2) / 2. * phiA
@@ -700,7 +698,7 @@ def HelicityCouplingsFromLS(ja, jb, jc, lb, lc, bls):
         keys are tuples corresponding to (L,S) pairs
         values are values of LS couplings
     Note that ALL j,l,s should be doubled, e.g. S=1 for spin-1/2, L=2 for P-wave etc.
-  """
+    """
     a = 0.
     for ls, b in bls.items():
         l = ls[0]
@@ -714,7 +712,7 @@ def HelicityCouplingsFromLS(ja, jb, jc, lb, lc, bls):
 def ZemachTensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin, cache=False):
     """
     Zemach tensor for 3-body D->ABC decay
-  """
+    """
     z = None
     if spin == 0:
         z = tf.complex(Const(1.), Const(0.))
@@ -725,7 +723,7 @@ def ZemachTensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin, cache=False):
             m2ab - 2. * (m2d + m2c) + (m2d - m2c) ** 2 / m2ab) * (
                            m2ab - 2. * (m2a + m2b) + (m2a - m2b) ** 2 / m2ab), Const(0.))
     if cache:
-        Optimisation.cacheable_tensors += [z]
+        optimization.cacheable_tensors += [z]
 
     return z
 
@@ -734,7 +732,7 @@ def TwoBodyMomentum(md, ma, mb):
     """
     Momentum of two-body decay products D->AB in the D rest frame
   """
-    return Sqrt((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2))
+    return tf.sqrt((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2))
 
 
 def ComplexTwoBodyMomentum(md, ma, mb):
@@ -743,8 +741,8 @@ def ComplexTwoBodyMomentum(md, ma, mb):
     Output value is a complex number, analytic continuation for the
     region below threshold.
   """
-    return tf.sqrt(
-        Complex((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2), Const(0.)))
+    return tf.sqrt(tf.complex((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) /
+                              (4 * md ** 2), Const(0.)))
 
 
 def FindBasicParticles(particle):
@@ -863,8 +861,9 @@ def HelicityMatrixElement(parent, helAmps):
             parent.GetName() + '_' + d1.GetName() + '_' + d1hel_str + '_' + d2.GetName() + '_' +
             d2hel_str]
         matrixelement[(phel, d1hel, d2hel)] = parent.GetShape() * helAmp \
-                                              * Conjugate(
-            WignerD(phi, theta, 0, parent.GetSpin2(), phel, d1hel - d2hel))
+                                              * Conjugate(WignerD(phi, theta, 0,
+                                                                  parent.GetSpin2(),
+                                                                  phel, d1hel - d2hel))
     return matrixelement
 
 
@@ -906,8 +905,8 @@ def RotateFinalStateHelicity(matrixin, particlesfrom, particlesto):
 
 class Particle(object):
     """
-  Class to describe a Particle
-  """
+    Class to describe a Particle
+    """
 
     def __init__(self, name='default', shape=None, spin2=0, momentum=None, daughters=[],
                  parityConserving=False, parity=None):
@@ -915,7 +914,7 @@ class Particle(object):
         self._spin2 = spin2
         self._daughters = daughters
         self._shape = shape if shape != None else CastComplex(Const(1.))
-        if momentum != None and daughters != []:
+        if momentum is not None and daughters != []:
             sys.exit(
                 'ERROR in Particle ' + name + ' definition: do not define the momentum, '
                                               'it is taken from the sum of the daughters momenta!')
@@ -1011,8 +1010,8 @@ class Particle(object):
 
 class DalitzPhaseSpace(object):
     """
-  Class for Dalitz plot (2D) phase space for the 3-body decay D->ABC
-  """
+    Class for Dalitz plot (2D) phase space for the 3-body decay D->ABC
+    """
 
     def __init__(self, ma, mb, mc, md, mabrange=None, mbcrange=None, macrange=None,
                  symmetric=False):
@@ -1055,14 +1054,14 @@ class DalitzPhaseSpace(object):
 
     def Inside(self, x):
         """
-      Check if the point x=(M2ab, M2bc) is inside the phase space
-    """
+        Check if the point x=(M2ab, M2bc) is inside the phase space
+        """
         m2ab = self.M2ab(x)
         m2bc = self.M2bc(x)
         mab = tf.sqrt(m2ab)
 
         inside = tf.logical_and(
-            tf.logical_and(tf.greater(m2ab, self.minab), tf.less(m2ab, self.maxab)), \
+            tf.logical_and(tf.greater(m2ab, self.minab), tf.less(m2ab, self.maxab)),
             tf.logical_and(tf.greater(m2bc, self.minbc), tf.less(m2bc, self.maxbc)))
 
         if self.macrange:
@@ -1091,13 +1090,13 @@ class DalitzPhaseSpace(object):
 
     def UnfilteredSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        """
         v = [np.random.uniform(self.minab, self.maxab, size).astype('d'),
              np.random.uniform(self.minbc, self.maxbc, size).astype('d')]
         if majorant > 0:
@@ -1106,24 +1105,25 @@ class DalitzPhaseSpace(object):
 
     def UniformSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for
+        generation,
+        which has to be run within TF session.
+        """
         return self.Filter(self.UnfilteredSample(size, majorant))
 
     def RectangularGridSample(self, sizeab, sizebc):
         """
-      Create a data sample in the form of rectangular grid of points within the phase space.
-      Useful for normalisation.
-        sizeab : number of grid nodes in M2ab range
-        sizebc : number of grid nodes in M2bc range
-    """
+        Create a data sample in the form of rectangular grid of points within the phase space.
+        Useful for normalisation.
+            sizeab : number of grid nodes in M2ab range
+            sizebc : number of grid nodes in M2bc range
+        """
         size = sizeab * sizebc
         mgrid = np.lib.index_tricks.nd_grid()
         vab = mgrid[0:sizeab, 0:sizebc][0] * (self.maxab - self.minab) / float(sizeab) + self.minab
@@ -1134,103 +1134,103 @@ class DalitzPhaseSpace(object):
 
     def M2ab(self, sample):
         """
-      Return M2ab variable (vector) for the input sample
-    """
+        Return M2ab variable (vector) for the input sample
+        """
         return sample[:, 0]
 
     def M2bc(self, sample):
         """
-       Return M2bc variable (vector) for the input sample
-    """
+        Return M2bc variable (vector) for the input sample
+        """
         return sample[:, 1]
 
     def M2ac(self, sample):
         """
-      Return M2ac variable (vector) for the input sample.
-      It is calculated from M2ab and M2bc
-    """
+        Return M2ac variable (vector) for the input sample.
+        It is calculated from M2ab and M2bc
+        """
         return self.msqsum - self.M2ab(sample) - self.M2bc(sample)
 
     def CosHelicityAB(self, sample):
         """
-      Calculate cos(helicity angle) of the AB resonance
-    """
+        Calculate cos(helicity angle) of the AB resonance
+        """
         return CosHelicityAngleDalitz(self.M2ab(sample), self.M2bc(sample), self.md, self.ma,
                                       self.mb, self.mc)
 
     def CosHelicityBC(self, sample):
         """
-       Calculate cos(helicity angle) of the BC resonance
-    """
+        Calculate cos(helicity angle) of the BC resonance
+        """
         return CosHelicityAngleDalitz(self.M2bc(sample), self.M2ac(sample), self.md, self.mb,
                                       self.mc, self.ma)
 
     def CosHelicityAC(self, sample):
         """
-       Calculate cos(helicity angle) of the AC resonance
-    """
+        Calculate cos(helicity angle) of the AC resonance
+        """
         return CosHelicityAngleDalitz(self.M2ac(sample), self.M2ab(sample), self.md, self.mc,
                                       self.ma, self.mb)
 
     def MPrimeAC(self, sample):
         """
-      Square Dalitz plot variable m'
-    """
+        Square Dalitz plot variable m'
+        """
         mac = tf.sqrt(self.M2ac(sample))
         return tf.acos(2 * (mac - math.sqrt(self.minac)) / (
             math.sqrt(self.maxac) - math.sqrt(self.minac)) - 1.) / math.pi
 
     def ThetaPrimeAC(self, sample):
         """
-      Square Dalitz plot variable theta'
-    """
+        Square Dalitz plot variable theta'
+        """
         return tf.acos(self.CosHelicityAC(sample)) / math.pi
 
     def MPrimeAB(self, sample):
         """
-      Square Dalitz plot variable m'
-    """
+        Square Dalitz plot variable m'
+        """
         mab = tf.sqrt(self.M2ab(sample))
         return tf.acos(2 * (mab - math.sqrt(self.minab)) / (
             math.sqrt(self.maxab) - math.sqrt(self.minab)) - 1.) / math.pi
 
     def ThetaPrimeAB(self, sample):
         """
-      Square Dalitz plot variable theta'
-    """
+        Square Dalitz plot variable theta'
+        """
         return tf.acos(-self.CosHelicityAB(sample)) / math.pi
 
     def MPrimeBC(self, sample):
         """
-      Square Dalitz plot variable m'
-    """
+        Square Dalitz plot variable m'
+        """
         mbc = tf.sqrt(self.M2bc(sample))
         return tf.acos(2 * (mbc - math.sqrt(self.minbc)) / (
             math.sqrt(self.maxbc) - math.sqrt(self.minbc)) - 1.) / math.pi
 
     def ThetaPrimeBC(self, sample):
         """
-      Square Dalitz plot variable theta'
-    """
+        Square Dalitz plot variable theta'
+        """
         return tf.acos(-self.CosHelicityBC(sample)) / math.pi
 
     def Placeholder(self, name=None):
         """
-      Create a placeholder for a dataset in this phase space
-    """
+        Create a placeholder for a dataset in this phase space
+        """
         return tf.placeholder(fptype, shape=(None, None), name=name)
 
     def FromVectors(self, m2ab, m2bc):
         """
-      Create Dalitz plot tensor from two vectors of variables, m2ab and m2bc
-    """
+        Create Dalitz plot tensor from two vectors of variables, m2ab and m2bc
+        """
         return tf.stack([m2ab, m2bc], axis=1)
 
 
 class DoubleDalitzPhaseSpace(object):
     """
     Phase space representing two (correlated) Dalitz plots.
-  """
+    """
 
     def __init__(self, dlz1, dlz2):
         self.dlz1 = dlz1
@@ -1252,13 +1252,13 @@ class DoubleDalitzPhaseSpace(object):
 
     def UnfilteredSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        """
         v = [
             np.random.uniform(self.dlz1.minab, self.dlz1.maxab, size).astype('d'),
             np.random.uniform(self.dlz1.minbc, self.dlz1.maxbc, size).astype('d'),
@@ -1271,36 +1271,38 @@ class DoubleDalitzPhaseSpace(object):
 
     def UniformSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for
+        generation,
+        which has to be run within TF session.
+        """
         return self.Filter(self.UnfilteredSample(size, majorant))
 
     def Placeholder(self, name=None):
         """
-      Create a placeholder for a dataset in this phase space
-    """
+        Create a placeholder for a dataset in this phase space
+        """
         return tf.placeholder(fptype, shape=(None, None), name=name)
 
 
 class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
     """
     Derived class for baryonic 3-body decay, baryon -> scalar scalar baryon
-  """
-
-    def FinalStateMomenta(self, m2ab, m2bc, thetab, phib, phiac):
-        """
-      Calculate 4-momenta of final state tracks in the 5D phase space
-        m2ab, m2bc : invariant masses of AB and BC combinations
-        thetab, phib : direction angles of the particle B in the reference frame
-        phiac : angle of AC plane wrt. polarisation plane
     """
+
+    def FinalStateMomenta(self, m2ab, m2bc, thetab, phib,
+                          phiac):  # TODO: smell, unused thetab, phib, phiac?
+        """
+        Calculate 4-momenta of final state tracks in the 5D phase space
+            m2ab, m2bc : invariant masses of AB and BC combinations
+            thetab, phib : direction angles of the particle B in the reference frame
+            phiac : angle of AC plane wrt. polarisation plane
+        """
 
         m2ac = self.msqsum - m2ab - m2bc
 
@@ -1324,14 +1326,9 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
 
 
 class FourBodyAngularPhaseSpace(object):
-    """
-  Class for angular phase space of 4-body X->(AB)(CD) decay (3D).
-  """
+    """Class for angular phase space of 4-body X->(AB)(CD) decay (3D)."""
 
     def __init__(self, q2_min, q2_max, Bmass_window=[0., 6000.], Kpimass_window=[792., 992.]):
-        """
-    Constructor
-    """
         self.q2_min = q2_min
         self.q2_max = q2_max
         self.Bmass_min = Bmass_window[0]
@@ -1344,8 +1341,8 @@ class FourBodyAngularPhaseSpace(object):
 
     def Inside(self, x):
         """
-      Check if the point x=(cos_theta_1, cos_theta_2, phi) is inside the phase space
-    """
+        Check if the point x=(cos_theta_1, cos_theta_2, phi) is inside the phase space
+        """
         cos1 = self.CosTheta1(x)
         cos2 = self.CosTheta2(x)
         phi = self.Phi(x)
@@ -1353,11 +1350,11 @@ class FourBodyAngularPhaseSpace(object):
         Bmass = self.BMass(x)
         Kpimass = self.KpiMass(x)
 
-        inside = tf.logical_and(tf.logical_and(tf.greater(cos1, -1.), tf.less(cos1, 1.)), \
+        inside = tf.logical_and(tf.logical_and(tf.greater(cos1, -1.), tf.less(cos1, 1.)),
                                 tf.logical_and(tf.greater(cos2, -1.), tf.less(cos2, 1.)))
-        inside = tf.logical_and(inside, \
+        inside = tf.logical_and(inside,
                                 tf.logical_and(tf.greater(phi, -math.pi), tf.less(phi, math.pi)))
-        inside = tf.logical_and(inside, \
+        inside = tf.logical_and(inside,
                                 tf.logical_and(tf.greater(q2, self.q2_min),
                                                tf.less(q2, self.q2_max)))
         inside = tf.logical_and(inside, tf.logical_and(tf.greater(Bmass, self.Bmass_min),
@@ -1372,13 +1369,13 @@ class FourBodyAngularPhaseSpace(object):
 
     def UnfilteredSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        """
         v = [
             np.random.uniform(-1., 1., size).astype('d'),
             np.random.uniform(-1., 1., size).astype('d'),
@@ -1393,23 +1390,24 @@ class FourBodyAngularPhaseSpace(object):
 
     def UniformSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for
+        generation,
+        which has to be run within TF session.
+        """
         return self.Filter(self.UnfilteredSample(size, majorant))
 
     def RectangularGridSample(self, size_cos_1, size_cos_2, size_phi, size_q2, size_Bmass,
                               size_Kpimass):
         """
-      Create a data sample in the form of rectangular grid of points within the phase space.
-      Useful for normalisation.
-    """
+        Create a data sample in the form of rectangular grid of points within the phase space.
+        Useful for normalisation.
+        """
         size = size_cos_1 * size_cos_2 * size_phi * size_q2 * size_Bmass * size_Kpimass
         mgrid = np.lib.index_tricks.nd_grid()
         v1 = mgrid[0:size_cos_1, 0:size_cos_2, 0:size_phi, 0:size_q2, 0:size_Bmass, 0:size_Kpimass][
@@ -1435,38 +1433,38 @@ class FourBodyAngularPhaseSpace(object):
 
     def CosTheta1(self, sample):
         """
-      Return CosTheta1 variable (vector) for the input sample
-    """
+        Return CosTheta1 variable (vector) for the input sample
+        """
         return sample[:, 0]
 
     def CosTheta2(self, sample):
         """
-      Return CosTheta2 variable (vector) for the input sample
-    """
+        Return CosTheta2 variable (vector) for the input sample
+        """
         return sample[:, 1]
 
     def Phi(self, sample):
         """
-      Return Phi variable (vector) for the input sample
-    """
+        Return Phi variable (vector) for the input sample
+        """
         return sample[:, 2]
 
     def Q2(self, sample):
         """
-      Return q^2 variable (vector) for the input sample
-    """
+        Return q^2 variable (vector) for the input sample
+        """
         return sample[:, 3]
 
     def BMass(self, sample):
         """
-      Return B-Mass variable (vector) for the input sample
-    """
+        Return B-Mass variable (vector) for the input sample
+        """
         return sample[:, 4]
 
     def KpiMass(self, sample):
         """
-      Return Kpi-Mass variable (vector) for the input sample
-    """
+        Return Kpi-Mass variable (vector) for the input sample
+        """
         return sample[:, 5]
 
     def Placeholder(self, name=None):
@@ -1476,8 +1474,8 @@ class FourBodyAngularPhaseSpace(object):
 class PHSPGenerator(object):
     def __init__(self, m_mother, m_daughters):
         """
-      Constructor
-    """
+        Constructor
+        """
         self.ndaughters = len(m_daughters)
         self.m_daughters = m_daughters
         self.m_mother = m_mother
@@ -1552,15 +1550,15 @@ class PHSPGenerator(object):
 
 class NBody(object):
     """
-  Class for N-body decay expressed as:
-    m_mother   : mass of the mother
-    m_daughs   : list of daughter masses
-  """
+    Class for N-body decay expressed as:
+        m_mother   : mass of the mother
+        m_daughs   : list of daughter masses
+    """
 
     def __init__(self, m_mother, m_daughs):
         """
-      Constructor
-    """
+        Constructor
+        """
         self.ndaughters = len(m_daughs)
 
         self.PHSPGenerator = PHSPGenerator(m_mother, m_daughs)
@@ -1582,30 +1580,30 @@ class NBody(object):
 
     def UnfilteredSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
-        s = tf.Session()
-        feed_dict = {self.nev_ph: size}
-        if majorant > 0:
-            feed_dict.update({self.majorant_ph: majorant})
-        uniform_sample = s.run(self.phsp_model_majorant if majorant > 0 else self.phsp_model,
-                               feed_dict=feed_dict)
-        s.close()
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for
+        generation,
+        which has to be run within TF session.
+        """
+        with tf.Session() as s:
+            feed_dict = {self.nev_ph: size}
+            if majorant > 0:
+                feed_dict.update({self.majorant_ph: majorant})
+            uniform_sample = s.run(self.phsp_model_majorant if majorant > 0 else self.phsp_model,
+                                   feed_dict=feed_dict)
         return uniform_sample
 
     def FinalStateMomenta(self, x):
         """
-       Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay
-       defined by the phase space vector x. The momenta are calculated in the
-       D rest frame.
-    """
+        Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay
+        defined by the phase space vector x. The momenta are calculated in the
+        D rest frame.
+        """
         p3s = [
             Vector(tf.transpose(x)[4 * i], tf.transpose(x)[4 * i + 1], tf.transpose(x)[4 * i + 2])
             for i in range(self.ndaughters)]
@@ -1687,18 +1685,18 @@ class NBody(object):
 
 class FourBodyHelicityPhaseSpace(object):
     """
-  Class for 4-body decay phase space D->(A1 A2)(B1 B2) expressed as:
-    ma   : invariant mass of the A1 A2 combination
-    mb   : invariant mass of the B1 B2 combination
-    hela : cosine of the helicity angle of A1
-    helb : cosine of the helicity angle of B1
-    phi  : angle between the A1 A2 and B1 B2 planes in D rest frame
-  """
+    Class for 4-body decay phase space D->(A1 A2)(B1 B2) expressed as:
+        ma   : invariant mass of the A1 A2 combination
+        mb   : invariant mass of the B1 B2 combination
+        hela : cosine of the helicity angle of A1
+        helb : cosine of the helicity angle of B1
+        phi  : angle between the A1 A2 and B1 B2 planes in D rest frame
+    """
 
     def __init__(self, ma1, ma2, mb1, mb2, md):
         """
-      Constructor
-    """
+        Constructor
+        """
         self.ma1 = ma1
         self.ma2 = ma2
         self.mb1 = mb1
@@ -1715,17 +1713,17 @@ class FourBodyHelicityPhaseSpace(object):
 
     def Inside(self, x):
         """
-      Check if the point x is inside the phase space
-    """
+        Check if the point x is inside the phase space
+        """
         ma1a2 = self.Ma1a2(x)
         mb1b2 = self.Mb1b2(x)
         ctha = self.CosHelicityA(x)
         cthb = self.CosHelicityB(x)
         phi = self.Phi(x)
 
-        inside = tf.logical_and(tf.logical_and(tf.greater(ctha, -1.), tf.less(ctha, 1.)), \
+        inside = tf.logical_and(tf.logical_and(tf.greater(ctha, -1.), tf.less(ctha, 1.)),
                                 tf.logical_and(tf.greater(cthb, -1.), tf.less(cthb, 1.)))
-        inside = tf.logical_and(inside, \
+        inside = tf.logical_and(inside,
                                 tf.logical_and(tf.greater(phi, -math.pi), tf.less(phi, math.pi))
                                 )
 
@@ -1751,13 +1749,13 @@ class FourBodyHelicityPhaseSpace(object):
 
     def UnfilteredSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        """
         v = [np.random.uniform(self.ma1a2min, self.ma1a2max, size).astype('d'),
              np.random.uniform(self.mb1b2min, self.mb1b2max, size).astype('d'),
              np.random.uniform(-1., 1., size).astype('d'),
@@ -1770,53 +1768,54 @@ class FourBodyHelicityPhaseSpace(object):
 
     def UniformSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for
+        generation,
+        which has to be run within TF session.
+        """
         return self.Filter(self.UnfilteredSample(size, majorant))
 
     def Ma1a2(self, sample):
         """
-      Return M2ab variable (vector) for the input sample
-    """
+        Return M2ab variable (vector) for the input sample
+        """
         return sample[:, 0]
 
     def Mb1b2(self, sample):
         """
-      Return M2bc variable (vector) for the input sample
-    """
+        Return M2bc variable (vector) for the input sample
+        """
         return sample[:, 1]
 
     def CosHelicityA(self, sample):
         """
-      Return cos(helicity angle) of the A1A2 resonance
-    """
+        Return cos(helicity angle) of the A1A2 resonance
+        """
         return sample[:, 2]
 
     def CosHelicityB(self, sample):
         """
-       Return cos(helicity angle) of the B1B2 resonance
-    """
+        Return cos(helicity angle) of the B1B2 resonance
+        """
         return sample[:, 3]
 
     def Phi(self, sample):
         """
-       Return phi angle between A1A2 and B1B2 planes
-    """
+        Return phi angle between A1A2 and B1B2 planes
+        """
         return sample[:, 4]
 
     def FinalStateMomenta(self, x):
         """
-       Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay
-       defined by the phase space vector x. The momenta are calculated in the
-       D rest frame.
-    """
+        Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay
+        defined by the phase space vector x. The momenta are calculated in the
+        D rest frame.
+        """
         ma1a2 = self.Ma1a2(x)
         mb1b2 = self.Mb1b2(x)
         ctha = self.CosHelicityA(x)
@@ -1850,21 +1849,21 @@ class FourBodyHelicityPhaseSpace(object):
 
 class RectangularPhaseSpace(object):
     """
-  Class for rectangular phase space in n dimensions
-  """
+    Class for rectangular phase space in n dimensions
+    """
 
     def __init__(self, ranges=((0., 1.))):
         """
-    Constructor
-    """
+        Constructor
+        """
         self.data_placeholder = self.Placeholder("data")
         self.norm_placeholder = self.Placeholder("norm")
         self.ranges = ranges
 
     def Inside(self, x):
         """
-      Check if the point x is inside the phase space
-    """
+        Check if the point x is inside the phase space
+        """
         inside = tf.constant([True], dtype=bool)
         for n, r in enumerate(self.ranges):
             var = self.Coordinate(x, n)
@@ -1877,13 +1876,13 @@ class RectangularPhaseSpace(object):
 
     def UnfilteredSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        """
         v = [np.random.uniform(r[0], r[1], size).astype('d') for r in self.ranges]
         if majorant > 0:
             v += [np.random.uniform(0., majorant, size).astype('d')]
@@ -1891,22 +1890,23 @@ class RectangularPhaseSpace(object):
 
     def UniformSample(self, size, majorant=-1):
         """
-      Generate uniform sample of point within phase space.
-        size     : number of _initial_ points to generate. Not all of them will fall into phase
-        space,
-                   so the number of points in the output will be <size.
-        majorant : if majorant>0, add 3rd dimension to the generated tensor which is
-                   uniform number from 0 to majorant. Useful for accept-reject toy MC.
-      Note it does not actually generate the sample, but returns the data flow graph for generation,
-      which has to be run within TF session.
-    """
+        Generate uniform sample of point within phase space.
+            size     : number of _initial_ points to generate. Not all of them will fall into phase
+            space,
+                       so the number of points in the output will be <size.
+            majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                       uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for
+        generation,
+        which has to be run within TF session.
+        """
         return self.Filter(self.UnfilteredSample(size, majorant))
 
     def RectangularGridSample(self, sizes):
         """
-      Create a data sample in the form of rectangular grid of points within the phase space.
-      Useful for normalisation.
-    """
+        Create a data sample in the form of rectangular grid of points within the phase space.
+        Useful for normalisation.
+        """
         size = 1
         for i in sizes:
             size *= i
@@ -1920,8 +1920,8 @@ class RectangularPhaseSpace(object):
 
     def Coordinate(self, sample, n):
         """
-      Return coordinate number n from the input sample
-    """
+        Return coordinate number n from the input sample
+        """
         return sample[:, n]
 
     def Placeholder(self, name=None):

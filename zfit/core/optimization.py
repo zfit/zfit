@@ -379,8 +379,8 @@ def RunToyMC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, se
         first = False
         length += len(d)
         nchunk += 1
-        print()
-        "  Chunk %d, size=%d, total length=%d" % (nchunk, len(d), length)
+        print("  Chunk {:d}, size={:d}, total length={:d}".format(nchunk, len(d), length))
+
     if size > 0:
         return data[:size]
     else:
@@ -396,7 +396,7 @@ def FillNTuple(tupname, data, names):
     """
     variables = ""
     for n in names:
-        variables += "%s:" % n
+        variables += "{}:".format(n)
     variables = variables[:-1]
     values = len(names) * [0.]
     avalues = array.array('f', values)
@@ -417,7 +417,7 @@ def ReadNTuple(ntuple, variables):
     data = []
     code_list = []
     for v in variables:
-        code_list += [compile("i.%s" % v, '<string>', 'eval')]
+        code_list += [compile("i.{}".format(v), '<string>', 'eval')]
     nentries = ntuple.GetEntries()
     nvars = len(variables)
     array = np.zeros((nentries, nvars))
@@ -425,8 +425,7 @@ def ReadNTuple(ntuple, variables):
         for m, v in enumerate(code_list):
             array[n][m] = eval(v)
         if n % 100000 == 0:
-            print()
-            n, "/", nentries
+            print(n, "/", nentries)
     return array
 
 
@@ -535,9 +534,9 @@ def RunMinuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, us
                 gin[i] = dnll[i]  # Pass gradient to MINUIT
         fcn.n += 1
         if fcn.n % printout == 0:
-            print()
-            "  Iteration ", fcn.n, ", Flag=", istatus, " NLL=", f[0], ", pars=", sess.run(
-                float_tfpars)
+            print("  Iteration ", fcn.n, ", Flag=", istatus, " NLL=", f[0], ", pars=",
+                  sess.run(float_tfpars))
+
             tmp_results = {'loglh': f[0], "status": -1}
             for n, p in enumerate(float_tfpars):
                 tmp_results[p.par_name] = (p.prev_value, 0.)
@@ -636,24 +635,21 @@ def WriteFitResults(results, BR_names, BR_fit, BR_gen, filename):
     """
     tfpars = tf.trainable_variables()  # Create TF variables
     float_tfpars = [p for p in tfpars if p.floating()]
-    f = open(filename, "w")
-    for p in float_tfpars:
-        s = "%s " % p.par_name
-        for i in results[p.par_name]:
-            s += "%f " % i
-        print()
-        s
+    with open(filename, "w") as f:
+        for p in float_tfpars:
+            s = "{} ".format(p.par_name)
+            for i in results[p.par_name]:
+                s += "{:f} ".format(i)
+            print(s)
+
+            f.write(s + "\n")
+        for i in range(len(BR_fit)):
+            s = BR_names[i] + " {:.15f} {:.15f}".format(BR_fit[i], BR_gen[i])
+            print(s)
+            f.write(s + "\n")
+        s = "loglh {:f} {:d}".format(results["loglh"], results["status"])
+        print(s)
         f.write(s + "\n")
-    for i in range(len(BR_fit)):
-        s = BR_names[i] + " %.15f %.15f" % (BR_fit[i], BR_gen[i])
-        print()
-        s
-        f.write(s + "\n")
-    s = "loglh %f %d" % (results["loglh"], results["status"])
-    print()
-    s
-    f.write(s + "\n")
-    f.close()
 
 
 def ReadFitResults(sess, filename):
@@ -662,8 +658,7 @@ def ReadFitResults(sess, filename):
         sess     : TF session
         filename : file name
     """
-    print()
-    "Reading results from ", filename
+    print("Reading results from ", filename)
     tfpars = tf.trainable_variables()  # Create TF variables
     float_tfpars = [p for p in tfpars if p.floating()]
     par_dict = {}
@@ -672,19 +667,18 @@ def ReadFitResults(sess, filename):
         float_par_dict[i.par_name] = i
     for i in tfpars:
         par_dict[i.par_name] = i
-    f = open(filename, "r")
-    for l in f:
-        ls = l.split()
-        name = ls[0]
-        value = float(ls[1])
-        error = float(ls[2])
-        if name in par_dict.keys():
-            # print name, " = ", value
-            par_dict[name].update(sess, value)
-            par_dict[name].init_value = value
-            if name in float_par_dict.keys():
-                par_dict[name].step_size = error / 10.
-    f.close()
+    with open(filename, "r") as f:
+        for l in f:
+            ls = l.split()
+            name = ls[0]
+            value = float(ls[1])
+            error = float(ls[2])
+            if name in par_dict.keys():
+                # print name, " = ", value
+                par_dict[name].update(sess, value)
+                par_dict[name].init_value = value
+                if name in float_par_dict.keys():
+                    par_dict[name].step_size = error / 10.
 
 
 def CalculateFitFractions(sess, pdf, x, switches, norm_sample):
@@ -751,16 +745,13 @@ def WriteFitFractions(fit_fractions, names, filename):
         names : list of component names
         filename : file name
     """
-    f = open(filename, "w")
-    sum_fit_fractions = 0.
-    for n, ff in zip(names, fit_fractions):
-        s = "%s %f" % (n, ff)
-        print()
-        s
+    with open(filename, "w") as f:
+        sum_fit_fractions = 0
+        for n, ff in zip(names, fit_fractions):
+            s = "{} {:f}".format(n, ff)
+            print(s)
+            f.write(s + "\n")
+            sum_fit_fractions += ff
+        s = "Sum {:f}".format(sum_fit_fractions)
+        print(s)
         f.write(s + "\n")
-        sum_fit_fractions += ff
-    s = "Sum %f" % sum_fit_fractions
-    print()
-    s
-    f.write(s + "\n")
-    f.close()

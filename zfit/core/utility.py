@@ -10,16 +10,16 @@ from .optimization import *
 
 
 def MultivariateGauss(x, norm, mean, invCov):
-    print()
-    norm
+    print(norm)
+
     dx = x - mean
     expArg = tf.einsum("ai,ij,aj->a", dx, invCov, dx)
     return (norm ** 2) * tf.exp(-0.5 * expArg)
 
 
 def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr):
-    print()
-    norm
+    print(norm)
+
     offdiag = abs(xsigma * ysigma) * corr
     array = [[xsigma ** 2, offdiag], [offdiag, ysigma ** 2]]
     cov = tf.stack(array)
@@ -46,14 +46,16 @@ class GaussianMixture2D(object):
     def __init__(self, prefix, n, x_range, y_range):
         self.params = []
         for i in range(n):
-            norm = FitParameter(prefix + "n%d" % i, 1. / (1. + float(i)), 0., 2.)
-            xmean = FitParameter(prefix + "xm%d" % i,
+            norm = FitParameter(prefix + "n{:d}".format(i), 1. / (1. + float(i)), 0., 2.)
+            xmean = FitParameter(prefix + "xm{:d}".format(i),
                                  np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
-            ymean = FitParameter(prefix + "ym%d" % i,
+            ymean = FitParameter(prefix + "ym{:d}".format(i),
                                  np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
-            xsigma = FitParameter(prefix + "xs%d" % i, (x_range[1] - x_range[0]) / 4., 0., 2.)
-            ysigma = FitParameter(prefix + "ys%d" % i, (x_range[1] - x_range[0]) / 4., 0., 2.)
-            corr = FitParameter(prefix + "c%d" % i, 0., -0.9, 0.9)
+            xsigma = FitParameter(prefix + "xs{:d}".format(i),
+                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
+            ysigma = FitParameter(prefix + "ys{:d}".format(i),
+                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
+            corr = FitParameter(prefix + "c{:d}".format(i), 0., -0.9, 0.9)
             self.params += [(norm, xmean, ymean, xsigma, ysigma, corr)]
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
@@ -65,17 +67,19 @@ class GaussianMixture2D(object):
 
 
 class GaussianMixture4D(object):
-    def __init__(self, prefix, n, ranges):
+    def __init__(self, prefix, n, ranges):  # TODO: ranges? x_range, y_range?
         self.params = []
         for i in range(n):
-            norm = FitParameter(prefix + "n%d" % i, 1. / (1. + float(i)), 0., 2.)
-            xmean = FitParameter(prefix + "xm%d" % i,
+            norm = FitParameter(prefix + "n{:d}".format(i), 1. / (1. + float(i)), 0., 2.)
+            xmean = FitParameter(prefix + "xm{:d}".format(i),
                                  np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
-            ymean = FitParameter(prefix + "ym%d" % i,
+            ymean = FitParameter(prefix + "ym{:d}".format(i),
                                  np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
-            xsigma = FitParameter(prefix + "xs%d" % i, (x_range[1] - x_range[0]) / 4., 0., 2.)
-            ysigma = FitParameter(prefix + "ys%d" % i, (x_range[1] - x_range[0]) / 4., 0., 2.)
-            corr = FitParameter(prefix + "c%d" % i, 0., -0.9, 0.9)
+            xsigma = FitParameter(prefix + "xs{:d}".format(i),
+                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
+            ysigma = FitParameter(prefix + "ys{:d}".format(i),
+                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
+            corr = FitParameter(prefix + "c{:d}".format(i), 0., -0.9, 0.9)
             self.params += [(norm, xmean, ymean, xsigma, ysigma, corr)]
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
