@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 from zfit.physics import constants as const
 
 #  from Sec.2.5 of A. Bharucha, D. Straub and R. Zwicky (BSZ2015)

@@ -7,7 +7,7 @@ import pytest
 
 import zfit
 
+
 def test_empty():
     """Empty test."""
     assert True
-
