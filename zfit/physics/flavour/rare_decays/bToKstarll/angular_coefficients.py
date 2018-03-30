@@ -73,9 +73,9 @@ def J5(q2, ml):
     A_perp_r = ampl.A_perp_R(q2, ml)
     A_para_l = ampl.A_para_L(q2, ml)  # TODO: smell, unused?
     A_para_r = ampl.A_para_R(q2, ml)  # TODO: smell, unused?
-    # HACK: bugfix below?
-    # A_zero_l = ampl.A_zero_L(q2, ml)  # TODO: smell, unused?
-    # A_zero_r = ampl.A_zero_R(q2, ml)  # TODO: smell, unused?
+    # bugfix below?
+    # A_zero_l = ampl.A_zero_L(q2, ml)
+    # A_zero_r = ampl.A_zero_R(q2, ml)
     j5 = (tf.sqrt(tf.cast(2.0, tf.float64)) * funcs.beta(q2, ml) *
           tf.real(A_zero_l * tf.conj(A_perp_l) - A_zero_r * tf.conj(A_perp_r)))
     return 3 / 4 * j5
