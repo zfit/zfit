@@ -2,8 +2,12 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 
-from Interface import *
-from Kinematics import *
+import zfit
+from zfit.core.interface import Pi
+from zfit.core.kinematics import TwoBodyMomentum, ComplexTwoBodyMomentum
+from zfit.settings import ctype
+from . import tfext
+
 
 
 def HelicityAmplitude(x, spin):
@@ -13,15 +17,15 @@ def HelicityAmplitude(x, spin):
       spin : spin of the resonance
     """
     if spin == 0:
-        return tf.complex(Const(1.), Const(0.))
+        return tf.complex(tfext.Const(1.), tfext.Const(0.))
     elif spin == 1:
-        return tf.complex(x, Const(0.))
+        return tf.complex(x, tfext.Const(0.))
     elif spin == 2:
-        return tf.complex((3. * x ** 2 - 1.) / 2., Const(0.))
+        return tf.complex((3. * x ** 2 - 1.) / 2., tfext.Const(0.))
     elif spin == 3:
-        return tf.complex((5. * x ** 3 - 3. * x) / 2., Const(0.))
+        return tf.complex((5. * x ** 3 - 3. * x) / 2., tfext.Const(0.))
     elif spin == 4:
-        return tf.complex((35. * x ** 4 - 30. * x ** 2 + 3.) / 8., Const(0.))
+        return tf.complex((35. * x ** 4 - 30. * x ** 2 + 3.) / 8., tfext.Const(0.))
     else:
         raise ValueError("Illegal spin number.")
 
@@ -30,8 +34,8 @@ def RelativisticBreitWigner(m2, mres, wres):
     Relativistic Breit-Wigner
     """
     if wres.dtype is ctype:
-        return 1. / (CastComplex(mres ** 2 - m2) - tf.complex(Const(0.), mres) * wres)
-    if wres.dtype is fptype:
+        return 1. / (tfext.CastComplex(mres ** 2 - m2) - tf.complex(tfext.Const(0.), mres) * wres)
+    if wres.dtype is zfit.settings.fptype:
         return 1. / tf.complex(mres ** 2 - m2, -mres * wres)
     return None
 
@@ -45,7 +49,7 @@ def BlattWeisskopfFormFactor(q, q0, d, l):
 
     def hankel1(x):
         if l == 0:
-            return Const(1.)
+            return tfext.Const(1.)
         if l == 1:
             return 1 + x ** 2
         if l == 2:
@@ -95,7 +99,7 @@ def BreitWignerLineShape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barrier
         b1 = OrbitalBarrierFactor(p, p0, lr)
         b2 = OrbitalBarrierFactor(q, q0, ld)
         ff *= b1 * b2
-    return bw * tf.complex(ff, Const(0.))
+    return bw * tf.complex(ff, tfext.Const(0.))
 
 
 def SubThresholdBreitWignerLineShape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld,
@@ -122,7 +126,7 @@ def SubThresholdBreitWignerLineShape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr,
         b1 = OrbitalBarrierFactor(p, p0, lr)
         b2 = OrbitalBarrierFactor(q, q0, ld)
         ff *= b1 * b2
-    return bw * tf.complex(ff, Const(0.))
+    return bw * tf.complex(ff, tfext.Const(0.))
 
 
 def ExponentialNonResonantLineShape(m2, m0, alpha, ma, mb, mc, md, lr, ld, barrierFactor=True):
@@ -137,9 +141,9 @@ def ExponentialNonResonantLineShape(m2, m0, alpha, ma, mb, mc, md, lr, ld, barri
         p0 = TwoBodyMomentum(m0, ma, mb)
         b1 = OrbitalBarrierFactor(p, p0, lr)
         b2 = OrbitalBarrierFactor(q, q0, ld)
-        return tf.complex(b1 * b2 * tf.exp(-alpha * (m2 - m0 ** 2)), Const(0.))
+        return tf.complex(b1 * b2 * tf.exp(-alpha * (m2 - m0 ** 2)), tfext.Const(0.))
     else:
-        return tf.complex(tf.exp(-alpha * (m2 - m0 ** 2)), Const(0.))
+        return tf.complex(tf.exp(-alpha * (m2 - m0 ** 2)), tfext.Const(0.))
 
 
 def GounarisSakuraiLineShape(s, m, gamma, m_pi):
@@ -159,8 +163,8 @@ def GounarisSakuraiLineShape(s, m, gamma, m_pi):
     p0 = tf.sqrt(p02)
     ppi = tf.sqrt(ppi2)
 
-    hs = 2. * ppi / Pi() / ss * Log((ss + 2. * ppi) / 2. / m_pi)
-    hm = 2. * p0 / Pi() / m * Log((m + 2. * ppi) / 2. / m_pi)
+    hs = 2. * ppi / Pi() / ss * tf.log((ss + 2. * ppi) / 2. / m_pi)
+    hm = 2. * p0 / Pi() / m * tf.log((m + 2. * ppi) / 2. / m_pi)
 
     dhdq = hm * (1. / 8. / p02 - 1. / 2. / m2) + 1. / 2. / Pi() / m2
     f = gamma * m2 / (p0 ** 3) * (ppi2 * (hs - hm) - p02 * (s - m2) * dhdq)
@@ -188,8 +192,9 @@ def FlatteLineShape(s, m, g1, g2, ma1, mb1, ma2, mb2):
     pab1 = TwoBodyMomentum(mab, ma1, mb1)
     rho1 = 2. * pab1 / mab
     pab2 = ComplexTwoBodyMomentum(mab, ma2, mb2)
-    rho2 = 2. * pab2 / CastComplex(mab)
-    gamma = (CastComplex(g1 ** 2 * rho1) + CastComplex(g2 ** 2) * rho2) / CastComplex(m)
+    rho2 = 2. * pab2 / tfext.CastComplex(mab)
+    gamma = ((tfext.CastComplex(g1 ** 2 * rho1) + tfext.CastComplex(g2 ** 2) *
+              rho2) / tfext.CastComplex(m))
     return RelativisticBreitWigner(s, m, gamma)
 
 
@@ -208,7 +213,7 @@ def LASSLineShape(m2ab, m0, gamma0, a, r, ma, mb, dr, lr, barrierFactor=True):
     if barrierFactor:
         b1 = OrbitalBarrierFactor(q, q0, lr)
         ff *= b1
-    return tf.complex(ff, Const(0.)) * (nonResLASS + resLASS)
+    return tf.complex(ff, tfext.Const(0.)) * (nonResLASS + resLASS)
 
 
 def NonresonantLASSLineShape(m2ab, a, r, ma, mb):
@@ -218,7 +223,7 @@ def NonresonantLASSLineShape(m2ab, a, r, ma, mb):
     m = tf.sqrt(m2ab)
     q = TwoBodyMomentum(m, ma, mb)
     cot_deltab = 1. / a / q + 1. / 2. * r * q
-    ampl = CastComplex(m) / tf.complex(q * cot_deltab, -q)
+    ampl = tfext.CastComplex(m) / tf.complex(q * cot_deltab, -q)
     return ampl
 
 
@@ -233,9 +238,9 @@ def ResonantLASSLineShape(m2ab, m0, gamma0, a, r, ma, mb):
     cot_deltab = 1. / a / q + 1. / 2. * r * q
     phase = tf.atan(1. / cot_deltab)
     width = gamma0 * q / m * m0 / q0
-    ampl = RelativisticBreitWigner(m2ab, m0, width) * tf.complex(tf.cos(2. * phase),
-                                                                 tf.sin(2. * phase)) * CastComplex(
-        m0 * m0 * gamma0 / q0)
+    ampl = (RelativisticBreitWigner(m2ab, m0, width) *
+            tf.complex(tf.cos(2. * phase), tf.sin(2. * phase)) *
+            tfext.CastComplex(m0 * m0 * gamma0 / q0))
     return ampl
 
 
@@ -253,5 +258,5 @@ def DabbaLineShape(m2ab, b, alpha, beta, ma, mb):
     realPart = 1.0 - beta * mDiff
     imagPart = b * tf.exp(-alpha * mDiff) * (m2ab - sAdler) * rho
     denomFactor = realPart * realPart + imagPart * imagPart
-    ampl = tf.complex(realPart, imagPart) / CastComplex(denomFactor)
+    ampl = tf.complex(realPart, imagPart) / tfext.CastComplex(denomFactor)
     return ampl

@@ -2,6 +2,7 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 
+from zfit.core import interface
 from . import angular_coefficients as ang
 
 
@@ -26,10 +27,10 @@ def d4Gamma(phsp, x, ml):
     sin2ThetaK = (2.0 * sinThetaK * cosThetaK)
     sin2ThetaL = (2.0 * sinThetaL * cosThetaL)
 
-    cos2ThetaK = (2.0 * cosThetaK * cosThetaK - 1.0)
+    cos2ThetaK = (2.0 * cosThetaK * cosThetaK - 1.0)  # TODO: smell, unused?
     cos2ThetaL = (2.0 * cosThetaL * cosThetaL - 1.0)
 
-    fullPDF = ((3.0 / (8.0 * Pi())) * (
+    fullPDF = ((3.0 / (8.0 * interface.Pi())) * (
                                       ang.J1s(q2, ml)   * sinTheta2K
                                       + ang.J1c(q2, ml) * cosTheta2K
                                       + ang.J2s(q2, ml) * cos2ThetaL  * sinTheta2K

@@ -2,6 +2,7 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 
+from zfit.core import tfext
 from zfit.physics import constants as const
 
 #  from Sec.2.5 of A. Bharucha, D. Straub and R. Zwicky (BSZ2015)
@@ -10,10 +11,10 @@ t_minus = tf.square(const.MB - const.MKst)
 t_zero = t_plus * (1. - tf.sqrt(1. - t_minus/t_plus))
 
 # Mass resonances of Table 3 of BSZ2015
-MR_A0  = Const(5.366)
-MR_T1  = Const(5.415)
+MR_A0  = tfext.Const(5.366)
+MR_T1  = tfext.Const(5.415)
 MR_V   = MR_T1
-MR_T2  = Const(5.829)
+MR_T2  = tfext.Const(5.829)
 MR_T23 = MR_T2
 MR_A1  = MR_T2
 MR_A12 = MR_T2

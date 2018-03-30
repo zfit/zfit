@@ -1,10 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
-import tensorflow as tf
-
 import array  # TODO: needed? numpy array?
-import numpy as np
-import math
 
 from ROOT import TVirtualFitter, TNtuple, TH1, TH2, TH3
 from .interface import *
@@ -26,7 +22,7 @@ class RootHistShape(object):
         """
         if isinstance(hist, TH1):
             nx = hist.GetNbinsX()
-            array = np.zeros((nx), dtype=np.dtype('d'))
+            array = np.zeros(nx, dtype=np.dtype('d'))
             self.limits = [
                 tf.constant([hist.GetXaxis().GetBinCenter(1)], dtype=fptype),
                 tf.constant([hist.GetXaxis().GetBinCenter(nx)], dtype=fptype),
@@ -325,7 +321,7 @@ def Switches(size):
       fit fractions)
         size : number of components of the PDF
     """
-    p = [tf.placeholder_with_default(Const(1.), shape=()) for i in range(size)]
+    p = [tf.placeholder_with_default(tfext.Const(1.), shape=()) for _ in range(size)]
     return p
 
 
@@ -414,7 +410,7 @@ def ReadNTuple(ntuple, variables):
         ntuple : input TNtuple
         variables : list of ntuple variables to read
     """
-    data = []
+    data = []  # TODO: smell, unused?
     code_list = []
     for v in variables:
         code_list += [compile("i.{}".format(v), '<string>', 'eval')]
@@ -429,13 +425,13 @@ def ReadNTuple(ntuple, variables):
     return array
 
 
-def Gradient(function):
+def Gradient(func):
     """
       Returns TF graph for analytic gradient of the input function wrt all floating variables
     """
     tfpars = tf.trainable_variables()  # Create TF variables
     float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
-    return tf.gradients(function, float_tfpars)  # Get analytic gradient
+    return tf.gradients(func, float_tfpars)  # Get analytic gradient
 
 
 def LoadData(sess, phsp, name, data):
@@ -720,7 +716,7 @@ def CalculateCPFitFractions(sess, pdf_particle, pdf_antiparticle, x, switches, n
     norm_anti = np.sum(sess.run(pdf_antiparticle, feed_dict={x: norm_sample}))
 
     integral = norm_part + norm_anti
-    cpv_int = norm_part - norm_anti
+    cpv_int = norm_part - norm_anti  # TODO: smell, unused?
 
     cpc_fit_fractions = []
     cpv_fit_fractions = []

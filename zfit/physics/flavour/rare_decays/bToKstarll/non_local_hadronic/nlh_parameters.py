@@ -1,9 +1,14 @@
 from __future__ import print_function, division, absolute_import
 
+import tensorflow as tf
+
 from zfit.core import optimization as opt
 from .data import priors_nlh
 
-# Parametrization of non-local hadronix effects in B0 -> K* ll
+# Parametrization of non-local hadronic effects in B0 -> K* ll
+
+# TODO: refactoring.
+# - Create lists?
 
 Re_alpha_perp_0 = opt.FitParameter("Re_alpha_perp_0", priors_nlh.param_mean_H[0] , -0.01, 0.01, 0)
 Re_alpha_para_0 = opt.FitParameter("Re_alpha_para_0", priors_nlh.param_mean_H[1] , -0.01, 0.01, 0)

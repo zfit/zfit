@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 
 from zfit.core import optimization as opt
-from zfit.core.interface import CastComplex, AbsSq
+from zfit.core.tfext import CastComplex, AbsSq
 
 # CKM parameters (from C. Bobeth, M. Chrzaszcz, D. van Dyk and J. Virto (in preparation))
 lambda_CKM_init  =  0.225

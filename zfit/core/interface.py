@@ -1,48 +1,19 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
-import tensorflow as tf
-import numpy as np
 import itertools
 
-# Use double precision throughout
-fptype = tf.float64
+import numpy as np
+import tensorflow as tf
 
-# Use double precision throughout
-ctype = tf.complex128
-
-
-# Sum of the list components
-
-# Density for a complex amplitude
-def Density(ampl): return tf.abs(ampl) ** 2
-
-
-# Create a complex number from a magnitude and a phase
-def Polar(a, ph): return tf.complex(a * tf.cos(ph), a * tf.sin(ph))
-
-
-# Cast a real number to complex
-def CastComplex(re): return tf.cast(re, dtype=ctype)
-
-
-# Declare constant
-def Const(c): return tf.constant(c, dtype=fptype)
-
-
-# Declare invariant
-def Invariant(c): return tf.constant([c], dtype=fptype)
-
-
-# |x|^2
-def AbsSq(x): return tf.real(x * tf.conj(x))
+from zfit.settings import fptype
+from . import tfext
 
 
 # Pi
-def Pi(): return Const(np.pi)
+def Pi(): return tfext.Const(np.pi)
 
 
 # Return argument of a complex number
-def Argument(c): return tf.atan2(tf.imag(c), tf.real(c))
 
 
 def Clebsch(j1, m1, j2, m2, J, M):

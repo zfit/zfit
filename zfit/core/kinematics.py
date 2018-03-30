@@ -2,9 +2,9 @@ from __future__ import print_function, division, absolute_import
 
 import sys
 import operator
-import tensorflow as tf
-import numpy as np
 import math
+
+from zfit.core import tfext
 from . import optimization
 
 from .interface import *
@@ -264,7 +264,7 @@ def SphericalAngles(pb):
     z1 = UnitVector(SpatialComponents(pb))  # New z-axis is in the direction of pb
     theta = tf.acos(ZComponent(z1))  # Helicity angle
     phi = tf.atan2(YComponent(pb), XComponent(pb))  # Phi angle
-    return (theta, phi)
+    return theta, phi
 
 
 def HelicityAngles(pb):
@@ -292,8 +292,8 @@ def FourMomentaFromHelicityAngles(md, ma, mb, theta, phi):
     Pa = LorentzVector(Vector(tf.zeros_like(p), tf.zeros_like(p), p), Ea)
     Pb = LorentzVector(Vector(tf.zeros_like(p), tf.zeros_like(p), -p), Eb)
     # Rotate four-momenta
-    Pa = RotateFourVector(Pa, tf.zeros_like(phi), -theta, -phi)
-    Pb = RotateFourVector(Pb, tf.zeros_like(phi), -theta, -phi)
+    Pa = RotateLorentzVector(Pa, tf.zeros_like(phi), -theta, -phi)
+    Pb = RotateLorentzVector(Pb, tf.zeros_like(phi), -theta, -phi)
     return Pa, Pb
 
 
@@ -366,7 +366,7 @@ def RotatedAxes(pb, oldaxes=None):
     a0 = z0 - z1 * Scalar(sp)  # Vector in z-pb plane perpendicular to z0
     x1 = tf.where(tf.equal(sp, 1.0), x0, -UnitVector(a0))
     y1 = VectorProduct(z1, x1)  # New y-axis
-    return (x1, y1, z1)
+    return x1, y1, z1
 
 
 def OldAxes(pb):
@@ -384,7 +384,7 @@ def OldAxes(pb):
     x = Vector(XComponent(x1), XComponent(y1), XComponent(z1))
     y = Vector(YComponent(x1), YComponent(y1), YComponent(z1))
     z = Vector(ZComponent(x1), ZComponent(y1), ZComponent(z1))
-    return (x, y, z)
+    return x, y, z
 
 
 def RotationAndBoost(ps, pb):
@@ -416,7 +416,7 @@ def ApplyRotationAndBoost(ps, spatial, boost):
     x, y, z = spatial
     ps1 = []
     for p in ps:
-        p1 = ProjectFourVector(p, (x1, y1, z1))  # TODO: smell, should be x,y,z?
+        p1 = ProjectFourVector(p, (x1, y1, z1))  # TODO: smell, should be x,y,z? or are they lists?
         p2 = LorentzBoost(p1, boost)
         ps1 += [p2]
 
@@ -433,7 +433,7 @@ def EulerAngles(x1, y1, z1, x2, y2, z2):
     theta = tf.acos(ScalarProduct(z1, z2))
     phi = tf.atan2(ScalarProduct(z1, y2), ScalarProduct(z1, x2))
     psi = tf.atan2(ScalarProduct(y1, z2), ScalarProduct(x1, z2))
-    return (phi, theta, psi)
+    return phi, theta, psi
 
 
 def HelicityAngles3Body(pa, pb, pc):
@@ -458,7 +458,7 @@ def HelicityAngles3Body(pa, pb, pc):
     theta_a = tf.acos(-ZComponent(pa_prime2) / Norm(SpatialComponents(pa_prime2)))
     phi_a = tf.atan2(-YComponent(pa_prime2), -XComponent(pa_prime2))
 
-    return (theta_r, phi_r, theta_a, phi_a)
+    return theta_r, phi_r, theta_a, phi_a
 
 
 def CosHelicityAngle(p1, p2):
@@ -520,7 +520,7 @@ def HelicityAngles4Body(pa, pb, pc, pd):
     theta_a = tf.acos(-ZComponent(pa_prime2) / Norm(SpatialComponents(pa_prime2)))
     phi_a = tf.atan2(-YComponent(pa_prime2), -XComponent(pa_prime2))
 
-    return (theta_r, phi_r, theta_a, phi_a)
+    return theta_r, phi_r, theta_a, phi_a
 
 
 def WignerD(phi, theta, psi, j2, m2_1, m2_2):
@@ -532,11 +532,11 @@ def WignerD(phi, theta, psi, j2, m2_1, m2_2):
     j : spin (in units of 1/2, e.g. 1 for spin=1/2)
     m1 and m2 : spin projections (in units of 1/2, e.g. 1 for projection 1/2)
     """
-    i = tf.complex(Const(0), Const(1))
+    i = tf.complex(tfext.Const(0), tfext.Const(1))
     m1 = m2_1 / 2.
     m2 = m2_2 / 2.
-    return tf.exp(-i * CastComplex(m1 * phi)) * CastComplex(
-        Wignerd(theta, j2, m2_1, m2_2)) * tf.exp(-i * CastComplex(m2 * psi))
+    return tf.exp(-i * tfext.CastComplex(m1 * phi)) * tfext.CastComplex(
+        Wignerd(theta, j2, m2_1, m2_2)) * tf.exp(-i * tfext.CastComplex(m2 * psi))
 
 
 def Wignerd(theta, j, m1, m2):
@@ -646,7 +646,7 @@ def SpinRotationAngle(pa, pb, pc, bachelor=2):
       bachelor : index of the "bachelor" particle (0=A, 1=B, or 2=C)
     """
     if bachelor == 2:
-        return Const(0.)
+        return tfext.Const(0.)
     pboost = LorentzVector(-SpatialComponents(pb) / Scalar(TimeComponent(pb)), TimeComponent(pb))
     if bachelor == 0:
         pa1 = SpatialComponents(LorentzBoost(pa, pboost))
@@ -681,7 +681,7 @@ def HelicityAmplitude3Body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambdaR
     h = tf.complex(d_terms * tf.cos(ph), d_terms * tf.sin(ph))
 
     if cache:
-        Optimisation.cacheable_tensors += [h]
+        optimization.cacheable_tensors += [h]
 
     return h
 
@@ -705,7 +705,7 @@ def HelicityCouplingsFromLS(ja, jb, jc, lb, lc, bls):
         s = ls[1]
         coeff = (math.sqrt((l + 1) / (ja + 1)) * Clebsch(jb, lb, jc, -lc, s, lb - lc) *
                  Clebsch(l, 0, s, lb - lc, ja, lb - lc))
-        a += Const(coeff) * b
+        a += tfext.Const(coeff) * b
     return a
 
 
@@ -715,13 +715,13 @@ def ZemachTensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin, cache=False):
     """
     z = None
     if spin == 0:
-        z = tf.complex(Const(1.), Const(0.))
+        z = tf.complex(tfext.Const(1.), tfext.Const(0.))
     if spin == 1:
-        z = tf.complex(m2ac - m2bc + (m2d - m2c) * (m2b - m2a) / m2ab, Const(0.))
+        z = tf.complex(m2ac - m2bc + (m2d - m2c) * (m2b - m2a) / m2ab, tfext.Const(0.))
     if spin == 2:
         z = tf.complex((m2bc - m2ac + (m2d - m2c) * (m2a - m2b) / m2ab) ** 2 - 1. / 3. * (
             m2ab - 2. * (m2d + m2c) + (m2d - m2c) ** 2 / m2ab) * (
-                           m2ab - 2. * (m2a + m2b) + (m2a - m2b) ** 2 / m2ab), Const(0.))
+                           m2ab - 2. * (m2a + m2b) + (m2a - m2b) ** 2 / m2ab), tfext.Const(0.))
     if cache:
         optimization.cacheable_tensors += [z]
 
@@ -742,7 +742,7 @@ def ComplexTwoBodyMomentum(md, ma, mb):
     region below threshold.
   """
     return tf.sqrt(tf.complex((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) /
-                              (4 * md ** 2), Const(0.)))
+                              (4 * md ** 2), tfext.Const(0.)))
 
 
 def FindBasicParticles(particle):
@@ -817,7 +817,7 @@ def HelicityMatrixElement(parent, helAmps):
     if parent.IsParityConserving():
         if not all(part.GetParity() in [-1, +1] for part in [parent, d1, d2]):
             sys.exit(
-                'ERROR in HelicityMatrixElement for the decay of particle ' + parent.GetName() + \
+                'ERROR in HelicityMatrixElement for the decay of particle ' + parent.GetName() +
                 ', the parities have to be correctly defined (-1 or +1) for the particle and its '
                 'daughters')
 
@@ -826,11 +826,8 @@ def HelicityMatrixElement(parent, helAmps):
         if 0 in d1_helicities and 0 in d2_helicities and parity_factor == -1 \
             and helAmps[parent.GetName() + '_' + d1.GetName() + '_0_' + d2.GetName() + '_0'] != 0:
             sys.exit('ERROR in HelicityMatrixElement, the helicity amplitude ' \
-                     + parent.GetName() + '_' + d1.GetName() + '_0_' + d2.GetName() + '_0 should '
-                                                                                      'be set to '
-                                                                                      '0 for '
-                                                                                      'parity '
-                                                                                      'conservation reason')
+                     + parent.GetName() + '_' + d1.GetName() + '_0_' + d2.GetName() +
+                     '_0 should be set to 0 for parity conservation reason')
 
     theta = d1.Theta()
     phi = d1.Phi()
@@ -861,7 +858,7 @@ def HelicityMatrixElement(parent, helAmps):
             parent.GetName() + '_' + d1.GetName() + '_' + d1hel_str + '_' + d2.GetName() + '_' +
             d2hel_str]
         matrixelement[(phel, d1hel, d2hel)] = parent.GetShape() * helAmp \
-                                              * Conjugate(WignerD(phi, theta, 0,
+                                              * tf.conj(WignerD(phi, theta, 0,
                                                                   parent.GetSpin2(),
                                                                   phel, d1hel - d2hel))
     return matrixelement
@@ -889,7 +886,7 @@ def RotateFinalStateHelicity(matrixin, particlesfrom, particlesto):
         allhels = AllowedHelicities(part)
         rot.append({})
         for helfrom, helto in itertools.product(allhels, allhels):
-            rot[-1][(helfrom, helto)] = Conjugate(
+            rot[-1][(helfrom, helto)] = tf.conj(
                 WignerD(phi, theta, 0, part.GetSpin2(), helfrom, helto))
 
     for helsfrom in matrixin.keys():
@@ -913,7 +910,7 @@ class Particle(object):
         self._name = name
         self._spin2 = spin2
         self._daughters = daughters
-        self._shape = shape if shape != None else CastComplex(Const(1.))
+        self._shape = shape if shape != None else tfext.CastComplex(tfext.Const(1.))
         if momentum is not None and daughters != []:
             sys.exit(
                 'ERROR in Particle ' + name + ' definition: do not define the momentum, '
@@ -1322,7 +1319,7 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
             Vector(-p_c * tf.sqrt(1. - cos_theta_c ** 2), tf.zeros_like(p_c), -p_c * cos_theta_c),
             tf.sqrt(p_c ** 2 + self.mc2))
 
-        return (p4a, p4b, p4c)
+        return p4a, p4b, p4c
 
 
 class FourBodyAngularPhaseSpace(object):
@@ -1841,7 +1838,7 @@ class FourBodyHelicityPhaseSpace(object):
         p4B1 = LorentzBoost(LorentzVector(p3B, tf.sqrt(self.mb1 ** 2 + Norm(p3B) ** 2)), v0b)
         p4B2 = LorentzBoost(LorentzVector(-p3B, tf.sqrt(self.mb2 ** 2 + Norm(p3B) ** 2)), v0b)
 
-        return (p4A1, p4A2, p4B1, p4B2)
+        return p4A1, p4A2, p4B1, p4B2
 
     def Placeholder(self, name=None):
         return tf.placeholder(fptype, shape=(None, None), name=name)
