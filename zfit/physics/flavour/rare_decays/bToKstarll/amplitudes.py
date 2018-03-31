@@ -9,7 +9,7 @@ from zfit.physics.flavour import ckm_parameters as ckm
 from .non_local_hadronic import nlh_parametrization_from_analycity as nlh
 from .. import wilson_coefficients as wc
 from zfit.core.interface import Pi
-from zfit.core.tfext import CastComplex
+from zfit.core.tfext import to_complex
 
 
 # Normalization taken from C. Bobeth, M. Chrzaszcz, D. van Dyk and J. Virto (in preparation)
@@ -26,56 +26,56 @@ def normalizeAmplitudes(q2, ml):
 
 def A_perp_L(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return CastComplex(N) * (((wc.C9 + wc.C9p) - (wc.C10 + wc.C10p)) * CastComplex(ff.F_perp(q2))
-                             + CastComplex(2.0 * (const.Mb + const.Ms) * const.MB / q2) *
-                             ((wc.C7 + wc.C7p) * CastComplex(ff.F_perp_T(q2)) - CastComplex(
+    return to_complex(N) * (((wc.C9 + wc.C9p) - (wc.C10 + wc.C10p)) * to_complex(ff.F_perp(q2))
+                            + to_complex(2.0 * (const.Mb + const.Ms) * const.MB / q2) *
+                            ((wc.C7 + wc.C7p) * to_complex(ff.F_perp_T(q2)) - to_complex(
                                  16.0 * tf.square(Pi()) * const.MB / const.Mb) * nlh.H_perp(q2)))
 
 
 def A_perp_R(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return CastComplex(N) * (((wc.C9 + wc.C9p) + (wc.C10 + wc.C10p)) * CastComplex(ff.F_perp(q2))
-                             + CastComplex(2.0 * (const.Mb + const.Ms) * const.MB / q2) *
-                             ((wc.C7 + wc.C7p) * CastComplex(ff.F_perp_T(q2)) - CastComplex(
+    return to_complex(N) * (((wc.C9 + wc.C9p) + (wc.C10 + wc.C10p)) * to_complex(ff.F_perp(q2))
+                            + to_complex(2.0 * (const.Mb + const.Ms) * const.MB / q2) *
+                            ((wc.C7 + wc.C7p) * to_complex(ff.F_perp_T(q2)) - to_complex(
                                  16.0 * tf.square(Pi()) * const.MB / const.Mb) * nlh.H_perp(q2)))
 
 
 def A_para_L(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return -1. * CastComplex(N) * (
-        ((wc.C9 - wc.C9p) - (wc.C10 - wc.C10p)) * CastComplex(ff.F_para(q2))
-        + CastComplex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
-        ((wc.C7 - wc.C7p) * CastComplex(ff.F_para_T(q2)) - CastComplex(
+    return -1. * to_complex(N) * (
+        ((wc.C9 - wc.C9p) - (wc.C10 - wc.C10p)) * to_complex(ff.F_para(q2))
+        + to_complex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
+        ((wc.C7 - wc.C7p) * to_complex(ff.F_para_T(q2)) - to_complex(
             16.0 * tf.square(Pi()) * const.MB / const.Mb) * nlh.H_para(q2)))
 
 
 def A_para_R(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return -1. * CastComplex(N) * (
-        ((wc.C9 - wc.C9p) + (wc.C10 - wc.C10p)) * CastComplex(ff.F_para(q2))
-        + CastComplex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
-        ((wc.C7 - wc.C7p) * CastComplex(ff.F_para_T(q2)) - CastComplex(
+    return -1. * to_complex(N) * (
+        ((wc.C9 - wc.C9p) + (wc.C10 - wc.C10p)) * to_complex(ff.F_para(q2))
+        + to_complex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
+        ((wc.C7 - wc.C7p) * to_complex(ff.F_para_T(q2)) - to_complex(
             16.0 * tf.square(Pi()) * const.MB / const.Mb) * nlh.H_para(q2)))
 
 
 def A_zero_L(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return -1. * CastComplex(N) * (
-        ((wc.C9 - wc.C9p) - (wc.C10 - wc.C10p)) * CastComplex(ff.F_zero(q2))
-        + CastComplex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
-        ((wc.C7 - wc.C7p) * CastComplex(ff.F_zero_T(q2)) - CastComplex(
+    return -1. * to_complex(N) * (
+        ((wc.C9 - wc.C9p) - (wc.C10 - wc.C10p)) * to_complex(ff.F_zero(q2))
+        + to_complex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
+        ((wc.C7 - wc.C7p) * to_complex(ff.F_zero_T(q2)) - to_complex(
             16.0 * tf.square(Pi()) * const.MB / const.Mb) * nlh.H_zero(q2)))
 
 
 def A_zero_R(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return -1. * CastComplex(N) * (
-        ((wc.C9 - wc.C9p) + (wc.C10 - wc.C10p)) * CastComplex(ff.F_zero(q2))
-        + CastComplex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
-        ((wc.C7 - wc.C7p) * CastComplex(ff.F_zero_T(q2)) - CastComplex(
+    return -1. * to_complex(N) * (
+        ((wc.C9 - wc.C9p) + (wc.C10 - wc.C10p)) * to_complex(ff.F_zero(q2))
+        + to_complex(2.0 * (const.Mb - const.Ms) * const.MB / q2) *
+        ((wc.C7 - wc.C7p) * to_complex(ff.F_zero_T(q2)) - to_complex(
             16.0 * tf.square(Pi()) * const.MB / const.Mb) * nlh.H_zero(q2)))
 
 
 def A_time(q2, ml):
     N = normalizeAmplitudes(q2, ml)
-    return -1. * CastComplex(N * 2.0) * (wc.C10 - wc.C10p) * CastComplex(ff.F_time(q2))
+    return -1. * to_complex(N * 2.0) * (wc.C10 - wc.C10p) * to_complex(ff.F_time(q2))

@@ -2,8 +2,12 @@ from __future__ import print_function, division, absolute_import
 
 import array  # TODO: needed? numpy array?
 
+import tensorflow as tf
+import numpy as np
 from ROOT import TVirtualFitter, TNtuple, TH1, TH2, TH3
-from .interface import *
+
+from zfit.core.math import interpolate
+from zfit.settings import fptype
 
 cacheable_tensors = []
 
@@ -72,7 +76,7 @@ class RootHistShape(object):
             x - TF tensor of shape (N, M)
         """
         c = (x - self.limits[0]) / (self.limits[1] - self.limits[0]) * self.ns
-        return Interpolate(self.array, c)
+        return interpolate(self.array, c)
 
 
 def AcceptRejectSample(density, sample):

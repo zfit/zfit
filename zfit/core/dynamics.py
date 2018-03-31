@@ -34,7 +34,7 @@ def RelativisticBreitWigner(m2, mres, wres):
     Relativistic Breit-Wigner
     """
     if wres.dtype is ctype:
-        return 1. / (tfext.CastComplex(mres ** 2 - m2) - tf.complex(tfext.constant(0.), mres) * wres)
+        return 1. / (tfext.to_complex(mres ** 2 - m2) - tf.complex(tfext.constant(0.), mres) * wres)
     if wres.dtype is zfit.settings.fptype:
         return 1. / tf.complex(mres ** 2 - m2, -mres * wres)
     return None
@@ -192,9 +192,9 @@ def FlatteLineShape(s, m, g1, g2, ma1, mb1, ma2, mb2):
     pab1 = TwoBodyMomentum(mab, ma1, mb1)
     rho1 = 2. * pab1 / mab
     pab2 = ComplexTwoBodyMomentum(mab, ma2, mb2)
-    rho2 = 2. * pab2 / tfext.CastComplex(mab)
-    gamma = ((tfext.CastComplex(g1 ** 2 * rho1) + tfext.CastComplex(g2 ** 2) *
-              rho2) / tfext.CastComplex(m))
+    rho2 = 2. * pab2 / tfext.to_complex(mab)
+    gamma = ((tfext.to_complex(g1 ** 2 * rho1) + tfext.to_complex(g2 ** 2) *
+              rho2) / tfext.to_complex(m))
     return RelativisticBreitWigner(s, m, gamma)
 
 
@@ -223,7 +223,7 @@ def NonresonantLASSLineShape(m2ab, a, r, ma, mb):
     m = tf.sqrt(m2ab)
     q = TwoBodyMomentum(m, ma, mb)
     cot_deltab = 1. / a / q + 1. / 2. * r * q
-    ampl = tfext.CastComplex(m) / tf.complex(q * cot_deltab, -q)
+    ampl = tfext.to_complex(m) / tf.complex(q * cot_deltab, -q)
     return ampl
 
 
@@ -240,7 +240,7 @@ def ResonantLASSLineShape(m2ab, m0, gamma0, a, r, ma, mb):
     width = gamma0 * q / m * m0 / q0
     ampl = (RelativisticBreitWigner(m2ab, m0, width) *
             tf.complex(tf.cos(2. * phase), tf.sin(2. * phase)) *
-            tfext.CastComplex(m0 * m0 * gamma0 / q0))
+            tfext.to_complex(m0 * m0 * gamma0 / q0))
     return ampl
 
 
@@ -258,5 +258,5 @@ def DabbaLineShape(m2ab, b, alpha, beta, ma, mb):
     realPart = 1.0 - beta * mDiff
     imagPart = b * tf.exp(-alpha * mDiff) * (m2ab - sAdler) * rho
     denomFactor = realPart * realPart + imagPart * imagPart
-    ampl = tf.complex(realPart, imagPart) / tfext.CastComplex(denomFactor)
+    ampl = tf.complex(realPart, imagPart) / tfext.to_complex(denomFactor)
     return ampl

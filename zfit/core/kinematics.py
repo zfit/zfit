@@ -1,13 +1,20 @@
 from __future__ import print_function, division, absolute_import
 
+
 import sys
 import operator
 import math
+import itertools
+
+import tensorflow as tf
+import numpy as np
 
 from zfit.core import tfext
+from zfit.core.interface import Pi, Clebsch
+from zfit.settings import fptype
 from . import optimization
 
-from .interface import *
+
 from functools import reduce  # py23: does that work?
 
 
@@ -535,8 +542,8 @@ def WignerD(phi, theta, psi, j2, m2_1, m2_2):
     i = tf.complex(tfext.constant(0), tfext.constant(1))
     m1 = m2_1 / 2.
     m2 = m2_2 / 2.
-    return tf.exp(-i * tfext.CastComplex(m1 * phi)) * tfext.CastComplex(
-        Wignerd(theta, j2, m2_1, m2_2)) * tf.exp(-i * tfext.CastComplex(m2 * psi))
+    return tf.exp(-i * tfext.to_complex(m1 * phi)) * tfext.to_complex(
+        Wignerd(theta, j2, m2_1, m2_2)) * tf.exp(-i * tfext.to_complex(m2 * psi))
 
 
 def Wignerd(theta, j, m1, m2):
@@ -764,12 +771,12 @@ def HelicityMatrixDecayChain(parent, helAmps):
     if all(dau.GetNDaughters() == 0 for dau in daughters):
         return matrix_parent
 
-    heldaug = list(itertools.product(*[AllowedHelicities(dau) for dau in daughters]))
+    heldaug = itertools.product(*[AllowedHelicities(dau) for dau in daughters])
 
     d1basics = FindBasicParticles(daughters[0])
     d2basics = FindBasicParticles(daughters[1])
-    d1helbasics = list(itertools.product(*[AllowedHelicities(bas) for bas in d1basics]))
-    d2helbasics = list(itertools.product(*[AllowedHelicities(bas) for bas in d2basics]))
+    d1helbasics = itertools.product(*[AllowedHelicities(bas) for bas in d1basics])
+    d2helbasics = itertools.product(*[AllowedHelicities(bas) for bas in d2basics])
 
     # matrix_dau = [HelicityMatrixDecayChain(dau,helAmps) for dau in daughters if
     # dau.GetNDaughters()!=0 else {(d2hel,)+d2helbasic: c for d2hel,d2helbasic in
@@ -778,8 +785,7 @@ def HelicityMatrixDecayChain(parent, helAmps):
     # for dau in daughters:
     #  if dau.GetNDaughters()!=0:
     #    matrix_dau.append( HelicityMatrixDecayChain(dau,helAmps) )
-    matrix_dau = [HelicityMatrixDecayChain(dau, helAmps) for dau in daughters if
-                  dau.GetNDaughters() != 0]
+    matrix_dau = [HelicityMatrixDecayChain(dau, helAmps) for dau in daughters if dau.GetNDaughters() != 0]
 
     matrix = {}
     for phel, d1helbasic, d2helbasic in itertools.product(AllowedHelicities(parent), d1helbasics,
@@ -873,7 +879,7 @@ def RotateFinalStateHelicity(matrixin, particlesfrom, particlesto):
     matrixout = {}
     for hels in matrixin.keys():
         matrixout[hels] = 0
-    heldaugs = []
+    heldaugs = []  # TODO: smell, unused?
     axesfrom = [RotatedAxes(part.GetMomentum(), oldaxes=part.GetAxes()) for part in particlesfrom]
     axesto = [RotatedAxes(part.GetMomentum(), oldaxes=part.GetAxes()) for part in particlesto]
     thetas = [tf.acos(ScalarProduct(axisfrom[2], axisto[2])) for axisfrom, axisto in
@@ -910,7 +916,7 @@ class Particle(object):
         self._name = name
         self._spin2 = spin2
         self._daughters = daughters
-        self._shape = shape if shape != None else tfext.CastComplex(tfext.constant(1.))
+        self._shape = shape if shape != None else tfext.to_complex(tfext.constant(1.))
         if momentum is not None and daughters != []:
             sys.exit(
                 'ERROR in Particle ' + name + ' definition: do not define the momentum, '
