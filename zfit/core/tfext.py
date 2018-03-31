@@ -20,7 +20,7 @@ def CastComplex(re): return tf.cast(re, dtype=ctype)
 
 
 # Declare constant
-def Const(c): return tf.constant(c, dtype=fptype)
+def constant(c): return tf.constant(c, dtype=fptype)
 
 
 # Declare invariant

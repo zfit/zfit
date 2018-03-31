@@ -27,10 +27,10 @@ def Gauss4D(x, params):
     norm = params[0]
     mean = tf.stack(params[1:5])
     sigma = tf.stack(params[5:9])
-    corr = tf.stack([[tfext.Const(1.), params[9], params[10], params[11]],
-                     [params[9], tfext.Const(1.), params[12], params[13]],
-                     [params[10], params[12], tfext.Const(1.), params[14]],
-                     [params[11], params[13], params[14], tfext.Const(1.)]])
+    corr = tf.stack([[tfext.constant(1.), params[9], params[10], params[11]],
+                     [params[9], tfext.constant(1.), params[12], params[13]],
+                     [params[10], params[12], tfext.constant(1.), params[14]],
+                     [params[11], params[13], params[14], tfext.constant(1.)]])
 
     cov = tf.einsum("i,ij,j->ij", sigma, corr, sigma)
     invcov = tf.matrix_inverse(cov)
@@ -55,7 +55,7 @@ class GaussianMixture2D(object):
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
     def model(self, x):
-        d = tfext.Const(0.)
+        d = tfext.constant(0.)
         for i in self.params:
             d += Gauss2D(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d
@@ -79,7 +79,7 @@ class GaussianMixture4D(object):
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
     def model(self, x):
-        d = tfext.Const(0.)
+        d = tfext.constant(0.)
         for i in self.params:
             d += Gauss2D(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d

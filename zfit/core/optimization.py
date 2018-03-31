@@ -321,7 +321,7 @@ def Switches(size):
       fit fractions)
         size : number of components of the PDF
     """
-    p = [tf.placeholder_with_default(tfext.Const(1.), shape=()) for _ in range(size)]
+    p = [tf.placeholder_with_default(tfext.constant(1.), shape=()) for _ in range(size)]
     return p
 
 

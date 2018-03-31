@@ -532,7 +532,7 @@ def WignerD(phi, theta, psi, j2, m2_1, m2_2):
     j : spin (in units of 1/2, e.g. 1 for spin=1/2)
     m1 and m2 : spin projections (in units of 1/2, e.g. 1 for projection 1/2)
     """
-    i = tf.complex(tfext.Const(0), tfext.Const(1))
+    i = tf.complex(tfext.constant(0), tfext.constant(1))
     m1 = m2_1 / 2.
     m2 = m2_2 / 2.
     return tf.exp(-i * tfext.CastComplex(m1 * phi)) * tfext.CastComplex(
@@ -646,7 +646,7 @@ def SpinRotationAngle(pa, pb, pc, bachelor=2):
       bachelor : index of the "bachelor" particle (0=A, 1=B, or 2=C)
     """
     if bachelor == 2:
-        return tfext.Const(0.)
+        return tfext.constant(0.)
     pboost = LorentzVector(-SpatialComponents(pb) / Scalar(TimeComponent(pb)), TimeComponent(pb))
     if bachelor == 0:
         pa1 = SpatialComponents(LorentzBoost(pa, pboost))
@@ -705,7 +705,7 @@ def HelicityCouplingsFromLS(ja, jb, jc, lb, lc, bls):
         s = ls[1]
         coeff = (math.sqrt((l + 1) / (ja + 1)) * Clebsch(jb, lb, jc, -lc, s, lb - lc) *
                  Clebsch(l, 0, s, lb - lc, ja, lb - lc))
-        a += tfext.Const(coeff) * b
+        a += tfext.constant(coeff) * b
     return a
 
 
@@ -715,13 +715,13 @@ def ZemachTensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin, cache=False):
     """
     z = None
     if spin == 0:
-        z = tf.complex(tfext.Const(1.), tfext.Const(0.))
+        z = tf.complex(tfext.constant(1.), tfext.constant(0.))
     if spin == 1:
-        z = tf.complex(m2ac - m2bc + (m2d - m2c) * (m2b - m2a) / m2ab, tfext.Const(0.))
+        z = tf.complex(m2ac - m2bc + (m2d - m2c) * (m2b - m2a) / m2ab, tfext.constant(0.))
     if spin == 2:
         z = tf.complex((m2bc - m2ac + (m2d - m2c) * (m2a - m2b) / m2ab) ** 2 - 1. / 3. * (
             m2ab - 2. * (m2d + m2c) + (m2d - m2c) ** 2 / m2ab) * (
-                           m2ab - 2. * (m2a + m2b) + (m2a - m2b) ** 2 / m2ab), tfext.Const(0.))
+                           m2ab - 2. * (m2a + m2b) + (m2a - m2b) ** 2 / m2ab), tfext.constant(0.))
     if cache:
         optimization.cacheable_tensors += [z]
 
@@ -742,7 +742,7 @@ def ComplexTwoBodyMomentum(md, ma, mb):
     region below threshold.
   """
     return tf.sqrt(tf.complex((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) /
-                              (4 * md ** 2), tfext.Const(0.)))
+                              (4 * md ** 2), tfext.constant(0.)))
 
 
 def FindBasicParticles(particle):
@@ -910,7 +910,7 @@ class Particle(object):
         self._name = name
         self._spin2 = spin2
         self._daughters = daughters
-        self._shape = shape if shape != None else tfext.CastComplex(tfext.Const(1.))
+        self._shape = shape if shape != None else tfext.CastComplex(tfext.constant(1.))
         if momentum is not None and daughters != []:
             sys.exit(
                 'ERROR in Particle ' + name + ' definition: do not define the momentum, '

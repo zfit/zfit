@@ -16,15 +16,15 @@ def HelicityAmplitude(x, spin):
       spin : spin of the resonance
     """
     if spin == 0:
-        return tf.complex(tfext.Const(1.), tfext.Const(0.))
+        return tf.complex(tfext.constant(1.), tfext.constant(0.))
     elif spin == 1:
-        return tf.complex(x, tfext.Const(0.))
+        return tf.complex(x, tfext.constant(0.))
     elif spin == 2:
-        return tf.complex((3. * x ** 2 - 1.) / 2., tfext.Const(0.))
+        return tf.complex((3. * x ** 2 - 1.) / 2., tfext.constant(0.))
     elif spin == 3:
-        return tf.complex((5. * x ** 3 - 3. * x) / 2., tfext.Const(0.))
+        return tf.complex((5. * x ** 3 - 3. * x) / 2., tfext.constant(0.))
     elif spin == 4:
-        return tf.complex((35. * x ** 4 - 30. * x ** 2 + 3.) / 8., tfext.Const(0.))
+        return tf.complex((35. * x ** 4 - 30. * x ** 2 + 3.) / 8., tfext.constant(0.))
     else:
         raise ValueError("Illegal spin number.")
 
@@ -34,7 +34,7 @@ def RelativisticBreitWigner(m2, mres, wres):
     Relativistic Breit-Wigner
     """
     if wres.dtype is ctype:
-        return 1. / (tfext.CastComplex(mres ** 2 - m2) - tf.complex(tfext.Const(0.), mres) * wres)
+        return 1. / (tfext.CastComplex(mres ** 2 - m2) - tf.complex(tfext.constant(0.), mres) * wres)
     if wres.dtype is zfit.settings.fptype:
         return 1. / tf.complex(mres ** 2 - m2, -mres * wres)
     return None
@@ -49,7 +49,7 @@ def BlattWeisskopfFormFactor(q, q0, d, l):
 
     def hankel1(x):
         if l == 0:
-            return tfext.Const(1.)
+            return tfext.constant(1.)
         if l == 1:
             return 1 + x ** 2
         if l == 2:
@@ -99,7 +99,7 @@ def BreitWignerLineShape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barrier
         b1 = OrbitalBarrierFactor(p, p0, lr)
         b2 = OrbitalBarrierFactor(q, q0, ld)
         ff *= b1 * b2
-    return bw * tf.complex(ff, tfext.Const(0.))
+    return bw * tf.complex(ff, tfext.constant(0.))
 
 
 def SubThresholdBreitWignerLineShape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld,
@@ -126,7 +126,7 @@ def SubThresholdBreitWignerLineShape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr,
         b1 = OrbitalBarrierFactor(p, p0, lr)
         b2 = OrbitalBarrierFactor(q, q0, ld)
         ff *= b1 * b2
-    return bw * tf.complex(ff, tfext.Const(0.))
+    return bw * tf.complex(ff, tfext.constant(0.))
 
 
 def ExponentialNonResonantLineShape(m2, m0, alpha, ma, mb, mc, md, lr, ld, barrierFactor=True):
@@ -141,9 +141,9 @@ def ExponentialNonResonantLineShape(m2, m0, alpha, ma, mb, mc, md, lr, ld, barri
         p0 = TwoBodyMomentum(m0, ma, mb)
         b1 = OrbitalBarrierFactor(p, p0, lr)
         b2 = OrbitalBarrierFactor(q, q0, ld)
-        return tf.complex(b1 * b2 * tf.exp(-alpha * (m2 - m0 ** 2)), tfext.Const(0.))
+        return tf.complex(b1 * b2 * tf.exp(-alpha * (m2 - m0 ** 2)), tfext.constant(0.))
     else:
-        return tf.complex(tf.exp(-alpha * (m2 - m0 ** 2)), tfext.Const(0.))
+        return tf.complex(tf.exp(-alpha * (m2 - m0 ** 2)), tfext.constant(0.))
 
 
 def GounarisSakuraiLineShape(s, m, gamma, m_pi):
@@ -213,7 +213,7 @@ def LASSLineShape(m2ab, m0, gamma0, a, r, ma, mb, dr, lr, barrierFactor=True):
     if barrierFactor:
         b1 = OrbitalBarrierFactor(q, q0, lr)
         ff *= b1
-    return tf.complex(ff, tfext.Const(0.)) * (nonResLASS + resLASS)
+    return tf.complex(ff, tfext.constant(0.)) * (nonResLASS + resLASS)
 
 
 def NonresonantLASSLineShape(m2ab, a, r, ma, mb):

@@ -10,7 +10,7 @@ from . import tfext
 
 
 # Pi
-def Pi(): return tfext.Const(np.pi)
+def Pi(): return tfext.constant(np.pi)
 
 
 # Return argument of a complex number
