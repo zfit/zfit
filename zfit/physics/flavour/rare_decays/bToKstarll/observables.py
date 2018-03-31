@@ -6,52 +6,36 @@ from . import angular_coefficients as ang
 from . import decay_rates
 
 
-def S1c(q2, ml):
-    return ang.J1c(q2, ml) / decay_rates.dGamma_dq2(q2)
+def SN_obs(ang_coeff):
+    """Factory for S* functions.
+
+    Args:
+        ang_coeff (func(q2, ml)): Function returning the angular coefficients.
+    """
+
+    def func(q2, ml):
+        return ang_coeff(q2, ml) / decay_rates.dGamma_dq2(q2)
+
+    return func
 
 
-def S1s(q2, ml):
-    return ang.J1s(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S2c(q2, ml):
-    return ang.J2c(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S2s(q2, ml):
-    return ang.J2s(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S3(q2, ml):
-    return ang.J3(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S4(q2, ml):
-    return ang.J4(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S5(q2, ml):
-    return ang.J5(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S6s(q2, ml):
-    return ang.J6s(q2, ml) / decay_rates.dGamma_dq2(q2)
+S1c = SN_obs(ang.J1c)
+S1s = SN_obs(ang.J1s)
+S2c = SN_obs(ang.J2c)
+S2s = SN_obs(ang.J2s)
+S3 = SN_obs(ang.J3)
+S4 = SN_obs(ang.J4)
+S5 = SN_obs(ang.J5)
+S6s = SN_obs(ang.J6s)
 
 
 def AFB(q2, ml):
     return 3. / 4. * S6s(q2, ml)
 
 
-def S7(q2, ml):
-    return ang.J7(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S8(q2, ml):
-    return ang.J8(q2, ml) / decay_rates.dGamma_dq2(q2)
-
-
-def S9(q2, ml):
-    return ang.J9(q2, ml) / decay_rates.dGamma_dq2(q2)
+S7 = SN_obs(ang.J7)
+S8 = SN_obs(ang.J8)
+S9 = SN_obs(ang.J9)
 
 
 # Optimized angular base

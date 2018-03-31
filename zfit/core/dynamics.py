@@ -260,3 +260,6 @@ def DabbaLineShape(m2ab, b, alpha, beta, ma, mb):
     denomFactor = realPart * realPart + imagPart * imagPart
     ampl = tf.complex(realPart, imagPart) / tfext.CastComplex(denomFactor)
     return ampl
+
+
+tf.reduce_mean()
