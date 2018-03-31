@@ -9,7 +9,6 @@ from zfit.settings import ctype
 from . import tfext
 
 
-
 def HelicityAmplitude(x, spin):
     """
     Helicity amplitude for a resonance in scalar-scalar state
@@ -28,6 +27,7 @@ def HelicityAmplitude(x, spin):
         return tf.complex((35. * x ** 4 - 30. * x ** 2 + 3.) / 8., tfext.Const(0.))
     else:
         raise ValueError("Illegal spin number.")
+
 
 def RelativisticBreitWigner(m2, mres, wres):
     """
@@ -260,6 +260,3 @@ def DabbaLineShape(m2ab, b, alpha, beta, ma, mb):
     denomFactor = realPart * realPart + imagPart * imagPart
     ampl = tf.complex(realPart, imagPart) / tfext.CastComplex(denomFactor)
     return ampl
-
-
-tf.reduce_mean()
