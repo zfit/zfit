@@ -35,7 +35,28 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.coverage',
+              'sphinx.ext.mathjax',
+              'sphinx.ext.githubpages'
+              ]
+
+using_numpy_style = False  # False -> google style
+
+# Napoleon settings (convert numpy/google docstrings to proper ReST
+napoleon_google_docstring = not using_numpy_style
+napoleon_numpy_docstring = using_numpy_style
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -68,7 +89,7 @@ release = zfit.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -163,5 +184,6 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
 
