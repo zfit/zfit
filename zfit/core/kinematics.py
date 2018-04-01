@@ -10,7 +10,7 @@ import tensorflow as tf
 import numpy as np
 
 from zfit.core import tfext
-from zfit.core.interface import Pi, Clebsch
+from zfit.core.utils import clebsch_coeff
 from zfit.settings import fptype
 from . import optimization
 
@@ -452,9 +452,9 @@ def HelicityAngles3Body(pa, pb, pc):
     theta_r = tf.acos(-ZComponent(pc) / Norm(SpatialComponents(pc)))
     phi_r = tf.atan2(-YComponent(pc), -XComponent(pc))
 
-    pa_prime = LorentzVector(RotateVector(SpatialComponents(pa), -phi_r, Pi() - theta_r, phi_r),
+    pa_prime = LorentzVector(RotateVector(SpatialComponents(pa), -phi_r, tfext.pi - theta_r, phi_r),
                              TimeComponent(pa))
-    pb_prime = LorentzVector(RotateVector(SpatialComponents(pb), -phi_r, Pi() - theta_r, phi_r),
+    pb_prime = LorentzVector(RotateVector(SpatialComponents(pb), -phi_r, tfext.pi - theta_r, phi_r),
                              TimeComponent(pb))
 
     w = TimeComponent(pa) + TimeComponent(pb)
@@ -514,9 +514,9 @@ def HelicityAngles4Body(pa, pb, pc, pd):
     theta_r = tf.acos(-ZComponent(pc) / Norm(SpatialComponents(pc)))
     phi_r = tf.atan2(-YComponent(pc), -XComponent(pc))
 
-    pa_prime = LorentzVector(RotateVector(SpatialComponents(pa), -phi_r, Pi() - theta_r, phi_r),
+    pa_prime = LorentzVector(RotateVector(SpatialComponents(pa), -phi_r, tfext.pi - theta_r, phi_r),
                              TimeComponent(pa))
-    pb_prime = LorentzVector(RotateVector(SpatialComponents(pb), -phi_r, Pi() - theta_r, phi_r),
+    pb_prime = LorentzVector(RotateVector(SpatialComponents(pb), -phi_r, tfext.pi - theta_r, phi_r),
                              TimeComponent(pb))
 
     w = TimeComponent(pa) + TimeComponent(pb)
@@ -710,8 +710,8 @@ def HelicityCouplingsFromLS(ja, jb, jc, lb, lc, bls):
     for ls, b in bls.items():
         l = ls[0]
         s = ls[1]
-        coeff = (math.sqrt((l + 1) / (ja + 1)) * Clebsch(jb, lb, jc, -lc, s, lb - lc) *
-                 Clebsch(l, 0, s, lb - lc, ja, lb - lc))
+        coeff = (math.sqrt((l + 1) / (ja + 1)) * clebsch_coeff(jb, lb, jc, -lc, s, lb - lc) *
+                 clebsch_coeff(l, 0, s, lb - lc, ja, lb - lc))
         a += tfext.constant(coeff) * b
     return a
 

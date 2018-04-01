@@ -1,5 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
+import numpy as np
 import tensorflow as tf
 
 import zfit.settings
@@ -53,3 +54,6 @@ def AbsSq(x): return tf.real(x * tf.conj(x))
 
 
 def Argument(c): return tf.atan2(tf.imag(c), tf.real(c))
+
+
+pi = constant(np.pi)

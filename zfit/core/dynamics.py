@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 
 import zfit
-from zfit.core.interface import Pi
+from zfit.core.tfext import tfext.Pi
 from zfit.core.kinematics import TwoBodyMomentum, ComplexTwoBodyMomentum
 from zfit.settings import ctype
 from . import tfext
@@ -163,10 +163,10 @@ def GounarisSakuraiLineShape(s, m, gamma, m_pi):
     p0 = tf.sqrt(p02)
     ppi = tf.sqrt(ppi2)
 
-    hs = 2. * ppi / Pi() / ss * tf.log((ss + 2. * ppi) / 2. / m_pi)
-    hm = 2. * p0 / Pi() / m * tf.log((m + 2. * ppi) / 2. / m_pi)
+    hs = 2. * ppi / tfext.pi / ss * tf.log((ss + 2. * ppi) / 2. / m_pi)
+    hm = 2. * p0 / tfext.pi / m * tf.log((m + 2. * ppi) / 2. / m_pi)
 
-    dhdq = hm * (1. / 8. / p02 - 1. / 2. / m2) + 1. / 2. / Pi() / m2
+    dhdq = hm * (1. / 8. / p02 - 1. / 2. / m2) + 1. / 2. / tfext.pi / m2
     f = gamma * m2 / (p0 ** 3) * (ppi2 * (hs - hm) - p02 * (s - m2) * dhdq)
 
     gamma_s = gamma * m2 * (ppi ** 3) / s / (p0 ** 3)
