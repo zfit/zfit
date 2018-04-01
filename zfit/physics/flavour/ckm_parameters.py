@@ -1,9 +1,9 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
 
-from zfit.core import optimization as opt
-from zfit.core.tfext import to_complex, AbsSq
+from zfit.core.parameter import FitParameter
+from zfit.core.tfext import AbsSq, to_complex
 
 # CKM parameters (from C. Bobeth, M. Chrzaszcz, D. van Dyk and J. Virto (in preparation))
 lambda_CKM_init  =  0.225
@@ -17,10 +17,10 @@ eta_CKM_sigma    =  0.012
 
 
 # CKM parameters
-lambda_CKM  =  opt.FitParameter("lambda_CKM" , lambda_CKM_init , 0., 2., 0)
-A_CKM       =  opt.FitParameter("A_CKM"      , A_CKM_init      , 0., 2., 0)
-rho_CKM     =  opt.FitParameter("rho_CKM"    , rho_CKM_init    , 0., 2., 0)
-eta_CKM     =  opt.FitParameter("eta_CKM"    , eta_CKM_init    , 0., 2., 0)
+lambda_CKM  =  FitParameter("lambda_CKM", lambda_CKM_init, 0., 2., 0)
+A_CKM       =  FitParameter("A_CKM", A_CKM_init, 0., 2., 0)
+rho_CKM     =  FitParameter("rho_CKM", rho_CKM_init, 0., 2., 0)
+eta_CKM     =  FitParameter("eta_CKM", eta_CKM_init, 0., 2., 0)
 
 # CKM parameters
 ckm = [lambda_CKM, A_CKM, rho_CKM, eta_CKM]

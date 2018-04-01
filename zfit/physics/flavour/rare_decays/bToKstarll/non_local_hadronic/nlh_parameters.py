@@ -1,8 +1,8 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
 
-from zfit.core import optimization as opt
+from zfit.core.parameter import FitParameter
 from .data import priors_nlh
 
 # Parametrization of non-local hadronic effects in B0 -> K* ll
@@ -10,46 +10,46 @@ from .data import priors_nlh
 # TODO: refactoring.
 # - Create lists?
 
-Re_alpha_perp_0 = opt.FitParameter("Re_alpha_perp_0", priors_nlh.param_mean_H[0] , -0.01, 0.01, 0)
-Re_alpha_para_0 = opt.FitParameter("Re_alpha_para_0", priors_nlh.param_mean_H[1] , -0.01, 0.01, 0)
-Re_alpha_zero_0 = opt.FitParameter("Re_alpha_zero_0", priors_nlh.param_mean_H[2] , -0.01, 0.01, 0)
-Im_alpha_perp_0 = opt.FitParameter("Im_alpha_perp_0", priors_nlh.param_mean_H[3] , -0.01, 0.01, 0)
-Im_alpha_para_0 = opt.FitParameter("Im_alpha_para_0", priors_nlh.param_mean_H[4] , -0.01, 0.01, 0)
-Im_alpha_zero_0 = opt.FitParameter("Im_alpha_zero_0", priors_nlh.param_mean_H[5] , -0.01, 0.01, 0)
+Re_alpha_perp_0 = FitParameter("Re_alpha_perp_0", priors_nlh.param_mean_H[0], -0.01, 0.01, 0)
+Re_alpha_para_0 = FitParameter("Re_alpha_para_0", priors_nlh.param_mean_H[1], -0.01, 0.01, 0)
+Re_alpha_zero_0 = FitParameter("Re_alpha_zero_0", priors_nlh.param_mean_H[2], -0.01, 0.01, 0)
+Im_alpha_perp_0 = FitParameter("Im_alpha_perp_0", priors_nlh.param_mean_H[3], -0.01, 0.01, 0)
+Im_alpha_para_0 = FitParameter("Im_alpha_para_0", priors_nlh.param_mean_H[4], -0.01, 0.01, 0)
+Im_alpha_zero_0 = FitParameter("Im_alpha_zero_0", priors_nlh.param_mean_H[5], -0.01, 0.01, 0)
 
-Re_alpha_perp_1 = opt.FitParameter("Re_alpha_perp_1", priors_nlh.param_mean_H[6] , -0.01, 0.01, 0)
-Re_alpha_para_1 = opt.FitParameter("Re_alpha_para_1", priors_nlh.param_mean_H[7] , -0.01, 0.01, 0)
-Re_alpha_zero_1 = opt.FitParameter("Re_alpha_zero_1", priors_nlh.param_mean_H[8] , -0.01, 0.01, 0)
-Im_alpha_perp_1 = opt.FitParameter("Im_alpha_perp_1", priors_nlh.param_mean_H[9] , -0.01, 0.01, 0)
-Im_alpha_para_1 = opt.FitParameter("Im_alpha_para_1", priors_nlh.param_mean_H[10], -0.01, 0.01, 0)
-Im_alpha_zero_1 = opt.FitParameter("Im_alpha_zero_1", priors_nlh.param_mean_H[11], -0.01, 0.01, 0)
+Re_alpha_perp_1 = FitParameter("Re_alpha_perp_1", priors_nlh.param_mean_H[6], -0.01, 0.01, 0)
+Re_alpha_para_1 = FitParameter("Re_alpha_para_1", priors_nlh.param_mean_H[7], -0.01, 0.01, 0)
+Re_alpha_zero_1 = FitParameter("Re_alpha_zero_1", priors_nlh.param_mean_H[8], -0.01, 0.01, 0)
+Im_alpha_perp_1 = FitParameter("Im_alpha_perp_1", priors_nlh.param_mean_H[9], -0.01, 0.01, 0)
+Im_alpha_para_1 = FitParameter("Im_alpha_para_1", priors_nlh.param_mean_H[10], -0.01, 0.01, 0)
+Im_alpha_zero_1 = FitParameter("Im_alpha_zero_1", priors_nlh.param_mean_H[11], -0.01, 0.01, 0)
 
-Re_alpha_perp_2 = opt.FitParameter("Re_alpha_perp_2", priors_nlh.param_mean_H[12], -0.01, 0.01, 0)
-Re_alpha_para_2 = opt.FitParameter("Re_alpha_para_2", priors_nlh.param_mean_H[13], -0.01, 0.01, 0)
-Im_alpha_perp_2 = opt.FitParameter("Im_alpha_perp_2", priors_nlh.param_mean_H[14], -0.01, 0.01, 0)
-Im_alpha_para_2 = opt.FitParameter("Im_alpha_para_2", priors_nlh.param_mean_H[15], -0.01, 0.01, 0)
+Re_alpha_perp_2 = FitParameter("Re_alpha_perp_2", priors_nlh.param_mean_H[12], -0.01, 0.01, 0)
+Re_alpha_para_2 = FitParameter("Re_alpha_para_2", priors_nlh.param_mean_H[13], -0.01, 0.01, 0)
+Im_alpha_perp_2 = FitParameter("Im_alpha_perp_2", priors_nlh.param_mean_H[14], -0.01, 0.01, 0)
+Im_alpha_para_2 = FitParameter("Im_alpha_para_2", priors_nlh.param_mean_H[15], -0.01, 0.01, 0)
 
-Re_alpha_zero_2 = opt.FitParameter("Re_alpha_zero_2", 0. , -0.1, 0.1, 0)
-Im_alpha_zero_2 = opt.FitParameter("Im_alpha_zero_2", 0. , -0.1, 0.1, 0)
+Re_alpha_zero_2 = FitParameter("Re_alpha_zero_2", 0., -0.1, 0.1, 0)
+Im_alpha_zero_2 = FitParameter("Im_alpha_zero_2", 0., -0.1, 0.1, 0)
 
-Re_alpha_perp_3 = opt.FitParameter("Re_alpha_perp_3", 0. , -0.1, 0.1, 0)
-Re_alpha_para_3 = opt.FitParameter("Re_alpha_para_3", 0. , -0.1, 0.1, 0)
-Im_alpha_perp_3 = opt.FitParameter("Im_alpha_perp_3", 0. , -0.1, 0.1, 0)
-Im_alpha_para_3 = opt.FitParameter("Im_alpha_para_3", 0. , -0.1, 0.1, 0)
-Re_alpha_zero_3 = opt.FitParameter("Re_alpha_zero_3", 0. , -1. , 1. , 0)
-Im_alpha_zero_3 = opt.FitParameter("Im_alpha_zero_3", 0. , -1. , 1. , 0)
+Re_alpha_perp_3 = FitParameter("Re_alpha_perp_3", 0., -0.1, 0.1, 0)
+Re_alpha_para_3 = FitParameter("Re_alpha_para_3", 0., -0.1, 0.1, 0)
+Im_alpha_perp_3 = FitParameter("Im_alpha_perp_3", 0., -0.1, 0.1, 0)
+Im_alpha_para_3 = FitParameter("Im_alpha_para_3", 0., -0.1, 0.1, 0)
+Re_alpha_zero_3 = FitParameter("Re_alpha_zero_3", 0., -1., 1., 0)
+Im_alpha_zero_3 = FitParameter("Im_alpha_zero_3", 0., -1., 1., 0)
 
-Re_alpha_perp_4 = opt.FitParameter("Re_alpha_perp_4", 0. , -1. , 1. , 0)
-Re_alpha_para_4 = opt.FitParameter("Re_alpha_para_4", 0. , -1. , 1. , 0)
-Im_alpha_perp_4 = opt.FitParameter("Im_alpha_perp_4", 0. , -1. , 1. , 0)
-Im_alpha_para_4 = opt.FitParameter("Im_alpha_para_4", 0. , -1. , 1. , 0)
-Re_alpha_zero_4 = opt.FitParameter("Re_alpha_zero_4", 0. , -1. , 1. , 0)
-Im_alpha_zero_4 = opt.FitParameter("Im_alpha_zero_4", 0. , -1. , 1. , 0)
+Re_alpha_perp_4 = FitParameter("Re_alpha_perp_4", 0., -1., 1., 0)
+Re_alpha_para_4 = FitParameter("Re_alpha_para_4", 0., -1., 1., 0)
+Im_alpha_perp_4 = FitParameter("Im_alpha_perp_4", 0., -1., 1., 0)
+Im_alpha_para_4 = FitParameter("Im_alpha_para_4", 0., -1., 1., 0)
+Re_alpha_zero_4 = FitParameter("Re_alpha_zero_4", 0., -1., 1., 0)
+Im_alpha_zero_4 = FitParameter("Im_alpha_zero_4", 0., -1., 1., 0)
 
-Re_alpha_perp_5 = opt.FitParameter("Re_alpha_perp_5", 0. , -1. , 1. , 0)
-Re_alpha_para_5 = opt.FitParameter("Re_alpha_para_5", 0. , -1. , 1. , 0)
-Im_alpha_perp_5 = opt.FitParameter("Im_alpha_perp_5", 0. , -1. , 1. , 0)
-Im_alpha_para_5 = opt.FitParameter("Im_alpha_para_5", 0. , -1. , 1. , 0)
+Re_alpha_perp_5 = FitParameter("Re_alpha_perp_5", 0., -1., 1., 0)
+Re_alpha_para_5 = FitParameter("Re_alpha_para_5", 0., -1., 1., 0)
+Im_alpha_perp_5 = FitParameter("Im_alpha_perp_5", 0., -1., 1., 0)
+Im_alpha_para_5 = FitParameter("Im_alpha_para_5", 0., -1., 1., 0)
 
 
 # Define complex parameters alphas

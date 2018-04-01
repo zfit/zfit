@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 import numpy as np
 
-from zfit.core.optimization import FitParameter
+from zfit.core.parameter import FitParameter
 from . import tfext
 
 
