@@ -10,7 +10,6 @@ matrix:
  include:
   - os: osx
     language: python
-    python: 2.7
 
 install: pip install -U tox-travis
 script: tox
