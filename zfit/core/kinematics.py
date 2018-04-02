@@ -1855,7 +1855,7 @@ class RectangularPhaseSpace(object):
     Class for rectangular phase space in n dimensions
     """
 
-    def __init__(self, ranges=((0., 1.))):
+    def __init__(self, ranges=(0., 1.)):
         """
         Constructor
         """

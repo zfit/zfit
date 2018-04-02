@@ -5,19 +5,19 @@ import tensorflow as tf
 from zfit.core.parameter import FitParameter
 
 # Fit parameters: Wilson coefficients
-ReC7     = opt.FitParameter("ReC7"    , -0.33726473   ,  -5., 5., 0)
-ImC7     = opt.FitParameter("ImC7"    ,  0.           ,  -5., 5., 0)
-ReC7p    = opt.FitParameter("ReC7p"   ,  0.           ,  -5., 5., 0)
-ImC7p    = opt.FitParameter("ImC7p"   ,  0.           ,  -5., 5., 0)
+ReC7     = FitParameter("ReC7"    , -0.33726473   ,  -5., 5., 0)
+ImC7     = FitParameter("ImC7"    ,  0.           ,  -5., 5., 0)
+ReC7p    = FitParameter("ReC7p"   ,  0.           ,  -5., 5., 0)
+ImC7p    = FitParameter("ImC7p"   ,  0.           ,  -5., 5., 0)
 
-ReC9   = opt.FitParameter("ReC9"  ,  4.27342842   ,  -20., 20., 0)
-ImC9   = opt.FitParameter("ImC9"  ,  0.           ,   -5.,  5., 0)
-ReC10  = opt.FitParameter("ReC10" , -4.16611761   ,  -20., 20., 0)
-ImC10  = opt.FitParameter("ImC10" ,  0.           ,   -5.,  5., 0)
-ReC9p  = opt.FitParameter("ReC9p" ,  0.           ,  -10., 10., 0)
-ImC9p  = opt.FitParameter("ImC9p" ,  0.           ,   -5.,  5., 0)
-ReC10p = opt.FitParameter("ReC10p",  0.           ,  -10., 10., 0)
-ImC10p = opt.FitParameter("ImC10p",  0.           ,   -5.,  5., 0)
+ReC9   = FitParameter("ReC9"  ,  4.27342842   ,  -20., 20., 0)
+ImC9   = FitParameter("ImC9"  ,  0.           ,   -5.,  5., 0)
+ReC10  = FitParameter("ReC10" , -4.16611761   ,  -20., 20., 0)
+ImC10  = FitParameter("ImC10" ,  0.           ,   -5.,  5., 0)
+ReC9p  = FitParameter("ReC9p" ,  0.           ,  -10., 10., 0)
+ImC9p  = FitParameter("ImC9p" ,  0.           ,   -5.,  5., 0)
+ReC10p = FitParameter("ReC10p",  0.           ,  -10., 10., 0)
+ImC10p = FitParameter("ImC10p",  0.           ,   -5.,  5., 0)
 
 
 # define Wilson coeff.

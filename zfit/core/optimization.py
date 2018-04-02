@@ -27,19 +27,19 @@ class RootHistShape(object):
         """
         if isinstance(hist, TH1):
             nx = hist.GetNbinsX()
-            array = np.zeros(nx, dtype=np.dtype('d'))
+            data = np.zeros(nx, dtype=np.dtype('d'))
             self.limits = [
                 tf.constant([hist.GetXaxis().GetBinCenter(1)], dtype=fptype),
                 tf.constant([hist.GetXaxis().GetBinCenter(nx)], dtype=fptype),
                 ]
             for x in range(nx):
-                array[x] = hist.GetBinContent(x + 1)
+                data[x] = hist.GetBinContent(x + 1)
             self.ns = tf.constant([nx - 1], dtype=fptype)
 
         if isinstance(hist, TH2):
             nx = hist.GetNbinsX()
             ny = hist.GetNbinsY()
-            array = np.zeros((nx, ny), dtype=np.dtype('d'))
+            data = np.zeros((nx, ny), dtype=np.dtype('d'))
             self.limits = [
                 tf.constant([hist.GetXaxis().GetBinCenter(1), hist.GetYaxis().GetBinCenter(1)],
                             dtype=fptype),
@@ -48,14 +48,14 @@ class RootHistShape(object):
                 ]
             for x in range(nx):
                 for y in range(ny):
-                    array[x][y] = hist.GetBinContent(x + 1, y + 1)
+                    data[x][y] = hist.GetBinContent(x + 1, y + 1)
             self.ns = tf.constant([nx - 1, ny - 1], dtype=fptype)
 
         if isinstance(hist, TH3):
             nx = hist.GetNbinsX()
             ny = hist.GetNbinsY()
             nz = hist.GetNbinsZ()
-            array = np.zeros((nx, ny, nz), dtype=np.dtype('d'))
+            data = np.zeros((nx, ny, nz), dtype=np.dtype('d'))
             self.limits = [
                 tf.constant([hist.GetXaxis().GetBinCenter(1), hist.GetYaxis().GetBinCenter(1),
                              hist.GetZaxis().GetBinCenter(1)], dtype=fptype),
@@ -65,10 +65,10 @@ class RootHistShape(object):
             for x in range(nx):
                 for y in range(ny):
                     for z in range(nz):
-                        array[x][y][z] = hist.GetBinContent(x + 1, y + 1, z + 1)
+                        data[x][y][z] = hist.GetBinContent(x + 1, y + 1, z + 1)
             self.ns = tf.constant([nx - 1, ny - 1, nz - 1], dtype=fptype)
 
-        self.array = tf.constant(array, dtype=fptype)
+        self.array = tf.constant(data, dtype=fptype)
 
     def shape(self, x):
         """
