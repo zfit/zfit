@@ -1,6 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
-#### Form Factors prior from theory (Danny sent by mail, taken from arXiv:1503.05534v3 and multiplied by facto 2 the uncertainties)
+#### Form Factors prior from theory (Danny sent by mail,
+#### taken from arXiv:1503.05534v3 and multiplied by facto 2 the uncertainties)
 
 # "B->K^*::alpha^A0_0@BSZ2015",  "B->K^*::alpha^A0_1@BSZ2015",  "B->K^*::alpha^A0_2@BSZ2015",
 # "B->K^*::alpha^A1_0@BSZ2015",  "B->K^*::alpha^A1_1@BSZ2015",  "B->K^*::alpha^A1_2@BSZ2015",

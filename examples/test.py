@@ -28,7 +28,7 @@ if __name__ == "__main__":
     ### Start of model description
 
     def model(x):
-        return dec.d4Gamma(phsp, x, const.mMu)
+        return dec.d4_gamma(phsp, x, const.mMu)
 
 
     ### End of model description
@@ -41,17 +41,17 @@ if __name__ == "__main__":
         sess.run(init)
 
         sample_size = 1000000
-        norm_sample = sess.run(phsp.UniformSample(sample_size))
-        majorant = opt.EstimateMaximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
+        norm_sample = sess.run(phsp.uniform_sample(sample_size))
+        majorant = opt.estimate_maximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
         print("Maximum = ", majorant)
 
-        data_sample = opt.RunToyMC(sess, model(data_ph), data_ph, phsp, 10000, majorant,
-                                   chunk=sample_size)
+        data_sample = opt.run_toy_MC(sess, model(data_ph), data_ph, phsp, 10000, majorant,
+                                     chunk=sample_size)
 
-        norm = opt.Integral(model(norm_ph))
-        nll = opt.UnbinnedNLL(model(data_ph), norm)
+        norm = opt.integral(model(norm_ph))
+        nll = opt.unbinned_NLL(model(data_ph), norm)
 
-        result = opt.RunMinuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample},
-                               runMinos=True)
+        result = opt.run_minuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample},
+                                runMinos=True)
     print(result)
-    # opt.WriteFitResults(result, "result.txt")
+    # opt.write_fit_results(result, "result.txt")

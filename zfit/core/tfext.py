@@ -6,12 +6,12 @@ import tensorflow as tf
 import zfit.settings
 
 
-# Density for a complex amplitude
-def Density(ampl): return tf.abs(ampl) ** 2
+# density for a complex amplitude
+def density(ampl): return tf.abs(ampl) ** 2
 
 
 # Create a complex number from a magnitude and a phase
-def Polar(a, ph):
+def polar(a, ph):
     """Create a complex number from magnitude and phase"""
     return tf.complex(a * tf.cos(ph), a * tf.sin(ph))
 
@@ -46,14 +46,14 @@ def constant(c): return tf.constant(c, dtype=zfit.settings.fptype)
 
 
 # Declare invariant
-def Invariant(c): return tf.constant([c], dtype=zfit.settings.fptype)
+def invariant(c): return tf.constant([c], dtype=zfit.settings.fptype)
 
 
 # |x|^2
-def AbsSq(x): return tf.real(x * tf.conj(x))
+def abs_square(x): return tf.real(x * tf.conj(x))
 
 
-def Argument(c): return tf.atan2(tf.imag(c), tf.real(c))
+def argument(c): return tf.atan2(tf.imag(c), tf.real(c))
 
 
 pi = constant(np.pi)

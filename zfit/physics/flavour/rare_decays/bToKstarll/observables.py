@@ -14,7 +14,7 @@ def SN_obs(ang_coeff):
     """
 
     def func(q2, ml):
-        return ang_coeff(q2, ml) / decay_rates.dGamma_dq2(q2)
+        return ang_coeff(q2, ml) / decay_rates.d_gamma_dq2(q2)
 
     return func
 

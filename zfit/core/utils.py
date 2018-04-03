@@ -7,15 +7,15 @@ from zfit.core.parameter import FitParameter
 from . import tfext
 
 
-def MultivariateGauss(x, norm, mean, invCov):
+def multivariate_gauss(x, norm, mean, inv_cov):
     print(norm)
 
     dx = x - mean
-    expArg = tf.einsum("ai,ij,aj->a", dx, invCov, dx)
-    return (norm ** 2) * tf.exp(-0.5 * expArg)
+    exp_arg = tf.einsum("ai,ij,aj->a", dx, inv_cov, dx)
+    return (norm ** 2) * tf.exp(-0.5 * exp_arg)
 
 
-def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr):
+def gauss_2d(x, norm, xmean, ymean, xsigma, ysigma, corr):
     print(norm)
 
     offdiag = abs(xsigma * ysigma) * corr
@@ -23,10 +23,10 @@ def Gauss2D(x, norm, xmean, ymean, xsigma, ysigma, corr):
     cov = tf.stack(array)
     mean = tf.stack([xmean, ymean])
     invcov = tf.matrix_inverse(cov)
-    return MultivariateGauss(x, norm, mean, invcov)
+    return multivariate_gauss(x, norm, mean, invcov)
 
 
-def Gauss4D(x, params):
+def gauss_4d(x, params):
     norm = params[0]
     mean = tf.stack(params[1:5])
     sigma = tf.stack(params[5:9])
@@ -37,7 +37,7 @@ def Gauss4D(x, params):
 
     cov = tf.einsum("i,ij,j->ij", sigma, corr, sigma)
     invcov = tf.matrix_inverse(cov)
-    return MultivariateGauss(x, norm, mean, invcov)
+    return multivariate_gauss(x, norm, mean, invcov)
 
 
 class GaussianMixture2D(object):
@@ -60,7 +60,7 @@ class GaussianMixture2D(object):
     def model(self, x):
         d = tfext.constant(0.)
         for i in self.params:
-            d += Gauss2D(x, i[0], i[1], i[2], i[3], i[4], i[5])
+            d += gauss_2d(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d
 
 
@@ -84,7 +84,7 @@ class GaussianMixture4D(object):
     def model(self, x):
         d = tfext.constant(0.)
         for i in self.params:
-            d += Gauss2D(x, i[0], i[1], i[2], i[3], i[4], i[5])
+            d += gauss_2d(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d
 
 

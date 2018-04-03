@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
 
-from zfit.core.tfext import AbsSq
+from zfit.core.tfext import abs_square
 from zfit.physics import functions as funcs
 from . import amplitudes as ampl
 
@@ -16,7 +16,7 @@ def J1s(q2, ml):
     A_para_l = ampl.A_para_L(q2, ml)
     A_para_r = ampl.A_para_R(q2, ml)
     j1s = ((2 + tf.square(funcs.beta(q2, ml))) / 4 *
-           (AbsSq(A_perp_l) + AbsSq(A_para_l) + AbsSq(A_perp_r) + AbsSq(A_para_r)) +
+           (abs_square(A_perp_l) + abs_square(A_para_l) + abs_square(A_perp_r) + abs_square(A_para_r)) +
            (4.0 * tf.square(ml) / q2) *
            tf.real(A_perp_l * tf.conj(A_perp_r) + A_para_l * tf.conj(A_para_r)))
     return 3 / 4 * j1s
@@ -26,8 +26,8 @@ def J1c(q2, ml):
     A_zero_l = ampl.A_zero_L(q2, ml)
     A_zero_r = ampl.A_zero_R(q2, ml)
     A_t = ampl.A_time(q2, ml)
-    j1c = (AbsSq(A_zero_l) + AbsSq(A_zero_r) + 4 * tf.square(ml) / q2 *
-           (AbsSq(A_t) + 2 * tf.real(A_zero_l * tf.conj(A_zero_r))))
+    j1c = (abs_square(A_zero_l) + abs_square(A_zero_r) + 4 * tf.square(ml) / q2 *
+           (abs_square(A_t) + 2 * tf.real(A_zero_l * tf.conj(A_zero_r))))
     return 3 / 4 * j1c
 
 
@@ -36,15 +36,15 @@ def J2s(q2, ml):
     A_perp_r = ampl.A_perp_R(q2, ml)
     A_para_l = ampl.A_para_L(q2, ml)
     A_para_r = ampl.A_para_R(q2, ml)
-    j2s = (tf.square(funcs.beta(q2, ml)) / 4 * (AbsSq(A_perp_l) + AbsSq(A_para_l) +
-                                                AbsSq(A_perp_r) + AbsSq(A_para_r)))
+    j2s = (tf.square(funcs.beta(q2, ml)) / 4 * (abs_square(A_perp_l) + abs_square(A_para_l) +
+                                                abs_square(A_perp_r) + abs_square(A_para_r)))
     return 3 / 4 * j2s
 
 
 def J2c(q2, ml):
     A_zero_l = ampl.A_zero_L(q2, ml)
     A_zero_r = ampl.A_zero_R(q2, ml)
-    j2c = - tf.square(funcs.beta(q2, ml)) * (AbsSq(A_zero_l) + AbsSq(A_zero_r))
+    j2c = - tf.square(funcs.beta(q2, ml)) * (abs_square(A_zero_l) + abs_square(A_zero_r))
     return 3 / 4 * j2c
 
 
@@ -53,8 +53,8 @@ def J3(q2, ml):
     A_perp_r = ampl.A_perp_R(q2, ml)
     A_para_l = ampl.A_para_L(q2, ml)
     A_para_r = ampl.A_para_R(q2, ml)
-    j3 = (tf.square(funcs.beta(q2, ml)) / 2 * (AbsSq(A_perp_l) - AbsSq(A_para_l) +
-                                               AbsSq(A_perp_r) - AbsSq(A_para_r)))
+    j3 = (tf.square(funcs.beta(q2, ml)) / 2 * (abs_square(A_perp_l) - abs_square(A_para_l) +
+                                               abs_square(A_perp_r) - abs_square(A_para_r)))
     return 3 / 4 * j3
 
 

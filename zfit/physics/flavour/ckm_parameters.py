@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 
 from zfit.core.parameter import FitParameter
-from zfit.core.tfext import AbsSq, to_complex
+from zfit.core.tfext import abs_square, to_complex
 
 # CKM parameters (from C. Bobeth, M. Chrzaszcz, D. van Dyk and J. Virto (in preparation))
 lambda_CKM_init  =  0.225
@@ -34,7 +34,7 @@ rho_eta = (tf.complex(rho_CKM, eta_CKM) *
 
 Vtb = (1. - tf.square(A_CKM) * tf.pow(lambda_CKM, 4) / 2. - tf.square(A_CKM) * tf.pow(lambda_CKM,
                                                                                       6) *
-       AbsSq(rho_eta) / 2. - tf.pow(A_CKM, 4) * tf.pow(lambda_CKM, 8) / 8.)
+       abs_square(rho_eta) / 2. - tf.pow(A_CKM, 4) * tf.pow(lambda_CKM, 8) / 8.)
 
 Vts = (to_complex(-1.0 * A_CKM * tf.square(lambda_CKM)) *
        (1.0 - to_complex(tf.square(lambda_CKM)) * (1.0 - 2.0 * rho_eta) / 2.0 -

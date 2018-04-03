@@ -11,7 +11,7 @@ Mb     = tf.constant( 4.16992   , tf.float64 )
 Ms     = tf.constant( 0.0796146 , tf.float64 )
 MD     = tf.constant( 1.8648    , tf.float64 )
 
-# for Breit-Wigner  [GeV]  Attention to the units!! (KpiMass is defined in MeV)
+# for Breit-Wigner  [GeV]  Attention to the units!! (Kpi_mass is defined in MeV)
 mPi     = tf.constant( 0.1395706 , tf.float64 ) # pion
 mK      = tf.constant( 0.49368 , tf.float64 )   # kaon
 WKst    = tf.constant( 0.0487 , tf.float64 ) # K* width
@@ -20,7 +20,7 @@ dRes    = tf.constant( 1.6 , tf.float64 )   # GeV^-1 (meson radius)
 LBmeson = 0  # (Maximum) angular momentum
 LKst    = 1  # (Maximum) angular momentum
 
-# for LASS parametrization  [GeV]  Attention to the units!! (KpiMass is defined in MeV)
+# for LASS parametrization  [GeV]  Attention to the units!! (Kpi_mass is defined in MeV)
 MKst1430  = tf.constant( 1.425  , tf.float64 )
 WKst1430  = tf.constant( 0.270  , tf.float64 )
 LKst1430  = 0

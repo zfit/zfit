@@ -6,47 +6,47 @@ from zfit.core import tfext
 from . import angular_coefficients as ang
 
 
-def d4Gamma(phsp, x, ml):
+def d4_gamma(phsp, x, ml):
     """
-    differential decay rate d4Gamma/dq2d3Omega of B0->K*mumu
+    differential decay rate d4_gamma/dq2d3Omega of B0->K*mumu
     """
 
-    cosThetaK = phsp.CosTheta1(x)
-    cosThetaL = phsp.CosTheta2(x)
-    phi = phsp.Phi(x)
+    cos_theta_K = phsp.cos_theta_1(x)
+    cos_theta_L = phsp.cos_theta_2(x)
+    phi = phsp.phi(x)
     q2 = phsp.Q2(x)
 
-    cosTheta2K = cosThetaK * cosThetaK
+    cos_theta2_K = cos_theta_K * cos_theta_K
 
-    sinThetaK = tf.sqrt(1.0 - cosThetaK * cosThetaK)
-    sinThetaL = tf.sqrt(1.0 - cosThetaL * cosThetaL)
+    sin_theta_K = tf.sqrt(1.0 - cos_theta_K * cos_theta_K)
+    sin_theta_L = tf.sqrt(1.0 - cos_theta_L * cos_theta_L)
 
-    sinTheta2K = (1.0 - cosThetaK * cosThetaK)
-    sinTheta2L = (1.0 - cosThetaL * cosThetaL)
+    sin_theta2_K = (1.0 - cos_theta_K * cos_theta_K)
+    sin_theta2_L = (1.0 - cos_theta_L * cos_theta_L)
 
-    sin2ThetaK = (2.0 * sinThetaK * cosThetaK)
-    sin2ThetaL = (2.0 * sinThetaL * cosThetaL)
+    sin2_theta_K = (2.0 * sin_theta_K * cos_theta_K)
+    sin2_theta_L = (2.0 * sin_theta_L * cos_theta_L)
 
-    cos2ThetaK = (2.0 * cosThetaK * cosThetaK - 1.0)  # TODO: smell, unused?
-    cos2ThetaL = (2.0 * cosThetaL * cosThetaL - 1.0)
+    cos2_theta_K = (2.0 * cos_theta_K * cos_theta_K - 1.0)  # TODO: smell, unused?
+    cos2_theta_L = (2.0 * cos_theta_L * cos_theta_L - 1.0)
 
-    fullPDF = ((3.0 / (8.0 * tfext.pi)) * (
-        ang.J1s(q2, ml) * sinTheta2K
-        + ang.J1c(q2, ml) * cosTheta2K
-        + ang.J2s(q2, ml) * cos2ThetaL * sinTheta2K
-        + ang.J2c(q2, ml) * cos2ThetaL * cosTheta2K
-        + ang.J3(q2, ml) * tf.cos(2.0 * phi) * sinTheta2K * sinTheta2L
-        + ang.J4(q2, ml) * tf.cos(phi) * sin2ThetaK * sin2ThetaL
-        + ang.J5(q2, ml) * tf.cos(phi) * sin2ThetaK * sinThetaL
-        + ang.J6s(q2, ml) * sinTheta2K * cosThetaL
-        + ang.J7(q2, ml) * sin2ThetaK * sinThetaL * tf.sin(phi)
-        + ang.J8(q2, ml) * sin2ThetaK * sin2ThetaL * tf.sin(phi)
-        + ang.J9(q2, ml) * sinTheta2K * sinTheta2L * tf.sin(2. * phi)))
+    full_pdf = ((3.0 / (8.0 * tfext.pi)) * (
+        ang.J1s(q2, ml) * sin_theta2_K
+        + ang.J1c(q2, ml) * cos_theta2_K
+        + ang.J2s(q2, ml) * cos2_theta_L * sin_theta2_K
+        + ang.J2c(q2, ml) * cos2_theta_L * cos_theta2_K
+        + ang.J3(q2, ml) * tf.cos(2.0 * phi) * sin_theta2_K * sin_theta2_L
+        + ang.J4(q2, ml) * tf.cos(phi) * sin2_theta_K * sin2_theta_L
+        + ang.J5(q2, ml) * tf.cos(phi) * sin2_theta_K * sin_theta_L
+        + ang.J6s(q2, ml) * sin_theta2_K * cos_theta_L
+        + ang.J7(q2, ml) * sin2_theta_K * sin_theta_L * tf.sin(phi)
+        + ang.J8(q2, ml) * sin2_theta_K * sin2_theta_L * tf.sin(phi)
+        + ang.J9(q2, ml) * sin_theta2_K * sin_theta2_L * tf.sin(2. * phi)))
 
-    return fullPDF
+    return full_pdf
 
 
-def dGamma_dq2(q2, ml):
+def d_gamma_dq2(q2, ml):
     """
     differential decay rate d2Gamma/dq2 of B0->K*mumu (prop to BR):
     dGamma/dq^2 = 2*J1s+J1c -1/3(2*J2s+J2c)

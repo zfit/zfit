@@ -55,7 +55,7 @@ def T23(q2):
 # and the commonly used in the literature
 
 def F_perp(q2):
-    return tf.sqrt(2.0 * funcs.Lambda(tf.square(const.MB), tf.square(const.MKst), q2)) / (
+    return tf.sqrt(2.0 * funcs.calc_lambda(tf.square(const.MB), tf.square(const.MKst), q2)) / (
         const.MB * (const.MB + const.MKst)) * V(q2)
 
 
@@ -72,7 +72,7 @@ def F_time(q2):
 
 
 def F_perp_T(q2):
-    return tf.sqrt(2.0 * funcs.Lambda(tf.square(const.MB), tf.square(const.MKst), q2)) / tf.square(
+    return tf.sqrt(2.0 * funcs.calc_lambda(tf.square(const.MB), tf.square(const.MKst), q2)) / tf.square(
         const.MB) * T1(q2)
 
 
