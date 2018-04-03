@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 
 import zfit
-from zfit.core.kinematics import two_body_momentum, ComplexTwoBodyMomentum
+from zfit.core.kinematics import two_body_momentum
 from zfit.settings import ctype
 from . import tfext
 
