@@ -1,11 +1,13 @@
 from __future__ import print_function, division, absolute_import
 
 # deactivating CUDA capable gpus
-import os
+suppress_gpu = False
+if suppress_gpu:
+    import os
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
-print("CUDA capable GPUs purposely deactivated.")
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    print("CUDA capable GPUs purposely deactivated.")
 
 import tensorflow as tf
 
