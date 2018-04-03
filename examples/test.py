@@ -1,5 +1,12 @@
 from __future__ import print_function, division, absolute_import
 
+# deactivating CUDA capable gpus
+import os
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+print("CUDA capable GPUs purposely deactivated.")
+
 import tensorflow as tf
 
 import sys
@@ -28,20 +35,21 @@ if __name__ == "__main__":
     norm_ph = phsp.norm_placeholder
 
     init = tf.global_variables_initializer()
-    sess = tf.Session()
-    sess.run(init)
+    with tf.Session() as sess:
+        sess.run(init)
 
-    sample_size = 10000
-    norm_sample = sess.run(phsp.UniformSample(sample_size))
-    majorant = opt.EstimateMaximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
-    print("Maximum = ", majorant)
+        sample_size = 1000000
+        norm_sample = sess.run(phsp.UniformSample(sample_size))
+        majorant = opt.EstimateMaximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
+        print("Maximum = ", majorant)
 
-    data_sample = opt.RunToyMC(sess, model(data_ph), data_ph, phsp, 10000, majorant,
-                               chunk=sample_size)
+        data_sample = opt.RunToyMC(sess, model(data_ph), data_ph, phsp, 10000, majorant,
+                                   chunk=sample_size)
 
-    norm = opt.Integral(model(norm_ph))
-    nll = opt.UnbinnedNLL(model(data_ph), norm)
+        norm = opt.Integral(model(norm_ph))
+        nll = opt.UnbinnedNLL(model(data_ph), norm)
 
-    result = opt.RunMinuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample})
+        result = opt.RunMinuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample},
+                               runMinos=True)
     print(result)
     # opt.WriteFitResults(result, "result.txt")

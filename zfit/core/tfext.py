@@ -27,7 +27,7 @@ def nth_pow(x, n, name=None):
     if not n >= 0:
         raise ValueError("n (power) has to be >= 0. Currently, n={}".format(n))
 
-    power = 1
+    power = to_complex(1.)
     for _ in range(n):
         power *= x
     return power
