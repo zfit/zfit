@@ -244,9 +244,9 @@ def cos_helicity_angle_dalitz(m2ab, m2bc, md, ma, mb, mc):
     mab = tf.sqrt(m2ab)
     mac = tf.sqrt(m2ac)
     mbc = tf.sqrt(m2bc)
-    p2a = 0.25 / md2 * (md2 - (mbc + ma) ** 2) * (md2 - (mbc - ma) ** 2)  # TODO: smell, unused?
-    p2b = 0.25 / md2 * (md2 - (mac + mb) ** 2) * (md2 - (mac - mb) ** 2)  # TODO: smell, unused?
-    p2c = 0.25 / md2 * (md2 - (mab + mc) ** 2) * (md2 - (mab - mc) ** 2)  # TODO: smell, unused?
+    p2a = 0.25 / md2 * (md2 - (mbc + ma) ** 2) * (md2 - (mbc - ma) ** 2)  # TODO: smell, unused
+    p2b = 0.25 / md2 * (md2 - (mac + mb) ** 2) * (md2 - (mac - mb) ** 2)  # TODO: smell, unused
+    p2c = 0.25 / md2 * (md2 - (mab + mc) ** 2) * (md2 - (mab - mc) ** 2)  # TODO: smell, unused
     eb = (m2ab - ma2 + mb2) / 2. / mab
     ec = (md2 - m2ab - mc2) / 2. / mab
     pb = tf.sqrt(eb ** 2 - mb2)
@@ -416,7 +416,7 @@ def apply_rotate_and_boost(ps, spatial, boost):
     x, y, z = spatial
     ps1 = []
     for p in ps:
-        p1 = project_lorentz_vector_(p, (x1, y1, z1))  # TODO: smell, should be x,y,z? or are they lists?
+        p1 = project_lorentz_vector_(p, (x1, y1, z1))  # TODO: smell, should be x,y,z? are they lists?
         p2 = lorentz_boost(p1, boost)
         ps1 += [p2]
 
@@ -868,7 +868,7 @@ def rotate_final_state_helicity(matrixin, particlesfrom, particlesto):
     matrixout = {}
     for hels in matrixin.keys():
         matrixout[hels] = 0
-    heldaugs = []  # TODO: smell, unused?
+    heldaugs = []  # TODO: smell, unused
     axesfrom = [rotate_axis(part.get_momentum(), oldaxes=part.get_axis()) for part in particlesfrom]
     axesto = [rotate_axis(part.get_momentum(), oldaxes=part.get_axis()) for part in particlesto]
     thetas = [tf.acos(scalar_product(axisfrom[2], axisto[2])) for axisfrom, axisto in
@@ -1288,7 +1288,7 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
     """
 
     def final_state_momenta(self, m2ab, m2bc, thetab, phib,
-                            phiac):  # TODO: smell, unused thetab, phib, phiac?
+                            phiac):  # TODO: smell, unused thetab, phib, phiac
         """
         Calculate 4-momenta of final state tracks in the 5D phase space
             m2ab, m2bc : invariant masses of AB and BC combinations
