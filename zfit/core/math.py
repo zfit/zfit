@@ -19,7 +19,7 @@ def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to rea
         tf.Tensor:
     """
     real_x = kwargs.pop('real_x', False)  # py23 compatibility: remove line
-    if len(kwargs) > 0:  # py23 compatibility: remove line
+    if kwargs:  # py23 compatibility: remove line
         raise ValueError("Unsupported kwargs given!")  # py23 compatibility: remove line
 
     args = list(args)
@@ -52,5 +52,3 @@ def interpolate(t, c):
         wts += [weight * wt]
     interp = tf.reduce_sum(tf.stack(wts), 0)
     return interp
-
-
