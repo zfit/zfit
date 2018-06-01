@@ -20,7 +20,7 @@ def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to rea
     """
     real_x = kwargs.pop('real_x', False)  # py23 compatibility: remove line
     if kwargs:  # py23 compatibility: remove line
-        raise ValueError("Unsupported kwargs given!")  # py23 compatibility: remove line
+        raise ValueError("Unsupported kwargs given: {}".format(kwargs))  # py23: remove line
 
     args = list(args)
     x = args.pop()
