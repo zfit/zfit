@@ -344,7 +344,7 @@ def read_NTuple(ntuple, variables):
         ntuple : input TNtuple
         variables : list of ntuple variables to read
     """
-    data = []  # TODO: smell, unused?
+    data = []  # TODO: smell, unused
     code_list = []
     for v in variables:
         code_list += [compile("i.{}".format(v), '<string>', 'eval')]
@@ -650,7 +650,7 @@ def calc_CP_fit_fraction(sess, pdf_particle, pdf_antiparticle, x, switches, norm
     norm_anti = np.sum(sess.run(pdf_antiparticle, feed_dict={x: norm_sample}))
 
     integral = norm_part + norm_anti
-    cpv_int = norm_part - norm_anti  # TODO: smell, unused?
+    cpv_int = norm_part - norm_anti  # TODO: smell, unused
 
     cpc_fit_fractions = []
     cpv_fit_fractions = []

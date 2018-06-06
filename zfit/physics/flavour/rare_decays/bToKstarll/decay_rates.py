@@ -27,7 +27,7 @@ def d4_gamma(phsp, x, ml):
     sin2_theta_K = (2.0 * sin_theta_K * cos_theta_K)
     sin2_theta_L = (2.0 * sin_theta_L * cos_theta_L)
 
-    cos2_theta_K = (2.0 * cos_theta_K * cos_theta_K - 1.0)  # TODO: smell, unused?
+    cos2_theta_K = (2.0 * cos_theta_K * cos_theta_K - 1.0)  # TODO: smell, unused
     cos2_theta_L = (2.0 * cos_theta_L * cos_theta_L - 1.0)
 
     full_pdf = ((3.0 / (8.0 * tfext.pi)) * (
