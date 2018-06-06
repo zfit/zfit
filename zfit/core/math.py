@@ -8,7 +8,7 @@ from zfit.core import tfext
 from zfit.settings import fptype
 
 
-def poly_complex(*args, real_x=False):
+def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to real_x=False
     """Complex polynomial with the last arg being x.
 
     Args:
@@ -18,6 +18,10 @@ def poly_complex(*args, real_x=False):
     Returns:
         tf.Tensor:
     """
+    real_x = kwargs.pop('real_x', False)  # py23 compatibility: remove line
+    if kwargs:  # py23 compatibility: remove line
+        raise ValueError("Unsupported kwargs given: {}".format(kwargs))  # py23: remove line
+
     args = list(args)
     x = args.pop()
     if real_x:
@@ -48,5 +52,3 @@ def interpolate(t, c):
         wts += [weight * wt]
     interp = tf.reduce_sum(tf.stack(wts), 0)
     return interp
-
-
