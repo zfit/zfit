@@ -10,6 +10,8 @@ if suppress_gpu:
     print("CUDA capable GPUs purposely deactivated.")
 
 import tensorflow as tf
+import tensorflow.contrib.bayesflow as bf
+import tensorflow_probability.python.mcmc as mc
 
 import sys
 
@@ -41,7 +43,11 @@ if __name__ == "__main__":
         sess.run(init)
 
         sample_size = 1000000
-        norm_sample = sess.run(phsp.uniform_sample(sample_size))
+        # print(phsp.uniform_sample(sample_size))
+        # print(mc.sample_halton_sequence(6, num_results=sample_size, seed=42))
+        uniform_sample = (mc.sample_halton_sequence(6, num_results=sample_size) - 0.5) * 100.
+        # uniform_sample = phsp.uniform_sample(sample_size)
+        norm_sample = sess.run(uniform_sample)
         majorant = opt.estimate_maximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
         print("Maximum = ", majorant)
 
