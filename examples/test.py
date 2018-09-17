@@ -57,6 +57,6 @@ if __name__ == "__main__":
         nll = opt.unbinned_NLL(model(data_ph), norm)
 
         result = opt.run_minuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample},
-                                run_minos=True)
+                                                     run_minos=True)
     print(result)
     # opt.write_fit_results(result, "result.txt")
