@@ -16,7 +16,8 @@ class AbstractBaseDistribution(object):
         raise NotImplementedError
 
     def integral(self, name='integral'):
-        raise NotImplementedError
+        self.error = NotImplementedError
+        raise self.error
 
     def batch_shape_tensor(self, name='batch_shape_tensor'):
         raise NotImplementedError

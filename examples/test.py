@@ -10,7 +10,6 @@ if suppress_gpu:
     print("CUDA capable GPUs purposely deactivated.")
 
 import tensorflow as tf
-import tensorflow.contrib.bayesflow as bf
 import tensorflow_probability.python.mcmc as mc
 
 import sys
