@@ -7,7 +7,7 @@ import tensorflow as tf
 import numpy as np
 
 
-class AbstractBaseDistribution(object):
+class AbstractBasePDF(object):
 
     def sample(self, sample_shape=(), seed=None, name='sample'):
         raise NotImplementedError
@@ -26,12 +26,12 @@ class AbstractBaseDistribution(object):
         raise NotImplementedError
 
 
-class BaseDistribution(tf.distributions.Distribution, AbstractBaseDistribution):
+class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def __init__(self, name="BaseDistribution"):
-        super(BaseDistribution, self).__init__(dtype=None, reparameterization_type=False,
-                                               validate_args=True,
-                                               allow_nan_stats=False, name=name)
+        super(BasePDF, self).__init__(dtype=None, reparameterization_type=False,
+                                      validate_args=True,
+                                      allow_nan_stats=False, name=name)
 
         self.normalization_opt = {'n_draws': 10000000, 'range': (-100., 100.)}
         self._normalization_value = None
@@ -69,22 +69,3 @@ class BaseDistribution(tf.distributions.Distribution, AbstractBaseDistribution):
         if self._normalization_value is None:
             self._set_normalization()
         return self._normalization_value
-
-
-if __name__ == '__main__':
-    class TestDist(BaseDistribution):
-        def _func(self, value):
-            return tf.exp(-(value - 1.4) ** 2 / 1.8 ** 2)  # non-normalized gaussian
-
-
-    test1 = TestDist()
-    init = tf.global_variables_initializer()
-
-    with tf.Session() as sess:
-        sess.run(init)
-        result = sess.run(test1.prob(
-            tf.cast(np.random.uniform(low=-10., high=10., size=1000000), dtype=tf.float32)))
-        result = np.average(result)
-
-        print(sess.run(test1._normalization_value))
-    print(result)
