@@ -3,6 +3,9 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 import numpy as np
 
+# legacy settings
+LEGACY_MODE = True
+
 # Use double precision throughout
 fptype = tf.float64
 
