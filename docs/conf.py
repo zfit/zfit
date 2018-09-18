@@ -20,6 +20,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 
 import zfit
@@ -78,7 +79,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -97,12 +97,10 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'zfitdoc'
-
 
 # -- Options for LaTeX output ------------------------------------------
 
@@ -122,7 +120,7 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-}
+    }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
@@ -131,8 +129,7 @@ latex_documents = [
     (master_doc, 'zfit.tex',
      u'zfit Documentation',
      u'zfit', 'manual'),
-]
-
+    ]
 
 # -- Options for manual page output ------------------------------------
 
@@ -142,8 +139,7 @@ man_pages = [
     (master_doc, 'zfit',
      u'zfit Documentation',
      [author], 1)
-]
-
+    ]
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -157,7 +153,4 @@ texinfo_documents = [
      'zfit',
      'One line description of project.',
      'Miscellaneous'),
-]
-
-
-
+    ]
