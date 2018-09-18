@@ -8,7 +8,7 @@ import zfit
 
 if zfit.settings.LEGACY_MODE:
     import zfit.legacy
-    from zfit.legacy.optimization import fill_NTuple, read_NTuple, run_minuit, RootHistShape
+    from zfit.legacy.optimization import fill_NTuple, read_NTuple, run_minuit, RootHistShape  # namespace
 from zfit.core import tfext
 from zfit.settings import fptype
 

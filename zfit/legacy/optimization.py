@@ -229,7 +229,7 @@ def run_minuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, u
 
     arglist[0] = 0.5
     minuit.ExecuteCommand("SET ERR", arglist, 1)  # Set error definition for neg. likelihood fit
-    if use_gradient == True or use_gradient == "CHECK":
+    if use_gradient is True or use_gradient == "CHECK":
         minuit.ExecuteCommand("SET GRA", arglist, 0)  # Ask analytic gradient
     elif use_gradient == "FORCE":
         arglist[0] = 1
