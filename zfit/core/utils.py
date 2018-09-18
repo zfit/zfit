@@ -86,14 +86,3 @@ class GaussianMixture4D(object):
         for i in self.params:
             d += gauss_2d(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d
-
-
-def clebsch_coeff(j1, m1, j2, m2, J, M):
-    """
-      Return clebsch_coeff-Gordan coefficient. Note that all arguments should be multiplied by 2
-      (e.g. 1 for spin 1/2, 2 for spin 1 etc.). Needs sympy.
-    """
-    from sympy.physics.quantum.cg import CG
-    from sympy import Rational
-    return CG(Rational(j1, 2), Rational(m1, 2), Rational(j2, 2), Rational(m2, 2), Rational(J, 2),
-              Rational(M, 2)).doit().evalf()
