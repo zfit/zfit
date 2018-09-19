@@ -3,6 +3,9 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 import numpy as np
 
+from zfit.core import tfext
+from zfit.settings import fptype
+
 # start legacy
 import zfit
 
@@ -11,8 +14,6 @@ if zfit.settings.LEGACY_MODE:
     from zfit.legacy.optimization import (fill_NTuple, read_NTuple, run_minuit,
                                           RootHistShape,  # namespace
                                           )
-from zfit.core import tfext
-from zfit.settings import fptype
 
 cacheable_tensors = []
 
