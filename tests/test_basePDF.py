@@ -17,6 +17,7 @@ def true_gaussian_func(x):
 
 
 test_gauss1 = TestGaussian()
+test_gauss1.norm_range = -15., 18.
 
 init = tf.global_variables_initializer()
 
@@ -32,8 +33,9 @@ def test_func():
 def test_normalization():
     with tf.Session() as sess:
         sess.run(init)
-        low, high = -10., 11.2
-        result = sess.run(test_gauss1.prob(
-            tf.cast(np.random.uniform(low=low, high=high, size=1000000), dtype=tf.float32)))
+        low, high = -15., 18.
+        probs = test_gauss1.prob(
+            tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float32))
+        result = sess.run(probs)
         result = np.average(result) * (high - low)
-        assert 0.99 < result < 1.01
+        assert 0.95 < result < 1.05

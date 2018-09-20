@@ -7,6 +7,14 @@ from zfit.core.parameter import FitParameter
 from . import tfext
 
 
+class dotdict(dict):
+    ...
+    """dot.notation access to dictionary attributes"""
+
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
 def multivariate_gauss(x, norm, mean, inv_cov):
     print(norm)
 
