@@ -8,7 +8,7 @@ import tensorflow_probability.python.mcmc as mc
 import numpy as np
 
 
-from . import utils
+import zfit.core.utils as utils
 
 
 class AbstractBasePDF(object):
