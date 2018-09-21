@@ -8,7 +8,6 @@ from . import tfext
 
 
 class dotdict(dict):
-    ...
     """dot.notation access to dictionary attributes"""
 
     __getattr__ = dict.get
