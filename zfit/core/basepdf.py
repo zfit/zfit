@@ -38,7 +38,7 @@ class AbstractBasePDF(object):
 class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = utils.dotdict()
     _DEFAULTS_integration.norm_sampler = mc.sample_halton_sequence
-    _DEFAULTS_integration.draws_per_dim = 10000
+    _DEFAULTS_integration.draws_per_dim = 50000
 
     def __init__(self, name="BaseDistribution", **kwargs):
         # TODO: catch some args from kwargs that belong to the super init?
@@ -71,12 +71,12 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         pdf = self.func(value) / self.normalization(value)
         return pdf
 
-    def _normalization_sampler(self):
-        lower, upper = self.normalization_opt['range']
-        return tf.distributions.Uniform(lower, upper)
+    # def _normalization_sampler(self):
+    #     lower, upper = self.normalization_opt['range']
+    #     return tf.distributions.Uniform(lower, upper)
 
     def _call_normalization(self, value):
-        # TODO: caching?
+        # TODO: caching? alternative
 
         return self._normalization(value)
 
