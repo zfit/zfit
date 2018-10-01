@@ -58,4 +58,4 @@ def test_normalization():
         result = np.average(result) * (high - low)
         result2 = np.average(result2) * (high - low)
         assert 0.95 < result < 1.05
-        assert 0.95 < result2 < 1.05
+        assert 0.90 < result2 < 1.10
