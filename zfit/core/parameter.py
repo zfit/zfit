@@ -4,11 +4,19 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import tensorflow as tf
+tf.Variable
+
+# TF backwards compatibility
+try:
+    # from tensorflow.python.ops.variables import
+    from tensorflow.python.ops.variables import VariableV1
+except ImportError:
+    from tensorflow import Variable as VariableV1
 
 from zfit.settings import fptype
 
 
-class FitParameter(tf.Variable):
+class FitParameter(VariableV1):
     """
       Class for fit parameters, derived from TF Variable class.
     """
@@ -28,7 +36,7 @@ class FitParameter(tf.Variable):
         self.init_value = init_value
         self.par_name = name
         self.step_size = step_size
-        self.lower_limit = tf.cast(lower_limit, dtype = fptype)
+        self.lower_limit = tf.cast(lower_limit, dtype=fptype)
         self.upper_limit = tf.cast(upper_limit, dtype=fptype)
         self.placeholder = tf.placeholder(self.dtype, shape=self.get_shape())
         self.update_op = self.assign(self.placeholder)
