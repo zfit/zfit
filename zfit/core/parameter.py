@@ -22,12 +22,14 @@ class FitParameter(tf.Variable):
             upper_limit : upper limit
             step_size : step size (set to 0 for fixed parameters)
         """
-        tf.Variable.__init__(self, init_value, dtype=fptype)
+        # TODO: sanitize input
+        init_value = tf.cast(init_value, dtype=fptype)
+        super(FitParameter, self).__init__(init_value, dtype=fptype)  # PY23: change super
         self.init_value = init_value
         self.par_name = name
         self.step_size = step_size
-        self.lower_limit = lower_limit
-        self.upper_limit = upper_limit
+        self.lower_limit = tf.cast(lower_limit, dtype = fptype)
+        self.upper_limit = tf.cast(upper_limit, dtype=fptype)
         self.placeholder = tf.placeholder(self.dtype, shape=self.get_shape())
         self.update_op = self.assign(self.placeholder)
         self.prev_value = None

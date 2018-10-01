@@ -10,6 +10,7 @@ import numpy as np
 
 import zfit.core.utils as utils
 import zfit.core.integrate as integ
+import zfit.settings
 
 
 class AbstractBasePDF(object):
@@ -41,7 +42,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def __init__(self, name="BaseDistribution", **kwargs):
         # TODO: catch some args from kwargs that belong to the super init?
-        super(BasePDF, self).__init__(dtype=tf.float64, reparameterization_type=False,
+        super(BasePDF, self).__init__(dtype=zfit.settings.fptype, reparameterization_type=False,
                                       validate_args=True, parameters=kwargs,
                                       allow_nan_stats=False, name=name)
 
@@ -89,11 +90,12 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         # TODO: get dimensions properly
         dim = 1  # HACK
         n_samples = self._integration.draws_per_dim  # TODO: add times dim or so
-        samples_normed = self._integration.norm_sampler(dim=dim, num_results=n_samples)
+        samples_normed = self._integration.norm_sampler(dim=dim, num_results=n_samples,
+                                                        dtype=zfit.settings.fptype)
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
         avg = tfp.monte_carlo.expectation(f=self.func, samples=samples)
         integral = avg * (upper - lower)
-        return integral
+        return tf.cast(integral, dtype=zfit.settings.fptype)
 
         # integ.auto_integrate()
 
@@ -138,9 +140,12 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 # TODO: remove below, play around while developing
 if __name__ == "__main":
     import zfit
+
+
     class TestGaussian(zfit.core.basepdf.BasePDF):
         def _func(self, value):
             return tf.exp(-(value - 1.4) ** 2 / 1.8 ** 2)  # non-normalized gaussian
+
 
     dist1 = TestGaussian()
 

@@ -7,6 +7,7 @@ import numpy as np
 import zfit.core.basepdf
 from zfit.core.pdf import Gauss
 from zfit.core.parameter import FitParameter
+import zfit.settings
 
 mu = FitParameter("mu", 5., 2., 7.)
 sigma = FitParameter("sigma", 1., 10., -5.)
@@ -38,7 +39,8 @@ init = tf.global_variables_initializer()
 def test_func():
     test_values = np.array([3., 129., -0.2, -78.2])
     with tf.Session() as sess:
-        vals = test_gauss1.func(test_values)
+        vals = test_gauss1.func(
+            tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
         vals = sess.run(vals)
     np.testing.assert_almost_equal(vals, true_gaussian_func(test_values))
 
@@ -47,7 +49,7 @@ def test_normalization():
     with tf.Session() as sess:
         sess.run(init)
         low, high = -15., 18.
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float32)
+        samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
         samples.limits = low, high
         probs = test_gauss1.prob(samples)
         probs2 = gauss_params1.prob(samples)
