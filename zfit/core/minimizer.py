@@ -77,7 +77,7 @@ class BFGS(BaseMinimizer):
         super(BFGS, self).__init__(*args, **kwargs)
 
     def minimize(self, func, sess=None, gradient=None):
-      with tf.device("/cpu:0"):
+      # with tf.device("/cpu:0"):
         sess = sess or self.sess
         minimizer_fn = tfp.optimizer.bfgs_minimize
 

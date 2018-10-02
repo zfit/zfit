@@ -38,7 +38,7 @@ class AbstractBasePDF(object):
 class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = utils.dotdict()
     _DEFAULTS_integration.norm_sampler = mc.sample_halton_sequence
-    _DEFAULTS_integration.draws_per_dim = 50000
+    _DEFAULTS_integration.draws_per_dim = 100000
 
     def __init__(self, name="BaseDistribution", **kwargs):
         # TODO: catch some args from kwargs that belong to the super init?
