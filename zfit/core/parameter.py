@@ -31,7 +31,9 @@ class FitParameter(VariableV1):
         """
         # TODO: sanitize input
         init_value = tf.cast(init_value, dtype=fptype)
-        super(FitParameter, self).__init__(init_value, dtype=fptype)  # PY23: change super
+        super(FitParameter, self).__init__(init_value, dtype=fptype,  # PY23: change super
+                                           # use_resource=True  # TODO: only 1.11+
+                                           )
         self.init_value = init_value
         self.par_name = name
         self.step_size = step_size
@@ -55,8 +57,13 @@ class FitParameter(VariableV1):
             value   : new value
         """
         if value != self.prev_value:
-            session.run(self.update_op, {self.placeholder: value})
-            self.prev_value = value
+            if isinstance(value, tf.Tensor):
+                # session.run(self.assign(value))
+                self.assign(value)
+            else:
+                # session.run(self.update_op, {self.placeholder: value})
+                self.update_op, {self.placeholder: value}
+                self.prev_value = value
 
     def floating(self):
         """

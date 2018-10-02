@@ -19,6 +19,7 @@ class TestGaussian(zfit.core.basepdf.BasePDF):
         return tf.exp(-(value - 1.4) ** 2 / 1.8 ** 2)  # non-normalized gaussian
 
 
+
 def true_gaussian_func(x):
     return np.exp(- (x - 1.4) ** 2 / 1.8 ** 2)
 

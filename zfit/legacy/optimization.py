@@ -134,13 +134,13 @@ def run_minuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, u
         feed_dict    :
         float_tfpars : list of floating parameter to be used in the fit
         call_limit   : call limit for MINUIT
-        gradient     : external gradient graph. If None and use_gradient is not False, will be
+        gradient_par     : external gradient_par graph. If None and use_gradient is not False, will be
                        calculated internally
-        use_gradient  : flag to control the use of analytic gradient while fitting:
-                       None or False   : gradient is not used
-                       True or "CHECK" : analytic gradient will be checked with finite elements,
+        use_gradient  : flag to control the use of analytic gradient_par while fitting:
+                       None or False   : gradient_par is not used
+                       True or "CHECK" : analytic gradient_par will be checked with finite elements,
                                         and will be used is they match
-                       "FORCE"         : analytic gradient will be used regardless.
+                       "FORCE"         : analytic gradient_par will be used regardless.
         printout     : Printout frequency
         tmp_file      : Name of the file with temporary results (updated every time printout is
         called)
@@ -157,7 +157,7 @@ def run_minuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, u
         float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
 
     if use_gradient and gradient is None:
-        gradient = tf.gradients(nll, float_tfpars)  # Get analytic gradient
+        gradient = tf.gradients(nll, float_tfpars)  # Get analytic gradient_par
 
     cached_data = {}
 
@@ -193,11 +193,11 @@ def run_minuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, u
         f[0] = sess.run(nll, feed_dict=feeds, options=options,
                         run_metadata=run_metadata)  # Calculate log likelihood
 
-        if istatus == 2:  # If gradient calculation is needed
+        if istatus == 2:  # If gradient_par calculation is needed
             dnll = sess.run(gradient, feed_dict=feeds, options=options,
-                            run_metadata=run_metadata)  # Calculate analytic gradient
+                            run_metadata=run_metadata)  # Calculate analytic gradient_par
             for j in range(len(float_tfpars)):
-                gin[j] = dnll[j]  # Pass gradient to MINUIT
+                gin[j] = dnll[j]  # Pass gradient_par to MINUIT
         fcn.n += 1
         if fcn.n % printout == 0:
             print("  Iteration ", fcn.n, ", Flag=", istatus, " NLL=", f[0], ", pars=",
@@ -230,14 +230,14 @@ def run_minuit(sess, nll, feed_dict=None, float_tfpars=None, call_limit=50000, u
     arglist[0] = 0.5
     minuit.ExecuteCommand("SET ERR", arglist, 1)  # Set error definition for neg. likelihood fit
     if use_gradient is True or use_gradient == "CHECK":
-        minuit.ExecuteCommand("SET GRA", arglist, 0)  # Ask analytic gradient
+        minuit.ExecuteCommand("SET GRA", arglist, 0)  # Ask analytic gradient_par
     elif use_gradient == "FORCE":
         arglist[0] = 1
-        minuit.ExecuteCommand("SET GRA", arglist, 1)  # Ask analytic gradient
+        minuit.ExecuteCommand("SET GRA", arglist, 1)  # Ask analytic gradient_par
     arglist[0] = call_limit  # Set call limit
     minuit.ExecuteCommand("MIGRAD", arglist, 1)  # Perform minimisation
 
-    minuit.ExecuteCommand("SET NOG", arglist, 0)  # Ask no analytic gradient
+    minuit.ExecuteCommand("SET NOG", arglist, 0)  # Ask no analytic gradient_par
 
     if run_hesse:
         minuit.ExecuteCommand("HESSE", arglist, 1)

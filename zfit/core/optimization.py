@@ -11,9 +11,7 @@ import zfit
 
 if zfit.settings.LEGACY_MODE:
     import zfit.legacy
-    from zfit.legacy.optimization import (fill_NTuple, read_NTuple, run_minuit,
-                                          RootHistShape,  # namespace
-                                          )
+    from zfit.core.math import gradient_par as gradient
 
 cacheable_tensors = []
 
@@ -253,15 +251,6 @@ def run_toy_MC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, 
         return data[:size]
     else:
         return data
-
-
-def gradient(func):
-    """
-      Returns TF graph for analytic gradient of the input function wrt all floating variables
-    """
-    tfpars = tf.trainable_variables()  # Create TF variables
-    float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
-    return tf.gradients(func, float_tfpars)  # Get analytic gradient
 
 
 def load_data(sess, phsp, name, data):

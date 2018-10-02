@@ -10,16 +10,14 @@ import abc
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+import zfit.core.math as zmath
+
 
 class AbstractMinimizer(object):
     """Define the minimizer interface."""
 
     @abc.abstractmethod
     def minimize(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_variables(self):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -39,54 +37,34 @@ class AbstractMinimizer(object):
     def status(self):
         raise NotImplementedError
 
-    @property
-    @abc.abstractmethod
-    def gradient(self):
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def func(self):
-        raise NotImplementedError
-
 
 class BaseMinimizer(AbstractMinimizer):
 
-    def __init__(self, func, sess, var_list=None, name="BaseMinimizer", gradients=None):
-        self.func = func
+    def __init__(self, name="BaseMinimizer", tolerance=1e-6, sess=None):
         self.sess = sess
-        self._start_position = None
-        self._gradient = None
-        self._variables = None
-        self.tolerance = 1e-6
-        self.prepare(var_list=var_list)
-
-    @property
-    def gradient(self):
-        return self._gradient or tf.gradients(self.func(), self.get_variables())[0]
-
-    @property
-    def func(self):
-        return self._func
-
-    @func.setter
-    def func(self, func):
-        self._func = func
-
-    def prepare(self, var_list=None):
-        self.set_variables(var_list=var_list)
-        self._start_position = tf.convert_to_tensor(
-            [v.read_value() for v in self.get_variables() if v.floating()])
-
-    def set_variables(self, var_list=None):
-        self._variables = var_list or tf.trainable_variables()
-
-    def get_variables(self):
-        return self._variables
+        self.tolerance = tolerance
 
     @property
     def tolerance(self):
         return self._tolerance
+
+    @staticmethod
+    def gradient_par(func):
+        return zmath.gradient_par(func)
+
+    @staticmethod
+    def start_values(parameters):
+        """Extract the current value if defined, otherwise random.
+
+        Arguments:
+            parameters (FitParameter):
+
+        Return:
+            list(const): the current values of parameters
+        """
+        values = [p.read_value() for p in parameters]
+        # TODO: implement if initial val not given
+        return values
 
     @tolerance.setter
     def tolerance(self, tolerance):
@@ -98,17 +76,35 @@ class BFGS(BaseMinimizer):
     def __init__(self, *args, **kwargs):
         super(BFGS, self).__init__(*args, **kwargs)
 
-    def minimize(self):
-        minimize_fn = tfp.optimizer.bfgs_minimize
+    def minimize(self, func, sess=None, gradient=None):
+      with tf.device("/cpu:0"):
+        sess = sess or self.sess
+        minimizer_fn = tfp.optimizer.bfgs_minimize
 
-        def func(values):
-            for param, val in zip(self.get_variables(), tf.unstack(values)):
-                param.assign(value=val)
-            return self.func(), tf.gradients(self.func(), self.get_variables())[0]
+        for param in tf.trainable_variables():
+            if param.floating():
+                print(param)
 
-        result = self.sess.run(minimize_fn(func,
-                                           initial_position=self._start_position,
-                                           tolerance=self.tolerance))
+        params = [p for p in tf.trainable_variables() if p.floating()]
+
+        func_graph = func()
+
+        def to_minimize_func(values):
+            # tf.Print(values, [values])
+            # print("============values", values)
+
+            # def update_one(param_value):
+            #     param, value = param_value
+            #     param.update(value=value, session=sess)
+            # print("============one param", params[0])
+            for param, val in zip(params, tf.unstack(values)):
+                param.update(value=val, session=sess)
+            # print("DEBUG:", func_graph, tf.gradients(func_graph, params))
+            return func_graph, tf.stack(tf.gradients(func_graph, params))
+
+        result = minimizer_fn(to_minimize_func,
+                              initial_position=self.start_values(params),
+                              tolerance=self.tolerance)
 
         return result
 
@@ -117,16 +113,18 @@ if __name__ == '__main__':
     from zfit.core.parameter import FitParameter
 
     with tf.Session() as sess:
-        a = FitParameter("blabla", 5.)
-        b = FitParameter("blabla2", 55.)
+        a = FitParameter("blabla", 1.)
+        b = FitParameter("blabla2", 2.)
+        c = FitParameter("blabla3", 3.1)
         init = tf.global_variables_initializer()
         sess.run(init)
 
 
         def func():
-            return (a + b ** 2 + 2) ** 2
+            return (a + b ** 2 + 2.*(c-3.)) ** 2
 
 
-        test1 = BFGS(func=func, sess=sess, var_list=[a, b])
-        test1.minimize()
-        sess.run(test1.minimize())
+        test1 = BFGS(sess=sess)
+        min = test1.minimize(func=func)
+        result = sess.run(min)
+        print(result)
