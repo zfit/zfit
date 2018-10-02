@@ -36,7 +36,7 @@ class FitParameter(VariableV1):
                                            )
         self.init_value = init_value
         self.par_name = name
-        self.step_size = step_size
+        self.step_size = tf.cast(step_size, dtype=fptype)
         self.lower_limit = tf.cast(lower_limit, dtype=fptype)
         self.upper_limit = tf.cast(upper_limit, dtype=fptype)
         self.placeholder = tf.placeholder(self.dtype, shape=self.get_shape())
@@ -61,8 +61,7 @@ class FitParameter(VariableV1):
                 # session.run(self.assign(value))
                 self.assign(value)
             else:
-                # session.run(self.update_op, {self.placeholder: value})
-                self.update_op, {self.placeholder: value}
+                session.run(self.update_op, {self.placeholder: value})
                 self.prev_value = value
 
     def floating(self):
