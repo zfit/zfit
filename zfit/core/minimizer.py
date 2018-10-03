@@ -145,46 +145,54 @@ class BaseMinimizer(object):
 
 # TensorFlow Minimizer
 
-class OptimizerAdapter(object):
+class HelperAdapterTFOptimizer(object):
     """Adapter for tf.Optimizer to convert the step-by-step minimization to full minimization"""
 
     def __init__(self, *args, **kwargs):  # self check
-        print("DEBUG", self.__class__.__bases__)
         assert issubclass(self.__class__, tf.train.Optimizer)  # assumption
-        super(OptimizerAdapter, self).__init__(*args, **kwargs)
+        super(HelperAdapterTFOptimizer, self).__init__(*args, **kwargs)
 
     def step(self, loss, var_list):
+        """One step of the minimization. Equals to `tf.train.Optimizer.minimize`
 
-        min = super(OptimizerAdapter, self).minimize(loss=loss, var_list=var_list)
+        Args:
+            loss (graph): The loss function to minimize
+            var_list (list(tf.Variable...)): A list of tf.Variables that will be optimized.
+
+
+        """
+        min = super(HelperAdapterTFOptimizer, self).minimize(loss=loss, var_list=var_list)
         init = tf.global_variables_initializer()
         self.sess.run(init)
         return min
 
 
-class BaseTFOptimizer(BaseMinimizer, OptimizerAdapter):
+class AdapterTFOptimizer(BaseMinimizer, HelperAdapterTFOptimizer):
     pass
+
 
 # Explicit classes to use
-class AdadeltaMinimizer(BaseTFOptimizer, tf.train.AdadeltaOptimizer, AbstractMinimizer):
+class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, AbstractMinimizer):
     pass
 
 
-class AdagradMinimizer(BaseTFOptimizer, tf.train.AdagradOptimizer, AbstractMinimizer):
+class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, AbstractMinimizer):
     pass
 
 
-class GradientDescentMinimizer(BaseTFOptimizer, tf.train.GradientDescentOptimizer, AbstractMinimizer):
+class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer,
+                               AbstractMinimizer):
     pass
 
 
-class RMSPropMinimizer(BaseTFOptimizer, tf.train.RMSPropOptimizer, AbstractMinimizer):
+class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, AbstractMinimizer):
     pass
 
 
-class AdamMinimizer(BaseTFOptimizer, tf.train.AdamOptimizer, AbstractMinimizer):
+class AdamMinimizer(AdapterTFOptimizer, tf.train.AdamOptimizer, AbstractMinimizer):
     pass
 
-
+# WIP below
 if __name__ == '__main__':
     from zfit.core.parameter import FitParameter
 
@@ -228,7 +236,6 @@ if __name__ == '__main__':
         #             # grad = tf.gradients(f, a)[0]
         #             grad = 2. * (var1 - 1.)  # HACK
         #             return f, grad
-
 
         loss_func = func()
         # with tf.control_dependencies([a]):

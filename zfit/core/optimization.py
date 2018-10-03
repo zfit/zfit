@@ -17,8 +17,9 @@ cacheable_tensors = []
 
 
 def accept_reject_sample(density, sample):
-    """
-      Return toy MC sample graph using accept-reject method
+    """Return toy MC sample graph using accept-reject method
+
+    Args:
         density : function to calculate density
         sample  : input uniformly distributed sample
     """
@@ -32,15 +33,17 @@ def accept_reject_sample(density, sample):
 
 # -- modified to (optionally) introduce vetoed-window -- #
 def create_accept_reject_sample(sess, density, x, sample, veto_min, veto_max):
-    """
-      Create toy MC sample using accept-reject method for a density defined as a graph
+    """Create toy MC sample using accept-reject method for a density defined as a graph
+
+    Args:
         sess    : Tf session
         density : density graph
         x       : phase space placeholder used for density graph definition
         sample  : input uniformly distributed sample
         veto_min: low q2 of the resonance veto, ignored if = 0
         veto_max: high q2 of the resonance veto, ignored if = 0
-      Returns numpy array of generated points
+    Return:
+        numpy array: generated points
     """
     p = sample[:, 0:-1]
     r = sample[:, -1]

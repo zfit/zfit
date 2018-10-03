@@ -43,7 +43,13 @@ def test_func():
         vals = test_gauss1.func(
             tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
         vals = sess.run(vals)
+        vals_gauss = gauss_params1.func(
+            tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        vals_gauss = sess.run(vals_gauss)
     np.testing.assert_almost_equal(vals, true_gaussian_func(test_values))
+    np.testing.assert_almost_equal(vals_gauss, true_gaussian_func(test_values))
 
 
 def test_normalization():
