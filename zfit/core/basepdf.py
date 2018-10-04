@@ -64,7 +64,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             except NotImplementedError:
                 return self.prob(value) * self.NAME_NEEDED_YIELD
 
-    def func(self, value, name="func"):
+    def func(self, value, name="func"):  # TODO: rename to unnormalized_prob?
         return self._call_func(value, name)
 
     def _prob(self, value):
@@ -110,9 +110,9 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def _call_integrate(self, value):
         try:
-            integral = self._integrate(value)
+            integral = self._analytic_integrate(value)
         except NotImplementedError:
-            raise NotImplementedError("alternative not yet implemented.")
+            integral = self._integrate(value)
         return integral
 
     def analytic_integrate(self, value):
@@ -121,11 +121,11 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def _analytic_integrate(self, value):
         # TODO: user implementation requested
-        pass
+        raise NotImplementedError
 
     def _partial_analytic_integral(self, value):
         # TODO: user implementation requested
-        return None
+        raise NotImplementedError
 
     def _partial_analytic_integrate(self, value):
         # TODO: implement meaningful, how communicate integrated, not integrated vars?
@@ -142,17 +142,46 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return normalization_value
 
 
+def wrap_distribution(dist):
+    """Wraps a tfp.distribution instance."""
+
+
+class WrapDistribution(BasePDF):
+
+    def __init__(self, distribution, name="WrappedTFDistribution", **kwargs):
+        # Check if subclass of distribution?
+        name = name or distribution.name
+        super(WrapDistribution, self).__init__(distribution=distribution, name=name, **kwargs)
+        # self.tf_distribution = self.parameters['distribution']
+        self.tf_distribution = distribution
+
+    def _func(self, value):
+        return self.tf_distribution.prob(value=value, name="asdf") # TODO name
+
+    def _analytic_integrate(self, value):
+        lower, upper = self.norm_range  # TODO: limits
+        upper = tf.cast(upper, dtype=tf.float64)
+        lower = tf.cast(lower, dtype=tf.float64)
+        integral = self.tf_distribution.cdf(upper, name="asdf2") - self.tf_distribution.cdf(lower, name="asdf3")  # TODO name
+        return integral
+
+
 # TODO: remove below, play around while developing
 if __name__ == "__main":
     import zfit
 
+    mu_true = 1.4
+    sigma_true = 1.8
+
 
     class TestGaussian(zfit.core.basepdf.BasePDF):
         def _func(self, value):
-            return tf.exp(-(value - 1.4) ** 2 / 1.8 ** 2)  # non-normalized gaussian
+            return tf.exp(-(value - mu_true) ** 2 / sigma_true ** 2)  # non-normalized gaussian
 
 
     dist1 = TestGaussian()
+    tf_gauss1 = tf.distributions.Normal(loc=mu_true, scale=sigma_true)
+    wrapped = WrapDistribution(tf_gauss1)
 
     with tf.Session() as sess:
         res = sess.run(dist1.event_shape_tensor())
