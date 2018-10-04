@@ -9,19 +9,22 @@ from zfit.core.pdf import Gauss
 from zfit.core.parameter import FitParameter
 import zfit.settings
 
-mu = FitParameter("mu", 5., 2., 7.)
-sigma = FitParameter("sigma", 1., 10., -5.)
+
+mu_true = 1.4
+sigma_true = 1.8
+mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 gauss_params1 = Gauss(mu=mu, sigma=sigma)
 
 
 class TestGaussian(zfit.core.basepdf.BasePDF):
     def _func(self, value):
-        return tf.exp(-(value - 1.4) ** 2 / 1.8 ** 2)  # non-normalized gaussian
+        return tf.exp((-(value - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
 
 
 
 def true_gaussian_func(x):
-    return np.exp(- (x - 1.4) ** 2 / 1.8 ** 2)
+    return np.exp(- (x - mu_true) ** 2 / (2 * sigma_true ** 2))
 
 
 test_gauss1 = TestGaussian()
@@ -38,14 +41,14 @@ init = tf.global_variables_initializer()
 
 
 def test_func():
-    test_values = np.array([3., 129., -0.2, -78.2])
+    test_values = np.array([3., 11.3, -0.2, -7.82])
     with tf.Session() as sess:
         vals = test_gauss1.func(
             tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
         vals = sess.run(vals)
         vals_gauss = gauss_params1.func(
             tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
-        init = tf.global_variables_initializer()
+        # init = tf.global_variables_initializer()
         sess.run(init)
         vals_gauss = sess.run(vals_gauss)
     np.testing.assert_almost_equal(vals, true_gaussian_func(test_values))
@@ -56,7 +59,7 @@ def test_normalization():
     with tf.Session() as sess:
         sess.run(init)
         low, high = -15., 18.
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
+        samples = tf.cast(np.random.uniform(low=low, high=high, size=1000000), dtype=tf.float64)
         samples.limits = low, high
         probs = test_gauss1.prob(samples)
         probs2 = gauss_params1.prob(samples)
@@ -65,5 +68,5 @@ def test_normalization():
         result = np.average(result) * (high - low)
         result2 = np.average(result2) * (high - low)
         assert 0.95 < result < 1.05
-        assert 0.88 < result2 < 1.12
-        assert -0.15 < result - result2 < 0.15
+        assert 0.95 < result2 < 1.05
+        assert -0.10 < result - result2 < 0.10

@@ -38,7 +38,7 @@ class AbstractBasePDF(object):
 class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = utils.dotdict()
     _DEFAULTS_integration.norm_sampler = mc.sample_halton_sequence
-    _DEFAULTS_integration.draws_per_dim = 100000
+    _DEFAULTS_integration.draws_per_dim = 10000
 
     def __init__(self, name="BaseDistribution", **kwargs):
         # TODO: catch some args from kwargs that belong to the super init?
@@ -99,7 +99,12 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
         # integ.auto_integrate()
 
-    def integrate(self, value, name='integrate'):
+    def integrate(self, value, dim=None, name='integrate'):
+        """Integrate over the **function**.
+
+        Args:
+            dim (iterable(int)): the dimensions to integrate.
+        """
         integral = self._call_integrate(value)
         return integral
 

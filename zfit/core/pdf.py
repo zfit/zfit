@@ -16,8 +16,7 @@ class Gauss(BasePDF):
     def _func(self, value):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp((value - mu) ** 2)
-        gauss = gauss / (tfz.constant(2.) * sigma ** 2)
+        gauss = tf.exp(- (value - mu) ** 2 / (tfz.constant(2.) * (sigma ** 2)))
 
         return gauss
 
