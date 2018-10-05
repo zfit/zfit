@@ -69,7 +69,7 @@ def test_normalization():
         samples = tf.cast(np.random.uniform(low=low, high=high, size=1000000), dtype=tf.float64)
         for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
             samples.limits = low, high
-            print("Testing currenlty: ", dist.name)
+            print("Testing currently: ", dist.name)
             probs = dist.prob(samples)
             result = sess.run(probs)
             result = np.average(result) * (high - low)

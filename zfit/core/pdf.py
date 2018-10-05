@@ -25,7 +25,7 @@ class Gauss(BasePDF):
 
 class Normal(WrapDistribution):
     def __init__(self, loc, scale, name="Normal"):
-        distribution = tfp.distributions.Normal(loc=loc, scale=scale, name=name+"_tf")
+        distribution = tfp.distributions.Normal(loc=loc, scale=scale, name=name + "_tf")
         super(Normal, self).__init__(distribution=distribution, name=name)
 
 
@@ -65,6 +65,18 @@ class SumPDF(BasePDF):
         frac = self.parameters['frac']
         func = tf.accumulate_n([scale * pdf.func(value) for pdf, scale in zip(pdfs, frac)])
         return func
+
+    def _analytic_integrate(self, value):
+        pdfs = self.parameters['pdfs']
+        frac = self.parameters['frac']
+        try:
+            integral = sum([pdf.analytic_integrate(value) * s for pdf, s in zip(pdfs, frac)])
+        except NotImplementedError as original_error:
+            raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
+                                      " SumPDF, as at least one sub-pdf does not implement it."
+                                      "Original message:\n{error}".format(name=self.name,
+                                                                          error=original_error))
+        return integral
 
 
 class ProductPDF(BasePDF):
