@@ -54,7 +54,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         self._integration = utils.dotdict()
         self._integration.norm_sampler = self._DEFAULTS_integration.norm_sampler
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
-        self._integration.numeric_integrate = self._DEFAULTS_numeric_integrate
+        self._integration.numeric_integrate = self._DEFAULTS_integration.numeric_integrate
         self._normalization_value = None
 
     def _func(self, value):
@@ -71,18 +71,53 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def func(self, value, name="func"):  # TODO: rename to unnormalized_prob?
         return self._call_func(value, name)
 
-    def _prob(self, value):
-        pdf = self.func(value) / self.normalization(value)
+    def log_prob(self, value, norm_range, name="log_prob"):
+        """Log probability density/mass function.
+
+        Args:
+          value: `float` or `double` `Tensor`.
+          name: Python `str` prepended to names of ops created by this function.
+
+        Returns:
+          log_prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
+            values of type `self.dtype`.
+        """
+        return self._call_log_prob(value, name)
+
+    def prob(self, value, norm_range=None, name="prob"):
+        """Probability density/mass function.
+
+        Args:
+          value: `float` or `double` `Tensor`.
+          name: Python `str` prepended to names of ops created by this function.
+
+        Returns:
+          prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
+            values of type `self.dtype`.
+        """
+        norm_range = norm_range or self.norm_range
+        return self._call_prob(value, norm_range, name)
+
+    def _call_prob(self, value, norm_range, name, **kwargs):
+        with self._name_scope(name, values=[value]):
+            value = tf.convert_to_tensor(value, name="value")
+            try:
+                return self._prob(value, norm_range, **kwargs)
+            except NotImplementedError:
+                return tf.exp(self._log_prob(value, norm_range))
+
+    def _prob(self, value, norm_range):
+        pdf = self.func(value) / self.normalization(norm_range=norm_range)
         return pdf
 
     # def _normalization_sampler(self):
     #     lower, upper = self.normalization_opt['range']
     #     return tf.distributions.Uniform(lower, upper)
 
-    def _call_normalization(self, value):
+    def _call_normalization(self, norm_range):
         # TODO: caching? alternative
 
-        return self._normalization(value)
+        return self._normalization(norm_range)
 
     @classmethod
     def register_analytic_integral(cls, func, dims=None):
@@ -103,18 +138,13 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
         # TODO: get limits properly
         # HACK
-        lower, upper = limits
-        # TODO: get dimensions properly
-        dim = 1  # HACK
-        n_samples = self._integration.draws_per_dim  # TODO: add times dim or so
-        samples_normed = self._integration.norm_sampler(dim=dim, num_results=n_samples,
-                                                        dtype=zfit.settings.fptype)
-        samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-        avg = tfp.monte_carlo.expectation(f=self.func, samples=samples)
-        integral = avg * (upper - lower)
-        return tf.cast(integral, dtype=zfit.settings.fptype)
+        n_dims = 1
+        integral = zfit.core.integrate.auto_integrate(func=self.func, limits=limits,
+                                                      dtype=self.dtype, n_dims=n_dims,
+                                                      mc_sampler=self._integration.norm_sampler,
+                                                      mc_options={'draws_per_dim': 10000})
 
-        # integ.auto_integrate()
+        return integral
 
     def integrate(self, limits, name='integrate'):
         """Integrate over the **function**.
@@ -128,7 +158,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def _call_integrate(self, limits):
         try:
-            integral = self._analytic_integrate(limits)
+            integral = self.analytic_integrate(limits)
         except NotImplementedError:
             max_dims = self._analytic_integral.max_dims
             if max_dims:
@@ -141,11 +171,12 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                 integral = self._integrate(limits=limits)
         return integral
 
-    def analytic_integrate(self, value):
+    def analytic_integrate(self, limits):
         # TODO: get limits
-        integral = self._analytic_integrate(value)
+        integral = self._analytic_integrate(limits)
+        return integral
 
-    def _analytic_integrate(self, value):
+    def _analytic_integrate(self, limits):
         # TODO: user implementation requested
         raise NotImplementedError
 
@@ -168,14 +199,14 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                                            dims=dims)  # Whatevernot arguments
         raise NotImplementedError
 
-    def normalization(self, value):
-        normalization = self._call_normalization(value)
+    def normalization(self, norm_range):
+        normalization = self._call_normalization(norm_range)
         return normalization
 
-    def _normalization(self, value):
+    def _normalization(self, norm_range):
 
         # TODO: multidim, more complicated range
-        normalization_value = self.integrate(value)
+        normalization_value = self.integrate(limits=norm_range)
         return normalization_value
 
 
@@ -195,8 +226,8 @@ class WrapDistribution(BasePDF):
     def _func(self, value):
         return self.tf_distribution.prob(value=value, name="asdf")  # TODO name
 
-    def _analytic_integrate(self, value):
-        lower, upper = self.norm_range  # TODO: limits
+    def _analytic_integrate(self, limits):
+        lower, upper = limits  # TODO: limits
         upper = tf.cast(upper, dtype=tf.float64)
         lower = tf.cast(lower, dtype=tf.float64)
         integral = self.tf_distribution.cdf(upper, name="asdf2") - self.tf_distribution.cdf(lower,
