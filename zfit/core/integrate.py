@@ -59,10 +59,12 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         raise ValueError("Either specify dims or n_dims")
     if dims and not n_dims:
         n_dims = len(dims)
-    n_vals = value.get_shape()[0].value
     n_samples = draws_per_dim ** n_dims
     if partial:
+        n_vals = value.get_shape()[0].value
         n_samples *= n_vals  # each entry wants it's mc
+    else:
+        n_vals = 1
 
     # TODO: get dimensions properly
     # TODO: add times dim or so
@@ -87,11 +89,16 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         value_list = [tf.cast(val, dtype=dtype) for val in value_list]
         # value = tf.stack(value_list)
         value = value_list
+    else:
+        value = samples
 
     # convert rnd samples with values to feedable vector
     reduce_axis = 0 if partial else None
-    print("DEBUG, samples: ", samples)
-    print("DEBUG, value: ", value)
+    if partial:
+        print("DEBUG, samples: ", samples)
+        print("DEBUG, value: ", value)
+        print("DEBUG, func(value): ", func(value))
+        print("DEBUG, func(value).get_shape(): ", func(value).get_shape())
     avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
     # avg = tfp.monte_carlo.expectation(f=func, samples=samples)
     integral = avg * (upper - lower)
@@ -132,17 +139,19 @@ class AnalyticIntegral(object):
 
 
 if __name__ == '__main__':
+    # TODO: partial does not yet work...
     def my_fn1(value):
         if isinstance(value, tf.Tensor):
             value = tf.unstack(value)
         w, x, y, z, l = value
-        return x ** 2 + (y + 1) ** 2 + (z - 1) ** 2 + w * l
+        # return x ** 2 + 0.1 * y ** 2 + 0.01 * z ** 2 + 0.001 * w ** 2 + 0.0001 * l ** 2
+        return w + x
 
 
     import tensorflow_probability as tfp
 
-    res = mc_integrate(func=my_fn1, limits=(-2., 2), dims=(1, 3),
-                       value=tf.constant([[1., 2., 1.], [4., 5., 1.], [6., 7., 1.], [8., 9., 1.]]),
+    res = mc_integrate(func=my_fn1, limits=(0., 5.), dims=(1,), draws_per_dim=1000,
+                       value=tf.constant([[i, i, i, i] for i in range(1, 6)]),
                        mc_sampler=tfp.mcmc.sample_halton_sequence)
 
     with tf.Session() as sess:
