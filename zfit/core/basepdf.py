@@ -165,7 +165,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         try:
             integral_vals = self.partial_analytic_integrate(value=value, limits=limits, dims=dims)
         except NotImplementedError:
-            max_dims = self._analytic_integral.get_max_dims(out_of_dims=dims)  # TODO: refactor logic
+            max_dims = self._analytic_integral.get_max_dims(
+                out_of_dims=dims)  # TODO: refactor logic
             if max_dims:
                 def part_int(value):
                     return self.partial_analytic_integrate(value=value, limits=limits,
@@ -245,10 +246,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         # TODO: multidim, more complicated range
         normalization_value = self.integrate(limits=norm_range)
         return normalization_value
-
-
-def wrap_distribution(dist):
-    """Wraps a tfp.distribution instance."""
 
 
 class WrapDistribution(BasePDF):
