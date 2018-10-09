@@ -9,8 +9,9 @@ import tensorflow_probability as tfp
 import numpy as np
 
 import zfit.core.utils as utils
-import zfit.core.integrate
+# import zfit.core.integrate
 import zfit.settings
+import zfit.core.integrate as zintegrate
 
 
 class AbstractBasePDF(object):
@@ -37,7 +38,7 @@ class AbstractBasePDF(object):
 
 class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = utils.dotdict()
-    _DEFAULTS_integration.norm_sampler = mc.sample_halton_sequence
+    _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 10000
     _DEFAULTS_integration.numeric_integrate = zfit.core.integrate.numeric_integrate
 
@@ -52,7 +53,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         self.norm_range = None
         # self.normalization_opt = {'n_draws': 10000000, 'range': (-100., 100.)}
         self._integration = utils.dotdict()
-        self._integration.norm_sampler = self._DEFAULTS_integration.norm_sampler
+        self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
         self._integration.numeric_integrate = self._DEFAULTS_integration.numeric_integrate
         self._normalization_value = None
@@ -139,10 +140,11 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         # TODO: get limits properly
         # HACK
         n_dims = 1
-        integral = zfit.core.integrate.auto_integrate(func=self.func, limits=limits,
-                                                      dtype=self.dtype, n_dims=n_dims,
-                                                      mc_sampler=self._integration.norm_sampler,
-                                                      mc_options={'draws_per_dim': 10000})
+        integral = zintegrate.auto_integrate(func=self.func, limits=limits,
+                                             dtype=self.dtype, n_dims=n_dims,
+                                             mc_sampler=self._integration.mc_sampler,
+                                             mc_options={
+                                                 'draws_per_dim': self._integration.draws_per_dim})
 
         return integral
 
@@ -156,11 +158,46 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         integral = self._call_integrate(limits=limits)
         return integral
 
+    def partial_integrate(self, value, limits, dims, name="partial_integrate"):
+        return self._call_partial_integrate(value=value, limits=limits, dims=dims, name=name)
+
+    def _call_partial_integrate(self, value, limits, dims, name):
+        try:
+            integral_vals = self.partial_analytic_integrate(value=value, limits=limits, dims=dims)
+        except NotImplementedError:
+            max_dims = self._analytic_integral.get_max_dims(out_of_dims=dims)  # TODO: refactor logic
+            if max_dims:
+                def part_int(value):
+                    return self.partial_analytic_integrate(value=value, limits=limits,
+                                                           dims=max_dims)
+
+                dims = list(set(dims) - set(max_dims))
+            else:
+                part_int = self.func
+
+            integral_vals = zintegrate.auto_integrate(func=part_int, limits=limits, dims=dims,
+                                                      value=value, dtype=self.dtype,
+                                                      mc_sampler=self._integration.mc_sampler,
+                                                      mc_options={"draws_per_dim":
+                                                                      self._integration.draws_per_dim})
+
+        return integral_vals
+
+    def partial_numeric_integrate(self, value, limits, dims, name="partial_numeric_integrate"):
+        return self._partial_numeric_integrate(value=value, limits=limits, dims=dims)
+
+    def _partial_numeric_integrate(self, value, limits, dims):
+        return zintegrate.auto_integrate(func=self.func, limits=limits, dims=dims,
+                                         value=value, dtype=self.dtype,
+                                         mc_sampler=self._integration.mc_sampler,
+                                         mc_options={
+                                             "draws_per_dim": self._integration.draws_per_dim})
+
     def _call_integrate(self, limits):
         try:
             integral = self.analytic_integrate(limits)
         except NotImplementedError:
-            max_dims = self._analytic_integral.max_dims
+            max_dims = self._analytic_integral.get_max_dims()
             if max_dims:
                 def part_int(value):
                     return self._analytic_integral.integrate(value, limits=limits, dims=max_dims)
