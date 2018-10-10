@@ -7,7 +7,8 @@ import numpy as np
 from zfit.core.utils import dotdict
 
 
-def auto_integrate(func, limits, n_dims, method="AUTO", dtype=None, mc_sampler="TODO",
+def auto_integrate(func, limits, n_dims, method="AUTO", dtype=tf.float64,
+                   mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
     if method == "AUTO":  # TODO
         method = "mc"
@@ -31,7 +32,7 @@ def numeric_integrate():
 
 def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim=10000, method=None,
                  dtype=tf.float64,
-                 mc_sampler="TODO", importance_sampling=None):
+                 mc_sampler=tfp.mcmc.sample_halton_sequence, importance_sampling=None):
     """
 
     Args:
@@ -50,7 +51,8 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
 
     """
     lower, upper = limits  # TODO: limits?
-
+    lower = tf.convert_to_tensor(lower, dtype=tf.float64)
+    upper = tf.convert_to_tensor(upper, dtype=tf.float64)
     # HACK
     partial = (dims is not None) and (value is not None)  # dims, value can be tensors
     # if partial:
@@ -65,12 +67,16 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
-
+    print("DEBUG, n_dims", n_dims, dims, n_samples, dtype)
     # TODO: get dimensions properly
     # TODO: add times dim or so
+    print("DEBUG, mc_sampler", mc_sampler)
     samples_normed = mc_sampler(dim=n_dims, num_results=n_samples, dtype=dtype)
-    samples_normed = tf.reshape(samples_normed, shape=(int(n_samples / n_vals), n_dims, n_vals))
+    samples_normed = tf.reshape(samples_normed, shape=(int(n_samples / n_vals), n_vals, n_dims))
+    print("DEBUG, samples_normed", samples_normed)
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+    samples = tf.reshape(samples, shape=(n_dims, int(n_samples / n_vals), n_vals))
+    print("DEBUG, samples_normed", samples_normed)
 
     # TODO: combine sampled with values
 
@@ -93,7 +99,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         value = samples
 
     # convert rnd samples with values to feedable vector
-    reduce_axis = 0 if partial else None
+    reduce_axis = 0
     if partial:
         print("DEBUG, samples: ", samples)
         print("DEBUG, value: ", value)
@@ -101,7 +107,8 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         print("DEBUG, func(value).get_shape(): ", func(value).get_shape())
     avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
     # avg = tfp.monte_carlo.expectation(f=func, samples=samples)
-    integral = avg * (upper - lower)
+    print("DEBUG, avg", avg)
+    integral = avg * tf.reduce_prod(upper - lower)
     return tf.cast(integral, dtype=dtype)
 
 
@@ -150,8 +157,8 @@ if __name__ == '__main__':
 
     import tensorflow_probability as tfp
 
-    res = mc_integrate(func=my_fn1, limits=(0., 5.), dims=(1,), draws_per_dim=1000,
-                       value=tf.constant([[i, i, i, i] for i in range(1, 6)]),
+    res = mc_integrate(func=my_fn1, limits=(0., 5.), dims=(1, 3), draws_per_dim=1000,
+                       value=tf.constant([[i, i, i] for i in range(1, 6)]),
                        mc_sampler=tfp.mcmc.sample_halton_sequence)
 
     with tf.Session() as sess:

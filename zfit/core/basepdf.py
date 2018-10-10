@@ -40,7 +40,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = utils.dotdict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 10000
-    _DEFAULTS_integration.numeric_integrate = zfit.core.integrate.numeric_integrate
+    _DEFAULTS_integration.auto_numeric_integrate = zfit.core.integrate.auto_integrate
 
     _analytic_integral = zfit.core.integrate.AnalyticIntegral()
 
@@ -55,7 +55,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         self._integration = utils.dotdict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
-        self._integration.numeric_integrate = self._DEFAULTS_integration.numeric_integrate
+        self._integration.auto_numeric_integrate = self._DEFAULTS_integration.auto_numeric_integrate
         self._normalization_value = None
 
     def _func(self, value):
@@ -83,7 +83,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
           log_prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
             values of type `self.dtype`.
         """
-        return self._call_log_prob(value, name)
+        return self._call_log_prob(value, norm_range, name)
 
     def prob(self, value, norm_range=None, name="prob"):
         """Probability density/mass function.
@@ -134,19 +134,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         cls._analytic_integral.register(func=func, dims=dims)
 
     def _integrate(self, limits):
-        # TODO: handle analytic and more general MC method integration
-        # dim = tf.shape(value)
-
-        # TODO: get limits properly
-        # HACK
-        n_dims = 1
-        integral = zintegrate.auto_integrate(func=self.func, limits=limits,
-                                             dtype=self.dtype, n_dims=n_dims,
-                                             mc_sampler=self._integration.mc_sampler,
-                                             mc_options={
-                                                 'draws_per_dim': self._integration.draws_per_dim})
-
-        return integral
+        raise NotImplementedError()
 
     def integrate(self, limits, name='integrate'):
         """Integrate over the **function**.
@@ -158,6 +146,22 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         integral = self._call_integrate(limits=limits)
         return integral
 
+    def numeric_integrate(self, limits, name="numeric_integrate"):
+        return self._numeric_integrate(limits=limits)
+
+    def _numeric_integrate(self, limits):
+        # TODO: get limits properly
+        # HACK
+        n_dims = 1
+        integral = self._integration.auto_numeric_integrate(func=self.func, limits=limits,
+                                                            dtype=self.dtype, n_dims=n_dims,
+                                                            mc_sampler=self._integration.mc_sampler,
+                                                            mc_options={
+                                                                'draws_per_dim':
+                                                                    self._integration.draws_per_dim})
+
+        return integral
+
     def partial_integrate(self, value, limits, dims, name="partial_integrate"):
         return self._call_partial_integrate(value=value, limits=limits, dims=dims, name=name)
 
@@ -165,8 +169,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         try:
             integral_vals = self.partial_analytic_integrate(value=value, limits=limits, dims=dims)
         except NotImplementedError:
-            max_dims = self._analytic_integral.get_max_dims(
-                out_of_dims=dims)  # TODO: refactor logic
+            max_dims = self._analytic_integral.get_max_dims(out_of_dims=dims)
             if max_dims:
                 def part_int(value):
                     return self.partial_analytic_integrate(value=value, limits=limits,
@@ -195,18 +198,28 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                                              "draws_per_dim": self._integration.draws_per_dim})
 
     def _call_integrate(self, limits):
+        n_dims = 1
+        try:
+            return self._integrate(limits)
+        except NotImplementedError:
+            pass
         try:
             integral = self.analytic_integrate(limits)
         except NotImplementedError:
             max_dims = self._analytic_integral.get_max_dims()
             if max_dims:
                 def part_int(value):
-                    return self._analytic_integral.integrate(value, limits=limits, dims=max_dims)
+                    return self._partial_analytic_integrate(value, limits=limits, dims=max_dims)
 
-                integral = self._integration.numeric_integrate(func=part_int, limits=limits,
-                                                               method="TODO", mc_sampler="TODO")
             else:
-                integral = self._integrate(limits=limits)
+                part_int = self.func
+            integral = self._integration.auto_numeric_integrate(func=part_int, limits=limits,
+                                                                n_dims=n_dims,  # HACK
+                                                                mc_options={
+                                                                    "draws_per_dim":
+                                                                        self._integration.draws_per_dim}
+                                                                )
+
         return integral
 
     def analytic_integrate(self, limits):
@@ -218,7 +231,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         # TODO: user implementation requested
         raise NotImplementedError
 
-    def _partial_analytic_integrate(self, value, limits, dims):
+    def partial_analytic_integrate(self, value, limits, dims):
         """Partial integral over dims.
 
         Args:
@@ -250,7 +263,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
 class WrapDistribution(BasePDF):
 
-    def __init__(self, distribution, name="WrappedTFDistribution", **kwargs):
+    def __init__(self, distribution, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
         super(WrapDistribution, self).__init__(distribution=distribution, name=name, **kwargs)
