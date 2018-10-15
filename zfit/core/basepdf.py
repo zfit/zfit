@@ -67,7 +67,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             try:
                 return self._func(value, **kwargs)
             except NotImplementedError:
-                return self.prob(value) * self.NAME_NEEDED_YIELD
+                return self._prob(value)
 
     def func(self, value, name="func"):  # TODO: rename to unnormalized_prob?
         return self._call_func(value, name)
@@ -90,6 +90,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
         Args:
           value: `float` or `double` `Tensor`.
+          norm_range (): Range to normalize over
           name: Python `str` prepended to names of ops created by this function.
 
         Returns:
@@ -97,23 +98,32 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             values of type `self.dtype`.
         """
         norm_range = norm_range or self.norm_range
+        if norm_range is None:
+            raise ValueError("Normalization range not specified.")
         return self._call_prob(value, norm_range, name)
 
     def _call_prob(self, value, norm_range, name, **kwargs):
         with self._name_scope(name, values=[value]):
             value = tf.convert_to_tensor(value, name="value")
             try:
-                return self._prob(value, norm_range, **kwargs)
+                return self._prob(value, norm_range=norm_range, **kwargs)
             except NotImplementedError:
-                return tf.exp(self._log_prob(value, norm_range))
+                pass
+            try:
+                return tf.exp(self._log_prob(value, norm_range=norm_range))
+            except NotImplementedError:
+                pass
+            return self._fallback_prob(value=value, norm_range=norm_range)
 
-    def _prob(self, value, norm_range):
+    def _fallback_prob(self, value, norm_range):
         pdf = self.func(value) / self.normalization(norm_range=norm_range)
         return pdf
 
-    # def _normalization_sampler(self):
-    #     lower, upper = self.normalization_opt['range']
-    #     return tf.distributions.Uniform(lower, upper)
+    def _prob(self, value, norm_range):
+        raise NotImplementedError
+
+    def _log_prob(self, value, norm_range):
+        raise NotImplementedError
 
     def _call_normalization(self, norm_range):
         # TODO: caching? alternative

@@ -72,7 +72,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
     # TODO: add times dim or so
     print("DEBUG, mc_sampler", mc_sampler)
     samples_normed = mc_sampler(dim=n_dims, num_results=n_samples, dtype=dtype)
-    samples_normed = tf.reshape(samples_normed, shape=(int(n_samples / n_vals), n_vals, n_dims))
+    samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_dims))
     print("DEBUG, samples_normed", samples_normed)
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
     samples = tf.reshape(samples, shape=(n_dims, int(n_samples / n_vals), n_vals))
@@ -99,7 +99,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         value = samples
 
     # convert rnd samples with values to feedable vector
-    reduce_axis = 0
+    reduce_axis = 1 if partial else None
     if partial:
         print("DEBUG, samples: ", samples)
         print("DEBUG, value: ", value)
