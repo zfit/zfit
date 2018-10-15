@@ -131,19 +131,20 @@ def func3_2deps_fully_integrated(limits):
 
 limits4_2dim = [(-2., 3.), (-2., 3.)]
 
-func4_values = [-12., -4.5, 1.9, 4.1]
+func4_values = np.array([-12., -4.5, 1.9, 4.1])
 
 
 def func4_3deps(value):
-    a, b, c = tf.unstack(value)
+    # a, b, c = tf.unstack(value)
+    a, b, c = value
     return a ** 2 + b ** 3 + 0.5 * c
 
 
 def func4_3deps_1and3_integrated(value, limits):
     b = value
     lower, upper = limits
-    a_lower, b_lower, c_lower = lower
-    a_upper, b_upper, c_upper = upper
+    a_lower, c_lower = lower
+    a_upper, c_upper = upper
     integral = -c_lower ** 2 * (-0.25 * a_lower + 0.25 * a_upper) - c_lower * (
         -0.333333333333333 * a_lower ** 3 - 1.0 * a_lower * b ** 3 + 0.333333333333333 *
         a_upper ** 3 + 1.0 * a_upper * b ** 3) + c_upper ** 2 * (
@@ -187,7 +188,7 @@ def test_mc_partial_integration():
 
     with tf.Session() as sess:
         integral = sess.run(num_integral)
-        assert len(num_integral) == len(func4_values)
+        assert len(integral) == len(func4_values)
         assert func4_3deps_1and3_integrated(value=func4_values,
                                             limits=limits4_2dim) == pytest.approx(integral,
                                                                                   rel=0.03)

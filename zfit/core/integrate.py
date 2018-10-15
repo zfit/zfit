@@ -75,8 +75,8 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
     samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_dims))
     print("DEBUG, samples_normed", samples_normed)
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-    samples = tf.reshape(samples, shape=(n_dims, int(n_samples / n_vals), n_vals))
-    print("DEBUG, samples_normed", samples_normed)
+    samples = tf.reshape(samples, shape=(n_dims, n_vals, int(n_samples / n_vals)))
+    print("DEBUG, samples_normed", samples)
 
     # TODO: combine sampled with values
 
@@ -89,10 +89,10 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         print("DEBUG, n_dims = ", n_dims, value.shape[1].value)
         for i in range(n_dims + value.shape[1].value):
             if i in dims:
-                value_list.append(samples[:, index_samples])
+                value_list.append(samples[index_samples, :, :])
                 index_samples += 1
             else:
-                value_list.append(value[:, index_values])
+                value_list.append(tf.expand_dims(value[:, index_values], axis=1))
                 index_values += 1
         value_list = [tf.cast(val, dtype=dtype) for val in value_list]
         # value = tf.stack(value_list)
