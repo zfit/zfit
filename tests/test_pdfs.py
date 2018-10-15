@@ -47,7 +47,7 @@ def test_func_sum():
         init = tf.global_variables_initializer()
         sess.run(init)
         test_values = np.array([3., 129., -0.2, -78.2])
-        vals = sum_gauss.func(
+        vals = sum_gauss.unnormalized_prob(
             tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
         vals = sess.run(vals)
         # test_sum = sum([g.func(test_values) for g in gauss_dists])

@@ -15,7 +15,7 @@ class Gauss(BasePDF):
     def __init__(self, mu, sigma, name="Gauss"):
         super(Gauss, self).__init__(name=name, mu=mu, sigma=sigma)
 
-    def _func(self, value):
+    def _unnormalized_prob(self, value):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
         gauss = tf.exp(- (value - mu) ** 2 / (tfz.constant(2.) * (sigma ** 2)))
@@ -59,11 +59,11 @@ class SumPDF(BasePDF):
 
         super(SumPDF, self).__init__(pdfs=pdfs, frac=frac, name=name)
 
-    def _func(self, value):
+    def _unnormalized_prob(self, value):
         # TODO: deal with yields
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
-        func = tf.accumulate_n([scale * pdf.func(value) for pdf, scale in zip(pdfs, frac)])
+        func = tf.accumulate_n([scale * pdf.unnormalized_prob(value) for pdf, scale in zip(pdfs, frac)])
         return func
 
     def _analytic_integrate(self, value):
@@ -85,8 +85,8 @@ class ProductPDF(BasePDF):
             pdfs = [pdfs]
         super(ProductPDF, self).__init__(pdfs=pdfs, name=name)
 
-    def _func(self, value):
-        return np.prod([pdf.func(value) for pdf in self.parameters['pdfs']], axis=0)
+    def _unnormalized_prob(self, value):
+        return np.prod([pdf.unnormalized_prob(value) for pdf in self.parameters['pdfs']], axis=0)
 
 
 if __name__ == '__main__':
@@ -123,10 +123,10 @@ if __name__ == '__main__':
 
         def test_func_sum():
             test_values = np.array([3., 129., -0.2, -78.2])
-            vals = sum_gauss.func(
+            vals = sum_gauss.unnormalized_prob(
                 tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
             vals = sess.run(vals)
-            test_sum = sum([g.func(test_values) for g in [gauss1, gauss2, gauss3]])
+            test_sum = sum([g.unnormalized_prob(test_values) for g in [gauss1, gauss2, gauss3]])
             print(sess.run(test_sum))
             np.testing.assert_almost_equal(vals, true_gaussian_sum(test_values))
 

@@ -18,7 +18,7 @@ gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
 
 
 class TestGaussian(zfit.core.basepdf.BasePDF):
-    def _func(self, value):
+    def _unnormalized_prob(self, value):
         return tf.exp((-(value - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
 
 
@@ -54,7 +54,7 @@ def test_func():
         test_values_tf = tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype)
 
         for dist in gaussian_dists:
-            vals = dist.func(test_values_tf)
+            vals = dist.unnormalized_prob(test_values_tf)
             sess.run(init)
             vals = sess.run(vals)
             np.testing.assert_almost_equal(vals, true_gaussian_func(test_values),

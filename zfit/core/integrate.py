@@ -137,6 +137,7 @@ class AnalyticIntegral(object):
 
     def integrate(self, value, limits, dims):
         """Integrate analytically over the dims if available."""
+        dims = dims or self.dims  # integrate over all dims
         dims = frozenset(dims)
         integral_fn = self._integrals.get(dims)
         if integral_fn is None:

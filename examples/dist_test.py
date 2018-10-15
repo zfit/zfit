@@ -40,7 +40,7 @@
 #
 #     class TestPDF(BaseDistribution):
 #
-#         def _func(self, value):
+#         def _unnormalized_prob(self, value):
 #             return model(value)
 #
 #         def _normalization_sampler(self):
