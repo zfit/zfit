@@ -84,6 +84,8 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         value_list = []
         index_samples = 0
         index_values = 0
+        if len(value.shape) == 1:
+            value = tf.expand_dims(value, axis=1)
         print("DEBUG, n_dims = ", n_dims, value.shape[1].value)
         for i in range(n_dims + value.shape[1].value):
             if i in dims:
