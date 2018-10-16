@@ -130,8 +130,10 @@ def func3_2deps_fully_integrated(limits):
 
 
 limits4_2dim = [(-2., 3.), (-2., 3.)]
+limits4_1dim = (-2., 3.)
 
 func4_values = np.array([-12., -4.5, 1.9, 4.1])
+func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-12., -4.5, 1.9, 4.1]])
 
 
 def func4_3deps(value):
@@ -140,7 +142,7 @@ def func4_3deps(value):
     return a ** 2 + b ** 3 + 0.5 * c
 
 
-def func4_3deps_1and3_integrated(value, limits):
+def func4_3deps_0and2_integrated(value, limits):
     b = value
     lower, upper = limits
     a_lower, c_lower = lower
@@ -153,6 +155,15 @@ def func4_3deps_1and3_integrated(value, limits):
                    * a_upper
                    ** 3 + 1.0 * a_upper * b ** 3)
 
+    return integral
+
+
+def func4_3deps_1_integrated(value, limits):
+    a, c = value
+    b_lower, b_upper = limits
+
+    integral = -0.25 * b_lower ** 4 - b_lower * (
+        1.0 * a ** 2 + 0.5 * c) + 0.25 * b_upper ** 4 + b_upper * (1.0 * a ** 2 + 0.5 * c)
     return integral
 
 
@@ -185,10 +196,19 @@ def test_mc_partial_integration():
     num_integral = zintegrate.mc_integrate(value=tf.convert_to_tensor(func4_values),
                                            func=func4_3deps, limits=limits4_2dim, dims=(0, 2),
                                            draws_per_dim=100)
+    num_integral2 = zintegrate.mc_integrate(value=tf.convert_to_tensor(func4_2values),
+                                            func=func4_3deps, limits=limits4_1dim, dims=(1,),
+                                            draws_per_dim=100)
 
     with tf.Session() as sess:
         integral = sess.run(num_integral)
+        integral2 = sess.run(num_integral2)
         assert len(integral) == len(func4_values)
-        assert func4_3deps_1and3_integrated(value=func4_values,
+        assert len(integral2) == len(func4_2values)
+        assert func4_3deps_0and2_integrated(value=func4_values,
                                             limits=limits4_2dim) == pytest.approx(integral,
                                                                                   rel=0.03)
+
+        assert func4_3deps_1_integrated(value=func4_2values,
+                                        limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
+

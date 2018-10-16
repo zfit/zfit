@@ -49,7 +49,7 @@ class NormRange(object):
 class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = utils.dotdict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
-    _DEFAULTS_integration.draws_per_dim = 10000
+    _DEFAULTS_integration.draws_per_dim = 1000
     _DEFAULTS_integration.auto_numeric_integrate = zfit.core.integrate.auto_integrate
 
     _analytic_integral = zfit.core.integrate.AnalyticIntegral()
@@ -389,6 +389,23 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def partial_numeric_integrate(self, value, limits, dims, name="partial_numeric_integrate"):
         return self._call_partial_numeric_integrate(value=value, limits=limits, dims=dims,
                                                     name=name)
+
+    def _sample(self, n_draws):
+        raise NotImplementedError
+
+    def _call_sample(self, n_draws, name):
+        try:
+            return self._sample(n_draws=n_draws)
+        except NotImplementedError:
+            pass
+        return self._fallback_sample(n_draws=n_draws)
+
+    def _fallback_sample(self, n_draws):
+        # TODO
+        pass
+
+    def sample(self, n_draws, name="sample"):
+        return self._call_sample(n_draws=n_draws, name=name)
 
 
 class WrapDistribution(BasePDF):
