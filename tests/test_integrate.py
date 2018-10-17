@@ -13,8 +13,8 @@ limits_simple_5deps = (0.9, 4.7)
 limits_simple_5deps = [(1., -1., -5., 3.4, 2.1), (5., 5.4, -1.1, 7.6, 3.5)]
 
 
-def func1_5deps(value):
-    a, b, c, d, e = tf.unstack(value)
+def func1_5deps(x):
+    a, b, c, d, e = tf.unstack(x)
     return a + b * c ** 2 + d ** 2 * e ** 3
 
 
@@ -97,8 +97,8 @@ def func1_5deps_fully_integrated(limits):
 limits2 = (-1., 2.)
 
 
-def func2_1deps(value):
-    a = value
+def func2_1deps(x):
+    a = x
     return a ** 2
 
 
@@ -114,8 +114,8 @@ def func2_1deps_fully_integrated(limits):
 limits3 = [(-1., -4.3), (2.3, -1.2)]
 
 
-def func3_2deps(value):
-    a, b = tf.unstack(value)
+def func3_2deps(x):
+    a, b = tf.unstack(x)
     return a ** 2 + b ** 2
 
 
@@ -140,14 +140,14 @@ func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-11., 3.2, 7.4, -0.3]])
 #                           [4.1, 4.1]])
 
 
-def func4_3deps(value):
-    # a, b, c = tf.unstack(value)
-    a, b, c = value
+def func4_3deps(x):
+    # a, b, c = tf.unstack(x)
+    a, b, c = x
     return a ** 2 + b ** 3 + 0.5 * c
 
 
-def func4_3deps_0and2_integrated(value, limits):
-    b = value
+def func4_3deps_0and2_integrated(x, limits):
+    b = x
     lower, upper = limits
     a_lower, c_lower = lower
     a_upper, c_upper = upper
@@ -162,8 +162,8 @@ def func4_3deps_0and2_integrated(value, limits):
     return integral
 
 
-def func4_3deps_1_integrated(value, limits):
-    a, c = value
+def func4_3deps_1_integrated(x, limits):
+    a, c = x
     b_lower, b_upper = limits
 
     integral = -0.25 * b_lower ** 4 - b_lower * (
@@ -197,12 +197,12 @@ def test_mc_integration():
 
 
 def test_mc_partial_integration():
-    num_integral = zintegrate.mc_integrate(value=tf.convert_to_tensor(func4_values),
+    num_integral = zintegrate.mc_integrate(x=tf.convert_to_tensor(func4_values),
                                            func=func4_3deps, limits=limits4_2dim, dims=(0, 2),
                                            draws_per_dim=70)
     vals_tensor = tf.convert_to_tensor(func4_2values)
     vals_reshaped = tf.transpose(vals_tensor)
-    num_integral2 = zintegrate.mc_integrate(value=vals_reshaped,
+    num_integral2 = zintegrate.mc_integrate(x=vals_reshaped,
                                             func=func4_3deps, limits=limits4_1dim, dims=(1,),
                                             draws_per_dim=100)
 
@@ -212,10 +212,10 @@ def test_mc_partial_integration():
         print("DEBUG, values:", sess.run(vals_reshaped))
         assert len(integral) == len(func4_values)
         assert len(integral2) == len(func4_2values[1])
-        assert func4_3deps_0and2_integrated(value=func4_values,
+        assert func4_3deps_0and2_integrated(x=func4_values,
                                             limits=limits4_2dim) == pytest.approx(integral,
                                                                                   rel=0.03)
 
-        assert func4_3deps_1_integrated(value=func4_2values,
+        assert func4_3deps_1_integrated(x=func4_2values,
                                         limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
 

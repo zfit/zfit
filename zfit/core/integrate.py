@@ -31,7 +31,7 @@ def numeric_integrate():
     return integral
 
 
-def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim=10000, method=None,
+def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=10000, method=None,
                  dtype=tf.float64,
                  mc_sampler=tfp.mcmc.sample_halton_sequence, importance_sampling=None):
     """
@@ -40,7 +40,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         func ():
         limits ():
         dims (tuple(int)): The row to integrate over. None means integration over all values
-        value ():
+        x ():
         n_dims ():
         draws_per_dim ():
         method ():
@@ -55,7 +55,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
     lower = tf.convert_to_tensor(lower, dtype=tf.float64)
     upper = tf.convert_to_tensor(upper, dtype=tf.float64)
     # HACK
-    partial = (dims is not None) and (value is not None)  # dims, value can be tensors
+    partial = (dims is not None) and (x is not None)  # dims, value can be tensors
     # if partial:
     #     raise ValueError("Partial integration not yet implemented.")
     if dims and n_dims:
@@ -64,7 +64,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         n_dims = len(dims)
     n_samples = draws_per_dim ** n_dims
     if partial:
-        n_vals = value.get_shape()[0].value
+        n_vals = x.get_shape()[0].value
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
@@ -85,33 +85,33 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         value_list = []
         index_samples = 0
         index_values = 0
-        if len(value.shape) == 1:
+        if len(x.shape) == 1:
             print("DEBUG, expanding dims n1")
-            value = tf.expand_dims(value, axis=1)
-        print("DEBUG, n_dims = ", n_dims, value.shape[1].value)
-        for i in range(n_dims + value.shape[1].value):
+            x = tf.expand_dims(x, axis=1)
+        print("DEBUG, n_dims = ", n_dims, x.shape[1].value)
+        for i in range(n_dims + x.shape[1].value):
             if i in dims:
                 value_list.append(samples[index_samples, :, :])
                 index_samples += 1
             else:
-                value_list.append(tf.expand_dims(value[:, index_values], axis=1))
+                value_list.append(tf.expand_dims(x[:, index_values], axis=1))
                 index_values += 1
         value_list = [tf.cast(val, dtype=dtype) for val in value_list]
         # value = tf.stack(value_list)
-        value = value_list
+        x = value_list
     else:
-        value = samples
+        x = samples
 
     # convert rnd samples with values to feedable vector
     reduce_axis = 1 if partial else None
     if partial:
         print("DEBUG, samples: ", samples)
-        print("DEBUG, value: ", value)
-        print("DEBUG, func(value): ", func(value))
-        print("DEBUG, func(value).get_shape(): ", func(value).get_shape())
+        print("DEBUG, value: ", x)
+        print("DEBUG, func(value): ", func(x))
+        print("DEBUG, func(value).get_shape(): ", func(x).get_shape())
     # avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
 
-    avg = tfp.monte_carlo.expectation(f=func, samples=value,axis=reduce_axis)
+    avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
     # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     print("DEBUG, avg", avg)
     integral = avg * tf.reduce_prod(upper - lower)
@@ -141,23 +141,23 @@ class AnalyticIntegral(object):
             self.max_dims = dims
         self._integrals[dims] = func
 
-    def integrate(self, value, limits, dims):
+    def integrate(self, x, limits, dims):
         """Integrate analytically over the dims if available."""
         dims = dims or self.dims  # integrate over all dims
         dims = frozenset(dims)
         integral_fn = self._integrals.get(dims)
         if integral_fn is None:
             raise NotImplementedError("This integral is not available for dims {}".format(dims))
-        integral = integral_fn(value=value, limits=limits)
+        integral = integral_fn(x=x, limits=limits)
         return integral
 
 
 if __name__ == '__main__':
     # TODO: partial does not yet work...
-    def my_fn1(value):
-        if isinstance(value, tf.Tensor):
-            value = tf.unstack(value)
-        w, x, y, z, l = value
+    def my_fn1(x):
+        if isinstance(x, tf.Tensor):
+            x = tf.unstack(x)
+        w, x, y, z, l = x
         # return x ** 2 + 0.1 * y ** 2 + 0.01 * z ** 2 + 0.001 * w ** 2 + 0.0001 * l ** 2
         return w + x
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     import tensorflow_probability as tfp
 
     res = mc_integrate(func=my_fn1, limits=(0., 5.), dims=(1, 3), draws_per_dim=1000,
-                       value=tf.constant([[i, i, i] for i in range(1, 6)]),
+                       x=tf.constant([[i, i, i] for i in range(1, 6)]),
                        mc_sampler=tfp.mcmc.sample_halton_sequence)
 
     with tf.Session() as sess:

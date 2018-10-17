@@ -15,10 +15,10 @@ class Gauss(BasePDF):
     def __init__(self, mu, sigma, name="Gauss"):
         super(Gauss, self).__init__(name=name, mu=mu, sigma=sigma)
 
-    def _unnormalized_prob(self, value):
+    def _unnormalized_prob(self, x):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp(- (value - mu) ** 2 / (tfz.constant(2.) * (sigma ** 2)))
+        gauss = tf.exp(- (x - mu) ** 2 / (tfz.constant(2.) * (sigma ** 2)))
 
         return gauss
 
@@ -59,18 +59,18 @@ class SumPDF(BasePDF):
 
         super(SumPDF, self).__init__(pdfs=pdfs, frac=frac, name=name)
 
-    def _unnormalized_prob(self, value):
+    def _unnormalized_prob(self, x):
         # TODO: deal with yields
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
-        func = tf.accumulate_n([scale * pdf.unnormalized_prob(value) for pdf, scale in zip(pdfs, frac)])
+        func = tf.accumulate_n([scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, frac)])
         return func
 
-    def _analytic_integrate(self, value):
+    def _analytic_integrate(self, x):
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
         try:
-            integral = sum([pdf.analytic_integrate(value) * s for pdf, s in zip(pdfs, frac)])
+            integral = sum([pdf.analytic_integrate(x) * s for pdf, s in zip(pdfs, frac)])
         except NotImplementedError as original_error:
             raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
                                       " SumPDF, as at least one sub-pdf does not implement it."
@@ -85,8 +85,8 @@ class ProductPDF(BasePDF):
             pdfs = [pdfs]
         super(ProductPDF, self).__init__(pdfs=pdfs, name=name)
 
-    def _unnormalized_prob(self, value):
-        return np.prod([pdf.unnormalized_prob(value) for pdf in self.parameters['pdfs']], axis=0)
+    def _unnormalized_prob(self, x):
+        return np.prod([pdf.unnormalized_prob(x) for pdf in self.parameters['pdfs']], axis=0)
 
 
 if __name__ == '__main__':

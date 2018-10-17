@@ -18,8 +18,8 @@ gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
 
 
 class TestGaussian(zfit.core.basepdf.BasePDF):
-    def _unnormalized_prob(self, value):
-        return tf.exp((-(value - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
+    def _unnormalized_prob(self, x):
+        return tf.exp((-(x - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
 
 
 def true_gaussian_func(x):
