@@ -2,6 +2,7 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 import tensorflow_probability as tfp
+import tensorflow.contrib.bayesflow as tfb
 import numpy as np
 
 from zfit.core.utils import dotdict
@@ -75,7 +76,7 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
     samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_dims))
     print("DEBUG, samples_normed", samples_normed)
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-    samples = tf.reshape(samples, shape=(n_dims, n_vals, int(n_samples / n_vals)))
+    samples = tf.transpose(samples, perm=[2, 0, 1])
     print("DEBUG, samples_normed", samples)
 
     # TODO: combine sampled with values
@@ -108,8 +109,10 @@ def mc_integrate(func, limits, dims=None, value=None, n_dims=None, draws_per_dim
         print("DEBUG, value: ", value)
         print("DEBUG, func(value): ", func(value))
         print("DEBUG, func(value).get_shape(): ", func(value).get_shape())
-    avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
-    # avg = tfp.monte_carlo.expectation(f=func, samples=samples)
+    # avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
+
+    avg = tfp.monte_carlo.expectation(f=func, samples=value,axis=reduce_axis)
+    # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     print("DEBUG, avg", avg)
     integral = avg * tf.reduce_prod(upper - lower)
     return tf.cast(integral, dtype=dtype)

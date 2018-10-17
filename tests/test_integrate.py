@@ -9,8 +9,8 @@ import numpy as np
 import zfit.core.integrate as zintegrate
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
-limits_simple_5deps = (1., 5.)
-limits_simple_5deps = [(1., 1., 1., 1., 1.), (5., 5., 5., 5., 5.)]
+limits_simple_5deps = (0.9, 4.7)
+limits_simple_5deps = [(1., -1., -5., 3.4, 2.1), (5., 5.4, -1.1, 7.6, 3.5)]
 
 
 def func1_5deps(value):
@@ -111,7 +111,7 @@ def func2_1deps_fully_integrated(limits):
     return func_int(upper) - func_int(lower)
 
 
-limits3 = [(-1., -1.), (2., 2.)]
+limits3 = [(-1., -4.3), (2.3, -1.2)]
 
 
 def func3_2deps(value):
@@ -129,11 +129,11 @@ def func3_2deps_fully_integrated(limits):
     return integral
 
 
-limits4_2dim = [(-2., 3.), (-2., 3.)]
+limits4_2dim = [(-4., 1.), (-1., 4.5)]
 limits4_1dim = (-2., 3.)
 
 func4_values = np.array([-12., -4.5, 1.9, 4.1])
-func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-12., -4.5, 1.9, 4.1]])
+func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-11., 3.2, 7.4, -0.3]])
 # func4_2values = np.array([[-12., -12],
 #                           [-4.5, -4.5],
 #                           [1.9, 1.9],
@@ -180,7 +180,7 @@ def test_mc_integration():
                                            draws_per_dim=5)
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps, limits=limits2, n_dims=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps, limits=limits3, n_dims=2,
-                                            draws_per_dim=60)
+                                            draws_per_dim=70)
 
     with tf.Session() as sess:
         integral = sess.run(num_integral)
@@ -199,7 +199,7 @@ def test_mc_integration():
 def test_mc_partial_integration():
     num_integral = zintegrate.mc_integrate(value=tf.convert_to_tensor(func4_values),
                                            func=func4_3deps, limits=limits4_2dim, dims=(0, 2),
-                                           draws_per_dim=60)
+                                           draws_per_dim=70)
     vals_tensor = tf.convert_to_tensor(func4_2values)
     vals_reshaped = tf.transpose(vals_tensor)
     num_integral2 = zintegrate.mc_integrate(value=vals_reshaped,
