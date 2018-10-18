@@ -4,7 +4,6 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
 
-import matplotlib.pyplot as plt
 
 import zfit
 
@@ -31,6 +30,8 @@ def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
     import time
 
     with tf.Session() as sess:
