@@ -4,7 +4,11 @@ import numpy as np
 import tensorflow as tf
 
 import zfit.settings
+import zfit.core.math as zmath
 
+
+pi = tf.constant(zmath.pi, dtype=zfit.settings.fptype)
+inf = tf.constant(zmath.inf, dtype=zfit.settings.fptype)
 
 # density for a complex amplitude
 def density(ampl): return tf.abs(ampl) ** 2

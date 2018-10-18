@@ -6,7 +6,11 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
+import zfit.core.basepdf as zbasepdf
 import zfit.core.integrate as zintegrate
+import zfit.core.math as zmath
+from zfit.core.parameter import FitParameter
+from zfit.core.pdf import Gauss
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
 limits_simple_5deps = (0.9, 4.7)
@@ -119,7 +123,7 @@ def func3_2deps(x):
     return a ** 2 + b ** 2
 
 
-def func3_2deps_fully_integrated(limits):
+def func3_2deps_fully_integrated(limits, params=None):
     lower, upper = limits
     lower_a, lower_b = lower
     upper_a, upper_b = upper
@@ -134,6 +138,8 @@ limits4_1dim = (-2., 3.)
 
 func4_values = np.array([-12., -4.5, 1.9, 4.1])
 func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-11., 3.2, 7.4, -0.3]])
+
+
 # func4_2values = np.array([[-12., -12],
 #                           [-4.5, -4.5],
 #                           [1.9, 1.9],
@@ -219,3 +225,31 @@ def test_mc_partial_integration():
         assert func4_3deps_1_integrated(x=func4_2values,
                                         limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
 
+
+def test_analytic_integral():
+    class DistFunc3(zbasepdf.BasePDF):
+        def _unnormalized_prob(self, x):
+            return func3_2deps(x)
+
+    mu_true = 1.4
+    sigma_true = 1.8
+    limits = -4.3, 1.9
+    mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+    sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+    gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
+    gauss_integral_infs = gauss_params1.integrate(limits=(zmath.inf, zmath.inf))
+
+    DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, dims=(0, 1))
+
+    dist_func3 = DistFunc3()
+    # HACK START
+    dist_func3.n_dims = 2
+    # HACK ENDfully_integrated
+    with tf.Session() as sess:
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        gauss_integral_infs = sess.run(gauss_integral_infs)
+        func3_integrated = sess.run(tf.convert_to_tensor(dist_func3.integrate(limits=limits3),
+                                                         dtype=tf.float64))
+        assert func3_integrated == func3_2deps_fully_integrated(limits=limits3)
+        assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi *sigma_true), rel=0.0001)

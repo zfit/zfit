@@ -74,3 +74,9 @@ def test_normalization():
             result = sess.run(probs)
             result = np.average(result) * (high - low)
             assert 0.95 < result < 1.05
+
+
+def test_sampling():
+    with tf.Session() as sess:
+        sess.run(init)
+        # gau

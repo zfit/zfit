@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import math as mt
+
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
@@ -7,7 +9,8 @@ import numpy as np
 import zfit
 from zfit.core.basepdf import BasePDF, WrapDistribution
 from zfit.core.parameter import FitParameter
-import zfit.core.tfext as tfz
+import zfit.core.tfext as ztf
+import zfit.core.math as zmath
 
 
 class Gauss(BasePDF):
@@ -18,9 +21,17 @@ class Gauss(BasePDF):
     def _unnormalized_prob(self, x):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp(- (x - mu) ** 2 / (tfz.constant(2.) * (sigma ** 2)))
+        gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))
 
         return gauss
+
+
+def _gauss_integral_from_inf_to_inf(limits, params):
+    return tf.sqrt(ztf.pi * params['sigma'])
+
+
+Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
+                                 limits=(zmath.inf, zmath.inf))
 
 
 class Normal(WrapDistribution):

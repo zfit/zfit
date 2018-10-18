@@ -12,6 +12,7 @@ import zfit.core.utils as utils
 # import zfit.core.integrate
 import zfit.settings
 import zfit.core.integrate as zintegrate
+import zfit.core.sample as zsample
 
 
 class AbstractBasePDF(object):
@@ -224,11 +225,15 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return self._fallback_integrate(limits)
 
     def _fallback_integrate(self, limits):
-        n_dims = 1  # HACK
+        n_dims = self.n_dims  # HACK
+        dims = self.dims  # HACK
         max_dims = self._analytic_integral.get_max_dims()
-        if max_dims:
+        print("DEBUG, max_dims, dims", max_dims, dims)
+        if max_dims == frozenset(dims):
+            integral = self.analytic_integrate(limits=limits)
+        elif max_dims:
             def part_int(x):
-                return self._partial_analytic_integrate(x, limits=limits)
+                return self.partial_analytic_integrate(x, limits=limits, dims=dims)
 
             integral = self._integration.auto_numeric_integrate(func=part_int, limits=limits,
                                                                 n_dims=n_dims,  # HACK
@@ -244,7 +249,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return self._call_integrate(limits=limits, name=name)
 
     @classmethod
-    def register_analytic_integral(cls, func, dims=None):
+    def register_analytic_integral(cls, func, dims=None, limits=None):
         """
 
         Args:
@@ -254,7 +259,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         Returns:
 
         """
-        cls._analytic_integral.register(func=func, dims=dims)
+        cls._analytic_integral.register(func=func, dims=dims, limits=limits)
 
     def _analytic_integrate(self, limits):
         # TODO: user implementation requested
@@ -268,7 +273,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return self._fallback_analytic_integrate(limits)
 
     def _fallback_analytic_integrate(self, limits):
-        self._analytic_integral.integrate(x=None, limits=limits, dims=self.dims)
+        return self._analytic_integral.integrate(x=None, limits=limits, dims=self.dims,
+                                                 params=self.parameters)
 
     def analytic_integrate(self, limits, name="analytic_integrate"):
         # TODO: get limits
@@ -350,7 +356,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return self._fallback_partial_analytic_integrate(x=x, limits=limits, dims=dims)
 
     def _fallback_partial_analytic_integrate(self, x, limits, dims):
-        return self._analytic_integrals.integrate(x=x, limits=limits, dims=dims)
+        return self._analytic_integral.integrate(x=x, limits=limits, dims=dims,
+                                                 params=self.parameters)
 
     def partial_analytic_integrate(self, x, limits, dims, name="partial_analytic_integrate"):
         """Partial integral over dims.
@@ -367,7 +374,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
         """
         # TODO: implement meaningful, how communicate integrated, not integrated vars?
-        return self._call_analytic_integrate(x=x, limits=limits, dims=dims, name=name)
+        return self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims, name=name)
 
     def _partial_numeric_integrate(self, x, limits, dims):
         raise NotImplementedError
@@ -390,22 +397,22 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
                                                     name=name)
 
-    def _sample(self, n_draws):
+    def _sample(self, n_draws, limits):
         raise NotImplementedError
 
-    def _call_sample(self, n_draws, name):
+    def _call_sample(self, n_draws, limits, name):
         try:
-            return self._sample(n_draws=n_draws)
+            return self._sample(n_draws=n_draws, limits=limits)
         except NotImplementedError:
             pass
-        return self._fallback_sample(n_draws=n_draws)
+        return self._fallback_sample(n_draws=n_draws, limits=limits)
 
-    def _fallback_sample(self, n_draws):
-        # TODO
-        pass
+    def _fallback_sample(self, n_draws, limits):
+        sample = zsample.accept_reject_sample(prob=self.prob, n_draws=n_draws, limits=limits)
 
-    def sample(self, n_draws, name="sample"):
-        return self._call_sample(n_draws=n_draws, name=name)
+    def sample(self, n_draws, limits=None, name="sample"):
+        limits = limits or self.norm_range  # TODO: catch better
+        return self._call_sample(n_draws=n_draws, limits=limits, name=name)
 
 
 class WrapDistribution(BasePDF):

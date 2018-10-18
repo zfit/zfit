@@ -1,6 +1,5 @@
 from __future__ import print_function, division, absolute_import
 
-
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
@@ -8,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def accept_reject_sample(prob, n_draws, limits, sampler, prob_max=None):
+def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_max=None):
     """Return toy MC sample graph using accept-reject method
 
     Args:
@@ -17,8 +16,8 @@ def accept_reject_sample(prob, n_draws, limits, sampler, prob_max=None):
     """
     n_dims = 1  # HACK
     lower, upper = limits
-    sample = tf.random_uniform(shape=(n_dims + 1, n_draws)  # + 1 dim for the function value
-                               , dtype=tf.float32)
+    sample = sampler(shape=(n_dims + 1, n_draws),  # + 1 dim for the function value
+                     dtype=tf.float32)
     rnd_sample = sample[:-1, :] * (upper - lower) + lower
     probabilities = prob(rnd_sample)
     if prob_max is None:
@@ -27,6 +26,7 @@ def accept_reject_sample(prob, n_draws, limits, sampler, prob_max=None):
     take_or_not = probabilities > random_thresholds
     filtered_sample = tf.boolean_mask(rnd_sample, take_or_not)
     return filtered_sample
+
 
 if __name__ == '__main__':
     import time
@@ -51,7 +51,8 @@ if __name__ == '__main__':
         # maximum = None
         list1 = []
 
-        sampled_dist_ar = accept_reject_sample(prob=dist.prob, n_draws=100000000, limits=(-13.5, 16.5),
+        sampled_dist_ar = accept_reject_sample(prob=dist.prob, n_draws=100000000,
+                                               limits=(-13.5, 16.5),
                                                prob_max=maximum, sampler=None)
 
         # HACK

@@ -3,9 +3,19 @@ from __future__ import print_function, division, absolute_import
 import itertools
 
 import tensorflow as tf
+import math as mt
 
 from zfit.core import tfext
 from zfit.settings import fptype
+
+# py23 compatibility: remove try-except
+try:
+    inf = mt.inf
+except AttributeError:  # not yet there in Python 27
+    inf = float('inf')
+
+pi = mt.pi
+
 
 
 def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to real_x=False

@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import collections
+
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow.contrib.bayesflow as tfb
@@ -121,8 +123,8 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
 class AnalyticIntegral(object):
     def __init__(self, *args, **kwargs):
         super(AnalyticIntegral, self).__init__(*args, **kwargs)
-        self._max_dims = []
-        self._integrals = {}
+        self._max_dims = ()
+        self._integrals = collections.defaultdict(dict)
 
     def get_max_dims(self, out_of_dims=None):
         if out_of_dims:
@@ -134,21 +136,28 @@ class AnalyticIntegral(object):
 
         return max_dims
 
-    def register(self, func, dims):
+    def register(self, func, dims, limits=None):
         """Register an analytic integral."""
         dims = frozenset(dims)
-        if len(dims) > len(self.max_dims):
-            self.max_dims = dims
-        self._integrals[dims] = func
+        if len(dims) > len(self._max_dims):
+            self._max_dims = dims
+        self._integrals[dims][limits] = func  # TODO improve with database-like access
 
-    def integrate(self, x, limits, dims):
+    def integrate(self, x, limits, dims, params):
         """Integrate analytically over the dims if available."""
-        dims = dims or self.dims  # integrate over all dims
+        # TODO: what if dims is None?
         dims = frozenset(dims)
-        integral_fn = self._integrals.get(dims)
-        if integral_fn is None:
+        limits = tuple(limits)
+        integral_holder = self._integrals.get(dims)
+        print("DEBUG, self._integrals, dims", self._integrals, dims)
+        if integral_holder is None:
             raise NotImplementedError("This integral is not available for dims {}".format(dims))
-        integral = integral_fn(x=x, limits=limits)
+        integral_fn = integral_holder.get(limits, integral_holder.get(None))
+
+        if x is None:
+            integral = integral_fn(limits=limits, params=params)
+        else:
+            integral = integral_fn(x=x, limits=limits, params=params)
         return integral
 
 
