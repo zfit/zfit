@@ -5,7 +5,6 @@ import itertools
 import tensorflow as tf
 import math as mt
 
-from zfit.core import tfext
 from zfit.settings import fptype
 
 # py23 compatibility: remove try-except
@@ -28,6 +27,8 @@ def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to rea
     Returns:
         tf.Tensor:
     """
+    from zfit.core import tfext
+
     real_x = kwargs.pop('real_x', False)  # py23 compatibility: remove line
     if kwargs:  # py23 compatibility: remove line
         raise ValueError("Unsupported kwargs given: {}".format(kwargs))  # py23: remove line
