@@ -6,6 +6,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+import zfit
+
 
 def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_max=None):
     """Return toy MC sample graph using accept-reject method
@@ -17,7 +19,7 @@ def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_
     n_dims = 1  # HACK
     lower, upper = limits
     sample = sampler(shape=(n_dims + 1, n_draws),  # + 1 dim for the function value
-                     dtype=tf.float32)
+                     dtype=zfit.settings.fptype)
     rnd_sample = sample[:-1, :] * (upper - lower) + lower
     probabilities = prob(rnd_sample)
     if prob_max is None:

@@ -79,4 +79,14 @@ def test_normalization():
 def test_sampling():
     with tf.Session() as sess:
         sess.run(init)
-        # gau
+        sampled_from_gauss1 = sess.run(gauss_params1.sample(n_draws=1000, limits=(low, high)))
+        assert max(sampled_from_gauss1) <= high
+        assert min(sampled_from_gauss1) >= low
+
+        sampled_gauss1_full = sess.run(gauss_params1.sample(n_draws=10000,
+                                                            limits=(mu_true - abs(sigma_true) * 5,
+                                                                    mu_true + abs(sigma_true) * 5)))
+        mu_sampled = np.mean(sampled_gauss1_full)
+        sigma_sampled = np.std(sampled_gauss1_full)
+        assert mu_sampled == pytest.approx(mu_true, rel=0.05)
+        assert sigma_sampled == pytest.approx(sigma_true, rel=0.05)

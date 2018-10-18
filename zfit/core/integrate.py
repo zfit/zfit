@@ -126,11 +126,18 @@ class AnalyticIntegral(object):
         self._max_dims = ()
         self._integrals = collections.defaultdict(dict)
 
-    def get_max_dims(self, out_of_dims=None):
+    def get_max_dims(self, out_of_dims=None, limits=None):
+
         if out_of_dims:
             out_of_dims = frozenset(out_of_dims)
             implemented_dims = set(d for d in self._integrals.keys() if d <= out_of_dims)
-            max_dims = max(implemented_dims)
+            implemented_dims_limits = []
+            for dims in implemented_dims:
+                may_integral_fn = self._integrals[dims].get(limits, self._integrals[dims].get(None))
+                if may_integral_fn is not None:
+                    implemented_dims_limits.append(dims)
+
+            max_dims = max(implemented_dims_limits)
         else:
             max_dims = self._max_dims
 
@@ -151,8 +158,11 @@ class AnalyticIntegral(object):
         integral_holder = self._integrals.get(dims)
         print("DEBUG, self._integrals, dims", self._integrals, dims)
         if integral_holder is None:
-            raise NotImplementedError("This integral is not available for dims {}".format(dims))
+            raise NotImplementedError("Integral is not available for dims {}".format(dims))
         integral_fn = integral_holder.get(limits, integral_holder.get(None))
+        if integral_fn is None:
+            raise NotImplementedError(
+                "Integral is available for dims {}, but not for limits {}".format(dims, limits))
 
         if x is None:
             integral = integral_fn(limits=limits, params=params)

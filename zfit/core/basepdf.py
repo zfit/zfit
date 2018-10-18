@@ -229,19 +229,27 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         dims = self.dims  # HACK
         max_dims = self._analytic_integral.get_max_dims()
         print("DEBUG, max_dims, dims", max_dims, dims)
-        if max_dims == frozenset(dims):
-            integral = self.analytic_integrate(limits=limits)
-        elif max_dims:
-            def part_int(x):
-                return self.partial_analytic_integrate(x, limits=limits, dims=dims)
 
-            integral = self._integration.auto_numeric_integrate(func=part_int, limits=limits,
-                                                                n_dims=n_dims,  # HACK
-                                                                mc_options={
-                                                                    "draws_per_dim":
-                                                                        self._integration.draws_per_dim}
-                                                                )
-        else:
+        integral = None
+        if max_dims == frozenset(dims):
+            try:
+                integral = self.analytic_integrate(limits=limits)
+            except NotImplementedError:
+                pass
+        if max_dims and integral is None:  # TODO improve handling of available analytic integrals
+            try:
+                def part_int(x):
+                    return self.partial_analytic_integrate(x, limits=limits, dims=dims)
+
+                integral = self._integration.auto_numeric_integrate(func=part_int, limits=limits,
+                                                                    n_dims=n_dims,  # HACK
+                                                                    mc_options={
+                                                                        "draws_per_dim":
+                                                                            self._integration.draws_per_dim}
+                                                                    )
+            except NotImplementedError:
+                pass
+        if integral is None:
             integral = self.numeric_integrate(limits=limits)
         return integral
 
@@ -409,6 +417,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def _fallback_sample(self, n_draws, limits):
         sample = zsample.accept_reject_sample(prob=self.prob, n_draws=n_draws, limits=limits)
+        return sample
 
     def sample(self, n_draws, limits=None, name="sample"):
         limits = limits or self.norm_range  # TODO: catch better
