@@ -18,6 +18,7 @@ gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
 
 
 class TestGaussian(zfit.core.basepdf.BasePDF):
+
     def _unnormalized_prob(self, x):
         return tf.exp((-(x - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
 
@@ -51,7 +52,7 @@ gaussian_dists = [test_gauss1, gauss_params1]
 def test_func():
     test_values = np.array([3., 11.3, -0.2, -7.82])
     with tf.Session() as sess:
-        test_values_tf = tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype)
+        test_values_tf = tf.convert_to_tensor(test_values, dtype=zfit.settings.types.float)
 
         for dist in gaussian_dists:
             vals = dist.unnormalized_prob(test_values_tf)
@@ -65,6 +66,7 @@ def test_func():
 def test_normalization():
     with tf.Session() as sess:
         sess.run(init)
+        test_yield = 1524.3
 
         samples = tf.cast(np.random.uniform(low=low, high=high, size=1000000), dtype=tf.float64)
         for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
@@ -74,6 +76,12 @@ def test_normalization():
             result = sess.run(probs)
             result = np.average(result) * (high - low)
             assert 0.95 < result < 1.05
+            dist.set_yield(tf.constant(test_yield, dtype=tf.float64))
+            probs_extended = dist.prob(samples)
+            result_extended = sess.run(probs_extended)
+            result_extended = np.average(result_extended) * (high - low)
+            assert len(dist.parameters) > 0
+            assert result_extended == pytest.approx(test_yield, rel=0.05)
 
 
 def test_sampling():

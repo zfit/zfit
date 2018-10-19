@@ -5,14 +5,14 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 import tensorflow_probability.python.mcmc as mc
-import tensorflow_probability as tfp
-import numpy as np
 
-import zfit.core.utils as utils
+import zfit.utils.container as utils
 # import zfit.core.integrate
 import zfit.settings
 import zfit.core.integrate as zintegrate
 import zfit.core.sample as zsample
+from zfit.settings import types as ztypes
+import zfit.utils.exception as zexception
 
 
 class AbstractBasePDF(object):
@@ -57,13 +57,15 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def __init__(self, name="BaseDistribution", **kwargs):
         # TODO: catch some args from kwargs that belong to the super init?
-        super(BasePDF, self).__init__(dtype=zfit.settings.fptype, reparameterization_type=False,
+        super(BasePDF, self).__init__(dtype=zfit.settings.types.float,
+                                      reparameterization_type=False,
                                       validate_args=True, parameters=kwargs,
                                       allow_nan_stats=False, name=name)
 
         self.n_dims = None
         # self.norm_range = None
         self.norm_range = ((1, 2),)  # HACK! Take line above
+        self._yield = None
         # self.normalization_opt = {'n_draws': 10000000, 'range': (-100., 100.)}
         self._integration = utils.dotdict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -95,6 +97,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def n_dims(self, n_dims):
         self._n_dims = n_dims
 
+    @property
+    def is_extended(self):
+        return self._yield is not None
+
     @staticmethod
     def n_dims_from_limits(limits):
         """Return the number of dimensions from the limits."""
@@ -104,6 +110,29 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         else:
             n_dims = len(limits)
         return n_dims
+
+    def set_yield(self, value):
+        self._yield = value
+
+
+    def get_yield(self):
+        if not self.is_extended:
+            raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
+        return self._yield
+
+    @property
+    def _yield(self):
+        """For internal use, the yield or None"""
+        return self.parameters.get('yield')
+        # return self.parameters['yield']
+
+    @_yield.setter
+    def _yield(self, value):
+        if value is None:
+            # unset
+            self.parameters.pop('yield', None)  # safely remove if still there
+        else:
+            self.parameters['yield'] = value
 
     def _unnormalized_prob(self, x):
         raise NotImplementedError
@@ -155,7 +184,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         norm_range = norm_range or self.norm_range
         if norm_range is None:
             raise ValueError("Normalization range not specified.")
-        return self._call_prob(x, norm_range, name)
+        probability = self._call_prob(x, norm_range, name)
+        if self.is_extended:
+            probability *= self._yield
+        return probability
 
     def _log_prob(self, x, norm_range):
         raise NotImplementedError
@@ -444,6 +476,31 @@ class WrapDistribution(BasePDF):
         integral = self.tf_distribution.cdf(upper, name="asdf2") - self.tf_distribution.cdf(lower,
                                                                                             name="asdf3")  # TODO name
         return integral
+
+
+class Range(object):
+    def __init__(self, limits):
+        self._set_limits(limits)
+
+    def _set_limits(self, limits):
+        # TODO all the conversions come here
+        self._limits = limits
+
+    def area(self):
+        if not self._area:
+            self._calculate_save_area()
+        return self._area
+
+    def _calculate_save_area(self):
+        area = 0
+        for dims in self._limits:
+            for lower, upper in zip((dims[::2], dims[1::2])):
+                area *= upper - lower
+        self._area = area
+        return area
+
+    def as_tuple(self):
+        return self._limits
 
 
 # TODO: remove below, play around while developing
