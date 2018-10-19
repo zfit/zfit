@@ -4,8 +4,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
 
-
-import zfit
+from zfit.settings import types as ztypes
 
 
 def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_max=None):
@@ -18,7 +17,7 @@ def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_
     n_dims = 1  # HACK
     lower, upper = limits
     sample = sampler(shape=(n_dims + 1, n_draws),  # + 1 dim for the function value
-                     dtype=zfit.settings.fptype)
+                     dtype=ztypes.float)
     rnd_sample = sample[:-1, :] * (upper - lower) + lower
     probabilities = prob(rnd_sample)
     if prob_max is None:

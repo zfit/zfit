@@ -4,10 +4,6 @@ import collections
 
 import tensorflow as tf
 import tensorflow_probability as tfp
-import tensorflow.contrib.bayesflow as tfb
-import numpy as np
-
-from zfit.core.utils import dotdict
 
 
 def auto_integrate(func, limits, n_dims, method="AUTO", dtype=tf.float64,

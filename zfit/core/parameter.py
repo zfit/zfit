@@ -12,7 +12,7 @@ try:
 except ImportError:
     from tensorflow import Variable as VariableV1
 
-from zfit.settings import fptype
+from zfit.settings import types as ztypes
 
 
 class FitParameter(VariableV1):
@@ -30,15 +30,15 @@ class FitParameter(VariableV1):
             step_size : step size (set to 0 for fixed parameters)
         """
         # TODO: sanitize input
-        init_value = tf.cast(init_value, dtype=fptype)
-        super(FitParameter, self).__init__(init_value, dtype=fptype,  # PY23: change super
+        init_value = tf.cast(init_value, dtype=ztypes.float)
+        super(FitParameter, self).__init__(init_value, dtype=ztypes.float,  # PY23: change super
                                            # use_resource=True  # TODO: only 1.11+
                                            )
         self.init_value = init_value
         self.par_name = name
-        self.step_size = tf.cast(step_size, dtype=fptype)
-        self.lower_limit = tf.cast(lower_limit, dtype=fptype)
-        self.upper_limit = tf.cast(upper_limit, dtype=fptype)
+        self.step_size = tf.cast(step_size, dtype=ztypes.float)
+        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
+        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
         self.placeholder = tf.placeholder(self.dtype, shape=self.get_shape())
         self.update_op = self.assign(self.placeholder)  # problems with RooMinuit
         self.prev_value = None

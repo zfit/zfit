@@ -6,9 +6,11 @@ import tensorflow as tf
 import zfit.settings
 import zfit.core.math as zmath
 
+from zfit.settings import types as ztypes
 
-pi = tf.constant(zmath.pi, dtype=zfit.settings.fptype)
-inf = tf.constant(zmath.inf, dtype=zfit.settings.fptype)
+pi = tf.constant(zmath.pi, dtype=ztypes.float)
+inf = tf.constant(zmath.inf, dtype=ztypes.float)
+
 
 # density for a complex amplitude
 def density(ampl): return tf.abs(ampl) ** 2
@@ -38,19 +40,19 @@ def nth_pow(x, n, name=None):
 
 
 # Cast a real number to complex
-def to_complex(number): return tf.cast(number, dtype=zfit.settings.ctype)
+def to_complex(number): return tf.cast(number, dtype=ztypes.complex)
 
 
 def to_real(number):
-    return tf.cast(number, dtype=zfit.settings.fptype)
+    return tf.cast(number, dtype=ztypes.float)
 
 
 # Declare constant
-def constant(c): return tf.constant(c, dtype=zfit.settings.fptype)
+def constant(c): return tf.constant(c, dtype=ztypes.float)
 
 
 # Declare invariant
-def invariant(c): return tf.constant([c], dtype=zfit.settings.fptype)
+def invariant(c): return tf.constant([c], dtype=ztypes.float)
 
 
 # |x|^2

@@ -1,18 +1,11 @@
 from __future__ import print_function, division, absolute_import
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
+from zfit.core import tfext
 from zfit.core.parameter import FitParameter
-from . import tfext
 
-
-class dotdict(dict):
-    """dot.notation access to dictionary attributes"""
-
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
 
 def multivariate_gauss(x, norm, mean, inv_cov):
     print(norm)

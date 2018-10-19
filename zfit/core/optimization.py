@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 
 from zfit.core import tfext
-from zfit.settings import fptype
+from zfit.settings import types as ztypes
 
 # start legacy
 import zfit
@@ -268,7 +268,7 @@ def load_data(sess, phsp, name, data):
     """
     placeholder = phsp.placeholder(name)
     shape = data.shape
-    variable = tf.get_variable(name, shape=shape, dtype=fptype,
+    variable = tf.get_variable(name, shape=shape, dtype=ztypes.float,
                                initializer=tf.constant_initializer(0.0), trainable=False)
     initializer = variable.assign(placeholder)
     sess.run(initializer, feed_dict={placeholder: data})

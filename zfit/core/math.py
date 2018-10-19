@@ -5,7 +5,7 @@ import itertools
 import tensorflow as tf
 import math as mt
 
-from zfit.settings import fptype
+from zfit.settings import types as ztypes
 
 # py23 compatibility: remove try-except
 try:
@@ -14,7 +14,6 @@ except AttributeError:  # not yet there in Python 27
     inf = float('inf')
 
 pi = mt.pi
-
 
 
 def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to real_x=False
@@ -58,7 +57,7 @@ def interpolate(t, c):
     wts = []
     for vertex in itertools.product([0, 1], repeat=rank):
         ind2 = ind + tf.constant(vertex, dtype=tf.int32)
-        weight = tf.reduce_prod(1. - tf.abs(c - tf.cast(ind2, dtype=fptype)), 1)
+        weight = tf.reduce_prod(1. - tf.abs(c - tf.cast(ind2, dtype=ztypes.float)), 1)
         wt = tf.gather_nd(t2, ind2 + 1)
         wts += [weight * wt]
     interp = tf.reduce_sum(tf.stack(wts), 0)

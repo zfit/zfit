@@ -11,6 +11,7 @@ from zfit.core.basepdf import BasePDF, WrapDistribution
 from zfit.core.parameter import FitParameter
 import zfit.core.tfext as ztf
 import zfit.core.math as zmath
+from zfit.settings import types as ztypes
 
 
 class Gauss(BasePDF):
@@ -135,7 +136,7 @@ if __name__ == '__main__':
         def test_func_sum():
             test_values = np.array([3., 129., -0.2, -78.2])
             vals = sum_gauss.unnormalized_prob(
-                tf.convert_to_tensor(test_values, dtype=zfit.settings.fptype))
+                tf.convert_to_tensor(test_values, dtype=ztypes.float))
             vals = sess.run(vals)
             test_sum = sum([g.unnormalized_prob(test_values) for g in [gauss1, gauss2, gauss3]])
             print(sess.run(test_sum))

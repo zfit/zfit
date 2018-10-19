@@ -11,8 +11,7 @@ except ImportError:  # PY23 replace ImportError with ModuleNotFoundError
     print("Legacy mode active, ROOT not loaded")
 
 from zfit.core.math import interpolate
-from zfit.settings import fptype
-
+from zfit.settings import types as ztypes
 
 class RootHistShape(object):
     """
@@ -30,12 +29,12 @@ class RootHistShape(object):
             nx = hist.GetNbinsX()
             data = np.zeros(nx, dtype=np.dtype('d'))
             self.limits = [
-                tf.constant([hist.GetXaxis().GetBinCenter(1)], dtype=fptype),
-                tf.constant([hist.GetXaxis().GetBinCenter(nx)], dtype=fptype),
+                tf.constant([hist.GetXaxis().GetBinCenter(1)], dtype=ztypes.float),
+                tf.constant([hist.GetXaxis().GetBinCenter(nx)], dtype=ztypes.float),
                 ]
             for x in range(nx):
                 data[x] = hist.GetBinContent(x + 1)
-            self.ns = tf.constant([nx - 1], dtype=fptype)
+            self.ns = tf.constant([nx - 1], dtype=ztypes.float)
 
         if isinstance(hist, TH2):
             nx = hist.GetNbinsX()
@@ -43,14 +42,14 @@ class RootHistShape(object):
             data = np.zeros((nx, ny), dtype=np.dtype('d'))
             self.limits = [
                 tf.constant([hist.GetXaxis().GetBinCenter(1), hist.GetYaxis().GetBinCenter(1)],
-                            dtype=fptype),
+                            dtype=ztypes.float),
                 tf.constant([hist.GetXaxis().GetBinCenter(nx), hist.GetYaxis().GetBinCenter(ny)],
-                            dtype=fptype),
+                            dtype=ztypes.float),
                 ]
             for x in range(nx):
                 for y in range(ny):
                     data[x][y] = hist.GetBinContent(x + 1, y + 1)
-            self.ns = tf.constant([nx - 1, ny - 1], dtype=fptype)
+            self.ns = tf.constant([nx - 1, ny - 1], dtype=ztypes.float)
 
         if isinstance(hist, TH3):
             nx = hist.GetNbinsX()
@@ -59,17 +58,17 @@ class RootHistShape(object):
             data = np.zeros((nx, ny, nz), dtype=np.dtype('d'))
             self.limits = [
                 tf.constant([hist.GetXaxis().GetBinCenter(1), hist.GetYaxis().GetBinCenter(1),
-                             hist.GetZaxis().GetBinCenter(1)], dtype=fptype),
+                             hist.GetZaxis().GetBinCenter(1)], dtype=ztypes.float),
                 tf.constant([hist.GetXaxis().GetBinCenter(nx), hist.GetYaxis().GetBinCenter(ny),
-                             hist.GetZaxis().GetBinCenter(nz)], dtype=fptype),
+                             hist.GetZaxis().GetBinCenter(nz)], dtype=ztypes.float),
                 ]
             for x in range(nx):
                 for y in range(ny):
                     for z in range(nz):
                         data[x][y][z] = hist.GetBinContent(x + 1, y + 1, z + 1)
-            self.ns = tf.constant([nx - 1, ny - 1, nz - 1], dtype=fptype)
+            self.ns = tf.constant([nx - 1, ny - 1, nz - 1], dtype=ztypes.float)
 
-        self.array = tf.constant(data, dtype=fptype)
+        self.array = tf.constant(data, dtype=ztypes.float)
 
     def shape(self, x):
         """
