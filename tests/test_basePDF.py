@@ -80,7 +80,7 @@ def test_normalization():
             probs_extended = dist.prob(samples)
             result_extended = sess.run(probs_extended)
             result_extended = np.average(result_extended) * (high - low)
-            assert len(dist.parameters) > 0
+            # assert len(dist.parameters) > 0
             assert result_extended == pytest.approx(test_yield, rel=0.05)
 
 

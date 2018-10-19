@@ -6,12 +6,11 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
 
-import zfit
-from zfit.core.basepdf import BasePDF, WrapDistribution
-from zfit.core.parameter import FitParameter
-import zfit.core.tfext as ztf
-import zfit.core.math as zmath
-from zfit.settings import types as ztypes
+from .basepdf import BasePDF, WrapDistribution
+from .parameter import FitParameter
+from . import tfext as ztf
+from . import math as zmath
+from ..settings import types as ztypes
 
 
 class Gauss(BasePDF):

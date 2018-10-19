@@ -16,11 +16,11 @@ def unbinned_nll(probs=None, weights=None, log_probs=None):
     Raises:
         ValueError: if both `probs` and `log_probs` are specified.
     """
-    if probs and log_probs:
+    if probs is not None and log_probs is not None:
         raise ValueError("Cannot specify 'probs' and 'log_probs'")
-    if probs:
+    if probs is not None:
         log_probs = tf.log(probs)
-    if weights:
+    if weights is not None:
         log_probs *= weights
     nll = -tf.reduce_sum(log_probs)
     return nll

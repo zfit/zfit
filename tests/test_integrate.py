@@ -6,7 +6,8 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
-import zfit.core.basepdf as zbasepdf
+import zfit
+from zfit.core import basepdf as zbasepdf
 import zfit.core.integrate as zintegrate
 import zfit.core.math as zmath
 from zfit.core.parameter import FitParameter

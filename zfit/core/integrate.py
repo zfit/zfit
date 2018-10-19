@@ -166,6 +166,11 @@ class AnalyticIntegral(object):
             integral = integral_fn(x=x, limits=limits, params=params)
         return integral
 
+class Integral(object):
+    def __init__(self, func, limits, dims):
+        self.func = func
+        self._set_dims(dims)
+
 
 if __name__ == '__main__':
     # TODO: partial does not yet work...
