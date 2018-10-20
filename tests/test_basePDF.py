@@ -80,7 +80,6 @@ def test_normalization():
             probs_extended = dist.prob(samples)
             result_extended = sess.run(probs_extended)
             result_extended = np.average(result_extended) * (high - low)
-            # assert len(dist.parameters) > 0
             assert result_extended == pytest.approx(test_yield, rel=0.05)
 
 
@@ -96,5 +95,5 @@ def test_sampling():
                                                                     mu_true + abs(sigma_true) * 5)))
         mu_sampled = np.mean(sampled_gauss1_full)
         sigma_sampled = np.std(sampled_gauss1_full)
-        assert mu_sampled == pytest.approx(mu_true, rel=0.05)
-        assert sigma_sampled == pytest.approx(sigma_true, rel=0.05)
+        assert mu_sampled == pytest.approx(mu_true, rel=0.07)
+        assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)

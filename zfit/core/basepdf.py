@@ -3,14 +3,13 @@ Definition of the pdf interface, base etc.
 """
 from __future__ import print_function, division, absolute_import
 
-
 import tensorflow as tf
 import tensorflow_probability.python.mcmc as mc
 import numpy as np
 
 from ..utils import container
 # import zfit.core.integrate
-from ..settings import  types as ztypes
+from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
 # from zfit.settings import types as ztypes
@@ -534,23 +533,71 @@ class WrapDistribution(BasePDF):
 
 class Range(object):
     def __init__(self, limits, dims=None):
+        self._area = None
         self._set_limits_and_dims(limits, dims)
 
     def _set_limits_and_dims(self, limits, dims):
         # TODO all the conversions come here
+        limits, inferred_dims, has_none = self.sanitize_limits(limits)
+        assert len(limits) == len(inferred_dims)
+        dims = self.sanitize_dims(dims)
+        if dims is None:
+            if has_none:
+                dims = inferred_dims
+            else:
+                raise ValueError(
+                    "Due to safety: no dims provided, no Nones in limits. Provide dims.")
+        else:  # only check if dims from user input
+            if len(dims) != len(limits):
+                raise ValueError("Dims and limits have different number of axis.")
+
         self._limits = limits
         self._dims = dims
 
+    @staticmethod
+    def sanitize_limits(limits):
+        inferred_dims = []
+        sanitized_limits = []
+        has_none = False
+        for i, dim in enumerate(limits):
+            if dim is not None:
+                sanitized_limits.append(dim)
+                inferred_dims.append(i)
+            else:
+                has_none = True
+        if len(np.shape(sanitized_limits)) == 1:
+            are_scalars = [np.shape(l) == () for l in sanitized_limits]
+            all_scalars = all(are_scalars)
+            all_tuples = not any(are_scalars)
+            if not (all_scalars or all_tuples):
+                raise ValueError("Invalid format for limits: {}".format(limits))
+            elif all_scalars:
+                sanitized_limits = (tuple(sanitized_limits),)
+                inferred_dims = (0,)
+        sanitized_limits = tuple(sanitized_limits)
+        inferred_dims = tuple(inferred_dims)
+        return sanitized_limits, inferred_dims, has_none
+
+    @staticmethod
+    def sanitize_dims(dims):
+
+        if dims is not None and len(np.shape(dims)) == 0:
+            dims = (dims,)
+        return dims
+
+    @property
     def area(self):
-        if not self._area:
+        if self._area is None:
             self._calculate_save_area()
         return self._area
 
     def _calculate_save_area(self):
-        area = 0
-        for dims in self._limits:
-            for lower, upper in zip((dims[::2], dims[1::2])):
-                area *= upper - lower
+        area = 1.
+        for dims in self:
+            sub_area = 0
+            for lower, upper in iter_limits(dims):
+                sub_area += upper - lower
+            area *= sub_area
         self._area = area
         return area
 
@@ -565,11 +612,13 @@ class Range(object):
         return np.array(self._limits)
 
     def __lt__(self, other):
+        if self.dims != other.dims:
+            return False
         for dim, other_dim in zip(self, other):
-            for lower, upper in zip(dim[::2], dim[1::2]):
+            for lower, upper in iter_limits(dim):
                 is_smaller = False
-                for other_lower, other_upper in zip(other_dim[::2], other_dim[1::2]):
-                    is_smaller = other_lower < lower and upper < other_upper
+                for other_lower, other_upper in iter_limits(other_dim):
+                    is_smaller = other_lower <= lower and upper <= other_upper
                     if is_smaller:
                         break
                 if not is_smaller:
@@ -580,6 +629,8 @@ class Range(object):
         return other < self
 
     def __eq__(self, other):
+        if self.dims != other.dims:
+            return False
         return self.as_tuple() == other.as_tuple()
 
     def __getitem__(self, key):
@@ -591,6 +642,26 @@ def convert_to_range(limits, dims=None):
         return limits
     else:
         return Range(limits, dims=dims)
+
+
+def iter_limits(limits):
+    """Returns (lower, upper) for an iterable containing several such pairs
+
+    Args:
+        limits (iterable): A 1-dimensional iterable containing an even number of values. The odd
+            values are takes as the lower limit while the even values are taken as the upper limit.
+            Example: [a_lower, a_upper, b_lower, b_upper]
+
+    Returns:
+        iterable(tuples(lower, upper)): Returns an iterable containing the lower, upper tuples.
+            Example (from above): [(a_lower, a_upper), (b_lower, b_upper)]
+
+    Raises:
+        ValueError: if limits does not contain an even number of elements.
+    """
+    if not len(limits) % 2 == 0:
+        raise ValueError("limits has to be from even length, not: {}".format(limits))
+    return zip(limits[::2], limits[1::2])
 
 
 # TODO: remove below, play around while developing
