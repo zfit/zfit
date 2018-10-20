@@ -9,6 +9,7 @@ import numpy as np
 import zfit
 from zfit.core import basepdf as zbasepdf
 import zfit.core.integrate as zintegrate
+from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import FitParameter
 from zfit.core.pdf import Gauss
@@ -125,9 +126,10 @@ def func3_2deps(x):
 
 
 def func3_2deps_fully_integrated(limits, params=None):
-    lower, upper = limits
-    lower_a, lower_b = lower
-    upper_a, upper_b = upper
+    lower, upper = limits.get_boundaries()
+    print("DEBUG: lower, upper", lower, upper)
+    lower_a, lower_b = lower[0]
+    upper_a, upper_b = upper[0]
     integral = (lower_a ** 3 - upper_a ** 3) * (lower_b - upper_b)
     integral += (lower_a - upper_a) * (lower_b ** 3 - upper_b ** 3)
     integral /= 3
@@ -183,10 +185,19 @@ def func4_3deps_1_integrated(x, limits):
 
 def test_mc_integration():
     # simpel example
-    num_integral = zintegrate.mc_integrate(func=func1_5deps, limits=limits_simple_5deps, n_dims=5,
+    num_integral = zintegrate.mc_integrate(func=func1_5deps,
+                                           limits=Range.from_boundaries(*limits_simple_5deps,
+                                                                        dims=tuple(range(5))),
+                                           n_dims=5,
                                            draws_per_dim=5)
-    num_integral2 = zintegrate.mc_integrate(func=func2_1deps, limits=limits2, n_dims=1)
-    num_integral3 = zintegrate.mc_integrate(func=func3_2deps, limits=limits3, n_dims=2,
+    num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
+                                            limits=Range.from_boundaries(*limits2,
+                                                                         dims=tuple(range(1))),
+                                            n_dims=1)
+    num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
+                                            limits=Range.from_boundaries(*limits3,
+                                                                         dims=tuple(range(2))),
+                                            n_dims=2,
                                             draws_per_dim=70)
 
     with tf.Session() as sess:
@@ -200,17 +211,20 @@ def test_mc_integration():
         assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(integral,
                                                                                   rel=0.1)
         assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
-        assert func3_2deps_fully_integrated(limits3) == pytest.approx(integral3, rel=0.03)
+        assert func3_2deps_fully_integrated(Range.from_boundaries(*limits3, dims=(0, 1))) == pytest.approx(integral3, rel=0.03)
 
 
 def test_mc_partial_integration():
     num_integral = zintegrate.mc_integrate(x=tf.convert_to_tensor(func4_values),
-                                           func=func4_3deps, limits=limits4_2dim, dims=(0, 2),
+                                           func=func4_3deps,
+                                           limits=Range.from_boundaries(*limits4_2dim,
+                                                                        dims=(0, 2), ),
                                            draws_per_dim=70)
     vals_tensor = tf.convert_to_tensor(func4_2values)
     vals_reshaped = tf.transpose(vals_tensor)
     num_integral2 = zintegrate.mc_integrate(x=vals_reshaped,
-                                            func=func4_3deps, limits=limits4_1dim, dims=(1,),
+                                            func=func4_3deps,
+                                            limits=Range.from_boundaries(*limits4_1dim, dims=(1,)),
                                             draws_per_dim=100)
 
     with tf.Session() as sess:
@@ -238,19 +252,19 @@ def test_analytic_integral():
     mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
     sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
-    gauss_integral_infs = gauss_params1.integrate(limits=(zmath.inf, zmath.inf))
+    gauss_integral_infs = gauss_params1.integrate(limits=(-zmath.inf, zmath.inf))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, dims=(0, 1))
 
     dist_func3 = DistFunc3()
-    # HACK START
-    dist_func3.n_dims = 2
-    # HACK ENDfully_integrated
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         gauss_integral_infs = sess.run(gauss_integral_infs)
-        func3_integrated = sess.run(tf.convert_to_tensor(dist_func3.integrate(limits=limits3),
-                                                         dtype=tf.float64))
-        assert func3_integrated == func3_2deps_fully_integrated(limits=limits3)
-        assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi *sigma_true), rel=0.0001)
+        func3_integrated = sess.run(
+            tf.convert_to_tensor(
+                dist_func3.integrate(limits=Range.from_boundaries(*limits3, dims=(0, 1))),
+                dtype=tf.float64))
+        assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
+            *limits3, dims=(0, 1)))
+        assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * sigma_true), rel=0.0001)

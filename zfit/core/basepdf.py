@@ -5,8 +5,8 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 import tensorflow_probability.python.mcmc as mc
-import numpy as np
 
+from zfit.core.limits import Range, convert_to_range
 from ..utils import container
 # import zfit.core.integrate
 from ..settings import types as ztypes
@@ -39,16 +39,6 @@ class AbstractBasePDF(object):
         raise NotImplementedError
 
 
-class NormRange(object):
-    __ANY_RANGE = "Not yet implemented"
-
-    @property
-    def ANY_RANGE(self):
-        """Any range, it does not matter"""
-        raise NotImplementedError("NOT YET!")
-        return self.__ANY_RANGE
-
-
 class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     _DEFAULTS_integration = container.dotdict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
@@ -67,8 +57,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         self.n_dims = None
         self._yield = None
         self._temp_yield = None
-        # self.norm_range = None
-        self.norm_range = ((1, 2),)  # HACK! Take line above
+        self.norm_range = None
+        # self.norm_range = ((1, 2),)  # HACK! Take line above
         # self.normalization_opt = {'n_draws': 10000000, 'range': (-100., 100.)}
         self._integration = zcontainer.dotdict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -82,8 +72,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     @norm_range.setter
     def norm_range(self, norm_range):
-        if not self.n_dims:
-            self.n_dims = self.n_dims_from_limits(norm_range)
+        if norm_range is not None:
+            norm_range = convert_to_range(norm_range, dims=Range.FULL)
+            if not self.n_dims:
+                self.n_dims = self.n_dims_from_limits(norm_range)
         self._norm_range = norm_range
 
     @property
@@ -107,11 +99,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     @staticmethod
     def n_dims_from_limits(limits):
         """Return the number of dimensions from the limits."""
-        # TODO: replace with more intelligent limits object
         if limits is None:
             n_dims = None
         else:
-            n_dims = len(limits)
+            n_dims = limits.n_dims
         return n_dims
 
     def set_yield(self, value):
@@ -149,7 +140,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             try:
                 return self._unnormalized_prob(x, **kwargs)
             except NotImplementedError:
-                return self._prob(x, norm_range=NormRange.ANY_RANGE)
+                return self._prob(x, norm_range="TODO")
             # No fallback, if unnormalized_prob and prob is not implemented
 
     def unnormalized_prob(self, x, name="unnormalized_prob"):
@@ -161,7 +152,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_prob(self, x, norm_range, name, **kwargs):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            norm_range = convert_to_range(norm_range)
+            norm_range = convert_to_range(norm_range, dims=Range.FULL)
             try:
                 return self._prob(x, norm_range=norm_range, **kwargs)
             except NotImplementedError:
@@ -188,12 +179,13 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
           prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
             values of type `self.dtype`.
         """
-        norm_range = norm_range or self.norm_range
+        if norm_range is None:
+            norm_range = self.norm_range
         if norm_range is None:
             raise ValueError("Normalization range not specified.")
         probability = self._call_prob(x, norm_range, name)
         if self.is_extended:
-            probability *= self._yield
+            probability *= self.get_yield()
         return probability
 
     def _log_prob(self, x, norm_range):
@@ -202,7 +194,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_log_prob(self, x, norm_range, name, **kwargs):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            norm_range = convert_to_range(norm_range)
+            norm_range = convert_to_range(norm_range, dims=Range.FULL)
 
             try:
                 return self._log_prob(x=x, norm_range=norm_range)
@@ -236,7 +228,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_normalization(self, norm_range, name):
         # TODO: caching? alternative
         with self._name_scope(name, values=[norm_range]):
-            norm_range = convert_to_range(norm_range)
+            norm_range = convert_to_range(norm_range, Range.FULL)
             try:
                 return self._normalization(norm_range)
             except NotImplementedError:
@@ -259,7 +251,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def _call_integrate(self, limits, name):
         with self._name_scope(name, values=[limits]):
-            limits = convert_to_range(limits)
+            limits = convert_to_range(limits, dims=Range.FULL)
             try:
                 return self._integrate(limits)
             except NotImplementedError:
@@ -271,8 +263,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             return self._fallback_integrate(limits)
 
     def _fallback_integrate(self, limits):
-        n_dims = self.n_dims  # HACK
-        dims = self.dims  # HACK
+        n_dims = limits.n_dims
+        dims = limits.dims
         max_dims = self._analytic_integral.get_max_dims()
         print("DEBUG, max_dims, dims", max_dims, dims)
 
@@ -330,11 +322,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             return self._fallback_analytic_integrate(limits)
 
     def _fallback_analytic_integrate(self, limits):
-        return self._analytic_integral.integrate(x=None, limits=limits, dims=self.dims,
+        return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.dims,
                                                  params=self.parameters)
 
     def analytic_integrate(self, limits, name="analytic_integrate"):
-        # TODO: get limits
         integral = self._call_analytic_integrate(limits, name=name)
         return integral
 
@@ -354,10 +345,9 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _fallback_numeric_integrate(self, limits):
         # TODO: get limits properly
         # HACK
-        n_dims = 1
         integral = self._integration.auto_numeric_integrate(func=self.unnormalized_prob,
                                                             limits=limits,
-                                                            dtype=self.dtype, n_dims=n_dims,
+                                                            dtype=self.dtype, n_dims=limits.n_dims,
                                                             mc_sampler=self._integration.mc_sampler,
                                                             mc_options={
                                                                 'draws_per_dim':
@@ -413,7 +403,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_partial_analytic_integrate(self, x, limits, dims, name):
         with self._name_scope(name, values=[x, limits, dims]):
             x = tf.convert_to_tensor(x, name="x")
-            limits = convert_to_range(limits, dims)
+            limits = convert_to_range(limits, dims=dims)
             try:
                 return self._partial_analytic_integrate(x=x, limits=limits, dims=dims)
             except NotImplementedError:
@@ -471,7 +461,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_sample(self, n_draws, limits, name):
         with self._name_scope(name, values=[n_draws, limits]):
             n_draws = tf.convert_to_tensor(n_draws, name="n_draws")
-            limits = convert_to_range(limits)
+            limits = convert_to_range(limits, dims=Range.FULL)
             try:
                 return self._sample(n_draws=n_draws, limits=limits)
             except NotImplementedError:
@@ -483,7 +473,11 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return sample
 
     def sample(self, n_draws, limits=None, name="sample"):
-        limits = limits or self.norm_range  # TODO: catch better
+        if limits is None:
+            limits = self.norm_range
+        if limits is None:
+            raise ValueError("limits is None and normalization range not set. One of the two must"
+                             "be specified.")
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
 
     # def copy(self, **override_parameters_kwargs):
@@ -523,145 +517,12 @@ class WrapDistribution(BasePDF):
 
     # TODO: register integral
     def _analytic_integrate(self, limits):
-        lower, upper = limits  # TODO: limits
+        lower, upper = limits.get_boundaries()  # TODO: limits
         upper = tf.cast(upper, dtype=tf.float64)
         lower = tf.cast(lower, dtype=tf.float64)
         integral = self.tf_distribution.cdf(upper, name="asdf2") - self.tf_distribution.cdf(lower,
                                                                                             name="asdf3")  # TODO name
         return integral
-
-
-class Range(object):
-    def __init__(self, limits, dims=None):
-        self._area = None
-        self._set_limits_and_dims(limits, dims)
-
-    def _set_limits_and_dims(self, limits, dims):
-        # TODO all the conversions come here
-        limits, inferred_dims, has_none = self.sanitize_limits(limits)
-        assert len(limits) == len(inferred_dims)
-        dims = self.sanitize_dims(dims)
-        if dims is None:
-            if has_none:
-                dims = inferred_dims
-            else:
-                raise ValueError(
-                    "Due to safety: no dims provided, no Nones in limits. Provide dims.")
-        else:  # only check if dims from user input
-            if len(dims) != len(limits):
-                raise ValueError("Dims and limits have different number of axis.")
-
-        self._limits = limits
-        self._dims = dims
-
-    @staticmethod
-    def sanitize_limits(limits):
-        inferred_dims = []
-        sanitized_limits = []
-        has_none = False
-        for i, dim in enumerate(limits):
-            if dim is not None:
-                sanitized_limits.append(dim)
-                inferred_dims.append(i)
-            else:
-                has_none = True
-        if len(np.shape(sanitized_limits)) == 1:
-            are_scalars = [np.shape(l) == () for l in sanitized_limits]
-            all_scalars = all(are_scalars)
-            all_tuples = not any(are_scalars)
-            if not (all_scalars or all_tuples):
-                raise ValueError("Invalid format for limits: {}".format(limits))
-            elif all_scalars:
-                sanitized_limits = (tuple(sanitized_limits),)
-                inferred_dims = (0,)
-        sanitized_limits = tuple(sanitized_limits)
-        inferred_dims = tuple(inferred_dims)
-        return sanitized_limits, inferred_dims, has_none
-
-    @staticmethod
-    def sanitize_dims(dims):
-
-        if dims is not None and len(np.shape(dims)) == 0:
-            dims = (dims,)
-        return dims
-
-    @property
-    def area(self):
-        if self._area is None:
-            self._calculate_save_area()
-        return self._area
-
-    def _calculate_save_area(self):
-        area = 1.
-        for dims in self:
-            sub_area = 0
-            for lower, upper in iter_limits(dims):
-                sub_area += upper - lower
-            area *= sub_area
-        self._area = area
-        return area
-
-    @property
-    def dims(self):
-        return self._dims
-
-    def as_tuple(self):
-        return self._limits
-
-    def as_array(self):
-        return np.array(self._limits)
-
-    def __lt__(self, other):
-        if self.dims != other.dims:
-            return False
-        for dim, other_dim in zip(self, other):
-            for lower, upper in iter_limits(dim):
-                is_smaller = False
-                for other_lower, other_upper in iter_limits(other_dim):
-                    is_smaller = other_lower <= lower and upper <= other_upper
-                    if is_smaller:
-                        break
-                if not is_smaller:
-                    return False
-        return True
-
-    def __gt__(self, other):
-        return other < self
-
-    def __eq__(self, other):
-        if self.dims != other.dims:
-            return False
-        return self.as_tuple() == other.as_tuple()
-
-    def __getitem__(self, key):
-        return self.as_tuple()[key]
-
-
-def convert_to_range(limits, dims=None):
-    if isinstance(limits, Range):
-        return limits
-    else:
-        return Range(limits, dims=dims)
-
-
-def iter_limits(limits):
-    """Returns (lower, upper) for an iterable containing several such pairs
-
-    Args:
-        limits (iterable): A 1-dimensional iterable containing an even number of values. The odd
-            values are takes as the lower limit while the even values are taken as the upper limit.
-            Example: [a_lower, a_upper, b_lower, b_upper]
-
-    Returns:
-        iterable(tuples(lower, upper)): Returns an iterable containing the lower, upper tuples.
-            Example (from above): [(a_lower, a_upper), (b_lower, b_upper)]
-
-    Raises:
-        ValueError: if limits does not contain an even number of elements.
-    """
-    if not len(limits) % 2 == 0:
-        raise ValueError("limits has to be from even length, not: {}".format(limits))
-    return zip(limits[::2], limits[1::2])
 
 
 # TODO: remove below, play around while developing

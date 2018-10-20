@@ -5,6 +5,9 @@ import collections
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+from .limits import convert_to_range, Range
+from ..settings import types as ztypes
+
 
 def auto_integrate(func, limits, n_dims, method="AUTO", dtype=tf.float64,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
@@ -30,7 +33,7 @@ def numeric_integrate():
 
 
 def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=10000, method=None,
-                 dtype=tf.float64,
+                 dtype=ztypes.float,
                  mc_sampler=tfp.mcmc.sample_halton_sequence, importance_sampling=None):
     """
 
@@ -49,17 +52,27 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
     Returns:
 
     """
-    lower, upper = limits  # TODO: limits?
-    lower = tf.convert_to_tensor(lower, dtype=tf.float64)
-    upper = tf.convert_to_tensor(upper, dtype=tf.float64)
+    if dims is not None and n_dims is not None:
+        raise ValueError("Either specify dims or n_dims")
+    limits = convert_to_range(limits, dims)
+    dims = limits.dims
     # HACK
     partial = (dims is not None) and (x is not None)  # dims, value can be tensors
     # if partial:
     #     raise ValueError("Partial integration not yet implemented.")
-    if dims and n_dims:
-        raise ValueError("Either specify dims or n_dims")
-    if dims and not n_dims:
+    if dims is not None and n_dims is None:
         n_dims = len(dims)
+    if n_dims is not None and dims is None:
+        dims = tuple(range(n_dims))
+
+
+    lower, upper = limits.get_boundaries()
+    print("DEBUG: lower, upper", lower, upper)
+
+    lower = tf.convert_to_tensor(lower, dtype=dtype)
+    upper = tf.convert_to_tensor(upper, dtype=dtype)
+    print("DEBUG: lower, upper", lower, upper)
+
     n_samples = draws_per_dim ** n_dims
     if partial:
         n_vals = x.get_shape()[0].value
@@ -112,7 +125,7 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
     avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
     # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     print("DEBUG, avg", avg)
-    integral = avg * tf.reduce_prod(upper - lower)
+    integral = avg * limits.area
     return tf.cast(integral, dtype=dtype)
 
 
@@ -141,30 +154,36 @@ class AnalyticIntegral(object):
 
     def register(self, func, dims, limits=None):
         """Register an analytic integral."""
+        if limits is not None:
+            limits = convert_to_range(limits, dims=dims)
+            limits = limits.as_tuple()
         dims = frozenset(dims)
         if len(dims) > len(self._max_dims):
             self._max_dims = dims
         self._integrals[dims][limits] = func  # TODO improve with database-like access
 
-    def integrate(self, x, limits, dims, params):
+    def integrate(self, x, limits, dims=None, params=None):
         """Integrate analytically over the dims if available."""
         # TODO: what if dims is None?
+        if dims is None:
+            dims = limits.dims
         dims = frozenset(dims)
-        limits = tuple(limits)
         integral_holder = self._integrals.get(dims)
         print("DEBUG, self._integrals, dims", self._integrals, dims)
         if integral_holder is None:
             raise NotImplementedError("Integral is not available for dims {}".format(dims))
-        integral_fn = integral_holder.get(limits, integral_holder.get(None))
+        integral_fn = integral_holder.get(limits.as_tuple(), integral_holder.get(None))
         if integral_fn is None:
             raise NotImplementedError(
                 "Integral is available for dims {}, but not for limits {}".format(dims, limits))
 
         if x is None:
+            print("DEBUG: limits", limits)
             integral = integral_fn(limits=limits, params=params)
         else:
             integral = integral_fn(x=x, limits=limits, params=params)
         return integral
+
 
 class Integral(object):
     def __init__(self, func, limits, dims):

@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import copy
 from unittest import TestCase
 
-from zfit.core.basepdf import Range, convert_to_range
+from zfit.core.limits import Range, convert_to_range
 
 limit1 = ((1, 4), (2, 3.5), (-1, 5))
 limit1_true = copy.deepcopy(limit1)
@@ -30,27 +30,31 @@ limit3_1dim_1pair_dims_0axis = 0
 limit3_1dim_1pair_dims_true_0axis = (0,)
 
 limit3_1dim_3pair = (-1.3, 2.1, 4.5, 5.6, -4.3, -1.4)
-limit3_1dim_3pair_true = ((-1.3, 2.1, 4.5, 5.6, -4.3, -1.4),)
+limit3_1dim_3pair_true = ((-4.3, -1.4, -1.3, 2.1, 4.5, 5.6),)
 limit3_1dim_3pair_area = 7.4
 limit3_1dim_3pair_dims = 1
 limit3_1dim_3pair_dims_true = (1,)
 
 limit4 = ((1, 4, 5, 7), (1.5, 3.5), (-1, 5, -4, -2))
-limit4_true = copy.deepcopy(limit4)
+limit4_true = ((1, 4, 5, 7), (1.5, 3.5), (-4, -2, -1, 5))
 limit4_area = 80.
 limit4_dims = (0, 4, 5)
 limit4_dims_true = limit4_dims
 
 limit4_subrange = ((1, 3, 5, 7), (2, 3.5), (-1, 5, -4, -2.3))
+limit4_subrange_true = ((1, 3, 5, 7), (2, 3.5), (-4, -2.3, -1, 5))
+
 
 class TestRange(TestCase):
     def setUp(self):
         self.limit1_range = Range(limits=limit1, dims=limit1_dims)
         self.limit2_range = Range(limits=limit2, dims=limit2_dims)
         self.limit3_1pair_range = Range(limits=limit3_1dim_1pair, dims=limit3_1dim_1pair_dims)
-        self.limit3_1pair_0axis_range = Range(limits=limit3_1dim_1pair_0axis, dims=limit3_1dim_1pair_dims_0axis)
+        self.limit3_1pair_0axis_range = Range(limits=limit3_1dim_1pair_0axis,
+                                              dims=limit3_1dim_1pair_dims_0axis)
         self.limit3_3pair_range = Range(limits=limit3_1dim_3pair, dims=limit3_1dim_3pair_dims)
         self.limit4_range = Range(limits=limit4, dims=limit4_dims)
+
     def test_convert_to_range(self):
         limit1_range = convert_to_range(limits=limit1, dims=limit1_dims)
         limit1_range_same = convert_to_range(limit1_range)
@@ -115,4 +119,15 @@ class TestRange(TestCase):
         valid_range = Range(invalid_limits2, dims=valid_dims2)
         self.assertTrue(valid_range_with_none == valid_range)
 
-
+    def test_conversion(self):
+        simple_limits = ((1, 2), (4, 5, 6, 7))
+        simple_dims = (1, 3)
+        simple_lower, simple_upper = [((1, 4), (1, 6)), ((2, 5), (2, 7))]
+        simple_range = Range(limits=simple_limits, dims=simple_dims)
+        lower, upper = simple_range.get_boundaries()
+        self.assertEqual(simple_lower, lower)
+        self.assertEqual(simple_upper, upper)
+        limits4_lower, limits4_upper = self.limit4_range.get_boundaries()
+        limits4_reconversed = Range.extract_boundaries(limits4_lower, limits4_upper)
+        self.assertEqual(limits4_reconversed, self.limit4_range.as_tuple())
+        # self.assertEqual(self.limit4_range, )

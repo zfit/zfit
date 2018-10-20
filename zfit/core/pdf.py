@@ -31,7 +31,7 @@ def _gauss_integral_from_inf_to_inf(limits, params):
 
 
 Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
-                                 limits=(zmath.inf, zmath.inf))
+                                 limits=(-zmath.inf, zmath.inf))
 
 
 class Normal(WrapDistribution):
@@ -77,11 +77,11 @@ class SumPDF(BasePDF):
         func = tf.accumulate_n([scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, frac)])
         return func
 
-    def _analytic_integrate(self, x):
+    def _analytic_integrate(self, limits):
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
         try:
-            integral = sum([pdf.analytic_integrate(x) * s for pdf, s in zip(pdfs, frac)])
+            integral = sum([pdf.analytic_integrate(limits) * s for pdf, s in zip(pdfs, frac)])
         except NotImplementedError as original_error:
             raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
                                       " SumPDF, as at least one sub-pdf does not implement it."

@@ -4,10 +4,11 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
 
-from zfit.settings import types as ztypes
+from ..settings import types as ztypes
 
 
-def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_max=None):
+def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, dtype=ztypes.float,
+                         prob_max=None):
     """Return toy MC sample graph using accept-reject method
 
     Args:
@@ -15,7 +16,10 @@ def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, prob_
         sample  : input uniformly distributed sample
     """
     n_dims = 1  # HACK
-    lower, upper = limits
+    lower, upper = limits.get_boundaries()
+    lower = tf.convert_to_tensor(lower, dtype=dtype)
+    upper = tf.convert_to_tensor(upper, dtype=dtype)
+
     sample = sampler(shape=(n_dims + 1, n_draws),  # + 1 dim for the function value
                      dtype=ztypes.float)
     rnd_sample = sample[:-1, :] * (upper - lower) + lower
