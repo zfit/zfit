@@ -211,14 +211,15 @@ def test_mc_integration():
         assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(integral,
                                                                                   rel=0.1)
         assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
-        assert func3_2deps_fully_integrated(Range.from_boundaries(*limits3, dims=(0, 1))) == pytest.approx(integral3, rel=0.03)
+        assert func3_2deps_fully_integrated(
+            Range.from_boundaries(*limits3, dims=(0, 1))) == pytest.approx(integral3, rel=0.03)
 
 
 def test_mc_partial_integration():
     num_integral = zintegrate.mc_integrate(x=tf.convert_to_tensor(func4_values),
                                            func=func4_3deps,
                                            limits=Range.from_boundaries(*limits4_2dim,
-                                                                        dims=(0, 2), ),
+                                                                        dims=(0, 2)),
                                            draws_per_dim=70)
     vals_tensor = tf.convert_to_tensor(func4_2values)
     vals_reshaped = tf.transpose(vals_tensor)
