@@ -6,6 +6,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
 
+from zfit.utils.exception import ExtendedPDFError
 from .basepdf import BasePDF, WrapDistribution
 from .parameter import FitParameter
 from . import tfext as ztf
@@ -61,32 +62,54 @@ class SumPDF(BasePDF):
         if not hasattr(pdfs, "__len__"):
             pdfs = [pdfs]
 
-        # check fraction  # TODO make more flexible, allow for Tensors and unstack
-        if not len(frac) in (len(pdfs), len(pdfs) - 1):
-            raise ValueError("user error")  # TODO user error?
+        # check if all are extended or None is extended
+        extended_pdfs = [pdf for pdf in pdfs if pdf.is_extended]
+        all_extended = len(extended_pdfs) == len(pdfs)
+        if not (len(extended_pdfs) in (len(pdfs), 0)):  # either all or no extended
+            raise ExtendedPDFError("Some but not all pdfs are extended. The following"
+                                   "are extended \n{}\nBut gives were \n{}"
+                                   "".format(extended_pdfs, pdfs))
+        if all_extended:
+            if frac is not None:
+                raise ValueError("frac is given ({}) but all pdfs are already extended. Either"
+                                 "use non-extended pdfs or give None as frac.".format(frac))
+            yields = tf.stack([pdf.get_yield() for pdf in pdfs])
+            frac = yields / tf.reduce_sum(yields)
+        else:
+            # check fraction  # TODO make more flexible, allow for Tensors and unstack
+            if not len(frac) in (len(pdfs), len(pdfs) - 1):
+                raise ValueError("frac has to be number of pdfs given or number of pdfs given"
+                                 "minus one. Currently, frac is {} and pdfs given are {}"
+                                 "".format(frac, pdfs))
 
-        if len(frac) == len(pdfs) - 1:
-            frac = list(frac) + [1 - sum(frac)]
+            if len(frac) == len(pdfs) - 1:
+                frac = list(frac) + [tf.constant(1., dtype=ztypes.float) - sum(frac)]
 
         super(SumPDF, self).__init__(pdfs=pdfs, frac=frac, name=name)
+        if all_extended:
+            self.set_yield(tf.reduce_sum(yields))
 
     def _unnormalized_prob(self, x):
         # TODO: deal with yields
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
-        func = tf.accumulate_n([scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, frac)])
+        func = tf.accumulate_n(
+            [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
         return func
 
     def _analytic_integrate(self, limits):
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
         try:
-            integral = sum([pdf.analytic_integrate(limits) * s for pdf, s in zip(pdfs, frac)])
+            integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
         except NotImplementedError as original_error:
             raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
                                       " SumPDF, as at least one sub-pdf does not implement it."
                                       "Original message:\n{error}".format(name=self.name,
                                                                           error=original_error))
+
+        integral = [integral * s for pdf, s in zip(integral, frac)]
+        integral = sum(integral)  # TODO: deal with yields
         return integral
 
 

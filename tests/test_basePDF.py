@@ -68,7 +68,7 @@ def test_normalization():
         sess.run(init)
         test_yield = 1524.3
 
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=1000000), dtype=tf.float64)
+        samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
         for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
             samples.limits = low, high
             print("Testing currently: ", dist.name)

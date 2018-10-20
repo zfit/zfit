@@ -1,5 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
+import pytest
 import tensorflow as tf
 import numpy as np
 
@@ -57,10 +58,16 @@ def test_func_sum():
 def test_normalization_sum_gauss():
     normalization_testing(sum_gauss)
 
+
+def test_normalization_sum_gauss_extended():
+    test_yield = 109.
+    sum_gauss.set_yield(test_yield)
+    normalization_testing(sum_gauss, normalization_value=test_yield)
+
 def test_normalization_prod_gauss():
     normalization_testing(prod_gauss)
 
-def normalization_testing(pdf):
+def normalization_testing(pdf, normalization_value=1.):
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
@@ -72,4 +79,35 @@ def normalization_testing(pdf):
         result = sess.run(probs)
         result = np.average(result) * (high - low)
         print(result)
-        assert 0.95 < result < 1.05
+        assert result == pytest.approx(normalization_value, rel=0.07)
+
+def test_extended_gauss():
+    with tf.Session() as sess:
+        mu1 = FitParameter("mu1", 1.)
+        mu2 = FitParameter("mu2", 2.)
+        mu3 = FitParameter("mu3", 3.)
+        sigma1 = FitParameter("sigma1", 11.)
+        sigma2 = FitParameter("sigma2", 22.)
+        sigma3 = FitParameter("sigma3", 33.)
+        yield1 = FitParameter("yield1", 150.)
+        yield2 = FitParameter("yield2", 550.)
+        yield3 = FitParameter("yield3", 2500.)
+        sum_yields = 150 + 550 + 2500
+
+        gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1")
+        gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2")
+        gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss3")
+        gauss1.set_yield(yield1)
+        gauss2.set_yield(yield2)
+        gauss3.set_yield(yield3)
+
+        gauss_dists = [gauss1, gauss2, gauss3]
+
+        sum_gauss = SumPDF(pdfs=gauss_dists)
+        # prod_gauss = ProductPDF(pdfs=gauss_dists)
+
+        sum_gauss.norm_range = low, high
+
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)
