@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import inspect
+
 import numpy as np
 
 from zfit.utils.exception import NormRangeNotImplementedError
@@ -189,8 +191,6 @@ class Range(object):
             return False
         return self.as_tuple() == other.as_tuple()
 
-
-
     def __getitem__(self, key):
         return self.as_tuple()[key]
 
@@ -233,12 +233,25 @@ def iter_limits(limits):
         raise ValueError("limits has to be from even length, not: {}".format(limits))
     return zip(limits[::2], limits[1::2])
 
+
 def no_norm_range(func):
     """Decorator: Catch the 'norm_range' kwargs. If not None, raise NormRangeNotImplementedError."""
+    parameters = inspect.signature(func).parameters
+    keys = list(parameters.keys())
+    if 'norm_range' in keys:
+        norm_range_index = keys.index('norm_range')
+    else:
+        norm_range_index = None
+
     def new_func(*args, **kwargs):
-        if kwargs.pop('norm_range', None) is not None:
+        norm_range_not_none = kwargs.pop('norm_range', None) is not None
+        if norm_range_index is not None:
+            norm_range_is_arg = len(args) > norm_range_index
+        else:
+            norm_range_is_arg = False
+        if norm_range_not_none or norm_range_is_arg:
             raise NormRangeNotImplementedError()
         else:
             return func(*args, **kwargs)
-    return new_func
 
+    return new_func
