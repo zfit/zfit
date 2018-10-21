@@ -5,6 +5,7 @@ import math as mt
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
+from zfit.core.limits import no_norm_range
 
 from zfit.utils.exception import ExtendedPDFError
 from .basepdf import BasePDF, WrapDistribution
@@ -97,7 +98,8 @@ class SumPDF(BasePDF):
             [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
         return func
 
-    def _analytic_integrate(self, limits):
+    @no_norm_range
+    def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
         try:

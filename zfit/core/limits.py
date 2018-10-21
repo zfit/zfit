@@ -2,6 +2,8 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 
+from zfit.utils.exception import NormRangeNotImplementedError
+
 
 class Range(object):
     FULL = object()  # unique reference
@@ -160,6 +162,9 @@ class Range(object):
         return Range._add_dim_if_scalars(limits)
 
     def __lt__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError("Comparison between other types than Range objects currently not "
+                            "supported")
         if self.dims != other.dims:
             return False
         for dim, other_dim in zip(self, other):
@@ -177,16 +182,33 @@ class Range(object):
         return other < self
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError("Comparison between other types than Range objects currently not "
+                            "supported")
         if self.dims != other.dims:
             return False
         return self.as_tuple() == other.as_tuple()
+
+
 
     def __getitem__(self, key):
         return self.as_tuple()[key]
 
 
 def convert_to_range(limits, dims=None):
-    if isinstance(limits, Range):
+    """Convert *limits* to a Range object if not already and not None or False.
+
+    Args:
+        limits (Union[Tuple[float, float], zfit.core.limits.Range]):
+        dims (Union[object, None]):
+
+    Returns:
+        zfit.core.limits.Range:
+
+    """
+    if limits is None or limits is False:
+        return None
+    elif isinstance(limits, Range):
         return limits
     else:
         return Range(limits, dims=dims)
@@ -210,3 +232,13 @@ def iter_limits(limits):
     if not len(limits) % 2 == 0:
         raise ValueError("limits has to be from even length, not: {}".format(limits))
     return zip(limits[::2], limits[1::2])
+
+def no_norm_range(func):
+    """Decorator: Catch the 'norm_range' kwargs. If not None, raise NormRangeNotImplementedError."""
+    def new_func(*args, **kwargs):
+        if kwargs.pop('norm_range', None) is not None:
+            raise NormRangeNotImplementedError()
+        else:
+            return func(*args, **kwargs)
+    return new_func
+

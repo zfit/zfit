@@ -5,10 +5,10 @@ import collections
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .limits import convert_to_range, Range
+from .limits import convert_to_range, Range, no_norm_range
 from ..settings import types as ztypes
 
-
+@no_norm_range
 def auto_integrate(func, limits, n_dims, method="AUTO", dtype=tf.float64,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
@@ -162,7 +162,7 @@ class AnalyticIntegral(object):
             self._max_dims = dims
         self._integrals[dims][limits] = func  # TODO improve with database-like access
 
-    def integrate(self, x, limits, dims=None, params=None):
+    def integrate(self, x, limits, dims=None, norm_range=None, params=None):
         """Integrate analytically over the dims if available."""
         # TODO: what if dims is None?
         if dims is None:
