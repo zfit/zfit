@@ -5,6 +5,7 @@ from __future__ import print_function, division, absolute_import
 
 import contextlib
 from contextlib import suppress
+import typing
 
 import tensorflow as tf
 import tensorflow_probability.python.mcmc as mc
@@ -87,6 +88,36 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def norm_range(self):
         return self._norm_range
 
+    def _check_input_norm_range(self, norm_range, dims, caller_name="",
+                                none_is_error=False) -> typing.Union[Range, bool]:
+        """If `norm_range` is None, take `self.norm_range`. Convert to :py:class:`Range`
+
+        Args:
+            norm_range (None or Range compatible):
+            dims (tuple(int)):
+            caller_name (str): name of the calling function. Used for exception message.
+            none_is_error (bool): if both `norm_range` and `self.norm_range` are None, the default
+                value is `False` (meaning: no range specified-> no normalization to be done). If
+                this is set to true, two `None` will raise a Value error.
+
+        Returns:
+            Union[Range, False]:
+
+        """
+        if norm_range is None:
+            if self.norm_range is None:
+                if none_is_error:
+                    raise ValueError("Normalization range `norm_range` has to be specified, either by"
+                                     "\na) explicitly passing it to the function {name}"
+                                     "\nb) using the set_norm_range context manager to temprarely set "
+                                     "a default normalization range. Currently, both are None/False."
+                                     "".format(name=caller_name))
+                else:
+                    norm_range = False
+            else:
+                norm_range = self.norm_range
+        return convert_to_range(limits=norm_range, dims=dims)
+
     @property
     def dims(self):
         # TODO: improve dim handling
@@ -108,7 +139,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     @staticmethod
     def n_dims_from_limits(limits):
         """Return the number of dimensions from the limits."""
-        if limits is None:
+        if limits is None or limits is False:
             n_dims = None
         else:
             n_dims = limits.n_dims
@@ -161,7 +192,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_prob(self, x, norm_range, name, **kwargs):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._prob(x, norm_range=norm_range, **kwargs)
             with suppress(NotImplementedError):
@@ -184,10 +214,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
           prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
             values of type `self.dtype`.
         """
-        if norm_range is None:
-            norm_range = self.norm_range
-        if norm_range is None:
-            raise ValueError("Normalization range not specified.")
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         probability = self._call_prob(x, norm_range, name)
         if self.is_extended:
             probability *= self.get_yield()
@@ -199,8 +226,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_log_prob(self, x, norm_range, name, **kwargs):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
-
             with suppress(NotImplementedError):
                 return self._log_prob(x=x, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -221,6 +246,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
           log_prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
             values of type `self.dtype`.
         """
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+
         return self._call_log_prob(x, norm_range, name)
 
     def _normalization(self, norm_range):
@@ -229,7 +256,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_normalization(self, norm_range, name):
         # TODO: caching? alternative
         with self._name_scope(name, values=[norm_range]):
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._normalization(norm_range)
             return self._fallback_normalization(norm_range)
@@ -240,6 +266,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return normalization_value
 
     def normalization(self, norm_range, name="normalization"):
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+
         normalization = self._call_normalization(norm_range=norm_range, name=name)
         return normalization
 
@@ -251,7 +279,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_integrate(self, limits, norm_range, name):
         with self._name_scope(name, values=[limits, norm_range]):
             limits = convert_to_range(limits, dims=Range.FULL)
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._integrate(limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -280,10 +307,11 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                                                                             self._integration.draws_per_dim}
                                                                     )
         if integral is None:
-            integral = self.numeric_integrate(limits=limits)
+            integral = self.numeric_integrate(limits=limits, norm_range=norm_range)
         return integral
 
     def integrate(self, limits, norm_range=None, name="integrate"):
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         try:
             return self._call_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -312,7 +340,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_analytic_integrate(self, limits, norm_range, name):
         with self._name_scope(name, values=[limits, norm_range]):
             limits = convert_to_range(limits, dims=Range.FULL)
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._analytic_integrate(limits=limits, norm_range=norm_range)
             return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
@@ -322,6 +349,8 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                                                  norm_range=norm_range, params=self.parameters)
 
     def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+
         try:
             return self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -347,7 +376,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def _call_numeric_integrate(self, limits, norm_range, name):
         with self._name_scope(name, values=[limits, norm_range]):
             limits = convert_to_range(limits)
-            norm_range = convert_to_range(norm_range)
             # TODO: anything?
             with suppress(NotImplementedError):
                 return self._numeric_integrate(limits=limits, norm_range=norm_range)
@@ -367,10 +395,12 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return integral
 
     def numeric_integrate(self, limits, norm_range=None, name="numeric_integrate"):
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+
         try:
             return self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not None, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_numeric_integrate(limits=limits, norm_range=None,
                                                                  name=name)
             normalization = self.numeric_integrate(limits=norm_range, name=name + "_normalization")
@@ -383,7 +413,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         with self._name_scope(name, values=[x, limits, dims, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
             limits = convert_to_range(limits, dims=dims)
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)  # TODO: FULL reasonable?
+
             with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, dims=dims, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -411,12 +441,14 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return integral_vals
 
     def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
+                                                  caller_name=name)  # TODO: FULL reasonable?
         try:
             return self._call_partial_integrate(x=x, limits=limits, dims=dims,
                                                 norm_range=norm_range,
                                                 name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not None, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
                                                                  norm_range=None,
                                                                  name=name)
@@ -430,7 +462,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         with self._name_scope(name, values=[x, limits, dims, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
             limits = convert_to_range(limits, dims=dims)
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
+
             with suppress(NotImplementedError):
                 return self._partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                         norm_range=norm_range)
@@ -459,11 +491,13 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
         """
         # TODO: implement meaningful, how communicate integrated, not integrated vars?
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
+                                                  caller_name=name)  # TODO: full reasonable?
         try:
             return self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                          norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not None, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_analytic_integrate(x=x, limits=limits,
                                                                           dims=dims,
                                                                           norm_range=None,
@@ -488,7 +522,6 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         with self._name_scope(name, values=[x, limits, dims, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
             limits = convert_to_range(limits, dims=dims)
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._partial_numeric_integrate(x=x, limits=limits, dims=dims,
                                                        norm_range=norm_range)
@@ -503,13 +536,14 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                                          mc_options={
                                              "draws_per_dim": self._integration.draws_per_dim})
 
-    def partial_numeric_integrate(self, x, limits, dims, norm_range=None,
-                                  name="partial_numeric_integrate"):
+    def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+
         try:
             return self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
                                                         norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not None, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_numeric_integrate(x=x, limits=limits,
                                                                          dims=dims, norm_range=None,
                                                                          name=name)
@@ -532,13 +566,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                                               limits=limits, prob_max=None)  # None -> auto
         return sample
 
-    def sample(self, n_draws, limits=None, name="sample"):
-        if limits is None:
-            limits = self.norm_range
-        if limits is None:
-            raise ValueError(
-                "limits is None and normalization range not set. One of the two must"
-                "be specified.")
+    def sample(self, n_draws, limits, name="sample"):
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
 
     # def copy(self, **override_parameters_kwargs):

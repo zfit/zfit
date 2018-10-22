@@ -1,9 +1,11 @@
 from __future__ import print_function, division, absolute_import
 
 import inspect
+import typing
 
 import numpy as np
 
+import zfit
 from zfit.util.exception import NormRangeNotImplementedError
 
 
@@ -195,19 +197,20 @@ class Range(object):
         return self.as_tuple()[key]
 
 
-def convert_to_range(limits, dims=None):
-    """Convert *limits* to a Range object if not already and not None or False.
+def convert_to_range(limits, dims=None) -> typing.Union[Range, bool, None]:
+    """Convert *limits* to a Range object if not already None or False.
 
     Args:
         limits (Union[Tuple[float, float], zfit.core.limits.Range]):
-        dims (Union[object, None]):
+        dims (Union[Range, False, None]):
 
     Returns:
-        zfit.core.limits.Range:
-
+        Union[Range, False, None]:
     """
-    if limits is None or limits is False:
-        return None
+    if limits is None:
+        return limits
+    elif limits is False:
+        return limits
     elif isinstance(limits, Range):
         return limits
     else:
@@ -244,13 +247,13 @@ def no_norm_range(func):
         norm_range_index = None
 
     def new_func(*args, **kwargs):
-        norm_range_not_none = kwargs.get('norm_range') is not None
+        norm_range_not_false = not (kwargs.get('norm_range') is None or kwargs.get('norm_range') is False)
         if norm_range_index is not None:
             norm_range_is_arg = len(args) > norm_range_index
         else:
             norm_range_is_arg = False
             kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
-        if norm_range_not_none or norm_range_is_arg:
+        if norm_range_not_false or norm_range_is_arg:
             raise NormRangeNotImplementedError()
         else:
             return func(*args, **kwargs)
