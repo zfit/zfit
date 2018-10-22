@@ -6,7 +6,8 @@ import numpy as np
 
 from zfit.core.limits import Range
 from zfit.core.parameter import FitParameter
-from zfit.core.pdf import Gauss, SumPDF, ProductPDF
+from zfit.pdfs.functor import SumPDF, ProductPDF
+from zfit.pdfs.basic import Gauss
 import zfit
 
 low, high = -0.64, 5.9

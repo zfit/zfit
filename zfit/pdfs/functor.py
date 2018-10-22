@@ -1,45 +1,12 @@
 from __future__ import print_function, division, absolute_import
 
-import math as mt
-
 import tensorflow as tf
-import tensorflow_probability as tfp
-import numpy as np
 from zfit.core.limits import no_norm_range
 
 from zfit.util.exception import ExtendedPDFError
-from .basepdf import BasePDF, WrapDistribution
-from .parameter import FitParameter
-from . import tfext as ztf
-from . import math as zmath
-from ..settings import types as ztypes
-
-
-class Gauss(BasePDF):
-
-    def __init__(self, mu, sigma, name="Gauss"):
-        super(Gauss, self).__init__(name=name, mu=mu, sigma=sigma)
-
-    def _unnormalized_prob(self, x):
-        mu = self.parameters['mu']
-        sigma = self.parameters['sigma']
-        gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))
-
-        return gauss
-
-
-def _gauss_integral_from_inf_to_inf(limits, params):
-    return tf.sqrt(ztf.pi * params['sigma'])
-
-
-Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
-                                 limits=(-zmath.inf, zmath.inf))
-
-
-class Normal(WrapDistribution):
-    def __init__(self, loc, scale, name="Normal"):
-        distribution = tfp.distributions.Normal(loc=loc, scale=scale, name=name + "_tf")
-        super(Normal, self).__init__(distribution=distribution, name=name)
+from zfit.core.basepdf import BasePDF
+from zfit.core.parameter import FitParameter
+from zfit.settings import types as ztypes
 
 
 class SumPDF(BasePDF):
@@ -48,13 +15,13 @@ class SumPDF(BasePDF):
         """
 
         Args:
-            pdfs (zfit pdf): The pdfs to multiply with each other
+            pdfs (zfit pdf): The basic to multiply with each other
             frac (iterable): coefficients for the multiplication. If a scale is set, None
                 will take the scale automatically. If the scale is not set, then:
 
-                  - len(frac) = len(pdfs) - 1 results in the interpretation of a pdf. The last
+                  - len(frac) = len(basic) - 1 results in the interpretation of a pdf. The last
                     coefficient equals to 1 - sum(frac)
-                  - len(frac) = len(pdfs) results in the interpretation of multiplying each
+                  - len(frac) = len(basic) results in the interpretation of multiplying each
                     function with this value
             name (str):
         """
@@ -67,20 +34,20 @@ class SumPDF(BasePDF):
         extended_pdfs = [pdf for pdf in pdfs if pdf.is_extended]
         all_extended = len(extended_pdfs) == len(pdfs)
         if not (len(extended_pdfs) in (len(pdfs), 0)):  # either all or no extended
-            raise ExtendedPDFError("Some but not all pdfs are extended. The following"
+            raise ExtendedPDFError("Some but not all basic are extended. The following"
                                    "are extended \n{}\nBut gives were \n{}"
                                    "".format(extended_pdfs, pdfs))
         if all_extended:
             if frac is not None:
-                raise ValueError("frac is given ({}) but all pdfs are already extended. Either"
-                                 "use non-extended pdfs or give None as frac.".format(frac))
+                raise ValueError("frac is given ({}) but all basic are already extended. Either"
+                                 "use non-extended basic or give None as frac.".format(frac))
             yields = tf.stack([pdf.get_yield() for pdf in pdfs])
             frac = yields / tf.reduce_sum(yields)
         else:
             # check fraction  # TODO make more flexible, allow for Tensors and unstack
             if not len(frac) in (len(pdfs), len(pdfs) - 1):
-                raise ValueError("frac has to be number of pdfs given or number of pdfs given"
-                                 "minus one. Currently, frac is {} and pdfs given are {}"
+                raise ValueError("frac has to be number of basic given or number of basic given"
+                                 "minus one. Currently, frac is {} and basic given are {}"
                                  "".format(frac, pdfs))
 
             if len(frac) == len(pdfs) - 1:
@@ -92,7 +59,7 @@ class SumPDF(BasePDF):
 
     def _unnormalized_prob(self, x):
         # TODO: deal with yields
-        pdfs = self.parameters['pdfs']
+        pdfs = self.parameters['pdf']
         frac = self.parameters['frac']
         func = tf.accumulate_n(
             [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
@@ -100,7 +67,7 @@ class SumPDF(BasePDF):
 
     @no_norm_range
     def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
-        pdfs = self.parameters['pdfs']
+        pdfs = self.parameters['pdf']
         frac = self.parameters['frac']
         try:
             integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
@@ -111,7 +78,7 @@ class SumPDF(BasePDF):
                                                                           error=original_error))
 
         integral = [integral * s for pdf, s in zip(integral, frac)]
-        integral = sum(integral)  # TODO: deal with yields
+        integral = tf.reduce_sum(integral)  # TODO: deal with yields
         return integral
 
 
@@ -122,7 +89,7 @@ class ProductPDF(BasePDF):
         super(ProductPDF, self).__init__(pdfs=pdfs, name=name)
 
     def _unnormalized_prob(self, x):
-        return np.prod([pdf.unnormalized_prob(x) for pdf in self.parameters['pdfs']], axis=0)
+        return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.parameters['pdf']], axis=0)
 
 
 if __name__ == '__main__':

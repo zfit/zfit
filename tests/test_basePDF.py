@@ -6,7 +6,8 @@ import numpy as np
 
 import zfit.core.basepdf
 from zfit.core.limits import Range
-from zfit.core.pdf import Gauss, Normal
+from zfit.pdfs.dist_tfp import Normal
+from zfit.pdfs.basic import Gauss
 from zfit.core.parameter import FitParameter
 import zfit.settings
 
@@ -69,14 +70,18 @@ def test_normalization():
         test_yield = 1524.3
 
         samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
+        small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
         for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
             with dist.temp_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
                 samples.limits = low, high
                 print("Testing currently: ", dist.name)
                 probs = dist.prob(samples)
-                result = sess.run(probs)
-                result = np.average(result) * (high - low)
-                assert 0.95 < result < 1.05
+                probs_small = dist.prob(small_samples)
+                log_probs = dist.log_prob(small_samples)
+                probs, log_probs = sess.run([probs, log_probs])
+                probs = np.average(probs) * (high - low)
+                assert probs == pytest.approx(1., rel=0.05)
+                assert log_probs == pytest.approx(sess.run(tf.log(probs_small)), rel=0.001)
                 dist.set_yield(tf.constant(test_yield, dtype=tf.float64))
                 probs_extended = dist.prob(samples)
                 result_extended = sess.run(probs_extended)
@@ -98,3 +103,7 @@ def test_sampling():
         sigma_sampled = np.std(sampled_gauss1_full)
         assert mu_sampled == pytest.approx(mu_true, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+def test_copy():
+    new_gauss = gauss_params1.copy()
+    assert new_gauss == gauss_params1

@@ -1,18 +1,15 @@
 from __future__ import print_function, division, absolute_import
 
-from unittest import TestCase
-
 import pytest
 import tensorflow as tf
 import numpy as np
 
-import zfit
 from zfit.core import basepdf as zbasepdf
 import zfit.core.integrate as zintegrate
 from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import FitParameter
-from zfit.core.pdf import Gauss
+from zfit.pdfs.basic import Gauss
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
 limits_simple_5deps = (0.9, 4.7)

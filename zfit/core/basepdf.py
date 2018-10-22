@@ -195,6 +195,15 @@ class BasePDF(object):
             value *= self.get_yield()
         return value
 
+    def apply_log_yield(self, value, norm_range=False):
+        return self._apply_log_yield(value=value, norm_range=norm_range)
+
+    def _apply_log_yield(self, value, norm_range):
+        if self.is_extended and norm_range is not False:
+            raise NotImplementedError  # TODO: ok?
+            # value += tf.log(self.get_yield())
+        return value
+
     @property
     def _yield(self):
         """For internal use, the yield or None"""
@@ -226,7 +235,10 @@ class BasePDF(object):
             # No fallback, if unnormalized_prob and prob is not implemented
 
     def unnormalized_prob(self, x, name="unnormalized_prob"):
-        return self._call_unnormalized_prob(x, name)
+        return self._hook_unnormalized_prob(x=x, name=name)
+
+    def _hook_unnormalized_prob(self, x, name="_hook_unnormalized_prob"):
+        return self._call_unnormalized_prob(x=x, name=name)
 
     def _prob(self, x, norm_range):
         raise NotImplementedError
@@ -256,9 +268,12 @@ class BasePDF(object):
           prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
             values of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        probability = self._call_prob(x, norm_range, name)
+        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name,
+                                                  none_is_error=True)
+        return self._hook_prob(x, norm_range, name)
 
+    def _hook_prob(self, x, norm_range, name="_hook_prob"):
+        probability = self._call_prob(x, norm_range, name)
         return self.apply_yield(value=probability, norm_range=norm_range)
 
     def _log_prob(self, x, norm_range):
@@ -274,7 +289,7 @@ class BasePDF(object):
             return self._fallback_log_prob(norm_range, x)
 
     def _fallback_log_prob(self, norm_range, x):
-        return tf.log(self.prob(x=x, norm_range=norm_range))
+        return tf.log(self._hook_prob(x=x, norm_range=norm_range))
 
     def log_prob(self, x, norm_range=None, name="log_prob"):
         """Log probability density/mass function.
@@ -289,7 +304,15 @@ class BasePDF(object):
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
 
-        return self._call_log_prob(x, norm_range, name)
+        return self._hook_log_prob(x, norm_range, name)
+
+    def _hook_log_prob(self, x, norm_range, name):
+        log_prob = self._call_log_prob(x, norm_range, name)
+        try:
+            log_prob = self.apply_log_yield(value=log_prob, norm_range=norm_range)
+        except NotImplementedError:
+            log_prob = tf.log(self.apply_yield(value=tf.exp(log_prob, norm_range=norm_range)))
+        return log_prob
 
     def _normalization(self, norm_range):
         raise NotImplementedError
@@ -510,8 +533,8 @@ class BasePDF(object):
     def _hook_partial_integrate(self, x, limits, dims, norm_range, name='_hook_partial_integrate'):
         try:
             integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
-                                                norm_range=norm_range,
-                                                name=name)
+                                                    norm_range=norm_range,
+                                                    name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
@@ -567,7 +590,7 @@ class BasePDF(object):
                                          name='_hook_partial_analytic_integrate'):
         try:
             integral = self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
-                                                         norm_range=norm_range, name=name)
+                                                             norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_analytic_integrate(x=x, limits=limits,
@@ -620,16 +643,15 @@ class BasePDF(object):
                                         name='_hook_partial_numeric_integrate'):
         try:
             integral = self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
-                                                        norm_range=norm_range, name=name)
+                                                            norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_numeric_integrate(x=x, limits=limits,
                                                                          dims=dims, norm_range=None,
                                                                          name=name)
-            integral= unnormalized_integral / self._hook_normalization(limits=norm_range)
-        integral= self.apply_yield(integral, norm_range=norm_range)
+            integral = unnormalized_integral / self._hook_normalization(limits=norm_range)
+        integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
-
 
     def _sample(self, n_draws, limits):
         raise NotImplementedError
@@ -701,17 +723,20 @@ class BasePDF(object):
             dtype=self.dtype.name))
 
     def __repr__(self):
-        return ("<tf.distributions.{type_name} "
-                "'{self_name}'"
-                " batch_shape={batch_shape}"
-                " event_shape={event_shape}"
+        return ("<zfit.pdf.{type_name} "
+        # "'{self_name}'"
+                " parameters=[{params}]"
                 " dtype={dtype}>".format(
             type_name=type(self).__name__,
-            self_name=self.name,
-            batch_shape=self.batch_shape,
-            event_shape=self.event_shape,
+            # self_name=self.name,
+            params=", ".join(sorted(p.name for p in self.parameters.values())),
             dtype=self.dtype.name))
 
+    def __eq__(self, other):
+        if not type(self) == type(other):
+            raise TypeError("Cannot compare objects of type {} and {}".format(type(self), type(other)))
+        params_equal = set(other.parameters) == set(self.parameters)
+        return params_equal
 
 
 class WrapDistribution(BasePDF):
