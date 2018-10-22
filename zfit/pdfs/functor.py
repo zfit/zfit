@@ -59,7 +59,7 @@ class SumPDF(BasePDF):
 
     def _unnormalized_prob(self, x):
         # TODO: deal with yields
-        pdfs = self.parameters['pdf']
+        pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
         func = tf.accumulate_n(
             [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
@@ -67,7 +67,7 @@ class SumPDF(BasePDF):
 
     @no_norm_range
     def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
-        pdfs = self.parameters['pdf']
+        pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']
         try:
             integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
@@ -89,7 +89,7 @@ class ProductPDF(BasePDF):
         super(ProductPDF, self).__init__(pdfs=pdfs, name=name)
 
     def _unnormalized_prob(self, x):
-        return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.parameters['pdf']], axis=0)
+        return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.parameters['pdfs']], axis=0)
 
 
 if __name__ == '__main__':
