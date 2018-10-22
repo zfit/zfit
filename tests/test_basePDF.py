@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit.core.basepdf
+from zfit.core.limits import Range
 from zfit.core.pdf import Gauss, Normal
 from zfit.core.parameter import FitParameter
 import zfit.settings
@@ -34,10 +35,9 @@ wrapped_gauss = zfit.core.basepdf.WrapDistribution(tf_gauss1)
 
 test_gauss1 = TestGaussian(name="test_gauss1")
 wrapped_normal1 = Normal(loc=mu2, scale=sigma2, name='wrapped_normal1')
-wrapped_normal1.norm_range = low, high
-test_gauss1.norm_range = low, high
-gauss_params1.norm_range = low, high
-wrapped_gauss.norm_range = low, high
+# test_gauss1.norm_range = low, high
+# gauss_params1.norm_range = low, high
+# wrapped_gauss.norm_range = low, high
 
 init = tf.global_variables_initializer()
 
@@ -70,17 +70,18 @@ def test_normalization():
 
         samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
         for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
-            samples.limits = low, high
-            print("Testing currently: ", dist.name)
-            probs = dist.prob(samples)
-            result = sess.run(probs)
-            result = np.average(result) * (high - low)
-            assert 0.95 < result < 1.05
-            dist.set_yield(tf.constant(test_yield, dtype=tf.float64))
-            probs_extended = dist.prob(samples)
-            result_extended = sess.run(probs_extended)
-            result_extended = np.average(result_extended) * (high - low)
-            assert result_extended == pytest.approx(test_yield, rel=0.05)
+            with dist.set_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
+                samples.limits = low, high
+                print("Testing currently: ", dist.name)
+                probs = dist.prob(samples)
+                result = sess.run(probs)
+                result = np.average(result) * (high - low)
+                assert 0.95 < result < 1.05
+                dist.set_yield(tf.constant(test_yield, dtype=tf.float64))
+                probs_extended = dist.prob(samples)
+                result_extended = sess.run(probs_extended)
+                result_extended = np.average(result_extended) * (high - low)
+                assert result_extended == pytest.approx(test_yield, rel=0.05)
 
 
 def test_sampling():

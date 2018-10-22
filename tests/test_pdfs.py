@@ -4,19 +4,19 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
+from zfit.core.limits import Range
 from zfit.core.parameter import FitParameter
 from zfit.core.pdf import Gauss, SumPDF, ProductPDF
 import zfit
 
 low, high = -0.64, 5.9
 
+
 def true_gaussian_sum(x):
     sum_gauss = 0.3 * np.exp(- (x - 1.) ** 2 / (2 * 11. ** 2))
     sum_gauss += 0.2 * np.exp(- (x - 2.) ** 2 / (2 * 22. ** 2))
     sum_gauss += 0.5 * np.exp(- (x - 3.) ** 2 / (2 * 33. ** 2))
     return sum_gauss
-
-
 
 
 with tf.Session() as sess:
@@ -36,11 +36,8 @@ with tf.Session() as sess:
     sum_gauss = SumPDF(pdfs=gauss_dists, frac=[0.3, 0.2])
     prod_gauss = ProductPDF(pdfs=gauss_dists)
 
-    sum_gauss.norm_range = low, high
-
     init = tf.global_variables_initializer()
     sess.run(init)
-
 
 
 def test_func_sum():
@@ -64,22 +61,25 @@ def test_normalization_sum_gauss_extended():
     sum_gauss.set_yield(test_yield)
     normalization_testing(sum_gauss, normalization_value=test_yield)
 
+
 def test_normalization_prod_gauss():
     normalization_testing(prod_gauss)
+
 
 def normalization_testing(pdf, normalization_value=1.):
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        pdf.norm_range = low, high
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=100000),
-                          dtype=tf.float64)
-        samples.limits = low, high
-        probs = pdf.prob(samples)
-        result = sess.run(probs)
-        result = np.average(result) * (high - low)
-        print(result)
-        assert result == pytest.approx(normalization_value, rel=0.07)
+        with pdf.set_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
+            samples = tf.cast(np.random.uniform(low=low, high=high, size=100000),
+                              dtype=tf.float64)
+            samples.limits = low, high
+            probs = pdf.prob(samples)
+            result = sess.run(probs)
+            result = np.average(result) * (high - low)
+            print(result)
+            assert result == pytest.approx(normalization_value, rel=0.07)
+
 
 def test_extended_gauss():
     with tf.Session() as sess:
@@ -105,8 +105,6 @@ def test_extended_gauss():
 
         sum_gauss = SumPDF(pdfs=gauss_dists)
         # prod_gauss = ProductPDF(pdfs=gauss_dists)
-
-        sum_gauss.norm_range = low, high
 
         init = tf.global_variables_initializer()
         sess.run(init)

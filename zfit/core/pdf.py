@@ -7,7 +7,7 @@ import tensorflow_probability as tfp
 import numpy as np
 from zfit.core.limits import no_norm_range
 
-from zfit.utils.exception import ExtendedPDFError
+from zfit.util.exception import ExtendedPDFError
 from .basepdf import BasePDF, WrapDistribution
 from .parameter import FitParameter
 from . import tfext as ztf

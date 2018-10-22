@@ -3,6 +3,7 @@ Definition of the pdf interface, base etc.
 """
 from __future__ import print_function, division, absolute_import
 
+import contextlib
 from contextlib import suppress
 
 import tensorflow as tf
@@ -10,15 +11,15 @@ import tensorflow_probability.python.mcmc as mc
 from zfit.core import limits
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range
-from zfit.utils.exception import NormRangeNotImplementedError
-from ..utils import container
+from zfit.util.exception import NormRangeNotImplementedError
+from ..util import container
 # import zfit.core.integrate
 from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
 # from zfit.settings import types as ztypes
-from ..utils import exception as zexception
-from ..utils import container as zcontainer
+from ..util import exception as zexception
+from ..util import container as zcontainer
 
 
 class AbstractBasePDF(object):
@@ -61,7 +62,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         self.n_dims = None
         self._yield = None
         self._temp_yield = None
-        self.norm_range = None
+        self._norm_range = None
         # self.norm_range = ((1, 2),)  # HACK! Take line above
         # self.normalization_opt = {'n_draws': 10000000, 'range': (-100., 100.)}
         self._integration = zcontainer.dotdict()
@@ -70,17 +71,21 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         self._integration.auto_numeric_integrate = self._DEFAULTS_integration.auto_numeric_integrate
         self._normalization_value = None
 
+    @contextlib.contextmanager
+    def set_norm_range(self, norm_range):  # TODO: rename to stronger expression, like fix...
+        self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
+        if self.n_dims:
+            if not self.n_dims == self._norm_range.n_dims:
+                raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
+                                 "".format(self._norm_range.n_dims, self.n_dims))
+        else:
+            self.n_dims = self.n_dims_from_limits(norm_range)
+        yield self._norm_range
+        self._norm_range = None
+
     @property
     def norm_range(self):
         return self._norm_range
-
-    @norm_range.setter
-    def norm_range(self, norm_range):
-        if norm_range is not None:
-            norm_range = convert_to_range(norm_range, dims=Range.FULL)
-            if not self.n_dims:
-                self.n_dims = self.n_dims_from_limits(norm_range)
-        self._norm_range = norm_range
 
     @property
     def dims(self):

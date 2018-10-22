@@ -4,7 +4,7 @@ import inspect
 
 import numpy as np
 
-from zfit.utils.exception import NormRangeNotImplementedError
+from zfit.util.exception import NormRangeNotImplementedError
 
 
 class Range(object):
@@ -244,11 +244,12 @@ def no_norm_range(func):
         norm_range_index = None
 
     def new_func(*args, **kwargs):
-        norm_range_not_none = kwargs.pop('norm_range', None) is not None
+        norm_range_not_none = kwargs.get('norm_range') is not None
         if norm_range_index is not None:
             norm_range_is_arg = len(args) > norm_range_index
         else:
             norm_range_is_arg = False
+            kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
         if norm_range_not_none or norm_range_is_arg:
             raise NormRangeNotImplementedError()
         else:

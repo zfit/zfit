@@ -5,7 +5,7 @@ import numpy as np
 # legacy settings
 import tensorflow as tf
 
-from zfit.utils.container import dotdict
+from zfit.util.container import dotdict
 
 LEGACY_MODE = True
 
