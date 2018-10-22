@@ -13,7 +13,6 @@ from zfit.core import limits
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range
 from zfit.util.exception import NormRangeNotImplementedError
-from ..util import container
 # import zfit.core.integrate
 from ..settings import types as ztypes
 from . import integrate as zintegrate
@@ -45,48 +44,81 @@ class AbstractBasePDF(object):
         raise NotImplementedError
 
 
-class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
-    _DEFAULTS_integration = container.dotdict()
+# class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
+class BasePDF(AbstractBasePDF):
+    _DEFAULTS_integration = zcontainer.dotdict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
     _DEFAULTS_integration.auto_numeric_integrate = zintegrate.auto_integrate
 
     _analytic_integral = zintegrate.AnalyticIntegral()
 
-    def __init__(self, name="BaseDistribution", **kwargs):
+    def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
+                 allow_nan_stats=True, graph_parents=None, **parameters):
         # TODO: catch some args from kwargs that belong to the super init?
-        super(BasePDF, self).__init__(dtype=ztypes.float,
-                                      reparameterization_type=False,
-                                      validate_args=True, parameters=kwargs,
-                                      allow_nan_stats=False, name=name)
+        # super(BasePDF, self).__init__(dtype=ztypes.float,
+        #                               reparameterization_type=False,
+        #                               validate_args=True, parameters=kwargs,
+        #                               allow_nan_stats=False, name=name)
+
+        self._dtype = dtype
+        self._reparameterization_type = reparameterization_type
+        self._allow_nan_stats = allow_nan_stats
+        self._validate_args = validate_args
+        self._parameters = parameters or {}
+        self._graph_parents = [] if graph_parents is None else graph_parents
+        self._name = name
 
         self.n_dims = None
         self._yield = None
         self._temp_yield = None
         self._norm_range = None
-        # self.norm_range = ((1, 2),)  # HACK! Take line above
-        # self.normalization_opt = {'n_draws': 10000000, 'range': (-100., 100.)}
         self._integration = zcontainer.dotdict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
         self._integration.auto_numeric_integrate = self._DEFAULTS_integration.auto_numeric_integrate
         self._normalization_value = None
 
+    @property
+    def name(self):
+        """Name prepended to all ops created by this `pdf`."""
+        return self._name
+
+    @property
+    def dtype(self):
+        """The `DType` of `Tensor`s handled by this `pdf`."""
+        return self._dtype
+
+    @property
+    def parameters(self):
+        """Dictionary of parameters used to instantiate this `pdf`."""
+        # Remove "self", "__class__", or other special variables. These can appear
+        # if the subclass used:
+        # `parameters = dict(locals())`.
+        return dict((k, v) for k, v in self._parameters.items()
+                    if not k.startswith("__") and k != "self")
+
     @contextlib.contextmanager
-    def set_norm_range(self, norm_range):  # TODO: rename to stronger expression, like fix...
-        self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
+    def temp_norm_range(self, norm_range):  # TODO: rename to better expression
+        old_norm_range = self.norm_range
+        self.set_norm_range(norm_range)
         if self.n_dims:
             if not self.n_dims == self._norm_range.n_dims:
                 raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
                                  "".format(self._norm_range.n_dims, self.n_dims))
         else:
             self.n_dims = self.n_dims_from_limits(norm_range)
-        yield self._norm_range
-        self._norm_range = None
+        try:
+            yield self.norm_range  # or None, not needed
+        finally:
+            self.set_norm_range(old_norm_range)
 
     @property
     def norm_range(self):
         return self._norm_range
+
+    def set_norm_range(self, norm_range):
+        self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
 
     def _check_input_norm_range(self, norm_range, dims, caller_name="",
                                 none_is_error=False) -> typing.Union[Range, bool]:
@@ -109,7 +141,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
                 if none_is_error:
                     raise ValueError("Normalization range `norm_range` has to be specified, either by"
                                      "\na) explicitly passing it to the function {name}"
-                                     "\nb) using the set_norm_range context manager to temprarely set "
+                                     "\nb) using the temp_norm_range context manager to temprarely set "
                                      "a default normalization range. Currently, both are None/False."
                                      "".format(name=caller_name))
                 else:
@@ -268,6 +300,9 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def normalization(self, norm_range, name="normalization"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
 
+        return self._hook_normalization(norm_range=norm_range, name=name)
+
+    def _hook_normalization(self, name, norm_range):
         normalization = self._call_normalization(norm_range=norm_range, name=name)
         return normalization
 
@@ -294,7 +329,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         integral = None
         if max_dims == frozenset(dims):
             with suppress(NotImplementedError):
-                integral = self.analytic_integrate(limits=limits, norm_range=norm_range)
+                integral = self._hook_analytic_integrate(limits=limits, norm_range=norm_range)
         if max_dims and integral is None:  # TODO improve handling of available analytic integrals
             with suppress(NotImplementedError):
                 def part_int(x):
@@ -312,11 +347,14 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def integrate(self, limits, norm_range=None, name="integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
+
+    def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         try:
             return self._call_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            unnormalized_integral = self.integrate(limits=limits, norm_range=False, name=name)
-            normalization = self.normalization(norm_range=limits)
+            unnormalized_integral = self._call_integrate(limits=limits, norm_range=False, name=name)
+            normalization = self._hook_normalization(norm_range=limits)
             return unnormalized_integral / normalization
 
     @classmethod
@@ -350,7 +388,9 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 
     def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
+    def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
         try:
             return self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -397,6 +437,9 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def numeric_integrate(self, limits, norm_range=None, name="numeric_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
 
+        return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
+
+    def _hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
         try:
             return self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -443,6 +486,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: FULL reasonable?
+        return self._hook_partial_integrate(x=x, limits=limits, dims=dims,
+                                            norm_range=norm_range, name=name)
+
+    def _hook_partial_integrate(self, x, limits, dims, norm_range, name='_hook_partial_integrate'):
         try:
             return self._call_partial_integrate(x=x, limits=limits, dims=dims,
                                                 norm_range=norm_range,
@@ -493,6 +540,11 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         # TODO: implement meaningful, how communicate integrated, not integrated vars?
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: full reasonable?
+        return self._hook_partial_analytic_integrate(x, limits=limits, dims=dims,
+                                                     norm_range=norm_range, name=name)
+
+    def _hook_partial_analytic_integrate(self, x, limits, dims, norm_range,
+                                         name='_hook_partial_analytic_integrate'):
         try:
             return self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                          norm_range=norm_range, name=name)
@@ -539,6 +591,10 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
 
+        return self._hook_partial_numeric_integrate(dims, limits, name, norm_range, x)
+
+    def _hook_partial_numeric_integrate(self, x, limits, dims, norm_range,
+                                        name='_hook_partial_numeric_integrate'):
         try:
             return self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
                                                         norm_range=norm_range, name=name)
@@ -547,7 +603,7 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
             unnormalized_integral = self._call_partial_numeric_integrate(x=x, limits=limits,
                                                                          dims=dims, norm_range=None,
                                                                          name=name)
-            return unnormalized_integral / self.normalization(norm_range=norm_range)
+            return unnormalized_integral / self._hook_normalization(norm_range=norm_range)
 
     def _sample(self, n_draws, limits):
         raise NotImplementedError
@@ -567,6 +623,9 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
         return sample
 
     def sample(self, n_draws, limits, name="sample"):
+        return self._hook_sample(limits=limits, n_draws=n_draws, name=name)
+
+    def _hook_sample(self, limits, n_draws, name='_hook_sample'):
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
 
     # def copy(self, **override_parameters_kwargs):
@@ -590,6 +649,42 @@ class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
     #     if yield_ is not None:
     #         new_instance.set_yield(yield_)
     #     return new_instance
+
+    @contextlib.contextmanager
+    def _name_scope(self, name=None, values=None):
+        """Helper function to standardize op scope."""
+        with tf.name_scope(self.name):
+            with tf.name_scope(name, values=(
+                ([] if values is None else values) + self._graph_parents)) as scope:
+                yield scope
+
+    def __str__(self):
+        return ("tf.distributions.{type_name}("
+                "\"{self_name}\""
+                "{maybe_batch_shape}"
+                "{maybe_event_shape}"
+                ", dtype={dtype})".format(
+            type_name=type(self).__name__,
+            self_name=self.name,
+            maybe_batch_shape=(", batch_shape={}".format(self.batch_shape)
+                               if self.batch_shape.ndims is not None
+                               else ""),
+            maybe_event_shape=(", event_shape={}".format(self.event_shape)
+                               if self.event_shape.ndims is not None
+                               else ""),
+            dtype=self.dtype.name))
+
+    def __repr__(self):
+        return ("<tf.distributions.{type_name} "
+                "'{self_name}'"
+                " batch_shape={batch_shape}"
+                " event_shape={event_shape}"
+                " dtype={dtype}>".format(
+            type_name=type(self).__name__,
+            self_name=self.name,
+            batch_shape=self.batch_shape,
+            event_shape=self.event_shape,
+            dtype=self.dtype.name))
 
 
 class WrapDistribution(BasePDF):

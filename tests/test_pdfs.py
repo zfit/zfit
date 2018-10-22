@@ -70,7 +70,7 @@ def normalization_testing(pdf, normalization_value=1.):
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        with pdf.set_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
+        with pdf.temp_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
             samples = tf.cast(np.random.uniform(low=low, high=high, size=100000),
                               dtype=tf.float64)
             samples.limits = low, high

@@ -1,7 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
 import inspect
-import typing
+from typing import Tuple, Union
 
 import numpy as np
 
@@ -104,6 +104,13 @@ class Range(object):
     def as_array(self):
         return np.array(self._limits)
 
+    def subspace(self, dims: Tuple[int]) -> 'Range':
+        """Return an instance of Range containing only a subspace (`dims`) of the instance"""
+        sub_range = Range(limits=self.idims(dims), dims=dims)
+        return sub_range
+
+
+
     def get_boundaries(self):
         """Return a lower and upper boundary tuple containing all possible combinations"""
         print("DEBUG:, tuple", self.as_tuple())
@@ -194,10 +201,21 @@ class Range(object):
         return self.as_tuple() == other.as_tuple()
 
     def __getitem__(self, key):
-        return self.as_tuple()[key]
+        try:
+            limits = tuple(self.as_tuple()[axis] for axis in key)
+        except TypeError:
+            limits = self.as_tuple()[key]
+        return limits
+
+    def idims(self, dims):
+        if not hasattr(dims, "__len__"):
+            dims = (dims,)
+        limits_by_dims = tuple([self[self.dims.index(dim)] for dim in dims])
+        return limits_by_dims
 
 
-def convert_to_range(limits, dims=None) -> typing.Union[Range, bool, None]:
+
+def convert_to_range(limits, dims=None) -> Union[Range, bool, None]:
     """Convert *limits* to a Range object if not already None or False.
 
     Args:

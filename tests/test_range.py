@@ -131,3 +131,15 @@ class TestRange(TestCase):
         limits4_reconversed = Range.extract_boundaries(limits4_lower, limits4_upper)
         self.assertEqual(limits4_reconversed, self.limit4_range.as_tuple())
         # self.assertEqual(self.limit4_range, )
+
+    def test_subspace(self):
+        limits = ((1, 2), (4, 5, 6, 7), (-1, 5, 6, 9))
+        sub_limits = ((1, 2), (-1, 5, 6, 9))
+        dims = (1, 3, 6)
+        sub_dims = (1, 6)
+        range = Range(limits=limits, dims=dims)
+        print("DEBUG: dims =", dims)
+        sub_range = range.subspace(dims=sub_dims)
+        sub_range_true = Range(limits=sub_limits, dims=sub_dims)
+        self.assertEqual(sub_range_true, sub_range)
+
