@@ -8,6 +8,7 @@ from contextlib import suppress
 import typing
 
 import tensorflow as tf
+from tensorflow.python.ops.distributions.distribution import _BaseDistribution, _DistributionMeta
 import tensorflow_probability.python.mcmc as mc
 from zfit.core import limits
 
@@ -45,7 +46,8 @@ class AbstractBasePDF(object):
 
 
 # class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
-class BasePDF(AbstractBasePDF):
+# class BasePDF(_BaseDistribution, metaclass=_DistributionMeta):
+class BasePDF(object):
     _DEFAULTS_integration = zcontainer.dotdict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
@@ -185,23 +187,31 @@ class BasePDF(AbstractBasePDF):
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
+    def apply_yield(self, value, norm_range=False):
+        return self._apply_yield(value=value, norm_range=norm_range)
+
+    def _apply_yield(self, value, norm_range):
+        if self.is_extended and norm_range is not False:
+            value *= self.get_yield()
+        return value
+
     @property
     def _yield(self):
         """For internal use, the yield or None"""
-        # return self.parameters.get('yield')
+        return self.parameters.get('yield')
         # HACK
-        return self._temp_yield
+        # return self._temp_yield
         # return self.parameters['yield']
 
     @_yield.setter
     def _yield(self, value):
         if value is None:
             # unset
-            self.parameters.pop('yield', None)  # safely remove if still there
+            self._parameters.pop('yield', None)  # safely remove if still there
         else:
-            # self.parameters['yield'] = value
+            self._parameters['yield'] = value
             # HACK
-            self._temp_yield = value
+            # self._temp_yield = value
 
     def _unnormalized_prob(self, x):
         raise NotImplementedError
@@ -231,7 +241,7 @@ class BasePDF(AbstractBasePDF):
             return self._fallback_prob(x=x, norm_range=norm_range)
 
     def _fallback_prob(self, x, norm_range):
-        pdf = self.unnormalized_prob(x) / self.normalization(norm_range=norm_range)
+        pdf = self.unnormalized_prob(x) / self.normalization(limits=norm_range)
         return pdf
 
     def prob(self, x, norm_range=None, name="prob"):
@@ -248,9 +258,8 @@ class BasePDF(AbstractBasePDF):
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         probability = self._call_prob(x, norm_range, name)
-        if self.is_extended:
-            probability *= self.get_yield()
-        return probability
+
+        return self.apply_yield(value=probability, norm_range=norm_range)
 
     def _log_prob(self, x, norm_range):
         raise NotImplementedError
@@ -297,13 +306,13 @@ class BasePDF(AbstractBasePDF):
         normalization_value = self.integrate(limits=norm_range, norm_range=False)
         return normalization_value
 
-    def normalization(self, norm_range, name="normalization"):
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+    def normalization(self, limits, name="normalization"):
+        limits = convert_to_range(limits, dims=Range.FULL)
 
-        return self._hook_normalization(norm_range=norm_range, name=name)
+        return self._hook_normalization(limits=limits, name=name)
 
-    def _hook_normalization(self, name, norm_range):
-        normalization = self._call_normalization(norm_range=norm_range, name=name)
+    def _hook_normalization(self, limits, name):
+        normalization = self._call_normalization(norm_range=limits, name=name)
         return normalization
 
     # Integrals
@@ -318,7 +327,7 @@ class BasePDF(AbstractBasePDF):
                 return self._integrate(limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
                 return self._analytic_integrate(limits=limits, norm_range=norm_range)
-            return self._fallback_integrate(limits=limits, norm_range=norm_range, )
+            return self._fallback_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_integrate(self, limits, norm_range):
         n_dims = limits.n_dims
@@ -351,11 +360,14 @@ class BasePDF(AbstractBasePDF):
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         try:
-            return self._call_integrate(limits=limits, norm_range=norm_range, name=name)
+            integral = self._call_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             unnormalized_integral = self._call_integrate(limits=limits, norm_range=False, name=name)
-            normalization = self._hook_normalization(norm_range=limits)
-            return unnormalized_integral / normalization
+            normalization = self._hook_normalization(limits=limits)
+            integral = unnormalized_integral / normalization
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
 
     @classmethod
     def register_analytic_integral(cls, func, dims=None, limits=None):
@@ -392,7 +404,7 @@ class BasePDF(AbstractBasePDF):
 
     def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
         try:
-            return self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
+            integral = self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
 
             unnormalized_integral = self._call_analytic_integrate(limits, norm_range=None,
@@ -408,7 +420,10 @@ class BasePDF(AbstractBasePDF):
                                                    "be available and no attempt of numerical "
                                                    "normalization was made.".format(name))
             else:
-                return unnormalized_integral / normalization
+                integral = unnormalized_integral / normalization
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
 
     def _numeric_integrate(self, limits, norm_range):
         raise NotImplementedError
@@ -441,13 +456,16 @@ class BasePDF(AbstractBasePDF):
 
     def _hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
         try:
-            return self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
+            integral = self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
-            unnormalized_integral = self._call_numeric_integrate(limits=limits, norm_range=None,
+            unnormalized_integral = self._call_numeric_integrate(limits=limits, norm_range=False,
                                                                  name=name)
-            normalization = self.numeric_integrate(limits=norm_range, name=name + "_normalization")
-            return unnormalized_integral / normalization
+            normalization = self.numeric_integrate(limits=norm_range, norm_range=False, name=name + "_normalization")
+            integral = unnormalized_integral / normalization
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
 
     def _partial_integrate(self, x, limits, dims, norm_range):
         raise NotImplementedError
@@ -491,7 +509,7 @@ class BasePDF(AbstractBasePDF):
 
     def _hook_partial_integrate(self, x, limits, dims, norm_range, name='_hook_partial_integrate'):
         try:
-            return self._call_partial_integrate(x=x, limits=limits, dims=dims,
+            integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
                                                 norm_range=norm_range,
                                                 name=name)
         except NormRangeNotImplementedError:
@@ -499,8 +517,10 @@ class BasePDF(AbstractBasePDF):
             unnormalized_integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
                                                                  norm_range=None,
                                                                  name=name)
-            normalization = self.normalization(norm_range=norm_range)
-            return unnormalized_integral / normalization
+            normalization = self._hook_normalization(limits=norm_range)
+            integral = unnormalized_integral / normalization
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
 
     def _partial_analytic_integrate(self, x, limits, dims, norm_range):
         raise NotImplementedError
@@ -546,13 +566,13 @@ class BasePDF(AbstractBasePDF):
     def _hook_partial_analytic_integrate(self, x, limits, dims, norm_range,
                                          name='_hook_partial_analytic_integrate'):
         try:
-            return self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
+            integral = self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                          norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_analytic_integrate(x=x, limits=limits,
                                                                           dims=dims,
-                                                                          norm_range=None,
+                                                                          norm_range=False,
                                                                           name=name)
             try:
                 normalization = self.analytic_integrate(limits=norm_range, norm_range=False)
@@ -565,7 +585,10 @@ class BasePDF(AbstractBasePDF):
                                                    "be available and no attempt of numerical "
                                                    "normalization was made.".format(name))
             else:
-                return unnormalized_integral / normalization
+                integral = unnormalized_integral / normalization
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
 
     def _partial_numeric_integrate(self, x, limits, dims, norm_range):
         raise NotImplementedError
@@ -596,14 +619,17 @@ class BasePDF(AbstractBasePDF):
     def _hook_partial_numeric_integrate(self, x, limits, dims, norm_range,
                                         name='_hook_partial_numeric_integrate'):
         try:
-            return self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
+            integral = self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
                                                         norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_numeric_integrate(x=x, limits=limits,
                                                                          dims=dims, norm_range=None,
                                                                          name=name)
-            return unnormalized_integral / self._hook_normalization(norm_range=norm_range)
+            integral= unnormalized_integral / self._hook_normalization(limits=norm_range)
+        integral= self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
 
     def _sample(self, n_draws, limits):
         raise NotImplementedError
@@ -628,27 +654,27 @@ class BasePDF(AbstractBasePDF):
     def _hook_sample(self, limits, n_draws, name='_hook_sample'):
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
 
-    # def copy(self, **override_parameters_kwargs):
-    #     """Creates a deep copy of the distribution.
-    #
-    #     Note: the copy distribution may continue to depend on the original
-    #     initialization arguments.
-    #
-    #     Args:
-    #       **override_parameters_kwargs: String/value dictionary of initialization
-    #         arguments to override with new values.
-    #
-    #     Returns:
-    #       distribution: A new instance of `type(self)` initialized from the union
-    #         of self.parameters and override_parameters_kwargs, i.e.,
-    #         `dict(self.parameters, **override_parameters_kwargs)`.
-    #     """
-    #     parameters = dict(self.parameters, **override_parameters_kwargs)
-    #     yield_ = parameters.pop('yield', None)
-    #     new_instance = type(self)(**parameters)
-    #     if yield_ is not None:
-    #         new_instance.set_yield(yield_)
-    #     return new_instance
+    def copy(self, **override_parameters_kwargs):
+        """Creates a deep copy of the distribution.
+
+        Note: the copy distribution may continue to depend on the original
+        initialization arguments.
+
+        Args:
+          **override_parameters_kwargs: String/value dictionary of initialization
+            arguments to override with new values.
+
+        Returns:
+          distribution: A new instance of `type(self)` initialized from the union
+            of self.parameters and override_parameters_kwargs, i.e.,
+            `dict(self.parameters, **override_parameters_kwargs)`.
+        """
+        parameters = dict(self.parameters, **override_parameters_kwargs)
+        yield_ = parameters.pop('yield', None)
+        new_instance = type(self)(**parameters)
+        if yield_ is not None:
+            new_instance.set_yield(yield_)
+        return new_instance
 
     @contextlib.contextmanager
     def _name_scope(self, name=None, values=None):
@@ -685,6 +711,7 @@ class BasePDF(AbstractBasePDF):
             batch_shape=self.batch_shape,
             event_shape=self.event_shape,
             dtype=self.dtype.name))
+
 
 
 class WrapDistribution(BasePDF):
