@@ -36,16 +36,8 @@ wrapped_gauss = zfit.core.basepdf.WrapDistribution(tf_gauss1)
 
 test_gauss1 = TestGaussian(name="test_gauss1")
 wrapped_normal1 = Normal(loc=mu2, scale=sigma2, name='wrapped_normal1')
-# test_gauss1.norm_range = low, high
-# gauss_params1.norm_range = low, high
-# wrapped_gauss.norm_range = low, high
 
 init = tf.global_variables_initializer()
-
-# class LimitTensor(tf.Tensor):
-#     def __init__(self, *args, **kwargs):
-#         super(LimitTensor, self).__init__(*args, **kwargs)
-#         self.limits = None
 
 gaussian_dists = [test_gauss1, gauss_params1]
 
@@ -103,6 +95,7 @@ def test_sampling():
         sigma_sampled = np.std(sampled_gauss1_full)
         assert mu_sampled == pytest.approx(mu_true, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
 
 def test_copy():
     new_gauss = gauss_params1.copy()

@@ -9,7 +9,7 @@ from .limits import convert_to_range, Range, no_norm_range
 from ..settings import types as ztypes
 
 @no_norm_range
-def auto_integrate(func, limits, n_dims, method="AUTO", dtype=tf.float64,
+def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=tf.float64,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
     if method == "AUTO":  # TODO
@@ -19,7 +19,7 @@ def auto_integrate(func, limits, n_dims, method="AUTO", dtype=tf.float64,
     if method.lower() == "mc":
         mc_options = mc_options or {}
         draws_per_dim = mc_options['draws_per_dim']
-        integral = mc_integrate(func=func, limits=limits, n_dims=n_dims, method=method, dtype=dtype,
+        integral = mc_integrate(x=x, func=func, limits=limits, n_dims=n_dims, method=method, dtype=dtype,
                                 mc_sampler=mc_sampler, draws_per_dim=draws_per_dim,
                                 importance_sampling=None)
     return integral

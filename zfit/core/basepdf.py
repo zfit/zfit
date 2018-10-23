@@ -3,14 +3,16 @@ Definition of the pdf interface, base etc.
 """
 from __future__ import print_function, division, absolute_import
 
+import builtins
+from collections import OrderedDict
 import contextlib
 from contextlib import suppress
 import typing
+import warnings
 
 import tensorflow as tf
 from tensorflow.python.ops.distributions.distribution import _BaseDistribution, _DistributionMeta
 import tensorflow_probability.python.mcmc as mc
-from zfit.core import limits
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range
 from zfit.util.exception import NormRangeNotImplementedError
@@ -51,9 +53,10 @@ class BasePDF(object):
     _DEFAULTS_integration = zcontainer.dotdict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
-    _DEFAULTS_integration.auto_numeric_integrate = zintegrate.auto_integrate
+    _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = zintegrate.AnalyticIntegral()
+    _additional_repr = {}
 
     def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
                  allow_nan_stats=True, graph_parents=None, **parameters):
@@ -78,7 +81,7 @@ class BasePDF(object):
         self._integration = zcontainer.dotdict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
-        self._integration.auto_numeric_integrate = self._DEFAULTS_integration.auto_numeric_integrate
+        self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self._normalization_value = None
 
     @property
@@ -187,30 +190,21 @@ class BasePDF(object):
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
-    def apply_yield(self, value, norm_range=False):
-        return self._apply_yield(value=value, norm_range=norm_range)
+    def apply_yield(self, value, norm_range=False, log=False):
+        return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def _apply_yield(self, value, norm_range):
+    def _apply_yield(self, value, norm_range, log):
         if self.is_extended and norm_range is not False:
-            value *= self.get_yield()
-        return value
-
-    def apply_log_yield(self, value, norm_range=False):
-        return self._apply_log_yield(value=value, norm_range=norm_range)
-
-    def _apply_log_yield(self, value, norm_range):
-        if self.is_extended and norm_range is not False:
-            raise NotImplementedError  # TODO: ok?
-            # value += tf.log(self.get_yield())
+            if log:
+                value += tf.log(self.get_yield())
+            else:
+                value *= self.get_yield()
         return value
 
     @property
     def _yield(self):
         """For internal use, the yield or None"""
         return self.parameters.get('yield')
-        # HACK
-        # return self._temp_yield
-        # return self.parameters['yield']
 
     @_yield.setter
     def _yield(self, value):
@@ -219,8 +213,6 @@ class BasePDF(object):
             self._parameters.pop('yield', None)  # safely remove if still there
         else:
             self._parameters['yield'] = value
-            # HACK
-            # self._temp_yield = value
 
     def _unnormalized_prob(self, x):
         raise NotImplementedError
@@ -230,9 +222,16 @@ class BasePDF(object):
             x = tf.convert_to_tensor(x, name="x")
             try:
                 return self._unnormalized_prob(x, **kwargs)
-            except NotImplementedError:
-                return self._prob(x, norm_range="TODO")
-            # No fallback, if unnormalized_prob and prob is not implemented
+            except NotImplementedError as error:
+                # yeah... just for explicity
+                raise
+            # alternative implementation below
+            # with suppress(NotImplementedError):
+            #     return self._prob(x, norm_range="TODO")
+            # with suppress(NotImplementedError):
+            #     return tf.exp(self._log_prob(x=x, norm_range="TODO"))
+
+            # No fallback, if unnormalized_prob is not implemented
 
     def unnormalized_prob(self, x, name="unnormalized_prob"):
         return self._hook_unnormalized_prob(x=x, name=name)
@@ -243,17 +242,17 @@ class BasePDF(object):
     def _prob(self, x, norm_range):
         raise NotImplementedError
 
-    def _call_prob(self, x, norm_range, name, **kwargs):
+    def _call_prob(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
             with suppress(NotImplementedError):
-                return self._prob(x, norm_range=norm_range, **kwargs)
+                return self._prob(x, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return tf.exp(self._log_prob(x, norm_range=norm_range))
+                return tf.exp(self._log_prob(x=x, norm_range=norm_range))
             return self._fallback_prob(x=x, norm_range=norm_range)
 
     def _fallback_prob(self, x, norm_range):
-        pdf = self.unnormalized_prob(x) / self.normalization(limits=norm_range)
+        pdf = self._hook_unnormalized_prob(x) / self._hook_normalization(limits=norm_range)
         return pdf
 
     def prob(self, x, norm_range=None, name="prob"):
@@ -308,8 +307,10 @@ class BasePDF(object):
 
     def _hook_log_prob(self, x, norm_range, name):
         log_prob = self._call_log_prob(x, norm_range, name)
+
+        # apply yield
         try:
-            log_prob = self.apply_log_yield(value=log_prob, norm_range=norm_range)
+            log_prob = self.apply_yield(value=log_prob, norm_range=norm_range, log=True)
         except NotImplementedError:
             log_prob = tf.log(self.apply_yield(value=tf.exp(log_prob, norm_range=norm_range)))
         return log_prob
@@ -334,7 +335,7 @@ class BasePDF(object):
 
         return self._hook_normalization(limits=limits, name=name)
 
-    def _hook_normalization(self, limits, name):
+    def _hook_normalization(self, limits, name="_hook_normalization"):
         normalization = self._call_normalization(norm_range=limits, name=name)
         return normalization
 
@@ -345,7 +346,6 @@ class BasePDF(object):
 
     def _call_integrate(self, limits, norm_range, name):
         with self._name_scope(name, values=[limits, norm_range]):
-            limits = convert_to_range(limits, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._integrate(limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -367,18 +367,14 @@ class BasePDF(object):
                 def part_int(x):
                     return self.partial_analytic_integrate(x, limits=limits, dims=dims)
 
-                integral = self._integration.auto_numeric_integrate(func=part_int, limits=limits,
-                                                                    n_dims=n_dims,  # HACK
-                                                                    mc_options={
-                                                                        "draws_per_dim":
-                                                                            self._integration.draws_per_dim}
-                                                                    )
+                integral = self._auto_numeric_integrate(func=part_int, limits=limits)
         if integral is None:
             integral = self.numeric_integrate(limits=limits, norm_range=norm_range)
         return integral
 
     def integrate(self, limits, norm_range=None, name="integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        limits = convert_to_range(limits, dims=Range.FULL)
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
@@ -412,7 +408,6 @@ class BasePDF(object):
 
     def _call_analytic_integrate(self, limits, norm_range, name):
         with self._name_scope(name, values=[limits, norm_range]):
-            limits = convert_to_range(limits, dims=Range.FULL)
             with suppress(NotImplementedError):
                 return self._analytic_integrate(limits=limits, norm_range=norm_range)
             return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
@@ -423,6 +418,7 @@ class BasePDF(object):
 
     def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        limits = convert_to_range(limits, dims=Range.FULL)
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
@@ -453,7 +449,6 @@ class BasePDF(object):
 
     def _call_numeric_integrate(self, limits, norm_range, name):
         with self._name_scope(name, values=[limits, norm_range]):
-            limits = convert_to_range(limits)
             # TODO: anything?
             with suppress(NotImplementedError):
                 return self._numeric_integrate(limits=limits, norm_range=norm_range)
@@ -462,18 +457,13 @@ class BasePDF(object):
     def _fallback_numeric_integrate(self, limits, norm_range):
         # TODO: get limits properly
         # HACK
-        integral = self._integration.auto_numeric_integrate(func=self.unnormalized_prob,
-                                                            limits=limits, norm_range=norm_range,
-                                                            dtype=self.dtype, n_dims=limits.n_dims,
-                                                            mc_sampler=self._integration.mc_sampler,
-                                                            mc_options={
-                                                                'draws_per_dim':
-                                                                    self._integration.draws_per_dim})
+        integral = self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, norm_range=norm_range)
 
         return integral
 
     def numeric_integrate(self, limits, norm_range=None, name="numeric_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        limits = convert_to_range(limits, dims=Range.FULL)
 
         return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
@@ -496,7 +486,6 @@ class BasePDF(object):
     def _call_partial_integrate(self, x, limits, dims, norm_range, name):
         with self._name_scope(name, values=[x, limits, dims, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            limits = convert_to_range(limits, dims=dims)
 
             with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, dims=dims, norm_range=norm_range)
@@ -517,16 +506,14 @@ class BasePDF(object):
         else:
             part_int = self.unnormalized_prob
 
-        integral_vals = zintegrate.auto_integrate(func=part_int, limits=limits, dims=dims,
-                                                  x=x, dtype=self.dtype,
-                                                  mc_sampler=self._integration.mc_sampler,
-                                                  mc_options={"draws_per_dim":
-                                                                  self._integration.draws_per_dim})
+        integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, dims=dims, x=x)
         return integral_vals
 
     def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: FULL reasonable?
+        limits = convert_to_range(limits, dims=dims)
+
         return self._hook_partial_integrate(x=x, limits=limits, dims=dims,
                                             norm_range=norm_range, name=name)
 
@@ -551,7 +538,6 @@ class BasePDF(object):
     def _call_partial_analytic_integrate(self, x, limits, dims, norm_range, name):
         with self._name_scope(name, values=[x, limits, dims, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            limits = convert_to_range(limits, dims=dims)
 
             with suppress(NotImplementedError):
                 return self._partial_analytic_integrate(x=x, limits=limits, dims=dims,
@@ -580,14 +566,15 @@ class BasePDF(object):
                 means that no analytical normalization is available.
 
         """
-        # TODO: implement meaningful, how communicate integrated, not integrated vars?
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
+        norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: full reasonable?
-        return self._hook_partial_analytic_integrate(x, limits=limits, dims=dims,
+        limits = convert_to_range(limits, dims=dims)
+        return self._hook_partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                      norm_range=norm_range, name=name)
 
     def _hook_partial_analytic_integrate(self, x, limits, dims, norm_range,
                                          name='_hook_partial_analytic_integrate'):
+
         try:
             integral = self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                              norm_range=norm_range, name=name)
@@ -621,18 +608,14 @@ class BasePDF(object):
             x = tf.convert_to_tensor(x, name="x")
             limits = convert_to_range(limits, dims=dims)
             with suppress(NotImplementedError):
-                return self._partial_numeric_integrate(x=x, limits=limits, dims=dims,
+                return self._partial_numeric_integrate(x=x, limits=limits,
                                                        norm_range=norm_range)
-            return self._fallback_partial_numeric_integrate(x=x, limits=limits, dims=dims,
+            return self._fallback_partial_numeric_integrate(x=x, limits=limits,
                                                             norm_range=norm_range)
 
     @no_norm_range
     def _fallback_partial_numeric_integrate(self, x, limits, dims):
-        return zintegrate.auto_integrate(func=self.unnormalized_prob, limits=limits, dims=dims,
-                                         x=x, dtype=self.dtype,
-                                         mc_sampler=self._integration.mc_sampler,
-                                         mc_options={
-                                             "draws_per_dim": self._integration.draws_per_dim})
+        return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
 
     def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
@@ -653,13 +636,23 @@ class BasePDF(object):
         integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
+    def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
+        integration_options = dict(func=func, limits=limits, n_dims=limits.n_dims, x=x, norm_range=norm_range,
+                                   # auto from self
+                                   dtype=self.dtype,
+                                   mc_sampler=self._integration.mc_sampler,
+                                   mc_options={
+                                       "draws_per_dim": self._integration.draws_per_dim},
+                                   **overwrite_options)
+        return self._integration.auto_numeric_integrator(**integration_options)
+
     def _sample(self, n_draws, limits):
         raise NotImplementedError
 
     def _call_sample(self, n_draws, limits, name):
         with self._name_scope(name, values=[n_draws, limits]):
             n_draws = tf.convert_to_tensor(n_draws, name="n_draws")
-            limits = convert_to_range(limits, dims=Range.FULL)
+
             with suppress(NotImplementedError):
                 return self._sample(n_draws=n_draws, limits=limits)
             return self._fallback_sample(n_draws=n_draws, limits=limits)
@@ -671,7 +664,8 @@ class BasePDF(object):
         return sample
 
     def sample(self, n_draws, limits, name="sample"):
-        return self._hook_sample(limits=limits, n_draws=n_draws, name=name)
+        limits = convert_to_range(limits, dims=Range.FULL)
+        return self._hook_sample(n_draws=n_draws, limits=limits, name=name)
 
     def _hook_sample(self, limits, n_draws, name='_hook_sample'):
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
@@ -722,15 +716,45 @@ class BasePDF(object):
                                else ""),
             dtype=self.dtype.name))
 
+    @classmethod
+    def register_additional_repr(cls, **kwargs):
+        overwritten_keys = set(kwargs).union(cls._additional_repr)
+        cls._additional_repr = dict(cls._additional_repr, **kwargs)
+
+    def _get_additional_repr(self, sorted=True):
+
+        # nice name change
+        sorted_ = sorted
+        sorted = builtins.sorted
+        # nice name change end
+
+        additional_repr = OrderedDict
+        for key, val in self._additional_repr.items():
+            try:
+                new_obj = getattr(self, val)
+            except AttributeError:
+                raise AttributeError("The attribute {} is not a valid attribute of this class {}."
+                                     "Cannot use it in __repr__. It was added using the"
+                                     "`register_additional_repr` function".format(val, type(self)))
+            else:
+                if callable(new_obj):
+                    new_obj = new_obj()
+            additional_repr[key] = new_obj
+        if sorted:
+            additional_repr = sorted(additional_repr)
+        return additional_repr
+
     def __repr__(self):
+
         return ("<zfit.pdf.{type_name} "
-        # "'{self_name}'"
+                # "'{self_name}'"
                 " parameters=[{params}]"
                 " dtype={dtype}>".format(
             type_name=type(self).__name__,
             # self_name=self.name,
-            params=", ".join(sorted(p.name for p in self.parameters.values())),
-            dtype=self.dtype.name))
+            params=", ".join(sorted(str(p.name) for p in self.parameters.values())),
+            dtype=self.dtype.name) +
+                sum(" {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items()))
 
     def __eq__(self, other):
         if not type(self) == type(other):
