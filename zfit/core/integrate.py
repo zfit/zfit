@@ -186,7 +186,7 @@ class AnalyticIntegral(object):
         return integral
 
 
-class Integral(object):
+class Integral(object):  # TODO analytic integral
     def __init__(self, func, limits, dims):
         self.func = func
         self._set_dims(dims)

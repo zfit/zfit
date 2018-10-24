@@ -25,32 +25,33 @@ from ..util import exception as zexception
 from ..util import container as zcontainer
 
 
-class AbstractBasePDF(object):
-
-    def sample(self, sample_shape=(), seed=None, name='sample'):
-        raise NotImplementedError
-
-    def unnormalized_prob(self, x, name='unnormalized_prob'):
-        raise NotImplementedError
-
-    def log_prob(self, x, name='log_prob'):
-        raise NotImplementedError
-
-    def integrate(self, limits, name='integrate'):
-        self.error = NotImplementedError
-        raise self.error
-
-    def batch_shape_tensor(self, name='batch_shape_tensor'):
-        raise NotImplementedError
-
-    def event_shape_tensor(self, name='event_shape_tensor'):
-        raise NotImplementedError
+#
+# class AbstractBasePDF(object):
+#
+#     def sample(self, sample_shape=(), seed=None, name='sample'):
+#         raise NotImplementedError
+#
+#     def unnormalized_prob(self, x, name='unnormalized_prob'):
+#         raise NotImplementedError
+#
+#     def log_prob(self, x, name='log_prob'):
+#         raise NotImplementedError
+#
+#     def integrate(self, limits, name='integrate'):
+#         self.error = NotImplementedError
+#         raise self.error
+#
+#     def batch_shape_tensor(self, name='batch_shape_tensor'):
+#         raise NotImplementedError
+#
+#     def event_shape_tensor(self, name='event_shape_tensor'):
+#         raise NotImplementedError
 
 
 # class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 # class BasePDF(_BaseDistribution, metaclass=_DistributionMeta):
 class BasePDF(object):
-    _DEFAULTS_integration = zcontainer.dotdict()
+    _DEFAULTS_integration = zcontainer.DotDict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
@@ -78,7 +79,7 @@ class BasePDF(object):
         self._yield = None
         self._temp_yield = None
         self._norm_range = None
-        self._integration = zcontainer.dotdict()
+        self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
@@ -217,11 +218,11 @@ class BasePDF(object):
     def _unnormalized_prob(self, x):
         raise NotImplementedError
 
-    def _call_unnormalized_prob(self, x, name, **kwargs):
+    def _call_unnormalized_prob(self, x, name):
         with self._name_scope(name, values=[x]):
             x = tf.convert_to_tensor(x, name="x")
             try:
-                return self._unnormalized_prob(x, **kwargs)
+                return self._unnormalized_prob(x)
             except NotImplementedError as error:
                 # yeah... just for explicity
                 raise
@@ -304,6 +305,7 @@ class BasePDF(object):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, Range): Range to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:
@@ -671,13 +673,13 @@ class BasePDF(object):
         integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
-    def _partial_numeric_integrate(self, x, limits, dims, norm_range):
+    def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def _call_partial_numeric_integrate(self, x, limits, dims, norm_range, name):
-        with self._name_scope(name, values=[x, limits, dims, norm_range]):
+    def _call_partial_numeric_integrate(self, x, limits, norm_range, name):
+        with self._name_scope(name, values=[x, limits, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
-            limits = convert_to_range(limits, dims=dims)
+
             with suppress(NotImplementedError):
                 return self._partial_numeric_integrate(x=x, limits=limits,
                                                        norm_range=norm_range)
@@ -685,7 +687,7 @@ class BasePDF(object):
                                                             norm_range=norm_range)
 
     @no_norm_range
-    def _fallback_partial_numeric_integrate(self, x, limits, dims):
+    def _fallback_partial_numeric_integrate(self, x, limits):
         return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
 
     def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
@@ -705,6 +707,7 @@ class BasePDF(object):
             Tensor: the values of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        limits = convert_to_range(limits, dims=dims)
 
         return self._hook_partial_numeric_integrate(dims, limits, name, norm_range, x)
 
@@ -753,7 +756,8 @@ class BasePDF(object):
         """
 
         Args:
-            n_draws (int): The number to samples to generate and to draw from (accept-reject) # TODO: change to numbers returned
+            n_draws (int): The number to samples to generate and to draw from (accept-reject) # TODO: change to
+            numbers returned
             limits (tuple, Range): In which region to sample in
             name (str):
 
@@ -893,7 +897,7 @@ if __name__ == "__main":
 
 
     class TestGaussian(zfit.core.basepdf.BasePDF):
-        def _func(self, x):
+        def _unnormalized_prob(self, x):
             return tf.exp(-(x - mu_true) ** 2 / sigma_true ** 2)  # non-normalized gaussian
 
 

@@ -13,6 +13,21 @@ class Range(object):
     FULL = object()  # unique reference
 
     def __init__(self, limits, dims=None):
+        """Range holds limits and specifies dimension.
+
+        Args:
+            limits (tuple): A 1 dimensional tuple is interpreted as a list of 1 dimensional limits
+                (lower1, upper1, lower2, upper2,...). Simple example: (-4, 3) means limits from
+                -4 to 3.
+                Higher dimensions are created with tuples of the shape (n_dims, n_(lower, upper))
+                where the number of lower, upper pairs can vary in each dimension.
+
+                Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5,
+                    the second dimension from -4 to 1 and from 2 to 5.
+
+        Returns:
+            Range: Returns the range object itself
+        """
         self._area = None
         self._set_limits_and_dims(limits, dims)
 
@@ -80,6 +95,7 @@ class Range(object):
 
     @property
     def area(self):
+        """Return the total area of all the limits and dims. Useful, for example, for MC integration."""
         if self._area is None:
             self._calculate_save_area()
         return self._area
@@ -109,10 +125,20 @@ class Range(object):
         sub_range = Range(limits=self.idims(dims), dims=dims)
         return sub_range
 
-
-
     def get_boundaries(self):
-        """Return a lower and upper boundary tuple containing all possible combinations"""
+        """Return a lower and upper boundary tuple containing all possible combinations.
+
+        The limits given in the tuple form are converted to two tuples: one containing all of the
+        possible combinations of the lower limits and the other one containing all possible
+        combinations of the upper limits. This is useful to evaluate integrals.
+        Example: the tuple ((low1_a, up1_b), (low2_a, up2_b, low2_c, up2_d, low2_e, up2_f))
+            transforms to two tuples:
+            lower: ((low1_a, low2_a), (low1_a, low2_c), (low1_a, low2_e))
+            upper: ((up1_b, up2_b), (up1_b, up2_d), (up1_b, up2_f))
+
+        Returns:
+            tuple(lower, upper): as defined in the example
+        """
         # print("DEBUG":, tuple", self.as_tuple())
         lower, upper = Range.combine_boundaries(self.as_tuple())
         return tuple(lower), tuple(upper)
@@ -135,6 +161,15 @@ class Range(object):
 
     @classmethod
     def from_boundaries(cls, lower, upper, dims=None):
+        """Create a Range instance from a lower, upper limits pair. Opposite of Range.get_boundaries()
+
+        Args:
+            lower (tuple):
+            upper (tuple):
+            dims (tuple(int)): The dimensions the limits belong to.
+        Returns:
+            zfit.core.limits.Range:
+        """
         # TODO: make use of Nones?
         limits = cls.extract_boundaries(lower, upper)
         return Range(limits=limits, dims=dims)
@@ -212,7 +247,6 @@ class Range(object):
             dims = (dims,)
         limits_by_dims = tuple([self[self.dims.index(dim)] for dim in dims])
         return limits_by_dims
-
 
 
 def convert_to_range(limits, dims=None) -> Union[Range, bool, None]:

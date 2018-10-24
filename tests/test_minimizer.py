@@ -46,12 +46,13 @@ def minimize_func(minimizer_class, sess):
     assert abs(cval - true_c) < parameter_tolerance
 
 
-
 minimizers = [zmin.AdamMinimizer,
               # zmin.AdadeltaMinimizer,  # not working well...
               zmin.AdagradMinimizer,
               zmin.GradientDescentMinimizer,
               zmin.RMSPropMinimizer]
+
+
 # print("DEBUG": after minimizer instanciation")
 
 

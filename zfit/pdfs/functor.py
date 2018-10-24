@@ -95,6 +95,7 @@ class ProductPDF(BasePDF):
 if __name__ == '__main__':
 
     import numpy as np
+    from zfit.pdfs.basic import Gauss
 
 
     def true_gaussian_sum(x):
@@ -118,7 +119,7 @@ if __name__ == '__main__':
 
         sum_gauss = SumPDF(pdfs=[gauss1, gauss2, gauss3])
 
-        sum_gauss.norm_range = -55., 55.
+        sum_gauss.set_norm_range = -55., 55.
 
         init = tf.global_variables_initializer()
         sess.run(init)

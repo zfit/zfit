@@ -12,8 +12,8 @@ def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, dtype
     """Return toy MC sample graph using accept-reject method
 
     Args:
-        density : function to calculate density
-        sample  : input uniformly distributed sample
+        prob (method):
+
     """
     n_dims = 1  # HACK
     lower, upper = limits.get_boundaries()

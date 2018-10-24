@@ -5,7 +5,7 @@ import numpy as np
 # legacy settings
 import tensorflow as tf
 
-from zfit.util.container import dotdict
+from zfit.util.container import DotDict
 
 LEGACY_MODE = True
 
@@ -20,5 +20,5 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-types = dotdict({'float': tf.float64,
+types = DotDict({'float': tf.float64,
                  'complex': tf.complex128})

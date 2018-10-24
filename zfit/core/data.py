@@ -1,7 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
-
 import tensorflow as tf
+
 
 class AbstractData(object):
     """Data class holding data."""
@@ -11,4 +11,3 @@ class AbstractData(object):
 
 
 dataset = tf.data.Dataset
-

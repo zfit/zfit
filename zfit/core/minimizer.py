@@ -98,9 +98,9 @@ class BaseMinimizer(object):
         changes = collections.deque(np.ones(30))
         last_val = -10
         cur_val = 9999999
-        min = self.step(loss=loss, var_list=var_list)
+        minimum = self.step(loss=loss, var_list=var_list)
         while np.average(changes) > self.tolerance:  # TODO: improve condition
-            _ = self.sess.run(min)
+            _ = self.sess.run(minimum)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
@@ -153,7 +153,6 @@ class HelperAdapterTFOptimizer(object):
         assert issubclass(self.__class__, tf.train.Optimizer)  # assumption
         super(HelperAdapterTFOptimizer, self).__init__(*args, **kwargs)
 
-
     def step(self, loss, var_list):
         """One step of the minimization. Equals to `tf.train.Optimizer.minimize`
 
@@ -163,10 +162,10 @@ class HelperAdapterTFOptimizer(object):
 
 
         """
-        min = super(HelperAdapterTFOptimizer, self).minimize(loss=loss, var_list=var_list)
+        minimum = super(HelperAdapterTFOptimizer, self).minimize(loss=loss, var_list=var_list)
         init = tf.global_variables_initializer()
         self.sess.run(init)
-        return min
+        return minimum
 
 
 class AdapterTFOptimizer(BaseMinimizer, HelperAdapterTFOptimizer):
@@ -193,6 +192,7 @@ class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, AbstractMi
 
 class AdamMinimizer(AdapterTFOptimizer, tf.train.AdamOptimizer, AbstractMinimizer):
     pass
+
 
 # WIP below
 if __name__ == '__main__':

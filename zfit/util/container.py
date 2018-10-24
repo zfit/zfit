@@ -1,7 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
 
-class dotdict(dict):
+class DotDict(dict):
     """dot.notation access to dictionary attributes"""
 
     __getattr__ = dict.get

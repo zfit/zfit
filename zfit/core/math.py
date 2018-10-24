@@ -16,7 +16,7 @@ except AttributeError:  # not yet there in Python 27
 pi = mt.pi
 
 
-def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to real_x=False
+def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to real_x=False
     """Complex polynomial with the last arg being x.
 
     Args:
@@ -27,10 +27,6 @@ def poly_complex(*args, **kwargs):  # py23 compatibility: change **kwargs to rea
         tf.Tensor:
     """
     from zfit.core import tfext
-
-    real_x = kwargs.pop('real_x', False)  # py23 compatibility: remove line
-    if kwargs:  # py23 compatibility: remove line
-        raise ValueError("Unsupported kwargs given: {}".format(kwargs))  # py23: remove line
 
     args = list(args)
     x = args.pop()

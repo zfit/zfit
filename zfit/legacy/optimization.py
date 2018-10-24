@@ -13,6 +13,7 @@ except ImportError:  # PY23 replace ImportError with ModuleNotFoundError
 from zfit.core.math import interpolate
 from zfit.settings import types as ztypes
 
+
 class RootHistShape(object):
     """
       Class that creates a TensorFlow graph from a bilinear interpolation of

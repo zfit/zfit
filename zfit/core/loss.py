@@ -7,8 +7,9 @@ def unbinned_nll(probs=None, weights=None, log_probs=None):
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
-        probs (graph):
+        probs (Tensor): The probabilities
         weights (Tensor): Weights of the `probs`
+        log_probs (Tensor): The logarithmic probabilites
 
     Returns:
         graph: the unbinned nll
