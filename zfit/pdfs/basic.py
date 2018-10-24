@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import math as mt
+
 import tensorflow as tf
 
 from zfit.core import tfext as ztf
@@ -26,4 +28,4 @@ def _gauss_integral_from_inf_to_inf(limits, params):
 
 
 Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
-                                 limits=(-zfit.ztf._inf, zfit.ztf._inf))
+                                 limits=(-mt.inf, mt.inf))

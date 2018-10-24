@@ -2,12 +2,11 @@ from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 
-import zfit.core.math as zmath
-
+import math as _mt
 from zfit.settings import types as ztypes
 from zfit.ztf import pi
 
-pi = tf.constant(zmath.pi, dtype=ztypes.float)
+pi = tf.constant(_mt.pi, dtype=ztypes.float)
 
 
 # density for a complex amplitude

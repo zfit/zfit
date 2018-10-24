@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import math as mt
+
 import pytest
 import tensorflow as tf
 import numpy as np
@@ -251,7 +253,7 @@ def test_analytic_integral():
     mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
     sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
-    gauss_integral_infs = gauss_params1.integrate(limits=(-zfit.ztf._inf, zfit.ztf._inf))
+    gauss_integral_infs = gauss_params1.integrate(limits=(-mt.inf, mt.inf))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, dims=(0, 1))
 
