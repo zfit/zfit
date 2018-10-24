@@ -52,6 +52,7 @@ class BaseMinimizer(object):
     def __init__(self, name="BaseMinimizer", tolerance=1e-8, sess=None, *args, **kwargs):
         super(BaseMinimizer, self).__init__(*args, **kwargs)
         self.name = name
+
         self.sess = sess
         self.tolerance = tolerance
 
@@ -100,6 +101,7 @@ class BaseMinimizer(object):
         min = self.step(loss=loss, var_list=var_list)
         while np.average(changes) > self.tolerance:  # TODO: improve condition
             _ = self.sess.run(min)
+            print("DEBUG: current minimum:", cur_val)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
@@ -151,6 +153,7 @@ class HelperAdapterTFOptimizer(object):
     def __init__(self, *args, **kwargs):  # self check
         assert issubclass(self.__class__, tf.train.Optimizer)  # assumption
         super(HelperAdapterTFOptimizer, self).__init__(*args, **kwargs)
+
 
     def step(self, loss, var_list):
         """One step of the minimization. Equals to `tf.train.Optimizer.minimize`

@@ -718,7 +718,10 @@ class BasePDF(object):
 
     @classmethod
     def register_additional_repr(cls, **kwargs):
-        overwritten_keys = set(kwargs).union(cls._additional_repr)
+        overwritten_keys = set(kwargs).intersection(cls._additional_repr)
+        if overwritten_keys:
+            warnings.warn("The following keys have been overwritten while registering additional repr:"
+                          "\n{}".format([str(k) for k in overwritten_keys]))
         cls._additional_repr = dict(cls._additional_repr, **kwargs)
 
     def _get_additional_repr(self, sorted=True):

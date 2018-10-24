@@ -21,6 +21,6 @@ def unbinned_nll(probs=None, weights=None, log_probs=None):
     if probs is not None:
         log_probs = tf.log(probs)
     if weights is not None:
-        log_probs *= weights
+        log_probs += tf.log(weights)
     nll = -tf.reduce_sum(log_probs)
     return nll
