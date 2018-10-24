@@ -83,14 +83,14 @@ class BaseMinimizer(object):
         self._tolerance = tolerance
 
     def minimize(self, loss, var_list=None):
-        self._call_minimize(loss=loss, var_list=var_list)
+        return self._call_minimize(loss=loss, var_list=var_list)
 
     def _call_minimize(self, loss, var_list):
         try:
-            self._minimize(loss=loss, var_list=var_list)
+            return self._minimize(loss=loss, var_list=var_list)
         except NotImplementedError as error:
             try:
-                self._minimize_with_step(loss=loss, var_list=var_list)
+                return self._minimize_with_step(loss=loss, var_list=var_list)
             except NotImplementedError:
                 raise error
 
@@ -101,12 +101,12 @@ class BaseMinimizer(object):
         min = self.step(loss=loss, var_list=var_list)
         while np.average(changes) > self.tolerance:  # TODO: improve condition
             _ = self.sess.run(min)
-            print("DEBUG: current minimum:", cur_val)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
             cur_val = self.sess.run(loss)
         self.sess.run([v for v in var_list])
+        return cur_val
 
 
 # WIP

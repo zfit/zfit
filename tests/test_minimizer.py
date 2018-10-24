@@ -9,7 +9,7 @@ import zfit.core.minimizer as zmin
 import zfit.core.tfext as ztf
 
 
-def minimize_func(minimizer_class):
+def minimize_func(minimizer_class, sess):
     from zfit.core.parameter import FitParameter
 
     parameter_tolerance = 0.3
