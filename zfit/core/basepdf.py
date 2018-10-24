@@ -218,22 +218,6 @@ class BasePDF(object):
     def _unnormalized_prob(self, x):
         raise NotImplementedError
 
-    def _call_unnormalized_prob(self, x, name):
-        with self._name_scope(name, values=[x]):
-            x = tf.convert_to_tensor(x, name="x")
-            try:
-                return self._unnormalized_prob(x)
-            except NotImplementedError as error:
-                # yeah... just for explicity
-                raise
-            # alternative implementation below
-            # with suppress(NotImplementedError):
-            #     return self._prob(x, norm_range="TODO")
-            # with suppress(NotImplementedError):
-            #     return tf.exp(self._log_prob(x=x, norm_range="TODO"))
-
-            # No fallback, if unnormalized_prob is not implemented
-
     def unnormalized_prob(self, x, name="unnormalized_prob"):
         """Return the function unnormalized
 
@@ -249,21 +233,24 @@ class BasePDF(object):
     def _hook_unnormalized_prob(self, x, name="_hook_unnormalized_prob"):
         return self._call_unnormalized_prob(x=x, name=name)
 
+    def _call_unnormalized_prob(self, x, name):
+        with self._name_scope(name, values=[x]):
+            x = tf.convert_to_tensor(x, name="x")
+            try:
+                return self._unnormalized_prob(x)
+            except NotImplementedError as error:
+                # yeah... just to be explicit
+                raise
+            # alternative implementation below
+            # with suppress(NotImplementedError):
+            #     return self._prob(x, norm_range="TODO")
+            # with suppress(NotImplementedError):
+            #     return tf.exp(self._log_prob(x=x, norm_range="TODO"))
+
+            # No fallback, if unnormalized_prob is not implemented
+
     def _prob(self, x, norm_range):
         raise NotImplementedError
-
-    def _call_prob(self, x, norm_range, name):
-        with self._name_scope(name, values=[x, norm_range]):
-            x = tf.convert_to_tensor(x, name="x")
-            with suppress(NotImplementedError):
-                return self._prob(x, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return tf.exp(self._log_prob(x=x, norm_range=norm_range))
-            return self._fallback_prob(x=x, norm_range=norm_range)
-
-    def _fallback_prob(self, x, norm_range):
-        pdf = self._hook_unnormalized_prob(x) / self._hook_normalization(limits=norm_range)
-        return pdf
 
     def prob(self, x, norm_range=None, name="prob"):
         """Probability density/mass function.
@@ -282,23 +269,29 @@ class BasePDF(object):
         return self._hook_prob(x, norm_range, name)
 
     def _hook_prob(self, x, norm_range, name="_hook_prob"):
-        probability = self._call_prob(x, norm_range, name)
+        probability = self._norm_prob(x=x, norm_range=norm_range, name=name)
         return self.apply_yield(value=probability, norm_range=norm_range)
 
-    def _log_prob(self, x, norm_range):
-        raise NotImplementedError
+    def _norm_prob(self, x, norm_range, name='_norm_prob'):
+        probability = self._call_prob(x, norm_range, name)
+        return probability
 
-    def _call_log_prob(self, x, norm_range, name, **kwargs):
+    def _call_prob(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
             with suppress(NotImplementedError):
-                return self._log_prob(x=x, norm_range=norm_range)
+                return self._prob(x, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return tf.log(self._prob(x=x, norm_range=norm_range))
-            return self._fallback_log_prob(norm_range, x)
+                return tf.exp(self._log_prob(x=x, norm_range=norm_range))
+            return self._fallback_prob(x=x, norm_range=norm_range)
 
-    def _fallback_log_prob(self, norm_range, x):
-        return tf.log(self._hook_prob(x=x, norm_range=norm_range))
+    def _fallback_prob(self, x, norm_range):
+        pdf = self._call_unnormalized_prob(x, name="_call_unnormalized_prob") / self._hook_normalization(
+            limits=norm_range)
+        return pdf
+
+    def _log_prob(self, x, norm_range):
+        raise NotImplementedError
 
     def log_prob(self, x, norm_range=None, name="log_prob"):
         """Log probability density/mass function.
@@ -317,7 +310,7 @@ class BasePDF(object):
         return self._hook_log_prob(x, norm_range, name)
 
     def _hook_log_prob(self, x, norm_range, name):
-        log_prob = self._call_log_prob(x, norm_range, name)
+        log_prob = self._norm_log_prob(x, norm_range, name)
 
         # apply yield
         try:
@@ -326,20 +319,24 @@ class BasePDF(object):
             log_prob = tf.log(self.apply_yield(value=tf.exp(log_prob, norm_range=norm_range)))
         return log_prob
 
+    def _norm_log_prob(self, x, norm_range, name='_norm_log_prob'):
+        log_prob = self._call_log_prob(x, norm_range, name)
+        return log_prob
+
+    def _call_log_prob(self, x, norm_range, name, **kwargs):
+        with self._name_scope(name, values=[x, norm_range]):
+            x = tf.convert_to_tensor(x, name="x")
+            with suppress(NotImplementedError):
+                return self._log_prob(x=x, norm_range=norm_range)
+            with suppress(NotImplementedError):
+                return tf.log(self._prob(x=x, norm_range=norm_range))
+            return self._fallback_log_prob(norm_range, x)
+
+    def _fallback_log_prob(self, norm_range, x):
+        return tf.log(self._norm_prob(x=x, norm_range=norm_range))  # TODO: call not normalized?
+
     def _normalization(self, norm_range):
         raise NotImplementedError
-
-    def _call_normalization(self, norm_range, name):
-        # TODO: caching? alternative
-        with self._name_scope(name, values=[norm_range]):
-            with suppress(NotImplementedError):
-                return self._normalization(norm_range)
-            return self._fallback_normalization(norm_range)
-
-    def _fallback_normalization(self, norm_range):
-        # TODO: multidim, more complicated range
-        normalization_value = self.integrate(limits=norm_range, norm_range=False)
-        return normalization_value
 
     def normalization(self, limits, name="normalization"):
         """Return the normalization of the function (usually the integral over `limits`).
@@ -356,40 +353,25 @@ class BasePDF(object):
         return self._hook_normalization(limits=limits, name=name)
 
     def _hook_normalization(self, limits, name="_hook_normalization"):
-        normalization = self._call_normalization(norm_range=limits, name=name)
+        normalization = self._call_normalization(norm_range=limits, name=name)  # no _norm_* needed
         return normalization
+
+    def _call_normalization(self, norm_range, name):
+        # TODO: caching? alternative
+        with self._name_scope(name, values=[norm_range]):
+            with suppress(NotImplementedError):
+                return self._normalization(norm_range)
+            return self._fallback_normalization(norm_range)
+
+    def _fallback_normalization(self, norm_range):
+        # TODO: multidim, more complicated range
+        normalization_value = self.integrate(limits=norm_range, norm_range=False)
+        return normalization_value
 
     # Integrals
 
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
-
-    def _call_integrate(self, limits, norm_range, name):
-        with self._name_scope(name, values=[limits, norm_range]):
-            with suppress(NotImplementedError):
-                return self._integrate(limits=limits, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return self._analytic_integrate(limits=limits, norm_range=norm_range)
-            return self._fallback_integrate(limits=limits, norm_range=norm_range)
-
-    def _fallback_integrate(self, limits, norm_range):
-        n_dims = limits.n_dims
-        dims = limits.dims
-        max_dims = self._analytic_integral.get_max_dims()
-
-        integral = None
-        if max_dims == frozenset(dims):
-            with suppress(NotImplementedError):
-                integral = self._hook_analytic_integrate(limits=limits, norm_range=norm_range)
-        if max_dims and integral is None:  # TODO improve handling of available analytic integrals
-            with suppress(NotImplementedError):
-                def part_int(x):
-                    return self.partial_analytic_integrate(x, limits=limits, dims=dims)
-
-                integral = self._auto_numeric_integrate(func=part_int, limits=limits)
-        if integral is None:
-            integral = self.numeric_integrate(limits=limits, norm_range=norm_range)
-        return integral
 
     def integrate(self, limits, norm_range=None, name="integrate"):
         """Integrate the function over `limits` (normalized over norm_range if not False).
@@ -407,14 +389,44 @@ class BasePDF(object):
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
+        integral = self._norm_integrate(limits, norm_range, name)
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
+    def _norm_integrate(self, limits, norm_range, name='_norm_integrate'):
         try:
             integral = self._call_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             unnormalized_integral = self._call_integrate(limits=limits, norm_range=False, name=name)
             normalization = self._hook_normalization(limits=limits)
             integral = unnormalized_integral / normalization
+        return integral
 
-        integral = self.apply_yield(integral, norm_range=norm_range)
+    def _call_integrate(self, limits, norm_range, name):
+        with self._name_scope(name, values=[limits, norm_range]):
+            with suppress(NotImplementedError):
+                return self._integrate(limits=limits, norm_range=norm_range)
+            with suppress(NotImplementedError):
+                return self._analytic_integrate(limits=limits, norm_range=norm_range)
+            return self._fallback_integrate(limits=limits, norm_range=norm_range)
+
+    def _fallback_integrate(self, limits, norm_range):
+        dims = limits.dims
+        max_dims = self._analytic_integral.get_max_dims()
+
+        integral = None
+        if max_dims == frozenset(dims):
+            with suppress(NotImplementedError):
+                integral = self._norm_analytic_integrate(limits=limits, norm_range=norm_range)
+        if max_dims and integral is None:  # TODO improve handling of available analytic integrals
+            with suppress(NotImplementedError):
+                def part_int(x):
+                    return self._norm_partial_analytic_integrate(x, limits=limits, norm_range=norm_range)
+
+                integral = self._auto_numeric_integrate(func=part_int, limits=limits)
+        if integral is None:
+            integral = self._norm_numeric_integrate(limits=limits, norm_range=norm_range)
         return integral
 
     @classmethod
@@ -435,16 +447,6 @@ class BasePDF(object):
         # TODO: user implementation requested
         raise NotImplementedError
 
-    def _call_analytic_integrate(self, limits, norm_range, name):
-        with self._name_scope(name, values=[limits, norm_range]):
-            with suppress(NotImplementedError):
-                return self._analytic_integrate(limits=limits, norm_range=norm_range)
-            return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
-
-    def _fallback_analytic_integrate(self, limits, norm_range):
-        return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.dims,
-                                                 norm_range=norm_range, params=self.parameters)
-
     def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
         """Force analytical integration over function
 
@@ -462,6 +464,12 @@ class BasePDF(object):
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
+        integral = self._norm_analytic_integrate(limits, norm_range, name)
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
+    def _norm_analytic_integrate(self, limits, norm_range, name='_norm_analytic_integrate'):
         try:
             integral = self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -469,7 +477,7 @@ class BasePDF(object):
             unnormalized_integral = self._call_analytic_integrate(limits, norm_range=None,
                                                                   name=name)
             try:
-                normalization = self.analytic_integrate(limits=norm_range, norm_range=False)
+                normalization = self._call_analytic_integrate(limits=norm_range, norm_range=False)
             except NotImplementedError:
                 raise NormRangeNotImplementedError("Function {} does not support this (or even any)"
                                                    "normalization range 'norm_range'."
@@ -480,26 +488,20 @@ class BasePDF(object):
                                                    "normalization was made.".format(name))
             else:
                 integral = unnormalized_integral / normalization
-
-        integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
+
+    def _call_analytic_integrate(self, limits, norm_range, name):
+        with self._name_scope(name, values=[limits, norm_range]):
+            with suppress(NotImplementedError):
+                return self._analytic_integrate(limits=limits, norm_range=norm_range)
+            return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
+
+    def _fallback_analytic_integrate(self, limits, norm_range):
+        return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.dims,
+                                                 norm_range=norm_range, params=self.parameters)
 
     def _numeric_integrate(self, limits, norm_range):
         raise NotImplementedError
-
-    def _call_numeric_integrate(self, limits, norm_range, name):
-        with self._name_scope(name, values=[limits, norm_range]):
-            # TODO: anything?
-            with suppress(NotImplementedError):
-                return self._numeric_integrate(limits=limits, norm_range=norm_range)
-            return self._fallback_numeric_integrate(limits=limits, norm_range=norm_range)
-
-    def _fallback_numeric_integrate(self, limits, norm_range):
-        # TODO: get limits properly
-        # HACK
-        integral = self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, norm_range=norm_range)
-
-        return integral
 
     def numeric_integrate(self, limits, norm_range=None, name="numeric_integrate"):
         """Force numerical integration over the function.
@@ -519,46 +521,37 @@ class BasePDF(object):
         return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
+        integral = self._norm_numeric_integrate(limits, norm_range, name)
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
+    def _norm_numeric_integrate(self, limits, norm_range, name='_norm_numeric_integrate'):
         try:
             integral = self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_numeric_integrate(limits=limits, norm_range=False,
                                                                  name=name)
-            normalization = self.numeric_integrate(limits=norm_range, norm_range=False, name=name + "_normalization")
+            normalization = self._call_numeric_integrate(limits=norm_range, norm_range=False,
+                                                         name=name + "_normalization")
             integral = unnormalized_integral / normalization
-
-        integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
-    def _partial_integrate(self, x, limits, dims, norm_range):
+    def _call_numeric_integrate(self, limits, norm_range, name):
+        with self._name_scope(name, values=[limits, norm_range]):
+            # TODO: anything?
+            with suppress(NotImplementedError):
+                return self._numeric_integrate(limits=limits, norm_range=norm_range)
+            return self._fallback_numeric_integrate(limits=limits, norm_range=norm_range)
+
+    def _fallback_numeric_integrate(self, limits, norm_range):
+        integral = self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, norm_range=norm_range)
+
+        return integral
+
+    def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
-
-    def _call_partial_integrate(self, x, limits, dims, norm_range, name):
-        with self._name_scope(name, values=[x, limits, dims, norm_range]):
-            x = tf.convert_to_tensor(x, name="x")
-
-            with suppress(NotImplementedError):
-                return self._partial_integrate(x=x, limits=limits, dims=dims, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return self._partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
-
-            return self._fallback_partial_integrate(x=x, limits=limits, dims=dims,
-                                                    norm_range=norm_range)
-
-    def _fallback_partial_integrate(self, x, limits, dims, norm_range):
-        max_dims = self._analytic_integral.get_max_dims(out_of_dims=dims)
-        if max_dims:
-            def part_int(x):
-                return self.partial_analytic_integrate(x=x, limits=limits,
-                                                       dims=max_dims, norm_range=norm_range)
-
-            dims = list(set(dims) - set(max_dims))
-        else:
-            part_int = self.unnormalized_prob
-
-        integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, dims=dims, x=x)
-        return integral_vals
 
     def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
         """Partially integrate the function over the `limits` and evaluate it at `x`.
@@ -580,40 +573,60 @@ class BasePDF(object):
                                                   caller_name=name)  # TODO: FULL reasonable?
         limits = convert_to_range(limits, dims=dims)  # TODO: don't request dims but check (if not already Range
 
-        return self._hook_partial_integrate(x=x, limits=limits, dims=dims,
+        return self._hook_partial_integrate(x=x, limits=limits,
                                             norm_range=norm_range, name=name)
 
-    def _hook_partial_integrate(self, x, limits, dims, norm_range, name='_hook_partial_integrate'):
+    def _hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
+        integral = self._norm_partial_integrate(x, limits, norm_range, name)
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
+    def _norm_partial_integrate(self, x, limits, norm_range, name):
         try:
-            integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
+            integral = self._call_partial_integrate(x=x, limits=limits,
                                                     norm_range=norm_range,
                                                     name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
-            unnormalized_integral = self._call_partial_integrate(x=x, limits=limits, dims=dims,
+            unnormalized_integral = self._call_partial_integrate(x=x, limits=limits,
                                                                  norm_range=None,
                                                                  name=name)
-            normalization = self._hook_normalization(limits=norm_range)
+            normalization = self._hook_normalization(limits=norm_range)  # TODO: _call_normalization?
             integral = unnormalized_integral / normalization
-        integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
-    def _partial_analytic_integrate(self, x, limits, dims, norm_range):
-        raise NotImplementedError
-
-    def _call_partial_analytic_integrate(self, x, limits, dims, norm_range, name):
-        with self._name_scope(name, values=[x, limits, dims, norm_range]):
+    def _call_partial_integrate(self, x, limits, norm_range, name):
+        with self._name_scope(name, values=[x, limits, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
 
             with suppress(NotImplementedError):
-                return self._partial_analytic_integrate(x=x, limits=limits, dims=dims,
-                                                        norm_range=norm_range)
-            return self._fallback_partial_analytic_integrate(x=x, limits=limits, dims=dims,
-                                                             norm_range=norm_range)
+                return self._partial_integrate(x=x, limits=limits, norm_range=norm_range)
+            with suppress(NotImplementedError):
+                return self._partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
 
-    def _fallback_partial_analytic_integrate(self, x, limits, dims, norm_range):
-        return self._analytic_integral.integrate(x=x, limits=limits, dims=dims,
-                                                 norm_range=norm_range, params=self.parameters)
+            return self._fallback_partial_integrate(x=x, limits=limits,
+                                                    norm_range=norm_range)
+
+    def _fallback_partial_integrate(self, x, limits, norm_range):
+        max_dims = self._analytic_integral.get_max_dims(out_of_dims=limits.dims)
+        if max_dims:
+            def part_int(x):
+                return self._norm_partial_analytic_integrate(x=x, limits=limits,
+                                                             dims=max_dims, norm_range=norm_range)
+
+            dims = list(set(limits.dims) - set(max_dims))
+        else:
+            part_int = self._unnormalized_prob
+            dims = limits.dims
+
+        if norm_range is False:
+            integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, dims=dims, x=x)
+        else:
+            raise NormRangeNotImplementedError
+        return integral_vals
+
+    def _partial_analytic_integrate(self, x, limits, norm_range):
+        raise NotImplementedError
 
     def partial_analytic_integrate(self, x, limits, dims, norm_range=None,
                                    name="partial_analytic_integrate"):
@@ -641,24 +654,29 @@ class BasePDF(object):
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: full reasonable?
-        limits = convert_to_range(limits, dims=dims)
+        limits = convert_to_range(limits, dims=dims)  # TODO: replace by limits.dims if dims is None?
         return self._hook_partial_analytic_integrate(x=x, limits=limits, dims=dims,
                                                      norm_range=norm_range, name=name)
 
-    def _hook_partial_analytic_integrate(self, x, limits, dims, norm_range,
+    def _hook_partial_analytic_integrate(self, x, limits, norm_range,
                                          name='_hook_partial_analytic_integrate'):
 
+        integral = self._norm_partial_analytic_integrate(x, limits, norm_range, name)
+
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
+    def _norm_partial_analytic_integrate(self, x, limits, norm_range, name='_norm_partial_analytic_integrate'):
         try:
-            integral = self._call_partial_analytic_integrate(x=x, limits=limits, dims=dims,
+            integral = self._call_partial_analytic_integrate(x=x, limits=limits,
                                                              norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_analytic_integrate(x=x, limits=limits,
-                                                                          dims=dims,
                                                                           norm_range=False,
                                                                           name=name)
             try:
-                normalization = self.analytic_integrate(limits=norm_range, norm_range=False)
+                normalization = self._call_analytic_integrate(limits=norm_range, norm_range=False)
             except NotImplementedError:
                 raise NormRangeNotImplementedError("Function {} does not support this (or even any)"
                                                    "normalization range 'norm_range'."
@@ -669,26 +687,24 @@ class BasePDF(object):
                                                    "normalization was made.".format(name))
             else:
                 integral = unnormalized_integral / normalization
-
-        integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
-    def _partial_numeric_integrate(self, x, limits, norm_range):
-        raise NotImplementedError
-
-    def _call_partial_numeric_integrate(self, x, limits, norm_range, name):
+    def _call_partial_analytic_integrate(self, x, limits, norm_range, name):
         with self._name_scope(name, values=[x, limits, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
 
             with suppress(NotImplementedError):
-                return self._partial_numeric_integrate(x=x, limits=limits,
-                                                       norm_range=norm_range)
-            return self._fallback_partial_numeric_integrate(x=x, limits=limits,
-                                                            norm_range=norm_range)
+                return self._partial_analytic_integrate(x=x, limits=limits,
+                                                        norm_range=norm_range)
+            return self._fallback_partial_analytic_integrate(x=x, limits=limits,
+                                                             norm_range=norm_range)
 
-    @no_norm_range
-    def _fallback_partial_numeric_integrate(self, x, limits):
-        return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
+    def _fallback_partial_analytic_integrate(self, x, limits, norm_range):
+        return self._analytic_integral.integrate(x=x, limits=limits, dims=limits.dims,
+                                                 norm_range=norm_range, params=self.parameters)
+
+    def _partial_numeric_integrate(self, x, limits, norm_range):
+        raise NotImplementedError
 
     def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -711,19 +727,37 @@ class BasePDF(object):
 
         return self._hook_partial_numeric_integrate(dims, limits, name, norm_range, x)
 
-    def _hook_partial_numeric_integrate(self, x, limits, dims, norm_range,
+    def _hook_partial_numeric_integrate(self, x, limits, norm_range,
                                         name='_hook_partial_numeric_integrate'):
+        integral = self._norm_partial_numeric_integrate(x, limits, norm_range, name)
+        integral = self.apply_yield(integral, norm_range=norm_range)
+        return integral
+
+    def _norm_partial_numeric_integrate(self, x, limits, norm_range, name):
         try:
-            integral = self._call_partial_numeric_integrate(x=x, limits=limits, dims=dims,
+            integral = self._call_partial_numeric_integrate(x=x, limits=limits,
                                                             norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
             unnormalized_integral = self._call_partial_numeric_integrate(x=x, limits=limits,
-                                                                         dims=dims, norm_range=None,
+                                                                         norm_range=None,
                                                                          name=name)
             integral = unnormalized_integral / self._hook_normalization(limits=norm_range)
-        integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
+
+    def _call_partial_numeric_integrate(self, x, limits, norm_range, name):
+        with self._name_scope(name, values=[x, limits, norm_range]):
+            x = tf.convert_to_tensor(x, name="x")
+
+            with suppress(NotImplementedError):
+                return self._partial_numeric_integrate(x=x, limits=limits,
+                                                       norm_range=norm_range)
+            return self._fallback_partial_numeric_integrate(x=x, limits=limits,
+                                                            norm_range=norm_range)
+
+    @no_norm_range
+    def _fallback_partial_numeric_integrate(self, x, limits):
+        return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
 
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
         integration_options = dict(func=func, limits=limits, n_dims=limits.n_dims, x=x, norm_range=norm_range,
@@ -737,20 +771,6 @@ class BasePDF(object):
 
     def _sample(self, n_draws, limits):
         raise NotImplementedError
-
-    def _call_sample(self, n_draws, limits, name):
-        with self._name_scope(name, values=[n_draws, limits]):
-            n_draws = tf.convert_to_tensor(n_draws, name="n_draws")
-
-            with suppress(NotImplementedError):
-                return self._sample(n_draws=n_draws, limits=limits)
-            return self._fallback_sample(n_draws=n_draws, limits=limits)
-
-    def _fallback_sample(self, n_draws, limits):
-        sample = zsample.accept_reject_sample(prob=self.unnormalized_prob,  # no need to normalize
-                                              n_draws=n_draws,
-                                              limits=limits, prob_max=None)  # None -> auto
-        return sample
 
     def sample(self, n_draws, limits, name="sample"):
         """
@@ -769,6 +789,20 @@ class BasePDF(object):
 
     def _hook_sample(self, limits, n_draws, name='_hook_sample'):
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
+
+    def _call_sample(self, n_draws, limits, name):
+        with self._name_scope(name, values=[n_draws, limits]):
+            n_draws = tf.convert_to_tensor(n_draws, name="n_draws")
+
+            with suppress(NotImplementedError):
+                return self._sample(n_draws=n_draws, limits=limits)
+            return self._fallback_sample(n_draws=n_draws, limits=limits)
+
+    def _fallback_sample(self, n_draws, limits):
+        sample = zsample.accept_reject_sample(prob=self._unnormalized_prob,  # no need to normalize
+                                              n_draws=n_draws,
+                                              limits=limits, prob_max=None)  # None -> auto
+        return sample
 
     def copy(self, **override_parameters_kwargs):
         """Creates a deep copy of the pdf.
