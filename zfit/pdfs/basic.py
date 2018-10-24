@@ -5,6 +5,7 @@ import tensorflow as tf
 from zfit.core import tfext as ztf
 from zfit.core import math as zmath
 from zfit.core.basepdf import BasePDF
+import zfit.ztf
 
 
 class Gauss(BasePDF):
@@ -15,14 +16,14 @@ class Gauss(BasePDF):
     def _unnormalized_prob(self, x):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))
+        gauss = tf.exp(- (x - mu) ** 2 / (zfit.ztf.constant(2.) * (sigma ** 2)))
 
         return gauss
 
 
 def _gauss_integral_from_inf_to_inf(limits, params):
-    return tf.sqrt(ztf.pi * params['sigma'])
+    return tf.sqrt(zfit.ztf.pi * params['sigma'])
 
 
 Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
-                                 limits=(-zmath.inf, zmath.inf))
+                                 limits=(-zfit.ztf._inf, zfit.ztf._inf))

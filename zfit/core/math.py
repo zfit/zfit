@@ -3,17 +3,10 @@ from __future__ import print_function, division, absolute_import
 import itertools
 
 import tensorflow as tf
-import math as mt
 
 from zfit.settings import types as ztypes
 
-# py23 compatibility: remove try-except
-try:
-    inf = mt.inf
-except AttributeError:  # not yet there in Python 27
-    inf = float('inf')
-
-pi = mt.pi
+import zfit.ztf
 
 
 def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to real_x=False
@@ -26,15 +19,14 @@ def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to
     Returns:
         tf.Tensor:
     """
-    from zfit.core import tfext
 
     args = list(args)
     x = args.pop()
     if real_x:
         pow_func = tf.pow
     else:
-        pow_func = tfext.nth_pow
-    return tf.add_n([coef * tfext.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
+        pow_func = zfit.ztf.nth_pow
+    return tf.add_n([coef * zfit.ztf.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
 
 
 def interpolate(t, c):

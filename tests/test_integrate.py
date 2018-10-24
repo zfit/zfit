@@ -10,6 +10,7 @@ from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import FitParameter
 from zfit.pdfs.basic import Gauss
+import zfit.ztf
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
 # limits_simple_5deps = (0.9, 4.7)
@@ -250,7 +251,7 @@ def test_analytic_integral():
     mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
     sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
-    gauss_integral_infs = gauss_params1.integrate(limits=(-zmath.inf, zmath.inf))
+    gauss_integral_infs = gauss_params1.integrate(limits=(-zfit.ztf._inf, zfit.ztf._inf))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, dims=(0, 1))
 

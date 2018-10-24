@@ -5,7 +5,6 @@ from typing import Tuple, Union
 
 import numpy as np
 
-import zfit
 from zfit.util.exception import NormRangeNotImplementedError
 
 

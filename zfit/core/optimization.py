@@ -8,6 +8,7 @@ from zfit.settings import types as ztypes
 
 # start legacy
 import zfit
+import zfit.ztf
 
 if zfit.settings.LEGACY_MODE:
     import zfit.legacy
@@ -194,7 +195,7 @@ def switches(size):
       fit fractions)
         size : number of components of the PDF
     """
-    p = [tf.placeholder_with_default(tfext.constant(1.), shape=()) for _ in range(size)]
+    p = [tf.placeholder_with_default(zfit.ztf.constant(1.), shape=()) for _ in range(size)]
     return p
 
 

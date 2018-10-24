@@ -14,6 +14,7 @@ import tensorflow_probability as tfp
 
 import zfit.core.math as zmath
 import zfit.core.tfext as ztf
+import zfit.ztf
 
 
 class AbstractMinimizer(object):
@@ -200,10 +201,10 @@ if __name__ == '__main__':
 
     with tf.Session() as sess:
         with tf.variable_scope("func1"):
-            a = FitParameter("variable_a", ztf.constant(1.5),
-                             ztf.constant(-1.),
-                             ztf.constant(20.),
-                             step_size=ztf.constant(0.1))
+            a = FitParameter("variable_a", zfit.ztf.constant(1.5),
+                             zfit.ztf.constant(-1.),
+                             zfit.ztf.constant(20.),
+                             step_size=zfit.ztf.constant(0.1))
             b = FitParameter("variable_b", 2.)
             c = FitParameter("variable_c", 3.1)
         minimizer_fn = tfp.optimizer.bfgs_minimize
