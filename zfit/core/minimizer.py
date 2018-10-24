@@ -133,7 +133,6 @@ class BaseMinimizer(object):
 #             with tf.control_dependencies([values]):
 #                 for param, val in zip(params, tf.unstack(values)):
 #                     param.update(value=val, session=sess)
-#                 # print("DEBUG:", func_graph, tf.gradients(func_graph, params))
 #                 with tf.control_dependencies([param]):
 #                     func_graph = func()
 #             return func_graph, tf.stack(tf.gradients(func_graph, params))

@@ -8,6 +8,7 @@ import tensorflow_probability as tfp
 from .limits import convert_to_range, Range, no_norm_range
 from ..settings import types as ztypes
 
+
 @no_norm_range
 def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=tf.float64,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
@@ -65,13 +66,12 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
     if n_dims is not None and dims is None:
         dims = tuple(range(n_dims))
 
-
     lower, upper = limits.get_boundaries()
-    print("DEBUG: lower, upper", lower, upper)
+    # print("DEBUG": lower, upper", lower, upper)
 
     lower = tf.convert_to_tensor(lower, dtype=dtype)
     upper = tf.convert_to_tensor(upper, dtype=dtype)
-    print("DEBUG: lower, upper", lower, upper)
+    # print("DEBUG": lower, upper", lower, upper)
 
     n_samples = draws_per_dim ** n_dims
     if partial:
@@ -79,16 +79,16 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
-    print("DEBUG, n_dims", n_dims, dims, n_samples, dtype)
+    # print("DEBUG", n_dims", n_dims, dims, n_samples, dtype)
     # TODO: get dimensions properly
     # TODO: add times dim or so
-    print("DEBUG, mc_sampler", mc_sampler)
+    # print("DEBUG", mc_sampler", mc_sampler)
     samples_normed = mc_sampler(dim=n_dims, num_results=n_samples, dtype=dtype)
     samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_dims))
-    print("DEBUG, samples_normed", samples_normed)
+    # print("DEBUG", samples_normed", samples_normed)
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
     samples = tf.transpose(samples, perm=[2, 0, 1])
-    print("DEBUG, samples_normed", samples)
+    # print("DEBUG", samples_normed", samples)
 
     # TODO: combine sampled with values
 
@@ -97,9 +97,9 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
         index_samples = 0
         index_values = 0
         if len(x.shape) == 1:
-            print("DEBUG, expanding dims n1")
+            # print("DEBUG", expanding dims n1")
             x = tf.expand_dims(x, axis=1)
-        print("DEBUG, n_dims = ", n_dims, x.shape[1].value)
+        # print("DEBUG", n_dims = ", n_dims, x.shape[1].value)
         for i in range(n_dims + x.shape[1].value):
             if i in dims:
                 value_list.append(samples[index_samples, :, :])
@@ -116,15 +116,16 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
     # convert rnd samples with values to feedable vector
     reduce_axis = 1 if partial else None
     if partial:
-        print("DEBUG, samples: ", samples)
-        print("DEBUG, value: ", x)
-        print("DEBUG, func(value): ", func(x))
-        print("DEBUG, func(value).get_shape(): ", func(x).get_shape())
+        pass
+        # print("DEBUG", samples: ", samples)
+        # print("DEBUG", value: ", x)
+        # print("DEBUG", func(value): ", func(x))
+        # print("DEBUG", func(value).get_shape(): ", func(x).get_shape())
     # avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
 
     avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
     # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    print("DEBUG, avg", avg)
+    # print("DEBUG", avg", avg)
     integral = avg * limits.area
     return tf.cast(integral, dtype=dtype)
 
@@ -169,7 +170,7 @@ class AnalyticIntegral(object):
             dims = limits.dims
         dims = frozenset(dims)
         integral_holder = self._integrals.get(dims)
-        print("DEBUG, self._integrals, dims", self._integrals, dims)
+        # print("DEBUG", self._integrals, dims", self._integrals, dims)
         if integral_holder is None:
             raise NotImplementedError("Integral is not available for dims {}".format(dims))
         integral_fn = integral_holder.get(limits.as_tuple(), integral_holder.get(None))
@@ -178,7 +179,7 @@ class AnalyticIntegral(object):
                 "Integral is available for dims {}, but not for limits {}".format(dims, limits))
 
         if x is None:
-            print("DEBUG: limits", limits)
+            # print("DEBUG": limits", limits)
             integral = integral_fn(limits=limits, params=params)
         else:
             integral = integral_fn(x=x, limits=limits, params=params)

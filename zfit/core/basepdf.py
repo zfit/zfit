@@ -234,6 +234,15 @@ class BasePDF(object):
             # No fallback, if unnormalized_prob is not implemented
 
     def unnormalized_prob(self, x, name="unnormalized_prob"):
+        """Return the function unnormalized
+
+        Args:
+            x (numerical): The values, has to be convertable to a Tensor
+            name (str):
+
+        Returns:
+            graph: A runnable graph
+        """
         return self._hook_unnormalized_prob(x=x, name=name)
 
     def _hook_unnormalized_prob(self, x, name="_hook_unnormalized_prob"):
@@ -259,9 +268,9 @@ class BasePDF(object):
         """Probability density/mass function.
 
         Args:
-          x: `float` or `double` `Tensor`.
-          norm_range (): Range to normalize over
-          name: Python `str` prepended to names of ops created by this function.
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, Range): Range to normalize over
+          name (str): Prepended to names of ops created by this function.
 
         Returns:
           prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
@@ -294,8 +303,8 @@ class BasePDF(object):
         """Log probability density/mass function.
 
         Args:
-          x: `float` or `double` `Tensor`.
-          name: Python `str` prepended to names of ops created by this function.
+          x (numerical): `float` or `double` `Tensor`.
+          name (str): Prepended to names of ops created by this function.
 
         Returns:
           log_prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
@@ -331,6 +340,15 @@ class BasePDF(object):
         return normalization_value
 
     def normalization(self, limits, name="normalization"):
+        """Return the normalization of the function (usually the integral over `limits`).
+
+        Args:
+            limits (tuple, Range): The limits on where to normalize over
+            name (str):
+
+        Returns:
+            Tensor: the normalization value
+        """
         limits = convert_to_range(limits, dims=Range.FULL)
 
         return self._hook_normalization(limits=limits, name=name)
@@ -356,7 +374,6 @@ class BasePDF(object):
         n_dims = limits.n_dims
         dims = limits.dims
         max_dims = self._analytic_integral.get_max_dims()
-        print("DEBUG, max_dims, dims", max_dims, dims)
 
         integral = None
         if max_dims == frozenset(dims):
@@ -373,6 +390,16 @@ class BasePDF(object):
         return integral
 
     def integrate(self, limits, norm_range=None, name="integrate"):
+        """Integrate the function over `limits` (normalized over norm_range if not False).
+
+        Args:
+            limits (tuple, Range): the limits to integrate over
+            norm_range (tuple, Range): the limits to normalize over
+            name (str):
+
+        Returns:
+            Tensor: the integral value
+        """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         limits = convert_to_range(limits, dims=Range.FULL)
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
@@ -389,7 +416,7 @@ class BasePDF(object):
         return integral
 
     @classmethod
-    def register_analytic_integral(cls, func, dims=None, limits=None):
+    def register_analytic_integral(cls, func, limits=None, dims=None):
         """
 
         Args:
@@ -417,6 +444,17 @@ class BasePDF(object):
                                                  norm_range=norm_range, params=self.parameters)
 
     def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
+        """Force analytical integration over function
+
+        Args:
+            limits (tuple, Range): the limits to integrate over
+            norm_range (tuple, Range, False): the limits to normalize over
+            name (str):
+
+        Returns:
+            Tensor: the integral value
+
+        """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         limits = convert_to_range(limits, dims=Range.FULL)
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
@@ -462,6 +500,17 @@ class BasePDF(object):
         return integral
 
     def numeric_integrate(self, limits, norm_range=None, name="numeric_integrate"):
+        """Force numerical integration over the function.
+
+        Args:
+            limits (tuple, Range): the limits to integrate over
+            norm_range (tuple, Range, False): the limits to normalize over
+            name (str):
+
+        Returns:
+            Tensor: the integral value
+
+        """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         limits = convert_to_range(limits, dims=Range.FULL)
 
@@ -510,9 +559,24 @@ class BasePDF(object):
         return integral_vals
 
     def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
+        """Partially integrate the function over the `limits` and evaluate it at `x`.
+
+        Dimension of `limtis` and `x` have to add up to the full dimension and be therefore equal
+        to the dimensions of `norm_range` (if not False)
+
+        Args:
+            x (numerical): The values at which the partially integrated function will be evaluated
+            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            dims (tuple(int): The dimensions to partially integrate over
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            name (str):
+
+        Returns:
+            Tensor: the values of the partially integrated function evaluated at `x`.
+        """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: FULL reasonable?
-        limits = convert_to_range(limits, dims=dims)
+        limits = convert_to_range(limits, dims=dims)  # TODO: don't request dims but check (if not already Range
 
         return self._hook_partial_integrate(x=x, limits=limits, dims=dims,
                                             norm_range=norm_range, name=name)
@@ -551,19 +615,26 @@ class BasePDF(object):
 
     def partial_analytic_integrate(self, x, limits, dims, norm_range=None,
                                    name="partial_analytic_integrate"):
-        """Partial integral over dims.
+        """Force analytical partial integration of the function over the `limits` and evaluate it at `x`.
+
+        Dimension of `limtis` and `x` have to add up to the full dimension and be therefore equal
+        to the dimensions of `norm_range` (if not False)
 
         Args:
-            x ():
-            dims (tuple(int)): The dims to integrate over
+            x (numerical): The values at which the partially integrated function will be evaluated
+            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            dims (tuple(int): The dimensions to partially integrate over
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            name (str):
 
         Returns:
-            Tensor:
+            Tensor: the values of the partially integrated function evaluated at `x`.
 
         Raises:
             NotImplementedError: if the function is not implemented
             NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
-                means that no analytical normalization is available.
+                means that no analytical normalization is available, explicitly: the analytical
+                integral over the limits = norm_range is not available.
 
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
@@ -618,6 +689,21 @@ class BasePDF(object):
         return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
 
     def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
+        """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
+
+        Dimension of `limtis` and `x` have to add up to the full dimension and be therefore equal
+        to the dimensions of `norm_range` (if not False)
+
+        Args:
+            x (numerical): The values at which the partially integrated function will be evaluated
+            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            dims (tuple(int): The dimensions to partially integrate over
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            name (str):
+
+        Returns:
+            Tensor: the values of the partially integrated function evaluated at `x`.
+        """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
 
         return self._hook_partial_numeric_integrate(dims, limits, name, norm_range, x)
@@ -664,6 +750,16 @@ class BasePDF(object):
         return sample
 
     def sample(self, n_draws, limits, name="sample"):
+        """
+
+        Args:
+            n_draws (int): The number to samples to generate and to draw from (accept-reject) # TODO: change to numbers returned
+            limits (tuple, Range): In which region to sample in
+            name (str):
+
+        Returns:
+            Tensor(n_samples, n_dims)
+        """
         limits = convert_to_range(limits, dims=Range.FULL)
         return self._hook_sample(n_draws=n_draws, limits=limits, name=name)
 
@@ -671,9 +767,9 @@ class BasePDF(object):
         return self._call_sample(n_draws=n_draws, limits=limits, name=name)
 
     def copy(self, **override_parameters_kwargs):
-        """Creates a deep copy of the distribution.
+        """Creates a deep copy of the pdf.
 
-        Note: the copy distribution may continue to depend on the original
+        Note: the copy pdf may continue to depend on the original
         initialization arguments.
 
         Args:
@@ -681,7 +777,7 @@ class BasePDF(object):
             arguments to override with new values.
 
         Returns:
-          distribution: A new instance of `type(self)` initialized from the union
+          pdf: A new instance of `type(self)` initialized from the union
             of self.parameters and override_parameters_kwargs, i.e.,
             `dict(self.parameters, **override_parameters_kwargs)`.
         """
@@ -776,16 +872,15 @@ class WrapDistribution(BasePDF):
         self.tf_distribution = distribution
 
     def _unnormalized_prob(self, x):
-        return self.tf_distribution.prob(value=x, name="asdf")  # TODO name
+        return self.tf_distribution.prob(value=x, name="_unnormalized_prob")  # TODO name
 
     # TODO: register integral
+    @no_norm_range
     def _analytic_integrate(self, limits, norm_range):  # TODO deal with norm_range
         lower, upper = limits.get_boundaries()  # TODO: limits
         upper = tf.cast(upper, dtype=tf.float64)
         lower = tf.cast(lower, dtype=tf.float64)
-        integral = self.tf_distribution.cdf(upper, name="asdf2") - self.tf_distribution.cdf(
-            lower,
-            name="asdf3")  # TODO name
+        integral = self.tf_distribution.cdf(upper) - self.tf_distribution.cdf(lower)
         return integral
 
 

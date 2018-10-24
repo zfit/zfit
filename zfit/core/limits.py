@@ -73,7 +73,7 @@ class Range(object):
         if len(np.shape(dims)) == 0:
             dims = (dims,)
         sorted_dims = tuple(sorted(dims))
-        print("DEBUG, sorted dims", sorted_dims)
+        # print("DEBUG", sorted dims", sorted_dims)
         if len(np.shape(dims)) == 0:
             sorted_dims = (sorted_dims,)
         return sorted_dims
@@ -113,7 +113,7 @@ class Range(object):
 
     def get_boundaries(self):
         """Return a lower and upper boundary tuple containing all possible combinations"""
-        print("DEBUG:, tuple", self.as_tuple())
+        # print("DEBUG":, tuple", self.as_tuple())
         lower, upper = Range.combine_boundaries(self.as_tuple())
         return tuple(lower), tuple(upper)
 

@@ -29,10 +29,10 @@ def minimize_func(minimizer_class, sess):
     def func(a, b, c):
         return tf.convert_to_tensor((a - true_a) ** 6 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
 
-    print("DEBUG: before true_minimum")
+    # print("DEBUG": before true_minimum")
 
     true_minimum = sess.run(func(true_a, true_b, true_c))
-    print("DEBUG: true_minimum", true_minimum)
+    # print("DEBUG": true_minimum", true_minimum)
     loss_func = func(a_param, b_param, c_param)
     minimizer = minimizer_class(sess=sess, learning_rate=0.4, tolerance=0.3)
 
@@ -52,7 +52,7 @@ minimizers = [zmin.AdamMinimizer,
               zmin.AdagradMinimizer,
               zmin.GradientDescentMinimizer,
               zmin.RMSPropMinimizer]
-print("DEBUG: after minimizer instanciation")
+# print("DEBUG": after minimizer instanciation")
 
 
 @pytest.mark.parametrize("minimizer_class", minimizers)

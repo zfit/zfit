@@ -124,7 +124,7 @@ def func3_2deps(x):
 
 def func3_2deps_fully_integrated(limits, params=None):
     lower, upper = limits.get_boundaries()
-    print("DEBUG: lower, upper", lower, upper)
+    # print("DEBUG": lower, upper", lower, upper)
     lower_a, lower_b = lower[0]
     upper_a, upper_b = upper[0]
     integral = (lower_a ** 3 - upper_a ** 3) * (lower_b - upper_b)
@@ -228,7 +228,7 @@ def test_mc_partial_integration():
     with tf.Session() as sess:
         integral = sess.run(num_integral)
         integral2 = sess.run(num_integral2)
-        print("DEBUG, values:", sess.run(vals_reshaped))
+        # print("DEBUG", values:", sess.run(vals_reshaped))
         assert len(integral) == len(func4_values)
         assert len(integral2) == len(func4_2values[1])
         assert func4_3deps_0and2_integrated(x=func4_values,
