@@ -26,6 +26,10 @@ class Gauss(BasePDF):
 def _gauss_integral_from_inf_to_inf(limits, params):
     return tf.sqrt(zfit.ztf.pi * params['sigma'])
 
+try:
+    infinity = mt.inf
+except ImportError:  # py34
+    infinity = float('inf')
 
 Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
-                                 limits=(-mt.inf, mt.inf))
+                                 limits=(-infinity, infinity))

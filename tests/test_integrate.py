@@ -253,7 +253,11 @@ def test_analytic_integral():
     mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
     sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
-    gauss_integral_infs = gauss_params1.integrate(limits=(-mt.inf, mt.inf))
+    try:
+        infinity = mt.inf
+    except ImportError:  # py34
+        infinity = float('inf')
+    gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, dims=(0, 1))
 

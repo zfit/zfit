@@ -163,6 +163,7 @@ class AnalyticIntegral(object):
             self._max_dims = dims
         self._integrals[dims][limits] = func  # TODO improve with database-like access
 
+    @no_norm_range
     def integrate(self, x, limits, dims=None, norm_range=None, params=None):
         """Integrate analytically over the dims if available."""
         # TODO: what if dims is None?
