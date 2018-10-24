@@ -206,7 +206,7 @@ class Range(object):
         limits = tuple(tuple(sorted(set(vals))) for vals in limits)
         return Range._add_dim_if_scalars(limits)
 
-    def __lt__(self, other):
+    def __le__(self, other):
         if not isinstance(other, type(self)):
             raise TypeError("Comparison between other types than Range objects currently not "
                             "supported")
@@ -214,17 +214,17 @@ class Range(object):
             return False
         for dim, other_dim in zip(self, other):
             for lower, upper in iter_limits(dim):
-                is_smaller = False
+                is_le = False
                 for other_lower, other_upper in iter_limits(other_dim):
-                    is_smaller = other_lower <= lower and upper <= other_upper
-                    if is_smaller:
+                    is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
+                    if is_le or (other_lower is None and other_upper is None):
                         break
-                if not is_smaller:
+                if not is_le:
                     return False
         return True
 
-    def __gt__(self, other):
-        return other < self
+    def __ge__(self, other):
+        return other <= self
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):

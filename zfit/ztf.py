@@ -9,8 +9,11 @@ from zfit.settings import types as _ztypes  # pay attention with the names in he
 
 # doesn't work...
 # from tensorflow import *  # Yes, this is wanted. Yields an equivalent ztf BUT we COULD wrap it :)
-
-inf = _tf.constant(mt.inf, dtype=_ztypes.float)
+try:
+    from math import inf as _inf
+except ImportError:  # py34 remove try-except
+    _inf = float('inf')
+inf = _tf.constant(_inf, dtype=_ztypes.float)
 
 
 def constant(x, dtype=_ztypes.float):

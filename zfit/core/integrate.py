@@ -187,9 +187,18 @@ class AnalyticIntegral(object):
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, func, limits, dims):
-        self.func = func
-        self._set_dims(dims)
+    def __init__(self, limits, func, dims=None, priority=50):
+        self.limits = convert_to_range(limits=limits, dims=dims)
+        self.integrate = func
+        self.dims = limits.dims
+        self.priority = priority
+
+    def __gt__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError("Cannot compare object of type {} with object of type {}"
+                            "".format(type(self), type(other)))
+        # TODO implement?
+
 
 
 if __name__ == '__main__':
