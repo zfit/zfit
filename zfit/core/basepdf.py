@@ -57,6 +57,7 @@ class BasePDF(object):
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = zintegrate.AnalyticIntegral()
+    _inverse_analytic_integral = zintegrate.AnalyticIntegral()
     _additional_repr = {}
 
     def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
@@ -442,6 +443,20 @@ class BasePDF(object):
 
         """
         cls._analytic_integral.register(func=func, dims=dims, limits=limits)
+
+    @classmethod
+    def register_inverse_analytic_integral(cls, func, limits=None, dims=None):
+        """
+
+        Args:
+            func ():
+            dims (tuple(int)):
+            limits ():
+
+        Returns:
+
+        """
+        cls._inverse_analytic_integral.register(func=func, dims=dims, limits=limits)
 
     def _analytic_integrate(self, limits, norm_range):
         # TODO: user implementation requested

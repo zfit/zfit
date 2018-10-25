@@ -22,7 +22,7 @@ def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to
 
     args = list(args)
     x = args.pop()
-    if real_x:
+    if real_x is not None:
         pow_func = tf.pow
     else:
         pow_func = zfit.ztf.nth_pow

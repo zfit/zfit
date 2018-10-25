@@ -1,4 +1,7 @@
-import math as mt
+import math as _mt
+import warnings
+
+import tensorflow
 
 import numpy as _znp
 import tensorflow as _tf
@@ -9,6 +12,23 @@ from zfit.settings import types as _ztypes  # pay attention with the names in he
 
 # doesn't work...
 # from tensorflow import *  # Yes, this is wanted. Yields an equivalent ztf BUT we COULD wrap it :)
+module_dict = tensorflow.__dict__
+try:
+    to_import = tensorflow.__all__
+except AttributeError:
+    to_import = [name for name in module_dict if not name.startswith('_')]
+
+imported = {}
+failed_imports = []
+for name in to_import:
+    try:
+        imported[name] = module_dict[name]
+    except KeyError as error:
+        failed_imports.append(name)
+if failed_imports:
+    warnings.warn("The following modules/attributes from TensorFlow could NOT be imported:\n{}".format(failed_imports))
+globals().update(imported)
+
 try:
     from math import inf as _inf
 except ImportError:  # py34 remove try-except
@@ -20,7 +40,7 @@ def constant(x, dtype=_ztypes.float):
     return _tf.constant(x, dtype)
 
 
-pi = constant(mt.pi)
+pi = constant(_mt.pi)
 
 
 def to_complex(number, dtype=_ztypes.complex):

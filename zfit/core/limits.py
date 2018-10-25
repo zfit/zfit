@@ -28,6 +28,7 @@ class Range(object):
             Range: Returns the range object itself
         """
         self._area = None
+        self._area_by_boundaries = None
         self._set_limits_and_dims(limits, dims)
 
     def _set_limits_and_dims(self, limits, dims):
@@ -99,13 +100,21 @@ class Range(object):
             self._calculate_save_area()
         return self._area
 
+    def area_by_boundaries(self, rel=False):
+        if self._area_by_boundaries is None:
+            area_by_bound = [np.prod(np.array(up) - np.array(low)) for low, up in zip(*self.get_boundaries())]
+        if rel:
+            area_by_bound = np.array(area_by_bound) / self.area
+        return tuple(area_by_bound)
+
     def _calculate_save_area(self):
-        area = 1.
-        for dims in self:
-            sub_area = 0
-            for lower, upper in iter_limits(dims):
-                sub_area += upper - lower
-            area *= sub_area
+        # area = 1.
+        # for dims in self:
+        #     sub_area = 0
+        #     for lower, upper in iter_limits(dims):
+        #         sub_area += upper - lower
+        #     area *= sub_area
+        area = sum(self.area_by_boundaries(rel=False))
         self._area = area
         return area
 
@@ -113,7 +122,7 @@ class Range(object):
     def dims(self):
         return self._dims
 
-    def as_tuple(self):
+    def as_tuple(self) -> Tuple[Tuple[float, float]]:
         return self._limits
 
     def as_array(self):
@@ -217,7 +226,10 @@ class Range(object):
                 is_le = False
                 for other_lower, other_upper in iter_limits(other_dim):
                     is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
-                    if is_le or (other_lower is None and other_upper is None):
+                    is_le *= other_lower == lower and upper is None  # TODO: approx limit comparison?
+                    is_le *= None is lower and upper == other_upper  # TODO: approx limit comparison?
+                    is_le *= None is lower and upper is None
+                    if is_le:
                         break
                 if not is_le:
                     return False

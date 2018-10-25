@@ -194,13 +194,6 @@ class Integral(object):  # TODO analytic integral
         self.dims = limits.dims
         self.priority = priority
 
-    def __gt__(self, other):
-        if not isinstance(other, type(self)):
-            raise TypeError("Cannot compare object of type {} with object of type {}"
-                            "".format(type(self), type(other)))
-        # TODO implement?
-
-
 
 if __name__ == '__main__':
     # TODO: partial does not yet work...
