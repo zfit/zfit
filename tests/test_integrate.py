@@ -255,7 +255,7 @@ def test_analytic_integral():
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
     try:
         infinity = mt.inf
-    except ImportError:  # py34
+    except AttributeError:  # py34
         infinity = float('inf')
     gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity))
 

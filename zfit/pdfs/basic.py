@@ -28,7 +28,7 @@ def _gauss_integral_from_inf_to_inf(limits, params):
 
 try:
     infinity = mt.inf
-except ImportError:  # py34
+except AttributeError:  # py34
     infinity = float('inf')
 
 Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
