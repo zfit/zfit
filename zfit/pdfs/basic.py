@@ -24,7 +24,8 @@ class Gauss(BasePDF):
 
 
 def _gauss_integral_from_inf_to_inf(limits, params):
-    return tf.sqrt(zfit.ztf.pi * params['sigma'])
+    # return ztf.const(1.)
+    return tf.sqrt(2 * zfit.ztf.pi) * params['sigma']
 
 try:
     infinity = mt.inf
