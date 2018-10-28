@@ -54,8 +54,7 @@ class TestRange(TestCase):
         self.limit1_range = Range(limits=limit1, dims=limit1_dims)
         self.limit2_range = Range(limits=limit2, dims=limit2_dims)
         self.limit3_1pair_range = Range(limits=limit3_1dim_1pair, dims=limit3_1dim_1pair_dims)
-        self.limit3_1pair_0axis_range = Range(limits=limit3_1dim_1pair_0axis,
-                                              dims=limit3_1dim_1pair_dims_0axis)
+        self.limit3_1pair_0axis_range = Range(limits=limit3_1dim_1pair_0axis, dims=limit3_1dim_1pair_dims_0axis)
         self.limit3_3pair_range = Range(limits=limit3_1dim_3pair, dims=limit3_1dim_3pair_dims)
         self.limit4_range = Range(limits=limit4, dims=limit4_dims)
 
@@ -87,12 +86,12 @@ class TestRange(TestCase):
         self.assertEqual(self.limit4_range.dims, limit4_dims_true)
 
     def test_as_tuple(self):
-        self.assertEqual(self.limit1_range.as_tuple(), limit1_true)
-        self.assertEqual(self.limit2_range.as_tuple(), limit2_true)
-        self.assertEqual(self.limit3_1pair_range.as_tuple(), limit3_1dim_1pair_true)
-        self.assertEqual(self.limit3_1pair_0axis_range.as_tuple(), limit3_1dim_1pair_true_0axis)
-        self.assertEqual(self.limit3_3pair_range.as_tuple(), limit3_1dim_3pair_true)
-        self.assertEqual(self.limit4_range.as_tuple(), limit4_true)
+        self.assertEqual(self.limit1_range.get_limits(), limit1_true)
+        self.assertEqual(self.limit2_range.get_limits(), limit2_true)
+        self.assertEqual(self.limit3_1pair_range.get_limits(), limit3_1dim_1pair_true)
+        self.assertEqual(self.limit3_1pair_0axis_range.get_limits(), limit3_1dim_1pair_true_0axis)
+        self.assertEqual(self.limit3_3pair_range.get_limits(), limit3_1dim_3pair_true)
+        self.assertEqual(self.limit4_range.get_limits(), limit4_true)
 
     def test_comparison(self):
         self.assertFalse(self.limit1_range <= self.limit2_range)
@@ -104,8 +103,7 @@ class TestRange(TestCase):
         # self.assertTrue(self.limit3_1pair_range <= self.limit3_3pair_range)  # TODO add test with Nones
         self.assertFalse(self.limit3_1pair_range >= self.limit3_3pair_range)
         self.assertFalse(self.limit3_1pair_range == self.limit3_3pair_range)
-        self.assertTrue(self.limit3_3pair_range == Range(limit3_1dim_3pair,
-                                                         dims=limit3_1dim_3pair_dims))
+        self.assertTrue(self.limit3_3pair_range == Range(dims=limit3_1dim_3pair_dims))
         # limit4_subrange_range = Range(limit4_subrange, dims=limit4_dims)  # TODO add test with Nones in limits
         # self.assertTrue(self.limit4_range > limit4_subrange_range)
         # self.assertTrue(limit4_subrange_range < self.limit4_range)
@@ -118,13 +116,13 @@ class TestRange(TestCase):
         valid_dims2 = (0, 2)
         valid_limits = ((1, 2), None, (4, 5, 6, 7))
         with self.assertRaises(ValueError) as context:
-            Range(invalid_limits, invalid_dim)
+            Range()
         with self.assertRaises(ValueError) as context:
-            Range(invalid_limits2, invalid_dim)
+            Range()
         with self.assertRaises(ValueError) as context:
-            Range(invalid_limits2)
-        valid_range_with_none = Range(valid_limits)
-        valid_range = Range(invalid_limits2, dims=valid_dims2)
+            Range()
+        valid_range_with_none = Range()
+        valid_range = Range(dims=valid_dims2)
         self.assertTrue(valid_range_with_none == valid_range)
 
     def test_conversion(self):
@@ -136,8 +134,8 @@ class TestRange(TestCase):
         self.assertEqual(simple_lower, lower)
         self.assertEqual(simple_upper, upper)
         limits4_lower, limits4_upper = self.limit4_range.get_boundaries()
-        limits4_reconversed = Range.extract_boundaries(limits4_lower, limits4_upper)
-        self.assertEqual(limits4_reconversed, self.limit4_range.as_tuple())
+        limits4_reconversed = Range.limits_from_boundaries(limits4_lower, limits4_upper)
+        self.assertEqual(limits4_reconversed, self.limit4_range.get_limits())
         # self.assertEqual(self.limit4_range, )
 
     def test_subspace(self):

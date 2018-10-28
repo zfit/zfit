@@ -3,11 +3,8 @@ from __future__ import print_function, division, absolute_import
 import pytest
 import tensorflow as tf
 
-import zfit
-
 import zfit.core.minimizer as zmin
-import zfit.core.tfext as ztf
-import zfit.ztf
+from zfit import ztf
 
 
 def minimize_func(minimizer_class, sess):
@@ -20,10 +17,10 @@ def minimize_func(minimizer_class, sess):
         true_a = 1.
         true_b = 4.
         true_c = 7.
-        a_param = FitParameter("variable_a", zfit.ztf.constant(1.5),
-                               zfit.ztf.constant(-1.),
-                               zfit.ztf.constant(20.),
-                               step_size=zfit.ztf.constant(0.1))
+        a_param = FitParameter("variable_a", ztf.constant(1.5),
+                               ztf.constant(-1.),
+                               ztf.constant(20.),
+                               step_size=ztf.constant(0.1))
         b_param = FitParameter("variable_b", 3.5)
         c_param = FitParameter("variable_c", 7.8)
 

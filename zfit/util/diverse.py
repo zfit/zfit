@@ -31,10 +31,10 @@ def gauss_4d(x, params):
     norm = params[0]
     mean = tf.stack(params[1:5])
     sigma = tf.stack(params[5:9])
-    corr = tf.stack([[zfit.ztf.constant(1.), params[9], params[10], params[11]],
-                     [params[9], zfit.ztf.constant(1.), params[12], params[13]],
-                     [params[10], params[12], zfit.ztf.constant(1.), params[14]],
-                     [params[11], params[13], params[14], zfit.ztf.constant(1.)]])
+    corr = tf.stack([[ztf.constant(1.), params[9], params[10], params[11]],
+                     [params[9], ztf.constant(1.), params[12], params[13]],
+                     [params[10], params[12], ztf.constant(1.), params[14]],
+                     [params[11], params[13], params[14], ztf.constant(1.)]])
 
     cov = tf.einsum("i,ij,j->ij", sigma, corr, sigma)
     invcov = tf.matrix_inverse(cov)
@@ -59,7 +59,7 @@ class GaussianMixture2D(object):
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
     def model(self, x):
-        d = zfit.ztf.constant(0.)
+        d = ztf.constant(0.)
         for i in self.params:
             d += gauss_2d(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d
@@ -83,7 +83,7 @@ class GaussianMixture4D(object):
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
     def model(self, x):
-        d = zfit.ztf.constant(0.)
+        d = ztf.constant(0.)
         for i in self.params:
             d += gauss_2d(x, i[0], i[1], i[2], i[3], i[4], i[5])
         return d

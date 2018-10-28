@@ -4,10 +4,9 @@ import math as mt
 
 import tensorflow as tf
 
-from zfit.core import tfext as ztf
 from zfit.core import math as zmath
 from zfit.core.basepdf import BasePDF
-import zfit.ztf
+from zfit import ztf
 
 
 class Gauss(BasePDF):
@@ -18,14 +17,15 @@ class Gauss(BasePDF):
     def _unnormalized_prob(self, x):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp(- (x - mu) ** 2 / (zfit.ztf.constant(2.) * (sigma ** 2)))
+        gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))
 
         return gauss
 
 
+
 def _gauss_integral_from_inf_to_inf(limits, params):
     # return ztf.const(1.)
-    return tf.sqrt(2 * zfit.ztf.pi) * params['sigma']
+    return tf.sqrt(2 * ztf.pi) * params['sigma']
 
 try:
     infinity = mt.inf

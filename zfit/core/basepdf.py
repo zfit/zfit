@@ -414,7 +414,7 @@ class BasePDF(object):
 
     def _fallback_integrate(self, limits, norm_range):
         dims = limits.dims
-        max_dims = self._analytic_integral.get_max_dims()
+        max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=dims)
 
         integral = None
         if max_dims == frozenset(dims):
@@ -623,9 +623,9 @@ class BasePDF(object):
                                                     norm_range=norm_range)
 
     def _fallback_partial_integrate(self, x, limits, norm_range):
-        max_dims = self._analytic_integral.get_max_dims(out_of_dims=limits.dims)
+        max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=limits.dims)
         if max_dims:
-            def part_int(x):
+            def part_int(x):  # change to partial integrate max dims?
                 return self._norm_partial_analytic_integrate(x=x, limits=limits,
                                                              dims=max_dims, norm_range=norm_range)
 

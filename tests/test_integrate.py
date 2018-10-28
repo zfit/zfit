@@ -259,7 +259,7 @@ def test_analytic_integral():
         infinity = float('inf')
     gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity))
 
-    DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, dims=(0, 1))
+    DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, limits=Range.from_boundaries(*limits3, dims=(0, 1)), dims=None)
 
     dist_func3 = DistFunc3()
     with tf.Session() as sess:

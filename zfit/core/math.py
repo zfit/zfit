@@ -5,9 +5,8 @@ import itertools
 import tensorflow as tf
 
 from zfit.settings import types as ztypes
-
-import zfit.ztf
-
+from zfit.core import tfext
+from zfit import ztf
 
 def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to real_x=False
     """Complex polynomial with the last arg being x.
@@ -25,8 +24,8 @@ def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to
     if real_x is not None:
         pow_func = tf.pow
     else:
-        pow_func = zfit.ztf.nth_pow
-    return tf.add_n([coef * zfit.ztf.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
+        pow_func = tfext.nth_pow
+    return tf.add_n([coef * ztf.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
 
 
 def interpolate(t, c):

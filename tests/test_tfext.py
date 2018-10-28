@@ -14,6 +14,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit.core.math
+from zfit import ztf
 
 prec = 0.00001
 

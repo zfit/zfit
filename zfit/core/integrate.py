@@ -133,34 +133,51 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
 class AnalyticIntegral(object):
     def __init__(self, *args, **kwargs):
         super(AnalyticIntegral, self).__init__(*args, **kwargs)
-        self._max_dims = ()
+        # self._max_dims = ()
         self._integrals = collections.defaultdict(dict)
 
-    def get_max_dims(self, out_of_dims=None, limits=None):
+    def get_max_dims(self, limits, dims=None):
+        # if dims is None
+        limits = convert_to_range(limits=limits, dims=dims)
 
+        return self._get_max_dims_limits(limits, dims)[0]  # only dims
+
+    def _get_max_dims_limits(self, limits, out_of_dims):  # TODO: automatic caching? but most probably not relevant
         if out_of_dims:
             out_of_dims = frozenset(out_of_dims)
             implemented_dims = set(d for d in self._integrals.keys() if d <= out_of_dims)
-            implemented_dims_limits = []
-            for dims in implemented_dims:
-                may_integral_fn = self._integrals[dims].get(limits, self._integrals[dims].get(None))
-                if may_integral_fn is not None:
-                    implemented_dims_limits.append(dims)
-
-            max_dims = max(implemented_dims_limits)
         else:
-            max_dims = self._max_dims
+            implemented_dims = set(self._integrals.keys())
+        implemented_dims = sorted(implemented_dims, key=len, reverse=True)  # iter through biggest first
+        for dims in implemented_dims:
+            print("DEBUG: limits", limits.get_limits())
+            print("DEBUG: dims", limits.dims)
+            print("DEBUG: keys", list(self._integrals[dims].keys())[0].get_limits())
+            limits = [lim for lim in self._integrals[dims] if lim >= limits]
 
-        return max_dims
+            if limits:  # one or more integrals available
+                return dims, limits
+        return (), ()  # no integral available for this dims
+
+    def get_max_integral(self, limits, dims=None):
+        limits = convert_to_range(limits=limits, dims=dims)
+
+        dims, limits = self._get_max_dims_limits(limits=limits, out_of_dims=dims)
+        integrals = [self._integrals[dims][lim] for lim in limits]
+        integral_fn = max(integrals, key=lambda l: l.priority, default=None)
+        return integral_fn
 
     def register(self, func, dims, limits=None):
         """Register an analytic integral."""
-        if limits is not None:
-            limits = convert_to_range(limits, dims=dims)
-            limits = limits.as_tuple()
-        dims = frozenset(dims)
-        if len(dims) > len(self._max_dims):
-            self._max_dims = dims
+        if limits is None:
+            limits = tuple((None, None) for _ in range(len(dims)))
+            limits = convert_to_range(limits=limits, dims=dims)
+        else:
+            limits = convert_to_range(limits=limits, dims=dims)
+            # limits = limits.get_limits()
+        dims = frozenset(limits.dims)
+        # if len(dims) > len(self._max_dims):
+        #     self._max_dims = dims
         self._integrals[dims][limits] = func  # TODO improve with database-like access
 
     @no_norm_range
@@ -174,7 +191,7 @@ class AnalyticIntegral(object):
         # print("DEBUG", self._integrals, dims", self._integrals, dims)
         if integral_holder is None:
             raise NotImplementedError("Integral is not available for dims {}".format(dims))
-        integral_fn = integral_holder.get(limits.as_tuple(), integral_holder.get(None))
+        integral_fn = integral_holder.get(limits.get_limits(), integral_holder.get(None))
         if integral_fn is None:
             raise NotImplementedError(
                 "Integral is available for dims {}, but not for limits {}".format(dims, limits))
@@ -188,7 +205,7 @@ class AnalyticIntegral(object):
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, limits, func, dims=None, priority=50):
+    def __init__(self, func, limits, dims=None, priority=50):
         self.limits = convert_to_range(limits=limits, dims=dims)
         self.integrate = func
         self.dims = limits.dims
