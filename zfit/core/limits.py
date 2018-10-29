@@ -70,6 +70,10 @@ class Range(object):
         """
         return Range(limits=limits, dims=dims)
 
+
+    def __len__(self):
+        return len(self.get_boundaries()[0])
+
     @staticmethod
     def sanitize_boundaries(lower, upper, dims=None, convert_none=False):
         """Sanitize (add dim, replace None, check length...)
@@ -303,7 +307,7 @@ class Range(object):
 
     @staticmethod
     def sort_limits(limits):
-        raise ModuleNotFoundError
+        raise ModuleNotFoundError("YEAH WRONG, but it's not implemented currently")
         # TODO: improve sorting for several Nones (how to sort?)
         if not any(obj is None for dim in limits for obj in dim):  # just a hack
             limits = tuple(tuple(sorted(list(vals))) for vals in limits)

@@ -15,7 +15,7 @@ from tensorflow.python.ops.distributions.distribution import _BaseDistribution, 
 import tensorflow_probability.python.mcmc as mc
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range
-from zfit.util.exception import NormRangeNotImplementedError
+from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError
 # import zfit.core.integrate
 from ..settings import types as ztypes
 from . import integrate as zintegrate
@@ -23,6 +23,7 @@ from . import sample as zsample
 # from zfit.settings import types as ztypes
 from ..util import exception as zexception
 from ..util import container as zcontainer
+from zfit import ztf
 
 
 #
@@ -57,7 +58,7 @@ class BasePDF(object):
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = zintegrate.AnalyticIntegral()
-    _inverse_analytic_integral = zintegrate.AnalyticIntegral()
+    _inverse_analytic_integral = None
     _additional_repr = {}
 
     def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
@@ -445,7 +446,7 @@ class BasePDF(object):
         cls._analytic_integral.register(func=func, dims=dims, limits=limits)
 
     @classmethod
-    def register_inverse_analytic_integral(cls, func, limits=None, dims=None):
+    def register_inverse_analytic_integral(cls, func):
         """
 
         Args:
@@ -456,7 +457,7 @@ class BasePDF(object):
         Returns:
 
         """
-        cls._inverse_analytic_integral.register(func=func, dims=dims, limits=limits)
+        cls._inverse_analytic_integral = func
 
     def _analytic_integrate(self, limits, norm_range):
         # TODO: user implementation requested
@@ -784,6 +785,13 @@ class BasePDF(object):
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 
+    @no_norm_range
+    def _inverse_analytic_integrate(self, x):
+        if self._inverse_analytic_integral is None:
+            raise NotImplementedError
+        else:
+            return self._inverse_analytic_integral(x=x, params=self.parameters)
+
     def _sample(self, n_draws, limits):
         raise NotImplementedError
 
@@ -811,7 +819,34 @@ class BasePDF(object):
 
             with suppress(NotImplementedError):
                 return self._sample(n_draws=n_draws, limits=limits)
+            with suppress(NotImplementedError):
+                return self._analytic_sample(n_draws=n_draws, limits=limits)
             return self._fallback_sample(n_draws=n_draws, limits=limits)
+
+    def _analytic_sample(self, n_draws, limits: Range):
+        if len(limits) > 1:
+            raise MultipleLimitsNotImplementedError()
+
+        for lower_bound, upper_bound in zip(*limits.get_boundaries()):
+            neg_infinities = (tuple((-float("inf"),) * limits.n_dims),)  # py34 change float("inf") to math.inf
+            try:
+                lower_prob_lim = self._norm_analytic_integrate(limits=Range.from_boundaries(lower=neg_infinities,
+                                                                                            upper=lower_bound,
+                                                                                            dims=limits.dims,
+                                                                                            convert_none=True),
+                                                               norm_range=False)
+
+                upper_prob_lim = self._norm_analytic_integrate(limits=Range.from_boundaries(lower=neg_infinities,
+                                                                                            upper=upper_bound,
+                                                                                            dims=limits.dims,
+                                                                                            convert_none=True),
+                                                               norm_range=False)
+            except NotImplementedError:
+                raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
+                                          "implemented for the boundaries:".format(limits.get_boundaries()))
+            prob_sample = ztf.random_uniform(shape=(n_draws, limits.dims), minval=lower_prob_lim, maxval=upper_prob_lim)
+            sample = self._inverse_analytic_integrate(x=prob_sample)
+            return sample
 
     def _fallback_sample(self, n_draws, limits):
         sample = zsample.accept_reject_sample(prob=self._unnormalized_prob,  # no need to normalize

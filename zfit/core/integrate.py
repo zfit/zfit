@@ -4,7 +4,6 @@ import collections
 
 import tensorflow as tf
 import tensorflow_probability as tfp
-from zmq.utils.jsonapi import priority
 
 from .limits import convert_to_range, Range, no_norm_range
 from ..settings import types as ztypes
