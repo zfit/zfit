@@ -259,7 +259,8 @@ def test_analytic_integral():
         infinity = float('inf')
     gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity))
 
-    DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated, limits=Range.from_boundaries(*limits3, dims=(0, 1)), dims=None)
+    DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
+                                         limits=Range.from_boundaries(*limits3, dims=(0, 1)), dims=None)
 
     dist_func3 = DistFunc3()
     with tf.Session() as sess:
@@ -272,4 +273,4 @@ def test_analytic_integral():
                 dtype=tf.float64))
         assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
             *limits3, dims=(0, 1)))
-        assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi* 2.) * sigma_true, rel=0.0001)
+        assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
