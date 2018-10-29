@@ -5,7 +5,7 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from zfit.util.exception import NormRangeNotImplementedError
+from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError
 
 
 class Range(object):
@@ -69,7 +69,6 @@ class Range(object):
                     the second dimension from -4 to 1 and from 2 to 5.
         """
         return Range(limits=limits, dims=dims)
-
 
     def __len__(self):
         return len(self.get_boundaries()[0])
@@ -366,7 +365,6 @@ class Range(object):
             limits = self.get_limits()[key]
         return limits
 
-
     def idims_limits(self, dims):
         if not hasattr(dims, "__len__"):
             dims = (dims,)
@@ -447,6 +445,30 @@ def no_norm_range(func):
             kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
         if norm_range_not_false or norm_range_is_arg:
             raise NormRangeNotImplementedError()
+        else:
+            return func(*args, **kwargs)
+
+    return new_func
+
+
+def no_multiple_limits(func):
+    """Decorator: Catch the 'limits' kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError."""
+    parameters = inspect.signature(func).parameters
+    keys = list(parameters.keys())
+    if 'limits' in keys:
+        limits_index = keys.index('norm_range')
+    else:
+        raise TypeError("Decorator used to sanitize limits, but argument not given.")
+
+    def new_func(*args, **kwargs):
+        limits_is_arg = len(args) > limits_index
+        if limits_is_arg:
+            limits = args[limits_index]
+        else:
+            limits = kwargs['limits']
+
+        if len(limits) > 1:
+            raise MultipleLimitsNotImplementedError
         else:
             return func(*args, **kwargs)
 
