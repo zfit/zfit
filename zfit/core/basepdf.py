@@ -58,7 +58,7 @@ class BasePDF(object):
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = zintegrate.AnalyticIntegral()
-    _inverse_analytic_integral = None
+    _inverse_analytic_integral = []
     _additional_repr = {}
 
     def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
@@ -467,7 +467,10 @@ class BasePDF(object):
         Returns:
 
         """
-        cls._inverse_analytic_integral = func
+        if len(cls._inverse_analytic_integral) > 0:
+            cls._inverse_analytic_integral[0] = func
+        else:
+            cls._inverse_analytic_integral.append(func)
 
     def _analytic_integrate(self, limits, norm_range):
         # TODO: user implementation requested
@@ -855,7 +858,7 @@ class BasePDF(object):
         if self._inverse_analytic_integral is None:
             raise NotImplementedError
         else:
-            return self._inverse_analytic_integral(x=x, params=self.parameters)
+            return self._inverse_analytic_integral[0](x=x, params=self.parameters)
 
     def _sample(self, n_draws, limits):
         raise NotImplementedError
@@ -876,7 +879,17 @@ class BasePDF(object):
         return self._hook_sample(n_draws=n_draws, limits=limits, name=name)
 
     def _hook_sample(self, limits, n_draws, name='_hook_sample'):
-        return self._call_sample(n_draws=n_draws, limits=limits, name=name)
+        return self._norm_sample(n_draws=n_draws, limits=limits, name=name)
+
+    def _norm_sample(self, n_draws, limits, name):
+        """Dummy function"""
+        return self._limits_sample(n_draws=n_draws, limits=limits, name=name)
+
+    def _limits_sample(self, n_draws, limits, name):
+        try:
+            return self._call_sample(n_draws=n_draws, limits=limits, name=name)
+        except MultipleLimitsNotImplementedError:
+            raise NotImplementedError("MultipleLimits auto handling in sample currently not supported.")
 
     def _call_sample(self, n_draws, limits, name):
         with self._name_scope(name, values=[n_draws, limits]):
@@ -909,7 +922,7 @@ class BasePDF(object):
             except NotImplementedError:
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                           "implemented for the boundaries:".format(limits.get_boundaries()))
-            prob_sample = ztf.random_uniform(shape=(n_draws, limits.dims), minval=lower_prob_lim, maxval=upper_prob_lim)
+            prob_sample = ztf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim, maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)
             return sample
 

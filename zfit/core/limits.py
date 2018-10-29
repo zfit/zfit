@@ -456,7 +456,7 @@ def no_multiple_limits(func):
     parameters = inspect.signature(func).parameters
     keys = list(parameters.keys())
     if 'limits' in keys:
-        limits_index = keys.index('norm_range')
+        limits_index = keys.index('limits')
     else:
         raise TypeError("Decorator used to sanitize limits, but argument not given.")
 

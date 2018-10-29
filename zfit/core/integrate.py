@@ -5,12 +5,13 @@ import collections
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .limits import convert_to_range, Range, no_norm_range
+from .limits import convert_to_range, Range, no_norm_range, no_multiple_limits
 from ..settings import types as ztypes
 
 
 @no_norm_range
-def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=tf.float64,
+@no_multiple_limits
+def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
     if method == "AUTO":  # TODO

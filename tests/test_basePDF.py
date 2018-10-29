@@ -96,6 +96,42 @@ def test_sampling():
         assert mu_sampled == pytest.approx(mu_true, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
+def test_analytic_sampling():
+
+    class SampleGauss(TestGaussian):
+        pass
+
+    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.get_boundaries()[1][0][0],
+                                           limits=(-float("inf"), None), dims=(0,))  # DUMMY!
+    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x+1000.)
+
+    gauss1 = SampleGauss()
+    sample = gauss1.sample(n_draws=10000, limits=(2., 5.))
+    with tf.Session() as sess:
+        sample = sess.run(sample)
+
+        assert 1004. <= min(sample)
+        assert 10010. >= max(sample)
+
+
+def test_multiple_limits():
+    with tf.Session() as sess:
+        sess.run(init)
+        dims = (0,)
+        simple_limits = (-3.2, 9.1)
+        multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
+        multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
+        multiple_limits_range = Range.from_boundaries(lower=multiple_limits_lower, upper=multiple_limits_upper,
+                                                      dims=dims)
+        integral_simp = gauss_params1.integrate(limits=simple_limits)
+        integral_mult = gauss_params1.integrate(limits=multiple_limits_range)
+
+        integral_simp, integral_mult = sess.run([integral_simp, integral_mult])
+        assert integral_simp == pytest.approx(integral_mult, rel=1e-3)  # big tolerance as mc is used
+
+
+
+
 
 def test_copy():
     new_gauss = gauss_params1.copy()
