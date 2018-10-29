@@ -13,6 +13,7 @@ import warnings
 import tensorflow as tf
 from tensorflow.python.ops.distributions.distribution import _BaseDistribution, _DistributionMeta
 import tensorflow_probability.python.mcmc as mc
+import pep487
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range
 from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError
@@ -51,15 +52,16 @@ from zfit import ztf
 
 # class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 # class BasePDF(_BaseDistribution, metaclass=_DistributionMeta):
-class BasePDF(object):
+class BasePDF(pep487.PEP487Object):
     _DEFAULTS_integration = zcontainer.DotDict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
-    _analytic_integral = zintegrate.AnalyticIntegral()
-    _inverse_analytic_integral = []
-    _additional_repr = {}
+    _analytic_integral = None
+    _inverse_analytic_integral = None
+    _additional_repr = None
+
 
     def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
                  allow_nan_stats=True, graph_parents=None, **parameters):
@@ -68,6 +70,8 @@ class BasePDF(object):
         #                               reparameterization_type=False,
         #                               validate_args=True, parameters=kwargs,
         #                               allow_nan_stats=False, name=name)
+        # overwrite mutable class atributes
+
 
         self._dtype = dtype
         self._reparameterization_type = reparameterization_type
@@ -86,6 +90,12 @@ class BasePDF(object):
         self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self._normalization_value = None
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        cls._analytic_integral = zintegrate.AnalyticIntegral()
+        cls._inverse_analytic_integral = []
+        cls._additional_repr = {}
 
     @property
     def name(self):
@@ -980,6 +990,8 @@ class BasePDF(object):
 
     @classmethod
     def register_additional_repr(cls, **kwargs):
+        if cls._additional_repr is None:
+            cls._additional_repr = {}
         overwritten_keys = set(kwargs).intersection(cls._additional_repr)
         if overwritten_keys:
             warnings.warn("The following keys have been overwritten while registering additional repr:"
