@@ -4,6 +4,7 @@ import collections
 
 import tensorflow as tf
 import tensorflow_probability as tfp
+from zmq.utils.jsonapi import priority
 
 from .limits import convert_to_range, Range, no_norm_range
 from ..settings import types as ztypes
@@ -167,8 +168,10 @@ class AnalyticIntegral(object):
         integral_fn = max(integrals, key=lambda l: l.priority, default=None)
         return integral_fn
 
-    def register(self, func, dims, limits=None):
+    def register(self, func, dims, limits=None, priority=50):
         """Register an analytic integral."""
+        if limits is False:
+            raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
         if limits is None:
             limits = tuple((None, None) for _ in range(len(dims)))
             limits = convert_to_range(limits=limits, dims=dims)
@@ -178,7 +181,7 @@ class AnalyticIntegral(object):
         dims = frozenset(limits.dims)
         # if len(dims) > len(self._max_dims):
         #     self._max_dims = dims
-        self._integrals[dims][limits] = func  # TODO improve with database-like access
+        self._integrals[dims][limits] = Integral(func=func, limits=limits, dims=dims, priority=priority)  # TODO improve with database-like access
 
     @no_norm_range
     def integrate(self, x, limits, dims=None, norm_range=None, params=None):
@@ -191,7 +194,7 @@ class AnalyticIntegral(object):
         # print("DEBUG", self._integrals, dims", self._integrals, dims)
         if integral_holder is None:
             raise NotImplementedError("Integral is not available for dims {}".format(dims))
-        integral_fn = integral_holder.get(limits.get_limits(), integral_holder.get(None))
+        integral_fn = self.get_max_integral(limits=limits, dims=dims)
         if integral_fn is None:
             raise NotImplementedError(
                 "Integral is available for dims {}, but not for limits {}".format(dims, limits))
@@ -205,11 +208,14 @@ class AnalyticIntegral(object):
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, func, limits, dims=None, priority=50):
+    def __init__(self, func, limits, dims, priority):
         self.limits = convert_to_range(limits=limits, dims=dims)
         self.integrate = func
         self.dims = limits.dims
         self.priority = priority
+
+    def __call__(self, *args, **kwargs):
+        return self.integrate(*args, **kwargs)
 
 
 if __name__ == '__main__':

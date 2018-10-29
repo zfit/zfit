@@ -409,7 +409,7 @@ class BasePDF(object):
             with suppress(NotImplementedError):
                 return self._integrate(limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return self._analytic_integrate(limits=limits, norm_range=norm_range)
+                return self._analytic_integrate(limits=limits, norm_range=norm_range)  # TODO: use _norm_integrate?
             return self._fallback_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_integrate(self, limits, norm_range):

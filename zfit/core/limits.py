@@ -69,15 +69,16 @@ class Range(object):
                     the second dimension from -4 to 1 and from 2 to 5.
         """
         return Range(limits=limits, dims=dims)
+
     @staticmethod
-    def sanitize_boundaries(lower, upper, dims=None, repl_none=False):
+    def sanitize_boundaries(lower, upper, dims=None, convert_none=False):
         """Sanitize (add dim, replace None, check length...)
 
         Args:
             lower (iterable):
             upper (iterable):
             dims (iterable):
-            repl_none (bool):
+            convert_none (bool):
 
         Returns:
             lower, upper, inferred_dims: each one is a 2-d tuple containing the limits and a tuple
@@ -120,7 +121,7 @@ class Range(object):
 
             # replace None
             for bound in bounds:
-                if repl_none:
+                if convert_none:
                     new_bounds.append(tuple(none_repl if b is None else b for b in bound))  # replace None
                 else:
                     new_bounds.append(tuple(bound))
@@ -143,7 +144,8 @@ class Range(object):
             limits = (limits,)
 
         lower, upper = Range.boundaries_from_limits(limits=limits)
-        *sanitized_boundaries, inferred_dims = Range.sanitize_boundaries(lower=lower, upper=upper, dims=dims, repl_none=repl_none)
+        *sanitized_boundaries, inferred_dims = Range.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
+                                                                         convert_none=repl_none)
         sanitized_limits = Range.limits_from_boundaries(*sanitized_boundaries)
         return sanitized_limits, inferred_dims
 
@@ -170,7 +172,7 @@ class Range(object):
     def _set_boundaries_and_dims(self, lower, upper, dims, repl_none):
         # TODO all the conversions come here
         lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
-                                                               repl_none=repl_none)
+                                                               convert_none=repl_none)
         dims = self.sanitize_dims(dims, False)
         if dims is Range.FULL:
             dims = inferred_dims
@@ -237,8 +239,11 @@ class Range(object):
 
     def subspace(self, dims: Tuple[int]) -> 'Range':
         """Return an instance of Range containing only a subspace (`dims`) of the instance"""
-        raise Exception("Has to be refactored")
-        sub_range = Range(limits=self.idims(dims), dims=dims)
+        dims = self.sanitize_dims(dims)
+        lower, upper = self.get_boundaries()
+        lower = tuple(tuple(lim[self.dims.index(d)] for d in dims) for lim in lower)
+        upper = tuple(tuple(lim[self.dims.index(d)] for d in dims) for lim in upper)
+        sub_range = Range(lower=lower, upper=upper, dims=dims)
         return sub_range
 
     @staticmethod
@@ -272,9 +277,9 @@ class Range(object):
         for lower_vals, upper_vals in zip(lower, upper):
             for i, (lower_val, upper_val) in enumerate(zip(lower_vals, upper_vals)):
                 new_limit = (lower_val, upper_val)
-                already_there_sets[i].add(new_limit)
                 if new_limit not in already_there_sets[i]:  # only extend if unique
                     limits[i].extend(new_limit)
+                already_there_sets[i].add(new_limit)
         limits = tuple(tuple(limit) for limit in limits)
 
         # TODO: do some checks here?
@@ -298,6 +303,7 @@ class Range(object):
 
     @staticmethod
     def sort_limits(limits):
+        raise ModuleNotFoundError
         # TODO: improve sorting for several Nones (how to sort?)
         if not any(obj is None for dim in limits for obj in dim):  # just a hack
             limits = tuple(tuple(sorted(list(vals))) for vals in limits)
@@ -334,7 +340,7 @@ class Range(object):
         if self.dims != other.dims:
             return False
         own_lower, own_upper = self.get_boundaries()
-        other_lower, other_upper = other.get_limits()
+        other_lower, other_upper = other.get_boundaries()
         lower_equal = set(own_lower) == set(other_lower)
         upper_equal = set(own_upper) == set(other_upper)
         are_equal = lower_equal and upper_equal
@@ -349,10 +355,10 @@ class Range(object):
             limits = self.get_limits()[key]
         return limits
 
-    def idims(self, dims):
+    def idims_limits(self, dims):
         if not hasattr(dims, "__len__"):
             dims = (dims,)
-        limits_by_dims = tuple([self[self.dims.index(dim)] for dim in dims])
+        limits_by_dims = tuple([self.get_limits(self.dims.index(dim)) for dim in dims])
         return limits_by_dims
 
     def __hash__(self):
@@ -362,7 +368,7 @@ class Range(object):
             raise TypeError("unhashable. ", self.get_boundaries(), self.dims)
 
 
-def convert_to_range(limits, dims=None, convert_none=False) -> Union[Range, bool, None]:
+def convert_to_range(limits=None, boundaries=None, dims=None, convert_none=False) -> Union[Range, bool, None]:
     """Convert *limits* to a Range object if not already None or False.
 
     Args:
@@ -372,14 +378,23 @@ def convert_to_range(limits, dims=None, convert_none=False) -> Union[Range, bool
     Returns:
         Union[Range, False, None]:
     """
-    if limits is None:
-        return limits
-    elif limits is False:
-        return limits
+    if limits is not None and boundaries is not None:
+        raise ValueError("Both limits and boundaries are specified. Only use 1")
+    if limits is None and boundaries is None:
+        return None
+    elif limits is False or boundaries is False:
+        return False
     elif isinstance(limits, Range):
         return limits
-    else:
+    elif isinstance(boundaries, Range):
+        return limits
+    elif limits is not None:
         return Range.from_limits(limits=limits, dims=dims, convert_none=convert_none)
+    elif boundaries is not None:
+        lower, upper = boundaries
+        return Range.from_boundaries(lower=lower, upper=upper, dims=dims, convert_none=convert_none)
+    else:
+        assert False, "This code block should never been reached."
 
 
 def iter_limits(limits):
