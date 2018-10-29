@@ -58,7 +58,6 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
         raise ValueError("Either specify dims or n_dims")
     limits = convert_to_range(limits, dims)
     dims = limits.dims
-    # HACK
     partial = (dims is not None) and (x is not None)  # dims, value can be tensors
     # if partial:
     #     raise ValueError("Partial integration not yet implemented.")
@@ -181,8 +180,10 @@ class AnalyticIntegral(object):
         dims = frozenset(limits.dims)
         # if len(dims) > len(self._max_dims):
         #     self._max_dims = dims
-        self._integrals[dims][limits] = Integral(func=func, limits=limits, dims=dims, priority=priority)  # TODO improve with database-like access
+        self._integrals[dims][limits] = Integral(func=func, limits=limits, dims=dims,
+                                                 priority=priority)  # TODO improve with database-like access
 
+    @no_multiple_limits
     @no_norm_range
     def integrate(self, x, limits, dims=None, norm_range=None, params=None):
         """Integrate analytically over the dims if available."""

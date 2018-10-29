@@ -1,21 +1,38 @@
 from __future__ import print_function, division, absolute_import
 
+import typing
+
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
 
+import zfit
+from zfit.core.limits import Range, no_multiple_limits
 from ..settings import types as ztypes
 
-
-def accept_reject_sample(prob, n_draws, limits, sampler=tf.random_uniform, dtype=ztypes.float,
-                         prob_max=None):
-    """Return toy MC sample graph using accept-reject method
+@no_multiple_limits
+def accept_reject_sample(prob: function, n_draws: int, limits: Range, sampler: function = tf.random_uniform,
+                         dtype= ztypes.float,
+                         prob_max: typing.Union[None, int] = None) -> tf.Tensor:
+    """
 
     Args:
-        prob (method):
+        prob (function): A function taking x a Tensor as an argument and returning the probability
+            (or anything that is proportional to the probability).
+        n_draws (int): Number of draws to take. The number of returned samples can vary a lot! It
+            will only be a fraction anyway.
+        limits (Range): The limits to sample from
+        sampler (function): A function taking n_draws as an argument and returning values between
+            0 and 1
+        dtype ():
+        prob_max (Union[None, int]): The maximum of the prob function for the given limits. If None
+            is given, it will be safely estimated by a 10% increase in computation time
+            (constant weak scaling).
 
+    Returns:
+        tensorflow.python.framework.ops.Tensor:
     """
-    n_dims = 1  # HACK
+    n_dims = limits.n_dims
     lower, upper = limits.get_boundaries()
     lower = tf.convert_to_tensor(lower, dtype=dtype)
     upper = tf.convert_to_tensor(upper, dtype=dtype)

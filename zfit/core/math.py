@@ -24,7 +24,7 @@ def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to
     if real_x is not None:
         pow_func = tf.pow
     else:
-        pow_func = tfext.nth_pow
+        pow_func = ztf.nth_pow
     return tf.add_n([coef * ztf.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
 
 

@@ -51,6 +51,7 @@ class Range(object):
             lower (tuple):
             upper (tuple):
             dims (tuple(int)): The dimensions the limits belong to.
+            convert_none (): If True, None will be converted to "any" (either any lower or any upper)
         Returns:
             zfit.core.limits.Range:
         """
@@ -368,7 +369,7 @@ class Range(object):
     def idims_limits(self, dims):
         if not hasattr(dims, "__len__"):
             dims = (dims,)
-        limits_by_dims = tuple([self.get_limits(self.dims.index(dim)) for dim in dims])
+        limits_by_dims = tuple([self.get_limits()[self.dims.index(dim)] for dim in dims])
         return limits_by_dims
 
     def __hash__(self):

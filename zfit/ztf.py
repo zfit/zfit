@@ -3,8 +3,7 @@ import warnings
 
 import tensorflow
 
-import numpy as _znp
-import tensorflow as _tf
+import tensorflow as tf
 
 from zfit.settings import types as _ztypes  # pay attention with the names in here!
 
@@ -33,26 +32,26 @@ try:
     from math import inf as _inf
 except ImportError:  # py34 remove try-except
     _inf = float('inf')
-inf = _tf.constant(_inf, dtype=_ztypes.float)
+inf = tf.constant(_inf, dtype=_ztypes.float)
 
 
 def constant(x, dtype=_ztypes.float):
-    return _tf.constant(x, dtype)
+    return tf.constant(x, dtype)
 
 
 pi = constant(_mt.pi)
 
 
 def to_complex(number, dtype=_ztypes.complex):
-    return _tf.cast(number, dtype=dtype)
+    return tf.cast(number, dtype=dtype)
 
 
 def to_real(x, dtype=_ztypes.float):
-    return _tf.cast(x, dtype=dtype)
+    return tf.cast(x, dtype=dtype)
 
 
 def abs_square(x):
-    return _tf.real(x * _tf.conj(x))
+    return tf.real(x * tf.conj(x))
 
 
 def nth_pow(x, n, name=None):
@@ -75,8 +74,8 @@ def nth_pow(x, n, name=None):
 # same as in TensorFlow, wrapped
 
 def log(x, name=None):
-    return _tf.log(x=x, name=name)
+    return tf.log(x=x, name=name)
 
 
 def exp(x, name=None):
-    return _tf.exp(x=x, name=name)
+    return tf.exp(x=x, name=name)

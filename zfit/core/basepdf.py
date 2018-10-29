@@ -27,31 +27,6 @@ from ..util import container as zcontainer
 from zfit import ztf
 
 
-#
-# class AbstractBasePDF(object):
-#
-#     def sample(self, sample_shape=(), seed=None, name='sample'):
-#         raise NotImplementedError
-#
-#     def unnormalized_prob(self, x, name='unnormalized_prob'):
-#         raise NotImplementedError
-#
-#     def log_prob(self, x, name='log_prob'):
-#         raise NotImplementedError
-#
-#     def integrate(self, limits, name='integrate'):
-#         self.error = NotImplementedError
-#         raise self.error
-#
-#     def batch_shape_tensor(self, name='batch_shape_tensor'):
-#         raise NotImplementedError
-#
-#     def event_shape_tensor(self, name='event_shape_tensor'):
-#         raise NotImplementedError
-
-
-# class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
-# class BasePDF(_BaseDistribution, metaclass=_DistributionMeta):
 class BasePDF(pep487.PEP487Object):
     """Base class for any generic pdf.
 
@@ -144,7 +119,7 @@ class BasePDF(pep487.PEP487Object):
         return self._norm_range
 
     def set_norm_range(self, norm_range: typing.Union[Range, None]):
-        """Fix the normalization range to a certaion value. Use with caution!
+        """Fix the normalization range to a certain value. Use with caution!
 
         It is, in general, better to use either the explicit `norm_range` argument when calling
         a function or the `temp_norm_range` context manager to set a normalization range for a
@@ -1065,7 +1040,7 @@ class BasePDF(pep487.PEP487Object):
         sorted = builtins.sorted
         # nice name change end
 
-        additional_repr = OrderedDict
+        additional_repr = OrderedDict()
         for key, val in self._additional_repr.items():
             try:
                 new_obj = getattr(self, val)

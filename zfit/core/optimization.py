@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 import numpy as np
 
-from zfit.core import tfext
+from zfit import ztf
 from zfit.settings import types as ztypes
 
 # start legacy

@@ -12,7 +12,6 @@ from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import FitParameter
 from zfit.pdfs.basic import Gauss
-import zfit.ztf
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
 # limits_simple_5deps = (0.9, 4.7)
