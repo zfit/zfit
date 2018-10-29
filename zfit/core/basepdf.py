@@ -11,7 +11,6 @@ import typing
 import warnings
 
 import tensorflow as tf
-from tensorflow.python.ops.distributions.distribution import _BaseDistribution, _DistributionMeta
 import tensorflow_probability.python.mcmc as mc
 import pep487
 
@@ -21,6 +20,7 @@ from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotI
 from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
+from .parameter import FitParameter
 # from zfit.settings import types as ztypes
 from ..util import exception as zexception
 from ..util import container as zcontainer
@@ -53,6 +53,11 @@ from zfit import ztf
 # class BasePDF(tf.distributions.Distribution, AbstractBasePDF):
 # class BasePDF(_BaseDistribution, metaclass=_DistributionMeta):
 class BasePDF(pep487.PEP487Object):
+    """Base class for any generic pdf.
+
+    # TODO instructions on how to use
+
+    """
     _DEFAULTS_integration = zcontainer.DotDict()
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
@@ -62,16 +67,8 @@ class BasePDF(pep487.PEP487Object):
     _inverse_analytic_integral = None
     _additional_repr = None
 
-
     def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
                  allow_nan_stats=True, graph_parents=None, **parameters):
-        # TODO: catch some args from kwargs that belong to the super init?
-        # super(BasePDF, self).__init__(dtype=ztypes.float,
-        #                               reparameterization_type=False,
-        #                               validate_args=True, parameters=kwargs,
-        #                               allow_nan_stats=False, name=name)
-        # overwrite mutable class atributes
-
 
         self._dtype = dtype
         self._reparameterization_type = reparameterization_type
@@ -118,9 +115,14 @@ class BasePDF(pep487.PEP487Object):
 
     @contextlib.contextmanager
     def temp_norm_range(self, norm_range):  # TODO: rename to better expression
+        """Temporarily set a normalization range for the pdf.
+
+        Args:
+            norm_range (): The new normalization range
+        """
         old_norm_range = self.norm_range
         self.set_norm_range(norm_range)
-        if self.n_dims:
+        if self.n_dims and self._norm_range is not None:
             if not self.n_dims == self._norm_range.n_dims:
                 raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
                                  "".format(self._norm_range.n_dims, self.n_dims))
@@ -132,11 +134,28 @@ class BasePDF(pep487.PEP487Object):
             self.set_norm_range(old_norm_range)
 
     @property
-    def norm_range(self):
+    def norm_range(self) -> typing.Union[Range, None]:
+        """Return the current normalization range
+
+        Returns:
+            Range or None: The current normalization range
+
+        """
         return self._norm_range
 
-    def set_norm_range(self, norm_range):
+    def set_norm_range(self, norm_range: typing.Union[Range, None]):
+        """Fix the normalization range to a certaion value. Use with caution!
+
+        It is, in general, better to use either the explicit `norm_range` argument when calling
+        a function or the `temp_norm_range` context manager to set a normalization range for a
+        limited amount of code.
+
+        Args:
+            norm_range ():
+
+        """
         self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
+        return self
 
     def _check_input_norm_range(self, norm_range, dims, caller_name="",
                                 none_is_error=False) -> typing.Union[Range, bool]:
@@ -159,7 +178,7 @@ class BasePDF(pep487.PEP487Object):
                 if none_is_error:
                     raise ValueError("Normalization range `norm_range` has to be specified, either by"
                                      "\na) explicitly passing it to the function {name}"
-                                     "\nb) using the temp_norm_range context manager to temprarely set "
+                                     "\nb) using the temp_norm_range context manager to temporary set "
                                      "a default normalization range. Currently, both are None/False."
                                      "".format(name=caller_name))
                 else:
@@ -169,8 +188,12 @@ class BasePDF(pep487.PEP487Object):
         return convert_to_range(limits=norm_range, dims=dims)
 
     @property
-    def dims(self):
-        # TODO: improve dim handling
+    def dims(self) -> typing.Tuple[int]:
+        """Return the dimensions (a tuple of integers) of the function.
+
+        Returns:
+
+        """
         return tuple(range(self.n_dims))
 
     @property
@@ -183,7 +206,12 @@ class BasePDF(pep487.PEP487Object):
         self._n_dims = n_dims
 
     @property
-    def is_extended(self):
+    def is_extended(self) -> bool:
+        """Flag to tell whether the pdf is extended or not.
+
+        Returns:
+            bool:
+        """
         return self._yield is not None
 
     @staticmethod
@@ -195,15 +223,39 @@ class BasePDF(pep487.PEP487Object):
             n_dims = limits.n_dims
         return n_dims
 
-    def set_yield(self, value):
+    def set_yield(self, value: typing.Union[FitParameter]):
+        """Make the pdf extended by setting a yield.
+
+        This alters the behavior of `prob` and similar and `integrate` and similar. If there is a
+        `norm_range` given, the output of the above functions does not represent a normalized
+        probability density function anymore but corresponds to a number probability.
+
+        Args:
+            value ():
+        """
         self._yield = value
 
-    def get_yield(self):
+    def get_yield(self) -> typing.Union[FitParameter]:
+        """Return the yield (only for extended pdfs).
+
+        Returns:
+            FitParameter: the yield of the current pdf
+        """
         if not self.is_extended:
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
     def apply_yield(self, value, norm_range=False, log=False):
+        """If a norm_range is given, the value will be multiplied by the yield.
+
+        Args:
+            value (numerical):
+            norm_range ():
+            log (bool):
+
+        Returns:
+            numerical
+        """
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def _apply_yield(self, value, norm_range, log):
@@ -234,7 +286,7 @@ class BasePDF(pep487.PEP487Object):
         """Return the function unnormalized
 
         Args:
-            x (numerical): The values, has to be convertable to a Tensor
+            x (numerical): The values, has to be convertible to a Tensor
             name (str):
 
         Returns:
@@ -376,7 +428,7 @@ class BasePDF(pep487.PEP487Object):
             return self._fallback_normalization(norm_range)
 
     def _fallback_normalization(self, norm_range):
-        # TODO: multidim, more complicated range
+        # TODO: multi-dim, more complicated range
         normalization_value = self.integrate(limits=norm_range, norm_range=False)
         return normalization_value
 
@@ -411,7 +463,7 @@ class BasePDF(pep487.PEP487Object):
             integral = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             unnormalized_integral = self._limits_integrate(limits=limits, norm_range=False, name=name)
-            normalization = self._limits_normalization(limits=limits)
+            normalization = self._call_normalization(norm_range=limits, name=name)
             integral = unnormalized_integral / normalization
         return integral
 
@@ -444,6 +496,7 @@ class BasePDF(pep487.PEP487Object):
         if max_dims and integral is None:  # TODO improve handling of available analytic integrals
             with suppress(NotImplementedError):
                 def part_int(x):
+                    """Temporary partial integration function."""
                     return self._norm_partial_analytic_integrate(x, limits=limits, norm_range=norm_range)
 
                 integral = self._auto_numeric_integrate(func=part_int, limits=limits)
@@ -471,8 +524,6 @@ class BasePDF(pep487.PEP487Object):
 
         Args:
             func ():
-            dims (tuple(int)):
-            limits ():
 
         Returns:
 
@@ -516,7 +567,7 @@ class BasePDF(pep487.PEP487Object):
             unnormalized_integral = self._limits_analytic_integrate(limits, norm_range=None,
                                                                     name=name)
             try:
-                normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False)
+                normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False, name=name)
             except NotImplementedError:
                 raise NormRangeNotImplementedError("Function {} does not support this (or even any)"
                                                    "normalization range 'norm_range'."
@@ -580,7 +631,7 @@ class BasePDF(pep487.PEP487Object):
         try:
             integral = self._limits_numeric_integrate(limits, norm_range, name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_numeric_integrate(limits=limits, norm_range=False,
                                                                    name=name)
             normalization = self._limits_numeric_integrate(limits=norm_range, norm_range=False,
@@ -617,7 +668,7 @@ class BasePDF(pep487.PEP487Object):
     def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
-        Dimension of `limtis` and `x` have to add up to the full dimension and be therefore equal
+        Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
         to the dimensions of `norm_range` (if not False)
 
         Args:
@@ -646,7 +697,7 @@ class BasePDF(pep487.PEP487Object):
         try:
             integral = self._limits_partial_integrate(x, limits, norm_range, name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=None, name=name)
             normalization = self._hook_normalization(limits=norm_range)  # TODO: _call_normalization?
             integral = unnormalized_integral / normalization
@@ -655,13 +706,13 @@ class BasePDF(pep487.PEP487Object):
     def _limits_partial_integrate(self, x, limits, norm_range, name):
         try:
             integral = self._call_partial_integrate(x=x, limits=limits,
-                                                norm_range=norm_range,
-                                                name=name)
+                                                    norm_range=norm_range,
+                                                    name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
             for sub_limit in limits.subbounds():
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range,
-                                                                       name=name))
+                                                              name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
 
         return integral
@@ -681,9 +732,11 @@ class BasePDF(pep487.PEP487Object):
     def _fallback_partial_integrate(self, x, limits, norm_range):
         max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=limits.dims)
         if max_dims:
+            sublimits = limits.subspace(max_dims)
+
             def part_int(x):  # change to partial integrate max dims?
-                return self._norm_partial_analytic_integrate(x=x, limits=limits,
-                                                             dims=max_dims, norm_range=norm_range)
+                """Temporary partial integration function."""
+                return self._norm_partial_analytic_integrate(x=x, limits=sublimits, norm_range=norm_range)
 
             dims = list(set(limits.dims) - set(max_dims))
         else:
@@ -703,7 +756,7 @@ class BasePDF(pep487.PEP487Object):
                                    name="partial_analytic_integrate"):
         """Force analytical partial integration of the function over the `limits` and evaluate it at `x`.
 
-        Dimension of `limtis` and `x` have to add up to the full dimension and be therefore equal
+        Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
         to the dimensions of `norm_range` (if not False)
 
         Args:
@@ -726,7 +779,7 @@ class BasePDF(pep487.PEP487Object):
         norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: full reasonable?
         limits = convert_to_range(limits, dims=dims)  # TODO: replace by limits.dims if dims is None?
-        return self._hook_partial_analytic_integrate(x=x, limits=limits, dims=dims,
+        return self._hook_partial_analytic_integrate(x=x, limits=limits,
                                                      norm_range=norm_range, name=name)
 
     def _hook_partial_analytic_integrate(self, x, limits, norm_range,
@@ -741,12 +794,12 @@ class BasePDF(pep487.PEP487Object):
         try:
             integral = self._limits_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_analytic_integrate(x=x, limits=limits,
                                                                             norm_range=False,
                                                                             name=name)
             try:
-                normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False)
+                normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False, name=name)
             except NotImplementedError:
                 raise NormRangeNotImplementedError("Function {} does not support this (or even any)"
                                                    "normalization range 'norm_range'."
@@ -767,7 +820,7 @@ class BasePDF(pep487.PEP487Object):
             integrals = []
             for sub_limits in limits.subbounds():
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range,
-                                                               name=name))
+                                                                       name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
 
         return integral
@@ -792,7 +845,7 @@ class BasePDF(pep487.PEP487Object):
     def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
 
-        Dimension of `limtis` and `x` have to add up to the full dimension and be therefore equal
+        Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
         to the dimensions of `norm_range` (if not False)
 
         Args:
@@ -808,11 +861,11 @@ class BasePDF(pep487.PEP487Object):
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         limits = convert_to_range(limits, dims=dims)
 
-        return self._hook_partial_numeric_integrate(dims, limits, name, norm_range, x)
+        return self._hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _hook_partial_numeric_integrate(self, x, limits, norm_range,
                                         name='_hook_partial_numeric_integrate'):
-        integral = self._norm_partial_numeric_integrate(x, limits, norm_range, name)
+        integral = self._norm_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
@@ -821,7 +874,7 @@ class BasePDF(pep487.PEP487Object):
             integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
                                                               norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the catched Error should not be raised."
+            assert norm_range is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
                                                                            norm_range=None, name=name)
             integral = unnormalized_integral / self._hook_normalization(limits=norm_range)
@@ -830,12 +883,12 @@ class BasePDF(pep487.PEP487Object):
     def _limits_partial_numeric_integrate(self, x, limits, norm_range, name):
         try:
             integral = self._call_partial_numeric_integrate(x=x, limits=limits,
-                                                        norm_range=norm_range, name=name)
+                                                            norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
             for sub_limits in limits.subbounds():
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range,
-                                                                       name=name))
+                                                                      name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
         return integral
 
@@ -932,7 +985,8 @@ class BasePDF(pep487.PEP487Object):
             except NotImplementedError:
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                           "implemented for the boundaries:".format(limits.get_boundaries()))
-            prob_sample = ztf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim, maxval=upper_prob_lim)
+            prob_sample = ztf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim,
+                                             maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)
             return sample
 
@@ -990,6 +1044,12 @@ class BasePDF(pep487.PEP487Object):
 
     @classmethod
     def register_additional_repr(cls, **kwargs):
+        """Register an additional attribute to add to the repr.
+
+        Args:
+            any keyword argument. The value has to be gettable from the instance (has to be an
+            attribute or callable method of self.
+        """
         if cls._additional_repr is None:
             cls._additional_repr = {}
         overwritten_keys = set(kwargs).intersection(cls._additional_repr)
@@ -1017,7 +1077,7 @@ class BasePDF(pep487.PEP487Object):
                 if callable(new_obj):
                     new_obj = new_obj()
             additional_repr[key] = new_obj
-        if sorted:
+        if sorted_:
             additional_repr = sorted(additional_repr)
         return additional_repr
 
@@ -1041,6 +1101,9 @@ class BasePDF(pep487.PEP487Object):
 
 
 class WrapDistribution(BasePDF):
+    """Baseclass to wrap tensorflow-probability distributions automatically.
+
+    """
 
     def __init__(self, distribution, name=None, **kwargs):
         # Check if subclass of distribution?
