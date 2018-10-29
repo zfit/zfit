@@ -325,7 +325,7 @@ class BasePDF(object):
         log_prob = self._call_log_prob(x, norm_range, name)
         return log_prob
 
-    def _call_log_prob(self, x, norm_range, name, **kwargs):
+    def _call_log_prob(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
             x = tf.convert_to_tensor(x, name="x")
             with suppress(NotImplementedError):
@@ -398,11 +398,21 @@ class BasePDF(object):
 
     def _norm_integrate(self, limits, norm_range, name='_norm_integrate'):
         try:
-            integral = self._call_integrate(limits=limits, norm_range=norm_range, name=name)
+            integral = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            unnormalized_integral = self._call_integrate(limits=limits, norm_range=False, name=name)
-            normalization = self._hook_normalization(limits=limits)
+            unnormalized_integral = self._limits_integrate(limits=limits, norm_range=False, name=name)
+            normalization = self._limits_normalization(limits=limits)
             integral = unnormalized_integral / normalization
+        return integral
+
+    def _limits_integrate(self, limits, norm_range, name):
+        try:
+            integral = self._call_integrate(limits=limits, norm_range=norm_range, name=name)
+        except MultipleLimitsNotImplementedError:
+            integrals = []
+            for sub_limits in limits.subbounds():
+                integrals.append(self._call_integrate(limits=sub_limits, norm_range=norm_range, name=name))
+            integral = ztf.reduce_sum(integrals, axis=0)
         return integral
 
     def _call_integrate(self, limits, norm_range, name):
@@ -487,13 +497,13 @@ class BasePDF(object):
 
     def _norm_analytic_integrate(self, limits, norm_range, name='_norm_analytic_integrate'):
         try:
-            integral = self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
+            integral = self._limits_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
 
-            unnormalized_integral = self._call_analytic_integrate(limits, norm_range=None,
-                                                                  name=name)
+            unnormalized_integral = self._limits_analytic_integrate(limits, norm_range=None,
+                                                                    name=name)
             try:
-                normalization = self._call_analytic_integrate(limits=norm_range, norm_range=False)
+                normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False)
             except NotImplementedError:
                 raise NormRangeNotImplementedError("Function {} does not support this (or even any)"
                                                    "normalization range 'norm_range'."
@@ -504,6 +514,17 @@ class BasePDF(object):
                                                    "normalization was made.".format(name))
             else:
                 integral = unnormalized_integral / normalization
+        return integral
+
+    def _limits_analytic_integrate(self, limits, norm_range, name):
+        try:
+            integral = self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
+        except MultipleLimitsNotImplementedError:
+            integrals = []
+            for sub_limits in limits.subbounds():
+                integrals.append(self._call_analytic_integrate(limits=sub_limits, norm_range=norm_range,
+                                                               name=name))
+            integral = ztf.reduce_sum(integrals, axis=0)
         return integral
 
     def _call_analytic_integrate(self, limits, norm_range, name):
@@ -544,14 +565,25 @@ class BasePDF(object):
 
     def _norm_numeric_integrate(self, limits, norm_range, name='_norm_numeric_integrate'):
         try:
-            integral = self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
+            integral = self._limits_numeric_integrate(limits, norm_range, name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
-            unnormalized_integral = self._call_numeric_integrate(limits=limits, norm_range=False,
-                                                                 name=name)
-            normalization = self._call_numeric_integrate(limits=norm_range, norm_range=False,
-                                                         name=name + "_normalization")
+            unnormalized_integral = self._limits_numeric_integrate(limits=limits, norm_range=False,
+                                                                   name=name)
+            normalization = self._limits_numeric_integrate(limits=norm_range, norm_range=False,
+                                                           name=name + "_normalization")
             integral = unnormalized_integral / normalization
+        return integral
+
+    def _limits_numeric_integrate(self, limits, norm_range, name):
+        try:
+            integral = self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
+        except MultipleLimitsNotImplementedError:
+            integrals = []
+            for sub_limits in limits.subbounds():
+                integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range, name=name))
+            integral = ztf.reduce_sum(integrals, axis=0)
+
         return integral
 
     def _call_numeric_integrate(self, limits, norm_range, name):
@@ -599,16 +631,26 @@ class BasePDF(object):
 
     def _norm_partial_integrate(self, x, limits, norm_range, name):
         try:
-            integral = self._call_partial_integrate(x=x, limits=limits,
-                                                    norm_range=norm_range,
-                                                    name=name)
+            integral = self._limits_partial_integrate(x, limits, norm_range, name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
-            unnormalized_integral = self._call_partial_integrate(x=x, limits=limits,
-                                                                 norm_range=None,
-                                                                 name=name)
+            unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=None, name=name)
             normalization = self._hook_normalization(limits=norm_range)  # TODO: _call_normalization?
             integral = unnormalized_integral / normalization
+        return integral
+
+    def _limits_partial_integrate(self, x, limits, norm_range, name):
+        try:
+            integral = self._call_partial_integrate(x=x, limits=limits,
+                                                norm_range=norm_range,
+                                                name=name)
+        except MultipleLimitsNotImplementedError:
+            integrals = []
+            for sub_limit in limits.subbounds():
+                integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range,
+                                                                       name=name))
+            integral = ztf.reduce_sum(integrals, axis=0)
+
         return integral
 
     def _call_partial_integrate(self, x, limits, norm_range, name):
@@ -684,15 +726,14 @@ class BasePDF(object):
 
     def _norm_partial_analytic_integrate(self, x, limits, norm_range, name='_norm_partial_analytic_integrate'):
         try:
-            integral = self._call_partial_analytic_integrate(x=x, limits=limits,
-                                                             norm_range=norm_range, name=name)
+            integral = self._limits_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
-            unnormalized_integral = self._call_partial_analytic_integrate(x=x, limits=limits,
-                                                                          norm_range=False,
-                                                                          name=name)
+            unnormalized_integral = self._limits_partial_analytic_integrate(x=x, limits=limits,
+                                                                            norm_range=False,
+                                                                            name=name)
             try:
-                normalization = self._call_analytic_integrate(limits=norm_range, norm_range=False)
+                normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False)
             except NotImplementedError:
                 raise NormRangeNotImplementedError("Function {} does not support this (or even any)"
                                                    "normalization range 'norm_range'."
@@ -703,6 +744,19 @@ class BasePDF(object):
                                                    "normalization was made.".format(name))
             else:
                 integral = unnormalized_integral / normalization
+        return integral
+
+    def _limits_partial_analytic_integrate(self, x, limits, norm_range, name):
+        try:
+            integral = self._call_partial_analytic_integrate(x=x, limits=limits,
+                                                             norm_range=norm_range, name=name)
+        except MultipleLimitsNotImplementedError:
+            integrals = []
+            for sub_limits in limits.subbounds():
+                integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range,
+                                                               name=name))
+            integral = ztf.reduce_sum(integrals, axis=0)
+
         return integral
 
     def _call_partial_analytic_integrate(self, x, limits, norm_range, name):
@@ -751,14 +805,25 @@ class BasePDF(object):
 
     def _norm_partial_numeric_integrate(self, x, limits, norm_range, name):
         try:
-            integral = self._call_partial_numeric_integrate(x=x, limits=limits,
-                                                            norm_range=norm_range, name=name)
+            integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
+                                                              norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the catched Error should not be raised."
-            unnormalized_integral = self._call_partial_numeric_integrate(x=x, limits=limits,
-                                                                         norm_range=None,
-                                                                         name=name)
+            unnormalized_integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
+                                                                           norm_range=None, name=name)
             integral = unnormalized_integral / self._hook_normalization(limits=norm_range)
+        return integral
+
+    def _limits_partial_numeric_integrate(self, x, limits, norm_range, name):
+        try:
+            integral = self._call_partial_numeric_integrate(x=x, limits=limits,
+                                                        norm_range=norm_range, name=name)
+        except MultipleLimitsNotImplementedError:
+            integrals = []
+            for sub_limits in limits.subbounds():
+                integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range,
+                                                                       name=name))
+            integral = ztf.reduce_sum(integrals, axis=0)
         return integral
 
     def _call_partial_numeric_integrate(self, x, limits, norm_range, name):

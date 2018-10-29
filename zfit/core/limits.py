@@ -250,6 +250,13 @@ class Range(object):
         sub_range = Range(lower=lower, upper=upper, dims=dims)
         return sub_range
 
+    def subbounds(self):
+        """Return a list of Range objects each containing a simple boundary"""
+        range_objects = []
+        for lower, upper in zip(*self.get_boundaries()):
+            range_objects.append(Range.from_boundaries(lower=lower, upper=upper, dims=self.dims))
+        return range_objects
+
     @staticmethod
     def boundaries_from_limits(limits):
         if len(limits) == 0:
@@ -358,6 +365,7 @@ class Range(object):
         except TypeError:
             limits = self.get_limits()[key]
         return limits
+
 
     def idims_limits(self, dims):
         if not hasattr(dims, "__len__"):

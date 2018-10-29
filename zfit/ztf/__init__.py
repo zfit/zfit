@@ -26,3 +26,5 @@
 # same as in TensorFlow, wrapped
 from .zextension import exp, log, to_complex, to_real, constant, inf, pi, abs_square, nth_pow
 from .zextension import random_normal, random_uniform
+from .zextension import reduce_sum
+
