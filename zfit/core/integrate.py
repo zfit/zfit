@@ -151,9 +151,9 @@ class AnalyticIntegral(object):
             implemented_dims = set(self._integrals.keys())
         implemented_dims = sorted(implemented_dims, key=len, reverse=True)  # iter through biggest first
         for dims in implemented_dims:
-            print("DEBUG: limits", limits.get_limits())
-            print("DEBUG: dims", limits.dims)
-            print("DEBUG: keys", list(self._integrals[dims].keys())[0].get_limits())
+            # print("DEBUG: limits", limits.get_limits())
+            # print("DEBUG: dims", limits.dims)
+            # print("DEBUG: keys", list(self._integrals[dims].keys())[0].get_limits())
             limits = [lim for lim in self._integrals[dims] if lim >= limits]
 
             if limits:  # one or more integrals available
