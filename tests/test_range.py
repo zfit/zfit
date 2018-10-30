@@ -127,13 +127,13 @@ class TestRange(TestCase):
         invalid_limits = (1, 3, 4)
         invalid_limits2 = ((1, 2), (4, 5, 6, 7))
         valid_dims2 = (0, 2)
-        valid_limits = ((1, 2), None, (4, 5, 6, 7))
+        valid_limits = ((1, 2), (4, 5, 6, 7))
         with self.assertRaises(ValueError) as context:
-            Range()
+            Range(limits=valid_limits, dims=invalid_dim)
         with self.assertRaises(ValueError) as context:
-            Range()
+            Range(limits=invalid_limits, dims=valid_dims2)
         with self.assertRaises(ValueError) as context:
-            Range()
+            Range(limits=invalid_limits2, dims=invalid_dim)
         # valid_range_with_none = Range()
         # valid_range = Range(dims=valid_dims2)
         # self.assertTrue(valid_range_with_none == valid_range)
@@ -142,7 +142,11 @@ class TestRange(TestCase):
         simple_limits = ((1, 2), (4, 5, 6, 7))
         simple_dims = (1, 3)
         simple_lower, simple_upper = [((1, 4), (1, 6)), ((2, 5), (2, 7))]
+        simple_lower2, simple_upper2 = [((1, 4), (3, 6)), ((2, 5), (4, 7))]
         simple_range = Range(limits=simple_limits, dims=simple_dims)
+        simple_range2 = Range.from_boundaries(lower=simple_lower2, upper=simple_upper2, dims=simple_dims)
+        with self.assertRaises(ValueError) as context:
+            simple_range2.get_limits()
         lower, upper = simple_range.get_boundaries()
         self.assertEqual(simple_lower, lower)
         self.assertEqual(simple_upper, upper)
@@ -150,6 +154,9 @@ class TestRange(TestCase):
         limits4_reconversed = Range.limits_from_boundaries(limits4_lower, limits4_upper)
         self.assertEqual(limits4_reconversed, self.limit4_range.get_limits())
         # self.assertEqual(self.limit4_range, )
+
+    def test_complex_conversion(self):
+        complex_limits = ()
 
     def test_subspace(self):  # TODO
         limits = ((1, 2), (4, 5, 6, 7), (-1, 5, 6, 9))

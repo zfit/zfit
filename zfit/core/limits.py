@@ -69,7 +69,7 @@ limits2 converted limits "by dimension" will raise an error). So retrieving limi
 which you can now iterate through. For example, to calc an integral (assuming there is a function
 `integrate` taking the lower and upper limits and returning the function), you can do
 >>> def integrate(lower_limit, upper_limit): return 42  # dummy function
->>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper)
+>>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
 
 
 
@@ -193,6 +193,10 @@ class Range(object):
                              "\nlower: {}"
                              "\nupper: {}".format(lower, upper))
         dims = Range.sanitize_dims(dims, allow_none=True)
+        if not np.shape(lower) == np.shape(upper):
+            raise ValueError("Shapes of lower, upper have to be the sampe. Currently:"
+                             "\nlower={}"
+                             "\nupper={}".format(lower, upper))
 
         new_lower = []
         new_upper = []
@@ -222,6 +226,7 @@ class Range(object):
                     new_bounds.append(tuple(none_repl if b is None else b for b in bound))  # replace None
                 else:
                     new_bounds.append(tuple(bound))
+
         inferred_dims = tuple(range(len(bound)))
 
         return tuple(new_lower), tuple(new_upper), inferred_dims
@@ -270,12 +275,14 @@ class Range(object):
         # TODO all the conversions come here
         lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
                                                                convert_none=repl_none)
-        dims = self.sanitize_dims(dims, False)
+        dims = self.sanitize_dims(dims, allow_none=False)
         if dims is Range.FULL:
             dims = inferred_dims
         if dims is None:
-            raise ValueError(
-                "Due to safety: no dims provided but needed. Provide dims.")
+            raise ValueError("Due to safety: no dims provided but needed. Provide dims.")
+
+        if not len(lower[0]) == len(dims):
+            raise ValueError("dims (={}) and bounds (e.g. first of lower={}) don't match".format(dims, lower[0]))
 
         self._boundaries = lower, upper
         self._dims = tuple(dims)
@@ -340,6 +347,12 @@ class Range(object):
         lower, upper = self.get_boundaries()
         lower = tuple(tuple(lim[self.dims.index(d)] for d in dims) for lim in lower)
         upper = tuple(tuple(lim[self.dims.index(d)] for d in dims) for lim in upper)
+        # HACK remove double occurrence, do better in the future
+        unique_bounds = list(set(zip(lower, upper)))
+        lower = tuple(limit[0] for limit in unique_bounds)
+        upper = tuple(limit[1] for limit in unique_bounds)
+        # HACK END
+
         sub_range = Range(lower=lower, upper=upper, dims=dims)
         return sub_range
 
@@ -389,7 +402,9 @@ class Range(object):
         # TODO: do some checks here?
         # TODO: sort somehow to make comparable
         check_lower, check_upper = Range.boundaries_from_limits(limits=limits)
-        if not (set(check_lower) == set(lower) and set(check_upper) == set(upper)):
+        tuples_are_equal = set(check_lower) == set(lower) and set(check_upper) == set(upper)
+        length_are_equal = len(check_lower) == len(lower) and len(check_upper) == len(upper)
+        if not (tuples_are_equal and length_are_equal):
             raise ValueError("cannot safely convert boundaries (lower={}, upper={}) to limits "
                              "(check_lower={}, check_upper={}) (boundaries probably contain non "
                              "perpendicular limits)".format(lower, upper, check_lower, check_upper))
