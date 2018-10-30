@@ -1,5 +1,6 @@
 from __future__ import print_function, division, absolute_import
 
+import functools
 import inspect
 from typing import Tuple, Union
 
@@ -437,6 +438,7 @@ def no_norm_range(func):
     else:
         norm_range_index = None
 
+    @functools.wraps(func)
     def new_func(*args, **kwargs):
         norm_range_not_false = not (kwargs.get('norm_range') is None or kwargs.get('norm_range') is False)
         if norm_range_index is not None:
@@ -461,6 +463,7 @@ def no_multiple_limits(func):
     else:
         raise TypeError("Decorator used to sanitize limits, but argument not given.")
 
+    @functools.wraps(func)
     def new_func(*args, **kwargs):
         limits_is_arg = len(args) > limits_index
         if limits_is_arg:

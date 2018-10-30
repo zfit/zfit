@@ -10,9 +10,11 @@ import zfit
 from zfit.core.limits import Range, no_multiple_limits
 from ..settings import types as ztypes
 
+
 @no_multiple_limits
-def accept_reject_sample(prob: function, n_draws: int, limits: Range, sampler: function = tf.random_uniform,
-                         dtype= ztypes.float,
+def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
+                         sampler: typing.Callable = tf.random_uniform,
+                         dtype=ztypes.float,
                          prob_max: typing.Union[None, int] = None) -> tf.Tensor:
     """
 
