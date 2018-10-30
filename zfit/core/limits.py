@@ -16,11 +16,16 @@ class Range(object):
     ANY_UPPER = object()
     __HASH_DELIMINATOR = object()
 
-    def __init__(self, *, limits=None, lower=None, upper=None, dims=None,
-                 convert_none=False):  # TODO: change lower, upper?
+    def __init__(self, *, limits: Tuple = None, lower: Tuple = None, upper: Tuple = None, dims: Tuple[int] = None,
+                 convert_none: bool = False) -> None:
         """Range holds limits and specifies dimension.
 
         Args:
+            limits (Tuple):
+            lower ():
+            upper ():
+            dims ():
+            convert_none (bool):
 
         Returns:
             Range: Returns the range object itself
@@ -61,7 +66,11 @@ class Range(object):
 
     @classmethod
     def from_limits(cls, limits, dims, *, convert_none=False):
-        """            limits (tuple): A 1 dimensional tuple is interpreted as a list of 1 dimensional limits
+        """Create a :py:class:~`zfit.core.limits.Range` instance from limits per dimension given.
+
+
+        Args:
+            limits (Tuple): A 1 dimensional tuple is interpreted as a list of 1 dimensional limits
                 (lower1, upper1, lower2, upper2,...). Simple example: (-4, 3) means limits from
                 -4 to 3.
                 Higher dimensions are created with tuples of the shape (n_dims, n_(lower, upper))
@@ -69,8 +78,15 @@ class Range(object):
 
                 Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5,
                     the second dimension from -4 to 1 and from 2 to 5.
+
+            dims (Union[Tuple[int]]): The dimensions the limits belong to
+            convert_none (bool): If true, convert `None` to any (which is for example useful to specify a
+                variable limit on an integral function).
+
+        Returns:
+            Union[zfit.core.limits.Range]:
         """
-        return Range(limits=limits, dims=dims)
+        return Range(limits=limits, dims=dims, convert_none=convert_none)
 
     def __len__(self):
         return len(self.get_boundaries()[0])
