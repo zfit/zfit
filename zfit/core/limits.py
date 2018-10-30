@@ -1,4 +1,80 @@
-from __future__ import print_function, division, absolute_import
+"""
+.. include:: ../../docs/subst_types.rst
+
+# Range and limits
+
+Limits define a certain interval in a specific dimension. This can be used to define, for example,
+the limits of an integral over several dimensions.
+
+There are two ways of creating a :py:class:`Range`, either from the limits or from the boundaries
+(which are arbitrary definitions here).
+
+### by dimensions (from limits)
+
+Shortcut: if only a 1-dim tuple is given, it is assumed to be the limits from a 1-dim interval.
+
+If the limits in each dimension are known, this is the easiest way to construct a :py:class:`Range`.
+A simple example to represent the limits for the first dim from 1 to 4 and for the second dim
+from -1 to 4 *and* from 6 to 8:
+>>> limits_as_tuple = ((1, 4), (-1, 4, 6, 8))  # 2 dimensions
+>>> limits = Range.from_limits(limits=limits_as_tuple, dims=(0, 1))  # which dimensions the limits correspond to
+
+This can be retrieved in the same way with
+>>> limits.get_limits()
+
+General form: ((lower1_dim1, upper1_dim1, lower2_dim1, upper2_dim1,...),
+(lower1_dim2, upper1_dim2, lower2_dim2, upper2_dim2,...), ...
+
+The tuples don't have to have the same length!
+
+### by intervals (from boundaries)
+
+The disadvantage of the previous method is that only rectangular limits are covered
+(in the sense that you can't specify e.g. 1-dim: from 1 to 2 and second dim from 4 to 6 AND 1-dim
+from 10 to 12 and 2.-dim from 50 to 52, so creating individual patches in the multidimensional space).
+Therefore a different way of specifying limits is possible, basically by defining chunks of the
+lower and the upper limits. The shape is (n_limits, n_dims).
+
+Example: 1-dim: 1 to 4, 2.-dim: 21 to 24 AND 1.-dim: 6 to 7, 2.-dim 26 to 27
+>>> lower = ((1, 21), (6, 26))
+>>> upper = ((4, 24), (7, 27))
+>>> limits2 = Range.from_boundaries(lower=lower, upper=upper, dims=(0, 1))
+
+General form:
+
+lower = ((lower1_dim1, lower1_dim2, lower1_dim3), (lower2_dim1, lower2_dim2, lower2_dim3),...)
+upper = ((upper1_dim1, upper1_dim2, upper1_dim3), (upper2_dim1, upper2_dim2, upper2_dim3),...)
+
+## Using :py:class:`Range`
+
+:py:class:`Range` offers a few useful functions to easier deal with the intervalls
+
+### Handling areas
+
+For example when doing a MC integration using the expectation value, it is mandatory to know
+the total area of your intervals. You can retrieve the total area or (if multiple limits (=intervalls)
+ are given) the area of each interval.
+
+ >>> area = limits2.areas
+ >>> area_1, area_2 = limits2.area_by_boundaries(rel=False)  # if rel is True, return the fraction of 1
+
+
+### Convert and retrieve the limits
+
+The limits can be converted from the "by dimensions" form to "by intervals" and vice-versa, though
+the latter will raise an error if no save conversion is possible! (e.g. in our example above,
+limits2 converted limits "by dimension" will raise an error). So retrieving limits should be done via
+>>> lower, upper = limits2.get_boundaries()
+
+which you can now iterate through. For example, to calc an integral (assuming there is a function
+`integrate` taking the lower and upper limits and returning the function), you can do
+>>> def integrate(lower_limit, upper_limit): return 42  # dummy function
+>>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper)
+
+
+
+
+"""
 
 import functools
 import inspect
@@ -21,7 +97,7 @@ class Range(object):
         """Range holds limits and specifies dimension.
 
         Args:
-            limits (Tuple):
+            limits (Tuple): |limits_arg_descr|
             lower ():
             upper ():
             dims ():

@@ -1,0 +1,11 @@
+.. |range_init| replace:: This is the range object description
+
+.. |limits_init| replace:: A tuple containing the limits (as tuple) per dimension. So a tuple of the
+    shape (n_dims, n_lower_upper) is expected. The limits within one dimension are specified by a
+    tuple like (lower1, upper1, lower2, upper2,...). This example contains two ranges, from
+    lower1 to upper1 and from lower2 to upper 2 (+ ,... more).
+
+    Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5,
+        the second dimension from -4 to 1 and from 2 to 5.
+.. |limits_arg_descr| replace:: If a :py:class:~`zfit.core.base.limits.Range` is given, it is used as
+    limits. Otherwise arguments to instantiate a Range class can be given as follows. |limits_init|
