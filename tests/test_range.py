@@ -59,7 +59,6 @@ def limits_equal(limit1, limit2):
     return True
 
 
-
 class TestRange(TestCase):
     def setUp(self):
         self.limit1_range = Range(limits=limit1, dims=limit1_dims)
@@ -155,8 +154,17 @@ class TestRange(TestCase):
         self.assertEqual(limits4_reconversed, self.limit4_range.get_limits())
         # self.assertEqual(self.limit4_range, )
 
-    def test_complex_conversion(self):
-        complex_limits = ()
+    def test_complex_example(self):
+        complex_lower = ((-3,-999, -11), (3, -999, 10), (-3, -999, 15), (7, -999, -11))
+        complex_upper = ((1, 999, 1), (5, 999, 13), (1, 999, 20), (10, 999, 1))
+        dims = (0, 4, 8)
+        true_complex_sub_areas_by_boundaries = (48., 6., 20., 36.)
+        complex_range = Range.from_boundaries(lower=complex_lower, upper=complex_upper, dims=dims)
+        complex_subrange = complex_range.subspace(dims=(0, 8))
+
+        self.assertEqual(set(complex_subrange.area_by_boundaries()), set(true_complex_sub_areas_by_boundaries))
+        with self.assertRaises(ValueError) as context:
+            complex_subrange.get_limits()
 
     def test_subspace(self):  # TODO
         limits = ((1, 2), (4, 5, 6, 7), (-1, 5, 6, 9))

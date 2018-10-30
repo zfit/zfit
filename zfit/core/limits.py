@@ -47,12 +47,12 @@ upper = ((upper1_dim1, upper1_dim2, upper1_dim3), (upper2_dim1, upper2_dim2, upp
 
 ## Using :py:class:`Range`
 
-:py:class:`Range` offers a few useful functions to easier deal with the intervalls
+:py:class:`Range` offers a few useful functions to easier deal with the intervals
 
 ### Handling areas
 
 For example when doing a MC integration using the expectation value, it is mandatory to know
-the total area of your intervals. You can retrieve the total area or (if multiple limits (=intervalls)
+the total area of your intervals. You can retrieve the total area or (if multiple limits (=intervals
  are given) the area of each interval.
 
  >>> area = limits2.areas
@@ -345,7 +345,7 @@ class Range(object):
             tuple(lower, upper): as defined in the example
         """
         # print("DEBUG":, tuple", self.get_limits())
-        lower, upper = Range.boundaries_from_limits(self.get_limits())
+        lower, upper = self._boundaries
         return tuple(lower), tuple(upper)
 
     def subspace(self, dims: Tuple[int]) -> 'Range':
