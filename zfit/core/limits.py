@@ -188,15 +188,20 @@ class Range(object):
         if np.shape(upper) == ():
             upper = (upper,)
 
+        if np.shape(lower[0]) == ():
+            lower = (lower,)
+        if np.shape(upper[0]) == ():
+            upper = (upper,)
+
         if not len(lower) == len(upper):
             raise ValueError("lower and upper bounds do not have the same length:"
                              "\nlower: {}"
                              "\nupper: {}".format(lower, upper))
-        dims = Range.sanitize_dims(dims, allow_none=True)
         if not np.shape(lower) == np.shape(upper):
-            raise ValueError("Shapes of lower, upper have to be the sampe. Currently:"
+            raise ValueError("Shapes of lower, upper have to be the shape. Currently:"
                              "\nlower={}"
                              "\nupper={}".format(lower, upper))
+        dims = Range.sanitize_dims(dims, allow_none=True)
 
         new_lower = []
         new_upper = []
@@ -228,6 +233,8 @@ class Range(object):
                     new_bounds.append(tuple(bound))
 
         inferred_dims = tuple(range(len(bound)))
+
+
 
         return tuple(new_lower), tuple(new_upper), inferred_dims
 
