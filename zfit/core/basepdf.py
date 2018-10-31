@@ -597,7 +597,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=dims)
 
         integral = None
-        if max_dims == frozenset(dims):
+        if frozenset(max_dims) == frozenset(dims):
             with suppress(NotImplementedError):
                 integral = self._norm_analytic_integrate(limits=limits, norm_range=norm_range)
         if max_dims and integral is None:  # TODO improve handling of available analytic integrals
@@ -613,7 +613,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     @classmethod
     def register_analytic_integral(cls, func: typing.Callable, limits: ztyping.LimitsType = None,
-                                   dims: ztyping.DimsType = None, *, supports_norm_range: bool = False,
+                                   dims: ztyping.DimsType = None, priority: int = 50, *,
+                                   supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral with the class.
 
@@ -621,6 +622,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             func ():
             limits (): |limits_arg_descr|
             dims (tuple(int)):
+            priority (int):
             supports_multiple_limits (bool):
             supports_norm_range (bool):
 
@@ -628,7 +630,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
         """
         cls._analytic_integral.register(func=func, dims=dims, limits=limits, supports_norm_range=supports_norm_range,
-                                        supports_multiple_limits=supports_multiple_limits)
+                                        priority=priority, supports_multiple_limits=supports_multiple_limits)
 
     @classmethod
     def register_inverse_analytic_integral(cls, func: typing.Callable) -> None:

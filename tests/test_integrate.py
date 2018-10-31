@@ -1,4 +1,3 @@
-
 import math as mt
 
 import pytest
@@ -272,3 +271,37 @@ def test_analytic_integral():
         assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
             *limits3, dims=(0, 1)))
         assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
+
+
+
+
+
+def test_analytic_integral_selection():
+    class DistFuncInts(zbasepdf.BasePDF):
+        def _unnormalized_prob(self, x):
+            return x ** 2
+
+    int1 = lambda x: 1
+    int2 = lambda x: 2
+    int22 = lambda x: 22
+    int3 = lambda x: 3
+    int4 = lambda x: 4
+    int5 = lambda x: 5
+    limits1 = (-1, 5)
+    dims1 = (1,)
+    limits2 = ((None, 5),)
+    dims2 = (1,)
+    limits3 = ((None, None), (1, 5))
+    dims3 = (0, 1)
+    limits4 = ((None, None), (0, 5), (None, 42))
+    dims4 = (0, 1, 2)
+    limits5 = ((None, 10), (1, None))
+    dims5 = (1, 2)
+    DistFuncInts.register_analytic_integral(int1, limits=limits1, dims=dims1)
+    DistFuncInts.register_analytic_integral(int2, limits=limits2, dims=dims2)
+    DistFuncInts.register_analytic_integral(int22, limits=limits2, dims=dims2, priority=60)
+    DistFuncInts.register_analytic_integral(int3, limits=limits3, dims=dims3)
+    DistFuncInts.register_analytic_integral(int4, limits=limits4, dims=dims4)
+    DistFuncInts.register_analytic_integral(int5, limits=limits5, dims=dims5)
+    dims = DistFuncInts._analytic_integral.get_max_dims(limits=((-5, 4), (1, 5)), dims=dims3)
+    assert dims3 == dims

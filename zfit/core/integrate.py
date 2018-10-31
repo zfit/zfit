@@ -138,7 +138,7 @@ class AnalyticIntegral(object):
         # if dims is None
         limits = convert_to_range(limits=limits, dims=dims)
 
-        return self._get_max_dims_limits(limits, dims)[0]  # only dims
+        return self._get_max_dims_limits(limits, out_of_dims=dims)[0]  # only dims
 
     def _get_max_dims_limits(self, limits, out_of_dims):  # TODO: automatic caching? but most probably not relevant
         if out_of_dims:
@@ -148,19 +148,17 @@ class AnalyticIntegral(object):
             implemented_dims = set(self._integrals.keys())
         implemented_dims = sorted(implemented_dims, key=len, reverse=True)  # iter through biggest first
         for dims in implemented_dims:
-            # print("DEBUG: limits", limits.get_limits())
-            # print("DEBUG: dims", limits.dims)
-            # print("DEBUG: keys", list(self._integrals[dims].keys())[0].get_limits())
-            limits = [lim for lim in self._integrals[dims] if lim >= limits]
+            limits_matched = [lim for lim, integ in self._integrals[dims].items() if integ.limits >= limits]
 
-            if limits:  # one or more integrals available
-                return dims, limits
+            if limits_matched:  # one or more integrals available
+                return tuple(sorted(dims)), limits_matched
         return (), ()  # no integral available for this dims
 
     def get_max_integral(self, limits, dims=None):
         limits = convert_to_range(limits=limits, dims=dims)
 
         dims, limits = self._get_max_dims_limits(limits=limits, out_of_dims=dims)
+        dims = frozenset(dims)
         integrals = [self._integrals[dims][lim] for lim in limits]
         integral_fn = max(integrals, key=lambda l: l.priority, default=None)
         return integral_fn
@@ -172,18 +170,18 @@ class AnalyticIntegral(object):
             raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
         if limits is None:
             limits = tuple((None, None) for _ in range(len(dims)))
-            limits = convert_to_range(limits=limits, dims=dims)
+            limits = convert_to_range(limits=limits, dims=dims, convert_none=True)
         else:
-            limits = convert_to_range(limits=limits, dims=dims)
+            limits = convert_to_range(limits=limits, dims=dims, convert_none=True)
             # limits = limits.get_limits()
         dims = frozenset(limits.dims)
 
         # add catching everything unsupported:
         func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
-        # if len(dims) > len(self._max_dims):
-        #     self._max_dims = dims
-        self._integrals[dims][limits] = Integral(func=func, limits=limits, dims=dims,
-                                                 priority=priority)  # TODO improve with database-like access
+
+        self._integrals[dims][limits.get_boundaries()] = Integral(func=func, limits=limits, dims=dims,
+                                                                  priority=priority)  # TODO improve with
+        # database-like access
 
     def integrate(self, x, limits, dims=None, norm_range=None, params=None):
         """Integrate analytically over the dims if available."""
