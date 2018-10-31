@@ -74,13 +74,21 @@ from zfit import ztf
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
 
-def _BasePDF_register_check_support(has_support):
+def _BasePDF_register_check_support(has_support: bool):
+    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+
+    Args:
+        has_support (bool): If True, flags that it **requires** the `@supports` decorator. If False,
+            flags that the `@supports` decorator is **not allowed**.
+
+    """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
         name = func.__name__
         _BasePDF_USER_IMPL_METHODS_TO_CHECK[name] = has_support
+        func.__wrapped__ = _BasePDF_register_check_support
         return func
 
     return register
@@ -101,9 +109,21 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     _inverse_analytic_integral = None
     _additional_repr = None
 
-    def __init__(self, dtype=ztypes.float, name="BaseDistribution", reparameterization_type=False, validate_args=False,
-                 allow_nan_stats=True, graph_parents=None, **parameters):
+    def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BaseDistribution",
+                 reparameterization_type: bool = False,
+                 validate_args: bool = False,
+                 allow_nan_stats: bool = True, graph_parents: tf.Graph = None, **parameters: typing.Any):
+        """The base pdf to inherit from and overwrite `_unnormalized_prob`.
 
+        Args:
+            dtype (typing.Type): the dtype of the pdf
+            name (str): the name of the pdf
+            reparameterization_type (): currently not used, but for forward compatibility
+            validate_args (): currently not used, but for forward compatibility
+            allow_nan_stats (): currently not used, but for forward compatibility
+            graph_parents (): currently not used, but for forward compatibility
+            **parameters (): the parameters the distribution depends on
+        """
         self._dtype = dtype
         self._reparameterization_type = reparameterization_type
         self._allow_nan_stats = allow_nan_stats
@@ -152,6 +172,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                     continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings wrong
+            raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
+                                          "OR been been wrapped but it should not be".format(method_name))
 
         cls._analytic_integral = zintegrate.AnalyticIntegral()
         cls._inverse_analytic_integral = []
@@ -220,6 +242,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
         return self
 
+
+
     def _check_input_norm_range(self, norm_range, dims, caller_name="",
                                 none_is_error=False) -> typing.Union[Range, bool]:
         """If `norm_range` is None, take `self.norm_range`. Convert to :py:class:`Range`
@@ -286,7 +310,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             n_dims = limits.n_dims
         return n_dims
 
-    def set_yield(self, value: typing.Union[FitParameter]):
+    def set_yield(self, value: typing.Union[FitParameter, None]):
         """Make the pdf extended by setting a yield.
 
         This alters the behavior of `prob` and similar and `integrate` and similar. If there is a
@@ -298,11 +322,25 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         """
         self._yield = value
 
-    def get_yield(self) -> typing.Union[FitParameter]:
+    @contextlib.contextmanager
+    def temp_yield(self, value: typing.Union[FitParameter, None]) -> typing.Union[FitParameter, None]:
+        """Temporary set (or unset with None) the yield of the pdf.
+
+        Args:
+            value ():
+        """
+        old_yield = self.get_yield()
+        self.set_yield(value)
+        try:
+            yield value
+        finally:
+            self.set_yield(old_yield)
+
+    def get_yield(self) -> typing.Union[FitParameter, None]:
         """Return the yield (only for extended pdfs).
 
         Returns:
-            FitParameter: the yield of the current pdf
+            FitParameter: the yield of the current pdf or None
         """
         if not self.is_extended:
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
