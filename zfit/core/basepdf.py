@@ -55,6 +55,7 @@ from collections import OrderedDict
 import contextlib
 from contextlib import suppress
 import typing
+from typing import Union
 import warnings
 
 import tensorflow as tf
@@ -62,6 +63,7 @@ import tensorflow_probability.python.mcmc as mc
 import pep487
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple_limits, supports
+from zfit.util import ztyping
 from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, BasePDFSubclassingError
 from ..settings import types as ztypes
 from . import integrate as zintegrate
@@ -199,7 +201,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                     if not k.startswith("__") and k != "self")
 
     @contextlib.contextmanager
-    def temp_norm_range(self, norm_range):  # TODO: rename to better expression
+    def temp_norm_range(self, norm_range: ztyping.LimitsType) -> Union[
+        'Range', None]:  # TODO: rename to better expression
         """Temporarily set a normalization range for the pdf.
 
         Args:
@@ -219,7 +222,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             self.set_norm_range(old_norm_range)
 
     @property
-    def norm_range(self) -> typing.Union[Range, None]:
+    def norm_range(self) -> Union[Range, None]:
         """Return the current normalization range
 
         Returns:
@@ -228,7 +231,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         """
         return self._norm_range
 
-    def set_norm_range(self, norm_range: typing.Union[Range, None]):
+    def set_norm_range(self, norm_range: Union[Range, None]):
         """Fix the normalization range to a certain value. Use with caution!
 
         It is, in general, better to use either the explicit `norm_range` argument when calling
@@ -241,8 +244,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         """
         self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
         return self
-
-
 
     def _check_input_norm_range(self, norm_range, dims, caller_name="",
                                 none_is_error=False) -> typing.Union[Range, bool]:
@@ -310,7 +311,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             n_dims = limits.n_dims
         return n_dims
 
-    def set_yield(self, value: typing.Union[FitParameter, None]):
+    def set_yield(self, value: Union[FitParameter, None]):
         """Make the pdf extended by setting a yield.
 
         This alters the behavior of `prob` and similar and `integrate` and similar. If there is a
@@ -323,7 +324,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         self._yield = value
 
     @contextlib.contextmanager
-    def temp_yield(self, value: typing.Union[FitParameter, None]) -> typing.Union[FitParameter, None]:
+    def temp_yield(self, value: Union[FitParameter, None]) -> Union[FitParameter, None]:
         """Temporary set (or unset with None) the yield of the pdf.
 
         Args:
@@ -336,7 +337,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         finally:
             self.set_yield(old_yield)
 
-    def get_yield(self) -> typing.Union[FitParameter, None]:
+    def get_yield(self) -> Union[FitParameter, None]:
         """Return the yield (only for extended pdfs).
 
         Returns:
@@ -346,7 +347,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
-    def apply_yield(self, value, norm_range=False, log=False):
+    def apply_yield(self, value: float, norm_range: ztyping.LimitsType = False, log: bool = False) -> float:
         """If a norm_range is given, the value will be multiplied by the yield.
 
         Args:
@@ -359,7 +360,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         """
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def _apply_yield(self, value, norm_range, log):
+    def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> float:
         if self.is_extended and norm_range is not False:
             if log:
                 value += tf.log(self.get_yield())
@@ -384,11 +385,11 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _unnormalized_prob(self, x):
         raise NotImplementedError
 
-    def unnormalized_prob(self, x, name="unnormalized_prob"):
+    def unnormalized_prob(self, x: ztyping.XType, name: str = "unnormalized_prob") -> ztyping.XType:
         """Return the function unnormalized
 
         Args:
-            x (numerical): The values, has to be convertible to a Tensor
+            x (numerical): The values, have to be convertible to a Tensor
             name (str):
 
         Returns:
@@ -419,8 +420,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _prob(self, x, norm_range):
         raise NotImplementedError
 
-    def prob(self, x, norm_range=None, name="prob"):
-        """Probability density/mass function.
+    def prob(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, name: str = "prob") -> ztyping.XType:
+        """Probability density/mass function, normalized over `norm_range`.
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
@@ -428,8 +429,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
           name (str): Prepended to names of ops created by this function.
 
         Returns:
-          prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
-            values of type `self.dtype`.
+          prob: a `Tensor` of type `self.dtype`.
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name,
                                                   none_is_error=True)
@@ -461,8 +461,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _log_prob(self, x, norm_range):
         raise NotImplementedError
 
-    def log_prob(self, x, norm_range=None, name="log_prob"):
-        """Log probability density/mass function.
+    def log_prob(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None,
+                 name: str = "log_prob") -> ztyping.XType:
+        """Log probability density/mass function normalized over `norm_range`
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
@@ -470,8 +471,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
           name (str): Prepended to names of ops created by this function.
 
         Returns:
-          log_prob: a `Tensor` of shape `sample_shape(x) + self.batch_shape` with
-            values of type `self.dtype`.
+          log_prob: a `Tensor` of type `self.dtype`.
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
 
@@ -507,7 +507,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _normalization(self, norm_range):
         raise NotImplementedError
 
-    def normalization(self, limits, name="normalization"):
+    def normalization(self, limits: ztyping.LimitsType, name: str = "normalization") -> ztyping.XType:
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
@@ -542,12 +542,14 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
-    def integrate(self, limits, norm_range=None, name="integrate"):
-        """Integrate the function over `limits` (normalized over norm_range if not False).
+    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
+                  name: str = "integrate") -> ztyping.XType:
+        """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
             limits (tuple, Range): the limits to integrate over
-            norm_range (tuple, Range): the limits to normalize over
+            norm_range (tuple, Range): the limits to normalize over or False to integrate the
+                unnormalized probability
             name (str):
 
         Returns:
@@ -610,28 +612,30 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         return integral
 
     @classmethod
-    def register_analytic_integral(cls, func, limits=None, dims=None):
-        """
+    def register_analytic_integral(cls, func: typing.Callable, limits: ztyping.LimitsType = None,
+                                   dims: ztyping.DimsType = None, *, supports_norm_range: bool = False,
+                                   supports_multiple_limits: bool = False) -> None:
+        """Register an analytic integral with the class.
 
         Args:
             func ():
+            limits (): |limits_arg_descr|
             dims (tuple(int)):
-            limits ():
+            supports_multiple_limits (bool):
+            supports_norm_range (bool):
 
         Returns:
 
         """
-        cls._analytic_integral.register(func=func, dims=dims, limits=limits)
+        cls._analytic_integral.register(func=func, dims=dims, limits=limits, supports_norm_range=supports_norm_range,
+                                        supports_multiple_limits=supports_multiple_limits)
 
     @classmethod
-    def register_inverse_analytic_integral(cls, func):
-        """
+    def register_inverse_analytic_integral(cls, func: typing.Callable) -> None:
+        """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
             func ():
-
-        Returns:
-
         """
         if len(cls._inverse_analytic_integral) > 0:
             cls._inverse_analytic_integral[0] = func
@@ -642,8 +646,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _analytic_integrate(self, limits, norm_range):
         raise NotImplementedError
 
-    def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
-        """Force analytical integration over function
+    def analytic_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
+                           name: str = "analytic_integrate") -> ztyping.XType:
+        """Do analytical integration over function and raise Error if not possible.
 
         Args:
             limits (tuple, Range): the limits to integrate over
@@ -652,7 +657,11 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
         Returns:
             Tensor: the integral value
-
+        Raises:
+            NotImplementedError: If no analytical integral is available (for this limits).
+            NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
+                means that no analytical normalization is available, explicitly: the **analytical**
+                integral over the limits = norm_range is not available.
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
         limits = convert_to_range(limits, dims=Range.FULL)
@@ -710,8 +719,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _numeric_integrate(self, limits, norm_range):
         raise NotImplementedError
 
-    def numeric_integrate(self, limits, norm_range=None, name="numeric_integrate"):
-        """Force numerical integration over the function.
+    def numeric_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
+                          name: str = "numeric_integrate") -> ztyping.XType:
+        """Do numerical integration over the function.
 
         Args:
             limits (tuple, Range): the limits to integrate over
@@ -772,7 +782,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_integrate(self, x, limits, dims, norm_range=None, name="partial_integrate"):
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType,
+                          norm_range: ztyping.LimitsType = None,
+                          name: str = "partial_integrate") -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
@@ -860,9 +872,10 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_analytic_integrate(self, x, limits, dims, norm_range=None,
-                                   name="partial_analytic_integrate"):
-        """Force analytical partial integration of the function over the `limits` and evaluate it at `x`.
+    def partial_analytic_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType,
+                                   norm_range: ztyping.LimitsType = None,
+                                   name: str = "partial_analytic_integrate") -> ztyping.XType:
+        """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
         to the dimensions of `norm_range` (if not False)
@@ -878,9 +891,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             Tensor: the values of the partially integrated function evaluated at `x`.
 
         Raises:
-            NotImplementedError: if the function is not implemented
+            NotImplementedError: if the *analytic* integral (over this limits) is not implemented
             NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
-                means that no analytical normalization is available, explicitly: the analytical
+                means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm_range is not available.
 
         """
@@ -951,7 +964,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_numeric_integrate(self, x, limits, dims, norm_range=None, name="partial_numeric_integrate"):
+    def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType,
+                                  norm_range: ztyping.LimitsType = None,
+                                  name: str = "partial_numeric_integrate") -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
@@ -1036,8 +1051,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _sample(self, n_draws, limits):
         raise NotImplementedError
 
-    def sample(self, n_draws, limits, name="sample"):
-        """
+    def sample(self, n_draws: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
+        """Sample `n_draws` within `limits` from the pdf.
 
         Args:
             n_draws (int): The number of samples to be generated
@@ -1045,7 +1060,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             name (str):
 
         Returns:
-            Tensor(n_samples, n_dims)
+            Tensor(n_dims, n_samples)
         """
         limits = convert_to_range(limits, dims=Range.FULL)
         return self._hook_sample(n_draws=n_draws, limits=limits, name=name)

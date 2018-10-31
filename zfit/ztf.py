@@ -4,6 +4,7 @@ import warnings
 import tensorflow
 
 import tensorflow as tf
+from typing import Any
 
 from zfit.settings import types as _ztypes  # pay attention with the names in here!
 
@@ -71,11 +72,17 @@ def nth_pow(x, n, name=None):
     return power
 
 
+def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
+    return tf.unstack(value=value, num=num, axis=axis, name=name)
+
+
 # same as in TensorFlow, wrapped
 
 def log(x, name=None):
     return tf.log(x=x, name=name)
+log.__doc__ = tf.log.__doc__
 
 
 def exp(x, name=None):
     return tf.exp(x=x, name=name)
+exp.__doc__ = tf.exp.__doc__

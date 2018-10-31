@@ -30,7 +30,7 @@ def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
             (constant weak scaling)).
 
     Returns:
-        tensorflow.python.framework.ops.Tensor:
+        tf.Tensor:
     """
     n_dims = limits.n_dims
     lower, upper = limits.get_boundaries()
@@ -61,9 +61,7 @@ def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
         else:
             prob_max_inferred = prob_max
         random_thresholds = sample_drawn[-1, :] * prob_max_inferred
-
         take_or_not = probabilities > random_thresholds
-
         filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not[0], axis=1)
 
         if sample is None:

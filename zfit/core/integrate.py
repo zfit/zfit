@@ -1,10 +1,9 @@
-
 import collections
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .limits import convert_to_range, Range, no_norm_range, no_multiple_limits
+from .limits import convert_to_range, Range, no_norm_range, no_multiple_limits, supports
 from ..settings import types as ztypes
 
 
@@ -166,7 +165,8 @@ class AnalyticIntegral(object):
         integral_fn = max(integrals, key=lambda l: l.priority, default=None)
         return integral_fn
 
-    def register(self, func, dims, limits=None, priority=50):
+    def register(self, func, dims, limits=None, priority=50, *,
+                 supports_norm_range=False, supports_multiple_limits=False):
         """Register an analytic integral."""
         if limits is False:
             raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
@@ -177,13 +177,14 @@ class AnalyticIntegral(object):
             limits = convert_to_range(limits=limits, dims=dims)
             # limits = limits.get_limits()
         dims = frozenset(limits.dims)
+
+        # add catching everything unsupported:
+        func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
         # if len(dims) > len(self._max_dims):
         #     self._max_dims = dims
         self._integrals[dims][limits] = Integral(func=func, limits=limits, dims=dims,
                                                  priority=priority)  # TODO improve with database-like access
 
-    @no_multiple_limits
-    @no_norm_range
     def integrate(self, x, limits, dims=None, norm_range=None, params=None):
         """Integrate analytically over the dims if available."""
         # TODO: what if dims is None?
@@ -201,9 +202,9 @@ class AnalyticIntegral(object):
 
         if x is None:
             # print("DEBUG": limits", limits)
-            integral = integral_fn(limits=limits, params=params)
+            integral = integral_fn(limits=limits, norm_range=norm_range, params=params)
         else:
-            integral = integral_fn(x=x, limits=limits, params=params)
+            integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params)
         return integral
 
 
