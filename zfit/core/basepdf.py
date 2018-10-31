@@ -905,8 +905,7 @@ class BasePDF(pep487.PEP487Object):
         """
 
         Args:
-            n_draws (int): The number to samples to generate and to draw from (accept-reject) # TODO: change to
-            numbers returned
+            n_draws (int): The number of samples to be generated
             limits (tuple, Range): In which region to sample in
             name (str):
 

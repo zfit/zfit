@@ -22,7 +22,7 @@ def to_complex(number, dtype=ztypes.complex):
     return tf.cast(number, dtype=dtype)
 
 
-def to_real(x, dtype=ztypes.float):
+def to_float(x, dtype=ztypes.float):
     return tf.cast(x, dtype=dtype)
 
 
