@@ -7,8 +7,9 @@ __email__ = 'zfit@physik.uzh.ch'
 __version__ = '0.0.0'
 
 
-from zfit import pdf, core
-from zfit.core.parameter import FitParameter
-from zfit.core.loss import unbinned_nll
+from . import pdf
+from .core.parameter import FitParameter
+from .core.loss import unbinned_nll
+from .core.limits import Range, convert_to_range
 
 # EOF

@@ -17,7 +17,7 @@ def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
                          sampler: typing.Callable = tf.random_uniform,
                          dtype=ztypes.float,
                          prob_max: typing.Union[None, int] = None) -> tf.Tensor:
-    """Accept reject sample from a probability distribution
+    """Accept reject sample from a probability distribution.
 
     Args:
         prob (function): A function taking x a Tensor as an argument and returning the probability

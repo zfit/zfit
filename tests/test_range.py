@@ -4,6 +4,7 @@ import copy
 from unittest import TestCase
 
 from zfit.core.limits import Range, convert_to_range, iter_limits
+from zfit.util.exception import ConversionError
 
 limit1 = ((1, 4), (2, 3.5), (-1, 5))
 limit1_true = copy.deepcopy(limit1)
@@ -77,15 +78,15 @@ class TestRange(TestCase):
         self.assertEqual(limit1_range, limit1_range2)
 
     def test_area(self):
-        self.assertEqual(self.limit1_range.area, limit1_area)
-        self.assertEqual(self.limit2_range.area, limit2_area)
-        self.assertEqual(self.limit3_1pair_range.area, limit3_1dim_1pair_area)
-        self.assertEqual(self.limit3_3pair_range.area, limit3_1dim_3pair_area)
-        self.assertEqual(self.limit4_range.area, limit4_area)
+        self.assertEqual(self.limit1_range.area(), limit1_area)
+        self.assertEqual(self.limit2_range.area(), limit2_area)
+        self.assertEqual(self.limit3_1pair_range.area(), limit3_1dim_1pair_area)
+        self.assertEqual(self.limit3_3pair_range.area(), limit3_1dim_3pair_area)
+        self.assertEqual(self.limit4_range.area(), limit4_area)
         range5 = Range(limits=limit5, dims=Range.FULL)
         self.assertEqual(range5.area_by_boundaries(), limit5_subarea)
         self.assertEqual(range5.area_by_boundaries(rel=True), limit5_subarea_rel)
-        self.assertEqual(range5.area, sum(limit5_subarea))
+        self.assertEqual(range5.area(), sum(limit5_subarea))
 
     def test_dims(self):
         self.assertEqual(self.limit1_range.dims, limit1_dims_true)
@@ -144,7 +145,7 @@ class TestRange(TestCase):
         simple_lower2, simple_upper2 = [((1, 4), (3, 6)), ((2, 5), (4, 7))]
         simple_range = Range(limits=simple_limits, dims=simple_dims)
         simple_range2 = Range.from_boundaries(lower=simple_lower2, upper=simple_upper2, dims=simple_dims)
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ConversionError) as context:
             simple_range2.get_limits()
         lower, upper = simple_range.get_boundaries()
         self.assertEqual(simple_lower, lower)
@@ -163,7 +164,7 @@ class TestRange(TestCase):
         complex_subrange = complex_range.subspace(dims=(0, 8))
 
         self.assertEqual(set(complex_subrange.area_by_boundaries()), set(true_complex_sub_areas_by_boundaries))
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ConversionError) as context:
             complex_subrange.get_limits()
 
     def test_subspace(self):  # TODO

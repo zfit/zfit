@@ -126,7 +126,7 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
     avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
     # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     # print("DEBUG", avg", avg)
-    integral = avg * limits.area
+    integral = avg * limits.area()
     return tf.cast(integral, dtype=dtype)
 
 

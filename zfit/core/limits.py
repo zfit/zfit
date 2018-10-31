@@ -78,11 +78,13 @@ which you can now iterate through. For example, to calc an integral (assuming th
 
 import functools
 import inspect
-from typing import Tuple, Union
+from typing import Tuple, Union, List, Optional
 
+import tensorflow as tf
 import numpy as np
 
-from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError
+from zfit.util import ztyping
+from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, ConversionError
 
 
 class Range(object):
@@ -92,16 +94,17 @@ class Range(object):
     ANY_UPPER = object()
     __HASH_DELIMINATOR = object()
 
-    def __init__(self, *, limits: Tuple = None, lower: Tuple = None, upper: Tuple = None, dims: Tuple[int] = None,
+    def __init__(self, *, limits: Tuple[Tuple] = None, lower: Tuple[Tuple] = None, upper: Tuple[Tuple] = None,
+                 dims: Tuple[int] = None,
                  convert_none: bool = False) -> None:
         """Range holds limits and specifies dimension.
 
         Args:
-            limits (Tuple): |limits_arg_descr|
-            lower ():
-            upper ():
-            dims ():
-            convert_none (bool):
+            limits (Tuple[Tuple]): |limits_arg_descr|
+            lower (Tuple[Tuple]): |lower_arg_descr|
+            upper (Tuple[Tuple]): |upper_arg_descr|
+            dims (Tuple[int]): The dimensions of the given limits/bounds
+            convert_none (bool): If True, convert `None` to `any`
 
         Returns:
             Range: Returns the range object itself
@@ -121,16 +124,17 @@ class Range(object):
         if dims is None:
             raise ValueError("DIMS IS NONE")
         if limits is not None:
-            limits, _ = self.sanitize_limits(limits, dims=dims, repl_none=convert_none)
+            limits, _ = self.sanitize_limits(limits, dims=dims, convert_none=convert_none)
             lower, upper = self.boundaries_from_limits(limits)
-        self._set_boundaries_and_dims(lower=lower, upper=upper, dims=dims, repl_none=convert_none)
+        self._set_boundaries_and_dims(lower=lower, upper=upper, dims=dims, convert_none=convert_none)
 
     @classmethod
-    def from_boundaries(cls, lower, upper, dims=None, *, convert_none=False):
+    def from_boundaries(cls, lower: ztyping.LowerType, upper: ztyping.UpperType,
+                        dims: ztyping.DimsType, *, convert_none: bool = False) -> "Range":
         """Create a Range instance from a lower, upper limits pair. Opposite of Range.get_boundaries()
 
         Args:
-            lower (tuple):
+            lower (Tuple[Tuple]): |lower_arg_descr|
             upper (tuple):
             dims (tuple(int)): The dimensions the limits belong to.
             convert_none (): If True, None will be converted to "any" (either any lower or any upper)
@@ -141,7 +145,7 @@ class Range(object):
         return Range(lower=lower, upper=upper, dims=dims, convert_none=convert_none)
 
     @classmethod
-    def from_limits(cls, limits, dims, *, convert_none=False):
+    def from_limits(cls, limits: ztyping.LimitsType, dims: ztyping.DimsType, *, convert_none: bool = False) -> "Range":
         """Create a :py:class:~`zfit.core.limits.Range` instance from limits per dimension given.
 
 
@@ -168,7 +172,9 @@ class Range(object):
         return len(self.get_boundaries()[0])
 
     @staticmethod
-    def sanitize_boundaries(lower, upper, dims=None, convert_none=False):
+    def sanitize_boundaries(lower: ztyping.LowerType, upper: ztyping.UpperType, dims: ztyping.DimsType = None, *,
+                            convert_none: bool = False) -> Tuple[
+        ztyping.LowerType, ztyping.UpperType, ztyping.DimsType]:
         """Sanitize (add dim, replace None, check length...)
 
         Args:
@@ -179,7 +185,7 @@ class Range(object):
 
         Returns:
             lower, upper, inferred_dims: each one is a 2-d tuple containing the limits and a tuple
-                with the inferred axis
+                with the inferred dims
         """
         inferred_dims = None
         # input check
@@ -234,12 +240,21 @@ class Range(object):
 
         inferred_dims = tuple(range(len(bound)))
 
-
-
         return tuple(new_lower), tuple(new_upper), inferred_dims
 
     @staticmethod
-    def sanitize_limits(limits, dims=None, repl_none=False):
+    def sanitize_limits(limits: ztyping.LimitsType, dims: ztyping.DimsType = None, *,
+                        convert_none: bool = False) -> Tuple[ztyping.LimitsType, ztyping.DimsType]:
+        """Check and sanitize limits, add the right dimensions if missing, replace None.
+
+        Args:
+            limits (): |limits_arg_descr|
+            dims (): |dims_arg_descr|
+            convert_none (bool): If true, convert `None` to any
+
+        Returns:
+            limits, inferred_dims: The limits and the inferred_dimensions
+        """
         are_scalars = [np.shape(l) == () for l in limits]
         all_scalars = all(are_scalars)
         all_tuples = not any(are_scalars)
@@ -254,23 +269,27 @@ class Range(object):
 
         lower, upper = Range.boundaries_from_limits(limits=limits)
         *sanitized_boundaries, inferred_dims = Range.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
-                                                                         convert_none=repl_none)
+                                                                         convert_none=convert_none)
         sanitized_limits = Range.limits_from_boundaries(*sanitized_boundaries)
         return sanitized_limits, inferred_dims
 
     @staticmethod
-    def sanitize_dims(dims: Union[Tuple[int], int], allow_none=False) -> Tuple[int]:
+    def sanitize_dims(dims: ztyping.DimsType, allow_none: bool = False) -> Union[Tuple[int], None]:
         """Check the dims for dimensionality. None is error, Range.FULL is returned directly
 
         Args:
-            allow_none ():
             dims (Union[Tuple[int], int]):
+            allow_none (bool): If true, `None` does not rise an error
 
         Returns:
             Tuple[int]:
         """
-        if dims is None and not allow_none:
-            raise ValueError("`dims` cannot be None.")
+        if dims is None:
+            if not allow_none:
+                raise ValueError("`dims` cannot be None.")
+            else:
+                return None
+
         if dims is Range.FULL:
             return dims
 
@@ -278,10 +297,11 @@ class Range(object):
             dims = (dims,)
         return dims
 
-    def _set_boundaries_and_dims(self, lower, upper, dims, repl_none):
+    def _set_boundaries_and_dims(self, lower: ztyping.LowerType, upper: ztyping.UpperType, dims: ztyping.DimsType,
+                                 convert_none: bool) -> None:
         # TODO all the conversions come here
         lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
-                                                               convert_none=repl_none)
+                                                               convert_none=convert_none)
         dims = self.sanitize_dims(dims, allow_none=False)
         if dims is Range.FULL:
             dims = inferred_dims
@@ -295,30 +315,30 @@ class Range(object):
         self._dims = tuple(dims)
 
     @property
-    def n_dims(self):
+    def n_dims(self) -> int:
         return len(self.dims)
 
-    @property
-    def area(self):
+    def area(self) -> float:
         """Return the total area of all the limits and dims. Useful, for example, for MC integration."""
         if self._area is None:
             self._calculate_save_area()
         return self._area
 
-    def area_by_boundaries(self, rel=False):
+    def area_by_boundaries(self, rel: bool = False) -> Tuple[float, ...]:
+        """Return the areas of each interval
+
+        Args:
+            rel (bool): If True, return the relative fraction of each interval
+        Returns:
+            Tuple[float]:
+        """
         if self._area_by_boundaries is None:
             area_by_bound = [np.prod(np.array(up) - np.array(low)) for low, up in zip(*self.get_boundaries())]
         if rel:
-            area_by_bound = np.array(area_by_bound) / self.area
+            area_by_bound = np.array(area_by_bound) / self.area()
         return tuple(area_by_bound)
 
-    def _calculate_save_area(self):
-        # area = 1.
-        # for dims in self:
-        #     sub_area = 0
-        #     for lower, upper in iter_limits(dims):
-        #         sub_area += upper - lower
-        #     area *= sub_area
+    def _calculate_save_area(self) -> float:
         area = sum(self.area_by_boundaries(rel=False))
         self._area = area
         return area
@@ -327,10 +347,19 @@ class Range(object):
     def dims(self):
         return self._dims
 
-    def get_limits(self) -> Tuple[Tuple[float, float]]:
+    def get_limits(self) -> Tuple[Tuple[float, ...]]:
+        """Return the limits (if possible).
+
+        Returns:
+            Tuple[Tuple[float, ...]]:
+
+        Raises:
+            ConversionError: If the instance was created with boundaries that *cannot* bijectively be
+                converted to limits
+        """
         return Range.limits_from_boundaries(*self._boundaries)
 
-    def get_boundaries(self):
+    def get_boundaries(self) -> Tuple[ztyping.LowerType, ztyping.UpperType]:
         """Return a lower and upper boundary tuple containing all possible combinations.
 
         The limits given in the tuple form are converted to two tuples: one containing all of the
@@ -348,30 +377,49 @@ class Range(object):
         lower, upper = self._boundaries
         return tuple(lower), tuple(upper)
 
-    def subspace(self, dims: Tuple[int]) -> 'Range':
-        """Return an instance of Range containing only a subspace (`dims`) of the instance"""
+    def subspace(self, dims: ztyping.DimsType) -> 'Range':
+        """Return an instance of Range containing only a subspace (`dims`) of the instance.
+
+        Args:
+            dims (Tuple[int,...]): |dims_arg_descr|
+
+        Returns:
+            zfit.core.limits.Range:
+        """
         dims = self.sanitize_dims(dims)
         lower, upper = self.get_boundaries()
         lower = tuple(tuple(lim[self.dims.index(d)] for d in dims) for lim in lower)
         upper = tuple(tuple(lim[self.dims.index(d)] for d in dims) for lim in upper)
-        # HACK remove double occurrence, do better in the future
+        # FUTURE remove double occurrence, do better in the future
         unique_bounds = list(set(zip(lower, upper)))
         lower = tuple(limit[0] for limit in unique_bounds)
         upper = tuple(limit[1] for limit in unique_bounds)
-        # HACK END
+        # FUTURE END
 
         sub_range = Range(lower=lower, upper=upper, dims=dims)
         return sub_range
 
-    def subbounds(self):
-        """Return a list of Range objects each containing a simple boundary"""
+    def subbounds(self) -> List["Range"]:
+        """Return a list of Range objects each containing a simple boundary
+
+        Returns:
+            List[zfit.Range]:
+        """
         range_objects = []
         for lower, upper in zip(*self.get_boundaries()):
             range_objects.append(Range.from_boundaries(lower=lower, upper=upper, dims=self.dims))
         return range_objects
 
     @staticmethod
-    def boundaries_from_limits(limits):
+    def boundaries_from_limits(limits: ztyping.LimitsType) -> Tuple[ztyping.LowerType, ztyping.UpperType]:
+        """Convert limits (sorted by dims) to boundaries (sorted by intervalls).
+
+        Args:
+            limits (): |limits_arg_descr|
+
+        Returns:
+
+        """
         if len(limits) == 0:
             return (), ()
         lower_limits = []
@@ -388,14 +436,27 @@ class Range(object):
         return tuple(lower_limits), tuple(upper_limits)
 
     @staticmethod
-    def limits_from_boundaries(lower, upper):
+    def limits_from_boundaries(lower: ztyping.LowerType, upper: ztyping.UpperType) -> ztyping.LimitsType:
+        """Convert the lower, upper boundaries to limits.
+
+        Args:
+            lower (): |lower_arg_descr|
+            upper (): |upper_arg_descr|
+
+        Returns:
+            limits: Returns the limits
+
+        Raises:
+            ConversionError: If the boundaries cannot safely be converted to limits because there
+            is no bijective relationship.
+        """
         lower = Range._add_dim_if_scalars(lower)
         upper = Range._add_dim_if_scalars(upper)
 
         if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) != 2:
-            raise ValueError("lower {} and upper {} have to have the same (n_limits, n_dims) shape."
-                             "Currently lower shape: {} upper shape: {}"
-                             "".format(lower, upper, np.shape(lower), np.shape(upper)))
+            raise tf.errors.InvalidArugmentError("lower {} and upper {} have to have the same (n_limits, n_dims) shape."
+                                                 "Currently lower shape: {} upper shape: {}"
+                                                 "".format(lower, upper, np.shape(lower), np.shape(upper)))
         limits = [[] for _ in range(len(lower[0]))]
         already_there_sets = [set() for _ in range(len(lower[0]))]
         for lower_vals, upper_vals in zip(lower, upper):
@@ -412,9 +473,9 @@ class Range(object):
         tuples_are_equal = set(check_lower) == set(lower) and set(check_upper) == set(upper)
         length_are_equal = len(check_lower) == len(lower) and len(check_upper) == len(upper)
         if not (tuples_are_equal and length_are_equal):
-            raise ValueError("cannot safely convert boundaries (lower={}, upper={}) to limits "
-                             "(check_lower={}, check_upper={}) (boundaries probably contain non "
-                             "perpendicular limits)".format(lower, upper, check_lower, check_upper))
+            raise ConversionError("cannot safely convert boundaries (lower={}, upper={}) to limits "
+                                  "(check_lower={}, check_upper={}) (boundaries probably contain non "
+                                  "perpendicular limits)".format(lower, upper, check_lower, check_upper))
         # make boundaries unique
         return tuple(limits)
 
@@ -481,8 +542,16 @@ class Range(object):
             limits = self.get_limits()[key]
         return limits
 
-    def idims_limits(self, dims):
-        if not hasattr(dims, "__len__"):
+    def idims_limits(self, dims: ztyping.DimsType) -> ztyping.LimitsType:
+        """Return the limits of the given *dims*.
+
+        Args:
+            dims ():
+
+        Returns:
+            Tuple: the limits of the given dimensions
+        """
+        if np.shape(dims) == ():
             dims = (dims,)
         limits_by_dims = tuple([self.get_limits()[self.dims.index(dim)] for dim in dims])
         return limits_by_dims
@@ -494,7 +563,10 @@ class Range(object):
             raise TypeError("unhashable. ", self.get_boundaries(), self.dims)
 
 
-def convert_to_range(limits=None, boundaries=None, dims=None, convert_none=False) -> Union[Range, bool, None]:
+def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
+                     boundaries: Optional[Tuple[ztyping.LowerType, ztyping.UpperType]] = None,
+                     dims: ztyping.DimsType = None, *,
+                     convert_none: bool = False) -> Union[None, 'Range', bool]:
     """Convert *limits* to a Range object if not already None or False.
 
     Args:
@@ -524,12 +596,14 @@ def convert_to_range(limits=None, boundaries=None, dims=None, convert_none=False
 
 
 def iter_limits(limits):
-    """Returns (lower, upper) for an iterable containing several such pairs
+    """Returns (lower, upper) for an iterable containing several such pairs.
 
     Args:
         limits (iterable): A 1-dimensional iterable containing an even number of values. The odd
             values are takes as the lower limit while the even values are taken as the upper limit.
             Example: [a_lower, a_upper, b_lower, b_upper]
+
+            This is typically a certain dimension in "usual" limits.
 
     Returns:
         iterable(tuples(lower, upper)): Returns an iterable containing the lower, upper tuples.

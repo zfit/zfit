@@ -12,6 +12,9 @@ class ExtendedPDFError(Exception):
     pass
 
 
+class ConversionError(Exception):
+    pass
+
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
