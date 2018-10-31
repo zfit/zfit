@@ -1,4 +1,10 @@
+"""
+Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
 
+A FunctorBase class is provided to make handling the pdfs easier.
+
+Their implementation is often non-trivial.
+"""
 import tensorflow as tf
 from zfit.core.limits import no_norm_range, supports
 
@@ -8,7 +14,17 @@ from zfit.core.parameter import FitParameter
 from zfit.settings import types as ztypes
 
 
-class SumPDF(BasePDF):
+class BaseFunctor(BasePDF):
+
+    def __init__(self, pdfs, name="BaseFunctor", **kwargs):
+
+        if not hasattr(pdfs, "__len__"):
+            pdfs = [pdfs]
+        self.pdfs = pdfs
+        super().__init__(name=name, **kwargs)
+
+
+class SumPDF(BaseFunctor):
 
     def __init__(self, pdfs, frac=None, name="SumPDF"):
         """
@@ -52,13 +68,13 @@ class SumPDF(BasePDF):
             if len(frac) == len(pdfs) - 1:
                 frac = list(frac) + [tf.constant(1., dtype=ztypes.float) - sum(frac)]
 
-        super(SumPDF, self).__init__(pdfs=pdfs, frac=frac, name=name)
+        super().__init__(pdfs=pdfs, frac=frac, name=name)
         if all_extended:
             self.set_yield(tf.reduce_sum(yields))
 
     def _unnormalized_prob(self, x):
         # TODO: deal with yields
-        pdfs = self.parameters['pdfs']
+        pdfs = self.pdfs
         frac = self.parameters['frac']
         func = tf.accumulate_n(
             [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
@@ -66,7 +82,7 @@ class SumPDF(BasePDF):
 
     @supports()
     def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
-        pdfs = self.parameters['pdfs']
+        pdfs = self.pdfs
         frac = self.parameters['frac']
         try:
             integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
@@ -81,14 +97,14 @@ class SumPDF(BasePDF):
         return integral
 
 
-class ProductPDF(BasePDF):
+class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, name="ProductPDF"):
         if not hasattr(pdfs, "__len__"):
             pdfs = [pdfs]
-        super(ProductPDF, self).__init__(pdfs=pdfs, name=name)
+        super().__init__(pdfs=pdfs, name=name)
 
     def _unnormalized_prob(self, x):
-        return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.parameters['pdfs']], axis=0)
+        return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.pdfs], axis=0)
 
 
 if __name__ == '__main__':
