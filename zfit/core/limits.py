@@ -70,10 +70,6 @@ which you can now iterate through. For example, to calc an integral (assuming th
 `integrate` taking the lower and upper limits and returning the function), you can do
 >>> def integrate(lower_limit, upper_limit): return 42  # dummy function
 >>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
-
-
-
-
 """
 
 import functools
@@ -122,8 +118,6 @@ class Range(object):
         self._area_by_boundaries = None
         self._boundaries = None  # gets set below
         self._dims = None  # gets set below
-        if dims is None:
-            raise ValueError("DIMS IS NONE")
         if limits is not None:
             limits, _ = self.sanitize_limits(limits, dims=dims, convert_none=convert_none)
             lower, upper = self.boundaries_from_limits(limits)

@@ -15,8 +15,11 @@ A simple example:
 >>>     def _unnormalized_prob(self, x):
 >>>         return tf.exp((x - mean) ** 2 / (2 * stddev**2))
 
-Notice that we only specify the *function* and no normalization (we could but would not change anything).
-**No** attempt to **explicitly** normalize the function should be done *here*!
+Notice that *here* we only specify the *function* and no normalization. This
+**No** attempt to **explicitly** normalize the function should be done inside `_unnormalized_prob`.
+The normalization is handled with another method depending on the normalization range specified.
+(It *is* possible, though discouraged, to directly provide the *normalized probability* by overriding _prob(), but
+there are other, more convenient ways to add improvements like providing an analytical integrals.)
 
 Before we create an instance, we need to create the variables to initialize it
 >>> mean = zfit.FitParameter("mean1", 2., 0.1, 4.2)  # signature as in RooFit: *name, initial, lower, upper*
@@ -26,13 +29,31 @@ Let's create an instance and some example data
 >>> example_data = np.random.random(10)
 Now we can get the probability
 >>> probs = gauss.prob(x=example_data, norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
+Or the integral
+>>> integral = gauss.integrate(limits=(-5, 3.1), norm_range=False)  # norm_range is False -> return unnormalized
+integral
+Or directly sample from it
+>>> sample = gauss.sample(n_draws=1000, limits=(-10, 10))  # draw 1000 samples within (-10, 10)
+
+We can create an extended PDF, which will result in anything using a `norm_range` to not return the
+probability but the number probability (the function will be normalized to `yield` instead of 1 inside
+the `norm_range`)
+>>> yield1 = FitParameter("yield1", 100, 0, 1000)
+>>> gauss.set_yield(yield1)
+>>> gauss.is_extended
+True
+
+>>> integral_extended = gauss.integrate(limits=(-10, 10), norm_range=(-10, 10))  # yields approx 100
+
+For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
+also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
+
 import abc
 import builtins
 from collections import OrderedDict
 import contextlib
 from contextlib import suppress
-import functools
 import typing
 import warnings
 
@@ -42,7 +63,6 @@ import pep487
 
 from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple_limits, supports
 from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, BasePDFSubclassingError
-# import zfit.core.integrate
 from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
@@ -52,6 +72,7 @@ from ..util import container as zcontainer
 from zfit import ztf
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
+
 
 def _BasePDF_register_check_support(has_support):
     if not isinstance(has_support, bool):
@@ -75,17 +96,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
-
-    # __USER_IMPL_METHODS_TO_CHECK = {}
-    # __USER_IMPL_METHODS_TO_CHECK = {"_prob": False,
-    #                                 "_log_prob": False,
-    #                                 "_normalization": True,
-    #                                 "_integrate": True,
-    #                                 "_analytic_integrate": True,
-    #                                 "_numeric_integrate": True,
-    #                                 "_partial_integrate": True,
-    #                                 "_partial_analytic_integrate": True,
-    #                                 "_partial_numeric_integrate": True}
 
     _analytic_integral = None
     _inverse_analytic_integral = None
@@ -142,8 +152,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                     continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings wrong
-
-
 
         cls._analytic_integral = zintegrate.AnalyticIntegral()
         cls._inverse_analytic_integral = []
@@ -368,6 +376,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             #     return tf.exp(self._log_prob(x=x, norm_range="TODO"))
 
             # No fallback, if unnormalized_prob is not implemented
+
     @_BasePDF_register_check_support(False)
     def _prob(self, x, norm_range):
         raise NotImplementedError
