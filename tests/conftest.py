@@ -1,7 +1,5 @@
 """Used to make pytest functions available globally"""
 
-from __future__ import print_function, division, absolute_import
-
 test_length = 0
 test_length = 10
 

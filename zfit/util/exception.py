@@ -1,6 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
-
 # TODO: improve errors of pdfs. Generate more general error, inherit and use more specific?
 
 
@@ -14,6 +11,7 @@ class ExtendedPDFError(Exception):
 
 class ConversionError(Exception):
     pass
+
 
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
