@@ -1,8 +1,32 @@
 """
-Definition of the pdf interface, base etc.
-"""
-from __future__ import print_function, division, absolute_import
+This  module defines the `BasePdf` that can be used to inherit from in order to build a custom PDF.
 
+The `BasePDF` implements already a lot of ready-to-use functionality like integral, automatic normalization
+and sampling.
+
+Defining your own pdf
+---------------------
+
+A simple example:
+>>> class MyGauss(BasePDF):
+>>>     def __init__(self, mean, stddev, name="MyGauss"):
+>>>         super().__init__(mean=mean, stddev=stddev, name=name)
+>>>
+>>>     def _unnormalized_prob(self, x):
+>>>         return tf.exp((x - mean) ** 2 / (2 * stddev**2))
+
+Notice that we only specify the *function* and no normalization (we could but would not change anything).
+**No** attempt to **explicitly** normalize the function should be done *here*!
+
+Before we create an instance, we need to create the variables to initialize it
+>>> mean = zfit.FitParameter("mean1", 2., 0.1, 4.2)  # signature as in RooFit: *name, initial, lower, upper*
+>>> stddev = zfit.FitParameter("stddev1", 5., 0.3, 10.)
+Let's create an instance and some example data
+>>> gauss = MyGauss(mean=mean, stddev=stddev)
+>>> example_data = np.random.random(10)
+Now we can get the probability
+>>> probs = gauss.prob(x=example_data, norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
+"""
 import builtins
 from collections import OrderedDict
 import contextlib
@@ -21,13 +45,12 @@ from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
 from .parameter import FitParameter
-# from zfit.settings import types as ztypes
 from ..util import exception as zexception
 from ..util import container as zcontainer
 from zfit import ztf
 
 
-class BasePDF(pep487.PEP487Object):
+class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
     """Base class for any generic pdf.
 
     # TODO instructions on how to use
