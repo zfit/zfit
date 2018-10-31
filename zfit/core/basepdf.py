@@ -27,10 +27,12 @@ Let's create an instance and some example data
 Now we can get the probability
 >>> probs = gauss.prob(x=example_data, norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
 """
+import abc
 import builtins
 from collections import OrderedDict
 import contextlib
 from contextlib import suppress
+import functools
 import typing
 import warnings
 
@@ -38,8 +40,8 @@ import tensorflow as tf
 import tensorflow_probability.python.mcmc as mc
 import pep487
 
-from zfit.core.limits import Range, convert_to_range, no_norm_range
-from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError
+from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple_limits, supports
+from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, BasePDFSubclassingError
 # import zfit.core.integrate
 from ..settings import types as ztypes
 from . import integrate as zintegrate
@@ -49,8 +51,21 @@ from ..util import exception as zexception
 from ..util import container as zcontainer
 from zfit import ztf
 
+_BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
-class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
+def _BasePDF_register_check_support(has_support):
+    if not isinstance(has_support, bool):
+        raise TypeError("Has to be boolean.")
+
+    def register(func):
+        name = func.__name__
+        _BasePDF_USER_IMPL_METHODS_TO_CHECK[name] = has_support
+        return func
+
+    return register
+
+
+class BasePDF(pep487.ABC):  # __init_subclass__ backport
     """Base class for any generic pdf.
 
     # TODO instructions on how to use
@@ -60,6 +75,17 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
     _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
     _DEFAULTS_integration.draws_per_dim = 4000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
+
+    # __USER_IMPL_METHODS_TO_CHECK = {}
+    # __USER_IMPL_METHODS_TO_CHECK = {"_prob": False,
+    #                                 "_log_prob": False,
+    #                                 "_normalization": True,
+    #                                 "_integrate": True,
+    #                                 "_analytic_integrate": True,
+    #                                 "_numeric_integrate": True,
+    #                                 "_partial_integrate": True,
+    #                                 "_partial_analytic_integrate": True,
+    #                                 "_partial_numeric_integrate": True}
 
     _analytic_integral = None
     _inverse_analytic_integral = None
@@ -88,6 +114,37 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        # check if subclass has decorator if required
+        for method_name, has_support in _BasePDF_USER_IMPL_METHODS_TO_CHECK.items():
+            method = getattr(cls, method_name)
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == _BasePDF_register_check_support:
+                    continue  # not overwritten, fine
+
+            # here means: overwritten
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == supports:
+                    if has_support:
+                        continue  # needs support, has been wrapped
+                    else:
+                        raise BasePDFSubclassingError("Method {} has been wrapped with supports "
+                                                      "but is not allowed to. Has to handle all "
+                                                      "arguments.".format(method_name))
+                elif has_support:
+                    raise BasePDFSubclassingError("Method {} has been overwritten and *has to* be "
+                                                  "wrapped by `supports` decorator (don't forget () )"
+                                                  "to call the decorator as it takes arguments"
+                                                  "".format(method_name))
+                elif not has_support:
+                    continue  # no support, has not been wrapped with
+            else:
+                if not has_support:
+                    continue  # not wrapped, no support, need no
+
+            # if we reach this points, somethings wrong
+
+
+
         cls._analytic_integral = zintegrate.AnalyticIntegral()
         cls._inverse_analytic_integral = []
         cls._additional_repr = {}
@@ -277,6 +334,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
         else:
             self._parameters['yield'] = value
 
+    @abc.abstractmethod
     def _unnormalized_prob(self, x):
         raise NotImplementedError
 
@@ -310,7 +368,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
             #     return tf.exp(self._log_prob(x=x, norm_range="TODO"))
 
             # No fallback, if unnormalized_prob is not implemented
-
+    @_BasePDF_register_check_support(False)
     def _prob(self, x, norm_range):
         raise NotImplementedError
 
@@ -352,6 +410,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
             limits=norm_range)
         return pdf
 
+    @_BasePDF_register_check_support(False)
     def _log_prob(self, x, norm_range):
         raise NotImplementedError
 
@@ -397,6 +456,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
     def _fallback_log_prob(self, norm_range, x):
         return tf.log(self._norm_prob(x=x, norm_range=norm_range))  # TODO: call not normalized?
 
+    @_BasePDF_register_check_support(True)
     def _normalization(self, norm_range):
         raise NotImplementedError
 
@@ -431,7 +491,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
         return normalization_value
 
     # Integrals
-
+    @_BasePDF_register_check_support(True)
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
@@ -531,8 +591,8 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
         else:
             cls._inverse_analytic_integral.append(func)
 
+    @_BasePDF_register_check_support(True)
     def _analytic_integrate(self, limits, norm_range):
-        # TODO: user implementation requested
         raise NotImplementedError
 
     def analytic_integrate(self, limits, norm_range=None, name="analytic_integrate"):
@@ -599,6 +659,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
         return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.dims,
                                                  norm_range=norm_range, params=self.parameters)
 
+    @_BasePDF_register_check_support(True)
     def _numeric_integrate(self, limits, norm_range):
         raise NotImplementedError
 
@@ -660,6 +721,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
 
         return integral
 
+    @_BasePDF_register_check_support(True)
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
@@ -747,6 +809,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
             raise NormRangeNotImplementedError
         return integral_vals
 
+    @_BasePDF_register_check_support(True)
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
@@ -837,6 +900,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
         return self._analytic_integral.integrate(x=x, limits=limits, dims=limits.dims,
                                                  norm_range=norm_range, params=self.parameters)
 
+    @_BasePDF_register_check_support(True)
     def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
@@ -921,6 +985,7 @@ class BasePDF(pep487.PEP487Object):  # __init_subclass__ backport
         else:
             return self._inverse_analytic_integral[0](x=x, params=self.parameters)
 
+    @_BasePDF_register_check_support(True)
     def _sample(self, n_draws, limits):
         raise NotImplementedError
 

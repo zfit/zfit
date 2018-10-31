@@ -1,4 +1,3 @@
-
 import typing
 
 import tensorflow as tf
@@ -76,10 +75,11 @@ def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
         eff = ztf.to_float(tf.shape(sample, out_type=tf.int64)[1]) / ztf.to_float(n_total_drawn)
         return n_draws, sample, n_total_drawn, eff
 
-
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
                            loop_vars=sample_body(n_draws=n_draws, sample=None,  # run first once for initialization
-                                                 n_total_drawn=0, eff=1.))[1]
+                                                 n_total_drawn=0, eff=1.),
+                           swap_memory=True, parallel_iterations=4,
+                           back_prop=False)[1]  # backprop not needed here
     return sample[:, :n_draws]  # cutting away to many produced
 
 

@@ -78,6 +78,7 @@ which you can now iterate through. For example, to calc an integral (assuming th
 
 import functools
 import inspect
+import typing
 from typing import Tuple, Union, List, Optional
 
 import tensorflow as tf
@@ -649,7 +650,7 @@ def no_multiple_limits(func):
     if 'limits' in keys:
         limits_index = keys.index('limits')
     else:
-        raise TypeError("Decorator used to sanitize limits, but argument not given.")
+        return func  # no limits as parameters -> no problem
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
@@ -665,3 +666,31 @@ def no_multiple_limits(func):
             return func(*args, **kwargs)
 
     return new_func
+
+
+def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> typing.Callable:
+    """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
+
+    If any of the flags is set to False, it will check the arguments and, in case they match a flag
+    (say if a *norm_range* is passed while the *norm_range* flag is set to `False`), it will
+    raise a corresponding exception (in this example a `NormRangeNotImplementedError`) that will
+    be catched by an earlier function that knows how to handle things.
+
+    Args:
+        norm_range (bool): If False, no norm_range argument will be passed through resp. will be `None`
+        multiple_limits (bool): If False, only simple limits are to be expected and no iteration is
+            therefore required.
+    """
+    decorator_stack = []
+    if not multiple_limits:
+        decorator_stack.append(no_multiple_limits)
+    if not norm_range:
+        decorator_stack.append(no_norm_range)
+
+    def create_deco_stack(func):
+        for decorator in reversed(decorator_stack):
+            func = decorator(func)
+        func.__wrapped__ = supports
+        return func
+
+    return create_deco_stack

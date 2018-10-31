@@ -13,6 +13,14 @@ class ConversionError(Exception):
     pass
 
 
+class SubclassingError(Exception):
+    pass
+
+
+class BasePDFSubclassingError(SubclassingError):
+    pass
+
+
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
     """Indicates that a function does not support the normalization range argument `norm_range`."""

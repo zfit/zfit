@@ -1,6 +1,6 @@
 
 import tensorflow as tf
-from zfit.core.limits import no_norm_range
+from zfit.core.limits import no_norm_range, supports
 
 from zfit.util.exception import ExtendedPDFError
 from zfit.core.basepdf import BasePDF
@@ -64,7 +64,7 @@ class SumPDF(BasePDF):
             [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
         return func
 
-    @no_norm_range
+    @supports()
     def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
         pdfs = self.parameters['pdfs']
         frac = self.parameters['frac']

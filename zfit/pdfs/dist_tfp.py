@@ -3,7 +3,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 from zfit.core.basepdf import BasePDF
-from zfit.core.limits import no_norm_range
+from zfit.core.limits import no_norm_range, supports
 
 
 class WrapDistribution(BasePDF):
@@ -22,7 +22,7 @@ class WrapDistribution(BasePDF):
         return self.tf_distribution.prob(value=x, name="_unnormalized_prob")  # TODO name
 
     # TODO: register integral
-    @no_norm_range
+    @supports()
     def _analytic_integrate(self, limits, norm_range):  # TODO deal with norm_range
         lower, upper = limits.get_boundaries()  # TODO: limits
         upper = tf.cast(upper, dtype=tf.float64)
