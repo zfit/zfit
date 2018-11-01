@@ -230,6 +230,8 @@ class Range(object):
             for bound in bounds:
                 if convert_none:
                     new_bounds.append(tuple(none_repl if b is None else b for b in bound))  # replace None
+                elif [b for b in bound if b is None]:
+                    raise ValueError("None inside boundaries but `convert_none` not set to True")
                 else:
                     new_bounds.append(tuple(bound))
 
@@ -497,15 +499,15 @@ class Range(object):
                             "supported")
         if self.dims != other.dims:
             return False
-        for dim, other_dim in zip(self.get_limits(), other.get_limits()):
+        for dim, other_dim in zip(self.get_limits(), other.get_limits()):  # TODO: replace with boundaries
             for lower, upper in iter_limits(dim):
                 is_le = False
                 for other_lower, other_upper in iter_limits(other_dim):
                     # a list of `or` conditions
                     is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower == lower and other_upper is None  # TODO: approx limit comparison?
-                    is_le += other_lower is None and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower is None and other_upper is None
+                    is_le += other_lower == lower and other_upper is Range.ANY_UPPER  # TODO: approx limit comparison?
+                    is_le += other_lower is Range.ANY_LOWER and upper == other_upper  # TODO: approx limit comparison?
+                    is_le += other_lower is Range.ANY_LOWER and other_upper is Range.ANY_UPPER
                     if is_le:
                         break
                 if not is_le:

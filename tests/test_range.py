@@ -17,6 +17,12 @@ limit2_area = 12.
 limit2_dims = (1, 3)
 limit2_dims_true = limit2_dims
 
+limit2_int = ((0, 2), (None, None))
+limit2_int_true = copy.deepcopy(limit2)
+limit2_int_area = False
+limit2_int_dims = (1, 3)
+limit2_int_dims_true = limit2_dims
+
 limit3_1dim_1pair = (-1.2, 2.0)
 limit3_1dim_1pair_true = ((-1.2, 2.0),)
 limit3_1dim_1pair_area = 3.2
@@ -110,7 +116,11 @@ class TestRange(TestCase):
         self.assertFalse(self.limit3_1pair_range <= self.limit3_1pair_0axis_range)
         self.assertFalse(self.limit3_1pair_range >= self.limit3_1pair_0axis_range)
         self.assertFalse(self.limit3_1pair_range == self.limit3_1pair_0axis_range)
-        # self.assertTrue(self.limit3_1pair_range <= self.limit3_3pair_range)  # TODO add test with Nones
+        limit2_int_range = Range.from_limits(limits=limit2_int, dims=limit2_int_dims, convert_none=True)
+        self.assertTrue(self.limit2_range <= limit2_int_range)  # TODO add test with Nones
+        self.assertTrue(limit2_int_range >= self.limit2_range)  # TODO add test with Nones
+        self.assertFalse(limit2_int_range == self.limit2_range)  # TODO add test with Nones
+        self.assertFalse(limit2_int_range <= self.limit2_range)  # TODO add test with Nones
         self.assertFalse(self.limit3_1pair_range >= self.limit3_3pair_range)
         self.assertFalse(self.limit3_1pair_range == self.limit3_3pair_range)
         # self.assertTrue(self.limit3_3pair_range == Range(dims=limit3_1dim_3pair_dims))

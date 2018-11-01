@@ -148,7 +148,10 @@ class AnalyticIntegral(object):
             implemented_dims = set(self._integrals.keys())
         implemented_dims = sorted(implemented_dims, key=len, reverse=True)  # iter through biggest first
         for dims in implemented_dims:
-            limits_matched = [lim for lim, integ in self._integrals[dims].items() if integ.limits >= limits]
+            limits_matched = []
+            for lim, integ in self._integrals[dims].items():
+                if integ.limits >= limits:
+                    limits_matched.append(lim)
 
             if limits_matched:  # one or more integrals available
                 return tuple(sorted(dims)), limits_matched
