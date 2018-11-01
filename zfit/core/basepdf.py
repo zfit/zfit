@@ -1029,7 +1029,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                                                             norm_range=norm_range)
 
     @no_norm_range
-    def _fallback_partial_numeric_integrate(self, x, limits):
+    def _fallback_partial_numeric_integrate(self, x, limits, norm_range=False):
         return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
 
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
