@@ -3,7 +3,6 @@ Definition of minimizers, wrappers etc.
 
 """
 
-
 import abc
 import collections
 

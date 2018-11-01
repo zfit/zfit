@@ -1,4 +1,3 @@
-
 import itertools
 
 import tensorflow as tf
@@ -6,6 +5,7 @@ import tensorflow as tf
 from zfit.settings import types as ztypes
 from zfit.core import tfext
 from zfit import ztf
+
 
 def poly_complex(*args, real_x=False):  # py23 compatibility: change **kwargs to real_x=False
     """Complex polynomial with the last arg being x.

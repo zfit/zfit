@@ -32,23 +32,25 @@ class BaseFunction(BasePDF):  # TODO: what about yield? Illegal too? And other w
 
         self.set_norm_range(False)
 
+
 # decorate every function to prevent any norm_range given.
 BaseFunction._norm_analytic_integrate = MethodType(raise_error_if_norm_range(super()._norm_analytic_integrate),
                                                    BaseFunction)
 BaseFunction._norm_integrate = MethodType(raise_error_if_norm_range(super()._norm_integrate),
-                                                   BaseFunction)
+                                          BaseFunction)
 BaseFunction._norm_log_prob = MethodType(raise_error_if_norm_range(super()._norm_log_prob),
-                                                   BaseFunction)
+                                         BaseFunction)
 BaseFunction._norm_numeric_integrate = MethodType(raise_error_if_norm_range(super()._norm_numeric_integrate),
-                                                   BaseFunction)
-BaseFunction._norm_partial_analytic_integrate = MethodType(raise_error_if_norm_range(super()._norm_partial_analytic_integrate),
-                                                   BaseFunction)
+                                                  BaseFunction)
+BaseFunction._norm_partial_analytic_integrate = MethodType(
+    raise_error_if_norm_range(super()._norm_partial_analytic_integrate),
+    BaseFunction)
 BaseFunction._norm_partial_integrate = MethodType(raise_error_if_norm_range(super()._norm_partial_integrate),
-                                                   BaseFunction)
-BaseFunction._norm_partial_numeric_integrate = MethodType(raise_error_if_norm_range(super()._norm_partial_numeric_integrate),
                                                   BaseFunction)
+BaseFunction._norm_partial_numeric_integrate = MethodType(
+    raise_error_if_norm_range(super()._norm_partial_numeric_integrate),
+    BaseFunction)
 BaseFunction._norm_prob = MethodType(raise_error_if_norm_range(super()._norm_prob),
-                                                  BaseFunction)
+                                     BaseFunction)
 BaseFunction._norm_sample = MethodType(raise_error_if_norm_range(super()._norm_sample),
-                                                  BaseFunction)
-
+                                       BaseFunction)

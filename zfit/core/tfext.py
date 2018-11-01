@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 
 import math as _mt
@@ -32,5 +31,3 @@ def invariant(c): return tf.constant([c], dtype=ztypes.float)
 
 
 def argument(c): return tf.atan2(tf.imag(c), tf.real(c))
-
-

@@ -1,18 +1,25 @@
+"""
+This module contains functions for the numeric as well as the analytic (partial) integration.
+"""
+
 import collections
+import typing
 
 import tensorflow as tf
 import tensorflow_probability as tfp
+from typing import Callable, Optional
 
-from .limits import convert_to_range, Range, no_norm_range, no_multiple_limits, supports
+from zfit import ztf
+from zfit.util import ztyping
+from .limits import convert_to_range, Range, supports
 from ..settings import types as ztypes
 
 
-@no_norm_range
-@no_multiple_limits
+@supports()
 def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
-    if method == "AUTO":  # TODO
+    if method == "AUTO":  # TODO unfinished, other methods?
         method = "mc"
     # TODO get n dims
     # TODO method
@@ -25,51 +32,52 @@ def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=ztypes.flo
     return integral
 
 
-# TODO
+# TODO implement numerical integration method
 def numeric_integrate():
     """Integrate `func` using numerical methods."""
     integral = None
     return integral
 
 
-def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=10000, method=None,
-                 dtype=ztypes.float,
-                 mc_sampler=tfp.mcmc.sample_halton_sequence, importance_sampling=None):
-    """
+def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyping.DimsType] = None,
+                 x: Optional[ztyping.XType] = None, n_dims: Optional[int] = None, draws_per_dim: int = 10000,
+                 method: str = None,
+                 dtype: typing.Type = ztypes.float,
+                 mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
+                 importance_sampling: Optional[Callable] = None) -> tf.Tensor:
+    """Monte Carlo integration of `func` over `limits`.
 
     Args:
-        func ():
-        limits ():
+        func (callable): The function to be integrated over
+        limits (`Range`): The limits of the integral
         dims (tuple(int)): The row to integrate over. None means integration over all values
-        x ():
-        n_dims ():
-        draws_per_dim ():
-        method ():
-        dtype ():
-        mc_sampler ():
+        x (numeric): If a partial integration is performed, this are the values where x will be evaluated.
+        n_dims (int): the number of total dimensions (old?)
+        draws_per_dim (int): How many random points to draw per dimensions
+        method (str): Which integration method to use
+        dtype (dtype): |dtype_arg_descr|
+        mc_sampler (callable): A function that takes one argument (`n_draws` or similar) and returns
+            random values between 0 and 1.
         importance_sampling ():
 
     Returns:
-
+        numerical: the integral
     """
     if dims is not None and n_dims is not None:
         raise ValueError("Either specify dims or n_dims")
     limits = convert_to_range(limits, dims)
     dims = limits.dims
     partial = (dims is not None) and (x is not None)  # dims, value can be tensors
-    # if partial:
-    #     raise ValueError("Partial integration not yet implemented.")
+
     if dims is not None and n_dims is None:
         n_dims = len(dims)
     if n_dims is not None and dims is None:
         dims = tuple(range(n_dims))
 
     lower, upper = limits.get_boundaries()
-    # print("DEBUG": lower, upper", lower, upper)
 
     lower = tf.convert_to_tensor(lower, dtype=dtype)
     upper = tf.convert_to_tensor(upper, dtype=dtype)
-    # print("DEBUG": lower, upper", lower, upper)
 
     n_samples = draws_per_dim ** n_dims
     if partial:
@@ -77,27 +85,18 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
-    # print("DEBUG", n_dims", n_dims, dims, n_samples, dtype)
-    # TODO: get dimensions properly
-    # TODO: add times dim or so
-    # print("DEBUG", mc_sampler", mc_sampler)
+    # TODO: deal with n_dims properly?
     samples_normed = mc_sampler(dim=n_dims, num_results=n_samples, dtype=dtype)
     samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_dims))
-    # print("DEBUG", samples_normed", samples_normed)
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
     samples = tf.transpose(samples, perm=[2, 0, 1])
-    # print("DEBUG", samples_normed", samples)
-
-    # TODO: combine sampled with values
 
     if partial:
         value_list = []
         index_samples = 0
         index_values = 0
         if len(x.shape) == 1:
-            # print("DEBUG", expanding dims n1")
             x = tf.expand_dims(x, axis=1)
-        # print("DEBUG", n_dims = ", n_dims, x.shape[1].value)
         for i in range(n_dims + x.shape[1].value):
             if i in dims:
                 value_list.append(samples[index_samples, :, :])
@@ -106,36 +105,35 @@ def mc_integrate(func, limits, dims=None, x=None, n_dims=None, draws_per_dim=100
                 value_list.append(tf.expand_dims(x[:, index_values], axis=1))
                 index_values += 1
         value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-        # value = tf.stack(value_list)
         x = value_list
     else:
         x = samples
 
     # convert rnd samples with values to feedable vector
     reduce_axis = 1 if partial else None
-    if partial:
-        pass
-        # print("DEBUG", samples: ", samples)
-        # print("DEBUG", value: ", x)
-        # print("DEBUG", func(value): ", func(x))
-        # print("DEBUG", func(value).get_shape(): ", func(x).get_shape())
-    # avg = tf.reduce_mean(input_tensor=func(value), axis=reduce_axis)
-
     avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
+    # TODO: importance sampling?
     # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    # print("DEBUG", avg", avg)
     integral = avg * limits.area()
-    return tf.cast(integral, dtype=dtype)
+    return ztf.to_float(integral, dtype=dtype)
 
 
 class AnalyticIntegral(object):
     def __init__(self, *args, **kwargs):
+        """Hold analytic integrals and manage their dimensions, limits etc."""
         super(AnalyticIntegral, self).__init__(*args, **kwargs)
-        # self._max_dims = ()
         self._integrals = collections.defaultdict(dict)
 
-    def get_max_dims(self, limits, dims=None):
-        # if dims is None
+    def get_max_dims(self, limits: ztyping.LimitsType, dims: ztyping.DimsType = None) -> typing.Tuple[int]:
+        """Return the maximal available dims to integrate over analytically for given limits
+
+        Args:
+            limits (Range): The integral function will be able to integrate over this limits
+            dims (tuple): The dimensions it has to integrate over (or a subset!)
+
+        Returns:
+            Tuple[int]:
+        """
         limits = convert_to_range(limits=limits, dims=dims)
 
         return self._get_max_dims_limits(limits, out_of_dims=dims)[0]  # only dims
@@ -157,7 +155,17 @@ class AnalyticIntegral(object):
                 return tuple(sorted(dims)), limits_matched
         return (), ()  # no integral available for this dims
 
-    def get_max_integral(self, limits, dims=None):
+    def get_max_integral(self, limits: ztyping.LimitsType, dims: ztyping.DimsType = None) -> typing.Union[
+        None, "Integral"]:
+        """Return the integral over the `limits` with `dims` (or a subset of them).
+
+        Args:
+            limits (`zfit.Range`):
+            dims (Tuple[int]):
+
+        Returns:
+            Union[None, Integral]: Return a callable that integrated over the given limits.
+        """
         limits = convert_to_range(limits=limits, dims=dims)
 
         dims, limits = self._get_max_dims_limits(limits=limits, out_of_dims=dims)
@@ -166,9 +174,19 @@ class AnalyticIntegral(object):
         integral_fn = max(integrals, key=lambda l: l.priority, default=None)
         return integral_fn
 
-    def register(self, func, dims, limits=None, priority=50, *,
-                 supports_norm_range=False, supports_multiple_limits=False):
-        """Register an analytic integral."""
+    def register(self, func: Callable, dims: ztyping.DimsType, limits: ztyping.LimitsType = None, priority: int = 50, *,
+                 supports_norm_range: bool = False, supports_multiple_limits: bool = False) -> None:
+        """Register an analytic integral.
+
+        Args:
+            func (callable): The integral function. Takes 1 argument.
+            dims (tuple): |dims_arg_descr|
+            limits (Range): |limits_arg_descr| `Limits` can be None if `func` works for any possible limits
+            priority (int): If two or more integrals can integrate over certain limits, the one with the higher
+                priority is taken (usually around 0-100).
+            supports_norm_range (bool): If True, norm_range will (if needed) be given to `func` as an argument.
+            supports_multiple_limits (bool): If True, multiple limits may be given as an argument to `func`.
+        """
         if limits is False:
             raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
         if limits is None:
@@ -186,14 +204,30 @@ class AnalyticIntegral(object):
                                                                   priority=priority)  # TODO improve with
         # database-like access
 
-    def integrate(self, x, limits, dims=None, norm_range=None, params=None):
-        """Integrate analytically over the dims if available."""
-        # TODO: what if dims is None?
+    def integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
+                  norm_range: ztyping.LimitsType = None, params: dict = None) -> ztyping.XType:
+        """Integrate analytically over the dims if available.
+
+
+        Args:
+            x (numeric): If a partial integration is made, x are the values to be evaluated for the partial
+                integrated function. If a full integration is performed, this should be `None`.
+            limits (zfit.Range): The limits to integrate
+            dims (Tuple[int]): The dimensions to integrate over
+            norm_range (bool): |norm_range_arg_descr|
+            params (dict): The parameters of the function
+
+
+        Returns:
+            Union[tf.Tensor, float]:
+
+        Raises:
+            NotImplementedError: If the requested integral is not available.
+        """
         if dims is None:
             dims = limits.dims
         dims = frozenset(dims)
         integral_holder = self._integrals.get(dims)
-        # print("DEBUG", self._integrals, dims", self._integrals, dims)
         if integral_holder is None:
             raise NotImplementedError("Integral is not available for dims {}".format(dims))
         integral_fn = self.get_max_integral(limits=limits, dims=dims)
@@ -202,7 +236,6 @@ class AnalyticIntegral(object):
                 "Integral is available for dims {}, but not for limits {}".format(dims, limits))
 
         if x is None:
-            # print("DEBUG": limits", limits)
             integral = integral_fn(limits=limits, norm_range=norm_range, params=params)
         else:
             integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params)
@@ -210,7 +243,8 @@ class AnalyticIntegral(object):
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, func, limits, dims, priority):
+    def __init__(self, func: Callable, limits: ztyping.LimitsType, dims: ztyping.DimsType, priority: int):
+        """A lightweight holder for the integral function."""
         self.limits = convert_to_range(limits=limits, dims=dims)
         self.integrate = func
         self.dims = limits.dims
@@ -221,7 +255,6 @@ class Integral(object):  # TODO analytic integral
 
 
 if __name__ == '__main__':
-    # TODO: partial does not yet work...
     def my_fn1(x):
         if isinstance(x, tf.Tensor):
             x = tf.unstack(x)

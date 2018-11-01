@@ -80,9 +80,13 @@ def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x
 
 def log(x, name=None):
     return tf.log(x=x, name=name)
+
+
 log.__doc__ = tf.log.__doc__
 
 
 def exp(x, name=None):
     return tf.exp(x=x, name=name)
+
+
 exp.__doc__ = tf.exp.__doc__

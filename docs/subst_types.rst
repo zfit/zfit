@@ -18,5 +18,9 @@
     form (n_intervalls, n_dims). The intervall is the differenz to the lower bounds.
     Example: ((-0.1, 5), (2, 8), (7, 14),...)  # 2-d function
 
-.. |dims_arg_descr| replace:: The dimensions given as a tuple of integers
+.. |dims_arg_descr| replace:: The dimensions given as a tuple of integers.
+
+.. |dtype_arg_descr| replace:: The DType of the return value. Defaults to the zfit default (usually float64).
+
+.. |norm_range_arg_descr| replace:: The normalization range over which the function will be normalized (to 1).
 
