@@ -54,6 +54,7 @@ class FitParameter(VariableV1):
 
     @property
     def step_size(self):
+
         if self._step_size is None:
             return ztf.constant(0.)
         else:

@@ -5,6 +5,7 @@ Definition of minimizers, wrappers etc.
 
 import abc
 import collections
+import contextlib
 
 import numpy as np
 import tensorflow as tf
@@ -12,7 +13,6 @@ import tensorflow_probability as tfp
 
 import zfit.core.math as zmath
 from zfit import ztf
-import zfit.ztf
 
 
 class AbstractMinimizer(object):
@@ -22,23 +22,35 @@ class AbstractMinimizer(object):
     def minimize(self):
         raise NotImplementedError
 
-    def _minimize(self, *args, **kwargs):
+    def _minimize(self):
+        raise NotImplementedError
+
+    def _minimize_with_step(self):
         raise NotImplementedError
 
     @abc.abstractmethod
     def edm(self):
         raise NotImplementedError
 
-    def _edm(self, *args, **kwargs):
+    def _edm(self):
         raise NotImplementedError
 
     @abc.abstractmethod
     def fmin(self):
         raise NotImplementedError
 
+    def _step_tf(self):
+        raise NotImplementedError
+
+    def _step(self):
+        raise NotImplementedError
+
     @property
     @abc.abstractmethod
     def tolerance(self):
+        raise NotImplementedError
+
+    def _tolerance(self):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -48,23 +60,101 @@ class AbstractMinimizer(object):
 
 class BaseMinimizer(object):
 
-    def __init__(self, name="BaseMinimizer", tolerance=1e-8, sess=None, *args, **kwargs):
-        super(BaseMinimizer, self).__init__(*args, **kwargs)
+    def __init__(self, loss, parameters=None, tolerance=1e-8, name="BaseMinimizer", *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = name
-
-        self.sess = sess
         self.tolerance = tolerance
+        self._sess = None
+        self._parameters = collections.OrderedDict()
+        self.loss = loss
+        self.set_parameters(parameters)
+
+    def set_parameters(self, parameters):  # TODO: automatically set?
+        if parameters is None:
+            parameters = tf.trainable_variables()
+        if not hasattr(parameters, "__len__"):
+            parameters = (parameters,)
+        if isinstance(parameters, dict):
+            self._parameters.update(parameters)
+        else:
+            for param in parameters:
+                self._parameters[param.name] = param
+
+    @contextlib.contextmanager
+    def _temp_set_parameters(self, parameters):
+        old_params = self._parameters
+        try:
+            self.set_parameters(parameters)
+            yield parameters
+        finally:
+            self.set_parameters(old_params)
+
+    def get_parameters(self, names=None, only_floating=True):
+        if isinstance(names, str):
+            names = (names,)
+        if names is not None:
+            missing_names = set(names) - set(self._parameters.keys())
+            if missing_names:
+                raise KeyError("The following names are not valid parameter names")
+            parameters = [self._parameters[name] for name in names]
+        else:
+            parameters = list(self._parameters.values())
+
+        if only_floating:
+            parameters = self._filter_trainable_params(params=parameters)
+        return parameters
+
+    @staticmethod
+    def _filter_trainable_params(params):
+        params = [param for param in params if param.floating]
+        return params
+
+    @staticmethod
+    def _extract_update_op(params):
+        params_update = [param.update_op for param in params]
+        return params_update
+
+    @staticmethod
+    def _extract_assign_method(params):
+        params_assign = [param.assign for param in params]
+        return params_assign
+
+    @staticmethod
+    def _extract_parameter_names(params):
+        names = [param.name for param in params]
+        return names
+
+    def _assign_parameters(self, params, values):
+        params_assign_op = [param.assign(val) for param, val in zip(params, values)]
+        return self.sess.run(params_assign_op)
+
+    def _update_parameters(self, params, values):
+        feed_dict = {param.placeholder: val for param, val in zip(params, values)}
+        return self.sess.run(self._extract_update_op(params), feed_dict=feed_dict)
+
+    @property
+    def sess(self):
+        # TODO: return default? or error?
+        return self._sess
+
+    @sess.setter
+    def sess(self, sess):
+        self._sess = sess
 
     @property
     def tolerance(self):
         return self._tolerance
 
-    @staticmethod
-    def gradient_par(func):
-        return zmath.gradient_par(func)
+    @tolerance.setter
+    def tolerance(self, tolerance):
+        self._tolerance = tolerance
+
+    # @staticmethod
+    # def gradient_par(func):
+    #     return zmath.gradient_par(func)
 
     @staticmethod
-    def start_values(parameters):
+    def _extract_start_values(parameters):
         """Extract the current value if defined, otherwise random.
 
         Arguments:
@@ -77,125 +167,83 @@ class BaseMinimizer(object):
         # TODO: implement if initial val not given
         return values
 
-    @tolerance.setter
-    def tolerance(self, tolerance):
-        self._tolerance = tolerance
+    def step(self):
+        return self._step()
 
-    def minimize(self, loss, var_list=None):
-        return self._call_minimize(loss=loss, var_list=var_list)
+    def step_tf(self):
+        return self._step_tf()
 
-    def _call_minimize(self, loss, var_list):
+    def minimize(self, sess, params=None):
+        with self._temp_sess(sess=sess):
+            if params is not None:
+                with self._temp_set_parameters(params):
+                    return self._hook_minimize()
+            elif self.get_parameters():
+                return self._hook_minimize()
+            else:
+                raise ValueError("Parameters not specified")
+
+    def _hook_minimize(self):
+        return self._call_minimize()
+
+    @contextlib.contextmanager
+    def _temp_sess(self, sess):
+        old_sess = self._sess
+        self._sess = sess
         try:
-            return self._minimize(loss=loss, var_list=var_list)
+            yield sess
+        finally:
+            self._sess = old_sess
+
+    def _call_minimize(self):
+        try:
+            return self._minimize()
         except NotImplementedError as error:
             try:
-                return self._minimize_with_step(loss=loss, var_list=var_list)
+                return self._minimize_with_step()
             except NotImplementedError:
                 raise error
 
-    def _minimize_with_step(self, loss, var_list):  # TODO improve
-        changes = collections.deque(np.ones(30))
+    def _minimize_with_step(self):  # TODO improve
+        # HACK
+        init = tf.initialize_all_variables()
+        self.sess.run(init)
+        # HACK END
+        changes = collections.deque(np.ones(10))
         last_val = -10
         cur_val = 9999999
-        minimum = self.step(loss=loss, var_list=var_list)
-        while np.average(changes) > self.tolerance:  # TODO: improve condition
-            _ = self.sess.run(minimum)
+        try:
+            step = self.step_tf()
+        except NotImplementedError:
+            step_fn = self.step
+        else:
+            def step_fn():
+                return self.sess.run(step)
+        while sum(sorted(changes)[-3:]) > self.tolerance:  # TODO: improve condition
+            _ = step_fn()
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
             cur_val = self.sess.run(loss)
-        self.sess.run([v for v in var_list])
         return cur_val
 
 
 # WIP
-# class BFGS(BaseMinimizer):
-#
-#     def __init__(self, *args, **kwargs):
-#         super(BFGS, self).__init__(*args, **kwargs)
-#
-#     def minimize(self, func, sess=None, gradient=None):
-#         # with tf.device("/cpu:0"):
-#         sess = sess or self.sess
-#         minimizer_fn = tfp.optimizer.bfgs_minimize
-#
-#         params = [p for p in tf.trainable_variables() if p.floating()]
-#
-#         def to_minimize_func(values):
-#             # tf.Print(values, [values])
-#             # print("============values", values)
-#
-#             # def update_one(param_value):
-#             #     param, value = param_value
-#             #     param.update(value=value, session=sess)
-#             # print("============one param", params[0])
-#             with tf.control_dependencies([values]):
-#                 for param, val in zip(params, tf.unstack(values)):
-#                     param.update(value=val, session=sess)
-#                 with tf.control_dependencies([param]):
-#                     func_graph = func()
-#             return func_graph, tf.stack(tf.gradients(func_graph, params))
-#
-#         result = minimizer_fn(to_minimize_func,
-#                               initial_position=self.start_values(params),
-#                               tolerance=self.tolerance, parallel_iterations=1)
-#
-#         return result
 
 
 # TensorFlow Minimizer
 
-class HelperAdapterTFOptimizer(object):
-    """Adapter for tf.Optimizer to convert the step-by-step minimization to full minimization"""
-
-    def __init__(self, *args, **kwargs):  # self check
-        assert issubclass(self.__class__, tf.train.Optimizer)  # assumption
-        super(HelperAdapterTFOptimizer, self).__init__(*args, **kwargs)
-
-    def step(self, loss, var_list):
-        """One step of the minimization. Equals to `tf.train.Optimizer.minimize`
-
-        Args:
-            loss (graph): The loss function to minimize
-            var_list (list(tf.Variable...)): A list of tf.Variables that will be optimized.
-
-
-        """
-        minimum = super(HelperAdapterTFOptimizer, self).minimize(loss=loss, var_list=var_list)
-        init = tf.global_variables_initializer()
-        self.sess.run(init)
-        return minimum
-
-
-class AdapterTFOptimizer(BaseMinimizer, HelperAdapterTFOptimizer):
-    pass
-
 
 # Explicit classes to use
-class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, AbstractMinimizer):
-    pass
-
-
-class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, AbstractMinimizer):
-    pass
-
-
-class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer,
-                               AbstractMinimizer):
-    pass
-
-
-class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, AbstractMinimizer):
-    pass
-
-
-class AdamMinimizer(AdapterTFOptimizer, tf.train.AdamOptimizer, AbstractMinimizer):
-    pass
 
 
 # WIP below
 if __name__ == '__main__':
     from zfit.core.parameter import FitParameter
+    from zfit.minimizers.minimizer_minuit import MinuitMinimizer, MinuitTFMinimizer
+    from zfit.minimizers.minimizer_tfp import BFGSMinimizer
+
+    import time
 
     with tf.Session() as sess:
         with tf.variable_scope("func1"):
@@ -207,9 +255,46 @@ if __name__ == '__main__':
             c = FitParameter("variable_c", 3.1)
         minimizer_fn = tfp.optimizer.bfgs_minimize
 
+        # sample = tf.constant(np.random.normal(loc=1., size=100000), dtype=tf.float64)
+        # # sample = np.random.normal(loc=1., size=100000)
+        # def func(par_a, par_b, par_c):
+        #     high_dim_func = (par_a - sample) ** 2 + \
+        #                     (par_b - sample * 4.) ** 2 + \
+        #                     (par_c - sample * 8) ** 4
+        #     return tf.reduce_sum(high_dim_func)
+        #
 
+        sample = tf.constant(np.random.normal(loc=1., scale=0.0003, size=10000), dtype=tf.float64)
+
+
+        # sample = np.random.normal(loc=1., size=100000)
         def func():
-            return (a - 1.) ** 2 + (b - 4.) ** 2 + (c - 8) ** 4
+            high_dim_func = (a - sample) ** 2 * abs(tf.sin(sample * a + b) + 2) + \
+                            (b - sample * 4.) ** 2 + \
+                            (c - sample * 8) ** 4 + 1.1
+            # high_dim_func = 5*high_dim_func*tf.exp(high_dim_func + 5)
+            # high_dim_func = tf.exp(high_dim_func**3 + 5*high_dim_func)*tf.sqrt(high_dim_func - 5)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
+            # high_dim_func = tf.sqrt(high_dim_func + 160.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 20.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
+            return tf.reduce_sum(tf.log(high_dim_func))
 
 
         # a = tf.constant(9.0, dtype=tf.float64)
@@ -238,7 +323,9 @@ if __name__ == '__main__':
         #             grad = 2. * (var1 - 1.)  # HACK
         #             return f, grad
 
-        loss_func = func()
+        # loss_func = func(par_a=a, par_b=b, par_c=c)
+        # loss_func = func()
+        loss_func = func
         # with tf.control_dependencies([a]):
         #     min = tfp.optimizer.bfgs_minimize(test_func,
         #                                       initial_position=tf.constant(10.0,
@@ -246,22 +333,108 @@ if __name__ == '__main__':
         # minimizer = tf.train.AdamOptimizer()
 
         # min = minimizer.minimize(loss=loss_func, var_list=[a, b, c])
-        minimizer = AdamMinimizer(sess=sess, learning_rate=0.3)
+        # minimizer = AdamMinimizer(sess=sess, learning_rate=0.3)
+        #########################################################################
 
-        # test1 = BFGS(sess=sess, tolerance=0.001)
-        # min = test1.minimize(func=func)
-        # last_val = 100000
-        # cur_val = 9999999
-        # while abs(last_val - cur_val) > 0.0000000000000000000001:
-        #     result = sess.run(min)
-        #     last_val = cur_val
-        #     cur_val = sess.run(loss_func)
-        #     print("running")
-        # aval, bval, cval = sess.run([v for v in (a, b, c)])
-        # aval, bval, cval = sess.run([v.read_value() for v in (a, b, c)])
-        # print("a, b, c", aval, bval, cval)
-        minimizer.minimize(loss=loss_func, var_list=[a, b, c])
-        cur_val = sess.run(loss_func)
-        result = cur_val
-        print(sess.run([v.read_value() for v in (a, b, c)]))
-        print(result)
+        # which_minimizer = 'bfgs'
+        which_minimizer = 'minuit'
+        # which_minimizer = 'tfminuit'
+        # which_minimizer = 'scipy'
+
+        print("Running minimizer {}".format((which_minimizer)))
+
+        if which_minimizer == 'minuit':
+            minimizer = MinuitMinimizer(sess=sess)
+
+            init = tf.global_variables_initializer()
+            sess.run(init)
+
+            # for _ in range(5):
+
+            n_rep = 1
+            start = time.time()
+            for _ in range(n_rep):
+                value = minimizer.minimize()  # how many times to be serialized
+            end = time.time()
+            print("value from calculations:", value)
+            print("type:", type(value))
+            print("time needed", (end - start) / n_rep)
+        ##################################################################
+        elif which_minimizer == 'tfminuit':
+            loss = loss_func()
+            minimizer = MinuitTFMinimizer(loss=loss)
+
+            init = tf.global_variables_initializer()
+            sess.run(init)
+
+            # for _ in range(5):
+
+            n_rep = 1
+            start = time.time()
+            for _ in range(n_rep):
+                value = minimizer.minimize()
+            end = time.time()
+
+            print("value from calculations:", value)
+            print("time needed", (end - start) / n_rep)
+
+        #####################################################################
+        elif which_minimizer == 'bfgs':
+            test1 = BFGSMinimizer(sess=sess, tolerance=1e-6)
+
+            min = test1.minimize(params=[a, b, c])
+            last_val = 100000
+            cur_val = 9999999
+            # HACK
+            loss_func = loss_func()
+            # HACK END
+            # while abs(last_val - cur_val) > 0.00001:
+            start = time.time()
+            result = sess.run(min)
+            end = time.time()
+            print("value from calculations:", result)
+            print("time needed", (end - start))
+            # last_val = cur_val
+            # print("running")
+
+            # cur_val = sess.run(loss_func)
+            # aval, bval, cval = sess.run([v for v in (a, b, c)])
+            # aval, bval, cval = sess.run([v.read_value() for v in (a, b, c)])
+            # print("a, b, c", aval, bval, cval)
+            # minimizer.minimize(loss=loss_func, var_list=[a, b, c])
+            cur_val = sess.run(loss_func)
+            result = cur_val
+            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(result)
+        #####################################################################
+
+        if which_minimizer == 'scipy':
+            func = loss_func()
+            train_step = tf.contrib.opt.ScipyOptimizerInterface(
+                func,
+                method='L-BFGS-B',
+                options={'maxiter': 1000, 'gtol': 1e-8},
+                # optimizer_kwargs={'options': {'ftol': 1e-5}},
+                tol=1e-10)
+
+            # minimizer = ScipyMinimizer(loss=func,
+            #                            method='L-BFGS-B',
+            #                            options={'maxiter': 100})
+
+            # with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+
+            start = time.time()
+            for _ in range(1):
+                # print(sess.run(func))
+                train_step.minimize()
+            result = print(sess.run(func))
+            # value = minimizer.minimize(loss=loss_func())  # how many times to be serialized
+            end = time.time()
+            value = result
+            print("value from calculations:", value)
+            print(sess.run([v.read_value() for v in (a, b, c)]))
+
+            print("time needed", (end - start))
+
+        print("Result from minimizer {}".format((which_minimizer)))
