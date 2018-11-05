@@ -5,13 +5,14 @@ python:
 - 3.6
 #- 3.5
 - 3.4
-- 2.7
+#- 2.7
 matrix:
   include:
   - os: osx
     language: python
   allow_failures:
   - os: osx
+
 
 install: pip install -U tox-travis
 script: tox

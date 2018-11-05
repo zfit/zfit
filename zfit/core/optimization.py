@@ -1,25 +1,24 @@
-from __future__ import print_function, division, absolute_import
-
 import tensorflow as tf
 import numpy as np
 
+from zfit import ztf
+from zfit.settings import types as ztypes
+
 # start legacy
 import zfit
+import zfit.ztf
 
 if zfit.settings.LEGACY_MODE:
     import zfit.legacy
-    from zfit.legacy.optimization import (fill_NTuple, read_NTuple, run_minuit,
-                                          RootHistShape,  # namespace
-                                          )
-from zfit.core import tfext
-from zfit.settings import fptype
+    from zfit.core.math import gradient_par as gradient
 
 cacheable_tensors = []
 
 
 def accept_reject_sample(density, sample):
-    """
-      Return toy MC sample graph using accept-reject method
+    """Return toy MC sample graph using accept-reject method
+
+    Args:
         density : function to calculate density
         sample  : input uniformly distributed sample
     """
@@ -33,15 +32,17 @@ def accept_reject_sample(density, sample):
 
 # -- modified to (optionally) introduce vetoed-window -- #
 def create_accept_reject_sample(sess, density, x, sample, veto_min, veto_max):
-    """
-      Create toy MC sample using accept-reject method for a density defined as a graph
+    """Create toy MC sample using accept-reject method for a density defined as a graph
+
+    Args:
         sess    : Tf session
         density : density graph
         x       : phase space placeholder used for density graph definition
         sample  : input uniformly distributed sample
         veto_min: low q2 of the resonance veto, ignored if = 0
         veto_max: high q2 of the resonance veto, ignored if = 0
-      Returns numpy array of generated points
+    Return:
+        numpy array: generated points
     """
     p = sample[:, 0:-1]
     r = sample[:, -1]
@@ -192,7 +193,7 @@ def switches(size):
       fit fractions)
         size : number of components of the PDF
     """
-    p = [tf.placeholder_with_default(tfext.constant(1.), shape=()) for _ in range(size)]
+    p = [tf.placeholder_with_default(ztf.constant(1.), shape=()) for _ in range(size)]
     return p
 
 
@@ -254,15 +255,6 @@ def run_toy_MC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, 
         return data
 
 
-def gradient(func):
-    """
-      Returns TF graph for analytic gradient of the input function wrt all floating variables
-    """
-    tfpars = tf.trainable_variables()  # Create TF variables
-    float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
-    return tf.gradients(func, float_tfpars)  # Get analytic gradient
-
-
 def load_data(sess, phsp, name, data):
     """
       Load data to TF machinery and return a TF variable corresponding to it
@@ -275,7 +267,7 @@ def load_data(sess, phsp, name, data):
     """
     placeholder = phsp.placeholder(name)
     shape = data.shape
-    variable = tf.get_variable(name, shape=shape, dtype=fptype,
+    variable = tf.get_variable(name, shape=shape, dtype=ztypes.float,
                                initializer=tf.constant_initializer(0.0), trainable=False)
     initializer = variable.assign(placeholder)
     sess.run(initializer, feed_dict={placeholder: data})

@@ -178,6 +178,7 @@ texinfo_documents = [
      'zfit',
      'One line description of project.',
      'Miscellaneous'),
+    ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}

@@ -10,7 +10,6 @@
 #     print("CUDA capable GPUs purposely deactivated.")
 #
 # import tensorflow as tf
-# import tensorflow_probability.python.mcmc as mc
 #
 # import sys
 #
@@ -18,12 +17,14 @@
 #
 # from zfit.core import optimization as opt
 # from zfit.core import kinematics as kin
+# from zfit.core.pdf import BaseDistribution
 # from zfit.physics import constants as const
 # from zfit.physics.flavour.rare_decays.bToKstarll import decay_rates as dec
 #
 # if __name__ == "__main__":
 #
 #     phsp = kin.FourBodyAngularPhaseSpace(1., 8., )
+#
 #
 #
 #     ### Start of model description
@@ -35,26 +36,39 @@
 #     ### End of model description
 #
 #     data_ph = phsp.data_placeholder
+#
+#
+#     class TestPDF(BaseDistribution):
+#
+#         def _unnormalized_prob(self, value):
+#             return model(value)
+#
+#         def _normalization_sampler(self):
+#             phsp.sample = phsp.uniform_sample
+#             return phsp
+#
+#     test_model = TestPDF()
+#
 #     norm_ph = phsp.norm_placeholder
 #
 #     init = tf.global_variables_initializer()
+#     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
+#     config = tf.ConfigProto(gpu_options=gpu_options)
+#     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 #     with tf.Session() as sess:
 #         sess.run(init)
 #
-#         sample_size = 1000000
-#         # print(phsp.uniform_sample(sample_size))
-#         # print(mc.sample_halton_sequence(6, num_results=sample_size, seed=42))
-#         uniform_sample = (mc.sample_halton_sequence(6, num_results=sample_size) - 0.5) * 100.
-#         # uniform_sample = phsp.uniform_sample(sample_size)
-#         norm_sample = sess.run(uniform_sample)
+#         sample_size = 10000
+#         norm_sample = sess.run(phsp.uniform_sample(sample_size))
 #         majorant = opt.estimate_maximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
 #         print("Maximum = ", majorant)
 #
-#         data_sample = opt.run_toy_MC(sess, model(data_ph), data_ph, phsp, 10000, majorant,
+#         data_sample = opt.run_toy_MC(sess, test_model.prob(data_ph), data_ph, phsp, 10000, majorant,
 #                                      chunk=sample_size)
 #
-#         norm = opt.integral(model(norm_ph))
-#         nll = opt.unbinned_NLL(model(data_ph), norm)
+#         # norm = opt.integral(test_model.prob(norm_ph))
+#         norm = 1.
+#         nll = opt.unbinned_NLL(test_model.prob(data_ph), norm)
 #
 #         result = opt.run_minuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample},
 #                                 run_minos=True)

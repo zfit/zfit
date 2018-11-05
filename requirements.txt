@@ -1,2 +1,5 @@
-tensorflow>=1.0.0
+tensorflow~=1.10.0
+tensorflow_probability
 numpy
+typing
+pep487

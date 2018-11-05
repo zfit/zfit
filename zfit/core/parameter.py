@@ -1,14 +1,23 @@
 """Define FitParameter which holds the values."""
 
-from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import tensorflow as tf
+import tensorflow.contrib.eager as tfe
 
-from zfit.settings import fptype
+# TF backwards compatibility
+from zfit import ztf
+
+try:
+    # from tensorflow.python.ops.variables import
+    from tensorflow.python.ops.variables import VariableV1
+except ImportError:
+    from tensorflow import Variable as VariableV1
+
+from zfit.settings import types as ztypes
 
 
-class FitParameter(tf.Variable):
+class FitParameter(VariableV1):
     """
       Class for fit parameters, derived from TF Variable class.
     """
@@ -22,14 +31,19 @@ class FitParameter(tf.Variable):
             upper_limit : upper limit
             step_size : step size (set to 0 for fixed parameters)
         """
-        tf.Variable.__init__(self, init_value, dtype=fptype)
+        # TODO: sanitize input
+        init_value = tf.cast(init_value, dtype=ztypes.float)
+        super().__init__(init_value, dtype=ztypes.float,  # PY23: change super
+                                           # use_resource=True  # TODO: only 1.11+
+                                           )
         self.init_value = init_value
         self.par_name = name
-        self.step_size = step_size
-        self.lower_limit = lower_limit
-        self.upper_limit = upper_limit
-        self.placeholder = tf.placeholder(self.dtype, shape=self.get_shape())
-        self.update_op = self.assign(self.placeholder)
+        self._step_size = None
+        self.step_size = tf.cast(step_size, dtype=ztypes.float)
+        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
+        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
+        self.placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
+        self.update_op = self.assign(self.placeholder)  # for performance! Run with sess.run
         self.prev_value = None
         self.error = 0.
         self.positive_error = 0.
@@ -37,6 +51,25 @@ class FitParameter(tf.Variable):
         self.fitted_value = 0.
 
     #    print "new fit parameter %s" % name
+
+    @property
+    def step_size(self):
+        if self._step_size is None:
+            return ztf.constant(0.)
+        else:
+            return self._step_size
+
+    @step_size.setter
+    def step_size(self, value):
+        if value is not None:  # use None as zero because cannot test Tensor value
+            try:
+                if value == 0:
+                    value = None
+            except TypeError:
+                pass
+        self._step_size = value
+
+
 
     def update(self, session, value):
         """
@@ -46,14 +79,20 @@ class FitParameter(tf.Variable):
             value   : new value
         """
         if value != self.prev_value:
-            session.run(self.update_op, {self.placeholder: value})
-            self.prev_value = value
+            if isinstance(value, tf.Tensor):
+                # session.run(self.assign(value))
+                assign_op = self.assign(tf.convert_to_tensor(value))
+                # session.run(assign_op)
+            else:
+                session.run(self.update_op, {self.placeholder: value})
+                self.prev_value = value
 
+    @property
     def floating(self):
         """
           Return True if the parameter is floating (step size>0)
         """
-        return self.step_size > 0
+        return self._step_size is not None  # None "is" 0 here
 
     def randomise(self, session, minval, maxval, seed=None):
         """

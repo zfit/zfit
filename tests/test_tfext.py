@@ -1,4 +1,3 @@
-from __future__ import print_function, division, absolute_import
 
 # deactivating CUDA capable gpus
 
@@ -14,6 +13,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit.core.math
+from zfit import ztf
 
 prec = 0.00001
 
@@ -24,7 +24,7 @@ def test_polynomial():
     x = tf.placeholder(tf.complex128)
     true_dict = {'x': 5.}
     feed_dict = {x: true_dict['x']}
-    polynom_tf = zfit.core.math.poly_complex(*(coeffs + [x]))  # py27 comp: *x, y does not work
+    polynom_tf = zfit.core.math.poly_complex(*(coeffs + [x]))  # py34 comp: *x, y does not work
     polynom_np = np.polyval(coeffs[::-1], true_dict['x'])
 
     init = tf.global_variables_initializer()

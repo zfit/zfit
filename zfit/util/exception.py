@@ -1,0 +1,32 @@
+# TODO: improve errors of pdfs. Generate more general error, inherit and use more specific?
+
+
+class PDFCompatibilityError(Exception):
+    pass
+
+
+class ExtendedPDFError(Exception):
+    pass
+
+
+class ConversionError(Exception):
+    pass
+
+
+class SubclassingError(Exception):
+    pass
+
+
+class BasePDFSubclassingError(SubclassingError):
+    pass
+
+
+# PDF class internal handling errors
+class NormRangeNotImplementedError(Exception):
+    """Indicates that a function does not support the normalization range argument `norm_range`."""
+    pass
+
+
+class MultipleLimitsNotImplementedError(Exception):
+    """Indicates that a function does not support several limits in a `Range`."""
+    pass
