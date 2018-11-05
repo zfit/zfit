@@ -215,7 +215,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                 raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
                                  "".format(self._norm_range.n_dims, self.n_dims))
         else:
-            self.n_dims = self.n_dims_from_limits(norm_range)
+            self.n_dims = norm_range.n_dims
         try:
             yield self.norm_range  # or None, not needed
         finally:
@@ -301,15 +301,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             bool:
         """
         return self._yield is not None
-
-    @staticmethod
-    def n_dims_from_limits(limits):
-        """Return the number of dimensions from the limits."""
-        if limits is None or limits is False:
-            n_dims = None
-        else:
-            n_dims = limits.n_dims
-        return n_dims
 
     def set_yield(self, value: Union[FitParameter, None]):
         """Make the pdf extended by setting a yield.
