@@ -5,7 +5,7 @@ import tensorflow as tf
 
 try:
     from ROOT import TVirtualFitter, TNtuple, TH1, TH2, TH3
-except ImportError:  # PY23 replace ImportError with ModuleNotFoundError
+except ModuleNotFoundError:
     print("Legacy mode active, ROOT not loaded")
 
 from zfit.core.math import interpolate
