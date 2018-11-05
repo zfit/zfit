@@ -22,7 +22,7 @@ class FitParameter(VariableV1):
       Class for fit parameters, derived from TF Variable class.
     """
 
-    def __init__(self, name, init_value, lower_limit=0., upper_limit=0., step_size=1e-6):
+    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=1e-6):
         """
           Constructor.
             name : name of the parameter (passed on to MINUIT)
@@ -40,6 +40,10 @@ class FitParameter(VariableV1):
         self.par_name = name
         self._step_size = None
         self.step_size = tf.cast(step_size, dtype=ztypes.float)
+        if lower_limit is None:
+            lower_limit = -np.infty
+        if upper_limit is None:
+            upper_limit = np.infty
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
         self.placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())

@@ -7,7 +7,7 @@ class HelperAdapterTFOptimizer(object):
     """Adapter for tf.Optimizer to convert the step-by-step minimization to full minimization"""
 
     def __init__(self, *args, **kwargs):  # self check
-        assert issubclass(self.__class__, tf.train.Optimizer)  # assumption
+        # assert issubclass(self.__class__, tf.train.Optimizer)  # assumption
         super(HelperAdapterTFOptimizer, self).__init__(*args, **kwargs)
 
 

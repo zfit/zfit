@@ -14,9 +14,9 @@ class MinuitMinimizer(BaseMinimizer):
         # params = [p for p in tf.trainable_variables() if p.floating]
         params = self.get_parameters()
         gradients = tf.gradients(loss, params)
-        updated_params = [param.update_op for param in params]
+        updated_params = self._extract_update_op(params)
         placeholders = [param.placeholder for param in params]
-        assign_params = [param.assign for param in params]
+        assign_params = self._extract_assign_method(params=params)
 
         def func(values):
 
@@ -30,9 +30,9 @@ class MinuitMinimizer(BaseMinimizer):
             # loss_new = tf.identity(loss)
             loss_new = loss
             loss_evaluated = self.sess.run(loss_new)
-                # print("++++++++++++++++++++++++++++++")
+            # print("++++++++++++++++++++++++++++++")
             # print(loss_evaluated)
-                # print(sess.run(params))
+            # print(sess.run(params))
             # print(values)
             return loss_evaluated
 
@@ -49,12 +49,24 @@ class MinuitMinimizer(BaseMinimizer):
         # HACK
         # func = grad_func
         # HACK END
+        error_limit_kwargs = {}
+        for param in params:
+            param_kwargs = {}
+            param_kwargs[param.name] = self.sess.run(param.read_value())
+            param_kwargs['limit_' + param.name] = self.sess.run([param.lower_limit, param.upper_limit])
+            param_kwargs['error_' + param.name] = self.sess.run(param.step_size)
+
+            error_limit_kwargs.update(param_kwargs)
+        params_name = [param.name for param in params]
+
         minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
                                    grad=grad_func,
-                                   forced_parameters="abc",
-                                   error_a=0.1,
-                                   error_b=0.1,
-                                   error_c=0.1,
+                                   forced_parameters=params_name,
+                                   **error_limit_kwargs,
+
+                                   # error_a=0.1,
+                                   # error_b=0.1,
+                                   # error_c=0.1,
                                    # limit_a=(-1, 5), a=2.5,
                                    # limit_b=(-1, 8), b=6,
                                    # limit_c=(-3, 12), c=6,
@@ -73,32 +85,41 @@ class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
     def _minimize(self, initial_val, loss_grad_func, equality_funcs,
                   equality_grad_funcs, inequality_funcs, inequality_grad_funcs,
                   packed_bounds, step_callback, optimizer_kwargs):
-
         # @functools.lru_cache()
         def loss_grad_func_wrapper(x):
             # Minuit should work with float64
             loss, gradient = loss_grad_func(x)
             return loss, gradient.astype('float64')
 
-        minimize_args = [loss_grad_func_wrapper, initial_val]
-        minimize_kwargs = {}
-
+        # minimize_args = [loss_grad_func_wrapper, initial_val]
+        # minimize_kwargs = {}
+        params = self._vars
         def wrapped_loss_func(x):
             return loss_grad_func_wrapper(x=x)[0]
 
         def wrapped_loss_grad_func(x):
             return loss_grad_func_wrapper(x=x)[1]
 
+        error_limit_kwargs = {}
+        for param in params:
+            param_kwargs = {}
+            param_kwargs[param.name] = self.sess.run(param.read_value())
+            param_kwargs['limit_' + param.name] = self.sess.run([param.lower_limit, param.upper_limit])
+            param_kwargs['error_' + param.name] = self.sess.run(param.step_size)
+
+            error_limit_kwargs.update(param_kwargs)
+        params_name = [param.name for param in params]
 
         minimizer = iminuit.Minuit(fcn=wrapped_loss_func, use_array_call=True,
                                    grad=wrapped_loss_grad_func,
-                                   forced_parameters="abc",
-                                   error_a=0.1,
-                                   error_b=0.1,
-                                   error_c=0.1,
+                                   forced_parameters=params_name,
+                                   **error_limit_kwargs,
+
+                                   # error_a=0.1,
+                                   # error_b=0.1,
+                                   # error_c=0.1,
                                    # limit_a=(-1, 5), a=2.5,
                                    # limit_b=(-1, 8), b=6,
-
                                    # limit_c=(-3, 12), c=6,
                                    )
         result = minimizer.migrad(ncall=10000, nsplit=8, precision=1e-8)

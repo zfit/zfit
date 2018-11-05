@@ -71,7 +71,7 @@ class BaseMinimizer(object):
 
     def set_parameters(self, parameters):  # TODO: automatically set?
         if parameters is None:
-            parameters = tf.trainable_variables()
+            return
         if not hasattr(parameters, "__len__"):
             parameters = (parameters,)
         if isinstance(parameters, dict):
@@ -90,10 +90,12 @@ class BaseMinimizer(object):
             self.set_parameters(old_params)
 
     def get_parameters(self, names=None, only_floating=True):
+        if not self._parameters:
+            self.set_parameters(parameters=tf.trainable_variables())
         if isinstance(names, str):
             names = (names,)
         if names is not None:
-            missing_names = set(names) - set(self._parameters.keys())
+            missing_names = set(names).difference(self._parameters.keys())
             if missing_names:
                 raise KeyError("The following names are not valid parameter names")
             parameters = [self._parameters[name] for name in names]
@@ -224,7 +226,7 @@ class BaseMinimizer(object):
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
-            cur_val = self.sess.run(loss)
+            cur_val = self.sess.run(self.loss)  # TODO: improve...
         return cur_val
 
 
