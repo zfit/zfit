@@ -276,15 +276,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         return convert_to_range(limits=norm_range, dims=dims)
 
     @property
-    def dims(self) -> typing.Tuple[int]:
-        """Return the dimensions (a tuple of integers) of the function.
-
-        Returns:
-
-        """
-        return tuple(range(self.n_dims))
-
-    @property
     def n_dims(self):
         # TODO: improve n_dims setting
         return self._n_dims
