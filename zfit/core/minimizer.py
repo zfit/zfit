@@ -5,6 +5,7 @@ Definition of minimizers, wrappers etc.
 
 import abc
 import collections
+from collections import OrderedDict
 import contextlib
 
 import numpy as np
@@ -13,9 +14,10 @@ import tensorflow_probability as tfp
 
 import zfit.core.math as zmath
 from zfit import ztf
+from zfit.minimizers.state import MinimizerState
 
 
-class AbstractMinimizer(object):
+class MinimizerInterface(object):
     """Define the minimizer interface."""
 
     @abc.abstractmethod
@@ -32,11 +34,11 @@ class AbstractMinimizer(object):
     def edm(self):
         raise NotImplementedError
 
-    def _edm(self):
-        raise NotImplementedError
-
     @abc.abstractmethod
     def fmin(self):
+        raise NotImplementedError
+
+    def step(self):
         raise NotImplementedError
 
     def _step_tf(self):
@@ -54,22 +56,80 @@ class AbstractMinimizer(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def status(self):
+    def get_state(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def hesse(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def error(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_error_method(self, method):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_error_options(self):
         raise NotImplementedError
 
 
-class BaseMinimizer(object):
+class BaseMinimizer(MinimizerInterface):
+
+
 
     def __init__(self, loss, parameters=None, tolerance=1e-8, name="BaseMinimizer", *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._current_error_method = self._error_methods.get('default')
+        self._current_error_options = {}
+        self._minimizer_state = MinimizerState()
         self.name = name
         self.tolerance = tolerance
         self._sess = None
-        self._parameters = collections.OrderedDict()
+        self._parameters = OrderedDict()
         self.loss = loss
         self.set_parameters(parameters)
 
-    def set_parameters(self, parameters):  # TODO: automatically set?
+    def __init_subclass__(cls, **kwargs):
+        cls._error_methods = {'default': None}  # TODO: set default error method
+
+    @property
+    def edm(self):
+        return self.get_state(copy=False).edm
+
+    @property
+    def fmin(self):
+        return self.get_state(copy=False).fmin
+
+    def hesse(self):
+        raise Exception("TODO: default not yet implemented.")
+
+    def error(self):
+        error_method = self._current_error_method
+        return error_method(**self._current_error_options)
+
+    def set_error_method(self, method):
+        if isinstance(method, str):
+            try:
+                method = self._error_methods[method]
+            except AttributeError:
+                raise AttributeError("The error method '{}' is not registered with the minimizer.".format(method))
+        self._current_error_method = method
+
+    def set_error_options(self, replace=False, **options):
+        if replace:
+            self._current_error_options = {}
+        self._current_error_options.update(options)
+
+    def get_state(self, copy=True):
+        state = self._minimizer_state
+        if copy:
+            state = copy.deepcopy(state)
+        return state
+
+    def set_parameters(self, parameters):
         if parameters is None:
             return
         if not hasattr(parameters, "__len__"):
@@ -89,7 +149,7 @@ class BaseMinimizer(object):
         finally:
             self.set_parameters(old_params)
 
-    def get_parameters(self, names=None, only_floating=True):
+    def get_parameters(self, names=None, only_floating=True):  # TODO: automatically set?
         if not self._parameters:
             self.set_parameters(parameters=tf.trainable_variables())
         if isinstance(names, str):
@@ -151,10 +211,6 @@ class BaseMinimizer(object):
     def tolerance(self, tolerance):
         self._tolerance = tolerance
 
-    # @staticmethod
-    # def gradient_par(func):
-    #     return zmath.gradient_par(func)
-
     @staticmethod
     def _extract_start_values(parameters):
         """Extract the current value if defined, otherwise random.
@@ -171,9 +227,6 @@ class BaseMinimizer(object):
 
     def step(self):
         return self._step()
-
-    def step_tf(self):
-        return self._step_tf()
 
     def minimize(self, sess, params=None):
         with self._temp_sess(sess=sess):
@@ -207,15 +260,11 @@ class BaseMinimizer(object):
                 raise error
 
     def _minimize_with_step(self):  # TODO improve
-        # HACK
-        init = tf.initialize_all_variables()
-        self.sess.run(init)
-        # HACK END
         changes = collections.deque(np.ones(10))
         last_val = -10
         cur_val = 9999999
         try:
-            step = self.step_tf()
+            step = self._step_tf()
         except NotImplementedError:
             step_fn = self.step
         else:

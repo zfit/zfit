@@ -1,25 +1,25 @@
 import tensorflow as tf
 
-from zfit.core.minimizer import AbstractMinimizer
-from zfit.minimizers.base_tf import AdapterTFOptimizer
+from zfit.core.minimizer import MinimizerInterface
+from zfit.minimizers.base_tf import AdapterTFOptimizer, WrapOptimizer
 
 
-class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, AbstractMinimizer):
+class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, MinimizerInterface):
     pass
 
 
-class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, AbstractMinimizer):
+class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, MinimizerInterface):
     pass
 
 
 class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer,
-                               AbstractMinimizer):
+                               MinimizerInterface):
     pass
 
 
-class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, AbstractMinimizer):
+class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, MinimizerInterface):
     pass
 
 
-class AdamMinimizer(AdapterTFOptimizer, tf.train.AdamOptimizer, AbstractMinimizer):
+class AdamMinimizer(AdapterTFOptimizer, tf.train.AdamOptimizer, MinimizerInterface):
     pass

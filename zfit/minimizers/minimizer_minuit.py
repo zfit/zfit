@@ -72,8 +72,14 @@ class MinuitMinimizer(BaseMinimizer):
                                    # limit_c=(-3, 12), c=6,
                                    )
         result = minimizer.migrad(ncall=10000, nsplit=1, precision=1e-8)
-        params = [p_dict['value'] for p_dict in result[1]]
-        self.sess.run([assign(p) for assign, p in zip(assign_params, params)])
+        params = [p_dict for p_dict in result[1]]
+        self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params)])
+
+        edm = result[0]['edm']
+        fmin = result[0]['fval']
+        status = result[0]
+
+        self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
         return params
 
 
@@ -94,6 +100,7 @@ class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
         # minimize_args = [loss_grad_func_wrapper, initial_val]
         # minimize_kwargs = {}
         params = self._vars
+
         def wrapped_loss_func(x):
             return loss_grad_func_wrapper(x=x)[0]
 

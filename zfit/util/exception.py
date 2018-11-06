@@ -21,6 +21,11 @@ class BasePDFSubclassingError(SubclassingError):
     pass
 
 
+# Minimizer errors
+
+class NotMinimizedError(Exception):
+    pass
+
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
