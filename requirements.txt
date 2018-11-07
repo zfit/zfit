@@ -1,5 +1,6 @@
 tensorflow~=1.10.0
 tensorflow_probability
 numpy
+iminuit
 typing
 pep487

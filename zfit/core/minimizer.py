@@ -78,8 +78,6 @@ class MinimizerInterface(object):
 
 class BaseMinimizer(MinimizerInterface):
 
-
-
     def __init__(self, loss, parameters=None, tolerance=1e-8, name="BaseMinimizer", *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._current_error_method = self._error_methods.get('default')
