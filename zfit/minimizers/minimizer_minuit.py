@@ -8,6 +8,10 @@ from zfit.core.minimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer):
     _DEFAULT_name = "MinuitMinimizer"
 
+    def __init__(self, *args, **kwargs):
+        self._minuit_minimizer = None
+        super().__init__(*args, **kwargs)
+
     def _minimize(self):
         loss = self.loss
         params = self.get_parameters()
@@ -45,6 +49,7 @@ class MinuitMinimizer(BaseMinimizer):
                                    grad=grad_func,
                                    forced_parameters=params_name,
                                    **error_limit_kwargs)
+        self._minuit_minimizer = minimizer
         result = minimizer.migrad(ncall=10000, nsplit=1, precision=1e-8)
         params = [p_dict for p_dict in result[1]]
         self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params)])

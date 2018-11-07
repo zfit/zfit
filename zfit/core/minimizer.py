@@ -11,6 +11,7 @@ import contextlib
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import pep487
 
 import zfit.core.math as zmath
 from zfit import ztf
@@ -76,7 +77,7 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
 
-class BaseMinimizer(MinimizerInterface):
+class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
     _DEFAULT_name = "BaseMinimizer"
 
     def __init__(self, loss, parameters=None, tolerance=1e-8, name=None, *args, **kwargs):
