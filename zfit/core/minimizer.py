@@ -77,9 +77,12 @@ class MinimizerInterface(object):
 
 
 class BaseMinimizer(MinimizerInterface):
+    _DEFAULT_name = "BaseMinimizer"
 
-    def __init__(self, loss, parameters=None, tolerance=1e-8, name="BaseMinimizer", *args, **kwargs):
+    def __init__(self, loss, parameters=None, tolerance=1e-8, name=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if name is None:
+            name = self._DEFAULT_name
         self._current_error_method = self._error_methods.get('default')
         self._current_error_options = {}
         self._minimizer_state = MinimizerState()

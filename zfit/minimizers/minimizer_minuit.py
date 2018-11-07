@@ -6,12 +6,10 @@ from zfit.core.minimizer import BaseMinimizer
 
 
 class MinuitMinimizer(BaseMinimizer):
-
-    # def __init__(self):
+    _DEFAULT_name = "MinuitMinimizer"
 
     def _minimize(self):
         loss = self.loss
-        # params = [p for p in tf.trainable_variables() if p.floating]
         params = self.get_parameters()
         gradients = tf.gradients(loss, params)
         updated_params = self._extract_update_op(params)
@@ -20,20 +18,11 @@ class MinuitMinimizer(BaseMinimizer):
 
         def func(values):
 
-            # updated_params = []
-            # feed_dict = collections.OrderedDict()
-            # for param, val in zip(params, values):
 
             feed_dict = {p: v for p, v in zip(placeholders, values)}
             self.sess.run(updated_params, feed_dict=feed_dict)
-            # with tf.control_dependencies(updated_params):
-            # loss_new = tf.identity(loss)
             loss_new = loss
             loss_evaluated = self.sess.run(loss_new)
-            # print("++++++++++++++++++++++++++++++")
-            # print(loss_evaluated)
-            # print(sess.run(params))
-            # print(values)
             return loss_evaluated
 
         def grad_func(values):
@@ -67,6 +56,9 @@ class MinuitMinimizer(BaseMinimizer):
 
         self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
         return self.get_state()
+
+    def _minuit_minos(self):
+
 
 
 class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
@@ -106,15 +98,7 @@ class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
         minimizer = iminuit.Minuit(fcn=wrapped_loss_func, use_array_call=True,
                                    grad=wrapped_loss_grad_func,
                                    forced_parameters=params_name,
-                                   **error_limit_kwargs,
-
-                                   # error_a=0.1,
-                                   # error_b=0.1,
-                                   # error_c=0.1,
-                                   # limit_a=(-1, 5), a=2.5,
-                                   # limit_b=(-1, 8), b=6,
-                                   # limit_c=(-3, 12), c=6,
-                                   )
+                                   **error_limit_kwargs)
         result = minimizer.migrad(ncall=10000, nsplit=8, precision=1e-8)
         params = [p_dict['value'] for p_dict in result[1]]
         return np.array(params)
