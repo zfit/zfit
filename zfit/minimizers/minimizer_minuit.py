@@ -18,7 +18,6 @@ class MinuitMinimizer(BaseMinimizer):
 
         def func(values):
 
-
             feed_dict = {p: v for p, v in zip(placeholders, values)}
             self.sess.run(updated_params, feed_dict=feed_dict)
             loss_new = loss
@@ -57,8 +56,10 @@ class MinuitMinimizer(BaseMinimizer):
         self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
         return self.get_state()
 
-    def _minuit_minos(self):
-
+    def _minuit_minos(self, params=None):
+        if params is None:
+            params = self.get_parameters()
+        params_name = self._extract_parameter_names(params=params)
 
 
 class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
