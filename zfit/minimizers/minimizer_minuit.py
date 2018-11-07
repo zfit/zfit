@@ -37,18 +37,12 @@ class MinuitMinimizer(BaseMinimizer):
             return loss_evaluated
 
         def grad_func(values):
-            updated_params = []
-            # for param, val in zip(params, values):
-            #     updated_params.append(tf.assign(param, ztf.to_float(val)))
-            # gradients1 = tf.identity(gradients)
+            feed_dict = {p: v for p, v in zip(placeholders, values)}
+            self.sess.run(updated_params, feed_dict=feed_dict)
             gradients1 = gradients
             gradients_values = self.sess.run(gradients1)
-            # print(gradients_values)
             return gradients_values
 
-        # HACK
-        # func = grad_func
-        # HACK END
         error_limit_kwargs = {}
         for param in params:
             param_kwargs = {}
@@ -62,15 +56,7 @@ class MinuitMinimizer(BaseMinimizer):
         minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
                                    grad=grad_func,
                                    forced_parameters=params_name,
-                                   **error_limit_kwargs,
-
-                                   # error_a=0.1,
-                                   # error_b=0.1,
-                                   # error_c=0.1,
-                                   # limit_a=(-1, 5), a=2.5,
-                                   # limit_b=(-1, 8), b=6,
-                                   # limit_c=(-3, 12), c=6,
-                                   )
+                                   **error_limit_kwargs)
         result = minimizer.migrad(ncall=10000, nsplit=1, precision=1e-8)
         params = [p_dict for p_dict in result[1]]
         self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params)])
@@ -80,7 +66,7 @@ class MinuitMinimizer(BaseMinimizer):
         status = result[0]
 
         self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
-        return params
+        return self.get_state()
 
 
 class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):

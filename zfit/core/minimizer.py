@@ -122,9 +122,10 @@ class BaseMinimizer(MinimizerInterface):
         self._current_error_options.update(options)
 
     def get_state(self, copy=True):
+        import copy as copy_module
         state = self._minimizer_state
         if copy:
-            state = copy.deepcopy(state)
+            state = copy_module.deepcopy(state)
         return state
 
     def set_parameters(self, parameters):
