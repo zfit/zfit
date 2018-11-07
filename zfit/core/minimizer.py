@@ -110,20 +110,43 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
 
     @property
     def edm(self):
+        """The estimated distance to the minimum.
+
+        Returns:
+            numeric
+        """
         return self.get_state(copy=False).edm
 
     @property
     def fmin(self):
+        """Function value at the minimum.
+
+        Returns:
+            numeric
+        """
         return self.get_state(copy=False).fmin
 
-    def hesse(self, sess=None):
+    def hesse(self, params=None, sess=None):
+        if params is None:
+            params = self.get_parameters()
+
         with self._temp_sess(sess=sess):
-            return self._hesse()
+            errors = self._hesse(params=params)
+            for param in params:
+                param.error = errors[param.name]['error']
+
+            return errors
 
     def error(self, params=None, sess=None):
+        if params is None:
+            params = self.get_parameters()
         with self._temp_sess(sess=sess):
             error_method = self._current_error_method
-            return error_method(params=params, **self._current_error_options)
+            errors = error_method(params=params, **self._current_error_options)
+            for param in params:
+                param.lower_error = errors[param.name]['lower_error']
+                param.upper_error = errors[param.name]['upper_error']
+            return errors
 
     def set_error_method(self, method):
         if isinstance(method, str):

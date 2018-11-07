@@ -69,10 +69,18 @@ class MinuitMinimizer(BaseMinimizer):
             params = self.get_parameters()
         params_name = self._extract_parameter_names(params=params)
         result = {p_name: self._minuit_minimizer.minos(var=p_name) for p_name in params_name}
+        # HACK remove once iminuit bug #318 is resolved: https://github.com/scikit-hep/iminuit/issues/318
+        result = list(result.values())[0]
+        # HACK END
+        for error_dict in result.values():
+            error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
+            error_dict['upper_error'] = error_dict['upper']  # TODO change value for protocol?
         return result
 
     def _hesse(self, params=None):
+        params_name = self._extract_parameter_names(params=params)
         result = self._minuit_minimizer.hesse()
+        result = {p_dict.pop('name'): p_dict for p_dict in result if params is None or p_dict['name'] in params_name}
         return result
 
 
