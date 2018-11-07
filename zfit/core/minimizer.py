@@ -108,9 +108,10 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
     def hesse(self):
         raise Exception("TODO: default not yet implemented.")
 
-    def error(self):
-        error_method = self._current_error_method
-        return error_method(**self._current_error_options)
+    def error(self, params=None, sess=None):
+        with self._temp_sess(sess=sess):
+            error_method = self._current_error_method
+            return error_method(params, **self._current_error_options)
 
     def set_error_method(self, method):
         if isinstance(method, str):
@@ -151,6 +152,15 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
             yield parameters
         finally:
             self.set_parameters(old_params)
+
+    @contextlib.contextmanager
+    def _temp_sess(self, sess):
+        old_sess = self.sess
+        try:
+            self.sess = sess
+            yield sess
+        finally:
+            self.sess = old_sess
 
     def get_parameters(self, names=None, only_floating=True):  # TODO: automatically set?
         if not self._parameters:

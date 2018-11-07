@@ -10,6 +10,7 @@ class MinuitMinimizer(BaseMinimizer):
 
     def __init__(self, *args, **kwargs):
         self._minuit_minimizer = None
+        self._error_methods['default'] = self._minuit_minos  # before super call!
         super().__init__(*args, **kwargs)
 
     def _minimize(self):
@@ -65,6 +66,14 @@ class MinuitMinimizer(BaseMinimizer):
         if params is None:
             params = self.get_parameters()
         params_name = self._extract_parameter_names(params=params)
+        # HACK
+        params_name = None
+        # HACK END
+        result = self._minuit_minimizer.minos(var=params_name)
+        return result
+
+
+
 
 
 class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
