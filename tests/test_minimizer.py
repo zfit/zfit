@@ -47,14 +47,14 @@ def minimize_func(minimizer_class_and_kwargs, sess):
 
 
 minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer())),
-              # (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+              (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.3)),
               # zmin.AdadeltaMinimizer,  # not working well...
               # (zfit.minimizers.optimizers_tf.AdagradMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
               # (zfit.minimizers.optimizers_tf.GradientDescentMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
               # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
               # (zfit.minimize.MinuitTFMinimizer, {}),
               (zfit.minimize.MinuitMinimizer, {}),
-              # (zfit.minimize.ScipyMinimizer, {}),
+              (zfit.minimize.ScipyMinimizer, {}),
               ]
 
 

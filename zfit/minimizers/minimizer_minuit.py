@@ -10,7 +10,8 @@ class MinuitMinimizer(BaseMinimizer):
 
     def __init__(self, *args, **kwargs):
         self._minuit_minimizer = None
-        self._error_methods['default'] = self._minuit_minos  # before super call!
+        self._error_methods['minos'] = self._minuit_minos  # before super call!
+        self._error_methods['default'] = self._error_methods['minos']  # before super call!
         super().__init__(*args, **kwargs)
 
     def _minimize(self):
@@ -36,6 +37,7 @@ class MinuitMinimizer(BaseMinimizer):
             gradients_values = self.sess.run(gradients1)
             return gradients_values
 
+        # create Minuit compatible names
         error_limit_kwargs = {}
         for param in params:
             param_kwargs = {}
@@ -51,7 +53,7 @@ class MinuitMinimizer(BaseMinimizer):
                                    forced_parameters=params_name,
                                    **error_limit_kwargs)
         self._minuit_minimizer = minimizer
-        result = minimizer.migrad(ncall=10000, nsplit=1, precision=1e-8)
+        result = minimizer.migrad(precision=self.tolerance, **self._current_error_options)
         params = [p_dict for p_dict in result[1]]
         self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params)])
 
@@ -66,14 +68,12 @@ class MinuitMinimizer(BaseMinimizer):
         if params is None:
             params = self.get_parameters()
         params_name = self._extract_parameter_names(params=params)
-        # HACK
-        params_name = None
-        # HACK END
-        result = self._minuit_minimizer.minos(var=params_name)
+        result = {p_name: self._minuit_minimizer.minos(var=p_name) for p_name in params_name}
         return result
 
-
-
+    def _hesse(self, params=None):
+        result = self._minuit_minimizer.hesse()
+        return result
 
 
 class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):

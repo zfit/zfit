@@ -64,6 +64,9 @@ class MinimizerInterface(object):
     def hesse(self):
         raise NotImplementedError
 
+    def _hesse(self):
+        raise NotImplementedError
+
     @abc.abstractmethod
     def error(self):
         raise NotImplementedError
@@ -77,22 +80,30 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
 
+def _raises_error_method(*_, **__):
+    raise NotImplementedError("No error method specified or implemented as default")
+
+
+
 class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
     _DEFAULT_name = "BaseMinimizer"
+    _DEFAULT_tolerance = 1e-8
 
-    def __init__(self, loss, parameters=None, tolerance=1e-8, name=None, *args, **kwargs):
+    def __init__(self, loss, params=None, tolerance=None, name=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if tolerance is None:
+            tolerance = self._DEFAULT_tolerance
         if name is None:
             name = self._DEFAULT_name
-        self._current_error_method = self._error_methods.get('default')
+        self._current_error_method = self._error_methods.get('default', _raises_error_method)
         self._current_error_options = {}
         self._minimizer_state = MinimizerState()
         self.name = name
         self.tolerance = tolerance
         self._sess = None
-        self._parameters = OrderedDict()
+        self._params = OrderedDict()
         self.loss = loss
-        self.set_parameters(parameters)
+        self.set_params(params)
 
     def __init_subclass__(cls, **kwargs):
         cls._error_methods = {'default': None}  # TODO: set default error method
@@ -105,13 +116,14 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
     def fmin(self):
         return self.get_state(copy=False).fmin
 
-    def hesse(self):
-        raise Exception("TODO: default not yet implemented.")
+    def hesse(self, sess=None):
+        with self._temp_sess(sess=sess):
+            return self._hesse()
 
     def error(self, params=None, sess=None):
         with self._temp_sess(sess=sess):
             error_method = self._current_error_method
-            return error_method(params, **self._current_error_options)
+            return error_method(params=params, **self._current_error_options)
 
     def set_error_method(self, method):
         if isinstance(method, str):
@@ -133,25 +145,25 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
             state = copy_module.deepcopy(state)
         return state
 
-    def set_parameters(self, parameters):
+    def set_params(self, parameters):
         if parameters is None:
             return
         if not hasattr(parameters, "__len__"):
             parameters = (parameters,)
         if isinstance(parameters, dict):
-            self._parameters.update(parameters)
+            self._params.update(parameters)
         else:
             for param in parameters:
-                self._parameters[param.name] = param
+                self._params[param.name] = param
 
     @contextlib.contextmanager
     def _temp_set_parameters(self, parameters):
-        old_params = self._parameters
+        old_params = self._params
         try:
-            self.set_parameters(parameters)
+            self.set_params(parameters)
             yield parameters
         finally:
-            self.set_parameters(old_params)
+            self.set_params(old_params)
 
     @contextlib.contextmanager
     def _temp_sess(self, sess):
@@ -163,17 +175,17 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
             self.sess = old_sess
 
     def get_parameters(self, names=None, only_floating=True):  # TODO: automatically set?
-        if not self._parameters:
-            self.set_parameters(parameters=tf.trainable_variables())
+        if not self._params:
+            self.set_params(parameters=tf.trainable_variables())
         if isinstance(names, str):
             names = (names,)
         if names is not None:
-            missing_names = set(names).difference(self._parameters.keys())
+            missing_names = set(names).difference(self._params.keys())
             if missing_names:
                 raise KeyError("The following names are not valid parameter names")
-            parameters = [self._parameters[name] for name in names]
+            parameters = [self._params[name] for name in names]
         else:
-            parameters = list(self._parameters.values())
+            parameters = list(self._params.values())
 
         if only_floating:
             parameters = self._filter_trainable_params(params=parameters)

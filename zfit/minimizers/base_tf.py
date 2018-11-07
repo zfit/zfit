@@ -33,7 +33,6 @@ class HelperAdapterTFOptimizer(object):
 
 
 class AdapterTFOptimizer(BaseMinimizer, HelperAdapterTFOptimizer):
-    pass
     def _hook_minimize(self):
         optimizer_vars = list(self.variables())
         # HACK
