@@ -84,8 +84,7 @@ def _raises_error_method(*_, **__):
     raise NotImplementedError("No error method specified or implemented as default")
 
 
-
-class BaseMinimizer(MinimizerInterface, pep487.PEP487Base):
+class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
     _DEFAULT_name = "BaseMinimizer"
     _DEFAULT_tolerance = 1e-8
 
