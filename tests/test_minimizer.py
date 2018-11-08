@@ -1,12 +1,12 @@
-
 import pytest
 import tensorflow as tf
 
 import zfit.core.minimizer as zmin
 from zfit import ztf
+import zfit.minimizers.optimizers_tf
 
 
-def minimize_func(minimizer_class, sess):
+def minimize_func(minimizer_class_and_kwargs, sess):
     from zfit.core.parameter import FitParameter
 
     parameter_tolerance = 0.3
@@ -31,9 +31,12 @@ def minimize_func(minimizer_class, sess):
     true_minimum = sess.run(func(true_a, true_b, true_c))
     # print("DEBUG": true_minimum", true_minimum)
     loss_func = func(a_param, b_param, c_param)
-    minimizer = minimizer_class(sess=sess, learning_rate=0.4, tolerance=0.3)
+    minimizer_class, minimizer_kwargs = minimizer_class_and_kwargs
+    minimizer = minimizer_class(loss=loss_func, **minimizer_kwargs)
+    init = tf.initialize_all_variables()
+    sess.run(init)
 
-    minimizer.minimize(loss=loss_func, var_list=[a_param, b_param, c_param])
+    minimizer.minimize(sess=sess, params=[a_param, b_param, c_param])
     cur_val = sess.run(loss_func)
     aval, bval, cval = sess.run([v.read_value() for v in (a_param, b_param, c_param)])
 
@@ -43,15 +46,19 @@ def minimize_func(minimizer_class, sess):
     assert abs(cval - true_c) < parameter_tolerance
 
 
-minimizers = [zmin.AdamMinimizer,
+minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer())),
+              (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.3)),
               # zmin.AdadeltaMinimizer,  # not working well...
-              zmin.AdagradMinimizer,
-              zmin.GradientDescentMinimizer,
-              zmin.RMSPropMinimizer]
+              # (zfit.minimizers.optimizers_tf.AdagradMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+              # (zfit.minimizers.optimizers_tf.GradientDescentMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+              # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+              # (zfit.minimize.MinuitTFMinimizer, {}),
+              (zfit.minimize.MinuitMinimizer, {}),
+              (zfit.minimize.ScipyMinimizer, {}),
+              ]
 
 
 # print("DEBUG": after minimizer instanciation")
-
 
 @pytest.mark.parametrize("minimizer_class", minimizers)
 def test_minimizers(minimizer_class):
