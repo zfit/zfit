@@ -14,9 +14,9 @@ class MinuitMinimizer(BaseMinimizer):
         self._error_methods['default'] = self._error_methods['minos']  # before super call!
         super().__init__(*args, **kwargs)
 
-    def _minimize(self):
+    def _minimize(self, params):
         loss = self.loss
-        params = self.get_parameters()
+        # params = self.get_parameters()
         gradients = tf.gradients(loss, params)
         updated_params = self._extract_update_op(params)
         placeholders = [param.placeholder for param in params]

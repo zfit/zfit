@@ -12,10 +12,12 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 import pep487
+from typing import Dict, List, Union, Optional
 
 import zfit.core.math as zmath
 from zfit import ztf
 from zfit.minimizers.state import MinimizerState
+from zfit.util import ztyping
 
 
 class MinimizerInterface(object):
@@ -25,10 +27,10 @@ class MinimizerInterface(object):
     def minimize(self):
         raise NotImplementedError
 
-    def _minimize(self):
+    def _minimize(self, params):
         raise NotImplementedError
 
-    def _minimize_with_step(self):
+    def _minimize_with_step(self, params):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -39,13 +41,13 @@ class MinimizerInterface(object):
     def fmin(self):
         raise NotImplementedError
 
-    def step(self):
+    def step(self, params):
         raise NotImplementedError
 
-    def _step_tf(self):
+    def _step_tf(self, params):
         raise NotImplementedError
 
-    def _step(self):
+    def _step(self, params):
         raise NotImplementedError
 
     @property
@@ -61,14 +63,14 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def hesse(self):
+    def hesse(self, params, sess):
         raise NotImplementedError
 
-    def _hesse(self):
+    def _hesse(self, params):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def error(self):
+    def error(self, params, sess):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -125,9 +127,20 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         """
         return self.get_state(copy=False).fmin
 
-    def hesse(self, params=None, sess=None):
-        if params is None:
-            params = self.get_parameters()
+    def hesse(self, params: ztyping.ParamsOrNameType = None, sess: ztyping.SessionType = None) -> Dict:
+        """Calculate and set for `params` the symmetric error using the Hessian matrix.
+
+        Args:
+            params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the
+                Hessian symmetric error.
+            sess (`tf.Session` or None): A TensorFlow session to use for the calculation.
+
+        Returns:
+            `dict`: A `dict` containing as keys the parameter names and as values a `dict` which
+                contains (next to probably more things) a key 'error', holding the calculated error.
+                Example: result['par1']['error'] -> the symmetric error on 'par1'
+        """
+        params = self._check_input_params(params)
 
         with self._temp_sess(sess=sess):
             errors = self._hesse(params=params)
@@ -136,9 +149,28 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
 
             return errors
 
-    def error(self, params=None, sess=None):
-        if params is None:
-            params = self.get_parameters()
+    def _check_input_params(self, params, only_floating=True):
+        if isinstance(params, (str, tf.Variable)) or not hasattr(params, "__len__"):
+            params = [params, ]
+        if params is None or isinstance(params[0], str):
+            params = self.get_parameters(names=params, only_floating=only_floating)
+        return params
+
+    def error(self, params: ztyping.ParamsOrNameType = None, sess: ztyping.SessionType = None) -> Dict:
+        """Calculate and set for `params` the asymmetric error using the set error method.
+
+        Args:
+            params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the
+                 errors. If `params` is `None`, use all *floating* parameters.
+            sess (`tf.Session` or None): A TensorFlow session to use for the calculation.
+
+        Returns:
+            `dict`: A `dict` containing as keys the parameter names and as values a `dict` which
+                contains (next to probably more things) two keys 'lower_error' and 'upper_error',
+                holding the calculated errors.
+                Example: result['par1']['upper_error'] -> the asymmetric upper error of 'par1'
+        """
+        params = self._check_input_params(params)
         with self._temp_sess(sess=sess):
             error_method = self._current_error_method
             errors = error_method(params=params, **self._current_error_options)
@@ -153,37 +185,63 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
                 method = self._error_methods[method]
             except AttributeError:
                 raise AttributeError("The error method '{}' is not registered with the minimizer.".format(method))
-        self._current_error_method = method
+        elif callable(method):
+            self._current_error_method = method
+        else:
+            raise ValueError("Method {} neither a valid method name nor a callable function.".format(method))
 
-    def set_error_options(self, replace=False, **options):
+    def set_error_options(self, replace: bool = False, **options):
+        """Specify the options for the `error` calculation.
+
+        Args:
+            replace (bool): If True, replace the current options. If False, only update
+                (add/overwrite existing).
+            **options (keyword arguments): The keyword arguments that will be given to `error`.
+        """
         if replace:
             self._current_error_options = {}
         self._current_error_options.update(options)
 
-    def get_state(self, copy=True):
+    def get_state(self, copy: bool = True) -> MinimizerState:
+        """Return the current state containing parameters, edm, fmin etc.
+
+        Args:
+            copy (bool): If True, return a copy of the (internal) state. Equivalent to a fit result.
+                If False, a reference is returned and the object will change if another method of
+                the minimizer is invoked (such as `error`, `minimize` etc.)
+
+        Returns:
+
+        """
         import copy as copy_module
         state = self._minimizer_state
         if copy:
             state = copy_module.deepcopy(state)
         return state
 
-    def set_params(self, parameters):
-        if parameters is None:
+    def set_params(self, params):
+        """Set the parameters of the minimizer.
+
+        Args:
+            params (list): The parameters.
+        """
+        if params is None:
+            self._params = OrderedDict()
             return
-        if not hasattr(parameters, "__len__"):
-            parameters = (parameters,)
-        if isinstance(parameters, dict):
-            self._params.update(parameters)
+        if not hasattr(params, "__len__"):
+            params = (params,)
+        if isinstance(params, dict):
+            self._params.update(params)
         else:
-            for param in parameters:
+            for param in params:
                 self._params[param.name] = param
 
     @contextlib.contextmanager
-    def _temp_set_parameters(self, parameters):
+    def _temp_set_parameters(self, params):
         old_params = self._params
         try:
-            self.set_params(parameters)
-            yield parameters
+            self.set_params(params)
+            yield params
         finally:
             self.set_params(old_params)
 
@@ -196,22 +254,32 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         finally:
             self.sess = old_sess
 
-    def get_parameters(self, names=None, only_floating=True):  # TODO: automatically set?
+    def get_parameters(self, names: Optional[Union[List[str], str]] = None, only_floating: bool = True) -> List[
+        'FitParameter']:  # TODO: automatically set?
+        """Return the parameters. If it is empty, automatically set and return all trainable variables.
+
+        Args:
+            names (str, list(str)): The names of the parameters to return.
+            only_floating (bool): If True, return only the floating parameters.
+
+        Returns:
+            list(`zfit.FitParameters`):
+        """
         if not self._params:
-            self.set_params(parameters=tf.trainable_variables())
+            self.set_params(params=tf.trainable_variables())
         if isinstance(names, str):
             names = (names,)
         if names is not None:
             missing_names = set(names).difference(self._params.keys())
             if missing_names:
                 raise KeyError("The following names are not valid parameter names")
-            parameters = [self._params[name] for name in names]
+            params = [self._params[name] for name in names]
         else:
-            parameters = list(self._params.values())
+            params = list(self._params.values())
 
         if only_floating:
-            parameters = self._filter_trainable_params(params=parameters)
-        return parameters
+            params = self._filter_trainable_params(params=params)
+        return params
 
     @staticmethod
     def _filter_trainable_params(params):
@@ -259,34 +327,62 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         self._tolerance = tolerance
 
     @staticmethod
-    def _extract_start_values(parameters):
+    def _extract_start_values(params):
         """Extract the current value if defined, otherwise random.
 
         Arguments:
-            parameters (FitParameter):
+            params (FitParameter):
 
         Return:
             list(const): the current values of parameters
         """
-        values = [p.read_value() for p in parameters]
+        values = [p.read_value() for p in params]
         # TODO: implement if initial val not given
         return values
 
-    def step(self):
-        return self._step()
+    def step(self, params: ztyping.ParamsOrNameType = None):
+        """Perform a single step in the minimization (if implemented).
 
-    def minimize(self, sess, params=None):
+        Args:
+            params ():
+
+        Returns:
+
+        Raises:
+            NotImplementedError: if the `step` method is not implemented in the minimizer.
+        """
+        params = self._check_input_params(params)
+        return self._step(params=params)
+
+    def minimize(self, params: ztyping.ParamsOrNameType = None, sess: ztyping.SessionType = None) -> "TODO":
+        """Fully minimize the `loss` with respect to `params` using `sess`.
+
+        Args:
+            params (list(str) or list(`zfit.FitParameter`): The parameters with respect to which to
+                minimize the `loss`.
+            sess (`tf.Session`): The session to use.
+
+        Returns:
+            `MinimizerState`: The status of the minimizer, equivalent to a fit result.
+        """
         with self._temp_sess(sess=sess):
-            if params is not None:
-                with self._temp_set_parameters(params):
-                    return self._hook_minimize()
-            elif self.get_parameters():
-                return self._hook_minimize()
-            else:
-                raise ValueError("Parameters not specified")
+            params = self._check_input_params(params)
+            # with self._temp_set_parameters(params):
+            return self._hook_minimize(params=params)
+            # else:
+            #     raise ValueError("Parameters not specified")
 
-    def _hook_minimize(self):
-        return self._call_minimize()
+    def _hook_minimize(self, params):
+        return self._call_minimize(params=params)
+
+    def _call_minimize(self, params):
+        try:
+            return self._minimize(params=params)
+        except NotImplementedError as error:
+            try:
+                return self._minimize_with_step(params=params)
+            except NotImplementedError:
+                raise error
 
     @contextlib.contextmanager
     def _temp_sess(self, sess):
@@ -297,42 +393,32 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         finally:
             self._sess = old_sess
 
-    def _call_minimize(self):
-        try:
-            return self._minimize()
-        except NotImplementedError as error:
-            try:
-                return self._minimize_with_step()
-            except NotImplementedError:
-                raise error
-
-    def _minimize_with_step(self):  # TODO improve
+    def _minimize_with_step(self, params):  # TODO improve
         changes = collections.deque(np.ones(10))
         last_val = -10
         cur_val = 9999999
         try:
-            step = self._step_tf()
+            step = self._step_tf(params=params)
         except NotImplementedError:
             step_fn = self.step
         else:
-            def step_fn():
+            def step_fn(params):
                 return self.sess.run(step)
         while sum(sorted(changes)[-3:]) > self.tolerance:  # TODO: improve condition
-            _ = step_fn()
+            _ = step_fn(params=params)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
             cur_val = self.sess.run(self.loss)  # TODO: improve...
-        return cur_val
+        fmin = cur_val
+        edm = -999  # TODO: get edm
+        status = {}  # TODO: create status
 
-
-# WIP
-
-
-# TensorFlow Minimizer
-
-
-# Explicit classes to use
+        self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
+        # HACK remove the line, `get_state()` currently cannot return Tensors
+        return fmin
+        # HACK END
+        return self.get_state()
 
 
 # WIP below

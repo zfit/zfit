@@ -10,9 +10,10 @@ class ScipyMinimizer(BaseMinimizer):
         super().__init__(loss=loss, params=params, tolerance=tolerance, name=name)
         self._scipy_init_kwargs = kwargs
 
-    def _minimize(self):
+    def _minimize(self, params):
         loss = self.loss
-        var_list = self.get_parameters()
+        # var_list = self.get_parameters()
+        var_list = params
         # params_name = self._extract_parameter_names(var_list)
         var_to_bounds = {p.name: (p.lower_limit, p.upper_limit) for p in var_list}
         minimizer = tf.contrib.opt.ScipyOptimizerInterface(loss=loss, var_list=var_list,

@@ -56,9 +56,10 @@ class WrapOptimizer(BaseMinimizer):
         super().__init__(*args, **kwargs)
         self._optimizer_tf = optimizer
 
-    def _step_tf(self):
+    def _step_tf(self, params):
         loss = self.loss
-        var_list = self.get_parameters()
+        # var_list = self.get_parameters()
+        var_list = params
         minimization_step = self._optimizer_tf.minimize(loss=loss, var_list=var_list)
 
         # auto-initialize variables from optimizer
