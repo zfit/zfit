@@ -1,7 +1,6 @@
 import tensorflow as tf
 
 from zfit.core.minimizer import MinimizerInterface, BaseMinimizer
-from zfit.minimizers.base_tf import AdapterTFOptimizer
 
 
 class ScipyMinimizer(BaseMinimizer):

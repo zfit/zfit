@@ -70,7 +70,7 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def error(self, params, sess):
+    def error(self, params, sigma, sess):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -150,7 +150,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             return errors
 
     def _check_input_params(self, params, only_floating=True):
-        if isinstance(params, (str, tf.Variable)) or not hasattr(params, "__len__"):
+        if isinstance(params, (str, tf.Variable)) or (not hasattr(params, "__len__") and params is not None):
             params = [params, ]
         if params is None or isinstance(params[0], str):
             params = self.get_parameters(names=params, only_floating=only_floating)
@@ -219,17 +219,26 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             state = copy_module.deepcopy(state)
         return state
 
-    def set_params(self, params):
+    def set_params(self, params: ztyping.ParamsType, update: bool = False):
         """Set the parameters of the minimizer.
 
+        If `None`, the parameters are empty. If a dictionary is given,
+
         Args:
-            params (list): The parameters.
+            params (list, dict, None): The parameters.
+            update (bool): If True, add (or overwrite if existing) the `params` to the currently
+                stored parameters.
         """
         if params is None:
+            if update:
+                raise ValueError("Cannot specify `None` as params *and* set `update` to True.")
             self._params = OrderedDict()
             return
         if not hasattr(params, "__len__"):
             params = (params,)
+
+        if not update:  # overwrite: create empty instance
+            self._params = OrderedDict()
         if isinstance(params, dict):
             self._params.update(params)
         else:
@@ -254,8 +263,8 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         finally:
             self.sess = old_sess
 
-    def get_parameters(self, names: Optional[Union[List[str], str]] = None, only_floating: bool = True) -> List[
-        'FitParameter']:  # TODO: automatically set?
+    def get_parameters(self, names: Optional[Union[List[str], str]] = None,
+                       only_floating: bool = True) -> List['FitParameter']:  # TODO: automatically set?
         """Return the parameters. If it is empty, automatically set and return all trainable variables.
 
         Args:
@@ -367,10 +376,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         """
         with self._temp_sess(sess=sess):
             params = self._check_input_params(params)
-            # with self._temp_set_parameters(params):
             return self._hook_minimize(params=params)
-            # else:
-            #     raise ValueError("Parameters not specified")
 
     def _hook_minimize(self, params):
         return self._call_minimize(params=params)
@@ -383,15 +389,6 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
                 return self._minimize_with_step(params=params)
             except NotImplementedError:
                 raise error
-
-    @contextlib.contextmanager
-    def _temp_sess(self, sess):
-        old_sess = self._sess
-        self._sess = sess
-        try:
-            yield sess
-        finally:
-            self._sess = old_sess
 
     def _minimize_with_step(self, params):  # TODO improve
         changes = collections.deque(np.ones(10))
@@ -525,7 +522,7 @@ if __name__ == '__main__':
         # which_minimizer = 'tfminuit'
         # which_minimizer = 'scipy'
 
-        print("Running minimizer {}".format((which_minimizer)))
+        print("Running minimizer {}".format(which_minimizer))
 
         if which_minimizer == 'minuit':
             minimizer = MinuitMinimizer(sess=sess)
@@ -566,7 +563,7 @@ if __name__ == '__main__':
         elif which_minimizer == 'bfgs':
             test1 = BFGSMinimizer(sess=sess, tolerance=1e-6)
 
-            min = test1.minimize(params=[a, b, c])
+            minimum = test1.minimize(params=[a, b, c])
             last_val = 100000
             cur_val = 9999999
             # HACK
@@ -574,7 +571,7 @@ if __name__ == '__main__':
             # HACK END
             # while abs(last_val - cur_val) > 0.00001:
             start = time.time()
-            result = sess.run(min)
+            result = sess.run(minimum)
             end = time.time()
             print("value from calculations:", result)
             print("time needed", (end - start))
@@ -612,7 +609,8 @@ if __name__ == '__main__':
             for _ in range(1):
                 # print(sess.run(func))
                 train_step.minimize()
-            result = print(sess.run(func))
+            result = sess.run(func)
+            print(result)
             # value = minimizer.minimize(loss=loss_func())  # how many times to be serialized
             end = time.time()
             value = result

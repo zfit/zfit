@@ -64,14 +64,12 @@ class MinuitMinimizer(BaseMinimizer):
         self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
         return self.get_state()
 
-    def _minuit_minos(self, params=None):
+    def _minuit_minos(self, params=None, sigma=1.0):
         if params is None:
             params = self.get_parameters()
         params_name = self._extract_parameter_names(params=params)
-        result = {p_name: self._minuit_minimizer.minos(var=p_name) for p_name in params_name}
-        # HACK remove once iminuit bug #318 is resolved: https://github.com/scikit-hep/iminuit/issues/318
-        result = list(result.values())[0]
-        # HACK END
+        result = [self._minuit_minimizer.minos(var=p_name) for p_name in params_name][-1]  # returns every var
+        result = {p_name: result[p_name] for p_name in params_name}
         for error_dict in result.values():
             error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
             error_dict['upper_error'] = error_dict['upper']  # TODO change value for protocol?
@@ -84,44 +82,3 @@ class MinuitMinimizer(BaseMinimizer):
         return result
 
 
-class MinuitTFMinimizer(tf.contrib.opt.ExternalOptimizerInterface):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def _minimize(self, initial_val, loss_grad_func, equality_funcs,
-                  equality_grad_funcs, inequality_funcs, inequality_grad_funcs,
-                  packed_bounds, step_callback, optimizer_kwargs):
-        # @functools.lru_cache()
-        def loss_grad_func_wrapper(x):
-            # Minuit should work with float64
-            loss, gradient = loss_grad_func(x)
-            return loss, gradient.astype('float64')
-
-        # minimize_args = [loss_grad_func_wrapper, initial_val]
-        # minimize_kwargs = {}
-        params = self._vars
-
-        def wrapped_loss_func(x):
-            return loss_grad_func_wrapper(x=x)[0]
-
-        def wrapped_loss_grad_func(x):
-            return loss_grad_func_wrapper(x=x)[1]
-
-        error_limit_kwargs = {}
-        for param in params:
-            param_kwargs = {}
-            param_kwargs[param.name] = self.sess.run(param.read_value())
-            param_kwargs['limit_' + param.name] = self.sess.run([param.lower_limit, param.upper_limit])
-            param_kwargs['error_' + param.name] = self.sess.run(param.step_size)
-
-            error_limit_kwargs.update(param_kwargs)
-        params_name = [param.name for param in params]
-
-        minimizer = iminuit.Minuit(fcn=wrapped_loss_func, use_array_call=True,
-                                   grad=wrapped_loss_grad_func,
-                                   forced_parameters=params_name,
-                                   **error_limit_kwargs)
-        result = minimizer.migrad(ncall=10000, nsplit=8, precision=1e-8)
-        params = [p_dict['value'] for p_dict in result[1]]
-        return np.array(params)

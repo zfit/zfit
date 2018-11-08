@@ -1,27 +1,27 @@
 import tensorflow as tf
 
 from zfit.core.minimizer import MinimizerInterface
-from zfit.minimizers.base_tf import AdapterTFOptimizer, WrapOptimizer
+from zfit.minimizers.base_tf import WrapOptimizer
 
 
-class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, MinimizerInterface):
-    def __init__(self):
-        raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
-
-
-class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, MinimizerInterface):
-    def __init__(self):
-        raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
-
-
-class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer, MinimizerInterface):
-    def __init__(self):
-        raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
-
-
-class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, MinimizerInterface):
-    def __init__(self):
-        raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
+# class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, MinimizerInterface):
+#     def __init__(self):
+#         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
+#
+#
+# class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, MinimizerInterface):
+#     def __init__(self):
+#         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
+#
+#
+# class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer, MinimizerInterface):
+#     def __init__(self):
+#         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
+#
+#
+# class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, MinimizerInterface):
+#     def __init__(self):
+#         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
 
 
 class AdamMinimizer(WrapOptimizer):
