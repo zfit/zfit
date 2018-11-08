@@ -215,7 +215,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                 raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
                                  "".format(self._norm_range.n_dims, self.n_dims))
         else:
-            self.n_dims = norm_range.n_dims
+            self.n_dims = self.norm_range.n_dims
         try:
             yield self.norm_range  # or None, not needed
         finally:
