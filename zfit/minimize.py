@@ -2,7 +2,8 @@
 from .minimizers.optimizers_tf import AdamMinimizer
 from .minimizers.minimizer_minuit import MinuitMinimizer
 from .minimizers.minimizers_scipy import ScipyMinimizer
-from .minimizers.minimizer_tfp import BFGSMinimizer
+
+# from .minimizers.minimizer_tfp import BFGSMinimizer
 
 # WIP below
 if __name__ == '__main__':

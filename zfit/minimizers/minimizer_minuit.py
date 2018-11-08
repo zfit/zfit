@@ -80,5 +80,3 @@ class MinuitMinimizer(BaseMinimizer):
         result = self._minuit_minimizer.hesse()
         result = {p_dict.pop('name'): p_dict for p_dict in result if params is None or p_dict['name'] in params_name}
         return result
-
-
