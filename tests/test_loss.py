@@ -14,16 +14,16 @@ from zfit.core.loss import unbinned_nll
 mu_true = 1.2
 sigma_true = 4.5
 
-test_values = np.random.normal(loc=mu_true, scale=sigma_true, size=10000)
+test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=1000)
 
-low, high = -14.3, 18.6
-mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+low, high = -24.3, 28.6
+mu = FitParameter("mu", mu_true + 0.5, mu_true - 4., mu_true + 7.)
+sigma = FitParameter("sigma", sigma_true - 0.3, sigma_true - 10., sigma_true + 5.)
 
-mu_constr = Gauss(mu=11., sigma=0.3, name="mu_constr")
+mu_constr = Gauss(mu=1.6, sigma=0.3, name="mu_constr")
 sigma_constr = Gauss(mu=4.2, sigma=0.5, name="sigma_constr")
 
-gaussian = Gauss(mu=4.2, sigma=0.5, name="gaussian")
+gaussian = Gauss(mu=mu, sigma=sigma, name="gaussian")
 
 init = tf.global_variables_initializer()
 
@@ -33,10 +33,15 @@ def test_unbinned_nll():
         sess.run(init)
         with mu_constr.temp_norm_range((-np.infty, np.infty)):
             with sigma_constr.temp_norm_range((-np.infty, np.infty)):
-                nll = unbinned_nll(probs=gaussian.prob(x=test_values, norm_range=(low, high)),
-                                   constraints={mu: mu_constr, sigma: sigma_constr})
+                test_values = tf.constant(test_values_np)
+                nll = unbinned_nll(probs=gaussian.prob(x=test_values, norm_range=(-np.infty, np.infty)),
+                                   constraints={mu: mu_constr,
+                                                sigma: sigma_constr}
+                                   )
                 nll_eval = sess.run(nll)
-                minimizer = MinuitMinimizer(loss=nll_eval)
+                minimizer = MinuitMinimizer(loss=nll)
+                status = minimizer.minimize(sess=sess)
+                print(status)
 
 
 def true_gaussian_func(x):

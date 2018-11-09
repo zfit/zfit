@@ -28,8 +28,8 @@ def unbinned_nll(probs: tf.Tensor = None, weights: Optional[tf.Tensor] = None, l
 
     nll = -tf.reduce_sum(log_probs)
     if constraints:
-        constraints_prob = [dist.prob(param) for param, dist in constraints.items()]
-        nll += tf.reduce_sum(tf.stack(constraints_prob))
+        constraints_log_prob = tf.reduce_sum([tf.log(dist.prob(param)) for param, dist in constraints.items()])
+        nll += constraints_log_prob
     return nll
 
 

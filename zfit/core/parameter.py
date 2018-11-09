@@ -22,7 +22,7 @@ class FitParameter(VariableV1):
       Class for fit parameters, derived from TF Variable class.
     """
 
-    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=1e-6):
+    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=1e-1):
         """
           Constructor.
             name : name of the parameter (passed on to MINUIT)
@@ -33,9 +33,9 @@ class FitParameter(VariableV1):
         """
         # TODO: sanitize input
         init_value = tf.cast(init_value, dtype=ztypes.float)
-        super().__init__(init_value, dtype=ztypes.float,  # PY23: change super
-                                           # use_resource=True  # TODO: only 1.11+
-                                           )
+        super().__init__(init_value, dtype=ztypes.float, name=name,
+                         # use_resource=True  # TODO: only 1.11+
+                         )
         self.init_value = init_value
         self.par_name = name
         self._step_size = None
