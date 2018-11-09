@@ -12,22 +12,23 @@ from zfit.settings import types as _ztypes  # pay attention with the names in he
 
 # doesn't work...
 # from tensorflow import *  # Yes, this is wanted. Yields an equivalent ztf BUT we COULD wrap it :)
-module_dict = tensorflow.__dict__
-try:
-    to_import = tensorflow.__all__
-except AttributeError:
-    to_import = [name for name in module_dict if not name.startswith('_')]
-
-imported = {}
-failed_imports = []
-for name in to_import:
-    try:
-        imported[name] = module_dict[name]
-    except KeyError as error:
-        failed_imports.append(name)
-if failed_imports:
-    warnings.warn("The following modules/attributes from TensorFlow could NOT be imported:\n{}".format(failed_imports))
-globals().update(imported)
+# module_dict = tensorflow.__dict__
+# try:
+#     to_import = tensorflow.__all__
+# except AttributeError:
+#     to_import = [name for name in module_dict if not name.startswith('_')]
+#
+# imported = {}
+# failed_imports = []
+# for name in to_import:
+#     try:
+#         imported[name] = module_dict[name]
+#     except KeyError as error:
+#         failed_imports.append(name)
+# if failed_imports:
+#     warnings.warn("The following modules/attributes from TensorFlow could NOT be imported:\n{}".format(
+# failed_imports))
+# globals().update(imported)
 
 try:
     from math import inf as _inf
@@ -74,6 +75,13 @@ def nth_pow(x, n, name=None):
 
 def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
     return tf.unstack(value=value, num=num, axis=axis, name=name)
+
+
+def convert_to_tensor(value, dtype=_ztypes.float, name=None, preferred_dtype=None):
+    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
+
+
+convert_to_tensor.__doc__ = tf.convert_to_tensor.__doc__
 
 
 # same as in TensorFlow, wrapped
