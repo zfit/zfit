@@ -76,6 +76,12 @@ def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x
     return tf.unstack(value=value, num=num, axis=axis, name=name)
 
 
+def convert_to_tensor(value, dtype=_ztypes.float, name=None, preferred_dtype=None):
+    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
+
+convert_to_tensor.__doc__ = tf.convert_to_tensor.__doc__
+
+
 # same as in TensorFlow, wrapped
 
 def log(x, name=None):

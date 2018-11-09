@@ -86,7 +86,7 @@ class FitParameter(VariableV1):
         if value != self.prev_value:
             if isinstance(value, tf.Tensor):
                 # session.run(self.assign(value))
-                assign_op = self.assign(tf.convert_to_tensor(value))
+                assign_op = self.assign(ztf.convert_to_tensor(value))
                 # session.run(assign_op)
             else:
                 session.run(self.update_op, {self.placeholder: value})
