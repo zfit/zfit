@@ -3,6 +3,7 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
+from zfit import ztf
 from zfit.core.limits import Range
 from zfit.core.parameter import FitParameter
 from zfit.pdfs.functor import SumPDF, ProductPDF

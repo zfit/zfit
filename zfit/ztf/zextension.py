@@ -1,5 +1,7 @@
 import math as _mt
 
+from typing import Any
+
 try:
     from math import inf as _inf
 except ImportError:  # py34 remove try-except
@@ -62,6 +64,14 @@ def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, na
 
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random_uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+
+
+def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
+    return tf.unstack(value=value, num=num, axis=axis, name=name)
+
+
+def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
+    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
 
 
 # reduce functions
