@@ -42,22 +42,20 @@ def test_unbinned_nll():
         with mu_constr.temp_norm_range((-np.infty, np.infty)):
             with sigma_constr.temp_norm_range((-np.infty, np.infty)):
                 test_values = tf.constant(test_values_np)
-                nll = unbinned_nll(probs=gaussian1.prob(x=test_values, norm_range=(-np.infty, np.infty)))
+                nll = unbinned_nll(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
                 nll_eval = sess.run(nll)
                 minimizer = MinuitMinimizer(loss=nll)
                 status = minimizer.minimize(params=[mu1, sigma1], sess=sess)
                 params = status.get_parameters()
                 # print(params)
-                assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.0005)
-                assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.0005)
+                assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
+                assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
 
                 # with constraints
                 sess.run(init)
 
-                nll = unbinned_nll(probs=gaussian2.prob(x=test_values, norm_range=(-np.infty, np.infty)),
-                                   constraints={mu2: mu_constr,
-                                                sigma2: sigma_constr}
-                                   )
+                nll = unbinned_nll(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty), constraints={mu2: mu_constr,
+                                                                sigma2: sigma_constr})
 
                 minimizer = MinuitMinimizer(loss=nll)
                 status = minimizer.minimize(params=[mu2, sigma2], sess=sess)
