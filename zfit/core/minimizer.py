@@ -403,7 +403,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
-            cur_val = self.sess.run(self.loss)  # TODO: improve...
+            cur_val = self.sess.run(self.loss.eval())  # TODO: improve...
         fmin = cur_val
         edm = -999  # TODO: get edm
         status = {}  # TODO: create status

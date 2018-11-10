@@ -54,7 +54,6 @@ def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf
     return nll_finished
 
 
-
 #
 # def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
 #                           param_gauss=None, param_gauss_mean=None, param_gauss_sigma=None,
@@ -165,36 +164,57 @@ class BaseLoss(LossInterface):
 
     @property
     def fit_range(self):
-        return self._fit_range
+        fit_range = self._fit_range
+        # fit_range = convert_to_range(self._fit_range)
+        return fit_range
 
     @property
     def constraints(self):
         return self._constraints
 
     @abc.abstractmethod
-    def _eval(self):
+    def _loss_func(self, pdf, data, fit_range, constraints=None):
         raise NotImplementedError
 
     def eval(self):
         try:
-            return self._eval(pdf=self.pdf, data=self.data, fit_range=self.fit_range, constraints=self.constraints)
+            return self._loss_func(pdf=self.pdf, data=self.data, fit_range=self.fit_range, constraints=self.constraints)
         except NotImplementedError:
-            raise NotImplementedError("_eval not defined!")
+            raise NotImplementedError("_loss_func not defined!")
 
 
 def errordef_nll(sigma):
     return sigma
 
+
 class UnbinnedNLL(BaseLoss):
+    _name = "UnbinnedNLL"
 
-    _name = "unbinned_nll"
-
-    def _eval(self, pdf, data, fit_range, constraints):
+    def _loss_func(self, pdf, data, fit_range, constraints):
         return unbinned_nll(pdf=pdf, data=data, fit_range=fit_range, constraints=constraints)
 
     def errordef(self, sigma):
         return errordef_nll(sigma)
 
 
+class SimpleLoss(BaseLoss):
+    _name = "SimpleLoss"
+
+    def __init__(self, func):
+        self._simple_func = func
+        super().__init__(pdf=None, data=None, fit_range=None)
+
+    def errordef(self, func):
+        raise NotImplementedError("For this simple loss function, no error calculation is possible.")
+
+    def _loss_func(self, pdf, data, fit_range, constraints=None):
+        loss = self._simple_func
+        return loss()
 
 
+def make_loss(func):
+    """Create a simple loss object (if not yet) out of func. No error estimation possible."""
+    if isinstance(func, LossInterface):
+        return func
+    else:
+        return SimpleLoss(func=func)

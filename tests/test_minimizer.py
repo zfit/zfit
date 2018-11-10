@@ -1,6 +1,7 @@
 import pytest
 import tensorflow as tf
 
+from zfit.core.loss import make_loss
 import zfit.core.minimizer as zmin
 from zfit import ztf
 import zfit.minimizers.optimizers_tf
@@ -30,14 +31,20 @@ def minimize_func(minimizer_class_and_kwargs, sess):
 
     true_minimum = sess.run(func(true_a, true_b, true_c))
     # print("DEBUG": true_minimum", true_minimum)
-    loss_func = func(a_param, b_param, c_param)
+    loss_func_tf = func(a_param, b_param, c_param)
+
+    def loss_to_call():
+        return loss_func_tf
+
+    loss_func = make_loss(loss_to_call)
+
     minimizer_class, minimizer_kwargs = minimizer_class_and_kwargs
     minimizer = minimizer_class(loss=loss_func, **minimizer_kwargs)
     init = tf.initialize_all_variables()
     sess.run(init)
 
     minimizer.minimize(sess=sess, params=[a_param, b_param, c_param])
-    cur_val = sess.run(loss_func)
+    cur_val = sess.run(loss_func.eval())
     aval, bval, cval = sess.run([v.read_value() for v in (a_param, b_param, c_param)])
 
     assert abs(cur_val - true_minimum) < max_distance_to_min

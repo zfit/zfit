@@ -44,7 +44,7 @@ def test_unbinned_nll():
                 # nll = unbinned_nll(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
                 nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
                 # nll_eval = sess.run(nll)
-                minimizer = MinuitMinimizer(loss=nll_class.eval())
+                minimizer = MinuitMinimizer(loss=nll_class)
                 status = minimizer.minimize(params=[mu1, sigma1], sess=sess)
                 params = status.get_parameters()
                 # print(params)
@@ -57,7 +57,7 @@ def test_unbinned_nll():
                 nll_class = UnbinnedNLL(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty), constraints={mu2: mu_constr,
                                                                 sigma2: sigma_constr})
 
-                minimizer = MinuitMinimizer(loss=nll_class.eval())
+                minimizer = MinuitMinimizer(loss=nll_class)
                 status = minimizer.minimize(params=[mu2, sigma2], sess=sess)
                 params = status.get_parameters()
 

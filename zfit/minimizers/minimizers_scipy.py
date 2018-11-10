@@ -10,7 +10,7 @@ class ScipyMinimizer(BaseMinimizer):
         self._scipy_init_kwargs = kwargs
 
     def _minimize(self, params):
-        loss = self.loss
+        loss = self.loss.eval()
         # var_list = self.get_parameters()
         var_list = params
         # params_name = self._extract_parameter_names(var_list)
