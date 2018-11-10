@@ -9,7 +9,7 @@ from .limits import convert_to_range, Range
 import zfit.util.checks
 
 
-def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
+def unbinned_nll_graph(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
@@ -34,7 +34,7 @@ def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf
             if not isinstance(fit_range[0], Range):
                 raise ValueError("If several pdfs are given, the ranges in `fit_range` have to be a "
                                  "`Range` and not just tuples (because of disambiguity).")
-            nlls = [unbinned_nll(pdf=p, data=d, fit_range=r, constraints=constraints)
+            nlls = [unbinned_nll_graph(pdf=p, data=d, fit_range=r, constraints=constraints)
                     for p, d, r in zip(pdf, data, fit_range)]
             nll_finished = tf.reduce_sum(nlls)
     else:  # TODO: complicated limits?
@@ -183,18 +183,14 @@ class BaseLoss(LossInterface):
             raise NotImplementedError("_loss_func not defined!")
 
 
-def errordef_nll(sigma):
-    return sigma
-
-
 class UnbinnedNLL(BaseLoss):
     _name = "UnbinnedNLL"
 
     def _loss_func(self, pdf, data, fit_range, constraints):
-        return unbinned_nll(pdf=pdf, data=data, fit_range=fit_range, constraints=constraints)
+        return unbinned_nll_graph(pdf=pdf, data=data, fit_range=fit_range, constraints=constraints)
 
     def errordef(self, sigma):
-        return errordef_nll(sigma)
+        return sigma
 
 
 class SimpleLoss(BaseLoss):
@@ -210,11 +206,3 @@ class SimpleLoss(BaseLoss):
     def _loss_func(self, pdf, data, fit_range, constraints=None):
         loss = self._simple_func
         return loss()
-
-
-def make_loss(func):
-    """Create a simple loss object (if not yet) out of func. No error estimation possible."""
-    if isinstance(func, LossInterface):
-        return func
-    else:
-        return SimpleLoss(func=func)

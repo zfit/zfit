@@ -11,7 +11,7 @@ from zfit.pdfs.dist_tfp import Normal
 from zfit.pdfs.basic import Gauss
 from zfit.core.parameter import FitParameter
 import zfit.settings
-from zfit.core.loss import unbinned_nll, UnbinnedNLL
+from zfit.core.loss import unbinned_nll_graph, UnbinnedNLL
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -41,7 +41,7 @@ def test_unbinned_nll():
         with mu_constr.temp_norm_range((-np.infty, np.infty)):
             with sigma_constr.temp_norm_range((-np.infty, np.infty)):
                 test_values = tf.constant(test_values_np)
-                # nll = unbinned_nll(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+                # nll = unbinned_nll_graph(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
                 nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
                 # nll_eval = sess.run(nll)
                 minimizer = MinuitMinimizer(loss=nll_class)

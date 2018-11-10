@@ -1,7 +1,7 @@
 import pytest
 import tensorflow as tf
 
-from zfit.core.loss import make_loss
+from zfit.core.loss import SimpleLoss
 import zfit.core.minimizer as zmin
 from zfit import ztf
 import zfit.minimizers.optimizers_tf
@@ -36,7 +36,7 @@ def minimize_func(minimizer_class_and_kwargs, sess):
     def loss_to_call():
         return loss_func_tf
 
-    loss_func = make_loss(loss_to_call)
+    loss_func = SimpleLoss(loss_to_call)
 
     minimizer_class, minimizer_kwargs = minimizer_class_and_kwargs
     minimizer = minimizer_class(loss=loss_func, **minimizer_kwargs)

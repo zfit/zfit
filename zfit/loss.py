@@ -1,1 +1,1 @@
-from .core.loss import UnbinnedNLL, BaseLoss, make_loss
+from .core.loss import UnbinnedNLL, BaseLoss
