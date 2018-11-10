@@ -35,7 +35,7 @@ tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
 wrapped_gauss = zfit.pdfs.dist_tfp.WrapDistribution(tf_gauss1)
 
 test_gauss1 = TestGaussian(name="test_gauss1")
-wrapped_normal1 = Normal(loc=mu2, scale=sigma2, name='wrapped_normal1')
+wrapped_normal1 = Normal(mu=mu2, sigma=sigma2, name='wrapped_normal1')
 
 init = tf.global_variables_initializer()
 

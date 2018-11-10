@@ -10,6 +10,7 @@ from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import FitParameter
 from zfit.pdfs.basic import Gauss
+from zfit.pdfs.dist_tfp import Normal
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
 # limits_simple_5deps = (0.9, 4.7)
@@ -250,11 +251,13 @@ def test_analytic_integral():
     mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
     sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
+    normal_params1 = Normal(mu=mu, sigma=sigma, name="gauss_params1")
     try:
         infinity = mt.inf
     except AttributeError:  # py34
         infinity = float('inf')
     gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity))
+    normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
                                          limits=Range.from_boundaries(*limits3, dims=(0, 1)), dims=None)
@@ -264,6 +267,7 @@ def test_analytic_integral():
         init = tf.global_variables_initializer()
         sess.run(init)
         gauss_integral_infs = sess.run(gauss_integral_infs)
+        normal_integral_infs = sess.run(normal_integral_infs)
         func3_integrated = sess.run(
             tf.convert_to_tensor(
                 dist_func3.integrate(limits=Range.from_boundaries(*limits3, dims=(0, 1))),
@@ -271,6 +275,7 @@ def test_analytic_integral():
         assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
             *limits3, dims=(0, 1)))
         assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
+        assert normal_integral_infs == pytest.approx(1, rel=0.0001)
 
 
 
