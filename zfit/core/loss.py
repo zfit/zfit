@@ -9,7 +9,7 @@ from .limits import convert_to_range, Range
 import zfit.util.checks
 
 
-def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = {}) -> tf.Tensor:
+def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
@@ -25,6 +25,8 @@ def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = {}) -> tf.T
     Raises:
         ValueError: if both `probs` and `log_probs` are specified.
     """
+    if constraints is None:
+        constraints = {}
     if zfit.util.checks.isiterable(pdf):
         if not len(pdf) == len(data) == len(fit_range):  # TODO: pay attention to fit_range, what if just one range?
             raise ValueError("The number of given pdfs, data and fit_ranges do not match.")
@@ -52,36 +54,6 @@ def unbinned_nll(pdf, data, fit_range, constraints: Optional[dict] = {}) -> tf.T
     return nll_finished
 
 
-#
-# def unbinned_nll(probs: tf.Tensor = None, weights: Optional[tf.Tensor] = None, log_probs: Optional[tf.Tensor] = None,
-#                  constraints: Optional[dict] = None) -> tf.Tensor:
-#     """Return unbinned negative log likelihood graph for a PDF
-#
-#     Args:
-#         probs (Tensor): The probabilities
-#         weights (Tensor): Weights of the `probs`
-#         log_probs (Tensor): The logarithmic probabilites
-#         constraints (dict): A dictionary containing the constraints for certain parameters. The key
-#             is the parameter while the value is a pdf with at least a `prob(x)` method.
-#
-#     Returns:
-#         graph: the unbinned nll
-#
-#     Raises:
-#         ValueError: if both `probs` and `log_probs` are specified.
-#     """
-#     if probs is not None and log_probs is not None:
-#         raise ValueError("Cannot specify 'probs' and 'log_probs'")
-#     if probs is not None:
-#         log_probs = tf.log(probs)
-#     if weights is not None:
-#         log_probs += tf.log(weights)
-#
-#     nll = -tf.reduce_sum(log_probs)
-#     if constraints:
-#         constraints_log_prob = tf.reduce_sum([tf.log(dist.prob(param)) for param, dist in constraints.items()])
-#         nll -= constraints_log_prob
-#     return nll
 
 #
 # def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
@@ -135,17 +107,17 @@ class LossInterface(pep487.ABC):
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def pdf(self):
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def data(self):
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def fit_range(self):
         raise NotImplementedError
 
@@ -212,3 +184,17 @@ class BaseLoss(LossInterface):
 
 def errordef_nll(sigma):
     return sigma
+
+class UnbinnedNLL(BaseLoss):
+
+    _name = "unbinned_nll"
+
+    def _eval(self, pdf, data, fit_range, constraints):
+        return unbinned_nll(pdf=pdf, data=data, fit_range=fit_range, constraints=constraints)
+
+    def errordef(self, sigma):
+        return errordef_nll(sigma)
+
+
+
+

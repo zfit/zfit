@@ -11,7 +11,7 @@ from zfit.pdfs.dist_tfp import Normal
 from zfit.pdfs.basic import Gauss
 from zfit.core.parameter import FitParameter
 import zfit.settings
-from zfit.core.loss import unbinned_nll
+from zfit.core.loss import unbinned_nll, UnbinnedNLL
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -35,16 +35,16 @@ gaussian2 = Gauss(mu2, sigma2, name="gaussian2")
 
 init = tf.global_variables_initializer()
 
-
 def test_unbinned_nll():
     with tf.Session() as sess:
         sess.run(init)
         with mu_constr.temp_norm_range((-np.infty, np.infty)):
             with sigma_constr.temp_norm_range((-np.infty, np.infty)):
                 test_values = tf.constant(test_values_np)
-                nll = unbinned_nll(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-                nll_eval = sess.run(nll)
-                minimizer = MinuitMinimizer(loss=nll)
+                # nll = unbinned_nll(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+                nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+                # nll_eval = sess.run(nll)
+                minimizer = MinuitMinimizer(loss=nll_class.eval())
                 status = minimizer.minimize(params=[mu1, sigma1], sess=sess)
                 params = status.get_parameters()
                 # print(params)
@@ -54,10 +54,10 @@ def test_unbinned_nll():
                 # with constraints
                 sess.run(init)
 
-                nll = unbinned_nll(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty), constraints={mu2: mu_constr,
+                nll_class = UnbinnedNLL(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty), constraints={mu2: mu_constr,
                                                                 sigma2: sigma_constr})
 
-                minimizer = MinuitMinimizer(loss=nll)
+                minimizer = MinuitMinimizer(loss=nll_class.eval())
                 status = minimizer.minimize(params=[mu2, sigma2], sess=sess)
                 params = status.get_parameters()
 
