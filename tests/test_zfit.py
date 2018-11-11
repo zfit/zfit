@@ -3,7 +3,7 @@
 
 """Tests for `zfit` package."""
 
-suppress_gpu = True
+suppress_gpu = False
 if suppress_gpu:
     import os
 

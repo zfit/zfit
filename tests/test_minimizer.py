@@ -61,7 +61,7 @@ minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.tr
               # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
               # (zfit.minimize.MinuitTFMinimizer, {}),
               (zfit.minimize.MinuitMinimizer, {}),
-              (zfit.minimize.ScipyMinimizer, {}),
+              # (zfit.minimize.ScipyMinimizer, {}),
               ]
 
 

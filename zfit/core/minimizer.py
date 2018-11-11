@@ -272,6 +272,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             list(`zfit.FitParameters`):
         """
         if not self._params:
+            raise RuntimeError("Currently need to pass explicitely the parameters.")
             self.set_params(params=tf.trainable_variables())
         if isinstance(names, str):
             names = (names,)
