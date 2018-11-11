@@ -24,7 +24,7 @@ class MinimizerInterface(object):
     """Define the minimizer interface."""
 
     @abc.abstractmethod
-    def minimize(self):
+    def minimize(self, params=None, sess=None):
         raise NotImplementedError
 
     def _minimize(self, params):
@@ -41,7 +41,7 @@ class MinimizerInterface(object):
     def fmin(self):
         raise NotImplementedError
 
-    def step(self, params):
+    def step(self, params=None, sess=None):
         raise NotImplementedError
 
     def _step_tf(self, params):
@@ -63,14 +63,14 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def hesse(self, params, sess):
+    def hesse(self, params=None, sess=None):
         raise NotImplementedError
 
     def _hesse(self, params):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def error(self, params, sigma, sess):
+    def error(self, params=None, sigma=1., sess=None):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -78,7 +78,7 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_error_options(self):
+    def set_error_options(self, replace=False, **options):
         raise NotImplementedError
 
 
@@ -88,12 +88,9 @@ def _raises_error_method(*_, **__):
 
 class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
     _DEFAULT_name = "BaseMinimizer"
-    _DEFAULT_tolerance = 1e-8
 
     def __init__(self, loss, params=None, tolerance=None, name=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if tolerance is None:
-            tolerance = self._DEFAULT_tolerance
         if name is None:
             name = self._DEFAULT_name
         self._current_error_method = self._error_methods.get('default', _raises_error_method)
@@ -406,7 +403,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
-            cur_val = self.sess.run(self.loss)  # TODO: improve...
+            cur_val = self.sess.run(self.loss.eval())  # TODO: improve...
         fmin = cur_val
         edm = -999  # TODO: get edm
         status = {}  # TODO: create status

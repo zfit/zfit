@@ -5,10 +5,10 @@ __author__ = """zfit"""
 __email__ = 'zfit@physik.uzh.ch'
 __version__ = '0.0.0'
 
-from . import ztf
-from . import pdf, minimize
+import zfit.ztf
+from . import pdf, minimize, loss
 from .core.parameter import FitParameter
-from .core.loss import unbinned_nll
+from .core.loss import _unbinned_nll_tf
 from .core.limits import Range, convert_to_range, supports
 
 # EOF
