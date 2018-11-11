@@ -8,8 +8,6 @@ Therefore a convenient wrapper as well as a lot of implementations are provided.
 
 import tensorflow_probability as tfp
 
-import tensorflow as tf
-
 from zfit import ztf
 from zfit.core.basepdf import BasePDF
 from zfit.core.limits import no_norm_range, supports
@@ -23,8 +21,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     def __init__(self, distribution, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
-        kwargs.update({k: v for k, v in distribution.parameters.items() if isinstance(v, tf.Variable)})
-        super(WrapDistribution, self).__init__(name=name, **kwargs)
+        super(WrapDistribution, self).__init__(distribution=distribution, name=name, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
         self.tf_distribution = distribution
 
