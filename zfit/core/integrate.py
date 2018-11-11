@@ -76,8 +76,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
 
     lower, upper = limits.get_boundaries()
 
-    lower = tf.convert_to_tensor(lower, dtype=dtype)
-    upper = tf.convert_to_tensor(upper, dtype=dtype)
+    lower = ztf.convert_to_tensor(lower, dtype=dtype)
+    upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
     n_samples = draws_per_dim ** n_dims
     if partial:

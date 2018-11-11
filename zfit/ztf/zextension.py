@@ -53,5 +53,13 @@ def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x
 # random sampling
 
 
+def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
+    return tf.unstack(value=value, num=num, axis=axis, name=name)
+
+
+def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
+    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
+
+
 # reduce functions
 

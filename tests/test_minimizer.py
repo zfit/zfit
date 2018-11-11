@@ -25,7 +25,7 @@ def minimize_func(minimizer_class_and_kwargs, sess):
         c_param = FitParameter("variable_c", 7.8)
 
     def func(a, b, c):
-        return tf.convert_to_tensor((a - true_a) ** 6 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
+        return ztf.convert_to_tensor((a - true_a) ** 6 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
 
     # print("DEBUG": before true_minimum")
 

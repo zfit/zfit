@@ -10,6 +10,9 @@ from zfit.pdfs.dist_tfp import Normal
 from zfit.pdfs.basic import Gauss
 from zfit.core.parameter import FitParameter
 import zfit.settings
+from zfit import ztf
+
+# from zfit.ztf import
 
 mu_true = 1.4
 sigma_true = 1.8
@@ -45,7 +48,7 @@ gaussian_dists = [test_gauss1, gauss_params1]
 def test_func():
     test_values = np.array([3., 11.3, -0.2, -7.82])
     with tf.Session() as sess:
-        test_values_tf = tf.convert_to_tensor(test_values, dtype=zfit.settings.types.float)
+        test_values_tf = ztf.convert_to_tensor(test_values, dtype=zfit.settings.types.float)
 
         for dist in gaussian_dists:
             vals = dist.unnormalized_prob(test_values_tf)

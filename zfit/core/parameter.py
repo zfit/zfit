@@ -10,7 +10,8 @@ from zfit.util import ztyping
 
 try:
     # from tensorflow.python.ops.variables import
-    from tensorflow.python.ops.variables import VariableV1
+    # from tensorflow.python.ops.variables import VariableV1
+    from tensorflow.python.ops.resource_variable_ops import ResourceVariable as VariableV1
 except ImportError:
     from tensorflow import Variable as VariableV1
 
@@ -93,7 +94,7 @@ class FitParameter(VariableV1):
         if value != self.prev_value:
             if isinstance(value, tf.Tensor):
                 # session.run(self.assign(value))
-                assign_op = self.assign(tf.convert_to_tensor(value))
+                assign_op = self.assign(ztf.convert_to_tensor(value))
                 # session.run(assign_op)
             else:
                 session.run(self.update_op, {self.placeholder: value})

@@ -4,6 +4,7 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
+from zfit import ztf
 from zfit.core import basepdf as zbasepdf
 import zfit.core.integrate as zintegrate
 from zfit.core.limits import Range
@@ -214,12 +215,12 @@ def test_mc_integration():
 
 
 def test_mc_partial_integration():
-    num_integral = zintegrate.mc_integrate(x=tf.convert_to_tensor(func4_values),
+    num_integral = zintegrate.mc_integrate(x=ztf.convert_to_tensor(func4_values),
                                            func=func4_3deps,
                                            limits=Range.from_boundaries(*limits4_2dim,
                                                                         dims=(0, 2)),
                                            draws_per_dim=70)
-    vals_tensor = tf.convert_to_tensor(func4_2values)
+    vals_tensor = ztf.convert_to_tensor(func4_2values)
     vals_reshaped = tf.transpose(vals_tensor)
     num_integral2 = zintegrate.mc_integrate(x=vals_reshaped,
                                             func=func4_3deps,
@@ -269,7 +270,7 @@ def test_analytic_integral():
         gauss_integral_infs = sess.run(gauss_integral_infs)
         normal_integral_infs = sess.run(normal_integral_infs)
         func3_integrated = sess.run(
-            tf.convert_to_tensor(
+            ztf.convert_to_tensor(
                 dist_func3.integrate(limits=Range.from_boundaries(*limits3, dims=(0, 1))),
                 dtype=tf.float64))
         assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
