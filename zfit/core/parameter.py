@@ -22,7 +22,7 @@ class FitParameter(VariableV1):
       Class for fit parameters, derived from TF Variable class.
     """
 
-    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None):
+    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True):
         """
           Constructor.
             name : name of the parameter,
@@ -38,7 +38,7 @@ class FitParameter(VariableV1):
         super().__init__(init_value, dtype=ztypes.float, name=name,
                          # use_resource=True  # TODO: only 1.11+
                          )
-        self.floating = None
+        self.floating = floating
         self.init_value = init_value
         # self.par_name = name
         self._step_size = None
@@ -50,14 +50,16 @@ class FitParameter(VariableV1):
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
         self.placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
-        self.update_op = self.assign(self.placeholder)  # for performance! Run with sess.run
+        self._update_op = self.assign(self.placeholder)  # for performance! Run with sess.run
         self.prev_value = None
         self.error = 0.
         self.positive_error = 0.
         self.negative_error = 0.
         self.fitted_value = 0.
 
-    #    print "new fit parameter %s" % name
+    @property
+    def update_op(self):
+        return self._update_op
 
     @property
     def step_size(self):  # TODO: improve default step_size?
@@ -66,14 +68,14 @@ class FitParameter(VariableV1):
             # auto-infer from limits
             step_splits = 1e4
             # step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
-            step_size = 0.0001
+            step_size = 0.001
             if step_size == np.nan:
                 if self.lower_limit == -np.infty or self.upper_limit == np.infty:
                     step_size = 0.0001
                 else:
                     raise ValueError("Could not set step size. Is NaN.")
             # TODO: how to deal with infinities?
-        step_size = ztf.to_float(step_size)
+        step_size = ztf.to_real(step_size)
 
         return step_size
 
@@ -133,15 +135,9 @@ def convert_to_parameter(value) -> "Parameter":
             value = ztf.to_complex(value)
             raise ValueError("Complex parameters not yet implemented")  # TODO: complex parameters
         else:
-            value = ztf.to_float(value)
+            value = ztf.to_real(value)
 
     # TODO: check if Tensor is complex
     value = FitParameter("FIXED_autoparam", init_value=value)
     value.floating = False
     return value
-
-
-
-
-
-

@@ -47,7 +47,7 @@ def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
         else:
             n_to_produce = n_draws - tf.shape(sample, out_type=tf.int64)[1]
         # TODO: add efficiency cap for memory efficiency (prevent too many samples at once produced)
-        n_to_produce = tf.to_int64(ztf.to_float(n_to_produce) / eff * 0.99) + 100  # just to make sure
+        n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 0.99) + 100  # just to make sure
         n_total_drawn += n_to_produce
         n_total_drawn = tf.to_int64(n_total_drawn)
 
@@ -70,7 +70,7 @@ def accept_reject_sample(prob: typing.Callable, n_draws: int, limits: Range,
             sample = tf.concat([sample, filtered_sample], axis=1)
 
         # efficiency (estimate) of how many samples we get
-        eff = ztf.to_float(tf.shape(sample, out_type=tf.int64)[1]) / ztf.to_float(n_total_drawn)
+        eff = ztf.to_real(tf.shape(sample, out_type=tf.int64)[1]) / ztf.to_real(n_total_drawn)
         return n_draws, sample, n_total_drawn, eff
 
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt

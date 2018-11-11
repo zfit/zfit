@@ -1,4 +1,5 @@
 # from .minimizers.optimizers_tf import RMSPropMinimizer, GradientDescentMinimizer, AdagradMinimizer, AdadeltaMinimizer,
+import zfit.ztf.wrapping_tf
 from .minimizers.optimizers_tf import AdamMinimizer
 from .minimizers.minimizer_minuit import MinuitMinimizer
 from .minimizers.minimizers_scipy import ScipyMinimizer
@@ -61,7 +62,7 @@ if __name__ == '__main__':
             # high_dim_func = ztf.sqrt(high_dim_func + 100.4)
             # high_dim_func = ztf.sqrt(high_dim_func + 100.4)
             # high_dim_func = ztf.sqrt(high_dim_func + 100.4)
-            return ztf.reduce_sum(ztf.log(high_dim_func))
+            return ztf.reduce_sum(zfit.ztf.wrapping_tf.log(high_dim_func))
 
 
         # a = ztf.constant(9.0, dtype=ztf.float64)

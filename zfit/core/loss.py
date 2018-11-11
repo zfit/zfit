@@ -5,17 +5,20 @@ import tensorflow as tf
 from typing import Optional
 
 import zfit
+from zfit import ztf
+import zfit.util.container
+from zfit.util.container import convert_to_container, is_container
+
 from .limits import convert_to_range, Range
 import zfit.util.checks
 
 
-def unbinned_nll_graph(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
+def _unbinned_nll_tf(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
         fit_range ():
         pdf (Tensor): The probabilities
-        data (Tensor): Weights of the `probs`
         constraints (dict): A dictionary containing the constraints for certain parameters. The key
             is the parameter while the value is a pdf with at least a `prob(x)` method.
 
@@ -25,18 +28,11 @@ def unbinned_nll_graph(pdf, data, fit_range, constraints: Optional[dict] = None)
     Raises:
         ValueError: if both `probs` and `log_probs` are specified.
     """
-    if constraints is None:
-        constraints = {}
-    if zfit.util.checks.isiterable(pdf):
-        if not len(pdf) == len(data) == len(fit_range):  # TODO: pay attention to fit_range, what if just one range?
-            raise ValueError("The number of given pdfs, data and fit_ranges do not match.")
-        else:
-            if not isinstance(fit_range[0], Range):
-                raise ValueError("If several pdfs are given, the ranges in `fit_range` have to be a "
-                                 "`Range` and not just tuples (because of disambiguity).")
-            nlls = [unbinned_nll_graph(pdf=p, data=d, fit_range=r, constraints=constraints)
-                    for p, d, r in zip(pdf, data, fit_range)]
-            nll_finished = tf.reduce_sum(nlls)
+
+    if is_container(pdf):
+        nlls = [_unbinned_nll_tf(pdf=p, data=d, fit_range=r)
+                for p, d, r in zip(pdf, data, fit_range)]
+        nll_finished = tf.reduce_sum(nlls)
     else:  # TODO: complicated limits?
         fit_range = convert_to_range(fit_range, dims=Range.FULL)
         limits = fit_range.get_boundaries()
@@ -47,11 +43,19 @@ def unbinned_nll_graph(pdf, data, fit_range, constraints: Optional[dict] = None)
         data = tf.boolean_mask(tensor=data, mask=in_limits)
         log_probs = tf.log(pdf.prob(data, norm_range=fit_range))
         nll = -tf.reduce_sum(log_probs)
-        if constraints:
-            constraints_log_prob = tf.reduce_sum([tf.log(dist.prob(param)) for param, dist in constraints.items()])
-            nll -= constraints_log_prob
         nll_finished = nll
     return nll_finished
+
+
+def _nll_constraints_tf(constraints):
+    if not constraints:
+        return ztf.constant(0.)  # adding 0 to nll
+    probs = []
+    for param, dist in constraints.items():
+        probs.append(dist.prob(param))
+    # probs = [dist.prob(param) for param, dist in constraints.items()]
+    constraints_neg_log_prob = -tf.reduce_sum(tf.log(probs))
+    return constraints_neg_log_prob
 
 
 #
@@ -98,7 +102,7 @@ class LossInterface(pep487.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_constraint(self, constraint):
+    def add_constraints(self, constraints):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -132,23 +136,47 @@ class BaseLoss(LossInterface):
         self._pdf = pdf
         self._data = data
         self._fit_range = fit_range
-        self._constraints = constraints
+        self._constraints = constraints.copy()
 
     def __init_subclass__(cls, **kwargs):
         cls._name = "UnnamedSubBaseLoss"
 
     def _input_check(self, pdf, data, fit_range):
-        # TODO
+        if (is_container(pdf) ^ is_container(data)):
+            raise ValueError("`pdf` and `data` either both have to be a list or not.")
+
+        # simultaneous fit
+        if is_container(pdf):
+            if not is_container(fit_range) or not isinstance(fit_range[0], Range):
+                raise ValueError("If several pdfs are specified, the `fit_range` has to be given as a list of `Range` "
+                                 "objects and not as pure tuples.")
+            if not len(pdf) == len(data) == len(fit_range):
+                raise ValueError("pdf, data and fit_range don't have the same number of components:"
+                                 "\npdfs: {}"
+                                 "\ndata: {}"
+                                 "\nfit_range: {}".format(pdf, data, fit_range))
+
+        else:
+            fit_range = convert_to_range(fit_range,
+                                         dims=Range.FULL)  # fit_range may be a tuple and therefore is a container
+            # already!
+
+        # convert everything to containers
+        pdf, data, fit_range = (convert_to_container(obj) for obj in (pdf, data, fit_range))
+        # sanitize fit_range
+        fit_range = [convert_to_range(range_, dims=Range.FULL) for range_ in fit_range]
+        # TODO: sanitize pdf, data?
+
         return pdf, data, fit_range
 
-    def add_constraint(self, constraint):
-        if not isinstance(constraint, dict):
-            raise TypeError("`constraint` has to be a dict, is currently {}".format(type(constraint)))
-        overwritting_keys = set(constraint).intersection(self._constraints)
+    def add_constraints(self, constraints):
+        if not isinstance(constraints, dict):
+            raise TypeError("`constraint` has to be a dict, is currently {}".format(type(constraints)))
+        overwritting_keys = set(constraints).intersection(self._constraints)
         if overwritting_keys:
             raise ValueError("Cannot change existing constraints but only add (currently). Constrain for "
                              "parameter(s) {} already there.".format(overwritting_keys))
-        self._constraints.update(constraint)
+        self._constraints.update(constraints)
 
     @property
     def name(self):
@@ -165,7 +193,6 @@ class BaseLoss(LossInterface):
     @property
     def fit_range(self):
         fit_range = self._fit_range
-        # fit_range = convert_to_range(self._fit_range)
         return fit_range
 
     @property
@@ -182,12 +209,27 @@ class BaseLoss(LossInterface):
         except NotImplementedError:
             raise NotImplementedError("_loss_func not defined!")
 
+    def __add__(self, other):
+        if not isinstance(other, BaseLoss):
+            raise TypeError("Has to be a subclass of `BaseLoss` or overwrite `__add__`.")
+        if not type(other) == type(self):
+            raise ValueError("cannot safely add two different kind of loss.")
+        pdf = self.pdf + other.pdf
+        data = self.data + other.data
+        fit_range = self.fit_range + other.fit_range
+        loss = type(self)(pdf=pdf, data=data, fit_range=fit_range, constraints=self.constraints)
+        loss.add_constraints(constraints=other.constraints)
+        return loss
+
 
 class UnbinnedNLL(BaseLoss):
     _name = "UnbinnedNLL"
 
     def _loss_func(self, pdf, data, fit_range, constraints):
-        return unbinned_nll_graph(pdf=pdf, data=data, fit_range=fit_range, constraints=constraints)
+        nll = _unbinned_nll_tf(pdf=pdf, data=data, fit_range=fit_range)
+        constraints = _nll_constraints_tf(constraints=constraints)
+        nll_constr = nll + constraints
+        return nll_constr
 
     def errordef(self, sigma):
         return sigma

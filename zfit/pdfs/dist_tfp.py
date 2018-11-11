@@ -32,8 +32,8 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     @supports()
     def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits.get_boundaries()
-        lower = ztf.to_float(lower[0])
-        upper = ztf.to_float(upper[0])
+        lower = ztf.to_real(lower[0])
+        upper = ztf.to_real(upper[0])
         integral = self.tf_distribution.cdf(upper) - self.tf_distribution.cdf(lower)
         return integral
 
