@@ -34,7 +34,7 @@ with tf.Session() as sess:
 
     gauss_dists = [gauss1, gauss2, gauss3]
 
-    sum_gauss = SumPDF(pdfs=gauss_dists, frac=[0.3, 0.2])
+    sum_gauss = SumPDF(pdfs=gauss_dists, fracs=[0.3, 0.2])
     prod_gauss = ProductPDF(pdfs=gauss_dists)
 
     init = tf.global_variables_initializer()

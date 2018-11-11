@@ -6,7 +6,9 @@ A FunctorBase class is provided to make handling the pdfs easier.
 Their implementation is often non-trivial.
 """
 import tensorflow as tf
+from zfit import ztf
 from zfit.core.limits import no_norm_range, supports
+from zfit.util import ztyping
 
 from zfit.util.exception import ExtendedPDFError
 from zfit.core.basepdf import BasePDF
@@ -26,12 +28,12 @@ class BaseFunctor(BasePDF):
 
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs, frac=None, name="SumPDF"):
+    def __init__(self, pdfs, fracs=None, name="SumPDF"):
         """
 
         Args:
             pdfs (zfit pdf): The basic to multiply with each other
-            frac (iterable): coefficients for the multiplication. If a scale is set, None
+            fracs (iterable): coefficients for the multiplication. If a scale is set, None
                 will take the scale automatically. If the scale is not set, then:
 
                   - len(frac) = len(basic) - 1 results in the interpretation of a pdf. The last
@@ -53,48 +55,64 @@ class SumPDF(BaseFunctor):
                                    "are extended \n{}\nBut gives were \n{}"
                                    "".format(extended_pdfs, pdfs))
         if all_extended:
-            if frac is not None:
+            if fracs is not None:
                 raise ValueError("frac is given ({}) but all basic are already extended. Either"
-                                 "use non-extended basic or give None as frac.".format(frac))
+                                 "use non-extended basic or give None as frac.".format(fracs))
             yields = tf.stack([pdf.get_yield() for pdf in pdfs])
-            frac = yields / tf.reduce_sum(yields)
+            # fracs = yields / tf.reduce_sum(yields)
+            fracs = [ztf.constant(1.)] * len(pdfs)
         else:
             # check fraction  # TODO make more flexible, allow for Tensors and unstack
-            if not len(frac) in (len(pdfs), len(pdfs) - 1):
+            if not len(fracs) in (len(pdfs), len(pdfs) - 1):
                 raise ValueError("frac has to be number of basic given or number of basic given"
                                  "minus one. Currently, frac is {} and basic given are {}"
-                                 "".format(frac, pdfs))
+                                 "".format(fracs, pdfs))
 
-            if len(frac) == len(pdfs) - 1:
-                frac = list(frac) + [tf.constant(1., dtype=ztypes.float) - sum(frac)]
+            if len(fracs) == len(pdfs) - 1:
+                fracs = list(fracs) + [tf.constant(1., dtype=ztypes.float) - sum(fracs)]
+            else:
+                for frac, pdf in zip(fracs, pdfs):
+                    pdfs.set_yield(frac)
+                fracs = [ztf.constant(1.)] * len(fracs)  # or just None?
 
-        super().__init__(pdfs=pdfs, frac=frac, name=name)
+        super().__init__(pdfs=pdfs, fracs=fracs, name=name)
         if all_extended:
             self.set_yield(tf.reduce_sum(yields))
 
     def _unnormalized_prob(self, x):
         # TODO: deal with yields
         pdfs = self.pdfs
-        frac = self.parameters['frac']
+        fracs = self.parameters['fracs']
         func = tf.accumulate_n(
-            [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(frac))])
+            [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(fracs))])
         return func
 
-    @supports()
-    def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
+    def _prob(self, x, norm_range):
         pdfs = self.pdfs
-        frac = self.parameters['frac']
-        try:
-            integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
-        except NotImplementedError as original_error:
-            raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
-                                      " SumPDF, as at least one sub-pdf does not implement it."
-                                      "Original message:\n{error}".format(name=self.name,
-                                                                          error=original_error))
+        fracs = self.parameters['fracs']
+        probs = tf.accumulate_n([pdf.prob(x, norm_range=norm_range)*frac for frac, pdf in zip(tf.unstack(fracs), pdfs)])
+        return probs
 
-        integral = [integral * s for pdf, s in zip(integral, frac)]
-        integral = tf.reduce_sum(integral)  # TODO: deal with yields
-        return integral
+    def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
+        return value
+    #
+    # @supports()
+    # def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
+    #     pdfs = self.pdfs
+    #     frac = self.parameters['frac']
+    #     try:
+    #         integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
+    #     except NotImplementedError as original_error:
+    #         raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
+    #                                   " SumPDF, as at least one sub-pdf does not implement it."
+    #                                   "Original message:\n{error}".format(name=self.name,
+    #                                                                       error=original_error))
+    #
+    #     integral = [integral * s for pdf, s in zip(integral, frac)]
+    #     integral = tf.reduce_sum(integral)  # TODO: deal with yields
+    #     return integral
+    # def _integrate(self, limits, norm_range):
+
 
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
