@@ -65,10 +65,11 @@ import pep487
 from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple_limits, supports
 from zfit.util import ztyping
 from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, BasePDFSubclassingError
+import zfit.ztf.wrapping_tf
 from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
-from .parameter import FitParameter
+from .parameter import FitParameter, convert_to_parameter
 from ..util import exception as zexception
 from ..util import container as zcontainer
 from zfit import ztf
@@ -130,7 +131,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         self._reparameterization_type = reparameterization_type
         self._allow_nan_stats = allow_nan_stats
         self._validate_args = validate_args
-        self._parameters = parameters or {}
+        parameters = parameters or OrderedDict()
+        self._parameters = OrderedDict((n, convert_to_parameter(p)) for n, p in parameters.items())
         self._graph_parents = [] if graph_parents is None else graph_parents
         self._name = name
 
@@ -225,7 +227,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
                 raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
                                  "".format(self._norm_range.n_dims, self.n_dims))
         else:
-            self.n_dims = norm_range.n_dims
+            self.n_dims = self.norm_range.n_dims
         try:
             yield self.norm_range  # or None, not needed
         finally:
@@ -394,7 +396,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_unnormalized_prob(self, x, name):
         with self._name_scope(name, values=[x]):
-            x = ztf.convert_to_tensor(x, dtype=ztypes.float, name="x")
+            x = ztf.convert_to_tensor(x, name="x")
+
             try:
                 return self._unnormalized_prob(x)
             except NotImplementedError as error:
@@ -437,7 +440,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_prob(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
-            x = ztf.convert_to_tensor(x, dtype=ztypes.float, name="x")
+
+            x = ztf.convert_to_tensor(x, name="x")
+
             with suppress(NotImplementedError):
                 return self._prob(x, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -485,7 +490,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_log_prob(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
-            x = ztf.convert_to_tensor(x, dtype=ztypes.float, name="x")
+            x = ztf.convert_to_tensor(x, name="x")
+
             with suppress(NotImplementedError):
                 return self._log_prob(x=x, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -832,7 +838,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_partial_integrate(self, x, limits, norm_range, name):
         with self._name_scope(name, values=[x, limits, norm_range]):
-            x = ztf.convert_to_tensor(x, dtype=ztypes.float, name="x")
+            x = ztf.convert_to_tensor(x, name="x")
+
 
             with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, norm_range=norm_range)
@@ -942,7 +949,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_partial_analytic_integrate(self, x, limits, norm_range, name):
         with self._name_scope(name, values=[x, limits, norm_range]):
-            x = ztf.convert_to_tensor(x, dtype=ztypes.float, name="x")
+            x = ztf.convert_to_tensor(x, name="x")
+
 
             with suppress(NotImplementedError):
                 return self._partial_analytic_integrate(x=x, limits=limits,
@@ -1012,7 +1020,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_partial_numeric_integrate(self, x, limits, norm_range, name):
         with self._name_scope(name, values=[x, limits, norm_range]):
-            x = ztf.convert_to_tensor(x, dtype=ztypes.float, name="x")
+            x = ztf.convert_to_tensor(x, name="x")
+
 
             with suppress(NotImplementedError):
                 return self._partial_numeric_integrate(x=x, limits=limits,
@@ -1074,7 +1083,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_sample(self, n_draws, limits, name):
         with self._name_scope(name, values=[n_draws, limits]):
-            n_draws = ztf.convert_to_tensor(n_draws, name="n_draws")
+            n_draws = ztf.convert_to_tensor(n_draws, dtype=ztypes.int, name="n_draws")
+
 
             with suppress(NotImplementedError):
                 return self._sample(n_draws=n_draws, limits=limits)
@@ -1103,8 +1113,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             except NotImplementedError:
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                           "implemented for the boundaries:".format(limits.get_boundaries()))
-            prob_sample = ztf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim,
-                                             maxval=upper_prob_lim)
+            prob_sample = zfit.ztf.wrapping_tf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim,
+                                                              maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)
             return sample
 

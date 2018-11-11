@@ -4,15 +4,18 @@ from zfit.core.minimizer import BaseMinimizer
 
 
 class WrapOptimizer(BaseMinimizer):
-    def __init__(self, optimizer, *args, **kwargs):
+    def __init__(self, optimizer, tolerance=None, *args, **kwargs):
+        if tolerance is None:
+            tolerance = 1e-8
         if not isinstance(optimizer, tf.train.Optimizer):
             raise TypeError("optimizer {} has to be from class Optimizer".format(str(optimizer)))
         # TODO auto-initialize variables?
-        super().__init__(*args, **kwargs)
+        super().__init__(tolerance=tolerance, *args, **kwargs)
         self._optimizer_tf = optimizer
 
     def _step_tf(self, params):
         loss = self.loss
+        loss = loss.eval()
         # var_list = self.get_parameters()
         var_list = params
         minimization_step = self._optimizer_tf.minimize(loss=loss, var_list=var_list)

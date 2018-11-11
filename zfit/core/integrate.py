@@ -115,7 +115,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
     # TODO: importance sampling?
     # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     integral = avg * limits.area()
-    return ztf.to_float(integral, dtype=dtype)
+    return ztf.to_real(integral, dtype=dtype)
 
 
 class AnalyticIntegral(object):

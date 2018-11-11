@@ -24,6 +24,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         # Check if subclass of distribution?
         name = name or distribution.name
         kwargs.update({k: v for k, v in distribution.parameters.items() if isinstance(v, tf.Variable)})
+
         super(WrapDistribution, self).__init__(name=name, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
         self.tf_distribution = distribution
@@ -35,13 +36,13 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     @supports()
     def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits.get_boundaries()
-        upper = ztf.to_float(upper)
-        lower = ztf.to_float(lower)
+        lower = ztf.to_real(lower[0])
+        upper = ztf.to_real(upper[0])
         integral = self.tf_distribution.cdf(upper) - self.tf_distribution.cdf(lower)
         return integral
 
 
 class Normal(WrapDistribution):
-    def __init__(self, loc, scale, name="Normal"):
-        distribution = tfp.distributions.Normal(loc=loc, scale=scale, name=name + "_tf")
+    def __init__(self, mu, sigma, name="Normal"):
+        distribution = tfp.distributions.Normal(loc=mu, scale=sigma, name=name + "_tf")
         super().__init__(distribution=distribution, name=name)

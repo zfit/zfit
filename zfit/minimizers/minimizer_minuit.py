@@ -15,7 +15,7 @@ class MinuitMinimizer(BaseMinimizer):
         super().__init__(*args, **kwargs)
 
     def _minimize(self, params):
-        loss = self.loss
+        loss = self.loss.eval()
         # params = self.get_parameters()
         gradients = tf.gradients(loss, params)
         updated_params = self._extract_update_op(params)
@@ -26,14 +26,16 @@ class MinuitMinimizer(BaseMinimizer):
 
             feed_dict = {p: v for p, v in zip(placeholders, values)}
             self.sess.run(updated_params, feed_dict=feed_dict)
-            loss_new = loss
+            loss_new = tf.identity(loss)
             loss_evaluated = self.sess.run(loss_new)
+            # print("Current loss:", loss_evaluated)
+            # print("Current values:", values)
             return loss_evaluated
 
         def grad_func(values):
             feed_dict = {p: v for p, v in zip(placeholders, values)}
             self.sess.run(updated_params, feed_dict=feed_dict)
-            gradients1 = gradients
+            gradients1 = tf.identity(gradients)
             gradients_values = self.sess.run(gradients1)
             return gradients_values
 
