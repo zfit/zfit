@@ -59,8 +59,8 @@ class SumPDF(BaseFunctor):
                 raise ValueError("frac is given ({}) but all basic are already extended. Either"
                                  "use non-extended basic or give None as frac.".format(fracs))
             yields = tf.stack([pdf.get_yield() for pdf in pdfs])
-            # fracs = yields / tf.reduce_sum(yields)
-            fracs = [ztf.constant(1.)] * len(pdfs)
+            fracs = yields / tf.reduce_sum(yields)
+            # fracs = [ztf.constant(1.)] * len(pdfs)
         else:
             # check fraction  # TODO make more flexible, allow for Tensors and unstack
             if not len(fracs) in (len(pdfs), len(pdfs) - 1):
@@ -72,9 +72,10 @@ class SumPDF(BaseFunctor):
                 fracs = list(fracs) + [tf.constant(1., dtype=ztypes.float) - sum(fracs)]
             else:
                 for frac, pdf in zip(fracs, pdfs):
-                    pdfs.set_yield(frac)
-                fracs = [ztf.constant(1.)] * len(fracs)  # or just None?
-
+                    pdfs.set_yield(tf.identity(frac))
+                yields = tf.identity(fracs)
+                fracs = fracs / tf.reduce_sum(fracs)
+                all_extended = True
         super().__init__(pdfs=pdfs, fracs=fracs, name=name)
         if all_extended:
             self.set_yield(tf.reduce_sum(yields))
@@ -90,11 +91,17 @@ class SumPDF(BaseFunctor):
     def _prob(self, x, norm_range):
         pdfs = self.pdfs
         fracs = self.parameters['fracs']
-        probs = tf.accumulate_n([pdf.prob(x, norm_range=norm_range)*frac for frac, pdf in zip(tf.unstack(fracs), pdfs)])
-        return probs
+        probs = []
+        for frac, pdf in zip(tf.unstack(fracs), pdfs):
+            prob_pdf = pdf.prob(x, norm_range=norm_range) * frac
+            if pdf.is_extended:
+                prob_pdf / pdf.get_yield()
+            probs.append(prob_pdf)
+        prob = tf.accumulate_n(probs)
+        return prob
 
-    def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
-        return value
+    # def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
+    #     return value
     #
     # @supports()
     # def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
