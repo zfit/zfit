@@ -11,7 +11,7 @@ def minimize_func(minimizer_class_and_kwargs, sess):
     from zfit.core.parameter import FitParameter
 
     parameter_tolerance = 0.3
-    max_distance_to_min = 0.1
+    max_distance_to_min = 0.11
 
     with tf.variable_scope("func1"):
         true_a = 1.

@@ -27,8 +27,8 @@ sigma2 = FitParameter("sigma2", ztf.to_float(sigma_true) - 0.3, sigma_true - 2.,
 # HACK
 # Gauss = Normal
 # HACK END
-mu_constr = Gauss(ztf.to_float(1.6), ztf.to_float(0.2), name="mu_constr")
-sigma_constr = Gauss(ztf.to_float(3.8), ztf.to_float(0.2), name="sigma_constr")
+mu_constr = Gauss(1.6, 0.2, name="mu_constr")
+sigma_constr = Gauss(3.8, 0.2, name="sigma_constr")
 
 gaussian1 = Gauss(mu1, sigma1, name="gaussian1")
 gaussian2 = Gauss(mu2, sigma2, name="gaussian2")

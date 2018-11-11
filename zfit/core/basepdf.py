@@ -68,7 +68,7 @@ from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotI
 from ..settings import types as ztypes
 from . import integrate as zintegrate
 from . import sample as zsample
-from .parameter import FitParameter
+from .parameter import FitParameter, convert_to_parameter
 from ..util import exception as zexception
 from ..util import container as zcontainer
 from zfit import ztf
@@ -130,7 +130,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         self._reparameterization_type = reparameterization_type
         self._allow_nan_stats = allow_nan_stats
         self._validate_args = validate_args
-        self._parameters = parameters or {}
+        parameters = parameters or OrderedDict()
+        self._parameters = OrderedDict((n, convert_to_parameter(p)) for n, p in parameters.items())
         self._graph_parents = [] if graph_parents is None else graph_parents
         self._name = name
 

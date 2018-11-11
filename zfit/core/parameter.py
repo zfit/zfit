@@ -6,6 +6,7 @@ import tensorflow.contrib.eager as tfe
 
 # TF backwards compatibility
 from zfit import ztf
+from zfit.util import ztyping
 
 try:
     # from tensorflow.python.ops.variables import
@@ -115,3 +116,32 @@ class FitParameter(VariableV1):
         val = np.random.uniform(maxval, minval)
         self.init_value = val
         self.update(session, val)
+
+
+def convert_to_parameter(value) -> "Parameter":
+    """Convert a *numerical* to a fixed parameter or return if already a parameter.
+
+    Args:
+        value ():
+    """
+    if isinstance(value, tf.Variable):
+        return value
+
+    # convert to Tensor if not yet
+    if not isinstance(value, tf.Tensor):
+        if isinstance(value, complex):
+            value = ztf.to_complex(value)
+            raise ValueError("Complex parameters not yet implemented")  # TODO: complex parameters
+        else:
+            value = ztf.to_float(value)
+
+    # TODO: check if Tensor is complex
+    value = FitParameter("FIXED_autoparam", init_value=value)
+    value.floating = False
+    return value
+
+
+
+
+
+

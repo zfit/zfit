@@ -21,7 +21,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     def __init__(self, distribution, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
-        super(WrapDistribution, self).__init__(distribution=distribution, name=name, **kwargs)
+        super(WrapDistribution, self).__init__(name=name, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
         self.tf_distribution = distribution
 
