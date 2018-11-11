@@ -10,7 +10,8 @@ from zfit import ztf
 
 try:
     # from tensorflow.python.ops.variables import
-    from tensorflow.python.ops.variables import VariableV1
+    # from tensorflow.python.ops.variables import VariableV1
+    from tensorflow.python.ops.resource_variable_ops import ResourceVariable as VariableV1
 except ImportError:
     from tensorflow import Variable as VariableV1
 
