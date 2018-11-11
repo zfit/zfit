@@ -1,4 +1,3 @@
-
 import pytest
 import tensorflow as tf
 import numpy as np
@@ -13,6 +12,7 @@ import zfit.settings
 from zfit import ztf
 
 # from zfit.ztf import
+test_values = np.array([3., 11.3, -0.2, -7.82])
 
 mu_true = 1.4
 sigma_true = 1.8
@@ -28,14 +28,27 @@ class TestGaussian(zfit.core.basepdf.BasePDF):
         return tf.exp((-(x - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
 
 
-def true_gaussian_func(x):
+def true_gaussian_unnorm_func(x):
     return np.exp(- (x - mu_true) ** 2 / (2 * sigma_true ** 2))
+
+
+def true_gaussian_grad(x):
+    grad_mu = -0.199471140200716 * (2 * mu_true - 2 * x) * np.exp(
+        -(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 3
+    grad_sigma = -0.398942280401433 * np.exp(
+        -(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 2 + 0.398942280401433 * (
+                     -mu_true + x) ** 2 * np.exp(-(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 4
+    return np.array((grad_mu, grad_sigma)).transpose()
 
 
 mu2 = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
 sigma2 = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+mu3 = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+sigma3 = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
 wrapped_gauss = zfit.pdfs.dist_tfp.WrapDistribution(tf_gauss1)
+
+gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3)
 
 test_gauss1 = TestGaussian(name="test_gauss1")
 wrapped_normal1 = Normal(loc=mu2, scale=sigma2, name='wrapped_normal1')
@@ -43,6 +56,16 @@ wrapped_normal1 = Normal(loc=mu2, scale=sigma2, name='wrapped_normal1')
 init = tf.global_variables_initializer()
 
 gaussian_dists = [test_gauss1, gauss_params1]
+
+
+def test_gradient():
+    random_vals = np.random.normal(2., 4., size=5)
+    random_vals = np.array([1, 4])
+    with tf.Session() as sess:
+        sess.run(init)
+        tensor_grad = gauss3.gradient(x=random_vals, norm_range=(-np.infty, np.infty))
+        random_vals_eval = sess.run(tensor_grad)
+        assert random_vals_eval == pytest.approx(true_gaussian_grad(random_vals), rel=1e-6)
 
 
 def test_func():
@@ -54,7 +77,7 @@ def test_func():
             vals = dist.unnormalized_prob(test_values_tf)
             sess.run(init)
             vals = sess.run(vals)
-            np.testing.assert_almost_equal(vals, true_gaussian_func(test_values),
+            np.testing.assert_almost_equal(vals, true_gaussian_unnorm_func(test_values),
                                            err_msg="assert_almost_equal failed for ".format(
                                                dist.name))
 
@@ -103,14 +126,14 @@ def test_sampling():
         assert mu_sampled == pytest.approx(mu_true, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
-def test_analytic_sampling():
 
+def test_analytic_sampling():
     class SampleGauss(TestGaussian):
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.get_boundaries()[1][0][0],
                                            limits=(-float("inf"), None), dims=(0,))  # DUMMY!
-    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x+1000.)
+    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     gauss1 = SampleGauss()
     sample = gauss1.sample(n_draws=10000, limits=(2., 5.))
@@ -135,9 +158,6 @@ def test_multiple_limits():
 
         integral_simp, integral_mult = sess.run([integral_simp, integral_mult])
         assert integral_simp == pytest.approx(integral_mult, rel=1e-3)  # big tolerance as mc is used
-
-
-
 
 
 def test_copy():

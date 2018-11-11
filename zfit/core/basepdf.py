@@ -197,12 +197,22 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         # Remove "self", "__class__", or other special variables. These can appear
         # if the subclass used:
         # `parameters = dict(locals())`.
-        return dict((k, v) for k, v in self._parameters.items()
-                    if not k.startswith("__") and k != "self")
+        return OrderedDict((k, v) for k, v in self._parameters.items()
+                           if not k.startswith("__") and k != "self")
+
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsType = None):
+        warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
+                      "respect to the loss function.")
+        if params is None:
+            params = list(self.parameters.values())
+
+        probs = self.prob(x, norm_range=norm_range)
+
+        gradients = [tf.gradients(prob, params) for prob in tf.unstack(probs)]
+        return tf.stack(gradients)
 
     @contextlib.contextmanager
-    def temp_norm_range(self, norm_range: ztyping.LimitsType) -> Union[
-        'Range', None]:  # TODO: rename to better expression
+    def temp_norm_range(self, norm_range: ztyping.LimitsType) -> Union['Range', None]:  # TODO: rename, better?
         """Temporarily set a normalization range for the pdf.
 
         Args:
