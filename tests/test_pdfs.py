@@ -19,25 +19,31 @@ def true_gaussian_sum(x):
     return sum_gauss
 
 
-with tf.Session() as sess:
+# @pytest.fixture()
+def sum_prod_gauss():
     mu1 = FitParameter("mu1", 1.)
     mu2 = FitParameter("mu2", 2.)
     mu3 = FitParameter("mu3", 3.)
     sigma1 = FitParameter("sigma1", 11.)
     sigma2 = FitParameter("sigma2", 22.)
     sigma3 = FitParameter("sigma3", 33.)
-
     gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss3")
-
     gauss_dists = [gauss1, gauss2, gauss3]
-
     sum_gauss = SumPDF(pdfs=gauss_dists, fracs=[0.3, 0.2])
     prod_gauss = ProductPDF(pdfs=gauss_dists)
+    return sum_gauss, prod_gauss
 
-    init = tf.global_variables_initializer()
-    sess.run(init)
+
+sum_gauss, prod_gauss = sum_prod_gauss()
+
+
+# with tf.Session() as sess:
+
+
+# init = tf.global_variables_initializer()
+# sess.run(init)
 
 
 def test_func_sum():
@@ -103,12 +109,17 @@ def test_extended_gauss():
         gauss3.set_yield(yield3)
 
         gauss_dists = [gauss1, gauss2, gauss3]
+
+        # with tf.Session() as sess:
+        # sess.run([v.initializer for v in (yield1, yield2, yield3, sigma1, sigma2, sigma3, mu1, mu2, mu3)])
         sum_gauss = SumPDF(pdfs=gauss_dists)
 
-    with tf.Session() as sess:
-        sess.run([v.initializer for v in (yield1, yield2, yield3, sigma1, sigma2, sigma3, mu1, mu2, mu3)])
-        sess.run([init])
+    #     sess.run([init])
     # prod_gauss = ProductPDF(pdfs=gauss_dists)
 
     # init = tf.global_variables_initializer()
     normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)
+
+
+if __name__ == '__main__':
+    test_extended_gauss()

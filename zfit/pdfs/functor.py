@@ -58,7 +58,8 @@ class SumPDF(BaseFunctor):
             if fracs is not None:
                 raise ValueError("frac is given ({}) but all basic are already extended. Either"
                                  "use non-extended basic or give None as frac.".format(fracs))
-            yields = tf.stack([pdf.get_yield() for pdf in pdfs])
+            yields_list = [pdf.get_yield() for pdf in pdfs]
+            yields = tf.stack(yields_list)
             fracs = yields / tf.reduce_sum(yields)
             # fracs = [ztf.constant(1.)] * len(pdfs)
         else:
