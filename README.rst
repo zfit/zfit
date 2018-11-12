@@ -16,13 +16,15 @@ zfit
 
 
 
-## The Zürich fitter.
+The Zürich fitter.
+==================
 
 
 * Free software: BSD-3-Clause
 * Documentation: https://zfit.readthedocs.io.
 
-## Acknowledgements
+Acknowledgements
+----------------
 
 zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNF) under contracs 168169 and 174182.
 
