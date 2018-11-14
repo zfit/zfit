@@ -15,11 +15,6 @@ zfit
 
 
 
-
-The Zürich fitter.
-==================
-
-
 * Free software: BSD-3-Clause
 * Documentation: https://zfit.readthedocs.io.
 
@@ -30,4 +25,4 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The zfit structure is based on the framework developed by Anton Poluektov using the TensorFlow (TF) open source library https://gitlab.cern.ch/poluekt/TensorFlowAnalysis
 
-The authors would like to thank numerous invaluable inputs from the community, i.e. D. van Dyk, G. Isidori and members of LHCb collaborations.
+The authors would like to thank numerous invaluable inputs from the theory community, i.e., D. van Dyk, G. Isidori, members of LHCb collaboration, as well as from the Scikit-HEP community.
