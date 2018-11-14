@@ -88,7 +88,7 @@ def normalization_testing(pdf, normalization_value=1.):
 
 
 def test_extended_gauss():
-    return  # HACK: no clue whatsoever why this fails...
+    # return  # HACK: no clue whatsoever why this fails...
     with tf.name_scope("gauss_params2"):
         mu1 = FitParameter("mu1", 1.)
         mu2 = FitParameter("mu2", 2.)

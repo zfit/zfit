@@ -9,6 +9,7 @@ import tensorflow as tf
 from zfit import ztf
 from zfit.core.limits import no_norm_range, supports
 from zfit.util import ztyping
+from zfit.util.container import convert_to_container
 
 from zfit.util.exception import ExtendedPDFError
 from zfit.core.basepdf import BasePDF
@@ -19,11 +20,10 @@ from zfit.settings import types as ztypes
 class BaseFunctor(BasePDF):
 
     def __init__(self, pdfs, name="BaseFunctor", **kwargs):
-
-        if not hasattr(pdfs, "__len__"):
-            pdfs = [pdfs]
-        self.pdfs = pdfs
         super().__init__(name=name, **kwargs)
+        pdfs = convert_to_container(pdfs)
+        self.pdfs = pdfs
+        self.pdfs_extended = [pdf.is_extended for pdf in pdfs]
 
 
 class SumPDF(BaseFunctor):
@@ -43,62 +43,71 @@ class SumPDF(BaseFunctor):
             name (str):
         """
         # Check user input, improve TODO
-
-        if not hasattr(pdfs, "__len__"):
-            pdfs = [pdfs]
+        super().__init__(pdfs=pdfs, name=name)
+        pdfs = self.pdfs
+        if fracs is not None:
+            fracs = convert_to_container(fracs)
 
         # check if all are extended or None is extended
-        extended_pdfs = [pdf for pdf in pdfs if pdf.is_extended]
-        all_extended = len(extended_pdfs) == len(pdfs)
-        if not (len(extended_pdfs) in (len(pdfs), 0)):  # either all or no extended
+        extended_pdfs = self.pdfs_extended
+        all_extended = all(extended_pdfs)
+        mixed_extended = not all_extended and any(extended_pdfs)  # 1 or more but not all
+        if mixed_extended:  # either all or no extended
             raise ExtendedPDFError("Some but not all basic are extended. The following"
                                    "are extended \n{}\nBut gives were \n{}"
                                    "".format(extended_pdfs, pdfs))
+
         if all_extended:
             if fracs is not None:
                 raise ValueError("frac is given ({}) but all basic are already extended. Either"
                                  "use non-extended basic or give None as frac.".format(fracs))
-            yields_list = [pdf.get_yield() for pdf in pdfs]
-            yields = tf.stack(yields_list)
-            fracs = yields / tf.reduce_sum(yields)
-            # fracs = [ztf.constant(1.)] * len(pdfs)
+            else:
+                yields = [pdf.get_yield() for pdf in pdfs]
+
+        if fracs is not None and len(fracs) == len(pdfs):  # make all extended
+            for pdf, frac in zip(pdfs, fracs):
+                pdf.set_yield(frac)
+            all_extended = True
+            yields = fracs
+
+        if all_extended:
+            yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
+            self.fracs = yield_fracs
+            self.set_yield(tf.reduce_sum(yields))
+
         else:
             # check fraction  # TODO make more flexible, allow for Tensors and unstack
-            if not len(fracs) in (len(pdfs), len(pdfs) - 1):
+            if not len(fracs) == len(pdfs) - 1:
                 raise ValueError("frac has to be number of basic given or number of basic given"
                                  "minus one. Currently, frac is {} and basic given are {}"
                                  "".format(fracs, pdfs))
 
-            if len(fracs) == len(pdfs) - 1:
-                fracs = list(fracs) + [tf.constant(1., dtype=ztypes.float) - sum(fracs)]
-            else:
-                for frac, pdf in zip(fracs, pdfs):
-                    pdfs.set_yield(tf.identity(frac))
-                yields = tf.identity(fracs)
-                fracs = fracs / tf.reduce_sum(fracs)
-                all_extended = True
-        super().__init__(pdfs=pdfs, fracs=fracs, name=name)
-        if all_extended:
-            self.set_yield(tf.reduce_sum(yields))
+            fracs = list(fracs) + [tf.constant(1., dtype=ztypes.float) - sum(fracs)]
+            self.fracs = fracs
+
+        # HACK
+        if all(self.pdfs_extended):
+            self.fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
+        # HACK END
+
+    def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
+        if all(self.pdfs_extended):
+            return value
+        else:
+            return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def _unnormalized_prob(self, x):
         # TODO: deal with yields
         pdfs = self.pdfs
-        fracs = self.parameters['fracs']
+        fracs = self.fracs
         func = tf.accumulate_n(
-            [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, tf.unstack(fracs))])
+            [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, fracs)])
         return func
 
     def _prob(self, x, norm_range):
         pdfs = self.pdfs
-        fracs = self.parameters['fracs']
-        probs = []
-        for frac, pdf in zip(tf.unstack(fracs), pdfs):
-            prob_pdf = pdf.prob(x, norm_range=norm_range) * frac
-            if pdf.is_extended:
-                prob_pdf / pdf.get_yield()
-            probs.append(prob_pdf)
-        prob = tf.accumulate_n(probs)
+        fracs = self.fracs
+        prob = tf.accumulate_n([pdf.prob(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
     # def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
@@ -120,7 +129,6 @@ class SumPDF(BaseFunctor):
     #     integral = tf.reduce_sum(integral)  # TODO: deal with yields
     #     return integral
     # def _integrate(self, limits, norm_range):
-
 
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
