@@ -5,3 +5,4 @@ numpy
 iminuit
 typing
 pep487
+colorlog
