@@ -183,6 +183,9 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         cls._inverse_analytic_integral = []
         cls._additional_repr = {}
 
+    def _func_to_integrate(self, x: ztyping.XType):
+        return self.unnormalized_prob(x)
+
     @property
     def name(self):
         """Name prepended to all ops created by this `pdf`."""
@@ -440,7 +443,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     def _call_prob(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
-
             x = ztf.convert_to_tensor(x, name="x")
 
             with suppress(NotImplementedError):
@@ -568,7 +570,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             integral = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             unnormalized_integral = self._limits_integrate(limits=limits, norm_range=False, name=name)
-            normalization = self._call_normalization(norm_range=limits, name=name)
+            normalization = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
             integral = unnormalized_integral / normalization
         return integral
 
@@ -774,7 +776,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             return self._fallback_numeric_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_numeric_integrate(self, limits, norm_range):
-        integral = self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, norm_range=norm_range)
+        integral = self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, norm_range=norm_range)
 
         return integral
 
@@ -817,8 +819,8 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             integral = self._limits_partial_integrate(x, limits, norm_range, name)
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the caught Error should not be raised."
-            unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=None, name=name)
-            normalization = self._hook_normalization(limits=norm_range)  # TODO: _call_normalization?
+            unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=False, name=name)
+            normalization = self._hook_integrate(limits=norm_range, norm_range=False)  # TODO: _call_normalization?
             integral = unnormalized_integral / normalization
         return integral
 
@@ -840,7 +842,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         with self._name_scope(name, values=[x, limits, norm_range]):
             x = ztf.convert_to_tensor(x, name="x")
 
-
             with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -860,7 +861,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
             dims = list(set(limits.dims) - set(max_dims))
         else:
-            part_int = self._unnormalized_prob
+            part_int = self._func_to_integrate
             dims = limits.dims
 
         if norm_range is False:
@@ -951,7 +952,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         with self._name_scope(name, values=[x, limits, norm_range]):
             x = ztf.convert_to_tensor(x, name="x")
 
-
             with suppress(NotImplementedError):
                 return self._partial_analytic_integrate(x=x, limits=limits,
                                                         norm_range=norm_range)
@@ -1003,7 +1003,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
             assert norm_range is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
                                                                            norm_range=None, name=name)
-            integral = unnormalized_integral / self._hook_normalization(limits=norm_range)
+            integral = unnormalized_integral / self._hook_numeric_integrate(limits=norm_range, norm_range=norm_range)
         return integral
 
     def _limits_partial_numeric_integrate(self, x, limits, norm_range, name):
@@ -1022,7 +1022,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
         with self._name_scope(name, values=[x, limits, norm_range]):
             x = ztf.convert_to_tensor(x, name="x")
 
-
             with suppress(NotImplementedError):
                 return self._partial_numeric_integrate(x=x, limits=limits,
                                                        norm_range=norm_range)
@@ -1031,7 +1030,7 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
 
     @no_norm_range
     def _fallback_partial_numeric_integrate(self, x, limits, norm_range=False):
-        return self._auto_numeric_integrate(func=self.unnormalized_prob, limits=limits, x=x)
+        return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, x=x)
 
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
         integration_options = dict(func=func, limits=limits, n_dims=limits.n_dims, x=x, norm_range=norm_range,
@@ -1084,7 +1083,6 @@ class BasePDF(pep487.ABC):  # __init_subclass__ backport
     def _call_sample(self, n_draws, limits, name):
         with self._name_scope(name, values=[n_draws, limits]):
             n_draws = ztf.convert_to_tensor(n_draws, dtype=ztypes.int, name="n_draws")
-
 
             with suppress(NotImplementedError):
                 return self._sample(n_draws=n_draws, limits=limits)
