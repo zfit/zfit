@@ -7,6 +7,7 @@ import numpy as np
 # from ..settings import types as ztypes
 from zfit.settings import types as ztypes
 
+
 class Data:
 
     def __init__(self, dataset, columns=None, name=None, iterator_feed_dict=None):
@@ -35,6 +36,7 @@ class Data:
     def from_root_iter(cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs):
         # branches = convert_to_container(branches)
         warnings.warn("Using the iterator is hardcore! Don't do it if you don't fully understand what happens.")
+
         def uproot_generator():
             for data in uproot.iterate(path=path, treepath=treepath,
                                        branches=branches, entrysteps=entrysteps, **kwargs):
@@ -91,33 +93,21 @@ class Data:
 
 if __name__ == '__main__':
 
-    path_root = "/data/uni/b2k1ee/classification_new/2012/"
-    big_root = 'Bu2KpipiEE-MC-12125000-2012-MagAll-StrippingBu2LLK.root'
-    small_root = 'small.root'
+    from skhep_testdata import data_path
 
-    # path_root += big_root
-    path_root += small_root
+    # path_root = "/data/uni/b2k1ee/classification_new/2012/"
+    # big_root = 'Bu2KpipiEE-MC-12125000-2012-MagAll-StrippingBu2LLK.root'
+    # small_root = 'small.root'
+    #
+    # # path_root += big_root
+    # path_root += small_root
+    path_root = data_path("uproot-Zmumu.root")
 
-    branches = [b'B_PT', b"B_M"]
 
-    # def uproot_generator():
-    #     for data in uproot.iterate(path=path_root, treepath='DecayTree',
-    #                                branches=branches, entrysteps=3000):
-    #         data = np.array([data[branch] for branch in branches])
-    #
-    #         yield data
-    #
-    #
-    # data = tf.data.Dataset.from_generator(uproot_generator,
-    #                                       output_types=tf.float64)
-    #
-    # data = data.batch(batch_size=4)
-    # data = data.prefetch(100)
-    #
-    # iterator = data.make_one_shot_iterator()
-    #
-    # x = iterator.get_next()
-    data = Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
+
+    branches = [b'pt1', b'pt2']  # b needed currently -> uproot
+
+    data = Data.from_root(path=path_root, treepath='events', branches=branches)
     import time
 
     with tf.Session() as sess:
@@ -127,7 +117,7 @@ if __name__ == '__main__':
         for i in range(1):
             print(i)
             try:
-                func = tf.log(x) * tf.sin(x) * tf.reduce_mean(x**2 - tf.cos(x)**2) / tf.reduce_sum(x)
+                func = tf.log(x) * tf.sin(x) * tf.reduce_mean(x ** 2 - tf.cos(x) ** 2) / tf.reduce_sum(x)
                 start = time.time()
                 result_grad = sess.run(tf.gradients(func, x))
                 result = sess.run(func)
