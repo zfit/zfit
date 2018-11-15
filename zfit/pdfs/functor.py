@@ -85,10 +85,8 @@ class SumPDF(BaseFunctor):
             fracs = list(fracs) + [tf.constant(1., dtype=ztypes.float) - sum(fracs)]
             self.fracs = fracs
 
-        # HACK
         if all(self.pdfs_extended):
             self.fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
-        # HACK END
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
