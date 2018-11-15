@@ -29,17 +29,17 @@ class BaseFunctor(BasePDF):
 class SumPDF(BaseFunctor):
 
     def __init__(self, pdfs, fracs=None, name="SumPDF"):
-        """
+        """Create the sum of the `pdfs` with `fracs` as coefficients.
 
         Args:
-            pdfs (zfit pdf): The basic to multiply with each other
-            fracs (iterable): coefficients for the multiplication. If a scale is set, None
-                will take the scale automatically. If the scale is not set, then:
+            pdfs (pdf): The pdfs to add.
+            fracs (iterable): coefficients for the linear combination of the pdfs. If pdfs are
+                extended, this throws an error.
 
-                  - len(frac) = len(basic) - 1 results in the interpretation of a pdf. The last
-                    coefficient equals to 1 - sum(frac)
-                  - len(frac) = len(basic) results in the interpretation of multiplying each
-                    function with this value
+                  - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
+                    The last coefficient will equal to 1 - sum(frac)
+                  - len(frac) == len(pdf) each pdf in `pdfs` will become an extended pdf with the
+                    given yield.
             name (str):
         """
         # Check user input, improve TODO
@@ -110,9 +110,6 @@ class SumPDF(BaseFunctor):
         prob = tf.accumulate_n([pdf.prob(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
-    # def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
-    #     return value
-    #
     @supports()
     def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
         pdfs = self.pdfs
@@ -144,13 +141,10 @@ class SumPDF(BaseFunctor):
         partial_integral = tf.reduce_sum(partial_integral, axis=0)
         return partial_integral
 
-    # def _integrate(self, limits, norm_range):
-
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
-    def __init__(self, pdfs, name="ProductPDF"):
-        if not hasattr(pdfs, "__len__"):
-            pdfs = [pdfs]
+    def __init__(self, pdfs, dims=None, name="ProductPDF"):
+
         super().__init__(pdfs=pdfs, name=name)
 
     def _unnormalized_prob(self, x):
