@@ -113,21 +113,37 @@ class SumPDF(BaseFunctor):
     # def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
     #     return value
     #
-    # @supports()
-    # def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
-    #     pdfs = self.pdfs
-    #     frac = self.parameters['frac']
-    #     try:
-    #         integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
-    #     except NotImplementedError as original_error:
-    #         raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
-    #                                   " SumPDF, as at least one sub-pdf does not implement it."
-    #                                   "Original message:\n{error}".format(name=self.name,
-    #                                                                       error=original_error))
-    #
-    #     integral = [integral * s for pdf, s in zip(integral, frac)]
-    #     integral = tf.reduce_sum(integral)  # TODO: deal with yields
-    #     return integral
+    @supports()
+    def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
+        pdfs = self.pdfs
+        frac = self.fracs
+        try:
+            integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
+        except NotImplementedError as original_error:
+            raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
+                                      " SumPDF, as at least one sub-pdf does not implement it."
+                                      "Original message:\n{error}".format(name=self.name,
+                                                                          error=original_error))
+
+        integral = tf.stack([integral * s for pdf, s in zip(integral, frac)])
+        integral = tf.reduce_sum(integral)
+        return integral
+
+    @supports()
+    def _partial_analytic_integrate(self, x, limits):
+        pdfs = self.pdfs
+        frac = self.fracs
+        try:
+            partial_integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
+        except NotImplementedError as original_error:
+            raise NotImplementedError("partial_analytic_integrate of pdf {name} is not implemented in this"
+                                      " SumPDF, as at least one sub-pdf does not implement it."
+                                      "Original message:\n{error}".format(name=self.name,
+                                                                          error=original_error))
+        partial_integral = tf.stack([partial_integral * s for pdf, s in zip(partial_integral, frac)])
+        partial_integral = tf.reduce_sum(partial_integral, axis=0)
+        return partial_integral
+
     # def _integrate(self, limits, norm_range):
 
 
