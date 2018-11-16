@@ -864,3 +864,36 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
         if not callable(func):
             raise TypeError("Function {} is not callable.")
         return func
+
+    def get_dependents(self, recursive: bool = True):
+        raise NotImplementedError("Not yet implemented, TODO")
+
+    def get_parameters(self, names: typing.Optional[typing.Union[typing.List[str], str]] = None,
+                       only_floating: bool = True) -> typing.List['FitParameter']:
+        """Return the parameters. If it is empty, automatically set and return all trainable variables.
+
+        Args:
+            names (str, list(str)): The names of the parameters to return.
+            only_floating (bool): If True, return only the floating parameters.
+
+        Returns:
+            list(`zfit.FitParameters`):
+        """
+        if isinstance(names, str):
+            names = (names,)
+        if names is not None:
+            missing_names = set(names).difference(self.parameters.keys())
+            if missing_names:
+                raise KeyError("The following names are not valid parameter names")
+            params = [self.parameters[name] for name in names]
+        else:
+            params = list(self.parameters.values())
+
+        if only_floating:
+            params = self._filter_floating_params(params=params)
+        return params
+
+    @staticmethod
+    def _filter_floating_params(params):
+        params = [param for param in params if param.floating]
+        return params

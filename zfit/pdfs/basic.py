@@ -22,7 +22,7 @@ class Gauss(BasePDF):
     def __init__(self, mu, sigma, name="Gauss"):  # TODO: names? TF dist?
         super(Gauss, self).__init__(name=name, mu=mu, sigma=sigma)
 
-    def _unnormalized_prob(self, x):
+    def _unnormalized_prob(self, x, norm_range=False):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
         gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))

@@ -26,9 +26,16 @@ class BaseFunctor(BasePDF):
         self.pdfs_extended = [pdf.is_extended for pdf in pdfs]
 
 
+    def get_dependents(self, recursive: bool = True):
+        dependents = super().get_dependents(recursive=recursive)
+        for pdf in self.pdfs:
+            dependents.extend(pdf.get_dependents(recursive=recursive))
+        return dependents
+
+
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs, fracs=None, name="SumPDF"):
+    def __init__(self, pdfs, fracs=None, dims=None, name="SumPDF"):
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 
         Args:
@@ -45,6 +52,7 @@ class SumPDF(BaseFunctor):
         # Check user input, improve TODO
         super().__init__(pdfs=pdfs, name=name)
         pdfs = self.pdfs
+        self.dims = dims
         if fracs is not None:
             fracs = convert_to_container(fracs)
 
@@ -94,7 +102,7 @@ class SumPDF(BaseFunctor):
         else:
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def _unnormalized_prob(self, x):
+    def _unnormalized_prob(self, x, norm_range=False):
         # TODO: deal with yields
         pdfs = self.pdfs
         fracs = self.fracs
@@ -144,7 +152,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, dims=None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, name=name)
 
-    def _unnormalized_prob(self, x):
+    def _unnormalized_prob(self, x, norm_range=False):
         return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.pdfs], axis=0)
 
 

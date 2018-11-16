@@ -33,13 +33,6 @@ class BaseFunc(BaseModel, ZfitFunc):
     def _func_to_integrate(self, x: ztyping.XType):
         self._hook_value(x=x)
 
-    def get_dependents(self, recursive: bool = True):
-        raise NotImplementedError("Not yet implemented, TODO")
-
-    def get_parameters(self, only_floating=True):
-        raise NotImplementedError("TODO")
-        return self.parameters
-
     @abc.abstractmethod
     def _value(self, x):
         raise NotImplementedError

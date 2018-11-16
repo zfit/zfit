@@ -4,14 +4,14 @@ from zfit.core.basefunc import BaseFunc
 from zfit.util.container import convert_to_container
 
 
-class Function(BaseFunc):
+class SimpleFunction(BaseFunc):
 
     def __init__(self, func, name="Function", **parameters):
         super().__init__(name=name, **parameters)
         self._value_func = self._check_input_x_function(func)
 
     def _value(self, x):
-        return self._value_func(x)
+        return self._value_func(x, **self.get_parameters(only_floating=False))
 
 
 class BaseFunctorFunc(BaseFunc):
@@ -20,10 +20,17 @@ class BaseFunctorFunc(BaseFunc):
         funcs = convert_to_container(funcs)
         self.funcs = funcs
 
+    def get_dependents(self, recursive: bool = True):
+        dependents = super().get_dependents(recursive=recursive)
+        for func in self.funcs:
+            dependents.extend(func.get_dependents(recursive=recursive))
+        return dependents
+
 
 class SumFunc(BaseFunctorFunc):
-    def __init__(self, funcs, name="SumFunc", **kwargs):
+    def __init__(self, funcs, dims=None, name="SumFunc", **kwargs):
         super().__init__(funcs=funcs, name=name, **kwargs)
+        self.dims = dims
 
     def _value(self, x):
         sum_funcs = tf.accumulate_n([func(x) for func in self.funcs])

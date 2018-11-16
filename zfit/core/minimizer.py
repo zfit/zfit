@@ -285,11 +285,11 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             params = list(self._params.values())
 
         if only_floating:
-            params = self._filter_trainable_params(params=params)
+            params = self._filter_floating_params(params=params)
         return params
 
     @staticmethod
-    def _filter_trainable_params(params):
+    def _filter_floating_params(params):
         params = [param for param in params if param.floating]
         return params
 

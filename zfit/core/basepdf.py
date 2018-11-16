@@ -229,7 +229,7 @@ class BasePDF(BaseModel):
             return self._fallback_normalization(norm_range)
 
     @abc.abstractmethod
-    def _unnormalized_prob(self, x):
+    def _unnormalized_prob(self, x, norm_range=False):
         raise NotImplementedError
 
     def _call_unnormalized_prob(self, x, name):
@@ -460,6 +460,17 @@ class BasePDF(BaseModel):
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
+    def as_func(self, norm_range: ztyping.LimitsType = False):
+        """Return a `Function` with the function `prob(x, norm_range=norm_range)`.
+
+        Args:
+            norm_range ():
+        """
+        from .operations import convert_pdf_to_func  # prevent circular import
+
+        return convert_pdf_to_func(pdf=self, norm_range=norm_range)
+
+
     def __str__(self):
         return ("tf.distributions.{type_name}("
                 "\"{self_name}\""
@@ -475,3 +486,6 @@ class BasePDF(BaseModel):
                                if self.event_shape.ndims is not None
                                else ""),
             dtype=self.dtype.name))
+
+
+

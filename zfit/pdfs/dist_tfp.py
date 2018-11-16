@@ -29,7 +29,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         # self.tf_distribution = self.parameters['distribution']
         self.tf_distribution = distribution
 
-    def _unnormalized_prob(self, x):
+    def _unnormalized_prob(self, x, norm_range=False):
         return self.tf_distribution.prob(value=x, name="unnormalized_prob")  # TODO name
 
     # TODO: register integral
