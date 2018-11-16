@@ -142,7 +142,6 @@ class SumPDF(BaseFunctor):
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, dims=None, name="ProductPDF"):
-
         super().__init__(pdfs=pdfs, name=name)
 
     def _unnormalized_prob(self, x):

@@ -858,3 +858,9 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
             raise TypeError("Cannot compare objects of type {} and {}".format(type(self), type(other)))
         params_equal = set(other.parameters) == set(self.parameters)
         return params_equal
+
+    def _check_input_x_function(self, func):
+        # TODO: signature etc?
+        if not callable(func):
+            raise TypeError("Function {} is not callable.")
+        return func

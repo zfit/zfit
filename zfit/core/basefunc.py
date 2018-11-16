@@ -1,17 +1,11 @@
 import abc
-import contextlib
-from contextlib import suppress
 import typing
 
-import pep487
 import tensorflow as tf
 
-from .basemodel import BaseModel, _BaseModel_register_check_support, ZfitModel
-from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple_limits, supports
+from .basemodel import BaseModel, ZfitModel
 from zfit.util import ztyping
 from ..settings import types as ztypes
-from .parameter import FitParameter
-from ..util import exception as zexception
 from zfit import ztf
 
 
@@ -36,11 +30,15 @@ class BaseFunc(BaseModel, ZfitFunc):
     def _func_to_sample_from(self, x):
         self._hook_value(x=x)
 
-    def get_parameters(self):
-        return self.parameters
-
     def _func_to_integrate(self, x: ztyping.XType):
         self._hook_value(x=x)
+
+    def get_dependents(self, recursive: bool = True):
+        raise NotImplementedError("Not yet implemented, TODO")
+
+    def get_parameters(self, only_floating=True):
+        raise NotImplementedError("TODO")
+        return self.parameters
 
     @abc.abstractmethod
     def _value(self, x):
@@ -56,3 +54,5 @@ class BaseFunc(BaseModel, ZfitFunc):
         with self._name_scope(name, values=[x]):
             x = ztf.convert_to_tensor(x, name="x")
             return self._value(x=x)
+
+

@@ -133,7 +133,7 @@ class BasePDF(BaseModel):
         return self.parameters
 
     def get_dependents(self, recursive: bool = True):
-        raise NotImplementedError("TODO")
+        raise NotImplementedError("TODO")  # TODO: need parameters to work
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         integral = self._norm_integrate(limits=limits, norm_range=norm_range, name=name)

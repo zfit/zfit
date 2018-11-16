@@ -65,7 +65,7 @@ def test_gradient():
         sess.run(init)
         tensor_grad = gauss3.gradient(x=random_vals, norm_range=(-np.infty, np.infty))
         random_vals_eval = sess.run(tensor_grad)
-        assert random_vals_eval == pytest.approx(true_gaussian_grad(random_vals), rel=1e-6)
+        assert random_vals_eval == pytest.approx(true_gaussian_grad(random_vals), rel=1e-5)
 
 
 def test_func():
