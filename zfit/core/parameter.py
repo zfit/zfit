@@ -9,7 +9,7 @@ import tensorflow.contrib.eager as tfe
 from tensorflow.python import VariableMetaclass
 
 from zfit import ztf
-from zfit.core.baseobject import ZfitObject
+from zfit.core.baseobject import BaseObject
 from zfit.util import ztyping
 
 try:
@@ -22,18 +22,15 @@ except ImportError:
 from zfit.settings import types as ztypes
 
 
-class ZfitParameter(ZfitObject):
+class ZfitParameter(BaseObject):
 
-    def get_dependents(self, only_floating=False):
+    def _get_dependents(self, only_floating=False):
         return {self}
 
-class VariableABCMetaClass(type(VariableV1), type(ZfitParameter)):
+class MetaBaseParameter(type(VariableV1), type(ZfitParameter)):
     pass
 
-class BaseParameterMetaClass(ZfitParameter, VariableABCMetaClass):
-    pass
-
-class BaseParameter(VariableV1, BaseParameterMetaClass):
+class BaseParameter(VariableV1, ZfitParameter, metaclass=MetaBaseParameter):
 
     def __init__(self, name, floating=True, **kwargs):
         super().__init__(name=name, **kwargs)
@@ -67,7 +64,7 @@ class Parameter(BaseParameter):
         """
 
         # TODO: sanitize input
-        super().__init__(init_value, dtype=ztypes.float, name=name,
+        super().__init__(initial_value=init_value, dtype=ztypes.float, name=name,
                          # use_resource=True  # TODO: only 1.11+
                          )
         init_value = tf.cast(init_value, dtype=ztypes.float)
@@ -127,15 +124,7 @@ class Parameter(BaseParameter):
                 session.run(self.update_op, {self.placeholder: value})
                 self.prev_value = value
 
-    @property
-    def floating(self):
-        """Return True if the parameter is floating
-        """
-        return self._floating
 
-    @floating.setter
-    def floating(self, floating):
-        self._floating = floating
 
     def randomise(self, session, minval, maxval, seed=None):
         """

@@ -12,8 +12,8 @@ from zfit.util import ztyping
 from zfit.util.exception import LogicalUndefinedOperationError
 
 
-def multiply(object1: ztyping.ZfitObjectType, object2: ztyping.ZfitObjectType,
-             dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.ZfitObjectType:
+def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
+             dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.BaseObjectType:
     """Multiply two objects and return a new object (may depending on the old).
 
     Args:
@@ -97,8 +97,8 @@ def multiply_param_param(param1, param2):
 
 
 # Addition logic
-def add(object1: ztyping.ZfitObjectType, object2: ztyping.ZfitObjectType,
-        dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.ZfitObjectType:
+def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
+        dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.BaseObjectType:
     """Add two objects and return a new object (may depending on the old).
 
     Args:
@@ -188,7 +188,7 @@ def add_param_param(param1, param2):
 
 def convert_pdf_to_func(pdf, norm_range):
     def value_func(x):
-        return pdf.prob(x, norm_range=norm_range)
+        return pdf.pdf(x, norm_range=norm_range)
 
     func = SimpleFunction(func=value_func, name=pdf.name + "_as_func", **pdf.get_parameters(only_floating=False))
     return func

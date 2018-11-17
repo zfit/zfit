@@ -27,11 +27,9 @@ class BaseFunctor(BasePDF):
         self.pdfs = pdfs
         self.pdfs_extended = [pdf.is_extended for pdf in pdfs]
 
-    def get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
-        dependents = super().get_dependents(only_floating=only_floating)  # get the own parameter dependents
-        pdf_dependents = (pdf.get_dependents(only_floating=only_floating) for pdf in self.pdfs)
-        pdf_dependents = set(itertools.chain.from_iterable(pdf_dependents))  # flatten
-
+    def _get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
+        dependents = super()._get_dependents(only_floating=only_floating)  # get the own parameter dependents
+        pdf_dependents = self._extract_dependents(self.pdfs, only_floating=only_floating)
         return dependents.union(pdf_dependents)
 
 class SumPDF(BaseFunctor):
@@ -103,18 +101,18 @@ class SumPDF(BaseFunctor):
         else:
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def _unnormalized_prob(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x, norm_range=False):
         # TODO: deal with yields
         pdfs = self.pdfs
         fracs = self.fracs
         func = tf.accumulate_n(
-            [scale * pdf.unnormalized_prob(x) for pdf, scale in zip(pdfs, fracs)])
+            [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
         return func
 
-    def _prob(self, x, norm_range):
+    def _pdf(self, x, norm_range):
         pdfs = self.pdfs
         fracs = self.fracs
-        prob = tf.accumulate_n([pdf.prob(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
+        prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
     @supports()
@@ -153,8 +151,8 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, dims=None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, name=name)
 
-    def _unnormalized_prob(self, x, norm_range=False):
-        return tf.reduce_prod([pdf.unnormalized_prob(x) for pdf in self.pdfs], axis=0)
+    def _unnormalized_pdf(self, x, norm_range=False):
+        return tf.reduce_prod([pdf.unnormalized_pdf(x) for pdf in self.pdfs], axis=0)
 
 
 if __name__ == '__main__':
@@ -192,10 +190,10 @@ if __name__ == '__main__':
 
         def test_func_sum():
             test_values = np.array([3., 129., -0.2, -78.2])
-            vals = sum_gauss.unnormalized_prob(
+            vals = sum_gauss.unnormalized_pdf(
                 ztf.convert_to_tensor(test_values, dtype=ztypes.float))
             vals = sess.run(vals)
-            test_sum = sum([g.unnormalized_prob(test_values) for g in [gauss1, gauss2, gauss3]])
+            test_sum = sum([g.unnormalized_pdf(test_values) for g in [gauss1, gauss2, gauss3]])
             print(sess.run(test_sum))
             np.testing.assert_almost_equal(vals, true_gaussian_sum(test_values))
 
@@ -205,7 +203,7 @@ if __name__ == '__main__':
             samples = tf.cast(np.random.uniform(low=low, high=high, size=100000),
                               dtype=tf.float64)
             samples.limits = low, high
-            probs = sum_gauss.prob(samples)
+            probs = sum_gauss.pdf(samples)
             result = sess.run(probs)
             result = np.average(result) * (high - low)
             print(result)

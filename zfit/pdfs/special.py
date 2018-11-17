@@ -18,7 +18,7 @@ class SimplePDF(BasePDF):
         super().__init__(name=name, **parameters)
         self._unnormalized_prob_func = self._check_input_x_function(func)
 
-    def _unnormalized_prob(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x, norm_range=False):
         return self._unnormalized_prob_func(x ** self.get_parameters())
 
 
@@ -46,7 +46,7 @@ def raise_error_if_norm_range(func):
 #                                                    BaseFunction)
 # BaseFunction._norm_integrate = MethodType(raise_error_if_norm_range(super()._norm_integrate),
 #                                           BaseFunction)
-# BaseFunction._norm_log_prob = MethodType(raise_error_if_norm_range(super()._norm_log_prob),
+# BaseFunction._norm_log_pdf = MethodType(raise_error_if_norm_range(super()._norm_log_pdf),
 #                                          BaseFunction)
 # BaseFunction._norm_numeric_integrate = MethodType(raise_error_if_norm_range(super()._norm_numeric_integrate),
 #                                                   BaseFunction)
@@ -58,7 +58,7 @@ def raise_error_if_norm_range(func):
 # BaseFunction._norm_partial_numeric_integrate = MethodType(
 #     raise_error_if_norm_range(super()._norm_partial_numeric_integrate),
 #     BaseFunction)
-# BaseFunction._norm_prob = MethodType(raise_error_if_norm_range(super()._norm_prob),
+# BaseFunction._norm_pdf = MethodType(raise_error_if_norm_range(super()._norm_pdf),
 #                                      BaseFunction)
 # BaseFunction._norm_sample = MethodType(raise_error_if_norm_range(super()._norm_sample),
 #                                        BaseFunction)

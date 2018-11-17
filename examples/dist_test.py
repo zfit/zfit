@@ -40,7 +40,7 @@
 #
 #     class TestPDF(BaseDistribution):
 #
-#         def _unnormalized_prob(self, value):
+#         def _unnormalized_pdf(self, value):
 #             return model(value)
 #
 #         def _normalization_sampler(self):
@@ -63,12 +63,12 @@
 #         majorant = opt.estimate_maximum(sess, model(data_ph), data_ph, norm_sample) * 1.1
 #         print("Maximum = ", majorant)
 #
-#         data_sample = opt.run_toy_MC(sess, test_model.prob(data_ph), data_ph, phsp, 10000, majorant,
+#         data_sample = opt.run_toy_MC(sess, test_model.pdf(data_ph), data_ph, phsp, 10000, majorant,
 #                                      chunk=sample_size)
 #
-#         # norm = opt.integral(test_model.prob(norm_ph))
+#         # norm = opt.integral(test_model.pdf(norm_ph))
 #         norm = 1.
-#         nll = opt.unbinned_NLL(test_model.prob(data_ph), norm)
+#         nll = opt.unbinned_NLL(test_model.pdf(data_ph), norm)
 #
 #         result = opt.run_minuit(sess, nll, {data_ph: data_sample, norm_ph: norm_sample},
 #                                 run_minos=True)

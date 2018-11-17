@@ -22,11 +22,9 @@ class BaseFunctorFunc(BaseFunc):
         funcs = convert_to_container(funcs)
         self.funcs = funcs
 
-    def get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
-        dependents = super().get_dependents(only_floating=only_floating)  # get the own parameter dependents
-        func_dependents = (func.get_dependents(only_floating=only_floating) for func in self.funcs)
-        func_dependents = set(itertools.chain.from_iterable(func_dependents))  # flatten
-
+    def _get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
+        dependents = super()._get_dependents(only_floating=only_floating)  # get the own parameter dependents
+        func_dependents = self._extract_dependents(self.funcs, only_floating=only_floating)  # flatten
         return dependents.union(func_dependents)
 
 

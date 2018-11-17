@@ -11,8 +11,8 @@ import pep487
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from zfit.core import integrate as zintegrate, sample as zsample
-from zfit.core.baseobject import ZfitObject
+from zfit.core import integration as zintegrate, sample as zsample
+from zfit.core.baseobject import BaseObject
 from zfit.core.limits import no_norm_range, Range, convert_to_range, supports
 from zfit.core.parameter import convert_to_parameter
 from zfit.settings import types as ztypes
@@ -43,7 +43,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class ZfitModel(ZfitObject):
+class ZfitModel(BaseObject):
     @abc.abstractmethod
     def get_parameters(self, only_floating=True, names=None):
         raise NotImplementedError
@@ -68,7 +68,7 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
                  reparameterization_type: bool = False,
                  validate_args: bool = False,
                  allow_nan_stats: bool = True, graph_parents: tf.Graph = None, **parameters: typing.Any):
-        """The base pdf to inherit from and overwrite `_unnormalized_prob`.
+        """The base pdf to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
             dtype (typing.Type): the dtype of the pdf
@@ -770,7 +770,7 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
             return sample
 
     def _fallback_sample(self, n_draws, limits):
-        sample = zsample.accept_reject_sample(prob=self._unnormalized_prob,  # no need to normalize
+        sample = zsample.accept_reject_sample(prob=self._func_to_sample_from,  # no need to normalize
                                               n_draws=n_draws,
                                               limits=limits, prob_max=None)  # None -> auto
         return sample
@@ -864,18 +864,17 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
             raise TypeError("Function {} is not callable.")
         return func
 
-    def get_dependents(self, only_floating=True):
-        parameters = set(self.get_parameters(only_floating=only_floating))
-        parameter_dependents = (param.get_dependents(only_floating=only_floating) for param in parameters)
-        parameter_dependents = set(itertools.chain.from_iterable(parameter_dependents))  # flatten
+    def _get_dependents(self, only_floating=False):
+        parameters = self.get_parameters(only_floating=only_floating)
+        parameter_dependents = self._extract_dependents(parameters, only_floating=only_floating)
         return parameter_dependents
 
     def get_parameters(self, only_floating=True, names=None) -> typing.List['Parameter']:
         """Return the parameters. If it is empty, automatically set and return all trainable variables.
 
         Args:
-            names (): The names of the parameters to return.
             only_floating (): If True, return only the floating parameters.
+            names (): The names of the parameters to return.
 
         Returns:
             list(`zfit.FitParameters`):

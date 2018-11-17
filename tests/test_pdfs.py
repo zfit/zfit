@@ -51,7 +51,7 @@ def test_func_sum():
         init = tf.global_variables_initializer()
         sess.run(init)
         test_values = np.array([3., 129., -0.2, -78.2])
-        vals = sum_gauss.unnormalized_prob(
+        vals = sum_gauss.unnormalized_pdf(
             ztf.convert_to_tensor(test_values, dtype=zfit.settings.types.float))
         vals = sess.run(vals)
         # test_sum = sum([g.func(test_values) for g in gauss_dists])
@@ -80,7 +80,7 @@ def normalization_testing(pdf, normalization_value=1.):
             samples = tf.cast(np.random.uniform(low=low, high=high, size=100000),
                               dtype=tf.float64)
             samples.limits = low, high
-            probs = pdf.prob(samples)
+            probs = pdf.pdf(samples)
             result = sess.run(probs)
             result = np.average(result) * (high - low)
             print(result)

@@ -28,7 +28,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         self.n_dims = None
 
     def _func_to_sample_from(self, x):
-        self._hook_value(x=x)
+        return self.value(x=x)
 
     def _func_to_integrate(self, x: ztyping.XType):
         self._hook_value(x=x)

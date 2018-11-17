@@ -6,7 +6,7 @@ import numpy as np
 
 from zfit import ztf
 from zfit.core import basepdf as zbasepdf
-import zfit.core.integrate as zintegrate
+import zfit.core.integration as zintegrate
 from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import Parameter
@@ -243,7 +243,7 @@ def test_mc_partial_integration():
 
 def test_analytic_integral():
     class DistFunc3(zbasepdf.BasePDF):
-        def _unnormalized_prob(self, x, norm_range=False):
+        def _unnormalized_pdf(self, x, norm_range=False):
             return func3_2deps(x)
 
     mu_true = 1.4
@@ -284,7 +284,7 @@ def test_analytic_integral():
 
 def test_analytic_integral_selection():
     class DistFuncInts(zbasepdf.BasePDF):
-        def _unnormalized_prob(self, x, norm_range=False):
+        def _unnormalized_pdf(self, x, norm_range=False):
             return x ** 2
 
     int1 = lambda x: 1

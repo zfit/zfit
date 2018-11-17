@@ -3,6 +3,7 @@ This module contains functions for the numeric as well as the analytic (partial)
 """
 
 import collections
+import numpy as np
 import typing
 
 import tensorflow as tf
@@ -66,6 +67,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
     if dims is not None and n_dims is not None:
         raise ValueError("Either specify dims or n_dims")
     limits = convert_to_range(limits, dims)
+
     dims = limits.dims
     partial = (dims is not None) and (x is not None)  # dims, value can be tensors
 
@@ -75,6 +77,9 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
         dims = tuple(range(n_dims))
 
     lower, upper = limits.get_boundaries()
+    if np.infty in upper[0] or -np.infty in lower[0]:
+        raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
+                         "\nlower: {}, upper: {}". format(lower, upper))
 
     lower = ztf.convert_to_tensor(lower, dtype=dtype)
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
@@ -155,8 +160,8 @@ class AnalyticIntegral(object):
                 return tuple(sorted(dims)), limits_matched
         return (), ()  # no integral available for this dims
 
-    def get_max_integral(self, limits: ztyping.LimitsType, dims: ztyping.DimsType = None) -> typing.Union[
-        None, "Integral"]:
+    def get_max_integral(self, limits: ztyping.LimitsType,
+                         dims: ztyping.DimsType = None) -> typing.Union[None, "Integral"]:
         """Return the integral over the `limits` with `dims` (or a subset of them).
 
         Args:

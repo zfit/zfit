@@ -6,6 +6,7 @@ from typing import Optional
 
 import zfit
 from zfit import ztf
+from zfit.core.baseobject import BaseObject
 import zfit.util.container
 from zfit.util.container import convert_to_container, is_container
 
@@ -20,7 +21,7 @@ def _unbinned_nll_tf(pdf, data, fit_range, constraints: Optional[dict] = None) -
         fit_range ():
         pdf (Tensor): The probabilities
         constraints (dict): A dictionary containing the constraints for certain parameters. The key
-            is the parameter while the value is a pdf with at least a `prob(x)` method.
+            is the parameter while the value is a pdf with at least a `pdf(x)` method.
 
     Returns:
         graph: the unbinned nll
@@ -41,7 +42,7 @@ def _unbinned_nll_tf(pdf, data, fit_range, constraints: Optional[dict] = None) -
 
         in_limits = tf.logical_and(lower <= data, data <= upper)
         data = tf.boolean_mask(tensor=data, mask=in_limits)
-        log_probs = tf.log(pdf.prob(data, norm_range=fit_range))
+        log_probs = tf.log(pdf.pdf(data, norm_range=fit_range))
         nll = -tf.reduce_sum(log_probs)
         nll_finished = nll
     return nll_finished
@@ -52,8 +53,8 @@ def _nll_constraints_tf(constraints):
         return ztf.constant(0.)  # adding 0 to nll
     probs = []
     for param, dist in constraints.items():
-        probs.append(dist.prob(param))
-    # probs = [dist.prob(param) for param, dist in constraints.items()]
+        probs.append(dist.pdf(param))
+    # probs = [dist.pdf(param) for param, dist in constraints.items()]
     constraints_neg_log_prob = -tf.reduce_sum(tf.log(probs))
     return constraints_neg_log_prob
 
@@ -95,7 +96,7 @@ def _nll_constraints_tf(constraints):
 #
 #     return nll
 
-class LossInterface(pep487.ABC):
+class ZfitLoss(BaseObject):
 
     @abc.abstractmethod
     def eval(self):
@@ -125,14 +126,13 @@ class LossInterface(pep487.ABC):
         raise NotImplementedError
 
 
-class BaseLoss(LossInterface):
+class BaseLoss(ZfitLoss):
 
     def __init__(self, pdf, data, fit_range, constraints=None):
-        # constraints = {} if constraints == {} else constraints # protect mutable argument
         self._simultaneous = None
         if constraints is None:
             constraints = {}
-        pdf, data, fit_range = self._input_check(pdf, data, fit_range)
+        pdf, data, fit_range = self._input_check(pdf=pdf, data=data, fit_range=fit_range)
         self._pdf = pdf
         self._data = data
         self._fit_range = fit_range
@@ -198,6 +198,10 @@ class BaseLoss(LossInterface):
     @property
     def constraints(self):
         return self._constraints
+
+    def _get_dependents(self, only_floating=False):
+        pdf_dependents = self._extract_dependents(self.pdfs, only_floating=only_floating)
+        return pdf_dependents
 
     @abc.abstractmethod
     def _loss_func(self, pdf, data, fit_range, constraints=None):
