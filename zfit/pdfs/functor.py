@@ -5,6 +5,8 @@ A FunctorBase class is provided to make handling the pdfs easier.
 
 Their implementation is often non-trivial.
 """
+import itertools
+
 import tensorflow as tf
 from zfit import ztf
 from zfit.core.limits import no_norm_range, supports
@@ -25,13 +27,12 @@ class BaseFunctor(BasePDF):
         self.pdfs = pdfs
         self.pdfs_extended = [pdf.is_extended for pdf in pdfs]
 
+    def get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
+        dependents = super().get_dependents(only_floating=only_floating)  # get the own parameter dependents
+        pdf_dependents = (pdf.get_dependents(only_floating=only_floating) for pdf in self.pdfs)
+        pdf_dependents = set(itertools.chain.from_iterable(pdf_dependents))  # flatten
 
-    def get_dependents(self, recursive: bool = True):
-        dependents = super().get_dependents(recursive=recursive)
-        for pdf in self.pdfs:
-            dependents.extend(pdf.get_dependents(recursive=recursive))
-        return dependents
-
+        return dependents.union(pdf_dependents)
 
 class SumPDF(BaseFunctor):
 

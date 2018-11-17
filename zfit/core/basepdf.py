@@ -129,10 +129,10 @@ class BasePDF(BaseModel):
     def _func_to_sample_from(self, x):
         self.unnormalized_prob(x)
 
-    def get_parameters(self):
+    def get_parameters(self, only_floating=True, names=None):
         return self.parameters
 
-    def get_dependents(self, recursive: bool = True):
+    def get_dependents(self, only_floating=True):
         raise NotImplementedError("TODO")  # TODO: need parameters to work
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):

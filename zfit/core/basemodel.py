@@ -3,6 +3,7 @@ import builtins
 from collections.__init__ import OrderedDict
 import contextlib
 from contextlib import suppress
+import itertools
 import typing
 import warnings
 
@@ -40,13 +41,14 @@ def _BaseModel_register_check_support(has_support: bool):
 
     return register
 
+
 class ZfitModel(pep487.ABC):
     @abc.abstractmethod
-    def get_parameters(self):
+    def get_parameters(self, only_floating=True, names=None):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_dependents(self, recursive: bool = True):
+    def get_dependents(self, only_floating=True):
         raise NotImplementedError
 
 
@@ -766,7 +768,7 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                           "implemented for the boundaries:".format(limits.get_boundaries()))
             prob_sample = ztf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim,
-                                                              maxval=upper_prob_lim)
+                                             maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)
             return sample
 
@@ -865,16 +867,18 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
             raise TypeError("Function {} is not callable.")
         return func
 
-    def get_dependents(self, recursive: bool = True):
-        raise NotImplementedError("Not yet implemented, TODO")
+    def get_dependents(self, only_floating=True):
+        parameters = set(self.get_parameters(only_floating=only_floating))
+        parameter_dependents = (param.get_dependents(only_floating=only_floating) for param in parameters)
+        parameter_dependents = set(itertools.chain.from_iterable(parameter_dependents))  # flatten
+        return parameter_dependents
 
-    def get_parameters(self, names: typing.Optional[typing.Union[typing.List[str], str]] = None,
-                       only_floating: bool = True) -> typing.List['FitParameter']:
+    def get_parameters(self, only_floating=True, names=None) -> typing.List['FitParameter']:
         """Return the parameters. If it is empty, automatically set and return all trainable variables.
 
         Args:
-            names (str, list(str)): The names of the parameters to return.
-            only_floating (bool): If True, return only the floating parameters.
+            names (): The names of the parameters to return.
+            only_floating (): If True, return only the floating parameters.
 
         Returns:
             list(`zfit.FitParameters`):
