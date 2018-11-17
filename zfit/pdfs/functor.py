@@ -15,7 +15,7 @@ from zfit.util.container import convert_to_container
 
 from zfit.util.exception import ExtendedPDFError
 from zfit.core.basepdf import BasePDF
-from zfit.core.parameter import FitParameter
+from zfit.core.parameter import Parameter
 from zfit.settings import types as ztypes
 
 
@@ -171,12 +171,12 @@ if __name__ == '__main__':
 
 
     with tf.Session() as sess:
-        mu1 = FitParameter("mu1", 1.)
-        mu2 = FitParameter("mu2", 2.)
-        mu3 = FitParameter("mu3", 3.)
-        sigma1 = FitParameter("sigma1", 11.)
-        sigma2 = FitParameter("sigma2", 22.)
-        sigma3 = FitParameter("sigma3", 33.)
+        mu1 = Parameter("mu1", 1.)
+        mu2 = Parameter("mu2", 2.)
+        mu3 = Parameter("mu3", 3.)
+        sigma1 = Parameter("sigma1", 11.)
+        sigma2 = Parameter("sigma2", 22.)
+        sigma3 = Parameter("sigma3", 33.)
 
         gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1")
         gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2")

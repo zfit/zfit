@@ -8,19 +8,19 @@ from .minimizers.minimizers_scipy import ScipyMinimizer
 
 # WIP below
 if __name__ == '__main__':
-    from zfit.core.parameter import FitParameter
+    from zfit.core.parameter import Parameter
     import time
 
     from zfit import ztf
 
     with ztf.Session() as sess:
         with ztf.variable_scope("func1"):
-            a = FitParameter("variable_a", ztf.constant(1.5),
-                             ztf.constant(-1.),
-                             ztf.constant(20.),
-                             step_size=ztf.constant(0.1))
-            b = FitParameter("variable_b", 2.)
-            c = FitParameter("variable_c", 3.1)
+            a = Parameter("variable_a", ztf.constant(1.5),
+                          ztf.constant(-1.),
+                          ztf.constant(20.),
+                          step_size=ztf.constant(0.1))
+            b = Parameter("variable_b", 2.)
+            c = Parameter("variable_c", 3.1)
         # minimizer_fn = tfp.optimizer.bfgs_minimize
 
         # sample = ztf.constant(np.random.normal(loc=1., size=100000), dtype=ztf.float64)

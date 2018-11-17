@@ -261,7 +261,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             self.sess = old_sess
 
     def get_parameters(self, names: Optional[Union[List[str], str]] = None,
-                       only_floating: bool = True) -> List['FitParameter']:  # TODO: automatically set?
+                       only_floating: bool = True) -> List['Parameter']:  # TODO: automatically set?
         """Return the parameters. If it is empty, automatically set and return all trainable variables.
 
         Args:
@@ -338,7 +338,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         """Extract the current value if defined, otherwise random.
 
         Arguments:
-            params (FitParameter):
+            params (Parameter):
 
         Return:
             list(const): the current values of parameters
@@ -365,7 +365,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         """Fully minimize the `loss` with respect to `params` using `sess`.
 
         Args:
-            params (list(str) or list(`zfit.FitParameter`): The parameters with respect to which to
+            params (list(str) or list(`zfit.Parameter`): The parameters with respect to which to
                 minimize the `loss`.
             sess (`tf.Session`): The session to use.
 
@@ -418,7 +418,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
 
 # WIP below
 if __name__ == '__main__':
-    from zfit.core.parameter import FitParameter
+    from zfit.core.parameter import Parameter
     from zfit.minimizers.minimizer_minuit import MinuitMinimizer, MinuitTFMinimizer
     from zfit.minimizers.minimizer_tfp import BFGSMinimizer
 
@@ -426,12 +426,12 @@ if __name__ == '__main__':
 
     with tf.Session() as sess:
         with tf.variable_scope("func1"):
-            a = FitParameter("variable_a", ztf.constant(1.5),
-                             ztf.constant(-1.),
-                             ztf.constant(20.),
-                             step_size=ztf.constant(0.1))
-            b = FitParameter("variable_b", 2.)
-            c = FitParameter("variable_c", 3.1)
+            a = Parameter("variable_a", ztf.constant(1.5),
+                          ztf.constant(-1.),
+                          ztf.constant(20.),
+                          step_size=ztf.constant(0.1))
+            b = Parameter("variable_b", 2.)
+            c = Parameter("variable_c", 3.1)
         minimizer_fn = tfp.optimizer.bfgs_minimize
 
         # sample = tf.constant(np.random.normal(loc=1., size=100000), dtype=tf.float64)

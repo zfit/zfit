@@ -9,7 +9,7 @@ from zfit.core import basepdf as zbasepdf
 import zfit.core.integrate as zintegrate
 from zfit.core.limits import Range
 import zfit.core.math as zmath
-from zfit.core.parameter import FitParameter
+from zfit.core.parameter import Parameter
 from zfit.pdfs.basic import Gauss
 from zfit.pdfs.dist_tfp import Normal
 
@@ -249,8 +249,8 @@ def test_analytic_integral():
     mu_true = 1.4
     sigma_true = 1.8
     limits = -4.3, 1.9
-    mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-    sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+    mu = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+    sigma = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
     normal_params1 = Normal(mu=mu, sigma=sigma, name="gauss_params1")
     try:

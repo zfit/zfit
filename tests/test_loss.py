@@ -9,7 +9,7 @@ from zfit.minimizers.minimizer_minuit import MinuitMinimizer
 import zfit.pdfs.dist_tfp
 from zfit.pdfs.dist_tfp import Normal
 from zfit.pdfs.basic import Gauss
-from zfit.core.parameter import FitParameter
+from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 
@@ -19,10 +19,10 @@ sigma_true = 4.1
 test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=1000)
 
 low, high = -24.3, 28.6
-mu1 = FitParameter("mu1", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma1 = FitParameter("sigma1", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-mu2 = FitParameter("mu2", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma2 = FitParameter("sigma2", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+mu1 = Parameter("mu1", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+sigma1 = Parameter("sigma1", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+mu2 = Parameter("mu2", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+sigma2 = Parameter("sigma2", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
 
 # HACK
 # Gauss = Normal
@@ -74,8 +74,8 @@ def test_unbinned_nll():
 #     return np.exp(- (x - mu_true) ** 2 / (2 * sigma_true ** 2))
 
 def test_add():
-    param1 = FitParameter("param1", 1.)
-    param2 = FitParameter("param2", 2.)
+    param1 = Parameter("param1", 1.)
+    param2 = Parameter("param2", 2.)
 
     pdfs = [0] * 4
     pdfs[0] = Gauss(param1, 4)

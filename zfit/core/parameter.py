@@ -1,11 +1,15 @@
-"""Define FitParameter which holds the values."""
+"""Define Parameter which holds the values."""
 
 import numpy as np
+import pep487
 import tensorflow as tf
 import tensorflow.contrib.eager as tfe
 
 # TF backwards compatibility
+from tensorflow.python import VariableMetaclass
+
 from zfit import ztf
+from zfit.core.baseobject import ZfitObject
 from zfit.util import ztyping
 
 try:
@@ -18,9 +22,38 @@ except ImportError:
 from zfit.settings import types as ztypes
 
 
-class FitParameter(VariableV1):
-    """
-      Class for fit parameters, derived from TF Variable class.
+class ZfitParameter(ZfitObject):
+
+    def get_dependents(self, only_floating=False):
+        return {self}
+
+class VariableABCMetaClass(type(VariableV1), type(ZfitParameter)):
+    pass
+
+class BaseParameterMetaClass(ZfitParameter, VariableABCMetaClass):
+    pass
+
+class BaseParameter(VariableV1, BaseParameterMetaClass):
+
+    def __init__(self, name, floating=True, **kwargs):
+        super().__init__(name=name, **kwargs)
+        self.floating = floating
+
+    @property
+    def floating(self):
+        if self._floating and not self.trainable:
+            raise RuntimeError("Floating is set to true but tf Variable is not trainable.")
+        return self._floating
+
+    @floating.setter
+    def floating(self, value):
+        if not isinstance(value, bool):
+            raise TypeError("floating has to be a boolean.")
+        self._floating = value
+
+
+class Parameter(BaseParameter):
+    """Class for fit parameters, derived from TF Variable class.
     """
 
     def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True):
@@ -32,13 +65,12 @@ class FitParameter(VariableV1):
             upper_limit : upper limit
             step_size : step size (set to 0 for fixed parameters)
         """
-        if not isinstance(name, str):
-            raise TypeError("Name has to be a string and not {}".format(type(name)))
+
         # TODO: sanitize input
-        init_value = tf.cast(init_value, dtype=ztypes.float)
         super().__init__(init_value, dtype=ztypes.float, name=name,
                          # use_resource=True  # TODO: only 1.11+
                          )
+        init_value = tf.cast(init_value, dtype=ztypes.float)
         self.floating = floating
         self.init_value = init_value
         # self.par_name = name
@@ -52,11 +84,6 @@ class FitParameter(VariableV1):
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
         self.placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
         self._update_op = self.assign(self.placeholder)  # for performance! Run with sess.run
-        self.prev_value = None
-        self.error = 0.
-        self.positive_error = 0.
-        self.negative_error = 0.
-        self.fitted_value = 0.
 
     @property
     def update_op(self):
@@ -139,6 +166,6 @@ def convert_to_parameter(value) -> "Parameter":
             value = ztf.to_real(value)
 
     # TODO: check if Tensor is complex
-    value = FitParameter("FIXED_autoparam", init_value=value)
+    value = Parameter("FIXED_autoparam", init_value=value)
     value.floating = False
     return value

@@ -8,7 +8,7 @@ import zfit.minimizers.optimizers_tf
 
 
 def minimize_func(minimizer_class_and_kwargs, sess):
-    from zfit.core.parameter import FitParameter
+    from zfit.core.parameter import Parameter
 
     parameter_tolerance = 0.3
     max_distance_to_min = 0.11
@@ -17,12 +17,12 @@ def minimize_func(minimizer_class_and_kwargs, sess):
         true_a = 1.
         true_b = 4.
         true_c = 7.
-        a_param = FitParameter("variable_a", ztf.constant(1.5),
-                               ztf.constant(-1.),
-                               ztf.constant(20.),
-                               step_size=ztf.constant(0.1))
-        b_param = FitParameter("variable_b", 3.5)
-        c_param = FitParameter("variable_c", 7.8)
+        a_param = Parameter("variable_a", ztf.constant(1.5),
+                            ztf.constant(-1.),
+                            ztf.constant(20.),
+                            step_size=ztf.constant(0.1))
+        b_param = Parameter("variable_b", 3.5)
+        c_param = Parameter("variable_c", 7.8)
 
     def func(a, b, c):
         return ztf.convert_to_tensor((a - true_a) ** 6 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42

@@ -7,7 +7,7 @@ from zfit.core.limits import Range
 import zfit.pdfs.dist_tfp
 from zfit.pdfs.dist_tfp import Normal
 from zfit.pdfs.basic import Gauss
-from zfit.core.parameter import FitParameter
+from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit import ztf
 
@@ -17,8 +17,8 @@ test_values = np.array([3., 11.3, -0.2, -7.82])
 mu_true = 1.4
 sigma_true = 1.8
 low, high = -4.3, 1.9
-mu = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+mu = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+sigma = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
 
 
@@ -41,10 +41,10 @@ def true_gaussian_grad(x):
     return np.array((grad_mu, grad_sigma)).transpose()
 
 
-mu2 = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma2 = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
-mu3 = FitParameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma3 = FitParameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+mu2 = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+sigma2 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+mu3 = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
+sigma3 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
 wrapped_gauss = zfit.pdfs.dist_tfp.WrapDistribution(tf_gauss1)
 

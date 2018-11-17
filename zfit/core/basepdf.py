@@ -38,7 +38,7 @@ Or directly sample from it
 We can create an extended PDF, which will result in anything using a `norm_range` to not return the
 probability but the number probability (the function will be normalized to `yield` instead of 1 inside
 the `norm_range`)
->>> yield1 = FitParameter("yield1", 100, 0, 1000)
+>>> yield1 = Parameter("yield1", 100, 0, 1000)
 >>> gauss.set_yield(yield1)
 >>> gauss.is_extended
 True
@@ -64,7 +64,7 @@ from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple
 from zfit.util import ztyping
 from ..settings import types as ztypes
 
-from .parameter import FitParameter
+from .parameter import Parameter
 from ..util import exception as zexception
 from zfit import ztf
 
@@ -81,7 +81,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_yield(self, value: Union[FitParameter, None]):
+    def set_yield(self, value: Union[Parameter, None]):
         raise NotImplementedError
 
 
@@ -385,7 +385,7 @@ class BasePDF(BaseModel):
         """
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def set_yield(self, value: Union[FitParameter, None]):
+    def set_yield(self, value: Union[Parameter, None]):
         """Make the pdf extended by setting a yield.
 
         This alters the behavior of `prob` and similar and `integrate` and similar. If there is a
@@ -437,7 +437,7 @@ class BasePDF(BaseModel):
         return self._yield is not None
 
     @contextlib.contextmanager
-    def temp_yield(self, value: Union[FitParameter, None]) -> Union[FitParameter, None]:
+    def temp_yield(self, value: Union[Parameter, None]) -> Union[Parameter, None]:
         """Temporary set (or unset with None) the yield of the pdf.
 
         Args:
@@ -450,11 +450,11 @@ class BasePDF(BaseModel):
         finally:
             self.set_yield(old_yield)
 
-    def get_yield(self) -> Union[FitParameter, None]:
+    def get_yield(self) -> Union[Parameter, None]:
         """Return the yield (only for extended pdfs).
 
         Returns:
-            FitParameter: the yield of the current pdf or None
+            Parameter: the yield of the current pdf or None
         """
         if not self.is_extended:
             raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")

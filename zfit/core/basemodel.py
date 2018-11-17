@@ -12,6 +12,7 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit.core import integrate as zintegrate, sample as zsample
+from zfit.core.baseobject import ZfitObject
 from zfit.core.limits import no_norm_range, Range, convert_to_range, supports
 from zfit.core.parameter import convert_to_parameter
 from zfit.settings import types as ztypes
@@ -42,13 +43,9 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class ZfitModel(pep487.ABC):
+class ZfitModel(ZfitObject):
     @abc.abstractmethod
     def get_parameters(self, only_floating=True, names=None):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_dependents(self, only_floating=True):
         raise NotImplementedError
 
 
@@ -873,7 +870,7 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
         parameter_dependents = set(itertools.chain.from_iterable(parameter_dependents))  # flatten
         return parameter_dependents
 
-    def get_parameters(self, only_floating=True, names=None) -> typing.List['FitParameter']:
+    def get_parameters(self, only_floating=True, names=None) -> typing.List['Parameter']:
         """Return the parameters. If it is empty, automatically set and return all trainable variables.
 
         Args:

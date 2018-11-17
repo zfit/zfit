@@ -4,7 +4,7 @@ import numpy as np
 
 from zfit import ztf
 from zfit.core.limits import Range
-from zfit.core.parameter import FitParameter
+from zfit.core.parameter import Parameter
 from zfit.pdfs.functor import SumPDF, ProductPDF
 from zfit.pdfs.basic import Gauss
 import zfit
@@ -21,12 +21,12 @@ def true_gaussian_sum(x):
 
 # @pytest.fixture()
 def sum_prod_gauss():
-    mu1 = FitParameter("mu1", 1.)
-    mu2 = FitParameter("mu2", 2.)
-    mu3 = FitParameter("mu3", 3.)
-    sigma1 = FitParameter("sigma1", 11.)
-    sigma2 = FitParameter("sigma2", 22.)
-    sigma3 = FitParameter("sigma3", 33.)
+    mu1 = Parameter("mu1", 1.)
+    mu2 = Parameter("mu2", 2.)
+    mu3 = Parameter("mu3", 3.)
+    sigma1 = Parameter("sigma1", 11.)
+    sigma2 = Parameter("sigma2", 22.)
+    sigma3 = Parameter("sigma3", 33.)
     gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss3")
@@ -90,15 +90,15 @@ def normalization_testing(pdf, normalization_value=1.):
 def test_extended_gauss():
     # return  # HACK: no clue whatsoever why this fails...
     with tf.name_scope("gauss_params2"):
-        mu1 = FitParameter("mu1", 1.)
-        mu2 = FitParameter("mu2", 2.)
-        mu3 = FitParameter("mu3", 3.)
-        sigma1 = FitParameter("sigma1", 11.)
-        sigma2 = FitParameter("sigma2", 22.)
-        sigma3 = FitParameter("sigma3", 33.)
-        yield1 = FitParameter("yield1", 150.)
-        yield2 = FitParameter("yield2", 550.)
-        yield3 = FitParameter("yield3", 2500.)
+        mu1 = Parameter("mu1", 1.)
+        mu2 = Parameter("mu2", 2.)
+        mu3 = Parameter("mu3", 3.)
+        sigma1 = Parameter("sigma1", 11.)
+        sigma2 = Parameter("sigma2", 22.)
+        sigma3 = Parameter("sigma3", 33.)
+        yield1 = Parameter("yield1", 150.)
+        yield2 = Parameter("yield2", 550.)
+        yield3 = Parameter("yield3", 2500.)
         sum_yields = 150 + 550 + 2500
 
         gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1")
