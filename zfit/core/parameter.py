@@ -1,4 +1,5 @@
 """Define Parameter which holds the values."""
+import abc
 
 import numpy as np
 import pep487
@@ -12,29 +13,41 @@ from zfit import ztf
 from zfit.core.baseobject import BaseObject
 from zfit.util import ztyping
 
-try:
-    # from tensorflow.python.ops.variables import
-    # from tensorflow.python.ops.variables import VariableV1
-    from tensorflow.python.ops.resource_variable_ops import ResourceVariable as VariableV1
-except ImportError:
-    from tensorflow import Variable as VariableV1
+from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 
 from zfit.settings import types as ztypes
 
 
 class ZfitParameter(BaseObject):
 
-    def _get_dependents(self, only_floating=False):
-        return {self}
+    @property
+    @abc.abstractmethod
+    def floating(self):
+        raise NotImplementedError
 
-class MetaBaseParameter(type(VariableV1), type(ZfitParameter)):
+    @floating.setter
+    @abc.abstractmethod
+    def floating(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def value(self):
+        raise NotImplementedError
+
+
+
+class MetaBaseParameter(type(TFBaseVariable), type(ZfitParameter)):  # resolve metaclasses
     pass
 
-class BaseParameter(VariableV1, ZfitParameter, metaclass=MetaBaseParameter):
+
+class BaseParameter(TFBaseVariable, ZfitParameter, metaclass=MetaBaseParameter):
 
     def __init__(self, name, floating=True, **kwargs):
         super().__init__(name=name, **kwargs)
         self.floating = floating
+
+    def value(self):
+        return self.read_value()
 
     @property
     def floating(self):
@@ -53,7 +66,8 @@ class Parameter(BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
 
-    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True):
+    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
+                 dtype=ztypes.float):
         """
           Constructor.
             name : name of the parameter,
@@ -64,14 +78,10 @@ class Parameter(BaseParameter):
         """
 
         # TODO: sanitize input
-        super().__init__(initial_value=init_value, dtype=ztypes.float, name=name,
-                         # use_resource=True  # TODO: only 1.11+
-                         )
-        init_value = tf.cast(init_value, dtype=ztypes.float)
+        super().__init__(initial_value=init_value, dtype=dtype, name=name)
+        init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.init_value = init_value
-        # self.par_name = name
-        self._step_size = None
         self.step_size = step_size
         if lower_limit is None:
             lower_limit = -np.infty
@@ -79,9 +89,13 @@ class Parameter(BaseParameter):
             upper_limit = np.infty
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
-        self.placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
-        self._update_op = self.assign(self.placeholder)  # for performance! Run with sess.run
+        self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
+        self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
 
+    def _get_dependents(self, only_floating=False):
+        return {self}
+
+    # OLD remove? only keep for speed reasons?
     @property
     def update_op(self):
         return self._update_op
@@ -108,33 +122,38 @@ class Parameter(BaseParameter):
     def step_size(self, value):
         self._step_size = value
 
-    def update(self, session, value):
+    def randomise(self, sess, minval=None, maxval=None, seed=None):
+        """Update the value with a randomised value between minval and maxval.
+
+        Args:
+            sess (`tf.Session`): The TensorFlow session to execute the operation
+            minval (Numerical):
+            maxval (Numerical):
+            seed ():
         """
-          Update the value of the parameter. Previous value is remembered in self.prev_value
-          and TF update is called only if the value is changed.
-            session : TF session
-            value   : new value
-        """
-        if value != self.prev_value:
-            if isinstance(value, tf.Tensor):
-                # session.run(self.assign(value))
-                assign_op = self.assign(ztf.convert_to_tensor(value))
-                # session.run(assign_op)
-            else:
-                session.run(self.update_op, {self.placeholder: value})
-                self.prev_value = value
+        if minval is None:
+            minval = self.lower_limit
+        else:
+            minval = tf.cast(minval, dtype=self.dtype)
+        if maxval is None:
+            maxval = self.upper_limit
+        else:
+            maxval = tf.cast(maxval, dtype=self.dtype)
+
+        value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
+        self.load(value=value, session=sess)
+        return value
+
+class ComposedParameter(BaseParameter):
+
+    def __init__(self, params):
+        self.parameters = params
 
 
+    def _get_dependents(self, only_floating):
+        dependents = self._extract_dependents(self.parameters.values(), only_floating=only_floating)
+        return dependents
 
-    def randomise(self, session, minval, maxval, seed=None):
-        """
-          Randomise the initial value and update the tf variable value
-        """
-        if seed:
-            np.random.seed(seed)
-        val = np.random.uniform(maxval, minval)
-        self.init_value = val
-        self.update(session, val)
 
 
 def convert_to_parameter(value) -> "Parameter":
