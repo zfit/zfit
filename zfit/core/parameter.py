@@ -2,16 +2,12 @@
 import abc
 
 import numpy as np
-import pep487
 import tensorflow as tf
-import tensorflow.contrib.eager as tfe
 
 # TF backwards compatibility
-from tensorflow.python import VariableMetaclass
 
 from zfit import ztf
 from zfit.core.baseobject import BaseObject
-from zfit.util import ztyping
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 
@@ -34,6 +30,10 @@ class ZfitParameter(BaseObject):
     def value(self):
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def independent(self):
+        raise NotImplementedError
 
 
 class MetaBaseParameter(type(TFBaseVariable), type(ZfitParameter)):  # resolve metaclasses
@@ -42,9 +42,10 @@ class MetaBaseParameter(type(TFBaseVariable), type(ZfitParameter)):  # resolve m
 
 class BaseParameter(TFBaseVariable, ZfitParameter, metaclass=MetaBaseParameter):
 
-    def __init__(self, name, floating=True, **kwargs):
-        super().__init__(name=name, **kwargs)
+    def __init__(self, name, initial_value, floating=True, **kwargs):
+        super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.floating = floating
+
 
     def value(self):
         return self.read_value()
@@ -62,9 +63,13 @@ class BaseParameter(TFBaseVariable, ZfitParameter, metaclass=MetaBaseParameter):
         self._floating = value
 
 
+
+
+
 class Parameter(BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
+    _independent = True
 
     def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
                  dtype=ztypes.float):
@@ -79,6 +84,8 @@ class Parameter(BaseParameter):
 
         # TODO: sanitize input
         super().__init__(initial_value=init_value, dtype=dtype, name=name)
+        if self.independent:
+            tf.add_to_collection("zfit_independent", self)
         init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.init_value = init_value
@@ -94,6 +101,13 @@ class Parameter(BaseParameter):
 
     def _get_dependents(self, only_floating=False):
         return {self}
+
+    @property
+    def independent(self):
+        return self._independent
+
+    def __init_subclass__(cls, **kwargs):
+        cls._independent = True  # overwritting independent only counnt for subclass/instance
 
     # OLD remove? only keep for speed reasons?
     @property
@@ -144,15 +158,34 @@ class Parameter(BaseParameter):
         self.load(value=value, session=sess)
         return value
 
-class ComposedParameter(BaseParameter):
+class BaseComposedParameter(BaseParameter):
 
-    def __init__(self, params):
+    def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
+        super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.parameters = params
 
 
     def _get_dependents(self, only_floating):
         dependents = self._extract_dependents(self.parameters.values(), only_floating=only_floating)
         return dependents
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    @parameters.setter
+    def parameters(self, value):
+        if not isinstance(value, dict):
+            raise TypeError("Parameters has to be a dict")
+        self._parameters = value
+
+class ComposedParameter(BaseComposedParameter):
+    # TODO: raise error if eager is on (because it's very errorprone)
+    def __init__(self, name, tensor):
+        dependent_vars = tf.gradients(tensor, tf.get_collection("zfit_independent"))
+        params = filter(lambda g: g is not None, iterable=dependent_vars)
+        params = {p.name: p for p in params}
+        super().__init__(params, initial_value=tensor, name=name)
 
 
 
