@@ -8,7 +8,11 @@ class PDFCompatibilityError(Exception):
 class LogicalUndefinedOperationError(Exception):
     pass
 
+
 class ExtendedPDFError(Exception):
+    pass
+
+class AlreadyExtendedPDFError(ExtendedPDFError):
     pass
 
 
@@ -28,6 +32,7 @@ class BasePDFSubclassingError(SubclassingError):
 
 class NotMinimizedError(Exception):
     pass
+
 
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):

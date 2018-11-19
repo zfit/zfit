@@ -46,7 +46,6 @@ class BaseParameter(TFBaseVariable, ZfitParameter, metaclass=MetaBaseParameter):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.floating = floating
 
-
     def value(self):
         return self.read_value()
 
@@ -61,9 +60,6 @@ class BaseParameter(TFBaseVariable, ZfitParameter, metaclass=MetaBaseParameter):
         if not isinstance(value, bool):
             raise TypeError("floating has to be a boolean.")
         self._floating = value
-
-
-
 
 
 class Parameter(BaseParameter):
@@ -158,12 +154,12 @@ class Parameter(BaseParameter):
         self.load(value=value, session=sess)
         return value
 
+
 class BaseComposedParameter(BaseParameter):
 
     def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.parameters = params
-
 
     def _get_dependents(self, only_floating):
         dependents = self._extract_dependents(self.parameters.values(), only_floating=only_floating)
@@ -179,14 +175,23 @@ class BaseComposedParameter(BaseParameter):
             raise TypeError("Parameters has to be a dict")
         self._parameters = value
 
+
 class ComposedParameter(BaseComposedParameter):
     # TODO: raise error if eager is on (because it's very errorprone)
-    def __init__(self, name, tensor):
+    def __init__(self, name, tensor, **kwargs):
         dependent_vars = tf.gradients(tensor, tf.get_collection("zfit_independent"))
         params = filter(lambda g: g is not None, iterable=dependent_vars)
         params = {p.name: p for p in params}
-        super().__init__(params, initial_value=tensor, name=name)
+        super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
+class ComplexParameter(BaseComposedParameter):
+    def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex):
+        real_value = tf.real(initial_value)
+        real_part = Parameter(name=name + "_real", init_value=real_value, floating=floating, dtype=real_value.dtype)
+        imag_value = tf.imag(initial_value)
+        imag_part = Parameter(name=name + "_imag", init_value=imag_value, floating=floating, dtype=imag_value.dtype)
+        params = {'real': real_part, 'imag': imag_part}
+        super().__init__(params=params, initial_value=initial_value, name=name)
 
 
 def convert_to_parameter(value) -> "Parameter":

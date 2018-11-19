@@ -48,6 +48,11 @@ class ZfitModel(BaseObject):
     def get_parameters(self, only_floating=True, names=None):
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def parameters(self):
+        raise NotImplementedError
+
 
 class BaseModel(ZfitModel):  # __init_subclass__ backport
     """Base class for any generic pdf.
@@ -156,6 +161,11 @@ class BaseModel(ZfitModel):  # __init_subclass__ backport
         # `parameters = dict(locals())`.
         return OrderedDict((k, v) for k, v in self._parameters.items()
                            if not k.startswith("__") and k != "self")
+    #
+    # @property
+    # @abc.abstractmethod
+    # def _parameters(self):
+    #     raise NotImplementedError("Should be an attribute")
 
     @abc.abstractmethod
     def gradient(self, x: ztyping.XType, params: ztyping.ParamsType = None):

@@ -1,15 +1,14 @@
 from typing import Optional, Tuple
 
-import zfit
-from zfit.core.basefunc import ZfitFunc
-from zfit.core.basemodel import ZfitModel
-from zfit.core.basepdf import ZfitPDF
-from zfit.core.parameter import convert_to_parameter
-from zfit.pdfs.functions import ProdFunc, SimpleFunction, SumFunc
-from zfit.pdfs.functor import ProductPDF, SumPDF
-from zfit.pdfs.special import SimplePDF
-from zfit.util import ztyping
-from zfit.util.exception import LogicalUndefinedOperationError
+from .basefunc import ZfitFunc
+from .basemodel import ZfitModel
+from .basepdf import ZfitPDF
+from .parameter import convert_to_parameter, ZfitParameter, ComposedParameter, Parameter
+from ..pdfs.functions import ProdFunc, SimpleFunction, SumFunc
+from ..pdfs.functor import ProductPDF, SumPDF
+from ..pdfs.special import SimplePDF
+from ..util import ztyping
+from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
@@ -31,8 +30,8 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
     new_object = None
 
     # object 1 is Parameter
-    if isinstance(object1, zfit.Parameter):
-        if isinstance(object2, zfit.Parameter):
+    if isinstance(object1, Parameter):
+        if isinstance(object2, Parameter):
             new_object = multiply_param_param(param1=object1, param2=object2)
         elif isinstance(object2, ZfitFunc):
             new_object = multiply_param_func(param=object1, func=object2)
@@ -43,7 +42,7 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
 
     # object 1 is Function
     elif isinstance(object1, ZfitFunc):
-        if isinstance(object2, zfit.Parameter):
+        if isinstance(object2, Parameter):
             new_object = multiply_param_func(param=object2, func=object1)
         elif isinstance(object2, ZfitFunc):
             new_object = multiply_func_func(func1=object1, func2=object2, dims=dims)
@@ -61,40 +60,51 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
                                              "".format(object1, object2, type(object1), type(object2)))
 
 
-def multiply_pdf_pdf(pdf1, pdf2, dims=None, name="multiply_pdf_pdf"):
+def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None,
+                     name: str = "multiply_pdf_pdf") -> ProductPDF:
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
 
     return ProductPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
 
-def multiply_func_func(func1, func2, dims=None, name="multiply_func_func"):
+def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType = None,
+                       name: str = "multiply_func_func") -> ProdFunc:
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
 
     return ProdFunc(funcs=[func1, func2], dims=dims, name=name)
 
 
-def multiply_param_pdf(param, pdf):
-    if not (isinstance(param, zfit.Parameter) and isinstance(pdf, ZfitPDF)):
+def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
+    if not (isinstance(param, Parameter) and isinstance(pdf, ZfitPDF)):
         raise TypeError("`param` and `pdf` need to be `zfit.Parameter` resp. `ZfitPDF` and not "
                         "{}, {}".format(param, pdf))
-    raise NotImplementedError("TODO")  # TODO: implement
+    if pdf.is_extended:
+        raise AlreadyExtendedPDFError()
+    pdf.set_yield(param)  # TODO: make unmutable with copy?
+    return pdf
 
 
-def multiply_param_func(param, func):
-    if not (isinstance(param, zfit.Parameter) and isinstance(func, ZfitFunc)):
+def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
+    if not (isinstance(param, Parameter) and isinstance(func, ZfitFunc)):
         raise TypeError("`param` and `func` need to be `zfit.Parameter` resp. `ZfitFunc` and not "
                         "{}, {}".format(param, func))
-    raise NotImplementedError("TODO")  # TODO: implement with new parameters
+
+    def combined_func(x):
+        return param * func.value(x=x)
+
+    params = {param.name: param}
+    params.update(func.parameters)
+    new_func = SimpleFunction(func=combined_func, **params)  # TODO: implement with new parameters
+    return new_func
 
 
-def multiply_param_param(param1, param2):
-    if not (isinstance(param1, zfit.Parameter) and isinstance(param2, zfit.Parameter)):
+def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
+    if not (isinstance(param1, Parameter) and isinstance(param2, Parameter)):
         raise TypeError("`param1` and `param2` need to be `zfit.Parameter` and not {}, {}".format(param1, param2))
-
-    raise NotImplementedError("TODO")  # TODO: implement with new parameters
-
+    param = param1 * param2
+    return ComposedParameter(name=param1.name + "_mult_" + param2.name, tensor=param)
 
 # Addition logic
 def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
@@ -114,8 +124,8 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
     new_object = None
 
     # object 1 is Parameter
-    if isinstance(object1, zfit.Parameter):
-        if isinstance(object2, zfit.Parameter):
+    if isinstance(object1, Parameter):
+        if isinstance(object2, Parameter):
             new_object = add_param_param(param1=object1, param2=object2)
         elif isinstance(object2, ZfitFunc):
             new_object = add_param_func(param=object1, func=object2)
@@ -137,7 +147,7 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
             new_object = add_pdf_pdf(pdf1=object1, pdf2=object2, dims=dims)
 
     if new_object is None:
-        raise LogicalUndefinedOperationError("Multiplication for {} and {} of type {} and {} is not"
+        raise LogicalUndefinedOperationError("Addition for {} and {} of type {} and {} is not"
                                              "properly defined. (may change the order)"
                                              "".format(object1, object2, type(object1), type(object2)))
 
@@ -157,43 +167,47 @@ def _convert_to_known(object1, object2):
     return object1, object2
 
 
-def add_pdf_pdf(pdf1, pdf2, dims=None, name="add_pdf_pdf"):
+def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None, name: str = "add_pdf_pdf") -> SumPDF:
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
 
     return SumPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
 
-def add_func_func(func1, func2, dims=None, name="add_func_func"):
+def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType = None,
+                  name: str = "add_func_func") -> SumFunc:
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
 
     return SumFunc(funcs=[func1, func2], dims=dims, name=name)
 
 
-def add_param_func(param, func):
-    if not (isinstance(param, zfit.Parameter) and isinstance(func, ZfitFunc)):
+def add_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
+    if not (isinstance(param, Parameter) and isinstance(func, ZfitFunc)):
         raise TypeError("`param` and `func` need to be `zfit.Parameter` resp. `ZfitFunc` and not "
                         "{}, {}".format(param, func))
     raise NotImplementedError("This is not supported. Probably in the future.")  # TODO: implement with new parameters
 
 
-def add_param_param(param1, param2):
-    if not (isinstance(param1, zfit.Parameter) and isinstance(param2, zfit.Parameter)):
+def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
+    if not (isinstance(param1, Parameter) and isinstance(param2, Parameter)):
         raise TypeError("`param1` and `param2` need to be `zfit.Parameter` and not {}, {}".format(param1, param2))
 
-    raise NotImplementedError("TODO")  # TODO: implement with new parameters
+    param = param1 + param2
+    return ComposedParameter(name=param1.name + "_add_" + param2.name, tensor=param)
+
 
 # Conversions
 
-def convert_pdf_to_func(pdf, norm_range):
+def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFunc:
     def value_func(x):
         return pdf.pdf(x, norm_range=norm_range)
 
     func = SimpleFunction(func=value_func, name=pdf.name + "_as_func", **pdf.get_parameters(only_floating=False))
     return func
 
-def convert_func_to_pdf(func):
+
+def convert_func_to_pdf(func: ZfitFunc) -> ZfitPDF:
     if not isinstance(func, ZfitFunc) and callable(func):
         func = SimpleFunction(func=func)
     pdf = SimplePDF(func=func.value, name=func.name, **func.get_parameters(only_floating=False))

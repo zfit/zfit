@@ -3,7 +3,8 @@ import itertools
 
 import pep487
 
-from zfit.util.container import convert_to_container
+from . import operations
+from ..util.container import convert_to_container
 
 
 class ZfitObject(pep487.ABC):
@@ -33,3 +34,9 @@ class BaseObject(ZfitObject):
         dependents = (obj.get_dependents(only_floating=only_floating) for obj in zfit_object)
         dependents = set(itertools.chain.from_iterable(dependents))  # flatten
         return dependents
+
+    def __add__(self, other):
+        return operations.add(self, other, dims=None)
+
+    def __mul__(self, other):
+        return operations.multiply(self, other, dims=None)
