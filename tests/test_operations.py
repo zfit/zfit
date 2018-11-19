@@ -11,7 +11,7 @@ from zfit.pdfs.special import SimplePDF
 rnd_test_values = np.array([1., 0.01,-14.2, 0., 1.5, 152, -0.1, 12])
 
 def test_composed_param():
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
@@ -23,11 +23,10 @@ def test_composed_param():
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
 
 def test_param_func():
-    tf.reset_default_graph()
-    param1 = Parameter('param1', 1.)
-    param2 = Parameter('param2', 2.)
-    param3 = Parameter('param3', 3., floating=False)
-    param4 = Parameter('param4', 4.)
+    param1 = Parameter('param11', 1.)
+    param2 = Parameter('param21', 2.)
+    param3 = Parameter('param31', 3., floating=False)
+    param4 = Parameter('param41', 4.)
     # a = ztf.log(3. * param1) * tf.square(param2) - param3
     a = 3. * param1
     func = SimpleFunction(func=lambda x: a * x)
@@ -42,11 +41,11 @@ def test_param_func():
         assert all(result1 == result2)
 
 def test_implicit_extended():
-    tf.reset_default_graph()
-    param1 = Parameter('param1', 12.)
-    yield1 = Parameter('yield1', 21.)
-    param2 = Parameter('param2', 13., floating=False)
-    yield2 = Parameter('yield2', 31., floating=False)
+    # tf.reset_default_graph()
+    param1 = Parameter('param12', 12.)
+    yield1 = Parameter('yield12', 21.)
+    param2 = Parameter('param22', 13., floating=False)
+    yield2 = Parameter('yield22', 31., floating=False)
     pdf1 = SimplePDF(func=lambda x: x*param1)
     pdf2 = SimplePDF(func=lambda x: x*param2)
     extended_pdf = yield1 * pdf1 + yield2 * pdf2
@@ -55,13 +54,13 @@ def test_implicit_extended():
 
 
 def test_implicit_sumpdf():
-    tf.reset_default_graph()
-    param1 = Parameter('param2', 11.)
-    frac1 = Parameter('frac1', 0.17)
-    frac2 = Parameter('frac2', 0.2)
+    # tf.reset_default_graph()
+    param1 = Parameter('param23', 11.)
+    frac1 = Parameter('frac13', 0.17)
+    frac2 = Parameter('frac23', 0.2)
 
-    param2 = Parameter('param2', 12., floating=False)
-    param3 = Parameter('param3', 13., floating=False)
+    param2 = Parameter('param23', 12., floating=False)
+    param3 = Parameter('param33', 13., floating=False)
     pdf1 = SimplePDF(func=lambda x: x * param1)
     pdf2 = SimplePDF(func=lambda x: x * param2)
     pdf3 = SimplePDF(func=lambda x: x * param3)
