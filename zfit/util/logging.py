@@ -47,6 +47,8 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
     """
     if not name.startswith('zfit'):
         name = 'zfit.{}'.format(name.rstrip('.'))
+    if stdout_level is None:
+        stdout_level = logging.WARNING
     format_stream = ("%(asctime)s - %(name)s | "
                      "%(log_color)s%(levelname)-8s%(reset)s | "
                      "%(log_color)s%(message)s%(reset)s")
@@ -61,8 +63,7 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
         stream.setFormatter(formatter)
         logger.addHandler(stream)
     # The first handler is always the stream
-    if stdout_level is None:
-        stdout_level = logging.WARNING
+
     logger.handlers[0].setLevel(stdout_level)
     # Now the file handler
     file_handler = None
