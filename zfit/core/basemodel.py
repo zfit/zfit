@@ -19,7 +19,7 @@ from ..util import container as zcontainer, ztyping
 from ..util.exception import BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError
 from zfit import ztf
 
-_BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
+_BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
 def _BaseModel_register_check_support(has_support: bool):
@@ -35,7 +35,7 @@ def _BaseModel_register_check_support(has_support: bool):
 
     def register(func):
         name = func.__name__
-        _BasePDF_USER_IMPL_METHODS_TO_CHECK[name] = has_support
+        _BaseModel_USER_IMPL_METHODS_TO_CHECK[name] = has_support
         func.__wrapped__ = _BaseModel_register_check_support
         return func
 
@@ -89,10 +89,15 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
     @classmethod
     def __init_subclass__(cls, **kwargs):
         # check if subclass has decorator if required
-        for method_name, has_support in _BasePDF_USER_IMPL_METHODS_TO_CHECK.items():
+        cls._subclass_check_support(methods_to_check=_BaseModel_USER_IMPL_METHODS_TO_CHECK,
+                                    wrapper_not_overwritten=_BaseModel_register_check_support)
+
+    @classmethod
+    def _subclass_check_support(cls, methods_to_check, wrapper_not_overwritten):
+        for method_name, has_support in methods_to_check.items():
             method = getattr(cls, method_name)
             if hasattr(method, "__wrapped__"):
-                if method.__wrapped__ == _BaseModel_register_check_support:
+                if method.__wrapped__ == wrapper_not_overwritten:
                     continue  # not overwritten, fine
 
             # here means: overwritten
@@ -118,7 +123,6 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
             # if we reach this points, somethings wrong
             raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
                                           "OR been been wrapped but it should not be".format(method_name))
-
         cls._analytic_integral = zintegrate.AnalyticIntegral()
         cls._inverse_analytic_integral = []
         cls._additional_repr = {}
@@ -856,13 +860,21 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
         params_equal = set(other.parameters) == set(self.parameters)
         return params_equal
 
+    def __add__(self, other):
+        from . import operations
+        return operations.add(self, other, dims=None)
+
+    def __mul__(self, other):
+        from . import operations
+        return operations.multiply(self, other, dims=None)
+
     def _check_input_x_function(self, func):
         # TODO: signature etc?
         if not callable(func):
             raise TypeError("Function {} is not callable.")
         return func
 
-    def _get_dependents(self, only_floating=False):
+    def _get_dependents(self):
         parameters = self.get_parameters(only_floating=only_floating)
         parameter_dependents = self._extract_dependents(parameters, only_floating=only_floating)
         return parameter_dependents

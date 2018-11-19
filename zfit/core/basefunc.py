@@ -28,6 +28,14 @@ class BaseFunc(BaseModel, ZfitFunc):
     def _func_to_integrate(self, x: ztyping.XType):
         self._hook_value(x=x)
 
+    def copy(self, **override_parameters):
+        new_params = self.parameters
+        new_params.update(override_parameters)
+        return type(self)(new_params)
+
+    def gradient(self, x: ztyping.XType, params: ztyping.ParamsType = None):
+        raise NotImplementedError("What do you need? Use tf.gradient...")
+
     @abc.abstractmethod
     def _value(self, x):
         raise NotImplementedError

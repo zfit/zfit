@@ -13,23 +13,20 @@ class BaseObject(ZfitObject):
         Args:
             only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`
         """
-        return self._get_dependents(only_floating=only_floating)
+        dependents = self._get_dependents()
+        if only_floating:
+            dependents = set(filter(lambda p: p.floating, dependents))
+        return dependents
 
     @abc.abstractmethod
-    def _get_dependents(self, only_floating):
+    def _get_dependents(self):
         raise NotImplementedError
 
     @staticmethod
-    def _extract_dependents(zfit_objects, only_floating):
+    def _extract_dependents(zfit_objects):
         zfit_object = convert_to_container(zfit_objects)
-        dependents = (obj.get_dependents(only_floating=only_floating) for obj in zfit_object)
+        dependents = (obj.get_dependents() for obj in zfit_object)
         dependents = set(itertools.chain.from_iterable(dependents))  # flatten
         return dependents
 
-    def __add__(self, other):
-        from . import operations
-        return operations.add(self, other, dims=None)
 
-    def __mul__(self, other):
-        from . import operations
-        return operations.multiply(self, other, dims=None)

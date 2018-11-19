@@ -32,8 +32,8 @@ class BaseFunctor(BasePDF):
     def pdfs_extended(self):
         return [pdf.is_extended for pdf in self.pdfs]
 
-    def _get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
-        dependents = super()._get_dependents(only_floating=only_floating)  # get the own parameter dependents
+    def _get_dependents(self):  # TODO: change recursive to `only_floating`?
+        dependents = super()._get_dependents()  # get the own parameter dependents
         pdf_dependents = self._extract_dependents(self.pdfs, only_floating=only_floating)
         return dependents.union(pdf_dependents)
 

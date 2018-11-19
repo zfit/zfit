@@ -10,7 +10,7 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 
 from .baseobject import BaseObject
-from .interfaces import ZfitParameter
+from .interfaces import ZfitParameter, ZfitObject
 from zfit.settings import types as ztypes
 
 
@@ -38,6 +38,21 @@ class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBas
         if not isinstance(value, bool):
             raise TypeError("floating has to be a boolean.")
         self._floating = value
+
+    def __add__(self, other):
+        if isinstance(other, ZfitObject):
+            from . import operations
+            return operations.add(self, other, dims=None)
+        else:
+            return super().__add__(other)
+
+    def __mul__(self, other):
+        if isinstance(other, ZfitObject):
+            from . import operations
+            return operations.multiply(self, other, dims=None)
+        else:
+            return super().__add__(other)
+
 
 
 class Parameter(BaseParameter):
@@ -73,7 +88,7 @@ class Parameter(BaseParameter):
         self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
         self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
 
-    def _get_dependents(self, only_floating=False):
+    def _get_dependents(self):
         return {self}
 
     @property
@@ -139,8 +154,8 @@ class BaseComposedParameter(BaseParameter):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.parameters = params
 
-    def _get_dependents(self, only_floating):
-        dependents = self._extract_dependents(self.parameters.values(), only_floating=only_floating)
+    def _get_dependents(self):
+        dependents = self._extract_dependents(list(self.parameters.values()))
         return dependents
 
     @property
@@ -157,10 +172,15 @@ class BaseComposedParameter(BaseParameter):
 class ComposedParameter(BaseComposedParameter):
     # TODO: raise error if eager is on (because it's very errorprone)
     def __init__(self, name, tensor, **kwargs):
-        dependent_vars = tf.gradients(tensor, tf.get_collection("zfit_independent"))
-        params = filter(lambda g: g is not None, iterable=dependent_vars)
+        independend_params = tf.get_collection("zfit_independent")
+        grad_indep_params = tf.gradients(tensor, independend_params)
+        params = [param for param, grad in zip(independend_params, grad_indep_params) if grad is not None]
         params = {p.name: p for p in params}
         super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
+
+    @property
+    def independent(self):
+        return False
 
 class ComplexParameter(BaseComposedParameter):
     def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):

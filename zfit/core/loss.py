@@ -199,8 +199,8 @@ class BaseLoss(ZfitLoss):
     def constraints(self):
         return self._constraints
 
-    def _get_dependents(self, only_floating=False):
-        pdf_dependents = self._extract_dependents(self.pdfs, only_floating=only_floating)
+    def _get_dependents(self):
+        pdf_dependents = self._extract_dependents(self.pdfs)
         return pdf_dependents
 
     @abc.abstractmethod

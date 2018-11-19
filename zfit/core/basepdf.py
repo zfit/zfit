@@ -58,7 +58,7 @@ import warnings
 
 import tensorflow as tf
 
-from .basemodel import BaseModel, _BaseModel_register_check_support
+from .basemodel import BaseModel, _BaseModel_USER_IMPL_METHODS_TO_CHECK
 from zfit.core.limits import Range, convert_to_range
 from zfit.util import ztyping
 from ..settings import types as ztypes
@@ -67,6 +67,27 @@ from .parameter import Parameter
 from ..util import exception as zexception
 from zfit import ztf
 
+_BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
+
+
+def _BasePDF_register_check_support(has_support: bool):
+    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+
+    Args:
+        has_support (bool): If True, flags that it **requires** the `@supports` decorator. If False,
+            flags that the `@supports` decorator is **not allowed**.
+
+    """
+    if not isinstance(has_support, bool):
+        raise TypeError("Has to be boolean.")
+
+    def register(func):
+        name = func.__name__
+        _BasePDF_USER_IMPL_METHODS_TO_CHECK[name] = has_support
+        func.__wrapped__ = _BasePDF_register_check_support
+        return func
+
+    return register
 
 class BasePDF(BaseModel):
 
@@ -83,6 +104,11 @@ class BasePDF(BaseModel):
         self._temp_yield = None
         self._norm_range = None
         self._normalization_value = None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._subclass_check_support(methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
+                                    wrapper_not_overwritten=_BasePDF_register_check_support)
 
     def copy(self, **override_parameters):
         """Creates a deep copy of the pdf.
@@ -171,7 +197,7 @@ class BasePDF(BaseModel):
         self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
         return self
 
-    @_BaseModel_register_check_support(True)
+    @_BasePDF_register_check_support(True)
     def _normalization(self, norm_range):
         raise NotImplementedError
 
@@ -241,7 +267,7 @@ class BasePDF(BaseModel):
         """
         return self._hook_unnormalized_pdf(x=x, name=name)
 
-    @_BaseModel_register_check_support(False)
+    @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
@@ -283,7 +309,7 @@ class BasePDF(BaseModel):
             limits=norm_range)
         return pdf
 
-    @_BaseModel_register_check_support(False)
+    @_BasePDF_register_check_support(False)
     def _log_pdf(self, x, norm_range):
         raise NotImplementedError
 
