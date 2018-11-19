@@ -1,9 +1,7 @@
 from typing import Optional, Tuple
 
-from .basefunc import ZfitFunc
-from .basemodel import ZfitModel
-from .basepdf import ZfitPDF
-from .parameter import convert_to_parameter, ZfitParameter, ComposedParameter, Parameter
+from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
+from .parameter import convert_to_parameter, ComposedParameter, Parameter
 from ..pdfs.functions import ProdFunc, SimpleFunction, SumFunc
 from ..pdfs.functor import ProductPDF, SumPDF
 from ..pdfs.special import SimplePDF

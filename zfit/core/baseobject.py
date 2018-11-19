@@ -1,17 +1,8 @@
 import abc
 import itertools
 
-import pep487
-
-from . import operations
+from .interfaces import ZfitObject
 from ..util.container import convert_to_container
-
-
-class ZfitObject(pep487.ABC):
-
-    @abc.abstractmethod
-    def get_dependents(self, only_floating=False):
-        raise NotImplementedError
 
 
 class BaseObject(ZfitObject):
@@ -36,7 +27,9 @@ class BaseObject(ZfitObject):
         return dependents
 
     def __add__(self, other):
+        from . import operations
         return operations.add(self, other, dims=None)
 
     def __mul__(self, other):
+        from . import operations
         return operations.multiply(self, other, dims=None)

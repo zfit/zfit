@@ -1,23 +1,22 @@
 import abc
 import builtins
-from collections.__init__ import OrderedDict
+from collections import OrderedDict
 import contextlib
 from contextlib import suppress
-import itertools
 import typing
 import warnings
 
-import pep487
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from zfit.core import integration as zintegrate, sample as zsample
-from zfit.core.baseobject import BaseObject
-from zfit.core.limits import no_norm_range, Range, convert_to_range, supports
-from zfit.core.parameter import convert_to_parameter
-from zfit.settings import types as ztypes
-from zfit.util import container as zcontainer, ztyping
-from zfit.util.exception import BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError
+from .interfaces import ZfitModel
+from . import integration as zintegrate, sample as zsample
+from .baseobject import BaseObject
+from .limits import no_norm_range, Range, convert_to_range, supports
+from .parameter import convert_to_parameter
+from ..settings import types as ztypes
+from ..util import container as zcontainer, ztyping
+from ..util.exception import BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError
 from zfit import ztf
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
@@ -43,18 +42,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class ZfitModel(BaseObject):
-    @abc.abstractmethod
-    def get_parameters(self, only_floating=True, names=None):
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def parameters(self):
-        raise NotImplementedError
-
-
-class BaseModel(ZfitModel):  # __init_subclass__ backport
+class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
     """Base class for any generic pdf.
 
     # TODO instructions on how to use

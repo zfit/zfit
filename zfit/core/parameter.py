@@ -1,5 +1,4 @@
 """Define Parameter which holds the values."""
-import abc
 
 import numpy as np
 import tensorflow as tf
@@ -7,40 +6,19 @@ import tensorflow as tf
 # TF backwards compatibility
 
 from zfit import ztf
-from zfit.core.baseobject import BaseObject
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 
+from .baseobject import BaseObject
+from .interfaces import ZfitParameter
 from zfit.settings import types as ztypes
-
-
-class ZfitParameter(BaseObject):
-
-    @property
-    @abc.abstractmethod
-    def floating(self):
-        raise NotImplementedError
-
-    @floating.setter
-    @abc.abstractmethod
-    def floating(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def value(self):
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def independent(self):
-        raise NotImplementedError
 
 
 class MetaBaseParameter(type(TFBaseVariable), type(ZfitParameter)):  # resolve metaclasses
     pass
 
 
-class BaseParameter(TFBaseVariable, ZfitParameter, metaclass=MetaBaseParameter):
+class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBaseParameter):
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
@@ -185,13 +163,13 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
 class ComplexParameter(BaseComposedParameter):
-    def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex):
+    def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):
         real_value = tf.real(initial_value)
         real_part = Parameter(name=name + "_real", init_value=real_value, floating=floating, dtype=real_value.dtype)
         imag_value = tf.imag(initial_value)
         imag_part = Parameter(name=name + "_imag", init_value=imag_value, floating=floating, dtype=imag_value.dtype)
         params = {'real': real_part, 'imag': imag_part}
-        super().__init__(params=params, initial_value=initial_value, name=name)
+        super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
 
 
 def convert_to_parameter(value) -> "Parameter":
@@ -207,11 +185,12 @@ def convert_to_parameter(value) -> "Parameter":
     if not isinstance(value, tf.Tensor):
         if isinstance(value, complex):
             value = ztf.to_complex(value)
-            raise ValueError("Complex parameters not yet implemented")  # TODO: complex parameters
+            value = ComplexParameter("FIXED_autoparam", init_value=value, floating=False)
         else:
             value = ztf.to_real(value)
+            value = Parameter("FIXED_autoparam", init_value=value, floating=False)
 
     # TODO: check if Tensor is complex
-    value = Parameter("FIXED_autoparam", init_value=value)
+
     value.floating = False
     return value

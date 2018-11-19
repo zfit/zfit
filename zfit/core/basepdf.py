@@ -56,33 +56,16 @@ import typing
 from typing import Union
 import warnings
 
-import pep487
 import tensorflow as tf
 
-from .basemodel import BaseModel, _BaseModel_register_check_support, ZfitModel
-from zfit.core.limits import Range, convert_to_range, no_norm_range, no_multiple_limits, supports
+from .basemodel import BaseModel, _BaseModel_register_check_support
+from zfit.core.limits import Range, convert_to_range
 from zfit.util import ztyping
 from ..settings import types as ztypes
 
 from .parameter import Parameter
 from ..util import exception as zexception
 from zfit import ztf
-
-
-class ZfitPDF(ZfitModel):
-
-    @abc.abstractmethod
-    def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, name: str = "pdf") -> ztyping.XType:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def is_extended(self) -> bool:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_yield(self, value: Union[Parameter, None]):
-        raise NotImplementedError
 
 
 class BasePDF(BaseModel):
@@ -389,6 +372,9 @@ class BasePDF(BaseModel):
         Args:
             value ():
         """
+        self._set_yield(value=value)
+
+    def _set_yield(self, value: Union[Parameter, None]):
         self._yield = value
 
     @contextlib.contextmanager

@@ -3,16 +3,11 @@ import typing
 
 import tensorflow as tf
 
-from .basemodel import BaseModel, ZfitModel
-from zfit.util import ztyping
+from .basemodel import BaseModel
+from .interfaces import ZfitFunc
+from ..util import ztyping
 from ..settings import types as ztypes
 from zfit import ztf
-
-
-class ZfitFunc(ZfitModel):
-    @abc.abstractmethod
-    def value(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
-        raise NotImplementedError
 
 
 class BaseFunc(BaseModel, ZfitFunc):

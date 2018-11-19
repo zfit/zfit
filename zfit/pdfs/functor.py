@@ -6,14 +6,16 @@ A FunctorBase class is provided to make handling the pdfs easier.
 Their implementation is often non-trivial.
 """
 import itertools
+from typing import Union, List, Optional
 
 import tensorflow as tf
 from zfit import ztf
+from zfit.core.interfaces import ZfitPDF
 from zfit.core.limits import no_norm_range, supports
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 
-from zfit.util.exception import ExtendedPDFError
+from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError
 from zfit.core.basepdf import BasePDF
 from zfit.core.parameter import Parameter
 from zfit.settings import types as ztypes
@@ -25,16 +27,20 @@ class BaseFunctor(BasePDF):
         super().__init__(name=name, **kwargs)
         pdfs = convert_to_container(pdfs)
         self.pdfs = pdfs
-        self.pdfs_extended = [pdf.is_extended for pdf in pdfs]
+
+    @property
+    def pdfs_extended(self):
+        return [pdf.is_extended for pdf in self.pdfs]
 
     def _get_dependents(self, only_floating=True):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependents(only_floating=only_floating)  # get the own parameter dependents
         pdf_dependents = self._extract_dependents(self.pdfs, only_floating=only_floating)
         return dependents.union(pdf_dependents)
 
+
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs, fracs=None, dims=None, name="SumPDF"):
+    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.DimsType = None, name: str = "SumPDF") -> "SumPDF":
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 
         Args:
@@ -51,49 +57,85 @@ class SumPDF(BaseFunctor):
         # Check user input, improve TODO
         super().__init__(pdfs=pdfs, name=name)
         pdfs = self.pdfs
+        if len(pdfs) < 2:
+            raise ValueError("Cannot build a sum of a single pdf")
         self.dims = dims
         if fracs is not None:
             fracs = convert_to_container(fracs)
+            fracs = [ztf.convert_to_tensor(frac) for frac in fracs]
 
-        # check if all are extended or None is extended
+        # check if all extended
         extended_pdfs = self.pdfs_extended
-        all_extended = all(extended_pdfs)
-        mixed_extended = not all_extended and any(extended_pdfs)  # 1 or more but not all
-        if mixed_extended:  # either all or no extended
-            raise ExtendedPDFError("Some but not all basic are extended. The following"
-                                   "are extended \n{}\nBut gives were \n{}"
-                                   "".format(extended_pdfs, pdfs))
+        implicit = None
+        extended = None
+        if all(extended_pdfs):
+            implicit = True
+            extended = True
 
-        if all_extended:
-            if fracs is not None:
-                raise ValueError("frac is given ({}) but all basic are already extended. Either"
-                                 "use non-extended basic or give None as frac.".format(fracs))
-            else:
-                yields = [pdf.get_yield() for pdf in pdfs]
+        # all extended except one -> fraction
+        elif sum(extended_pdfs) == len(extended_pdfs) - 1:
+            implicit = True
+            extended = False
 
-        if fracs is not None and len(fracs) == len(pdfs):  # make all extended
-            for pdf, frac in zip(pdfs, fracs):
-                pdf.set_yield(frac)
-            all_extended = True
+        # no pdf is extended -> using `fracs`
+        elif not any(extended_pdfs):
+            # make extended
+            if len(fracs) == len(pdfs):
+                implicit = False
+                extended = True
+            elif len(fracs) == len(pdfs) - 1:
+                implicit = False
+                extended = False
+
+        # catch if args don't fit known case
+        value_error = implicit is None or extended is None
+        if (implicit and fracs is not None) or value_error:
+            raise ValueError("Wrong arguments. Either"
+                             "\n a) `pdfs` are not extended and `fracs` is given with length pdfs "
+                             "(-> pdfs get extended) or pdfs - 1 (fractions)"
+                             "\n b) all or all except 1 `pdfs` are extended and fracs is None.")
+
+        # create fracs if one is not extended
+        if not extended and implicit:
+            fracs = []
+            not_extended_position = None
+            for i, pdf in enumerate(pdfs):
+                if pdf.is_extended:
+                    fracs.append(pdf.get_yield())
+                    pdf.set_yield(None)  # make non-extended
+                else:
+                    fracs.append(0.)
+                    not_extended_position = i
+            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.accumulate_n(fracs, tensor_dtype=ztypes.float)
+            assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
+                                  data=[remaining_frac])  # check fractions
+            with tf.control_dependencies([assert_op]):
+                fracs[not_extended_position] = tf.identity(remaining_frac)
+            implicit = False  # now it's explicit
+
+        elif not extended and not implicit:
+            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.accumulate_n(fracs, tensor_dtype=ztypes.float)
+            assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)), data=[remaining_frac])  # check fractions
+            with tf.control_dependencies([assert_op]):
+                fracs.append(tf.identity(remaining_frac))
+
+        # make extended
+        elif extended and not implicit:
             yields = fracs
+            for pdf, yield_ in zip(pdfs, yields):
+                pdf.set_yield(yield_)
+            implicit = True
 
-        if all_extended:
-            yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
-            self.fracs = yield_fracs
+        elif extended and implicit:
+            yields = [pdf.get_yield() for pdf in pdfs]
+
+        if extended:
+            # yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
+            # self.fracs = yield_fracs
             self.set_yield(tf.reduce_sum(yields))
-
-        else:
-            # check fraction  # TODO make more flexible, allow for Tensors and unstack
-            if not len(fracs) == len(pdfs) - 1:
-                raise ValueError("frac has to be number of basic given or number of basic given"
-                                 "minus one. Currently, frac is {} and basic given are {}"
-                                 "".format(fracs, pdfs))
-
-            fracs = list(fracs) + [tf.constant(1., dtype=ztypes.float) - sum(fracs)]
-            self.fracs = fracs
-
-        if all(self.pdfs_extended):
             self.fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
+        else:
+            self.fracs = fracs
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
@@ -102,18 +144,25 @@ class SumPDF(BaseFunctor):
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def _unnormalized_pdf(self, x, norm_range=False):
+        raise NotImplementedError
         # TODO: deal with yields
-        pdfs = self.pdfs
-        fracs = self.fracs
-        func = tf.accumulate_n(
-            [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
-        return func
+        # pdfs = self.pdfs
+        # fracs = self.fracs
+        # func = tf.accumulate_n(
+        #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
+        # return func
 
     def _pdf(self, x, norm_range):
         pdfs = self.pdfs
         fracs = self.fracs
         prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
+
+    def _set_yield(self, value: Union[Parameter, None]):
+        if all(self.pdfs_extended) and self.is_extended:  # to be able to set the yield in the beginning
+            raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
+        else:
+            super()._set_yield(value=value)
 
     @supports()
     def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
