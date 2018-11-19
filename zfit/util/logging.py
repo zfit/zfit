@@ -15,7 +15,7 @@ import logging
 import colorlog
 
 
-def get_logger(name, stdout_level=None, file_level=logging.WARNING, file_name=None):
+def get_logger(name, stdout_level=None, file_level=None, file_name=None):
     """Get and configure logger.
 
     This logger has two handlers:
@@ -30,7 +30,7 @@ def get_logger(name, stdout_level=None, file_level=logging.WARNING, file_name=No
         If the logger name doesn't start with "zfit", it is automatically added.
 
     Note:
-        Default logging level at first instatiation is WARNING.
+        Default logging level at first instantiation is WARNING.
 
     Arguments:
         name (str): Name of the logger.
@@ -74,17 +74,17 @@ def get_logger(name, stdout_level=None, file_level=logging.WARNING, file_name=No
                 file_handler = handler
                 break
     # If requested, create one
-    if file_name and not file_handler:
+    if file_name and file_handler is None:
         formatter = colorlog.ColoredFormatter(format_file)
         file_handler = logging.FileHandler(file_name)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     # Set its level
-    if file_level and not file_handler:
+    if file_level is not None and file_handler is None:
         raise ValueError("Requested change in file log level but no file logger has been  configured")
     if file_level is None:
         file_level = logging.WARNING
-    if file_handler:
+    if file_handler is not None:
         file_handler.setLevel(file_level)
     # Set the logging level to the lowest level
     logger_level = min(stdout_level, file_level)
