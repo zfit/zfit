@@ -13,7 +13,7 @@ class SimpleFunction(BaseFunc):
         self._value_func = self._check_input_x_function(func)
 
     def _value(self, x):
-        return self._value_func(x, **self.get_parameters())
+        return self._value_func(x)
 
 
 class BaseFunctorFunc(BaseFunc):
@@ -24,7 +24,7 @@ class BaseFunctorFunc(BaseFunc):
 
     def _get_dependents(self):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependents()  # get the own parameter dependents
-        func_dependents = self._extract_dependents(self.funcs, only_floating=only_floating)  # flatten
+        func_dependents = self._extract_dependents(self.funcs)  # flatten
         return dependents.union(func_dependents)
 
 

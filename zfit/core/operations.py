@@ -56,6 +56,7 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         raise LogicalUndefinedOperationError("Multiplication for {} and {} of type {} and {} is not"
                                              "properly defined. (may change the order)"
                                              "".format(object1, object2, type(object1), type(object2)))
+    return new_object
 
 
 def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None,
@@ -148,6 +149,7 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         raise LogicalUndefinedOperationError("Addition for {} and {} of type {} and {} is not"
                                              "properly defined. (may change the order)"
                                              "".format(object1, object2, type(object1), type(object2)))
+    return new_object
 
 
 def _convert_to_known(object1, object2):

@@ -51,7 +51,7 @@ class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBas
             from . import operations
             return operations.multiply(self, other, dims=None)
         else:
-            return super().__add__(other)
+            return super().__mul__(other)
 
 
 

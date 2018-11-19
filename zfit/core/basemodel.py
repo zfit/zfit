@@ -875,8 +875,8 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
         return func
 
     def _get_dependents(self):
-        parameters = self.get_parameters(only_floating=only_floating)
-        parameter_dependents = self._extract_dependents(parameters, only_floating=only_floating)
+        parameters = self.get_parameters()
+        parameter_dependents = self._extract_dependents(parameters)
         return parameter_dependents
 
     def get_parameters(self, only_floating=True, names=None) -> typing.List['Parameter']:

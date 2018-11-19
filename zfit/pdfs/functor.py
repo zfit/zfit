@@ -104,7 +104,7 @@ class SumPDF(BaseFunctor):
                     fracs.append(pdf.get_yield())
                     pdf.set_yield(None)  # make non-extended
                 else:
-                    fracs.append(0.)
+                    fracs.append(tf.constant(0., dtype=ztypes.float))
                     not_extended_position = i
             remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.accumulate_n(fracs, tensor_dtype=ztypes.float)
             assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),

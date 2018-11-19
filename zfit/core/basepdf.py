@@ -58,6 +58,7 @@ import warnings
 
 import tensorflow as tf
 
+from zfit.core.interfaces import ZfitPDF
 from .basemodel import BaseModel, _BaseModel_USER_IMPL_METHODS_TO_CHECK
 from zfit.core.limits import Range, convert_to_range
 from zfit.util import ztyping
@@ -89,7 +90,7 @@ def _BasePDF_register_check_support(has_support: bool):
 
     return register
 
-class BasePDF(BaseModel):
+class BasePDF(BaseModel, ZfitPDF):
 
     def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
                  reparameterization_type: bool = False,
