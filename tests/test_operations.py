@@ -11,6 +11,7 @@ from zfit.pdfs.special import SimplePDF
 rnd_test_values = np.array([1., 0.01,-14.2, 0., 1.5, 152, -0.1, 12])
 
 def test_composed_param():
+    tf.reset_default_graph()
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
@@ -22,6 +23,7 @@ def test_composed_param():
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
 
 def test_param_func():
+    tf.reset_default_graph()
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
@@ -40,6 +42,7 @@ def test_param_func():
         assert all(result1 == result2)
 
 def test_implicit_extended():
+    tf.reset_default_graph()
     param1 = Parameter('param1', 12.)
     yield1 = Parameter('yield1', 21.)
     param2 = Parameter('param2', 13., floating=False)
@@ -52,6 +55,7 @@ def test_implicit_extended():
 
 
 def test_implicit_sumpdf():
+    tf.reset_default_graph()
     param1 = Parameter('param2', 11.)
     frac1 = Parameter('frac1', 0.17)
     frac2 = Parameter('frac2', 0.2)
