@@ -153,14 +153,13 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
 def _convert_to_known(object1, object2):
     objects = []
     for obj in (object1, object2):
-        if not isinstance(object1, ZfitModel):
+        if not isinstance(obj, ZfitModel):
             try:
                 obj = convert_to_parameter(obj)
             except TypeError as error:
                 raise TypeError("Object is neither an instance of ZfitModel nor convertible to parameter: "
                                 "{}".format(obj))
-            else:
-                objects.append(obj)
+        objects.append(obj)
     object1, object2 = objects
     return object1, object2
 
