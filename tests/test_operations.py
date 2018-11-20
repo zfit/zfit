@@ -38,7 +38,7 @@ def test_param_func():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         result1 = sess.run(new_func.value(x=rnd_test_values))
-        result2 = sess.run(func.value(x=rnd_test_values) * param4.read_value())
+        result2 = sess.run(func.value(x=rnd_test_values) * param4)
         assert all(result1 == result2)
 
 

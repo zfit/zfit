@@ -52,7 +52,7 @@ class MinuitMinimizer(BaseMinimizer):
         error_limit_kwargs = {}
         for param in params:
             param_kwargs = {}
-            param_kwargs[param.name] = self.sess.run(param.read_value())
+            param_kwargs[param.name] = self.sess.run(param)
             param_kwargs['limit_' + param.name] = self.sess.run([param.lower_limit, param.upper_limit])
             param_kwargs['error_' + param.name] = self.sess.run(param.step_size)
 
