@@ -30,6 +30,8 @@ def sum_prod_gauss():
     gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1a")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2a")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss3a")
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
     gauss_dists = [gauss1, gauss2, gauss3]
     sum_gauss = SumPDF(pdfs=gauss_dists, fracs=[0.3, 0.15])
     prod_gauss = ProductPDF(pdfs=gauss_dists)
@@ -49,8 +51,8 @@ sum_gauss, prod_gauss = sum_prod_gauss()
 def test_func_sum():
     return  # HACK
     with tf.Session() as sess:
-        init = tf.global_variables_initializer()
-        sess.run(init)
+        # init = tf.global_variables_initializer()
+        # sess.run(init)
         test_values = np.array([3., 129., -0.2, -78.2])
         vals = sum_gauss.unnormalized_pdf(
             ztf.convert_to_tensor(test_values, dtype=zfit.settings.types.float))
@@ -66,6 +68,8 @@ def test_normalization_sum_gauss():
 def test_normalization_sum_gauss_extended():
     test_yield = 109.
     sum_gauss.set_yield(test_yield)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
     normalization_testing(sum_gauss, normalization_value=test_yield)
 
 
@@ -101,6 +105,8 @@ def test_extended_gauss():
         yield2 = Parameter("yield21", 550.)
         yield3 = Parameter("yield31", 2500.)
         sum_yields = 150 + 550 + 2500
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
 
         gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss11")
         gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss21")
@@ -119,6 +125,8 @@ def test_extended_gauss():
     # prod_gauss = ProductPDF(models=gauss_dists)
 
     # init = tf.global_variables_initializer()
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
     normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)
 
 

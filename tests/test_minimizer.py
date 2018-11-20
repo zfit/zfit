@@ -45,7 +45,7 @@ def minimize_func(minimizer_class_and_kwargs, sess):
 
     minimizer.minimize(sess=sess, params=[a_param, b_param, c_param])
     cur_val = sess.run(loss_func.eval())
-    aval, bval, cval = sess.run([v.read_value() for v in (a_param, b_param, c_param)])
+    aval, bval, cval = sess.run([v for v in (a_param, b_param, c_param)])
 
     assert abs(cur_val - true_minimum) < max_distance_to_min
     assert abs(aval - true_a) < parameter_tolerance

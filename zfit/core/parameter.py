@@ -24,8 +24,10 @@ class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBas
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.floating = floating
 
-    # def value(self):
-    #     return self.read_value()
+        # # HACK
+        # with tf.Session() as sess:
+        #     sess.run(self.initializer)
+        # # HACK END
 
     @property
     def floating(self):

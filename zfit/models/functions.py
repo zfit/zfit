@@ -18,8 +18,12 @@ class SimpleFunction(BaseFunc):
 
 class BaseFunctorFunc(BaseFunc):
     def __init__(self, funcs, name="BaseFunctorFunc", **kwargs):
-        super().__init__(name=name, **kwargs)
         funcs = convert_to_container(funcs)
+        params = {}
+        for func in funcs:
+            params.update(func.parameters)
+        kwargs.update(params)
+        super().__init__(name=name, **kwargs)
         self.funcs = funcs
 
     def _get_dependents(self):  # TODO: change recursive to `only_floating`?
@@ -34,16 +38,17 @@ class SumFunc(BaseFunctorFunc):
         self.dims = dims
 
     def _value(self, x):
-        sum_funcs = tf.accumulate_n([func(x) for func in self.funcs])
+        sum_funcs = tf.accumulate_n([func.value(x) for func in self.funcs])
         return sum_funcs
 
 
 class ProdFunc(BaseFunctorFunc):
-    def __init__(self, funcs, name="SumFunc", **kwargs):
+    def __init__(self, funcs, dims=None, name="SumFunc", **kwargs):
         super().__init__(funcs=funcs, name=name, **kwargs)
+        self.dims = dims
 
     def _value(self, x):
-        value = self.funcs[0](x)
+        value = self.funcs[0].value(x)
         for func in self.funcs[1:]:
-            value *= func(x)
+            value *= func.value(x)
         return value

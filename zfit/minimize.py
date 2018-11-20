@@ -167,12 +167,11 @@ if __name__ == '__main__':
 
             # cur_val = sess.run(loss_func)
             # aval, bval, cval = sess.run([v for v in (a, b, c)])
-            # aval, bval, cval = sess.run([v.read_value() for v in (a, b, c)])
             # print("a, b, c", aval, bval, cval)
             # minimizer.minimize(loss=loss_func, var_list=[a, b, c])
             cur_val = sess.run(loss_func)
             result = cur_val
-            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(sess.run([v for v in (a, b, c)]))
             print(result)
         #####################################################################
 
@@ -201,7 +200,7 @@ if __name__ == '__main__':
             end = time.time()
             value = result
             print("value from calculations:", value)
-            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(sess.run([v for v in (a, b, c)]))
 
             print("time needed", (end - start))
 
