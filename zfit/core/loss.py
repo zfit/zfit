@@ -60,16 +60,16 @@ def _nll_constraints_tf(constraints):
 
 
 #
-# def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
+# def extended_unbinned_NLL(models, integrals, n_obs, nsignals,
 #                           param_gauss=None, param_gauss_mean=None, param_gauss_sigma=None,
 #                           log_multi_gauss=None):
 #     """
 #     Return unbinned negative log likelihood graph for a PDF
-#     pdfs       : concatenated array of several PDFs (different regions/channels)
-#     integrals  : array of precalculated integrals of the corresponding pdfs
+#     models       : concatenated array of several PDFs (different regions/channels)
+#     integrals  : array of precalculated integrals of the corresponding models
 #     n_obs       : array of observed num. of events, used in the extended fit and in the
 #     normalization of the pdf
-#                  (needed since when I concatenate the pdfs I loose the information on how many
+#                  (needed since when I concatenate the models I loose the information on how many
 #                  data points are fitted with the pdf)
 #     nsignals   : array of fitted number of events resulted from the extended fit (function of the
 #     fit parameters, prop to BR)
@@ -79,7 +79,7 @@ def _nll_constraints_tf(constraints):
 #     log_multi_gauss : log of the multi-gaussian to be included in the Likelihood (FF & alphas)
 #     """
 #     # tf.add_n(log(pdf(x))) - tf.add_n(Nev*Norm)
-#     nll = - (tf.reduce_sum(tf.log(pdfs)) - tf.reduce_sum(
+#     nll = - (tf.reduce_sum(tf.log(models)) - tf.reduce_sum(
 #         tf.cast(n_obs, tf.float64) * tf.log(integrals)))
 #
 #     # Extended fit to number of events
@@ -148,11 +148,11 @@ class BaseLoss(ZfitLoss):
         # simultaneous fit
         if is_container(pdf):
             if not is_container(fit_range) or not isinstance(fit_range[0], Range):
-                raise ValueError("If several pdfs are specified, the `fit_range` has to be given as a list of `Range` "
+                raise ValueError("If several models are specified, the `fit_range` has to be given as a list of `Range` "
                                  "objects and not as pure tuples.")
             if not len(pdf) == len(data) == len(fit_range):
                 raise ValueError("pdf, data and fit_range don't have the same number of components:"
-                                 "\npdfs: {}"
+                                 "\nmodels: {}"
                                  "\ndata: {}"
                                  "\nfit_range: {}".format(pdf, data, fit_range))
 

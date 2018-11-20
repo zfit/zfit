@@ -6,9 +6,9 @@ from zfit import ztf
 import zfit.core.basepdf
 from zfit.core.limits import Range
 from zfit.minimizers.minimizer_minuit import MinuitMinimizer
-import zfit.pdfs.dist_tfp
-from zfit.pdfs.dist_tfp import Normal
-from zfit.pdfs.basic import Gauss
+import zfit.models.dist_tfp
+from zfit.models.dist_tfp import Normal
+from zfit.models.basic import Gauss
 from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL

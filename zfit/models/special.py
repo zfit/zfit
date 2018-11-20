@@ -19,7 +19,7 @@ class SimplePDF(BasePDF):
         self._unnormalized_prob_func = self._check_input_x_function(func)
 
     def _unnormalized_pdf(self, x, norm_range=False):
-        return self._unnormalized_prob_func(x ** self.get_parameters())
+        return self._unnormalized_prob_func(x)
 
 
 def raise_error_if_norm_range(func):

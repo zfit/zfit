@@ -1,4 +1,4 @@
 from .core.basepdf import BasePDF
-from .pdfs.basic import Gauss
-from .pdfs.functor import ProductPDF, SumPDF
-# from .pdfs.special import
+from .models.basic import Gauss
+from .models.functor import ProductPDF, SumPDF
+# from .models.special import

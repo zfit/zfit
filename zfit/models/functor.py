@@ -1,7 +1,7 @@
 """
 Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
 
-A FunctorBase class is provided to make handling the pdfs easier.
+A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
@@ -41,16 +41,16 @@ class BaseFunctor(BasePDF):
 class SumPDF(BaseFunctor):
 
     def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.DimsType = None, name: str = "SumPDF") -> "SumPDF":
-        """Create the sum of the `pdfs` with `fracs` as coefficients.
+        """Create the sum of the `models` with `fracs` as coefficients.
 
         Args:
-            pdfs (pdf): The pdfs to add.
-            fracs (iterable): coefficients for the linear combination of the pdfs. If pdfs are
+            pdfs (pdf): The models to add.
+            fracs (iterable): coefficients for the linear combination of the models. If models are
                 extended, this throws an error.
 
                   - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                     The last coefficient will equal to 1 - sum(frac)
-                  - len(frac) == len(pdf) each pdf in `pdfs` will become an extended pdf with the
+                  - len(frac) == len(pdf) each pdf in `models` will become an extended pdf with the
                     given yield.
             name (str):
         """
@@ -91,9 +91,9 @@ class SumPDF(BaseFunctor):
         value_error = implicit is None or extended is None
         if (implicit and fracs is not None) or value_error:
             raise ValueError("Wrong arguments. Either"
-                             "\n a) `pdfs` are not extended and `fracs` is given with length pdfs "
-                             "(-> pdfs get extended) or pdfs - 1 (fractions)"
-                             "\n b) all or all except 1 `pdfs` are extended and fracs is None.")
+                             "\n a) `models` are not extended and `fracs` is given with length models "
+                             "(-> models get extended) or models - 1 (fractions)"
+                             "\n b) all or all except 1 `models` are extended and fracs is None.")
 
         # create fracs if one is not extended
         if not extended and implicit:
@@ -146,10 +146,10 @@ class SumPDF(BaseFunctor):
     def _unnormalized_pdf(self, x, norm_range=False):
         raise NotImplementedError
         # TODO: deal with yields
-        # pdfs = self.pdfs
+        # models = self.models
         # fracs = self.fracs
         # func = tf.accumulate_n(
-        #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
+        #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(models, fracs)])
         # return func
 
     def _pdf(self, x, norm_range):
@@ -159,8 +159,12 @@ class SumPDF(BaseFunctor):
         return prob
 
     def _set_yield(self, value: Union[Parameter, None]):
-        if all(self.pdfs_extended) and self.is_extended:  # to be able to set the yield in the beginning
+        # TODO: what happens now with the daugthers?
+        if all(self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the beginning
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
+        elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
+            reciprocal_yield = tf.reciprocal(self.get_yield())
+            self.fracs = [reciprocal_yield] * len(self.fracs)
         else:
             super()._set_yield(value=value)
 
@@ -207,7 +211,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
 if __name__ == '__main__':
 
     import numpy as np
-    from zfit.pdfs.basic import Gauss
+    from zfit.models.basic import Gauss
 
 
     def true_gaussian_sum(x):

@@ -10,8 +10,8 @@ import zfit.core.integration as zintegrate
 from zfit.core.limits import Range
 import zfit.core.math as zmath
 from zfit.core.parameter import Parameter
-from zfit.pdfs.basic import Gauss
-from zfit.pdfs.dist_tfp import Normal
+from zfit.models.basic import Gauss
+from zfit.models.dist_tfp import Normal
 
 limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
 # limits_simple_5deps = (0.9, 4.7)

@@ -5,8 +5,8 @@ import numpy as np
 from zfit import ztf
 from zfit.core.limits import Range
 from zfit.core.parameter import Parameter
-from zfit.pdfs.functor import SumPDF, ProductPDF
-from zfit.pdfs.basic import Gauss
+from zfit.models.functor import SumPDF, ProductPDF
+from zfit.models.basic import Gauss
 import zfit
 
 low, high = -0.64, 5.9
@@ -116,7 +116,7 @@ def test_extended_gauss():
         sum_gauss = SumPDF(pdfs=gauss_dists)
 
     #     sess.run([init])
-    # prod_gauss = ProductPDF(pdfs=gauss_dists)
+    # prod_gauss = ProductPDF(models=gauss_dists)
 
     # init = tf.global_variables_initializer()
     normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)

@@ -1,4 +1,4 @@
-# TODO: improve errors of pdfs. Generate more general error, inherit and use more specific?
+# TODO: improve errors of models. Generate more general error, inherit and use more specific?
 
 
 class PDFCompatibilityError(Exception):

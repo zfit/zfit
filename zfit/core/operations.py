@@ -2,9 +2,9 @@ from typing import Optional, Tuple
 
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
 from .parameter import convert_to_parameter, ComposedParameter, Parameter
-from ..pdfs.functions import ProdFunc, SimpleFunction, SumFunc
-from ..pdfs.functor import ProductPDF, SumPDF
-from ..pdfs.special import SimplePDF
+from ..models.functions import ProdFunc, SimpleFunction, SumFunc
+from ..models.functor import ProductPDF, SumPDF
+from ..models.special import SimplePDF
 from ..util import ztyping
 from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
 

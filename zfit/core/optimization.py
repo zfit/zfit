@@ -106,11 +106,11 @@ def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
                           log_multi_gauss=None):
     """
     Return unbinned negative log likelihood graph for a PDF
-    pdfs       : concatenated array of several PDFs (different regions/channels)
-    integrals  : array of precalculated integrals of the corresponding pdfs
+    models       : concatenated array of several PDFs (different regions/channels)
+    integrals  : array of precalculated integrals of the corresponding models
     n_obs       : array of observed num. of events, used in the extended fit and in the
     normalization of the pdf
-                 (needed since when I concatenate the pdfs I loose the information on how many
+                 (needed since when I concatenate the models I loose the information on how many
                  data points are fitted with the pdf)
     nsignals   : array of fitted number of events resulted from the extended fit (function of the
     fit parameters, prop to BR)
@@ -144,10 +144,10 @@ def unbinned_angular_NLL(pdfs, integrals, nevents,
                          log_multi_gauss=None):
     """
     Return unbinned negative log likelihood graph for a PDF
-    pdfs       : concatenated array of several PDFs (different regions/channels)
-    integrals  : array of precalculated integrals of the corresponding pdfs
-    nevents    : array of num. of events in the dataset to be fitted to the corresponding pdfs
-                 (needed since when I concatenate the pdfs I loose the information on how many
+    models       : concatenated array of several PDFs (different regions/channels)
+    integrals  : array of precalculated integrals of the corresponding models
+    nevents    : array of num. of events in the dataset to be fitted to the corresponding models
+                 (needed since when I concatenate the models I loose the information on how many
                  data points are fitted with the pdf)
     param_gauss : list of parameter to be gaussian constrained (CKM pars, etc.)
     param_gauss_mean : mean of parameter to be gaussian constrained

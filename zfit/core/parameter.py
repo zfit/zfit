@@ -46,6 +46,13 @@ class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBas
         else:
             return super().__add__(other)
 
+    def __radd__(self, other):
+        if isinstance(other, ZfitObject):
+            from . import operations
+            return operations.add(other, self, dims=None)
+        else:
+            return super().__radd__(other)
+
     def __mul__(self, other):
         if isinstance(other, ZfitObject):
             from . import operations
@@ -53,6 +60,12 @@ class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBas
         else:
             return super().__mul__(other)
 
+    def __rmul__(self, other):
+        if isinstance(other, ZfitObject):
+            from . import operations
+            return operations.multiply(other, self, dims=None)
+        else:
+            return super().__rmul__(other)
 
 
 class Parameter(BaseParameter):
@@ -181,6 +194,7 @@ class ComposedParameter(BaseComposedParameter):
     @property
     def independent(self):
         return False
+
 
 class ComplexParameter(BaseComposedParameter):
     def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):

@@ -90,7 +90,7 @@ def _BasePDF_register_check_support(has_support: bool):
 
     return register
 
-class BasePDF(BaseModel, ZfitPDF):
+class BasePDF(ZfitPDF, BaseModel):
 
     def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
                  reparameterization_type: bool = False,
@@ -458,7 +458,7 @@ class BasePDF(BaseModel, ZfitPDF):
             self.set_yield(old_yield)
 
     def get_yield(self) -> Union[Parameter, None]:
-        """Return the yield (only for extended pdfs).
+        """Return the yield (only for extended models).
 
         Returns:
             Parameter: the yield of the current pdf or None

@@ -42,7 +42,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
+class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
     """Base class for any generic pdf.
 
     # TODO instructions on how to use
@@ -153,6 +153,7 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
         # `parameters = dict(locals())`.
         return OrderedDict((k, v) for k, v in self._parameters.items()
                            if not k.startswith("__") and k != "self")
+
     #
     # @property
     # @abc.abstractmethod
@@ -854,20 +855,6 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
             dtype=self.dtype.name) +
                 sum(" {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items()))
 
-    def __eq__(self, other):
-        if not type(self) == type(other):
-            raise TypeError("Cannot compare objects of type {} and {}".format(type(self), type(other)))
-        params_equal = set(other.parameters) == set(self.parameters)
-        return params_equal
-
-    def __add__(self, other):
-        from . import operations
-        return operations.add(self, other, dims=None)
-
-    def __mul__(self, other):
-        from . import operations
-        return operations.multiply(self, other, dims=None)
-
     def _check_input_x_function(self, func):
         # TODO: signature etc?
         if not callable(func):
@@ -907,3 +894,25 @@ class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
     def _filter_floating_params(params):
         params = [param for param in params if param.floating]
         return params
+
+    def __eq__(self, other):
+        if not type(self) == type(other):
+            raise TypeError("Cannot compare objects of type {} and {}".format(type(self), type(other)))
+        params_equal = set(other.parameters) == set(self.parameters)
+        return params_equal
+
+    def __add__(self, other):
+        from . import operations
+        return operations.add(self, other, dims=None)
+
+    def __radd__(self, other):
+        from . import operations
+        return operations.add(other, self, dims=None)
+
+    def __mul__(self, other):
+        from . import operations
+        return operations.multiply(self, other, dims=None)
+
+    def __rmul__(self, other):
+        from . import operations
+        return operations.multiply(other, self, dims=None)

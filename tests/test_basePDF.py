@@ -4,9 +4,9 @@ import numpy as np
 
 import zfit.core.basepdf
 from zfit.core.limits import Range
-import zfit.pdfs.dist_tfp
-from zfit.pdfs.dist_tfp import Normal
-from zfit.pdfs.basic import Gauss
+import zfit.models.dist_tfp
+from zfit.models.dist_tfp import Normal
+from zfit.models.basic import Gauss
 from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit import ztf
@@ -46,7 +46,7 @@ sigma2 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 mu3 = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
 sigma3 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
-wrapped_gauss = zfit.pdfs.dist_tfp.WrapDistribution(tf_gauss1)
+wrapped_gauss = zfit.models.dist_tfp.WrapDistribution(tf_gauss1)
 
 gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3)
 

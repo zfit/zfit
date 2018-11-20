@@ -343,7 +343,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         Return:
             list(const): the current values of parameters
         """
-        values = [p.read_value() for p in params]
+        values = [p for p in params]
         # TODO: implement if initial val not given
         return values
 

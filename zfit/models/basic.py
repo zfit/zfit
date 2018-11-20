@@ -1,6 +1,6 @@
 """
 Basic PDFs are provided here. Gauss, exponential... that can be used together with Functors to
-build larger pdfs.
+build larger models.
 """
 
 import math as mt
