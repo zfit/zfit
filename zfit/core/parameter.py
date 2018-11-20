@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 # TF backwards compatibility
+from tensorflow.python import ops, array_ops
 
 from zfit import ztf
 
@@ -18,15 +19,100 @@ class MetaBaseParameter(type(TFBaseVariable), type(ZfitParameter)):  # resolve m
     pass
 
 
+# drop-in replacement for ResourceVariable
+class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
+
+    def __init__(self, variable: tf.Variable, **kwargs):
+        self.variable = variable
+
+    @property
+    def name(self):
+        return self.variable.name
+
+    @property
+    def dtype(self):
+        return self.variable.dtype
+
+    def value(self):
+        return self.variable.value()
+
+    def assign(self, value, use_locking=False, name=None, read_value=True):
+        return self.variable.assign(value=value, use_locking=use_locking,
+                                    name=name, read_value=read_value)
+
+    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+        del name
+        if dtype is not None and dtype != self.dtype:
+            return NotImplemented
+        if as_ref:
+            return self.variable.read_value().op.inputs[0]
+        else:
+            return self.variable.value()
+
+    def _AsTensor(self):
+        return self.variable.value()
+
+    @staticmethod
+    def _OverloadAllOperators():  # pylint: disable=invalid-name
+        """Register overloads for all operators."""
+        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+            ZfitBaseVariable._OverloadOperator(operator)
+        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
+        # instead)
+        # pylint: disable=protected-access
+        setattr(ZfitBaseVariable, "__getitem__", array_ops._SliceHelperVar)
+
+    @staticmethod
+    def _OverloadOperator(operator):  # pylint: disable=invalid-name
+        """Defer an operator overload to `ops.Tensor`.
+        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
+        Args:
+          operator: string. The operator name.
+        """
+
+        tensor_oper = getattr(ops.Tensor, operator)
+
+        def _run_op(a, *args):
+            # pylint: disable=protected-access
+            value = a._AsTensor()
+            return tensor_oper(value, *args)
+
+        # Propagate __doc__ to wrapper
+        try:
+            _run_op.__doc__ = tensor_oper.__doc__
+        except AttributeError:
+            pass
+
+        setattr(ZfitBaseVariable, operator, _run_op)
+
+
+def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
+    return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+
+
+ops.register_tensor_conversion_function(ZfitBaseVariable, _dense_var_to_tensor)
+
+ZfitBaseVariable._OverloadAllOperators()
+
+
 class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBaseParameter):
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.floating = floating
 
+    # def __init__(self, name, initial_value, floating=True, **kwargs):
+    #     name += str(np.random.randint(1, 1000000))
+    #     initial_value = ztf.to_real(initial_value)
+    #     variable = tf.get_variable(initializer=initial_value, dtype=ztypes.float,
+    #                                name=name, use_resource=True)
+    #     super().__init__(variable=variable, **kwargs)
+        self.floating = floating
+
         # # HACK
-        # with tf.Session() as sess:
-        #     sess.run(self.initializer)
+        with tf.Session() as sess:
+            if not sess.run(self.is_initialized()):
+                sess.run(self.initializer)
         # # HACK END
 
     @property
@@ -100,8 +186,8 @@ class Parameter(BaseParameter):
             upper_limit = np.infty
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
-        self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
-        self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
+        # self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
+        # self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
 
     def _get_dependents(self):
         return {self}
@@ -191,6 +277,8 @@ class ComposedParameter(BaseComposedParameter):
         grad_indep_params = tf.gradients(tensor, independend_params)
         params = [param for param, grad in zip(independend_params, grad_indep_params) if grad is not None]
         params = {p.name: p for p in params}
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
         super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
     @property
