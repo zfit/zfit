@@ -18,6 +18,7 @@ exclude_paths:
   - docs/
   - build/
   - dist/
+  - legacy/
 checks:
   argument-count:
       enabled: false
