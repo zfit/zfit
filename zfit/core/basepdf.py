@@ -59,6 +59,7 @@ import warnings
 import tensorflow as tf
 
 from zfit.core.interfaces import ZfitPDF
+from zfit.util.container import convert_to_container
 from .basemodel import BaseModel, _BaseModel_USER_IMPL_METHODS_TO_CHECK
 from zfit.core.limits import Range, convert_to_range
 from zfit.util import ztyping
@@ -361,8 +362,10 @@ class BasePDF(ZfitPDF, BaseModel):
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsType = None):
         warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
                       "respect to the loss function.")
-        if params is None:
-            params = list(self.parameters.values())
+        if params is not None:
+            params = convert_to_container(params)
+        if params is None or isinstance(params[0], str):
+            params = self.get_parameters(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
 
