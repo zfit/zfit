@@ -306,8 +306,9 @@ class BasePDF(ZfitPDF, BaseModel):
             return self._fallback_pdf(x=x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):
-        pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf") / self._hook_normalization(
-            limits=norm_range)
+        pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf")
+        if norm_range is not False:  # identity check!
+            pdf /= self._hook_normalization(limits=norm_range)
         return pdf
 
     @_BasePDF_register_check_support(False)

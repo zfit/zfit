@@ -202,7 +202,7 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFun
     def value_func(x):
         return pdf.pdf(x, norm_range=norm_range)
 
-    func = SimpleFunction(func=value_func, name=pdf.name + "_as_func", **pdf.get_parameters(only_floating=False))
+    func = SimpleFunction(func=value_func, name=pdf.name + "_as_func", **pdf.parameters)
     return func
 
 

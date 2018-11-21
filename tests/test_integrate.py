@@ -4,6 +4,7 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
+import zfit
 from zfit import ztf
 from zfit.core import basepdf as zbasepdf
 import zfit.core.integration as zintegrate
@@ -199,19 +200,18 @@ def test_mc_integration():
                                             n_dims=2,
                                             draws_per_dim=70)
 
-    with tf.Session() as sess:
-        integral = sess.run(num_integral)
-        integral2 = sess.run(num_integral2)
-        integral3 = sess.run(num_integral3)
+    integral = zfit.sess.run(num_integral)
+    integral2 = zfit.sess.run(num_integral2)
+    integral3 = zfit.sess.run(num_integral3)
 
-        assert not hasattr(integral, "__len__")
-        assert not hasattr(integral2, "__len__")
-        assert not hasattr(integral3, "__len__")
-        assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(integral,
-                                                                                  rel=0.1)
-        assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
-        assert func3_2deps_fully_integrated(
-            Range.from_boundaries(*limits3, dims=(0, 1))) == pytest.approx(integral3, rel=0.03)
+    assert not hasattr(integral, "__len__")
+    assert not hasattr(integral2, "__len__")
+    assert not hasattr(integral3, "__len__")
+    assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(integral,
+                                                                              rel=0.1)
+    assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
+    assert func3_2deps_fully_integrated(
+        Range.from_boundaries(*limits3, dims=(0, 1))) == pytest.approx(integral3, rel=0.03)
 
 
 def test_mc_partial_integration():
@@ -227,18 +227,17 @@ def test_mc_partial_integration():
                                             limits=Range.from_boundaries(*limits4_1dim, dims=(1,)),
                                             draws_per_dim=100)
 
-    with tf.Session() as sess:
-        integral = sess.run(num_integral)
-        integral2 = sess.run(num_integral2)
-        # print("DEBUG", values:", sess.run(vals_reshaped))
-        assert len(integral) == len(func4_values)
-        assert len(integral2) == len(func4_2values[1])
-        assert func4_3deps_0and2_integrated(x=func4_values,
-                                            limits=limits4_2dim) == pytest.approx(integral,
-                                                                                  rel=0.03)
+    integral = zfit.sess.run(num_integral)
+    integral2 = zfit.sess.run(num_integral2)
+    # print("DEBUG", values:", zfit.sess.run(vals_reshaped))
+    assert len(integral) == len(func4_values)
+    assert len(integral2) == len(func4_2values[1])
+    assert func4_3deps_0and2_integrated(x=func4_values,
+                                        limits=limits4_2dim) == pytest.approx(integral,
+                                                                              rel=0.03)
 
-        assert func4_3deps_1_integrated(x=func4_2values,
-                                        limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
+    assert func4_3deps_1_integrated(x=func4_2values,
+                                    limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
 
 
 def test_analytic_integral():
@@ -264,19 +263,18 @@ def test_analytic_integral():
                                          limits=Range.from_boundaries(*limits3, dims=(0, 1)), dims=None)
 
     dist_func3 = DistFunc3()
-    with tf.Session() as sess:
-        init = tf.global_variables_initializer()
-        sess.run(init)
-        gauss_integral_infs = sess.run(gauss_integral_infs)
-        normal_integral_infs = sess.run(normal_integral_infs)
-        func3_integrated = sess.run(
-            ztf.convert_to_tensor(
-                dist_func3.integrate(limits=Range.from_boundaries(*limits3, dims=(0, 1))),
-                dtype=tf.float64))
-        assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
-            *limits3, dims=(0, 1)))
-        assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
-        assert normal_integral_infs == pytest.approx(1, rel=0.0001)
+    init = tf.global_variables_initializer()
+    zfit.sess.run(init)
+    gauss_integral_infs = zfit.sess.run(gauss_integral_infs)
+    normal_integral_infs = zfit.sess.run(normal_integral_infs)
+    func3_integrated = zfit.sess.run(
+        ztf.convert_to_tensor(
+            dist_func3.integrate(limits=Range.from_boundaries(*limits3, dims=(0, 1))),
+            dtype=tf.float64))
+    assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
+        *limits3, dims=(0, 1)))
+    assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
+    assert normal_integral_infs == pytest.approx(1, rel=0.0001)
 
 
 

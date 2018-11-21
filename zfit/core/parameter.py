@@ -9,7 +9,9 @@ from tensorflow.python import ops, array_ops
 from zfit import ztf
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
+from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from zfit.util.exception import LogicalUndefinedOperationError
 from .baseobject import BaseObject
 from .interfaces import ZfitParameter, ZfitObject
 from zfit.settings import types as ztypes
@@ -91,29 +93,136 @@ def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
 
 
 ops.register_tensor_conversion_function(ZfitBaseVariable, _dense_var_to_tensor)
+# ops.register_session_run_conversion_functions()
 
 ZfitBaseVariable._OverloadAllOperators()
 
 
-class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBaseParameter):
+class ComposedResourceVariable(ResourceVariable):
+    def __init__(self, name, initial_value, **kwargs):
+        super().__init__(name=name, initial_value=initial_value, **kwargs)
+        self._value_tensor = initial_value
+
+    def value(self):
+        # with tf.control_dependencies([self._value_tensor]):
+        # return 5.
+        return self._value_tensor
+
+    def read_value(self):
+        # raise RuntimeError()
+        return self._value_tensor
+
+
+class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
+
+    def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
+        self._value_tensor = initial_value
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def dtype(self):
+        return self._value_tensor.dtype
+
+    def value(self):
+        return self._value_tensor
+
+    def read_value(self):
+        return self.value()
+
+    def assign(self, value, use_locking=False, name=None, read_value=True):
+        raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
+
+    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+        del name
+        if dtype is not None and dtype != self.dtype:
+            return NotImplemented
+        if as_ref:
+            # return "NEVER READ THIS"
+            raise LogicalUndefinedOperationError("There is no ref for the fixed/composed parameter")
+        else:
+            return self._value_tensor
+
+    def _AsTensor(self):
+        return self._value_tensor
+
+    @staticmethod
+    def _OverloadAllOperators():  # pylint: disable=invalid-name
+        """Register overloads for all operators."""
+        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+            ComposedVariable._OverloadOperator(operator)
+        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
+        # instead)
+        # pylint: disable=protected-access
+        setattr(ComposedVariable, "__getitem__", array_ops._SliceHelperVar)
+
+    @staticmethod
+    def _OverloadOperator(operator):  # pylint: disable=invalid-name
+        """Defer an operator overload to `ops.Tensor`.
+        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
+        Args:
+          operator: string. The operator name.
+        """
+
+        tensor_oper = getattr(ops.Tensor, operator)
+
+        def _run_op(a, *args):
+            # pylint: disable=protected-access
+            value = a._AsTensor()
+            return tensor_oper(value, *args)
+
+        # Propagate __doc__ to wrapper
+        try:
+            _run_op.__doc__ = tensor_oper.__doc__
+        except AttributeError:
+            pass
+
+        setattr(ComposedVariable, operator, _run_op)
+
+
+def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
+    return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+
+
+ops.register_tensor_conversion_function(ComposedVariable, _dense_var_to_tensor)
+fetch_function = lambda variable: ([variable.read_value()],
+                                   lambda val: val[0])
+feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
+feed_function_for_partial_run = lambda feed: [feed.read_value()]
+
+from tensorflow.python.client.session import register_session_run_conversion_functions
+
+# ops.register_dense_tensor_like_type()
+register_session_run_conversion_functions(tensor_type=ComposedResourceVariable, fetch_function=fetch_function,
+                                          feed_function=feed_function,
+                                          feed_function_for_partial_run=feed_function_for_partial_run)
+
+register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_function=fetch_function,
+                                          feed_function=feed_function,
+                                          feed_function_for_partial_run=feed_function_for_partial_run)
+
+ComposedVariable._OverloadAllOperators()
+
+class BaseParameter(BaseObject, ZfitParameter, metaclass=MetaBaseParameter):
+    pass
+
+class ZfitParameterMixin:
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
+        # super().__init__(initial_value=initial_value, name=name, **kwargs)
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         self.floating = floating
 
-    # def __init__(self, name, initial_value, floating=True, **kwargs):
-    #     name += str(np.random.randint(1, 1000000))
-    #     initial_value = ztf.to_real(initial_value)
-    #     variable = tf.get_variable(initializer=initial_value, dtype=ztypes.float,
-    #                                name=name, use_resource=True)
-    #     super().__init__(variable=variable, **kwargs)
+        # def __init__(self, name, initial_value, floating=True, **kwargs):
+        #     name += str(np.random.randint(1, 1000000))
+        #     initial_value = ztf.to_real(initial_value)
+        #     variable = tf.get_variable(initializer=initial_value, dtype=ztypes.float,
+        #                                name=name, use_resource=True)
+        #     super().__init__(variable=variable, **kwargs)
         self.floating = floating
-
-        # # HACK
-        with tf.Session() as sess:
-            if not sess.run(self.is_initialized()):
-                sess.run(self.initializer)
-        # # HACK END
 
     @property
     def floating(self):
@@ -156,7 +265,7 @@ class BaseParameter(TFBaseVariable, BaseObject, ZfitParameter, metaclass=MetaBas
             return super().__rmul__(other)
 
 
-class Parameter(BaseParameter):
+class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -249,7 +358,7 @@ class Parameter(BaseParameter):
         return value
 
 
-class BaseComposedParameter(BaseParameter):
+class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
     def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
@@ -276,10 +385,10 @@ class ComposedParameter(BaseComposedParameter):
         independend_params = tf.get_collection("zfit_independent")
         grad_indep_params = tf.gradients(tensor, independend_params)
         params = [param for param, grad in zip(independend_params, grad_indep_params) if grad is not None]
+        params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
-        super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
+        with tf.control_dependencies(params_init_op):
+            super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
     @property
     def independent(self):

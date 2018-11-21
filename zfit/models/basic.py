@@ -20,7 +20,7 @@ except AttributeError:  # py34
 class Gauss(BasePDF):
 
     def __init__(self, mu, sigma, name="Gauss"):  # TODO: names? TF dist?
-        super(Gauss, self).__init__(name=name, mu=mu, sigma=sigma)
+        super().__init__(name=name, mu=mu, sigma=sigma)
 
     def _unnormalized_pdf(self, x, norm_range=False):
         mu = self.parameters['mu']

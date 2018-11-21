@@ -11,4 +11,6 @@ from .core.parameter import Parameter
 from .core.loss import _unbinned_nll_tf
 from .core.limits import Range, convert_to_range, supports
 
+from .settings import sess
+
 # EOF

@@ -37,36 +37,35 @@ init = tf.global_variables_initializer()
 
 
 def test_unbinned_nll():
-    with tf.Session() as sess:
-        sess.run(init)
-        with mu_constr.temp_norm_range((-np.infty, np.infty)):
-            with sigma_constr.temp_norm_range((-np.infty, np.infty)):
-                test_values = tf.constant(test_values_np)
-                # nll = _unbinned_nll_tf(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-                nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-                # nll_eval = sess.run(nll)
-                minimizer = MinuitMinimizer(loss=nll_class)
-                status = minimizer.minimize(params=[mu1, sigma1], sess=sess)
-                params = status.get_parameters()
-                # print(params)
-                assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
-                assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
+    zfit.sess.run(init)
+    with mu_constr.temp_norm_range((-np.infty, np.infty)):
+        with sigma_constr.temp_norm_range((-np.infty, np.infty)):
+            test_values = tf.constant(test_values_np)
+            # nll = _unbinned_nll_tf(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+            nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+            # nll_eval = zfit.sess.run(nll)
+            minimizer = MinuitMinimizer(loss=nll_class)
+            status = minimizer.minimize(params=[mu1, sigma1], sess=zfit.sess)
+            params = status.get_parameters()
+            # print(params)
+            assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
+            assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
 
-                # with constraints
-                sess.run(init)
+            # with constraints
+            zfit.sess.run(init)
 
-                nll_class = UnbinnedNLL(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
-                                        constraints={mu2: mu_constr,
-                                                     sigma2: sigma_constr})
+            nll_class = UnbinnedNLL(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
+                                    constraints={mu2: mu_constr,
+                                                 sigma2: sigma_constr})
 
-                minimizer = MinuitMinimizer(loss=nll_class)
-                status = minimizer.minimize(params=[mu2, sigma2], sess=sess)
-                params = status.get_parameters()
+            minimizer = MinuitMinimizer(loss=nll_class)
+            status = minimizer.minimize(params=[mu2, sigma2], sess=zfit.sess)
+            params = status.get_parameters()
 
-                assert params[mu2.name]['value'] > np.mean(test_values_np)
-                assert params[sigma2.name]['value'] < np.std(test_values_np)
+            assert params[mu2.name]['value'] > np.mean(test_values_np)
+            assert params[sigma2.name]['value'] < np.std(test_values_np)
 
-                print(status)
+            print(status)
 
 
 #
