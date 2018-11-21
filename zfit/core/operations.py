@@ -2,9 +2,6 @@ from typing import Optional, Tuple
 
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
 from .parameter import convert_to_parameter, ComposedParameter, Parameter
-from ..models.functions import ProdFunc, SimpleFunction, SumFunc
-from ..models.functor import ProductPDF, SumPDF
-from ..models.special import SimplePDF
 from ..util import ztyping
 from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
 
@@ -60,17 +57,19 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
 
 
 def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None,
-                     name: str = "multiply_pdf_pdf") -> ProductPDF:
+                     name: str = "multiply_pdf_pdf") -> "ProductPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
+    from ..models.functor import ProductPDF
 
     return ProductPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
 
 def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType = None,
-                       name: str = "multiply_func_func") -> ProdFunc:
+                       name: str = "multiply_func_func") -> "ProdFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
+    from ..models.functions import ProdFunc
 
     return ProdFunc(funcs=[func1, func2], dims=dims, name=name)
 
@@ -89,6 +88,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     if not (isinstance(param, ZfitParameter) and isinstance(func, ZfitFunc)):
         raise TypeError("`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not "
                         "{}, {}".format(param, func))
+    from ..models.functions import SimpleFunction
 
     def combined_func(x):
         return param * func.value(x=x)
@@ -166,17 +166,19 @@ def _convert_to_known(object1, object2):
     return object1, object2
 
 
-def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None, name: str = "add_pdf_pdf") -> SumPDF:
+def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None, name: str = "add_pdf_pdf") -> "SumPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
+    from ..models.functor import SumPDF
 
     return SumPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
 
 def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType = None,
-                  name: str = "add_func_func") -> SumFunc:
+                  name: str = "add_func_func") -> "SumFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
+    from ..models.functions import SumFunc
 
     return SumFunc(funcs=[func1, func2], dims=dims, name=name)
 
@@ -202,12 +204,16 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFun
     def value_func(x):
         return pdf.pdf(x, norm_range=norm_range)
 
+    from ..models.functions import SimpleFunction
+
     func = SimpleFunction(func=value_func, name=pdf.name + "_as_func", **pdf.parameters)
     return func
 
 
 def convert_func_to_pdf(func: ZfitFunc) -> ZfitPDF:
     if not isinstance(func, ZfitFunc) and callable(func):
+        from ..models.functions import SimpleFunction
         func = SimpleFunction(func=func)
-    pdf = SimplePDF(func=func.value, name=func.name, **func.get_parameters(only_floating=False))
+    from ..models.special import SimplePDF
+    pdf = SimplePDF(func=func.value, name=func.name, **func.parameters)
     return pdf

@@ -72,6 +72,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             graph_parents (): currently not used, but for forward compatibility
             **parameters (): the parameters the distribution depends on
         """
+        super().__init__()
         self._dtype = dtype
         self._reparameterization_type = reparameterization_type
         self._allow_nan_stats = allow_nan_stats
