@@ -1,50 +1,16 @@
 import numpy as np
+import pytest
 
 import tensorflow as tf
 
 import zfit
 from zfit import Parameter, ztf
-from zfit.core.parameter import ComposedParameter
 from zfit.models.functions import SimpleFunction
 from zfit.models.functor import SumPDF
 from zfit.models.special import SimplePDF
+from zfit.util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
 
 rnd_test_values = np.array([1., 0.01, -14.2, 0., 1.5, 152, -0.1, 12])
-
-
-def test_composed_param():
-    # tf.reset_default_graph()
-    param1 = Parameter('param1s', 1.)
-    param2 = Parameter('param2s', 2.)
-    param3 = Parameter('param3s', 3., floating=False)
-    param4 = Parameter('param4s', 4.)
-    a = ztf.log(3. * param1) * tf.square(param2) - param3
-    param_a = ComposedParameter('param_as', tensor=a)
-    assert isinstance(param_a.get_dependents(only_floating=True), set)
-    assert param_a.get_dependents(only_floating=True) == {param1, param2}
-    assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
-    zfit.sess.run(tf.global_variables_initializer())
-    a_unchanged = zfit.sess.run(a)
-    assert a_unchanged == zfit.sess.run(param_a)
-    assert zfit.sess.run(param2.assign(3.5))
-    a_changed = zfit.sess.run(a)
-    assert a_changed == zfit.sess.run(param_a)
-    assert a_changed != a_unchanged
-
-
-def test_param_limits():
-    lower, upper = -4., 3.
-    param1 = Parameter('param1lim', 1., lower_limit=lower, upper_limit=upper)
-    param2 = Parameter('param2lim', 2.)
-
-    zfit.sess.run(tf.global_variables_initializer())
-    param1.load(upper + 0.5, session=zfit.sess)
-    assert upper == zfit.sess.run(param1.value())
-    param1.load(lower - 1.1, session=zfit.sess)
-    assert lower == zfit.sess.run(param1.value())
-    param2.lower_limit = lower
-    param2.load(lower - 1.1, session=zfit.sess)
-    assert lower == zfit.sess.run(param2.value())
 
 
 def test_param_func():
@@ -58,10 +24,14 @@ def test_param_func():
 
     new_func = param4 * func
 
+    new_func_equivalent = func * param4
+
     zfit.sess.run(tf.global_variables_initializer())
     result1 = zfit.sess.run(new_func.value(x=rnd_test_values))
+    result1_equivalent = zfit.sess.run(new_func_equivalent.value(x=rnd_test_values))
     result2 = zfit.sess.run(func.value(x=rnd_test_values) * param4)
-    assert all(result1 == result2)
+    np.testing.assert_array_equal(result1, result2)
+    np.testing.assert_array_equal(result1_equivalent, result2)
 
 
 def test_func_func():
@@ -98,13 +68,20 @@ def test_func_func():
 
 def test_param_pdf():
     param1 = Parameter('param12sa', 12.)
+    param2 = Parameter('param22sa', 22.)
     yield1 = Parameter('yield12sa', 21.)
+    yield2 = Parameter('yield22sa', 22.)
     # with tf.Session() as sess:
     #     sess.run(tf.global_variables_initializer())
     pdf1 = SimplePDF(func=lambda x: x * param1)
+    pdf2 = SimplePDF(func=lambda x: x * param2)
     assert not pdf1.is_extended
     extended_pdf = yield1 * pdf1
     assert extended_pdf.is_extended
+    with pytest.raises(LogicalUndefinedOperationError):
+        _ = pdf2 * yield2
+    with pytest.raises(AlreadyExtendedPDFError):
+        _ = yield2 * extended_pdf
 
 
 def test_implicit_extended():

@@ -116,6 +116,7 @@ class ComposedResourceVariable(ResourceVariable):
 class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
+        super().__init__(initial_value=initial_value, **kwargs)
         self._value_tensor = initial_value
         self._name = name
 
@@ -135,6 +136,9 @@ class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
+
+    def load(self, value, session=None):
+        raise LogicalUndefinedOperationError("Cannot load to a fixed/composed parameter")
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
@@ -334,7 +338,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             value = self.constraint(value)
         return value
 
-
     def read_value(self):
         value = super().read_value()
         if self.has_limits:
@@ -421,6 +424,10 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
             raise TypeError("Parameters has to be a dict")
         self._parameters = value
 
+    @property
+    def independent(self):
+        return False
+
 
 class ComposedParameter(BaseComposedParameter):
     # TODO: raise error if eager is on (because it's very errorprone)
@@ -433,13 +440,10 @@ class ComposedParameter(BaseComposedParameter):
         with tf.control_dependencies(params_init_op):
             super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
-    @property
-    def independent(self):
-        return False
-
 
 class ComplexParameter(BaseComposedParameter):
     def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):
+        initial_value = tf.cast(initial_value, dtype=dtype)
         real_value = tf.real(initial_value)
         real_part = Parameter(name=name + "_real", init_value=real_value, floating=floating, dtype=real_value.dtype)
         imag_value = tf.imag(initial_value)
