@@ -706,14 +706,14 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             return self._inverse_analytic_integral[0](x=x, params=self.parameters)
 
     @_BaseModel_register_check_support(True)
-    def _sample(self, n_draws, limits):
+    def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n_draws: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
-        """Sample `n_draws` within `limits` from the pdf.
+    def sample(self, n: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
+        """Sample `n` points within `limits` from the pdf.
 
         Args:
-            n_draws (int): The number of samples to be generated
+            n (int): The number of samples to be generated
             limits (tuple, Range): In which region to sample in
             name (str):
 
@@ -721,32 +721,32 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             Tensor(n_dims, n_samples)
         """
         limits = convert_to_range(limits, dims=Range.FULL)
-        return self._hook_sample(n_draws=n_draws, limits=limits, name=name)
+        return self._hook_sample(n=n, limits=limits, name=name)
 
-    def _hook_sample(self, limits, n_draws, name='_hook_sample'):
-        return self._norm_sample(n_draws=n_draws, limits=limits, name=name)
+    def _hook_sample(self, limits, n, name='_hook_sample'):
+        return self._norm_sample(n=n, limits=limits, name=name)
 
-    def _norm_sample(self, n_draws, limits, name):
+    def _norm_sample(self, n, limits, name):
         """Dummy function"""
-        return self._limits_sample(n_draws=n_draws, limits=limits, name=name)
+        return self._limits_sample(n=n, limits=limits, name=name)
 
-    def _limits_sample(self, n_draws, limits, name):
+    def _limits_sample(self, n, limits, name):
         try:
-            return self._call_sample(n_draws=n_draws, limits=limits, name=name)
+            return self._call_sample(n=n, limits=limits, name=name)
         except MultipleLimitsNotImplementedError:
             raise NotImplementedError("MultipleLimits auto handling in sample currently not supported.")
 
-    def _call_sample(self, n_draws, limits, name):
-        with self._name_scope(name, values=[n_draws, limits]):
-            n_draws = ztf.convert_to_tensor(n_draws, dtype=ztypes.int, name="n_draws")
+    def _call_sample(self, n, limits, name):
+        with self._name_scope(name, values=[n, limits]):
+            n = ztf.convert_to_tensor(n, dtype=ztypes.int, name="n")
 
             with suppress(NotImplementedError):
-                return self._sample(n_draws=n_draws, limits=limits)
+                return self._sample(n=n, limits=limits)
             with suppress(NotImplementedError):
-                return self._analytic_sample(n_draws=n_draws, limits=limits)
-            return self._fallback_sample(n_draws=n_draws, limits=limits)
+                return self._analytic_sample(n=n, limits=limits)
+            return self._fallback_sample(n=n, limits=limits)
 
-    def _analytic_sample(self, n_draws, limits: Range):
+    def _analytic_sample(self, n, limits: Range):
         if len(limits) > 1:
             raise MultipleLimitsNotImplementedError()
 
@@ -767,15 +767,14 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             except NotImplementedError:
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                           "implemented for the boundaries:".format(limits.get_boundaries()))
-            prob_sample = ztf.random_uniform(shape=(n_draws, limits.n_dims), minval=lower_prob_lim,
+            prob_sample = ztf.random_uniform(shape=(n, limits.n_dims), minval=lower_prob_lim,
                                              maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)
             return sample
 
-    def _fallback_sample(self, n_draws, limits):
-        sample = zsample.accept_reject_sample(prob=self._func_to_sample_from,  # no need to normalize
-                                              n_draws=n_draws,
-                                              limits=limits, prob_max=None)  # None -> auto
+    def _fallback_sample(self, n, limits):
+        sample = zsample.accept_reject_sample(prob=self._func_to_sample_from, n=n, limits=limits,
+                                              prob_max=None)  # None -> auto
         return sample
 
     @abc.abstractmethod

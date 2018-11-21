@@ -5,12 +5,7 @@ from zfit import ztf
 from zfit.settings import types as ztypes
 
 # start legacy
-import zfit
-import zfit.ztf
 
-if zfit.settings.LEGACY_MODE:
-    import zfit.legacy
-    from zfit.core.math import gradient_par as gradient
 
 cacheable_tensors = []
 

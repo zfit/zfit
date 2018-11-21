@@ -49,16 +49,3 @@ def interpolate(t, c):
     interp = tf.reduce_sum(tf.stack(wts), 0)
     return interp
 
-
-def gradient_par(func):
-    """Return TF graph for analytic gradient_par of the input func wrt all floating variables.
-
-    Arguments:
-            func (Tensor): A function of which the derivatives with respect to the free floating
-                           parameters will be taken.
-    Return:
-        list(graph): the derivative
-    """
-    tfpars = tf.trainable_variables()  # Create TF variables
-    float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
-    return tf.gradients(func, float_tfpars)  # Get analytic gradient_par

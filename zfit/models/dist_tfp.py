@@ -38,7 +38,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits.get_boundaries()
         if all(-np.array(lower) == np.array(upper) == np.infty):
-            return ztf.to_real(1.)
+            return ztf.to_real(1.)  # tfp distributions are normalized to 1
         lower = ztf.to_real(lower[0])
         upper = ztf.to_real(upper[0])
         integral = self.tf_distribution.cdf(upper) - self.tf_distribution.cdf(lower)
@@ -59,5 +59,5 @@ class Exponential(WrapDistribution):
 
 class Uniform(WrapDistribution):
     def __init__(self, low, high, name="Uniform"):
-        distribution = tfp.distributions.Exponential(low=low, high=high, name=name + "_tf")
+        distribution = tfp.distributions.Uniform(low=low, high=high, name=name + "_tfp")
         super().__init__(distribution=distribution, name=name)

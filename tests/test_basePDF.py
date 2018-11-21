@@ -24,7 +24,7 @@ gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
 
 class TestGaussian(zfit.core.basepdf.BasePDF):
 
-    def _unnormalized_pdf(self, x):
+    def _unnormalized_pdf(self, x, norm_range=False):
         return tf.exp((-(x - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
 
 
@@ -108,13 +108,13 @@ def test_sampling():
     sess = zfit.sess
     sess.run(init)
     n_draws = 1000
-    sample_tensor = gauss_params1.sample(n_draws=n_draws, limits=(low, high))
+    sample_tensor = gauss_params1.sample(n=n_draws, limits=(low, high))
     sampled_from_gauss1 = sess.run(sample_tensor)
     assert max(sampled_from_gauss1[0]) <= high
     assert min(sampled_from_gauss1[0]) >= low
     assert n_draws == len(sampled_from_gauss1[0])
 
-    sampled_gauss1_full = sess.run(gauss_params1.sample(n_draws=10000,
+    sampled_gauss1_full = sess.run(gauss_params1.sample(n=10000,
                                                         limits=(mu_true - abs(sigma_true) * 5,
                                                                 mu_true + abs(sigma_true) * 5)))
     mu_sampled = np.mean(sampled_gauss1_full)
@@ -132,7 +132,7 @@ def test_analytic_sampling():
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     gauss1 = SampleGauss()
-    sample = gauss1.sample(n_draws=10000, limits=(2., 5.))
+    sample = gauss1.sample(n=10000, limits=(2., 5.))
 
     sample = zfit.sess.run(sample)
 
