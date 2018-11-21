@@ -8,7 +8,7 @@ python:
 - 3.4
 matrix:
     allow_failures:
-        python: 3.7
+        - python: 3.7
 #matrix:
 #  include:
 #  - os: osx

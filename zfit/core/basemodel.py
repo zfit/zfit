@@ -253,7 +253,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             with suppress(NotImplementedError):
                 return self._integrate(limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return self._analytic_integrate(limits=limits, norm_range=norm_range)  # TODO: use _norm_integrate?
+                return self._norm_analytic_integrate(limits=limits, norm_range=norm_range)
             return self._fallback_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_integrate(self, limits, norm_range):
@@ -261,10 +261,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=dims)
 
         integral = None
-        if frozenset(max_dims) == frozenset(dims):
-            with suppress(NotImplementedError):
-                integral = self._norm_analytic_integrate(limits=limits, norm_range=norm_range)
-        if max_dims and integral is None:  # TODO improve handling of available analytic integrals
+        if max_dims and integral:  # TODO improve handling of available analytic integrals
             with suppress(NotImplementedError):
                 def part_int(x):
                     """Temporary partial integration function."""
@@ -303,7 +300,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         Args:
             func ():
         """
-        if len(cls._inverse_analytic_integral) > 0:
+        if cls._inverse_analytic_integral:
             cls._inverse_analytic_integral[0] = func
         else:
             cls._inverse_analytic_integral.append(func)
@@ -444,7 +441,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType,
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
@@ -464,7 +461,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: FULL reasonable?
-        limits = convert_to_range(limits, dims=dims)  # TODO: don't request dims but check (if not already Range
+        limits = convert_to_range(limits, dims=dims)
 
         return self._hook_partial_integrate(x=x, limits=limits,
                                             norm_range=norm_range, name=name)
@@ -479,7 +476,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         except NormRangeNotImplementedError:
             assert norm_range is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=False, name=name)
-            normalization = self._hook_integrate(limits=norm_range, norm_range=False)  # TODO: _call_normalization?
+            normalization = self._hook_integrate(limits=norm_range, norm_range=False)
             integral = unnormalized_integral / normalization
         return integral
 
@@ -895,7 +892,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         return params
 
     def __eq__(self, other):
-        if not type(self) == type(other):
+        if not isinstance(self, type(other)):
             raise TypeError("Cannot compare objects of type {} and {}".format(type(self), type(other)))
         params_equal = set(other.parameters) == set(self.parameters)
         return params_equal
