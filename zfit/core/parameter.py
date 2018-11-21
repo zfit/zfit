@@ -206,8 +206,10 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 
 ComposedVariable._OverloadAllOperators()
 
+
 class BaseParameter(BaseObject, ZfitParameter, metaclass=MetaBaseParameter):
     pass
+
 
 class ZfitParameterMixin:
 
@@ -271,7 +273,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     _independent = True
 
     def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
-                 dtype=ztypes.float):
+                 dtype=ztypes.float, **kwargs):
         """
           Constructor.
             name : name of the parameter,
@@ -282,21 +284,62 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         """
 
         # TODO: sanitize input
-        super().__init__(initial_value=init_value, dtype=dtype, name=name)
+        if lower_limit is None:
+            lower_limit = -np.infty
+        if upper_limit is None:
+            upper_limit = np.infty
+        no_limits = -lower_limit == upper_limit == np.infty
+        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
+        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
+        constraint = lambda x: tf.clip_by_value(x,
+                                                clip_value_min=self.lower_limit,
+                                                clip_value_max=self.upper_limit)
+        # self.constraint = constraint
+
+        super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint, **kwargs)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
         init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.init_value = init_value
         self.step_size = step_size
-        if lower_limit is None:
-            lower_limit = -np.infty
-        if upper_limit is None:
-            upper_limit = np.infty
-        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
-        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
+
         # self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
         # self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
+
+    @property
+    def lower_limit(self):
+        return self._lower_limit
+
+    @lower_limit.setter
+    def lower_limit(self, value):
+        self._lower_limit = value
+
+    @property
+    def upper_limit(self):
+        return self._upper_limit
+
+    @upper_limit.setter
+    def upper_limit(self, value):
+        self._upper_limit = value
+
+    @property
+    def has_limits(self):
+        no_limits = -self.lower_limit == self.upper_limit == np.infty
+        return not no_limits
+
+    def value(self):
+        value = super().value()
+        if self.has_limits:
+            value = self.constraint(value)
+        return value
+
+
+    def read_value(self):
+        value = super().read_value()
+        if self.has_limits:
+            value = self.constraint(value)
+        return value
 
     def _get_dependents(self):
         return {self}
@@ -306,7 +349,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         return self._independent
 
     def __init_subclass__(cls, **kwargs):
-        cls._independent = True  # overwritting independent only counnt for subclass/instance
+        cls._independent = True  # overwritting independent only for subclass/instance
 
     # OLD remove? only keep for speed reasons?
     @property

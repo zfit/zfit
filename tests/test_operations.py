@@ -32,6 +32,21 @@ def test_composed_param():
     assert a_changed != a_unchanged
 
 
+def test_param_limits():
+    lower, upper = -4., 3.
+    param1 = Parameter('param1lim', 1., lower_limit=lower, upper_limit=upper)
+    param2 = Parameter('param2lim', 2.)
+
+    zfit.sess.run(tf.global_variables_initializer())
+    param1.load(upper + 0.5, session=zfit.sess)
+    assert upper == zfit.sess.run(param1.value())
+    param1.load(lower - 1.1, session=zfit.sess)
+    assert lower == zfit.sess.run(param1.value())
+    param2.lower_limit = lower
+    param2.load(lower - 1.1, session=zfit.sess)
+    assert lower == zfit.sess.run(param2.value())
+
+
 def test_param_func():
     param1 = Parameter('param11s', 1.)
     param2 = Parameter('param21s', 2.)

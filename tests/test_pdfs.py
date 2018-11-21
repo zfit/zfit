@@ -81,7 +81,6 @@ def normalization_testing(pdf, normalization_value=1.):
         probs = pdf.pdf(samples)
         result = zfit.sess.run(probs)
         result = np.average(result) * (high - low)
-        print(result)
         assert normalization_value == pytest.approx(result, rel=0.07)
 
 
