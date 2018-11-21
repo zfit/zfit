@@ -839,7 +839,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
                     new_obj = new_obj()
             additional_repr[key] = new_obj
         if sorted_:
-            additional_repr = sorted(additional_repr)
+            additional_repr = OrderedDict(sorted(additional_repr))
         return additional_repr
 
     def __repr__(self):

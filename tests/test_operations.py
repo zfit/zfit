@@ -12,6 +12,37 @@ from zfit.util.exception import LogicalUndefinedOperationError, AlreadyExtendedP
 
 rnd_test_values = np.array([1., 0.01, -14.2, 0., 1.5, 152, -0.1, 12])
 
+def test_not_allowed():
+    param1 = Parameter('param11sda', 1.)
+    param2 = Parameter('param21dsa', 2.)
+    param3 = Parameter('param31sda', 3., floating=False)
+    param4 = Parameter('param41sda', 4.)
+
+    def func1_pure(x):
+        return param1 * x
+
+    def func2_pure(x):
+        return param2 * x + param3
+
+    func1 = SimpleFunction(func=func1_pure, p1=param1)
+    func2 = SimpleFunction(func=func2_pure, p2=param2, p3=param3)
+
+    pdf1 = SimplePDF(func=lambda x: x * param1)
+    pdf2 = SimplePDF(func=lambda x: x * param2)
+
+    with pytest.raises(TypeError):
+        pdf1 + pdf2
+    with pytest.raises(TypeError):
+        pdf1 + pdf2
+    with pytest.raises(NotImplementedError):
+        param1 + func1
+    with pytest.raises(NotImplementedError):
+        func1 + param1
+    with pytest.raises(TypeError):
+        func1 * pdf2
+    with pytest.raises(TypeError):
+        pdf1 * func1
+
 
 def test_param_func():
     param1 = Parameter('param11s', 1.)
@@ -78,7 +109,7 @@ def test_param_pdf():
     assert not pdf1.is_extended
     extended_pdf = yield1 * pdf1
     assert extended_pdf.is_extended
-    with pytest.raises(LogicalUndefinedOperationError):
+    with pytest.raises(TypeError):
         _ = pdf2 * yield2
     with pytest.raises(AlreadyExtendedPDFError):
         _ = yield2 * extended_pdf

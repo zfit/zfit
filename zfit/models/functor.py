@@ -78,7 +78,7 @@ class SumPDF(BaseFunctor):
             extended = False
 
         # no pdf is extended -> using `fracs`
-        elif not any(extended_pdfs):
+        elif not any(extended_pdfs) and fracs is not None:
             # make extended
             if len(fracs) == len(pdfs):
                 implicit = False
@@ -90,7 +90,7 @@ class SumPDF(BaseFunctor):
         # catch if args don't fit known case
         value_error = implicit is None or extended is None
         if (implicit and fracs is not None) or value_error:
-            raise ValueError("Wrong arguments. Either"
+            raise TypeError("Wrong arguments. Either"
                              "\n a) `models` are not extended and `fracs` is given with length models "
                              "(-> models get extended) or models - 1 (fractions)"
                              "\n b) all or all except 1 `models` are extended and fracs is None.")
