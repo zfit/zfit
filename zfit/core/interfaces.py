@@ -1,17 +1,51 @@
 import abc
+from abc import ABCMeta, abstractmethod
 from typing import Union, List
 
 import pep487
 import tensorflow as tf
 
-from zfit.util.ztyping import ParamsNameOpt
 from ..util import ztyping
 
 
-class ZfitObject(pep487.ABC):
+class ZfitObject(pep487.ABC, metaclass=ABCMeta):
+
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        """Name prepended to all ops created by this `pdf`."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def dtype(self) -> tf.DType:
+        """The `DType` of `Tensor`s handled by this `pdf`."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def parameters(self) -> ztyping.ParametersType:
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def get_dependents(self, only_floating=False):
+    def get_parameters(self, only_floating: bool = False,
+                       names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __eq__(self, other: object) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _repr(self):  # TODO: needed? Should fully represent the object
         raise NotImplementedError
 
 
@@ -38,15 +72,7 @@ class ZfitParameter(ZfitObject):
 
 
 class ZfitModel(ZfitObject):
-    @abc.abstractmethod
-    def get_parameters(self, only_floating: bool = True,
-                       names: ztyping.ParamsNameOpt = None) -> List[ZfitParameter]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def parameters(self) -> dict:
-        raise NotImplementedError
+    pass
 
 
 class ZfitFunc(ZfitModel):

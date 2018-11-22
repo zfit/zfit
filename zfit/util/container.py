@@ -17,7 +17,12 @@ def convert_to_container(value, container=list):
 
     """
     if not is_container(value):
-        value = container((value,))
+        try:
+            if not isinstance(value, str):
+                raise TypeError
+            value = container(value)
+        except TypeError:
+            value = container((value,))
     return value
 
 

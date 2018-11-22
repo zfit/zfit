@@ -136,15 +136,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
     def _func_to_sample_from(self, x):
         raise NotImplementedError
 
-    @property
-    def name(self):
-        """Name prepended to all ops created by this `pdf`."""
-        return self._name
 
-    @property
-    def dtype(self):
-        """The `DType` of `Tensor`s handled by this `pdf`."""
-        return self._dtype
 
     @property
     def parameters(self):
@@ -775,24 +767,6 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
                                               prob_max=None)  # None -> auto
         return sample
 
-    @abc.abstractmethod
-    def copy(self, **override_parameters):
-        """Creates a deep copy of the pdf.
-
-        Note: the copy pdf may continue to depend on the original
-        initialization arguments.
-
-        Args:
-          **override_parameters: String/value dictionary of initialization
-            arguments to override with new values.
-
-        Returns:
-          pdf: A new instance of `type(self)` initialized from the union
-            of self.parameters and override_parameters_kwargs, i.e.,
-            `dict(self.parameters, **override_parameters_kwargs)`.
-        """
-        raise NotImplementedError
-
     @contextlib.contextmanager
     def _name_scope(self, name=None, values=None):
         """Helper function to standardize op scope."""
@@ -862,30 +836,6 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         parameters = self.get_parameters()
         parameter_dependents = self._extract_dependents(parameters)
         return parameter_dependents
-
-    def get_parameters(self, only_floating=True, names=None) -> typing.List['Parameter']:
-        """Return the parameters. If it is empty, automatically set and return all floating variables.
-
-        Args:
-            only_floating (): If True, return only the floating parameters.
-            names (): The names of the parameters to return.
-
-        Returns:
-            list(`zfit.FitParameters`):
-        """
-        if isinstance(names, str):
-            names = (names,)
-        if names is not None:
-            missing_names = set(names).difference(self.parameters.keys())
-            if missing_names:
-                raise KeyError("The following names are not valid parameter names")
-            params = [self.parameters[name] for name in names]
-        else:
-            params = list(self.parameters.values())
-
-        if only_floating:
-            params = self._filter_floating_params(params=params)
-        return params
 
     @staticmethod
     def _filter_floating_params(params):
