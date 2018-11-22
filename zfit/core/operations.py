@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
-from .parameter import convert_to_parameter, ComposedParameter, Parameter
+from .parameter import convert_to_parameter, ComposedParameter
 from ..util import ztyping
 from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
 
