@@ -12,6 +12,7 @@ from zfit.util.exception import LogicalUndefinedOperationError, AlreadyExtendedP
 
 rnd_test_values = np.array([1., 0.01, -14.2, 0., 1.5, 152, -0.1, 12])
 
+
 def test_not_allowed():
     param1 = Parameter('param11sda', 1.)
     param2 = Parameter('param21dsa', 2.)

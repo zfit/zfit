@@ -1,4 +1,3 @@
-
 import copy
 from unittest import TestCase
 
@@ -53,6 +52,7 @@ limit4_subrange_true = ((1, 3, 5, 7), (2, 3.5), (-4, -2.3, -1, 5))
 limit5 = ((1, 4, 5, 6), (1, 3))
 limit5_subarea = (6, 2)
 limit5_subarea_rel = (0.75, 0.25)
+
 
 def limits_equal(limit1, limit2):
     for axis1, axis2 in zip(limit1, limit2):
@@ -165,7 +165,7 @@ class TestRange(TestCase):
         # self.assertEqual(self.limit4_range, )
 
     def test_complex_example(self):
-        complex_lower = ((-3,-999, -11), (3, -999, 10), (-3, -999, 15), (7, -999, -11))
+        complex_lower = ((-3, -999, -11), (3, -999, 10), (-3, -999, 15), (7, -999, -11))
         complex_upper = ((1, 999, 1), (5, 999, 13), (1, 999, 20), (10, 999, 1))
         dims = (0, 4, 8)
         true_complex_sub_areas_by_boundaries = (48., 6., 20., 36.)

@@ -1,4 +1,3 @@
-
 # deactivating CUDA capable gpus
 
 suppress_gpu = False

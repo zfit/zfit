@@ -12,6 +12,7 @@ class LogicalUndefinedOperationError(ValueError):
 class ExtendedPDFError(Exception):
     pass
 
+
 class AlreadyExtendedPDFError(ExtendedPDFError):
     pass
 

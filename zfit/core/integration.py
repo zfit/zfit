@@ -79,7 +79,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
     lower, upper = limits.get_boundaries()
     if np.infty in upper[0] or -np.infty in lower[0]:
         raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
-                         "\nlower: {}, upper: {}". format(lower, upper))
+                         "\nlower: {}, upper: {}".format(lower, upper))
 
     lower = ztf.convert_to_tensor(lower, dtype=dtype)
     upper = ztf.convert_to_tensor(upper, dtype=dtype)

@@ -50,5 +50,3 @@ class BaseFunc(ZfitFunc, BaseModel):
         with self._name_scope(name, values=[x]):
             x = ztf.convert_to_tensor(x, name="x")
             return self._value(x=x)
-
-

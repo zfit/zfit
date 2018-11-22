@@ -40,7 +40,8 @@ class BaseFunctor(BasePDF):
 
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.DimsType = None, name: str = "SumPDF") -> "SumPDF":
+    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.DimsType = None,
+                 name: str = "SumPDF") -> "SumPDF":
         """Create the sum of the `models` with `fracs` as coefficients.
 
         Args:
@@ -91,9 +92,9 @@ class SumPDF(BaseFunctor):
         value_error = implicit is None or extended is None
         if (implicit and fracs is not None) or value_error:
             raise TypeError("Wrong arguments. Either"
-                             "\n a) `models` are not extended and `fracs` is given with length models "
-                             "(-> models get extended) or models - 1 (fractions)"
-                             "\n b) all or all except 1 `models` are extended and fracs is None.")
+                            "\n a) `models` are not extended and `fracs` is given with length models "
+                            "(-> models get extended) or models - 1 (fractions)"
+                            "\n b) all or all except 1 `models` are extended and fracs is None.")
 
         # create fracs if one is not extended
         if not extended and implicit:
@@ -115,7 +116,8 @@ class SumPDF(BaseFunctor):
 
         elif not extended and not implicit:
             remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.accumulate_n(fracs, tensor_dtype=ztypes.float)
-            assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)), data=[remaining_frac])  # check fractions
+            assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
+                                  data=[remaining_frac])  # check fractions
             with tf.control_dependencies([assert_op]):
                 fracs.append(tf.identity(remaining_frac))
 
@@ -160,7 +162,9 @@ class SumPDF(BaseFunctor):
 
     def _set_yield(self, value: Union[Parameter, None]):
         # TODO: what happens now with the daugthers?
-        if all(self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the beginning
+        if all(
+            self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
+            # beginning
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
         elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
             reciprocal_yield = tf.reciprocal(self.get_yield())

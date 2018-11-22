@@ -148,8 +148,9 @@ class BaseLoss(ZfitLoss):
         # simultaneous fit
         if is_container(pdf):
             if not is_container(fit_range) or not isinstance(fit_range[0], Range):
-                raise ValueError("If several models are specified, the `fit_range` has to be given as a list of `Range` "
-                                 "objects and not as pure tuples.")
+                raise ValueError(
+                    "If several models are specified, the `fit_range` has to be given as a list of `Range` "
+                    "objects and not as pure tuples.")
             if not len(pdf) == len(data) == len(fit_range):
                 raise ValueError("pdf, data and fit_range don't have the same number of components:"
                                  "\nmodels: {}"

@@ -23,8 +23,10 @@ pi = constant(_mt.pi)
 def to_complex(number, dtype=ztypes.complex):
     return tf.cast(number, dtype=dtype)
 
+
 def to_real(x, dtype=ztypes.float):
     return tf.cast(x, dtype=dtype)
+
 
 def abs_square(x):
     return tf.real(x * tf.conj(x))
@@ -50,6 +52,7 @@ def nth_pow(x, n, name=None):
 def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
     return tf.unstack(value=value, num=num, axis=axis, name=name)
 
+
 # random sampling
 
 
@@ -60,6 +63,4 @@ def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x
 def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
     return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
 
-
 # reduce functions
-

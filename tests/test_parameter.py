@@ -11,8 +11,8 @@ from zfit.util.exception import LogicalUndefinedOperationError
 
 def test_complex_param():
     real_part = 1.3
-    imag_part =  0.3
-    complex_value = real_part + imag_part*1.j
+    imag_part = 0.3
+    complex_value = real_part + imag_part * 1.j
     param1 = ComplexParameter("param1", complex_value)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value ** 2 - 1.2j

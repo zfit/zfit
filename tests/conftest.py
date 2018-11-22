@@ -3,6 +3,7 @@
 test_length = 0
 test_length = 10
 
+
 def test_choice(*args):
     if test_length == 0:
         return args[0]

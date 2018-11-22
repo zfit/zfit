@@ -277,9 +277,6 @@ def test_analytic_integral():
     assert normal_integral_infs == pytest.approx(1, rel=0.0001)
 
 
-
-
-
 def test_analytic_integral_selection():
     class DistFuncInts(zbasepdf.BasePDF):
         def _unnormalized_pdf(self, x, norm_range=False):

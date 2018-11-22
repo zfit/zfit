@@ -62,7 +62,7 @@ def test_gradient():
     random_vals = np.random.normal(2., 4., size=5)
     # random_vals = np.array([1, 4])
     zfit.sess.run(init)
-    tensor_grad = gauss3.gradient(x=random_vals,params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
+    tensor_grad = gauss3.gradient(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = zfit.sess.run(tensor_grad)
     assert random_vals_eval == pytest.approx(true_gaussian_grad(random_vals), rel=1e-5)
 
@@ -141,7 +141,6 @@ def test_analytic_sampling():
 
 
 def test_multiple_limits():
-
     zfit.sess.run(init)
     dims = (0,)
     simple_limits = (-3.2, 9.1)

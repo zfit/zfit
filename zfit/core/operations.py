@@ -51,8 +51,8 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
 
     if new_object is None:
         raise TypeError("Multiplication for {} and {} of type {} and {} is not"
-                                             "properly defined. (may change the order)"
-                                             "".format(object1, object2, type(object1), type(object2)))
+                        "properly defined. (may change the order)"
+                        "".format(object1, object2, type(object1), type(object2)))
     return new_object
 
 
@@ -105,6 +105,7 @@ def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitPa
     param = param1 * param2
     return ComposedParameter(name=param1.name + "_mult_" + param2.name, tensor=param)
 
+
 # Addition logic
 def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.BaseObjectType:
@@ -147,8 +148,8 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
 
     if new_object is None:
         raise TypeError("Addition for {} and {} of type {} and {} is not"
-                                             "properly defined. (may change the order)"
-                                             "".format(object1, object2, type(object1), type(object2)))
+                        "properly defined. (may change the order)"
+                        "".format(object1, object2, type(object1), type(object2)))
     return new_object
 
 

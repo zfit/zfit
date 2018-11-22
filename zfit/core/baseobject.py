@@ -28,5 +28,3 @@ class BaseObject(ZfitObject):
         dependents = (obj.get_dependents() for obj in zfit_object)
         dependents = set(itertools.chain.from_iterable(dependents))  # flatten
         return dependents
-
-
