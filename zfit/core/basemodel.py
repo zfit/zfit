@@ -92,6 +92,9 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         # check if subclass has decorator if required
         cls._subclass_check_support(methods_to_check=_BaseModel_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BaseModel_register_check_support)
+        cls._analytic_integral = zintegrate.AnalyticIntegral()
+        cls._inverse_analytic_integral = []
+        cls._additional_repr = {}
 
     @classmethod
     def _subclass_check_support(cls, methods_to_check, wrapper_not_overwritten):
@@ -124,9 +127,6 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             # if we reach this points, somethings wrong
             raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
                                           "OR been been wrapped but it should not be".format(method_name))
-        cls._analytic_integral = zintegrate.AnalyticIntegral()
-        cls._inverse_analytic_integral = []
-        cls._additional_repr = {}
 
     @abc.abstractmethod
     def _func_to_integrate(self, x: ztyping.XType):
@@ -864,7 +864,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         return parameter_dependents
 
     def get_parameters(self, only_floating=True, names=None) -> typing.List['Parameter']:
-        """Return the parameters. If it is empty, automatically set and return all trainable variables.
+        """Return the parameters. If it is empty, automatically set and return all floating variables.
 
         Args:
             only_floating (): If True, return only the floating parameters.
@@ -894,7 +894,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
 
     def __eq__(self, other):
         if not isinstance(self, type(other)):
-            raise TypeError("Cannot compare objects of type {} and {}".format(type(self), type(other)))
+            return False
         params_equal = set(other.parameters) == set(self.parameters)
         return params_equal
 
