@@ -42,7 +42,7 @@ def test_unbinned_nll():
         with sigma_constr.temp_norm_range((-np.infty, np.infty)):
             test_values = tf.constant(test_values_np)
             # nll = _unbinned_nll_tf(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-            nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+            nll_class = UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
             # nll_eval = zfit.sess.run(nll)
             minimizer = MinuitMinimizer(loss=nll_class)
             status = minimizer.minimize(params=[mu1, sigma1], sess=zfit.sess)
@@ -54,7 +54,7 @@ def test_unbinned_nll():
             # with constraints
             zfit.sess.run(init)
 
-            nll_class = UnbinnedNLL(pdf=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
+            nll_class = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                                     constraints={mu2: mu_constr,
                                                  sigma2: sigma_constr})
 
@@ -99,9 +99,9 @@ def test_add():
     merged_contraints = constraint1.copy()
     merged_contraints.update(constraint2)
 
-    nll1 = UnbinnedNLL(pdf=pdfs[0], data=datas[0], fit_range=ranges[0], constraints=constraint1)
-    nll2 = UnbinnedNLL(pdf=pdfs[1], data=datas[1], fit_range=ranges[1], constraints=constraint2)
-    nll3 = UnbinnedNLL(pdf=[pdfs[2], pdfs[3]], data=[datas[2], datas[3]], fit_range=[ranges[2], ranges[3]])
+    nll1 = UnbinnedNLL(model=pdfs[0], data=datas[0], fit_range=ranges[0], constraints=constraint1)
+    nll2 = UnbinnedNLL(model=pdfs[1], data=datas[1], fit_range=ranges[1], constraints=constraint2)
+    nll3 = UnbinnedNLL(model=[pdfs[2], pdfs[3]], data=[datas[2], datas[3]], fit_range=[ranges[2], ranges[3]])
 
     simult_nll = nll1 + nll2 + nll3
 
