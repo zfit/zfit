@@ -42,16 +42,16 @@ class SumPDF(BaseFunctor):
 
     def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.DimsType = None,
                  name: str = "SumPDF") -> "SumPDF":
-        """Create the sum of the `models` with `fracs` as coefficients.
+        """Create the sum of the `pdfs` with `fracs` as coefficients.
 
         Args:
-            pdfs (pdf): The models to add.
-            fracs (iterable): coefficients for the linear combination of the models. If models are
+            pdfs (pdf): The pdfs to add.
+            fracs (iterable): coefficients for the linear combination of the pdfs. If pdfs are
                 extended, this throws an error.
 
                   - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                     The last coefficient will equal to 1 - sum(frac)
-                  - len(frac) == len(pdf) each pdf in `models` will become an extended pdf with the
+                  - len(frac) == len(pdf) each pdf in `pdfs` will become an extended pdf with the
                     given yield.
             name (str):
         """
@@ -92,9 +92,9 @@ class SumPDF(BaseFunctor):
         value_error = implicit is None or extended is None
         if (implicit and fracs is not None) or value_error:
             raise TypeError("Wrong arguments. Either"
-                            "\n a) `models` are not extended and `fracs` is given with length models "
-                            "(-> models get extended) or models - 1 (fractions)"
-                            "\n b) all or all except 1 `models` are extended and fracs is None.")
+                            "\n a) `pdfs` are not extended and `fracs` is given with length pdfs "
+                            "(-> pdfs get extended) or pdfs - 1 (fractions)"
+                            "\n b) all or all except 1 `pdfs` are extended and fracs is None.")
 
         # create fracs if one is not extended
         if not extended and implicit:
@@ -148,10 +148,10 @@ class SumPDF(BaseFunctor):
     def _unnormalized_pdf(self, x, norm_range=False):
         raise NotImplementedError
         # TODO: deal with yields
-        # models = self.models
+        # pdfs = self.pdfs
         # fracs = self.fracs
         # func = tf.accumulate_n(
-        #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(models, fracs)])
+        #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
         # return func
 
     def _pdf(self, x, norm_range):

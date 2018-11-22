@@ -41,7 +41,7 @@ def test_unbinned_nll():
     with mu_constr.temp_norm_range((-np.infty, np.infty)):
         with sigma_constr.temp_norm_range((-np.infty, np.infty)):
             test_values = tf.constant(test_values_np)
-            # nll = _unbinned_nll_tf(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+            # nll = _unbinned_nll_tf(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
             nll_class = UnbinnedNLL(pdf=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
             # nll_eval = zfit.sess.run(nll)
             minimizer = MinuitMinimizer(loss=nll_class)
@@ -105,7 +105,7 @@ def test_add():
 
     simult_nll = nll1 + nll2 + nll3
 
-    assert simult_nll.pdf == pdfs
+    assert simult_nll.model == pdfs
     assert simult_nll.data == datas
 
     ranges[0] = Range.from_limits(ranges[0], dims=(0,))  # for comparison, Range can only compare with Range

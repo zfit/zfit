@@ -44,7 +44,7 @@ def minimize_func(minimizer_class_and_kwargs, sess):
     zfit.sess.run(init)
 
     minimizer.minimize(sess=zfit.sess, params=[a_param, b_param, c_param])
-    cur_val = zfit.sess.run(loss_func.eval())
+    cur_val = zfit.sess.run(loss_func.value())
     aval, bval, cval = zfit.sess.run([v for v in (a_param, b_param, c_param)])
 
     assert abs(cur_val - true_minimum) < max_distance_to_min

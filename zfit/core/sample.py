@@ -23,7 +23,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Range, sampler: 
         sampler (function): A function taking n as an argument and returning values between
             0 and 1
         dtype ():
-        prob_max (Union[None, int]): The maximum of the pdf function for the given limits. If None
+        prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
             is given, it will be automatically, safely estimated (by a 10% increase in computation time
             (constant weak scaling)).
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         sess.run(init)
         result = sess.run(samples)
         print(np.average(result), np.std(result))
-        # maximum = 1.1 * tf.reduce_max(dist.pdf(tf.random_uniform((10000,), -100, 100)))
+        # maximum = 1.1 * tf.reduce_max(dist.model(tf.random_uniform((10000,), -100, 100)))
         maximum = 0.1
         # maximum = None
         list1 = []

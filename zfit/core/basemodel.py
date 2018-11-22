@@ -42,8 +42,8 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
-    """Base class for any generic pdf.
+class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
+    """Base class for any generic model.
 
     # TODO instructions on how to use
 
@@ -58,29 +58,26 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
     _additional_repr = None
 
     def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BaseModel",
-                 reparameterization_type: bool = False,
-                 validate_args: bool = False,
-                 allow_nan_stats: bool = True, graph_parents: tf.Graph = None, **parameters: typing.Any):
-        """The base pdf to inherit from and overwrite `_unnormalized_pdf`.
+                 reparameterization_type: bool = False, validate_args: bool = False, allow_nan_stats: bool = True,
+                 graph_parents: tf.Graph = None, **parameters: typing.Any):
+        """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
-            dtype (typing.Type): the dtype of the pdf
-            name (str): the name of the pdf
+            dtype (typing.Type): the dtype of the model
+            name (str): the name of the model
             reparameterization_type (): currently not used, but for forward compatibility
             validate_args (): currently not used, but for forward compatibility
             allow_nan_stats (): currently not used, but for forward compatibility
             graph_parents (): currently not used, but for forward compatibility
             **parameters (): the parameters the distribution depends on
         """
-        super().__init__()
-        self._dtype = dtype
+        super().__init__(name=name, dtype=dtype, parameters=parameters)
+        # self._dtype = dtype
         self._reparameterization_type = reparameterization_type
         self._allow_nan_stats = allow_nan_stats
         self._validate_args = validate_args
-        parameters = parameters or OrderedDict()
-        self._parameters = OrderedDict((n, convert_to_parameter(p)) for n, p in parameters.items())
         self._graph_parents = [] if graph_parents is None else graph_parents
-        self._name = name
+        # self._name = name
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -89,6 +86,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         # check if subclass has decorator if required
         cls._subclass_check_support(methods_to_check=_BaseModel_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BaseModel_register_check_support)
@@ -136,16 +134,14 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
     def _func_to_sample_from(self, x):
         raise NotImplementedError
 
-
-
-    @property
-    def parameters(self):
-        """Dictionary of parameters used to instantiate this `pdf`."""
-        # Remove "self", "__class__", or other special variables. These can appear
-        # if the subclass used:
-        # `parameters = dict(locals())`.
-        return OrderedDict((k, v) for k, v in self._parameters.items()
-                           if not k.startswith("__") and k != "self")
+    # @property
+    # def parameters(self):
+    #     """Dictionary of parameters used to instantiate this `model`."""
+    #     # Remove "self", "__class__", or other special variables. These can appear
+    #     # if the subclass used:
+    #     # `parameters = dict(locals())`.
+    #     return OrderedDict((k, v) for k, v in self._parameters.items()
+    #                        if not k.startswith("__") and k != "self")
 
     #
     # @property
@@ -700,7 +696,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         raise NotImplementedError
 
     def sample(self, n: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
-        """Sample `n` points within `limits` from the pdf.
+        """Sample `n` points within `limits` from the model.
 
         Args:
             n (int): The number of samples to be generated
@@ -814,9 +810,9 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
             additional_repr = OrderedDict(sorted(additional_repr))
         return additional_repr
 
-    def __repr__(self):
+    def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
 
-        return ("<zfit.pdf.{type_name} "
+        return ("<zfit.{type_name} "
                 # "'{self_name}'"
                 " parameters=[{params}]"
                 " dtype={dtype}>".format(
@@ -833,20 +829,7 @@ class BaseModel(ZfitModel, BaseObject):  # __init_subclass__ backport
         return func
 
     def _get_dependents(self):
-        parameters = self.get_parameters()
-        parameter_dependents = self._extract_dependents(parameters)
-        return parameter_dependents
-
-    @staticmethod
-    def _filter_floating_params(params):
-        params = [param for param in params if param.floating]
-        return params
-
-    def __eq__(self, other):
-        if not isinstance(self, type(other)):
-            return False
-        params_equal = set(other.parameters) == set(self.parameters)
-        return params_equal
+        return self._extract_dependents(self.get_parameters())
 
     def __add__(self, other):
         from . import operations

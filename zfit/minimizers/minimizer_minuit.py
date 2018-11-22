@@ -18,7 +18,7 @@ class MinuitMinimizer(BaseMinimizer):
         super().__init__(*args, **kwargs)
 
     def _minimize(self, params: List[Parameter]):
-        loss = self.loss.eval()
+        loss = self.loss.value()
         # params = self.get_parameters()
         gradients = tf.gradients(loss, params)
         # updated_params = self._extract_update_op(params)

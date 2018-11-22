@@ -64,7 +64,7 @@ def estimate_maximum(sess, pdf, x, norm_sample):
     """
       Estimate the maximum of density function defined as a graph
         sess : TF session
-        pdf  : density graph
+        model  : density graph
         x    : phase space placeholder used for the definition of the density function
         size : size of the random sample for maximum estimation
       Returns the estimated maximum of the density
@@ -75,7 +75,7 @@ def estimate_maximum(sess, pdf, x, norm_sample):
 
 def integral(pdf, weight_func=None):
     """Return the graph for the (weighted) integral of the PDF.
-        pdf : PDF
+        model : PDF
         weight_func : weight function
     """
     if weight_func:
@@ -85,7 +85,7 @@ def integral(pdf, weight_func=None):
 
 def unbinned_NLL(pdf, integral, weight_func=None):
     """Return unbinned negative log likelihood graph for a PDF
-       pdf      : PDF
+       model      : PDF
        integral : precalculated integral
        weight_func : weight function
 
@@ -104,9 +104,9 @@ def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
     models       : concatenated array of several PDFs (different regions/channels)
     integrals  : array of precalculated integrals of the corresponding models
     n_obs       : array of observed num. of events, used in the extended fit and in the
-    normalization of the pdf
+    normalization of the model
                  (needed since when I concatenate the models I loose the information on how many
-                 data points are fitted with the pdf)
+                 data points are fitted with the model)
     nsignals   : array of fitted number of events resulted from the extended fit (function of the
     fit parameters, prop to BR)
     param_gauss : list of parameter to be gaussian constrained (CKM pars, etc.)
@@ -114,7 +114,7 @@ def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
     param_gauss_sigma : sigma parameter to be gaussian constrained
     log_multi_gauss : log of the multi-gaussian to be included in the Likelihood (FF & alphas)
     """
-    # tf.add_n(log(pdf(x))) - tf.add_n(Nev*Norm)
+    # tf.add_n(log(model(x))) - tf.add_n(Nev*Norm)
     nll = - (tf.reduce_sum(tf.log(pdfs)) - tf.reduce_sum(
         tf.cast(n_obs, tf.float64) * tf.log(integrals)))
 
@@ -143,13 +143,13 @@ def unbinned_angular_NLL(pdfs, integrals, nevents,
     integrals  : array of precalculated integrals of the corresponding models
     nevents    : array of num. of events in the dataset to be fitted to the corresponding models
                  (needed since when I concatenate the models I loose the information on how many
-                 data points are fitted with the pdf)
+                 data points are fitted with the model)
     param_gauss : list of parameter to be gaussian constrained (CKM pars, etc.)
     param_gauss_mean : mean of parameter to be gaussian constrained
     param_gauss_sigma : sigma parameter to be gaussian constrained
     log_multi_gauss : log of the multi-gaussian to be included in the Likelihood (FF & alphas)
     """
-    # tf.add_n(log(pdf(x))) - tf.add_n(Nev*Norm)
+    # tf.add_n(log(model(x))) - tf.add_n(Nev*Norm)
     nll = - (tf.reduce_sum(tf.log(pdfs)) - tf.reduce_sum(
         tf.cast(nevents, tf.float64) * tf.log(integrals)))
 
@@ -165,7 +165,7 @@ def unbinned_angular_NLL(pdfs, integrals, nevents,
     return nll
 
 
-# -- modified to contain extended fit to Nevents + all gauss constr.,  pdf not included (BR only)
+# -- modified to contain extended fit to Nevents + all gauss constr.,  model not included (BR only)
 #  -- #
 def extended_NLL_poiss(nsignals, n_obs, param_gauss, param_gauss_mean, param_gauss_sigma,
                        log_multi_gauss):
@@ -200,7 +200,7 @@ def run_toy_MC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, 
       inside
       TF session, which are then concatenated.
         sess : TF session
-        pdf : PDF graph
+        model : PDF graph
         x   : phase space placeholder used for PDF definition
         phsp : phase space
         size : size of the target data sample (if >0) or number of chunks (if <0)
@@ -342,7 +342,7 @@ def calc_fit_fractions(sess, pdf, x, switches, norm_sample):
     """
       Calculate fit fractions for PDF components
         sess        : TF session
-        pdf         : PDF graph
+        model         : PDF graph
         x           : phase space placeholder used for PDF definition
         switches    : list of switches
         norm_sample : normalisation sample. Not needed if external integral is provided

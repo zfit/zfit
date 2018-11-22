@@ -11,13 +11,13 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
-from zfit.util.exception import LogicalUndefinedOperationError
-from .baseobject import BaseObject
-from .interfaces import ZfitParameter, ZfitObject
+from ..util.exception import LogicalUndefinedOperationError
+from . import baseobject as zbaseobject
+from . import interfaces as zinterfaces
 from zfit.settings import types as ztypes
 
 
-class MetaBaseParameter(type(TFBaseVariable), type(ZfitParameter)):  # resolve metaclasses
+class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
     pass
 
 
@@ -211,7 +211,7 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 ComposedVariable._OverloadAllOperators()
 
 
-class BaseParameter(BaseObject, ZfitParameter, metaclass=MetaBaseParameter):
+class BaseParameter(zbaseobject.BaseObject, zinterfaces.ZfitParameter, metaclass=MetaBaseParameter):
     pass
 
 
@@ -243,28 +243,28 @@ class ZfitParameterMixin:
         self._floating = value
 
     def __add__(self, other):
-        if isinstance(other, ZfitObject):
+        if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             return operations.add(self, other, dims=None)
         else:
             return super().__add__(other)
 
     def __radd__(self, other):
-        if isinstance(other, ZfitObject):
+        if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             return operations.add(other, self, dims=None)
         else:
             return super().__radd__(other)
 
     def __mul__(self, other):
-        if isinstance(other, ZfitObject):
+        if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             return operations.multiply(self, other, dims=None)
         else:
             return super().__mul__(other)
 
     def __rmul__(self, other):
-        if isinstance(other, ZfitObject):
+        if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             return operations.multiply(other, self, dims=None)
         else:

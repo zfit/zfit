@@ -109,7 +109,7 @@ def read_NTuple(ntuple, variables):
     data = []  # TODO: smell, unused?
     code_list = []
     for v in variables:
-        code_list += [compile("i.{}".format(v), '<string>', 'eval')]
+        code_list += [compile("i.{}".format(v), '<string>', 'value')]
     nentries = ntuple.GetEntries()
     nvars = len(variables)
     tuple_array = np.zeros((nentries, nvars))

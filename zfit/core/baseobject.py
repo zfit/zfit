@@ -10,22 +10,42 @@ from zfit.util import ztyping
 from .interfaces import ZfitObject
 from ..util.container import convert_to_container, DotDict
 
+_COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
+
+        Note: the copy {zfit_type} may continue to depend on the original
+        initialization arguments.
+
+        Args:
+          name (str):
+          **overwrite_parameters: String/value dictionary of initialization
+            arguments to override with new values.
+
+        Returns:
+          {zfit_type}: A new instance of `type(self)` initialized from the union
+            of self.parameters and override_parameters_kwargs, i.e.,
+            `dict(self.parameters, **overwrite_params)`.
+        """
 
 class BaseObject(ZfitObject):
-    _zfit_type = "BaseObject"
 
     def __init__(self, name, dtype, parameters, **kwargs):
-        super().__init__(**kwargs)
+        assert not kwargs, "kwargs not empty, the following arguments are not captured: {}".format(kwargs)
+        super().__init__()
+        from zfit.core.parameter import convert_to_parameter
+
         self._name = name  # TODO: uniquify name?
         self._dtype = dtype
-        parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
+        parameters = parameters or OrderedDict()
+        parameters = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in parameters.items()))
+
+        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._parameters = parameters
         self._repr.parameters = self.parameters
-        self._repr.zfit_type = self._zfit_type
 
     def __init_subclass__(cls, **kwargs):
         cls._repr = DotDict()  # TODO: make repr more sophisticated
-        cls._zfit_type = None
+        cls._repr.zfit_type = cls
+        cls.copy.__doc__ = _COPY_DOCSTRING.format(zfit_type=cls.__name__)
 
     @property
     def name(self) -> str:
@@ -37,8 +57,12 @@ class BaseObject(ZfitObject):
         """The dtype of the object"""
         return self._dtype
 
+    @abc.abstractmethod
+    def _get_dependents(self) -> ztyping.DependentsType:
+        raise NotImplementedError
+
     def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
-        """Return a list of all independent :py:class:`~zfit.Parameter` that this object depends on.
+        """Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.
 
         Args:
             only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`
@@ -47,10 +71,6 @@ class BaseObject(ZfitObject):
         if only_floating:
             dependents = set(filter(lambda p: p.floating, dependents))
         return dependents
-
-    @abc.abstractmethod
-    def _get_dependents(self) -> ztyping.DependentsType:
-        raise NotImplementedError
 
     @staticmethod
     def _extract_dependents(zfit_objects: List[ZfitObject]) -> Set["zfit.Parameters"]:
@@ -62,40 +82,24 @@ class BaseObject(ZfitObject):
         Returns:
             set(zfit.Parameter): A set of independent Parameters
         """
-        zfit_object = convert_to_container(zfit_objects)
-        dependents = (obj.get_dependents() for obj in zfit_object)
-        dependents = set(itertools.chain.from_iterable(dependents))  # flatten
-        return dependents
+        zfit_objects = convert_to_container(zfit_objects)
+        dependents = (obj.get_dependents(only_floating=False) for obj in zfit_objects)
+        dependents_set = set(itertools.chain.from_iterable(dependents))  # flatten
+        return dependents_set
 
     @property
-    def parameters(self):
+    def parameters(self) -> ztyping.ParametersType:
         return self._parameters
 
-    def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
-        """Creates a deep copy of the {zfit_type}.
-
-        Note: the copy pdf may continue to depend on the original
-        initialization arguments.
-
-        Args:
-          **override_parameters: String/value dictionary of initialization
-            arguments to override with new values.
-
-        Returns:
-          pdf: A new instance of `type(self)` initialized from the union
-            of self.parameters and override_parameters_kwargs, i.e.,
-            `dict(self.parameters, **override_parameters_kwargs)`.
-        """.format(zfit_type=self._repr.zfit_type)
-
-    def get_parameters(self, only_floating=True, names=None) -> List['Parameter']:
-        """Return the parameters. If it is empty, automatically set and return all floating variables.
+    def get_parameters(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
+        """Return the parameters. If it is empty, automatically return all floating variables.
 
         Args:
             only_floating (): If True, return only the floating parameters.
             names (): The names of the parameters to return.
 
         Returns:
-            list(`zfit.FitParameters`):
+            list(`ZfitParameters`):
         """
         if isinstance(names, str):
             names = (names,)
@@ -110,3 +114,34 @@ class BaseObject(ZfitObject):
         if only_floating:
             params = self._filter_floating_params(params=params)
         return params
+
+    @staticmethod
+    def _filter_floating_params(params):
+        params = [param for param in params if param.floating]
+        return params
+
+    def copy(self, deep: bool = False, name: str = None, **overwrite_params) -> "ZfitObject":
+
+        new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
+        return new_object
+
+    def _copy(self, deep, name, overwrite_params):
+        if deep:
+            raise NotImplementedError("Unfortunately, this feature is not implemented.")
+        if name is None:
+            name = self.name + "_copy"  # TODO: improve name mangling
+        params = self.parameters.copy()
+        params.update(overwrite_params)
+        new_object = type(self)(name=name, **params)
+        return new_object
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(self, type(other)):
+            return False
+        for key, own_element in self._repr.items():
+            if not own_element == other._repr.get(key):  # TODO: make repr better
+                return False
+        return True
+
+    def __hash__(self):
+        return object.__hash__(self)

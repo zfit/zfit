@@ -14,7 +14,6 @@ import tensorflow_probability as tfp
 import pep487
 from typing import Dict, List, Union, Optional
 
-import zfit.core.math as zmath
 from zfit import ztf
 from zfit.minimizers.state import MinimizerState
 from zfit.util import ztyping
@@ -404,7 +403,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
-            cur_val = self.sess.run(self.loss.eval())  # TODO: improve...
+            cur_val = self.sess.run(self.loss.value())  # TODO: improve...
         fmin = cur_val
         edm = -999  # TODO: get edm
         status = {}  # TODO: create status

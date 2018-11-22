@@ -1,17 +1,14 @@
 import abc
 
-import pep487
 import tensorflow as tf
-from typing import Optional
+from typing import Optional, Union
 
-import zfit
 from zfit import ztf
 from zfit.core.baseobject import BaseObject
-import zfit.util.container
+from zfit.core.interfaces import ZfitLoss
 from zfit.util.container import convert_to_container, is_container
 
 from .limits import convert_to_range, Range
-import zfit.util.checks
 
 
 def _unbinned_nll_tf(pdf, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
@@ -60,16 +57,16 @@ def _nll_constraints_tf(constraints):
 
 
 #
-# def extended_unbinned_NLL(models, integrals, n_obs, nsignals,
+# def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
 #                           param_gauss=None, param_gauss_mean=None, param_gauss_sigma=None,
 #                           log_multi_gauss=None):
 #     """
 #     Return unbinned negative log likelihood graph for a PDF
-#     models       : concatenated array of several PDFs (different regions/channels)
-#     integrals  : array of precalculated integrals of the corresponding models
+#     pdfs       : concatenated array of several PDFs (different regions/channels)
+#     integrals  : array of precalculated integrals of the corresponding pdfs
 #     n_obs       : array of observed num. of events, used in the extended fit and in the
 #     normalization of the pdf
-#                  (needed since when I concatenate the models I loose the information on how many
+#                  (needed since when I concatenate the pdfs I loose the information on how many
 #                  data points are fitted with the pdf)
 #     nsignals   : array of fitted number of events resulted from the extended fit (function of the
 #     fit parameters, prop to BR)
@@ -79,7 +76,7 @@ def _nll_constraints_tf(constraints):
 #     log_multi_gauss : log of the multi-gaussian to be included in the Likelihood (FF & alphas)
 #     """
 #     # tf.add_n(log(pdf(x))) - tf.add_n(Nev*Norm)
-#     nll = - (tf.reduce_sum(tf.log(models)) - tf.reduce_sum(
+#     nll = - (tf.reduce_sum(tf.log(pdfs)) - tf.reduce_sum(
 #         tf.cast(n_obs, tf.float64) * tf.log(integrals)))
 #
 #     # Extended fit to number of events
@@ -96,40 +93,11 @@ def _nll_constraints_tf(constraints):
 #
 #     return nll
 
-class ZfitLoss(BaseObject):
 
-    @abc.abstractmethod
-    def eval(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def add_constraints(self, constraints):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def errordef(self, func):
-        raise NotImplementedError
-
-    @property
-    # @abc.abstractmethod
-    def pdf(self):
-        raise NotImplementedError
-
-    @property
-    # @abc.abstractmethod
-    def data(self):
-        raise NotImplementedError
-
-    @property
-    # @abc.abstractmethod
-    def fit_range(self):
-        raise NotImplementedError
-
-
-class BaseLoss(ZfitLoss):
+class BaseLoss(BaseObject, ZfitLoss):
 
     def __init__(self, pdf, data, fit_range, constraints=None):
-        self._simultaneous = None
+        super().__init__(name=type(self).__name__, dtype=None, parameters={})
         if constraints is None:
             constraints = {}
         pdf, data, fit_range = self._input_check(pdf=pdf, data=data, fit_range=fit_range)
@@ -149,11 +117,11 @@ class BaseLoss(ZfitLoss):
         if is_container(pdf):
             if not is_container(fit_range) or not isinstance(fit_range[0], Range):
                 raise ValueError(
-                    "If several models are specified, the `fit_range` has to be given as a list of `Range` "
+                    "If several pdfs are specified, the `fit_range` has to be given as a list of `Range` "
                     "objects and not as pure tuples.")
             if not len(pdf) == len(data) == len(fit_range):
                 raise ValueError("pdf, data and fit_range don't have the same number of components:"
-                                 "\nmodels: {}"
+                                 "\npdfs: {}"
                                  "\ndata: {}"
                                  "\nfit_range: {}".format(pdf, data, fit_range))
 
@@ -188,6 +156,10 @@ class BaseLoss(ZfitLoss):
         return self._pdf
 
     @property
+    def model(self):
+        return self.pdf()
+
+    @property
     def data(self):
         return self._data
 
@@ -208,9 +180,10 @@ class BaseLoss(ZfitLoss):
     def _loss_func(self, pdf, data, fit_range, constraints=None):
         raise NotImplementedError
 
-    def eval(self):
+    def value(self):
         try:
-            return self._loss_func(pdf=self.pdf, data=self.data, fit_range=self.fit_range, constraints=self.constraints)
+            return self._loss_func(pdf=self.pdf, data=self.data, fit_range=self.fit_range,
+                                   constraints=self.constraints)
         except NotImplementedError:
             raise NotImplementedError("_loss_func not defined!")
 
@@ -236,7 +209,7 @@ class UnbinnedNLL(BaseLoss):
         nll_constr = nll + constraints
         return nll_constr
 
-    def errordef(self, sigma):
+    def errordef(self, sigma: Union[float, int]) -> Union[float, int]:
         return sigma
 
 

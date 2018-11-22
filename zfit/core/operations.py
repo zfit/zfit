@@ -42,7 +42,7 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         elif isinstance(object2, ZfitFunc):
             new_object = multiply_func_func(func1=object1, func2=object2, dims=dims)
         elif isinstance(object2, ZfitPDF):
-            raise TypeError("Cannot multiply a function with a pdf. Use `func.as_pdf` or `pdf.as_func`.")
+            raise TypeError("Cannot multiply a function with a model. Use `func.as_pdf` or `model.as_func`.")
 
     # object 1 is PDF
     elif isinstance(object1, ZfitPDF):
@@ -76,7 +76,7 @@ def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType 
 
 def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
     if not (isinstance(param, ZfitParameter) and isinstance(pdf, ZfitPDF)):
-        raise TypeError("`param` and `pdf` need to be `ZfitParameter` resp. `ZfitPDF` and not "
+        raise TypeError("`param` and `model` need to be `ZfitParameter` resp. `ZfitPDF` and not "
                         "{}, {}".format(param, pdf))
     if pdf.is_extended:
         raise AlreadyExtendedPDFError()
@@ -137,12 +137,12 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         elif isinstance(object2, ZfitFunc):
             new_object = add_func_func(func1=object1, func2=object2, dims=dims)
         elif isinstance(object2, ZfitPDF):
-            raise TypeError("Cannot add a function with a pdf. Use `func.as_pdf` or `pdf.as_func`.")
+            raise TypeError("Cannot add a function with a model. Use `func.as_pdf` or `model.as_func`.")
 
     # object 1 is PDF
     elif isinstance(object1, ZfitPDF):
         if isinstance(object2, ZfitFunc):
-            raise TypeError("Cannot add a function with a pdf. Use `func.as_pdf` or `pdf.as_func`.")
+            raise TypeError("Cannot add a function with a model. Use `func.as_pdf` or `model.as_func`.")
         elif isinstance(object2, ZfitPDF):
             new_object = add_pdf_pdf(pdf1=object1, pdf2=object2, dims=dims)
 
