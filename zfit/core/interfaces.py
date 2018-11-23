@@ -122,7 +122,6 @@ class ZfitModel(ZfitNumeric):
     def dims(self, value: ztyping.DimsType):
         raise NotImplementedError
 
-
     @abc.abstractmethod
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
                                 general_options: dict = None, analytic_options: dict = None):
@@ -238,4 +237,16 @@ class ZfitPDF(ZfitModel):
 
     @abc.abstractmethod
     def normalization(self) -> ztyping.ReturnNumericalType:
+        raise NotImplementedError
+
+
+class ZfitFunctorMixin:
+
+    @property
+    @abc.abstractmethod
+    def models(self) -> Dict[str, ZfitModel]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_models(self, names: List[str]) -> List[ZfitModel]:
         raise NotImplementedError

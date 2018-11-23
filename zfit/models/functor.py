@@ -141,7 +141,7 @@ class SumPDF(BaseFunctor):
 
     @property
     def _n_dims(self):
-        return None  # TODO(mayou36): properly implement dimensions
+        return 1  # TODO(mayou36): properly implement dimensions
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
@@ -217,7 +217,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
 
     @property
     def _n_dims(self):
-        return None  # TODO(mayou36): properly implement dimensions
+        return 1  # TODO(mayou36): properly implement dimensions
 
 
 if __name__ == '__main__':

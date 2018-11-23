@@ -10,7 +10,7 @@ from ..settings import types as ztypes
 from zfit import ztf
 
 
-class BaseFunc(ZfitFunc, BaseModel):
+class BaseFunc(BaseModel, ZfitFunc):
 
     def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
                  reparameterization_type: bool = False,
