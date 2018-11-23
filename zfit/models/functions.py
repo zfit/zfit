@@ -43,7 +43,7 @@ class SumFunc(BaseFunctorFunc):
         self.dims = dims
 
     def _value(self, x):
-        sum_funcs = sum([func.value(x) for func in self.funcs])
+        sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
         # sum_funcs = tf.accumulate_n([func.value(x) for func in self.funcs])
         return sum_funcs
 

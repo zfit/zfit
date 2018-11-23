@@ -34,7 +34,7 @@ class BaseFunctor(BasePDF):
 
     def _get_dependents(self):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependents()  # get the own parameter dependents
-        pdf_dependents = self._extract_dependents(self.pdfs, only_floating=only_floating)
+        pdf_dependents = self._extract_dependents(self.pdfs)
         return dependents.union(pdf_dependents)
 
 
@@ -107,7 +107,7 @@ class SumPDF(BaseFunctor):
                 else:
                     fracs.append(tf.constant(0., dtype=ztypes.float))
                     not_extended_position = i
-            remaining_frac = tf.constant(1., dtype=ztypes.float) - sum(fracs)
+            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
             assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                   data=[remaining_frac])  # check fractions
             with tf.control_dependencies([assert_op]):
@@ -115,7 +115,7 @@ class SumPDF(BaseFunctor):
             implicit = False  # now it's explicit
 
         elif not extended and not implicit:
-            remaining_frac = tf.constant(1., dtype=ztypes.float) - sum(fracs)
+            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
             assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                   data=[remaining_frac])  # check fractions
             with tf.control_dependencies([assert_op]):
@@ -161,7 +161,7 @@ class SumPDF(BaseFunctor):
     def _pdf(self, x, norm_range):
         pdfs = self.pdfs
         fracs = self.fracs
-        prob = sum([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
+        prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         # prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
