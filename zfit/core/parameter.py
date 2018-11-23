@@ -211,7 +211,7 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 ComposedVariable._OverloadAllOperators()
 
 
-class BaseParameter(zbaseobject.BaseObject, zinterfaces.ZfitParameter, metaclass=MetaBaseParameter):
+class BaseParameter(zbaseobject.BaseNumeric, zinterfaces.ZfitParameter, metaclass=MetaBaseParameter):
     pass
 
 

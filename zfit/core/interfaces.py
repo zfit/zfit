@@ -10,7 +10,7 @@ from zfit.util.ztyping import ReturnNumericalType
 from ..util import ztyping
 
 
-class ZfitObject(pep487.ABC, metaclass=ABCMeta):
+class ZfitObject(pep487.ABC):
 
     @property
     @abc.abstractmethod
@@ -18,25 +18,9 @@ class ZfitObject(pep487.ABC, metaclass=ABCMeta):
         """Name prepended to all ops created by this `model`."""
         raise NotImplementedError
 
-    @property
-    @abc.abstractmethod
-    def dtype(self) -> tf.DType:
-        """The `DType` of `Tensor`s handled by this `model`."""
-        raise NotImplementedError
 
-    @property
-    @abc.abstractmethod
-    def parameters(self) -> ztyping.ParametersType:
-        raise NotImplementedError
 
-    @abc.abstractmethod
-    def get_parameters(self, only_floating: bool = False,
-                       names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
-        raise NotImplementedError
 
-    @abc.abstractmethod
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
-        raise NotImplementedError
 
     @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
@@ -51,7 +35,31 @@ class ZfitObject(pep487.ABC, metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class ZfitParameter(ZfitObject):
+class ZfitDependentsMixin(pep487.ABC):
+    @abc.abstractmethod
+    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+        raise NotImplementedError
+
+
+class ZfitNumeric(ZfitObject, ZfitDependentsMixin):
+    @abc.abstractmethod
+    def get_parameters(self, only_floating: bool = False,
+                       names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def dtype(self) -> tf.DType:
+        """The `DType` of `Tensor`s handled by this `model`."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def parameters(self) -> ztyping.ParametersType:
+        raise NotImplementedError
+
+
+class ZfitParameter(ZfitNumeric):
 
     @property
     @abc.abstractmethod
@@ -73,7 +81,7 @@ class ZfitParameter(ZfitObject):
         raise NotImplementedError
 
 
-class ZfitLoss(ZfitObject):
+class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @abc.abstractmethod
     def value(self) -> ReturnNumericalType:
@@ -103,7 +111,7 @@ class ZfitLoss(ZfitObject):
         raise NotImplementedError
 
 
-class ZfitModel(ZfitObject, metaclass=ABCMeta):
+class ZfitModel(ZfitNumeric):
     @abstractmethod
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:

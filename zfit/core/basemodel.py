@@ -11,7 +11,7 @@ from tensorflow_probability.python import mcmc as mc
 
 from .interfaces import ZfitModel
 from . import integration as zintegrate, sample as zsample
-from .baseobject import BaseObject
+from .baseobject import BaseObject, BaseNumeric
 from .limits import no_norm_range, Range, convert_to_range, supports
 from .parameter import convert_to_parameter
 from ..settings import types as ztypes
@@ -42,7 +42,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseObject, ZfitModel):  # __init_subclass__ backport
+class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     """Base class for any generic model.
 
     # TODO instructions on how to use

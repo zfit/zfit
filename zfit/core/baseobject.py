@@ -7,7 +7,7 @@ import tensorflow as tf
 
 import zfit
 from zfit.util import ztyping
-from .interfaces import ZfitObject
+from .interfaces import ZfitObject, ZfitNumeric, ZfitDependentsMixin
 from ..util.container import convert_to_container, DotDict
 
 _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
@@ -26,21 +26,14 @@ _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
             `dict(self.parameters, **overwrite_params)`.
         """
 
+
 class BaseObject(ZfitObject):
 
-    def __init__(self, name, dtype, parameters, **kwargs):
+    def __init__(self, name, **kwargs):
         assert not kwargs, "kwargs not empty, the following arguments are not captured: {}".format(kwargs)
         super().__init__()
-        from zfit.core.parameter import convert_to_parameter
 
         self._name = name  # TODO: uniquify name?
-        self._dtype = dtype
-        parameters = parameters or OrderedDict()
-        parameters = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in parameters.items()))
-
-        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
-        self._parameters = parameters
-        self._repr.parameters = self.parameters
 
     def __init_subclass__(cls, **kwargs):
         cls._repr = DotDict()  # TODO: make repr more sophisticated
@@ -52,11 +45,34 @@ class BaseObject(ZfitObject):
         """The name of the object."""
         return self._name
 
-    @property
-    def dtype(self) -> tf.DType:
-        """The dtype of the object"""
-        return self._dtype
+    def copy(self, deep: bool = False, name: str = None, **overwrite_params) -> "ZfitObject":
 
+        new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
+        return new_object
+
+    def _copy(self, deep, name, overwrite_params):
+        if deep:
+            raise NotImplementedError("Unfortunately, this feature is not implemented.")
+        if name is None:
+            name = self.name + "_copy"  # TODO: improve name mangling
+        params = self.parameters.copy()
+        params.update(overwrite_params)
+        new_object = type(self)(name=name, **params)
+        return new_object
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(self, type(other)):
+            return False
+        for key, own_element in self._repr.items():
+            if not own_element == other._repr.get(key):  # TODO: make repr better
+                return False
+        return True
+
+    def __hash__(self):
+        return object.__hash__(self)
+
+
+class BaseDependentsMixin(ZfitDependentsMixin):
     @abc.abstractmethod
     def _get_dependents(self) -> ztyping.DependentsType:
         raise NotImplementedError
@@ -86,6 +102,26 @@ class BaseObject(ZfitObject):
         dependents = (obj.get_dependents(only_floating=False) for obj in zfit_objects)
         dependents_set = set(itertools.chain.from_iterable(dependents))  # flatten
         return dependents_set
+
+
+class BaseNumeric(BaseObject, BaseDependentsMixin, ZfitNumeric):
+
+    def __init__(self, name, dtype, parameters, **kwargs):
+        super().__init__(name=name, **kwargs)
+        from zfit.core.parameter import convert_to_parameter
+
+        self._dtype = dtype
+        parameters = parameters or OrderedDict()
+        parameters = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in parameters.items()))
+
+        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
+        self._parameters = parameters
+        self._repr.parameters = self.parameters
+
+    @property
+    def dtype(self) -> tf.DType:
+        """The dtype of the object"""
+        return self._dtype
 
     @property
     def parameters(self) -> ztyping.ParametersType:
@@ -119,29 +155,3 @@ class BaseObject(ZfitObject):
     def _filter_floating_params(params):
         params = [param for param in params if param.floating]
         return params
-
-    def copy(self, deep: bool = False, name: str = None, **overwrite_params) -> "ZfitObject":
-
-        new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
-        return new_object
-
-    def _copy(self, deep, name, overwrite_params):
-        if deep:
-            raise NotImplementedError("Unfortunately, this feature is not implemented.")
-        if name is None:
-            name = self.name + "_copy"  # TODO: improve name mangling
-        params = self.parameters.copy()
-        params.update(overwrite_params)
-        new_object = type(self)(name=name, **params)
-        return new_object
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(self, type(other)):
-            return False
-        for key, own_element in self._repr.items():
-            if not own_element == other._repr.get(key):  # TODO: make repr better
-                return False
-        return True
-
-    def __hash__(self):
-        return object.__hash__(self)

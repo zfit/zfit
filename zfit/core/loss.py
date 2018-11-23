@@ -4,7 +4,7 @@ import tensorflow as tf
 from typing import Optional, Union
 
 from zfit import ztf
-from zfit.core.baseobject import BaseObject
+from zfit.core.baseobject import BaseObject, BaseDependentsMixin
 from zfit.core.interfaces import ZfitLoss
 from zfit.util.container import convert_to_container, is_container
 
@@ -94,10 +94,10 @@ def _nll_constraints_tf(constraints):
 #     return nll
 
 
-class BaseLoss(BaseObject, ZfitLoss):
+class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
 
     def __init__(self, model, data, fit_range, constraints=None):
-        super().__init__(name=type(self).__name__, dtype=None, parameters={})
+        super().__init__(name=type(self).__name__)
         if constraints is None:
             constraints = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
@@ -126,10 +126,8 @@ class BaseLoss(BaseObject, ZfitLoss):
                                  "\nfit_range: {}".format(pdf, data, fit_range))
 
         else:
-            fit_range = convert_to_range(fit_range,
-                                         dims=Range.FULL)  # fit_range may be a tuple and therefore is a container
-            # already!
-
+            fit_range = convert_to_range(fit_range, dims=Range.FULL)  # fit_range may be a tuple and
+            # therefore is a container already!
         # convert everything to containers
         pdf, data, fit_range = (convert_to_container(obj) for obj in (pdf, data, fit_range))
         # sanitize fit_range
@@ -169,11 +167,11 @@ class BaseLoss(BaseObject, ZfitLoss):
         return self._constraints
 
     def _get_dependents(self):
-        pdf_dependents = self._extract_dependents(self.pdfs)
+        pdf_dependents = self._extract_dependents(self.model)
         return pdf_dependents
 
     @abc.abstractmethod
-    def _loss_func(self, model, data, fit_range, constraints=None):
+    def _loss_func(self, model, data, fit_range, constraints):
         raise NotImplementedError
 
     def value(self):
@@ -181,7 +179,7 @@ class BaseLoss(BaseObject, ZfitLoss):
             return self._loss_func(model=self.model, data=self.data, fit_range=self.fit_range,
                                    constraints=self.constraints)
         except NotImplementedError:
-            raise NotImplementedError("_loss_func not defined!")
+            raise NotImplementedError("_loss_func not properly defined!")
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
