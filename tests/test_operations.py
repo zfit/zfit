@@ -90,11 +90,11 @@ def test_func_func():
     true_prod_values = func1_pure(rnd_test_values) * func2_pure(rnd_test_values)
 
     zfit.sess.run(tf.global_variables_initializer())
-    # added_values = zfit.sess.run(added_values)
+    added_values = zfit.sess.run(added_values)
     true_added_values = zfit.sess.run(true_added_values)
     prod_values = zfit.sess.run(prod_values)
     true_prod_values = zfit.sess.run(true_prod_values)
-    # np.testing.assert_allclose(true_added_values, added_values)
+    np.testing.assert_allclose(true_added_values, added_values)
     np.testing.assert_allclose(true_prod_values, prod_values)
 
 
