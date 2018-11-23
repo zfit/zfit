@@ -8,6 +8,7 @@ import math as mt
 import tensorflow as tf
 
 from zfit.core import math as zmath
+from zfit.core.basemodel import model_dims_mixin
 from zfit.core.basepdf import BasePDF
 from zfit import ztf
 
@@ -17,7 +18,7 @@ except AttributeError:  # py34
     infinity = float('inf')
 
 
-class Gauss(BasePDF):
+class Gauss(model_dims_mixin(1), BasePDF):
 
     def __init__(self, mu, sigma, name="Gauss"):  # TODO: names? TF dist?
         super().__init__(name=name, mu=mu, sigma=sigma)
@@ -28,6 +29,8 @@ class Gauss(BasePDF):
         gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))
 
         return gauss
+
+
 
 
 def _gauss_integral_from_inf_to_inf(limits, params):

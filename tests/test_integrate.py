@@ -7,6 +7,7 @@ import numpy as np
 import zfit
 from zfit import ztf
 from zfit.core import basepdf as zbasepdf
+from zfit.core.basemodel import model_dims_mixin
 import zfit.core.integration as zintegrate
 from zfit.core.limits import Range
 import zfit.core.math as zmath
@@ -241,7 +242,7 @@ def test_mc_partial_integration():
 
 
 def test_analytic_integral():
-    class DistFunc3(zbasepdf.BasePDF):
+    class DistFunc3(model_dims_mixin(1), zbasepdf.BasePDF):
         def _unnormalized_pdf(self, x, norm_range=False):
             return func3_2deps(x)
 

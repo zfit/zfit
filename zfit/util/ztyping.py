@@ -8,7 +8,7 @@ import tensorflow as tf
 LowerType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
 UpperType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
 LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
-DimsType = Union[Tuple[int, ...], Tuple[int, ...]]
+DimsType = Tuple[str, ...]
 XType = Union[float, tf.Tensor]
 ParamsType = Optional[Iterable['ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]

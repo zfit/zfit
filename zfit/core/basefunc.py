@@ -20,7 +20,6 @@ class BaseFunc(ZfitFunc, BaseModel):
                          validate_args=validate_args,
                          allow_nan_stats=allow_nan_stats, graph_parents=graph_parents, **parameters)
 
-        self.n_dims = None
 
     def _func_to_sample_from(self, x):
         return self.value(x=x)

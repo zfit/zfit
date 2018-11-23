@@ -1,12 +1,10 @@
 import abc
-from abc import ABCMeta, abstractmethod
-from typing import Union, List, Dict, Callable
+from typing import Union, List, Dict, Callable, Tuple
 
 import pep487
 import tensorflow as tf
 
 import zfit
-from zfit.util.ztyping import ReturnNumericalType
 from ..util import ztyping
 
 
@@ -17,10 +15,6 @@ class ZfitObject(pep487.ABC):
     def name(self) -> str:
         """Name prepended to all ops created by this `model`."""
         raise NotImplementedError
-
-
-
-
 
     @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
@@ -84,7 +78,7 @@ class ZfitParameter(ZfitNumeric):
 class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @abc.abstractmethod
-    def value(self) -> ReturnNumericalType:
+    def value(self) -> ztyping.ReturnNumericalType:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -112,7 +106,29 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
 
 class ZfitModel(ZfitNumeric):
-    @abstractmethod
+
+    @property
+    @abc.abstractmethod
+    def n_dims(self):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def dims(self) -> ztyping.DimsType:
+        raise NotImplementedError
+
+    @dims.setter
+    @abc.abstractmethod
+    def dims(self, value: ztyping.DimsType):
+        raise NotImplementedError
+
+
+    @abc.abstractmethod
+    def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
+                                general_options: dict = None, analytic_options: dict = None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
@@ -129,7 +145,7 @@ class ZfitModel(ZfitNumeric):
         raise NotImplementedError
 
     @classmethod
-    @abstractmethod
+    @abc.abstractmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
                                    dims: ztyping.DimsType = None, priority: int = 50, *,
                                    supports_norm_range: bool = False,
@@ -149,17 +165,7 @@ class ZfitModel(ZfitNumeric):
         """
         raise NotImplementedError
 
-    @classmethod
-    @abstractmethod
-    def register_inverse_analytic_integral(cls, func: Callable):
-        """Register an inverse analytical integral, the inverse (unnormalized) cdf.
-
-        Args:
-            func ():
-        """
-        raise NotImplementedError
-
-    @abstractmethod
+    @abc.abstractmethod
     def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XType:
@@ -180,7 +186,17 @@ class ZfitModel(ZfitNumeric):
         """
         raise NotImplementedError
 
-    @abstractmethod
+    @classmethod
+    @abc.abstractmethod
+    def register_inverse_analytic_integral(cls, func: Callable):
+        """Register an inverse analytical integral, the inverse (unnormalized) cdf.
+
+        Args:
+            func ():
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def sample(self, n: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
@@ -214,4 +230,12 @@ class ZfitPDF(ZfitModel):
 
     @abc.abstractmethod
     def set_yield(self, value: Union[ZfitParameter, None]):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_yield(self) -> Union[ZfitParameter, None]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def normalization(self) -> ztyping.ReturnNumericalType:
         raise NotImplementedError

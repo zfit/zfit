@@ -8,12 +8,17 @@ from zfit.util.container import convert_to_container
 
 class SimpleFunction(BaseFunc):
 
-    def __init__(self, func, name="Function", **parameters):
+    def __init__(self, func, name="Function", n_dims=1, **parameters):
         super().__init__(name=name, **parameters)
         self._value_func = self._check_input_x_function(func)
+        self._user_n_dims = n_dims
 
     def _value(self, x):
         return self._value_func(x)
+
+    @property
+    def _n_dims(self):
+        return self._user_n_dims
 
 
 class BaseFunctorFunc(BaseFunc):
@@ -41,6 +46,10 @@ class SumFunc(BaseFunctorFunc):
         sum_funcs = tf.accumulate_n([func.value(x) for func in self.funcs])
         return sum_funcs
 
+    @property
+    def _n_dims(self):
+        return 1  # TODO(mayou36): properly implement dimensions
+
 
 class ProdFunc(BaseFunctorFunc):
     def __init__(self, funcs, dims=None, name="SumFunc", **kwargs):
@@ -52,3 +61,7 @@ class ProdFunc(BaseFunctorFunc):
         for func in self.funcs[1:]:
             value *= func.value(x)
         return value
+
+    @property
+    def _n_dims(self):
+        return 1  # TODO(mayou36): properly implement dimensions

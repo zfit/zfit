@@ -72,12 +72,12 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             **parameters (): the parameters the distribution depends on
         """
         super().__init__(name=name, dtype=dtype, parameters=parameters)
-        # self._dtype = dtype
         self._reparameterization_type = reparameterization_type
         self._allow_nan_stats = allow_nan_stats
         self._validate_args = validate_args
         self._graph_parents = [] if graph_parents is None else graph_parents
-        # self._name = name
+
+        self.dims = None
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -127,27 +127,24 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                                           "OR been been wrapped but it should not be".format(method_name))
 
     @abc.abstractmethod
-    def _func_to_integrate(self, x: ztyping.XType):
+    def _func_to_integrate(self, x: ztyping.XType) -> tf.Tensor:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _func_to_sample_from(self, x):
+    def _func_to_sample_from(self, x: ztyping.XType) -> tf.Tensor:
         raise NotImplementedError
 
-    # @property
-    # def parameters(self):
-    #     """Dictionary of parameters used to instantiate this `model`."""
-    #     # Remove "self", "__class__", or other special variables. These can appear
-    #     # if the subclass used:
-    #     # `parameters = dict(locals())`.
-    #     return OrderedDict((k, v) for k, v in self._parameters.items()
-    #                        if not k.startswith("__") and k != "self")
-
-    #
-    # @property
-    # @abc.abstractmethod
-    # def _parameters(self):
-    #     raise NotImplementedError("Should be an attribute")
+    def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
+                                general_options: dict = None, analytic_options: dict = None):
+        mc_options = {} if mc_options is None else mc_options
+        numeric_options = {} if numeric_options is None else numeric_options
+        general_options = {} if general_options is None else general_options
+        analytic_options = {} if analytic_options is None else analytic_options
+        if analytic_options:
+            raise NotImplementedError("analytic_options cannot be updated currently.")
+        self._integration.update(mc_options)
+        self._integration.update(numeric_options)
+        self._integration.update(general_options)
 
     @abc.abstractmethod
     def gradient(self, x: ztyping.XType, params: ztyping.ParamsType = None):
@@ -185,12 +182,24 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     @property
     def n_dims(self):
-        # TODO: improve n_dims setting
+        return self._automatic_n_dims
+
+    @property
+    @abc.abstractmethod
+    def _n_dims(self):
+        raise NotImplementedError
+
+    @property
+    def _automatic_n_dims(self):  # this is in case something has changed. TODO(mayou36): handle it
         return self._n_dims
 
-    @n_dims.setter
-    def n_dims(self, n_dims):
-        self._n_dims = n_dims
+    @property
+    def dims(self) -> ztyping.DimsType:
+        return self._dims
+
+    @dims.setter
+    def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
+        self._dims = value
 
     # Integrals
     @_BaseModel_register_check_support(True)
@@ -828,7 +837,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             raise TypeError("Function {} is not callable.")
         return func
 
-    def _get_dependents(self):
+    def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_parameters())
 
     def __add__(self, other):
@@ -846,3 +855,12 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def __rmul__(self, other):
         from . import operations
         return operations.multiply(other, self, dims=None)
+
+
+def model_dims_mixin(n):
+    class NDimensional:
+        @property
+        def _n_dims(self):
+            return n
+
+    return NDimensional

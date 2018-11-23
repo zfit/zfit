@@ -102,7 +102,6 @@ class BasePDF(ZfitPDF, BaseModel):
                          validate_args=validate_args,
                          allow_nan_stats=allow_nan_stats, graph_parents=graph_parents, **parameters)
 
-        self.n_dims = None
         self._yield = None
         self._temp_yield = None
         self._norm_range = None
@@ -422,8 +421,6 @@ class BasePDF(ZfitPDF, BaseModel):
             if not self.n_dims == self._norm_range.n_dims:
                 raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
                                  "".format(self._norm_range.n_dims, self.n_dims))
-        else:
-            self.n_dims = self.norm_range.n_dims
         try:
             yield self.norm_range  # or None, not needed
         finally:

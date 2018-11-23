@@ -139,6 +139,10 @@ class SumPDF(BaseFunctor):
         else:
             self.fracs = fracs
 
+    @property
+    def _n_dims(self):
+        return None  # TODO(mayou36): properly implement dimensions
+
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
             return value
@@ -210,6 +214,10 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
 
     def _unnormalized_pdf(self, x, norm_range=False):
         return tf.reduce_prod([pdf.unnormalized_pdf(x) for pdf in self.pdfs], axis=0)
+
+    @property
+    def _n_dims(self):
+        return None  # TODO(mayou36): properly implement dimensions
 
 
 if __name__ == '__main__':
