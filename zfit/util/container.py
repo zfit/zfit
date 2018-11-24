@@ -1,3 +1,6 @@
+from typing import Callable, Any
+
+
 class DotDict(dict):
     """dot.notation access to dictionary attributes"""
 
@@ -6,7 +9,7 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def convert_to_container(value, container=list):
+def convert_to_container(value: Any, container: Callable = list) -> "container":
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:

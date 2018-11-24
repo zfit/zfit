@@ -73,7 +73,7 @@ class MinuitMinimizer(BaseMinimizer):
         status = result[0]
 
         self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
-        return self.get_state()
+        return self.get_state(copy=False)  # HACK(mayou36): copy not working?
 
     def _minuit_minos(self, params=None, sigma=1.0):
         if params is None:

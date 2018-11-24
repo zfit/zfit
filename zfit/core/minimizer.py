@@ -184,7 +184,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         elif callable(method):
             self._current_error_method = method
         else:
-            raise ValueError("Method {} neither a valid method name nor a callable function.".format(method))
+            raise ValueError("Method {} is neither a valid method name nor a callable function.".format(method))
 
     def set_error_options(self, replace: bool = False, **options):
         """Specify the options for the `error` calculation.

@@ -33,11 +33,12 @@ def sum_prod_gauss():
     zfit.sess.run(tf.global_variables_initializer())
     gauss_dists = [gauss1, gauss2, gauss3]
     sum_gauss = SumPDF(pdfs=gauss_dists, fracs=[0.3, 0.15])
-    prod_gauss = ProductPDF(pdfs=gauss_dists)
-    return sum_gauss, prod_gauss
+    prod_gauss = ProductPDF(pdfs=gauss_dists, dims=[(0,), (0,), (0,)])
+    prod_gauss_3d = ProductPDF(pdfs=gauss_dists, dims=[(0,), (1,), (2,)])
+    return sum_gauss, prod_gauss, prod_gauss_3d, gauss_dists
 
 
-sum_gauss, prod_gauss = sum_prod_gauss()
+sum_gauss, prod_gauss, prod_gauss_3d, gauss_dists = sum_prod_gauss()
 
 
 # with tf.Session() as sess:
@@ -45,6 +46,16 @@ sum_gauss, prod_gauss = sum_prod_gauss()
 
 # init = tf.global_variables_initializer()
 # sess.run(init)
+
+def test_prod_gauss_nd():
+    # return
+    test_values = np.random.random(size=(3, 10))
+    probs = prod_gauss_3d.pdf(x= test_values, norm_range=(-5, 4))
+    zfit.sess.run(tf.global_variables_initializer())
+    true_probs = np.prod([gauss.pdf(test_values[i,:], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
+    probs_np = zfit.sess.run(probs)
+    print(probs_np)
+    np.testing.assert_allclose(zfit.sess.run(true_probs), probs_np[0,:], rtol=1e-2)
 
 
 def test_func_sum():

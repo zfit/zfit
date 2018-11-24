@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import typing
-from typing import Union, Tuple, Iterable, Optional, List, Dict
+from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 
 import numpy as np
 import tensorflow as tf
@@ -16,5 +16,5 @@ ParamsOrNameType = Optional[Union[ParamsType, Iterable[str]]]
 ParametersType = Dict[str, "ZfitParameter"]
 SessionType = Optional[tf.Session]
 BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
-DependentsType = List['Parameter']
+DependentsType = Set['Parameter']
 ReturnNumericalType = Union[tf.Tensor, np.array]

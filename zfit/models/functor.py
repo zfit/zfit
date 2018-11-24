@@ -10,18 +10,20 @@ from typing import Union, List, Optional
 
 import tensorflow as tf
 from zfit import ztf
-from zfit.core.interfaces import ZfitPDF
+from zfit.core.dimension import get_same_dims, unstack_x_dims
+from zfit.core.interfaces import ZfitPDF, ZfitModel
 from zfit.core.limits import no_norm_range, supports
+from zfit.models.basefunctor import FunctorMixin
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 
-from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError
+from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, DimsNotUnambigiousError
 from zfit.core.basepdf import BasePDF
 from zfit.core.parameter import Parameter
 from zfit.settings import types as ztypes
 
 
-class BaseFunctor(BasePDF):
+class BaseFunctor(FunctorMixin, BasePDF):
 
     def __init__(self, pdfs, name="BaseFunctor", **kwargs):
         super().__init__(name=name, **kwargs)
@@ -32,10 +34,9 @@ class BaseFunctor(BasePDF):
     def pdfs_extended(self):
         return [pdf.is_extended for pdf in self.pdfs]
 
-    def _get_dependents(self):  # TODO: change recursive to `only_floating`?
-        dependents = super()._get_dependents()  # get the own parameter dependents
-        pdf_dependents = self._extract_dependents(self.pdfs)
-        return dependents.union(pdf_dependents)
+    @property
+    def _models(self) -> List[ZfitModel]:
+        return self.pdfs
 
 
 class SumPDF(BaseFunctor):
@@ -212,13 +213,33 @@ class SumPDF(BaseFunctor):
 class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, dims=None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, name=name)
+        if dims is None:
+            dims = [pdf.dims for pdf in pdfs]
+            if None in dims:
+                raise DimsNotUnambigiousError("Dims not specified but have to be for product pdf")
+        else:
+            dims = convert_to_container(dims)
+            if not len(dims) == len(pdfs):
+                raise DimsNotUnambigiousError("Number of `dims` not equal to number of `pdfs`")
+        self._model_dims = dims
+        self._model_same_dims = get_same_dims(dims)
 
     def _unnormalized_pdf(self, x, norm_range=False):
         return tf.reduce_prod([pdf.unnormalized_pdf(x) for pdf in self.pdfs], axis=0)
 
+    def _pdf(self, x, norm_range):
+        if all(not dep for dep in self._model_same_dims):
+            dims = [self._check_convert_input_dims(d) for d in self._model_dims]
+            x_unstacked = unstack_x_dims(x=x, dims=dims)
+            probs = [pdf.pdf(x=x, norm_range=norm_range) for x, pdf in zip(x_unstacked, self.pdfs)]
+            return tf.reduce_prod(probs, axis=0)
+        else:
+            raise NotImplementedError
+
     @property
     def _n_dims(self):
-        return 1  # TODO(mayou36): properly implement dimensions
+        dims = set(itertools.chain.from_iterable(self._model_dims))  # flatten
+        return len(dims)  # TODO(mayou36): properly implement dimensions
 
 
 if __name__ == '__main__':

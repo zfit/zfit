@@ -25,7 +25,8 @@ def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, na
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random_uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
-
-@functools.wraps(tf.reduce_sum)
-def reduce_sum(*args, **kwargs):
-    return tf.reduce_sum(*args, **kwargs)
+#
+# @functools.wraps(tf.reduce_sum)
+# def reduce_sum(*args, **kwargs):
+#     return tf.reduce_sum(*args, **kwargs)
+reduce_sum = tf.reduce_sum

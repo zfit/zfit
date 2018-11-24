@@ -9,6 +9,7 @@ import warnings
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
+from zfit.util.container import convert_to_container
 from .interfaces import ZfitModel
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseObject, BaseNumeric
@@ -152,7 +153,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     def _check_input_norm_range(self, norm_range, dims, caller_name="",
                                 none_is_error=False) -> typing.Union[Range, bool]:
-        """If `norm_range` is None, take `self.norm_range`. Convert to :py:class:`Range`
+        """Convert to :py:class:`Range`.
 
         Args:
             norm_range (None or Range compatible):
@@ -167,17 +168,13 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
         """
         if norm_range is None:
-            if self.norm_range is None:
-                if none_is_error:
-                    raise ValueError("Normalization range `norm_range` has to be specified, either by"
-                                     "\na) explicitly passing it to the function {name}"
-                                     "\nb) using the temp_norm_range context manager to temporary set "
-                                     "a default normalization range. Currently, both are None/False."
-                                     "".format(name=caller_name))
-                else:
-                    norm_range = False
+            if none_is_error:
+                raise ValueError("Normalization range `norm_range` has to be specified, (but can be None as well)"
+                                 "a default normalization range. Currently, both are None/False."
+                                 "".format(name=caller_name))
             else:
-                norm_range = self.norm_range
+                norm_range = False
+
         return convert_to_range(limits=norm_range, dims=dims)
 
     @property
@@ -186,7 +183,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     @property
     @abc.abstractmethod
-    def _n_dims(self):
+    def _n_dims(self) -> int:
+        """The number of dimensions of this model. Overwrite when subclassing."""
         raise NotImplementedError
 
     @property
@@ -200,6 +198,24 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     @dims.setter
     def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
         self._dims = value
+
+    def _check_convert_input_dims(self, dims, set_if_none=False):
+        if dims is None:
+            return dims
+
+        dims = convert_to_container(dims, container=tuple)
+        if len(dims) > self.n_dims:
+            raise ValueError("`dims` has more dims than the instance has `n_dims`. This is not possible.")
+        if self.dims is None:
+            if set_if_none:
+                self.dims = dims
+        else:
+            try:
+                dims = tuple(self.dims.index(dim) for dim in dims)
+            except ValueError:
+                missing_dims = set(dims) - set(self.dims)
+                raise ValueError("The following dims are not specified in the pdf: {}".format(missing_dims))
+        return dims
 
     # Integrals
     @_BaseModel_register_check_support(True)
@@ -380,7 +396,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     def numeric_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                           name: str = "numeric_integrate") -> ztyping.XType:
-        """Do numerical integration over the function.
+        """Numerical integration over the model.
 
         Args:
             limits (tuple, Range): the limits to integrate over
@@ -419,7 +435,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             integrals = []
             for sub_limits in limits.subbounds():
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range, name=name))
-            integral = ztf.reduce_sum(integrals, axis=0)
+            integral = tf.accumulate_n(integrals)
 
         return integral
 

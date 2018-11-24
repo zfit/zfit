@@ -134,6 +134,12 @@ class BasePDF(ZfitPDF, BaseModel):
             new_instance.set_yield(yield_)
         return new_instance
 
+    def _check_input_norm_range_default(self, norm_range, dims=Range.FULL, caller_name="", none_is_error=True):
+        if norm_range is None:
+            norm_range = self.norm_range
+        return self._check_input_norm_range(norm_range=norm_range, dims=dims, caller_name=caller_name,
+                                            none_is_error=none_is_error)
+
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)
 
@@ -237,25 +243,11 @@ class BasePDF(ZfitPDF, BaseModel):
     def _unnormalized_pdf(self, x, norm_range=False):
         raise NotImplementedError
 
-    def _call_unnormalized_pdf(self, x, name):
+    def _call_unnormalized_pdf(self, x, name, norm_range=False):
         with self._name_scope(name, values=[x]):
             x = ztf.convert_to_tensor(x, name="x")
+            return self._unnormalized_pdf(x)
 
-            try:
-                return self._unnormalized_pdf(x)
-            except NotImplementedError as error:
-                # yeah... just to be explicit
-                raise
-            # alternative implementation below
-            # with suppress(NotImplementedError):
-            #     return self._pdf(x, norm_range="TODO")
-            # with suppress(NotImplementedError):
-            #     return tf.exp(self._log_pdf(x=x, norm_range="TODO"))
-
-            # No fallback, if unnormalized_pdf is not implemented
-
-    def _hook_unnormalized_pdf(self, x, name="_hook_unnormalized_pdf"):
-        return self._call_unnormalized_pdf(x=x, name=name)
 
     def unnormalized_pdf(self, x: ztyping.XType, name: str = "unnormalized_pdf") -> ztyping.XType:
         """Return the function unnormalized
@@ -267,7 +259,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             graph: A runnable graph
         """
-        return self._hook_unnormalized_pdf(x=x, name=name)
+        return self._call_unnormalized_pdf(x=x, name=name)
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -284,8 +276,8 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           model: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name,
-                                                  none_is_error=True)
+        norm_range = self._check_input_norm_range_default(norm_range, dims=Range.FULL, caller_name=name,
+                                                          none_is_error=True)
         return self._hook_pdf(x, norm_range, name)
 
     def _hook_pdf(self, x, norm_range, name="_hook_pdf"):
@@ -338,7 +330,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           log_pdf: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
+        norm_range = self._check_input_norm_range_default(norm_range, dims=Range.FULL, caller_name=name)
 
         return self._hook_log_pdf(x, norm_range, name)
 

@@ -27,10 +27,12 @@ types = DotDict({'float': tf.float64,
 
 options = DotDict({'epsilon': 1e-8})
 
-sess = tf.InteractiveSession()
+# sess = tf.InteractiveSession()
+sess = tf.Session()
 
 
 def reset_session():
     global sess
     sess.close()
-    sess = tf.InteractiveSession()
+    # sess = tf.InteractiveSession()
+    sess = tf.Session()

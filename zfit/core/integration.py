@@ -209,7 +209,7 @@ class AnalyticIntegral(object):
                                                                   priority=priority)  # TODO improve with
         # database-like access
 
-    def integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
+    def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
                   norm_range: ztyping.LimitsType = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the dims if available.
 

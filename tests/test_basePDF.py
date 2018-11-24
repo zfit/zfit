@@ -151,9 +151,14 @@ def test_multiple_limits():
                                                   dims=dims)
     integral_simp = gauss_params1.integrate(limits=simple_limits)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range)
+    integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits)
+    integral_mult_num = gauss_params1.numeric_integrate(limits=multiple_limits_range)
 
     integral_simp, integral_mult = zfit.sess.run([integral_simp, integral_mult])
+    integral_simp_num, integral_mult_num = zfit.sess.run([integral_simp_num, integral_mult_num])
     assert integral_simp == pytest.approx(integral_mult, rel=1e-3)  # big tolerance as mc is used
+    assert integral_simp == pytest.approx(integral_simp_num, rel=1e-3)  # big tolerance as mc is used
+    assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-3)  # big tolerance as mc is used
 
 
 def test_copy():

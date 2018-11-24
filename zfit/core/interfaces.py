@@ -244,9 +244,9 @@ class ZfitFunctorMixin:
 
     @property
     @abc.abstractmethod
-    def models(self) -> Dict[str, ZfitModel]:
+    def models(self) -> List[ZfitModel]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_models(self, names: List[str]) -> List[ZfitModel]:
+    def dims(self):
         raise NotImplementedError
