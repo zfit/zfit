@@ -5,9 +5,9 @@ from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 import numpy as np
 import tensorflow as tf
 
-LowerType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
-UpperType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
-LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
+LowerType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
+UpperType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
+LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], "False"]
 DimsType = Tuple[str, ...]
 XType = Union[float, tf.Tensor]
 ParamsType = Optional[Iterable['ZfitParameter']]

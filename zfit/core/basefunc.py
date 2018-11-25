@@ -12,14 +12,9 @@ from zfit import ztf
 
 class BaseFunc(BaseModel, ZfitFunc):
 
-    def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
-                 reparameterization_type: bool = False,
-                 validate_args: bool = False,
-                 allow_nan_stats: bool = True, graph_parents: tf.Graph = None, **parameters: typing.Any):
-        super().__init__(dtype=dtype, name=name, reparameterization_type=reparameterization_type,
-                         validate_args=validate_args,
-                         allow_nan_stats=allow_nan_stats, graph_parents=graph_parents, **parameters)
-
+    def __init__(self, dims=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
+                 parameters: typing.Any = None):
+        super().__init__(dims=dims, dtype=dtype, name=name, parameters=parameters)
 
     def _func_to_sample_from(self, x):
         return self.value(x=x)

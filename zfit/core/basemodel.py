@@ -5,12 +5,13 @@ import contextlib
 from contextlib import suppress
 import typing
 import warnings
+from typing import Type, Dict, List, Union
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit.util.container import convert_to_container
-from .interfaces import ZfitModel
+from .interfaces import ZfitModel, ZfitParameter
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseObject, BaseNumeric
 from .limits import no_norm_range, Range, convert_to_range, supports
@@ -58,27 +59,18 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     _inverse_analytic_integral = None
     _additional_repr = None
 
-    def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BaseModel",
-                 reparameterization_type: bool = False, validate_args: bool = False, allow_nan_stats: bool = True,
-                 graph_parents: tf.Graph = None, **parameters: typing.Any):
+    def __init__(self, dims, dtype: Type = None, name: str = "BaseModel",
+                 parameters: Union[Dict[str, ZfitParameter], None] = None, **kwargs):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
-            dtype (typing.Type): the dtype of the model
+            dtype (Type): the dtype of the model
             name (str): the name of the model
-            reparameterization_type (): currently not used, but for forward compatibility
-            validate_args (): currently not used, but for forward compatibility
-            allow_nan_stats (): currently not used, but for forward compatibility
-            graph_parents (): currently not used, but for forward compatibility
-            **parameters (): the parameters the distribution depends on
+            parameters (): the parameters the distribution depends on
         """
-        super().__init__(name=name, dtype=dtype, parameters=parameters)
-        self._reparameterization_type = reparameterization_type
-        self._allow_nan_stats = allow_nan_stats
-        self._validate_args = validate_args
-        self._graph_parents = [] if graph_parents is None else graph_parents
+        super().__init__(name=name, dtype=dtype, parameters=parameters, **kwargs)
 
-        self.dims = None
+        self.dims = convert_to_container(dims, container=tuple, convert_none=False)
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -199,7 +191,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
         self._dims = value
 
-    def _check_convert_input_dims(self, dims, set_if_none=False):
+    def _check_convert_input_dims(self, dims):
         if dims is None:
             return dims
 
@@ -207,14 +199,13 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         if len(dims) > self.n_dims:
             raise ValueError("`dims` has more dims than the instance has `n_dims`. This is not possible.")
         if self.dims is None:
-            if set_if_none:
-                self.dims = dims
+            return dims
         else:
             try:
                 dims = tuple(self.dims.index(dim) for dim in dims)
             except ValueError:
                 missing_dims = set(dims) - set(self.dims)
-                raise ValueError("The following dims are not specified in the pdf: {}".format(missing_dims))
+                raise ValueError("The following dims are not specified in the pdf: {}".format(str(missing_dims)))
         return dims
 
     # Integrals
@@ -793,7 +784,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """Helper function to standardize op scope."""
         with tf.name_scope(self.name):
             with tf.name_scope(name, values=(
-                ([] if values is None else values) + self._graph_parents)) as scope:
+                ([] if values is None else values))) as scope:
                 yield scope
 
     @classmethod
@@ -845,7 +836,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             # self_name=self.name,
             params=", ".join(sorted(str(p.name) for p in self.parameters.values())),
             dtype=self.dtype.name) +
-                sum(" {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items()))
+                str(sum(" {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items())))
 
     def _check_input_x_function(self, func):
         # TODO: signature etc?

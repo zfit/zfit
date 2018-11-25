@@ -5,6 +5,8 @@ different from the zfit models, it is similar enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
+from collections import OrderedDict
+
 import numpy as np
 
 import tensorflow_probability as tfp
@@ -14,6 +16,7 @@ import tensorflow as tf
 from zfit import ztf
 from zfit.core.basemodel import model_dims_mixin
 from zfit.core.basepdf import BasePDF
+from zfit.core.interfaces import ZfitParameter
 from zfit.core.limits import no_norm_range, supports
 
 
@@ -22,12 +25,12 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     """
 
-    def __init__(self, distribution, name=None, **kwargs):
+    def __init__(self, distribution, dims=None, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
-        kwargs.update({k: v for k, v in distribution.parameters.items() if isinstance(v, tf.Variable)})
+        parameters = OrderedDict((k, v) for k, v in distribution.parameters.items() if isinstance(v, ZfitParameter))
 
-        super().__init__(name=name, **kwargs)
+        super().__init__(dims=dims, dtype=distribution.dtype, name=name, parameters=parameters, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
         self.tf_distribution = distribution
 
@@ -42,12 +45,12 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     # TODO: register integral
     @supports()
-    def _analytic_integrate(self, limits, norm_range):
+    def _analytic_integrate(self, limits):
         lower, upper = limits.get_boundaries()
         if all(-np.array(lower) == np.array(upper) == np.infty):
             return ztf.to_real(1.)  # tfp distributions are normalized to 1
-        lower = ztf.to_real(lower[0])
-        upper = ztf.to_real(upper[0])
+        lower = ztf.to_real(lower[0], dtype=self.dtype)
+        upper = ztf.to_real(upper[0], dtype=self.dtype)
         integral = self.tf_distribution.cdf(upper) - self.tf_distribution.cdf(lower)
         return integral
 

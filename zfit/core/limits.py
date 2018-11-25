@@ -530,14 +530,14 @@ class Range(object):
         are_equal = lower_equal and upper_equal
 
         return are_equal
-
-    def __getitem__(self, key):
-        raise Exception("Replace with .get_limits()")
-        try:
-            limits = tuple(self.get_limits()[axis] for axis in key)
-        except TypeError:
-            limits = self.get_limits()[key]
-        return limits
+    #
+    # def __getitem__(self, key):
+    #     raise Exception("Replace with .get_limits()")
+    #     try:
+    #         limits = tuple(self.get_limits()[axis] for axis in key)
+    #     except TypeError:
+    #         limits = self.get_limits()[key]
+    #     return limits
 
     def idims_limits(self, dims: ztyping.DimsType) -> ztyping.LimitsType:
         """Return the limits of the given *dims*.

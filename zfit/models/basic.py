@@ -20,13 +20,13 @@ except AttributeError:  # py34
 
 class Gauss(model_dims_mixin(1), BasePDF):
 
-    def __init__(self, mu, sigma, name="Gauss"):  # TODO: names? TF dist?
-        super().__init__(name=name, mu=mu, sigma=sigma)
+    def __init__(self, mu, sigma, dims=None, name="Gauss"):  # TODO: names? TF dist?
+        super().__init__(name=name, dims=dims, parameters=dict(mu=mu, sigma=sigma))
 
     def _unnormalized_pdf(self, x, norm_range=False):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp(- (x - mu) ** 2 / (ztf.constant(2.) * (sigma ** 2)))
+        gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma) )
 
         return gauss
 

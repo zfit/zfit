@@ -1,9 +1,11 @@
+import functools
+
 import numpy as np
 import tensorflow as tf
 
 from zfit import ztf
 
-
+@functools.lru_cache(maxsize=500)
 def get_same_dims(dims):
     deps = [set() for _ in range(len(dims))]
     for i, dim in enumerate(dims):

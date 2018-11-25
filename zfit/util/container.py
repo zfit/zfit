@@ -9,7 +9,7 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def convert_to_container(value: Any, container: Callable = list) -> "container":
+def convert_to_container(value: Any, container: Callable = list, convert_none=True) -> "container":
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:
@@ -19,9 +19,11 @@ def convert_to_container(value: Any, container: Callable = list) -> "container":
     Returns:
 
     """
+    if value is None and not convert_none:
+        return value
     if not is_container(value):
         try:
-            if not isinstance(value, str):
+            if isinstance(value, str):
                 raise TypeError
             value = container(value)
         except TypeError:

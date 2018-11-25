@@ -94,13 +94,8 @@ def _BasePDF_register_check_support(has_support: bool):
 
 class BasePDF(ZfitPDF, BaseModel):
 
-    def __init__(self, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
-                 reparameterization_type: bool = False,
-                 validate_args: bool = False,
-                 allow_nan_stats: bool = True, graph_parents: tf.Graph = None, **parameters: typing.Any):
-        super().__init__(dtype=dtype, name=name, reparameterization_type=reparameterization_type,
-                         validate_args=validate_args,
-                         allow_nan_stats=allow_nan_stats, graph_parents=graph_parents, **parameters)
+    def __init__(self, dims=None, dtype: typing.Type = ztypes.float, name: str = "BasePDF", parameters: typing.Any = None, **kwargs):
+        super().__init__(dims=dims, dtype=dtype, name=name, parameters=parameters, **kwargs)
 
         self._yield = None
         self._temp_yield = None
@@ -248,7 +243,6 @@ class BasePDF(ZfitPDF, BaseModel):
             x = ztf.convert_to_tensor(x, name="x")
             return self._unnormalized_pdf(x)
 
-
     def unnormalized_pdf(self, x: ztyping.XType, name: str = "unnormalized_pdf") -> ztyping.XType:
         """Return the function unnormalized
 
@@ -385,7 +379,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def set_yield(self, value: Union[Parameter, None]):
+    def set_yield(self, value: Union[Parameter, float, None]):
         """Make the model extended by setting a yield.
 
         This alters the behavior of `model` and similar and `integrate` and similar. If there is a

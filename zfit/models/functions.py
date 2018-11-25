@@ -8,17 +8,22 @@ from zfit.util.container import convert_to_container
 
 class SimpleFunction(BaseFunc):
 
-    def __init__(self, func, name="Function", n_dims=1, **parameters):
-        super().__init__(name=name, **parameters)
+    def __init__(self, func,  name="Function", dims=None, n_dims=None, **parameters):
+        super().__init__(name=name, dims=dims, parameters=parameters)
         self._value_func = self._check_input_x_function(func)
         self._user_n_dims = n_dims
+
 
     def _value(self, x):
         return self._value_func(x)
 
     @property
     def _n_dims(self):
-        return self._user_n_dims
+        n_dims = self._user_n_dims
+        if n_dims is None:
+            if self.dims is not None:
+                n_dims = len(self.dims)
+        return n_dims
 
 
 class BaseFunctorFunc(BaseFunc):
@@ -27,8 +32,8 @@ class BaseFunctorFunc(BaseFunc):
         params = {}
         for func in funcs:
             params.update(func.parameters)
-        kwargs.update(params)
-        super().__init__(name=name, **kwargs)
+
+        super().__init__(name=name, parameters=params, **kwargs)
         self.funcs = funcs
 
     def _get_dependents(self):  # TODO: change recursive to `only_floating`?
