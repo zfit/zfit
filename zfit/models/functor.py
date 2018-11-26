@@ -17,7 +17,7 @@ from zfit.models.basefunctor import FunctorMixin
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 
-from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, DimsNotUnambigiousError
+from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, DimsNotUnambiguousError
 from zfit.core.basepdf import BasePDF
 from zfit.core.parameter import Parameter
 from zfit.settings import types as ztypes
@@ -140,6 +140,10 @@ class SumPDF(BaseFunctor):
             self.fracs = fracs
 
     @property
+    def _functor_allow_none_dims(self) -> bool:
+        return True
+
+    @property
     def _n_dims(self):
         return 1  # TODO(mayou36): properly implement dimensions
 
@@ -212,6 +216,10 @@ class SumPDF(BaseFunctor):
 class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, dims, name="ProductPDF"):
         super().__init__(dims=dims, pdfs=pdfs, name=name)
+
+    @property
+    def _functor_allow_none_dims(self) -> bool:
+        return False
 
     def _unnormalized_pdf(self, x, norm_range=False):
         return tf.reduce_prod([pdf.unnormalized_pdf(x) for pdf in self.pdfs], axis=0)

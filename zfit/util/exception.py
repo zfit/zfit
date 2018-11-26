@@ -28,7 +28,7 @@ class SubclassingError(Exception):
 class BasePDFSubclassingError(SubclassingError):
     pass
 
-class DimsNotUnambigiousError(Exception):
+class DimsNotUnambiguousError(Exception):
     pass
 
 

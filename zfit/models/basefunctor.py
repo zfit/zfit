@@ -1,23 +1,68 @@
 import abc
 from typing import List, Union, Dict
 
+from zfit.core.basemodel import BaseModel
 from zfit.core.dimension import get_same_dims
 from zfit.core.interfaces import ZfitFunctorMixin, ZfitModel
-from zfit.util.exception import DimsNotUnambigiousError
+from zfit.util.container import convert_to_container
+from zfit.util.exception import DimsNotUnambiguousError
 
 
-class FunctorMixin(ZfitFunctorMixin):
+class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     def __init__(self, models, **kwargs):
         super().__init__(**kwargs)
+        models = convert_to_container(models, container=list)
+        self._model_dims = self._check_convert_model_dims_to_index(models=models)
+
+    def _check_convert_model_dims_to_index(self, models):
+        models_dims_index = None
+        models_dims = tuple(model.dims for model in models)
         if self.dims is None:
-            proposed_dims = set(model.dims for model in models)
-            if len(proposed_dims) == 1:
-                self.dims = models[0].dims
+            # try to infer from the models
+            proposed_dims = set(models_dims)
+            if len(proposed_dims) == 1:  # if all submodels have the *exact* same dims -> intention is "clear"
+                proposed_dim = proposed_dims.pop()
+
+                # models_dims are None and functor dims is None -> allow for easy use-case of sum(exp, gauss)
+                if proposed_dim is None and not self._functor_allow_none_dims:
+                    raise DimsNotUnambiguousError("Dims of submodels as well as functor are None."
+                                                  "Not allowed for this functor. Specify the dims in the"
+                                                  "submodels and/or in the Functor.")
+                # in this case, at least the n_dims should coincide
+                elif proposed_dim is None:
+                    models_n_dims = set(model.n_dims for model in models)
+                    if len(models_n_dims) == 1:
+                        models_dims_index = tuple(range(len(models_n_dims))) * len(models)
+                    else:
+                        raise DimsNotUnambiguousError("n_dims of models are different and dims are all `None`. "
+                                                      "Therefore they can't be inferered safely. Either use same ranked"
+                                                      "models or specify explicitely the dims.")
+
+                self.dims = proposed_dim
+
+            # different dimensions in submodels -> how to merge? Ambiguous
             else:
-                raise DimsNotUnambigiousError("Dimensions are `None` and cannot be taken from the"
-                                              "models, as their dimensions are not the same.")
-        self._model_dims = tuple(self._check_convert_input_dims(model.dims) for model in models)
+                raise DimsNotUnambiguousError("Dimensions are `None` for this functor and cannot be taken from the"
+                                              "models, as their dimensions are not *exactly* the same.")
+        if models_dims_index is None:
+            try:
+                models_dims_index = tuple(tuple(self.dims.index(dim) for dim in dims) for dims in models_dims )
+            except ValueError:
+                missing_dims = set(models_dims) - set(self.dims)
+                raise ValueError("The following dims are not specified in the pdf: {}".format(str(missing_dims)))
+
+        return models_dims_index
+
+    @property
+    @abc.abstractmethod
+    def _functor_allow_none_dims(self) -> bool:
+        """If True, allow to set the dims to None. Otherwise raise a `DimsNotUnambiguousError`.
+
+        Returns:
+            bool:
+        """
+        raise NotImplementedError
 
     def _get_dependents(self):
         dependents = super()._get_dependents()  # get the own parameter dependents
@@ -47,4 +92,7 @@ class FunctorMixin(ZfitFunctorMixin):
 
     @property
     def _n_dims(self):
-        return len(self.dims)
+        if self.dims is None:
+            return None
+        else:
+            return len(self.dims)

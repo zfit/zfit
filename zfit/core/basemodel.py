@@ -69,8 +69,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             parameters (): the parameters the distribution depends on
         """
         super().__init__(name=name, dtype=dtype, parameters=parameters, **kwargs)
-
-        self.dims = convert_to_container(dims, container=tuple, convert_none=False)
+        self.dims = None
+        self.dims = self._check_input_dims(dims, allow_none=True)
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -191,21 +191,16 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
         self._dims = value
 
-    def _check_convert_input_dims(self, dims):
+    def _check_input_dims(self, dims, allow_none=True):
         if dims is None:
-            return dims
-
+            if allow_none:
+                return dims
+            else:
+                raise ValueError("dims is None and `allow_none` is False. Specify the dims.")
         dims = convert_to_container(dims, container=tuple)
-        if len(dims) > self.n_dims:
-            raise ValueError("`dims` has more dims than the instance has `n_dims`. This is not possible.")
-        if self.dims is None:
-            return dims
-        else:
-            try:
-                dims = tuple(self.dims.index(dim) for dim in dims)
-            except ValueError:
-                missing_dims = set(dims) - set(self.dims)
-                raise ValueError("The following dims are not specified in the pdf: {}".format(str(missing_dims)))
+        if self.n_dims is not None and len(dims) != self.n_dims:
+            raise ValueError("Dims {} does not match the number of dimensions ({}) of the model."
+                             "".format(dims, self.n_dims))
         return dims
 
     # Integrals
@@ -836,7 +831,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             # self_name=self.name,
             params=", ".join(sorted(str(p.name) for p in self.parameters.values())),
             dtype=self.dtype.name) +
-                str(sum(" {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items())))
+                str(sum(
+                    " {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items())))
 
     def _check_input_x_function(self, func):
         # TODO: signature etc?

@@ -97,7 +97,7 @@ def test_prod_gauss_nd_mixed():
 
     true_probs = np.prod([true_probs])
     probs_np = zfit.sess.run(probs)
-    # np.testing.assert_allclose(zfit.sess.run(true_probs), probs_np[0, :], rtol=1e-2)
+    np.testing.assert_allclose(zfit.sess.run(true_probs), probs_np[0, :], rtol=1e-2)
 
 
 def test_func_sum():
