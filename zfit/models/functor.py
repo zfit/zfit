@@ -222,20 +222,17 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
         return False
 
     def _unnormalized_pdf(self, x, norm_range=False):
-        return tf.reduce_prod([pdf.unnormalized_pdf(x) for pdf in self.pdfs], axis=0)
+        x_unstacked = unstack_x_dims(x=x, dims=self._model_dims_index)
+        return tf.reduce_prod([pdf.unnormalized_pdf(x) for x, pdf in zip(x_unstacked, self.pdfs)], axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_dims):
-            x_unstacked = unstack_x_dims(x=x, dims=self._model_dims)
-            probs = [pdf.pdf(x=x, norm_range=norm_range) for x, pdf in zip(x_unstacked, self.pdfs)]
+            x_unstacked = unstack_x_dims(x=x, dims=self._model_dims_index)
+            probs = [pdf.pdf(x=x, norm_range=norm_range.subspace(dims=pdf.dims)) for x, pdf in
+                     zip(x_unstacked, self.pdfs)]
             return tf.reduce_prod(probs, axis=0)
         else:
             raise NotImplementedError
-
-    # @property
-    # def _n_dims(self):
-    #     dims = set(itertools.chain.from_iterable(self._model_dims))  # flatten
-    #     return len(dims)  # TODO(mayou36): properly implement dimensions
 
 
 if __name__ == '__main__':

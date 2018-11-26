@@ -44,3 +44,9 @@ class BaseFunc(BaseModel, ZfitFunc):
         with self._name_scope(name, values=[x]):
             x = ztf.convert_to_tensor(x, name="x")
             return self._value(x=x)
+
+    def as_pdf(self):
+        from zfit.core.operations import convert_func_to_pdf
+        return convert_func_to_pdf(func=self)
+
+

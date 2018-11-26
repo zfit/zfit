@@ -462,7 +462,7 @@ class Range(object):
                 if new_limit not in already_there_sets[i]:  # only extend if unique
                     limits[i].extend(new_limit)
                 already_there_sets[i].add(new_limit)
-        limits = tuple(tuple(limit) for limit in limits)
+        limits = tuple([tuple(limit) for limit in limits])
 
         # TODO: do some checks here?
         # TODO: sort somehow to make comparable

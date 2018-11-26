@@ -18,7 +18,7 @@ def get_same_dims(dims):
 
 
 def unstack_x_dims(x, dims):
-    if len(np.shape(dims)) == 1:
+    if len(np.shape(dims[0])) == ():
         dims = (dims,)
     x_unstacked = ztf.unstack_x(x)
 

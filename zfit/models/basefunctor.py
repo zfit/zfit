@@ -13,7 +13,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
     def __init__(self, models, **kwargs):
         super().__init__(**kwargs)
         models = convert_to_container(models, container=list)
-        self._model_dims = self._check_convert_model_dims_to_index(models=models)
+        self._model_dims_index = self._check_convert_model_dims_to_index(models=models)
 
     def _check_convert_model_dims_to_index(self, models):
         models_dims_index = None
@@ -76,7 +76,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     @property
     def _model_same_dims(self):  # TODO(mayou36): cache?
-        return get_same_dims(self._model_dims)
+        return get_same_dims(self._model_dims_index)
 
     @property
     @abc.abstractmethod

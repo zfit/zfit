@@ -55,12 +55,14 @@ def sum_prod_gauss():
     gauss33 = Gauss(mu=mu3, sigma=sigma3, dims=2, name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
     prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, dims=range(3))
+    prod_gauss_3d.set_integration_options(mc_options={'draws_per_dim': 33})
 
     gauss12 = Gauss(mu=mu1, sigma=sigma1, dims=3, name="gauss12a")
     gauss22 = Gauss(mu=mu2, sigma=sigma2, dims=0, name="gauss22a")
     gauss32 = Gauss(mu=mu3, sigma=sigma3, dims=2, name="gauss32a")
     gauss_dists2 = [gauss12, gauss22, gauss32]
     prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_gauss_3d], dims=range(4))
+    prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 33})
     return sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2, gauss_dists
 
 
@@ -87,13 +89,17 @@ def test_prod_gauss_nd_mixed():
     # return
     test_values = np.random.random(size=(4, 10))
     norm_range = (-5, 4)
-    probs = prod_gauss_4d.pdf(x=test_values, norm_range=norm_range)
+
+    probs = prod_gauss_4d.pdf(x=test_values, norm_range=Range.from_boundaries(lower=(-5,) * 4,
+                                                                              upper=(4,) * 4, dims=tuple(range(4))))
     zfit.sess.run(tf.global_variables_initializer())
     gauss1, gauss2, gauss3 = gauss_dists2
     true_probs = [gauss1.pdf(test_values[3, :], norm_range=norm_range)]
     true_probs += [gauss2.pdf(test_values[0, :], norm_range=norm_range)]
     true_probs += [gauss3.pdf(test_values[2, :], norm_range=norm_range)]
-    true_probs += [gauss1.pdf(test_values[(0, 1, 2), :], norm_range=norm_range)]
+    true_probs += [prod_gauss_3d.pdf(test_values[(0, 1, 2), :], norm_range=Range.from_boundaries(lower=(-5,) * 3,
+                                                                                                 upper=(4,) * 3,
+                                                                                                 dims=tuple(range(3))))]
 
     true_probs = np.prod([true_probs])
     probs_np = zfit.sess.run(probs)
@@ -128,7 +134,7 @@ def normalization_testing(pdf, normalization_value=1.):
     init = tf.global_variables_initializer()
     zfit.sess.run(init)
     with pdf.temp_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=40000),
+        samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_dims, 40000)),
                           dtype=tf.float64)
         samples.limits = low, high
         probs = pdf.pdf(samples)

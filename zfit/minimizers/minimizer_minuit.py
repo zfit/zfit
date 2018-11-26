@@ -1,7 +1,6 @@
 from typing import List, Union
 
 import iminuit
-import numpy as np
 import tensorflow as tf
 
 from ..core.parameter import Parameter
@@ -19,10 +18,7 @@ class MinuitMinimizer(BaseMinimizer):
 
     def _minimize(self, params: List[Parameter]):
         loss = self.loss.value()
-        # params = self.get_parameters()
         gradients = tf.gradients(loss, params)
-        # updated_params = self._extract_update_op(params)
-        # placeholders = [param.placeholder for param in params]
         assign_params = self._extract_assign_method(params=params)
 
         def func(values):

@@ -215,6 +215,9 @@ class ZfitFunc(ZfitModel):
     def value(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def as_pdf(self):
+        raise NotImplementedError
 
 class ZfitPDF(ZfitModel):
 
@@ -237,6 +240,10 @@ class ZfitPDF(ZfitModel):
 
     @abc.abstractmethod
     def normalization(self) -> ztyping.ReturnNumericalType:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def as_func(self, norm_range: ztyping.LimitsType = False):
         raise NotImplementedError
 
 
