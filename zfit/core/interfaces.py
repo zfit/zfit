@@ -29,10 +29,24 @@ class ZfitObject(pep487.ABC):
         raise NotImplementedError
 
 
+class ZfitData(ZfitObject):
+    @abc.abstractmethod
+    def value(self) -> ztyping.XType:
+        raise NotImplementedError
+
+    @property
+    def obs(self) -> Tuple["Observable"]:
+        raise NotImplementedError
+
+    @obs.setter
+    def obs(self, value: ztyping.ObservableType):
+        raise NotImplementedError
+
+
 class ZfitObservable(ZfitObject):
     @property
     @abc.abstractmethod
-    def obs_range(self):
+    def obs_range(self) -> "zfit.Range":
         raise NotImplementedError
 
     @obs_range.setter
@@ -42,7 +56,7 @@ class ZfitObservable(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def norm_range(self):
+    def norm_range(self) -> "zfit.Range":
         raise NotImplementedError
 
     @norm_range.setter
@@ -52,7 +66,7 @@ class ZfitObservable(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def data_range(self):
+    def data_range(self) -> "zfit.Range":
         raise NotImplementedError
 
     @data_range.setter
@@ -239,6 +253,14 @@ class ZfitModel(ZfitNumeric):
         Returns:
             Tensor(n_dims, n_samples)
         """
+        raise NotImplementedError
+
+    @property
+    def obs(self) -> Tuple["Observable"]:
+        raise NotImplementedError
+
+    @obs.setter
+    def obs(self, value: ztyping.ObservableType):
         raise NotImplementedError
 
 

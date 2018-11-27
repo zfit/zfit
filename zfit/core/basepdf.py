@@ -94,7 +94,8 @@ def _BasePDF_register_check_support(has_support: bool):
 
 class BasePDF(ZfitPDF, BaseModel):
 
-    def __init__(self, dims=None, dtype: typing.Type = ztypes.float, name: str = "BasePDF", parameters: typing.Any = None, **kwargs):
+    def __init__(self, dims=None, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
+                 parameters: typing.Any = None, **kwargs):
         super().__init__(dims=dims, dtype=dtype, name=name, parameters=parameters, **kwargs)
 
         self._yield = None
@@ -128,12 +129,6 @@ class BasePDF(ZfitPDF, BaseModel):
         if yield_ is not None:
             new_instance.set_yield(yield_)
         return new_instance
-
-    def _check_input_norm_range_default(self, norm_range, dims=Range.FULL, caller_name="", none_is_error=True):
-        if norm_range is None:
-            norm_range = self.norm_range
-        return self._check_input_norm_range(norm_range=norm_range, dims=dims, caller_name=caller_name,
-                                            none_is_error=none_is_error)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)
@@ -185,20 +180,6 @@ class BasePDF(ZfitPDF, BaseModel):
             self._parameters.pop('yield', None)  # safely remove if still there
         else:
             self._parameters['yield'] = value
-
-    def set_norm_range(self, norm_range: Union[Range, None]):
-        """Fix the normalization range to a certain value. Use with caution!
-
-        It is, in general, better to use either the explicit `norm_range` argument when calling
-        a function or the `temp_norm_range` context manager to set a normalization range for a
-        limited amount of code.
-
-        Args:
-            norm_range ():
-
-        """
-        self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
-        return self
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, norm_range):
@@ -393,34 +374,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _set_yield(self, value: Union[Parameter, None]):
         self._yield = value
-
-    @contextlib.contextmanager
-    def temp_norm_range(self, norm_range: ztyping.LimitsType) -> Union['Range', None]:  # TODO: rename, better?
-        """Temporarily set a normalization range for the model.
-
-        Args:
-            norm_range (): The new normalization range
-        """
-        old_norm_range = self.norm_range
-        self.set_norm_range(norm_range)
-        if self.n_dims and self._norm_range is not None:
-            if not self.n_dims == self._norm_range.n_dims:
-                raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
-                                 "".format(self._norm_range.n_dims, self.n_dims))
-        try:
-            yield self.norm_range  # or None, not needed
-        finally:
-            self.set_norm_range(old_norm_range)
-
-    @property
-    def norm_range(self) -> Union[Range, None]:
-        """Return the current normalization range
-
-        Returns:
-            Range or None: The current normalization range
-
-        """
-        return self._norm_range
 
     @property
     def is_extended(self) -> bool:

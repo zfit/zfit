@@ -5,11 +5,12 @@ import contextlib
 from contextlib import suppress
 import typing
 import warnings
-from typing import Type, Dict, List, Union
+from typing import Type, Dict, List, Union, Tuple
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
+from zfit.core.observable import Observable
 from zfit.util.container import convert_to_container
 from .interfaces import ZfitModel, ZfitParameter
 from . import integration as zintegrate, sample as zsample
@@ -19,7 +20,7 @@ from .parameter import convert_to_parameter
 from ..settings import types as ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError
-from zfit import ztf
+from zfit import ztf, Range, convert_to_range
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -59,7 +60,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     _inverse_analytic_integral = None
     _additional_repr = None
 
-    def __init__(self, dims, dtype: Type = None, name: str = "BaseModel",
+    def __init__(self, obs: Observable, dtype: Type = None, name: str = "BaseModel",
                  parameters: Union[Dict[str, ZfitParameter], None] = None, **kwargs):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
@@ -69,8 +70,9 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             parameters (): the parameters the distribution depends on
         """
         super().__init__(name=name, dtype=dtype, parameters=parameters, **kwargs)
-        self.dims = None
-        self.dims = self._check_input_dims(dims, allow_none=True)
+        self.obs = obs
+        # self.dims = None
+        # self.dims = self._check_input_dims(dims, allow_none=True)
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -127,6 +129,16 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def _func_to_sample_from(self, x: ztyping.XType) -> tf.Tensor:
         raise NotImplementedError
 
+    @property
+    def obs(self) -> Tuple[Observable]:
+        return self._obs
+
+    @obs.setter
+    def obs(self, value: ztyping.ObservableType):
+        if isinstance(value, Observable):
+            value = (value,)
+        self._obs = tuple(value)
+
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
                                 general_options: dict = None, analytic_options: dict = None):
         mc_options = {} if mc_options is None else mc_options
@@ -142,6 +154,57 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     @abc.abstractmethod
     def gradient(self, x: ztyping.XType, params: ztyping.ParamsType = None):
         raise NotImplementedError
+
+    def _check_input_norm_range_default(self, norm_range, dims=Range.FULL, caller_name="", none_is_error=True):
+        if norm_range is None:
+            norm_range = self.norm_range
+        return self._check_input_norm_range(norm_range=norm_range, dims=dims, caller_name=caller_name,
+                                            none_is_error=none_is_error)
+
+    @property
+    def norm_range(self) -> Union[Range, None]:
+        """Return the current normalization range
+
+        Returns:
+            Range or None: The current normalization range
+
+        """
+        norm_range = self._norm_range
+        if norm_range is None:
+            norm_range = [obs.norm_range for obs in self.obs]
+        return norm_range
+
+    def set_norm_range(self, norm_range: Union[Range, None]):
+        """Fix the normalization range to a certain value. Use with caution!
+
+        It is, in general, better to use either the explicit `norm_range` argument when calling
+        a function or the `temp_norm_range` context manager to set a normalization range for a
+        limited amount of code.
+
+        Args:
+            norm_range ():
+
+        """
+        self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
+        return self
+
+    @contextlib.contextmanager
+    def temp_norm_range(self, norm_range: ztyping.LimitsType) -> Union['Range', None]:  # TODO: rename, better?
+        """Temporarily set a normalization range for the model.
+
+        Args:
+            norm_range (): The new normalization range
+        """
+        old_norm_range = self.norm_range
+        self.set_norm_range(norm_range)
+        if self.n_dims and self._norm_range is not None:
+            if not self.n_dims == self._norm_range.n_dims:
+                raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
+                                 "".format(self._norm_range.n_dims, self.n_dims))
+        try:
+            yield self.norm_range  # or None, not needed
+        finally:
+            self.set_norm_range(old_norm_range)
 
     def _check_input_norm_range(self, norm_range, dims, caller_name="",
                                 none_is_error=False) -> typing.Union[Range, bool]:
@@ -185,11 +248,11 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     @property
     def dims(self) -> ztyping.DimsType:
-        return self._dims
+        return tuple(obs.name for obs in self.obs)
 
-    @dims.setter
-    def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
-        self._dims = value
+    # @dims.setter
+    # def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
+    #     self._dims = value
 
     def _check_input_dims(self, dims, allow_none=True):
         if dims is None:
@@ -839,6 +902,10 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         if not callable(func):
             raise TypeError("Function {} is not callable.")
         return func
+
+    def convert_to_tensor(self, value, dtype=None):
+
+        tf.convert_to_tensor
 
     def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_parameters())

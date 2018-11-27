@@ -74,8 +74,7 @@ which you can now iterate through. For example, to calc an integral (assuming th
 
 import functools
 import inspect
-import typing
-from typing import Tuple, Union, List, Optional
+from typing import Tuple, Union, List, Optional, Iterable
 
 import tensorflow as tf
 import numpy as np
@@ -590,6 +589,14 @@ def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
         return Range.from_boundaries(lower=lower, upper=upper, dims=dims, convert_none=convert_none)
     else:
         assert False, "This code block should never been reached."
+
+
+def convert_to_one_range(limits: Iterable[Range]):
+    limit_tuple = tuple(limit.get_limits() for limit in limits)
+    dims_tuple = tuple(sum(list(limit.dims) for limit in limits))
+    limit = Range.from_limits(limits=limit_tuple, dims=dims_tuple)
+    return limit
+
 
 
 def iter_limits(limits):

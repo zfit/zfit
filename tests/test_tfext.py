@@ -30,3 +30,4 @@ def test_polynomial():
     zfit.sess.run(init)
     result = zfit.sess.run(polynom_tf, feed_dict=feed_dict)
     assert result == pytest.approx(polynom_np, rel=prec)
+
