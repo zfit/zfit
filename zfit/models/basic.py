@@ -26,11 +26,9 @@ class Gauss(model_dims_mixin(1), BasePDF):
     def _unnormalized_pdf(self, x, norm_range=False):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
-        gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma) )
+        gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma))
 
         return gauss
-
-
 
 
 def _gauss_integral_from_inf_to_inf(limits, params):

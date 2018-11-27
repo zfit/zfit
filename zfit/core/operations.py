@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
 from .parameter import convert_to_parameter, ComposedParameter
 from ..util import ztyping
-from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
+from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError, IntentionNotUnambiguousError
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
@@ -61,6 +61,9 @@ def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
     from ..models.functor import ProductPDF
+    if not pdf1.is_extended and pdf2.is_extended:
+        raise IntentionNotUnambiguousError("Cannot multiply this way a non-extendended PDF with an extended PDF."
+                                           "Only vice-versa is allowed: to multiply an extended PDF with an non-extended PDF.")
 
     return ProductPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
@@ -80,7 +83,8 @@ def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
                         "{}, {}".format(param, pdf))
     if pdf.is_extended:
         raise AlreadyExtendedPDFError()
-    pdf.set_yield(param)  # TODO: make unmutable with copy?
+    new_pdf = pdf.copy(name=pdf.name + "_autoextended")
+    new_pdf.set_yield(param)
     return pdf
 
 
