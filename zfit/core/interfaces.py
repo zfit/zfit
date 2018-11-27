@@ -29,6 +29,38 @@ class ZfitObject(pep487.ABC):
         raise NotImplementedError
 
 
+class ZfitObservable(ZfitObject):
+    @property
+    @abc.abstractmethod
+    def obs_range(self):
+        raise NotImplementedError
+
+    @obs_range.setter
+    @abc.abstractmethod
+    def obs_range(self, value):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def norm_range(self):
+        raise NotImplementedError
+
+    @norm_range.setter
+    @abc.abstractmethod
+    def norm_range(self, value):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def data_range(self):
+        raise NotImplementedError
+
+    @data_range.setter
+    @abc.abstractmethod
+    def data_range(self, value):
+        raise NotImplementedError
+
+
 class ZfitDependentsMixin(pep487.ABC):
     @abc.abstractmethod
     def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
@@ -218,6 +250,7 @@ class ZfitFunc(ZfitModel):
     @abc.abstractmethod
     def as_pdf(self):
         raise NotImplementedError
+
 
 class ZfitPDF(ZfitModel):
 

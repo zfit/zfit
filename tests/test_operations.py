@@ -130,7 +130,7 @@ def test_implicit_extended():
 
     true_extended_pdf = SumPDF(pdfs=[pdf1, pdf2])
     assert isinstance(extended_pdf, SumPDF)
-    assert extended_pdf.is_extended
+    assert not extended_pdf.is_extended
     assert true_extended_pdf == extended_pdf
 
 
