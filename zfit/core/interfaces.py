@@ -1,5 +1,5 @@
 import abc
-from typing import Union, List, Dict, Callable, Tuple
+from typing import Union, List, Dict, Callable, Tuple, Mapping
 
 import pep487
 import tensorflow as tf
@@ -66,8 +66,6 @@ class ZfitObservable(ZfitObject):
         raise NotImplementedError
 
 
-
-
 class ZfitNamedSpace(ZfitObject):
 
     @property
@@ -78,10 +76,9 @@ class ZfitNamedSpace(ZfitObject):
         """
         raise NotImplementedError
 
-    @property
     @abc.abstractmethod
-    def obs_axes(self):
-        """Return the axes number of the observable *if available*.
+    def get_obs_index(self, obs: Union[str, Tuple[str, ...]]):
+        """Return the axes number of the observable *if available* (set by `set_obs_index`).
 
         Raises:
             AxesNotUnambiguousError: In case
@@ -89,11 +86,16 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def set_obs_index(self, indices: Union[List[int, ...], Mapping[str, int]]):
+        """Set the indices (axes) of the observables"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_subspace(self, obs: ztyping.InputObservableType = None) -> "ZfitNamedSpace":
         raise NotImplementedError
 
     @abc.abstractmethod
-    def iter_limits(self, as_tuple: bool = True):
+    def iter_lower_upper(self, as_tuple: bool = True):
         """Iterate through the limits by returning several observables/(lower, upper)-tuples.
 
         Args:
@@ -101,6 +103,52 @@ class ZfitNamedSpace(ZfitObject):
                 observables.
 
         """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def lower(self) -> Tuple[Tuple[int, ...]]:
+        """Return the lower limits.
+
+        """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def upper(self) -> Tuple[Tuple[int, ...]]:
+        """Return the upper limits.
+
+        """
+        raise NotImplementedError
+
+    # @abc.abstractmethod
+    # def get_limits(self):
+
+    @property
+    @abc.abstractmethod
+    def n_limits(self) -> int:
+        """Return the number of limits."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def n_obs(self) -> int:
+        """Return the number of observables (axis)."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
+        """Set the limits of the NamedSpace (temporarily)."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def area(self) -> float:
+        """Return the total area of all the limits and dims. Useful, for example, for MC integration."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+        """Return the areas of each limit."""
         raise NotImplementedError
 
 

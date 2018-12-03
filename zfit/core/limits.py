@@ -79,11 +79,16 @@ from typing import Tuple, Union, List, Optional, Iterable, Callable
 import tensorflow as tf
 import numpy as np
 
+from zfit.core.baseobject import BaseObject
+from zfit.core.interfaces import ZfitNamedSpace
 from zfit.util import ztyping
 from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, ConversionError
 
+class NamedSpace(ZfitNamedSpace, BaseObject):
+    pass
 
-class Range(object):
+
+class Range:
     FULL = object()  # unique reference
     ANY = object()
     ANY_LOWER = object()  # TODO: need different upper, lower?
@@ -123,7 +128,7 @@ class Range(object):
         self._set_boundaries_and_dims(lower=lower, upper=upper, dims=dims, convert_none=convert_none)
 
     @classmethod
-    def from_boundaries(cls, lower: ztyping.LowerType, upper: ztyping.UpperType,
+    def from_boundaries(cls, lower: ztyping.InputLowerType, upper: ztyping.UpperType,
                         dims: ztyping.DimsType, *, convert_none: bool = False) -> "Range":
         """Create a Range instance from a lower, upper limits pair. Opposite of Range.get_boundaries()
 
@@ -166,9 +171,9 @@ class Range(object):
         return len(self.get_boundaries()[0])
 
     @staticmethod
-    def sanitize_boundaries(lower: ztyping.LowerType, upper: ztyping.UpperType, dims: ztyping.DimsType = None, *,
+    def sanitize_boundaries(lower: ztyping.InputLowerType, upper: ztyping.UpperType, dims: ztyping.DimsType = None, *,
                             convert_none: bool = False) -> Tuple[
-        ztyping.LowerType, ztyping.UpperType, ztyping.DimsType]:
+        ztyping.InputLowerType, ztyping.UpperType, ztyping.DimsType]:
         """Sanitize (add dim, replace None, check length...)
 
         Args:
@@ -293,7 +298,7 @@ class Range(object):
             dims = (dims,)
         return dims
 
-    def _set_boundaries_and_dims(self, lower: ztyping.LowerType, upper: ztyping.UpperType, dims: ztyping.DimsType,
+    def _set_boundaries_and_dims(self, lower: ztyping.InputLowerType, upper: ztyping.UpperType, dims: ztyping.DimsType,
                                  convert_none: bool) -> None:
         # TODO all the conversions come here
         lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
@@ -355,7 +360,7 @@ class Range(object):
         """
         return Range.limits_from_boundaries(*self._boundaries)
 
-    def get_boundaries(self) -> Tuple[ztyping.LowerType, ztyping.UpperType]:
+    def get_boundaries(self) -> Tuple[ztyping.InputLowerType, ztyping.UpperType]:
         """Return a lower and upper boundary tuple containing all possible combinations.
 
         The limits given in the tuple form are converted to two tuples: one containing all of the
@@ -407,7 +412,7 @@ class Range(object):
         return range_objects
 
     @staticmethod
-    def boundaries_from_limits(limits: ztyping.LimitsType) -> Tuple[ztyping.LowerType, ztyping.UpperType]:
+    def boundaries_from_limits(limits: ztyping.LimitsType) -> Tuple[ztyping.InputLowerType, ztyping.UpperType]:
         """Convert limits (sorted by dims) to boundaries (sorted by intervalls).
 
         Args:
@@ -432,7 +437,7 @@ class Range(object):
         return tuple(lower_limits), tuple(upper_limits)
 
     @staticmethod
-    def limits_from_boundaries(lower: ztyping.LowerType, upper: ztyping.UpperType) -> ztyping.LimitsType:
+    def limits_from_boundaries(lower: ztyping.InputLowerType, upper: ztyping.UpperType) -> ztyping.LimitsType:
         """Convert the lower, upper boundaries to limits.
 
         Args:
@@ -560,7 +565,7 @@ class Range(object):
 
 
 def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
-                     boundaries: Optional[Tuple[ztyping.LowerType, ztyping.UpperType]] = None,
+                     boundaries: Optional[Tuple[ztyping.InputLowerType, ztyping.UpperType]] = None,
                      dims: ztyping.DimsType = None, *,
                      convert_none: bool = False) -> Union[None, 'Range', bool]:
     """Convert *limits* to a Range object if not already None or False.
