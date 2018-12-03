@@ -74,7 +74,7 @@ which you can now iterate through. For example, to calc an integral (assuming th
 
 import functools
 import inspect
-from typing import Tuple, Union, List, Optional, Iterable
+from typing import Tuple, Union, List, Optional, Iterable, Callable
 
 import tensorflow as tf
 import numpy as np
@@ -554,7 +554,7 @@ class Range(object):
 
     def __hash__(self):
         try:
-            return (self.get_boundaries(), self.__HASH_DELIMINATOR, self.dims).__hash__()
+            return hash(self.get_boundaries(), self.__HASH_DELIMINATOR, self.dims)
         except TypeError:
             raise TypeError("unhashable. ", self.get_boundaries(), self.dims)
 
@@ -671,7 +671,7 @@ def no_multiple_limits(func):
     return new_func
 
 
-def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> typing.Callable:
+def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
     If any of the flags is set to False, it will check the arguments and, in case they match a flag

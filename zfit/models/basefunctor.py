@@ -5,7 +5,7 @@ from zfit.core.basemodel import BaseModel
 from zfit.core.dimension import get_same_dims
 from zfit.core.interfaces import ZfitFunctorMixin, ZfitModel
 from zfit.util.container import convert_to_container
-from zfit.util.exception import DimsNotUnambiguousError
+from zfit.util.exception import AxesNotUnambiguousError
 
 
 class FunctorMixin(ZfitFunctorMixin, BaseModel):
@@ -26,7 +26,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
                 # models_dims are None and functor dims is None -> allow for easy use-case of sum(exp, gauss)
                 if proposed_dim is None and not self._functor_allow_none_dims:
-                    raise DimsNotUnambiguousError("Dims of submodels as well as functor are None."
+                    raise AxesNotUnambiguousError("Dims of submodels as well as functor are None."
                                                   "Not allowed for this functor. Specify the dims in the"
                                                   "submodels and/or in the Functor.")
                 # in this case, at least the n_dims should coincide
@@ -35,7 +35,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                     if len(models_n_dims) == 1:
                         models_dims_index = tuple(range(len(models_n_dims))) * len(models)
                     else:
-                        raise DimsNotUnambiguousError("n_dims of models are different and dims are all `None`. "
+                        raise AxesNotUnambiguousError("n_dims of models are different and dims are all `None`. "
                                                       "Therefore they can't be inferered safely. Either use same ranked"
                                                       "models or specify explicitely the dims.")
 
@@ -43,7 +43,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
             # different dimensions in submodels -> how to merge? Ambiguous
             else:
-                raise DimsNotUnambiguousError("Dimensions are `None` for this functor and cannot be taken from the"
+                raise AxesNotUnambiguousError("Dimensions are `None` for this functor and cannot be taken from the"
                                               "models, as their dimensions are not *exactly* the same.")
         if models_dims_index is None:
             try:
@@ -57,7 +57,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
     @property
     @abc.abstractmethod
     def _functor_allow_none_dims(self) -> bool:
-        """If True, allow to set the dims to None. Otherwise raise a `DimsNotUnambiguousError`.
+        """If True, allow to set the dims to None. Otherwise raise a `AxesNotUnambiguousError`.
 
         Returns:
             bool:

@@ -31,47 +31,76 @@ class ZfitObject(pep487.ABC):
 
 class ZfitData(ZfitObject):
     @abc.abstractmethod
-    def value(self) -> ztyping.XType:
+    def value(self, names: str = None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
-    def obs(self) -> Tuple["Observable"]:
+    def obs(self) -> "ZfitObservable":
         raise NotImplementedError
 
     @obs.setter
-    def obs(self, value: ztyping.ObservableType):
+    def obs(self, value: ztyping.InputObservableType):
         raise NotImplementedError
 
 
 class ZfitObservable(ZfitObject):
-    @property
-    @abc.abstractmethod
-    def obs_range(self) -> "zfit.Range":
-        raise NotImplementedError
-
-    @obs_range.setter
-    @abc.abstractmethod
-    def obs_range(self, value):
-        raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def norm_range(self) -> "zfit.Range":
+    def names(self) -> Tuple[str, ...]:
         raise NotImplementedError
 
-    @norm_range.setter
     @abc.abstractmethod
-    def norm_range(self, value):
+    def get_subspace(self, names: str = None) -> "ZfitObservable":
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def iter_limits(self, as_tuple: bool = True):
+        """Iterate through the limits by returning several observables/(lower, upper)-tuples.
+
+        Args:
+            as_tuple (bool): If True, return the (lower, upper) tuples instead of several
+                observables.
+
+        """
+        raise NotImplementedError
+
+
+
+
+class ZfitNamedSpace(ZfitObject):
+
+    @property
+    @abc.abstractmethod
+    def obs(self) -> Tuple[str, ...]:
+        """Return a list of the observable names.
+
+        """
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def data_range(self) -> "zfit.Range":
+    def obs_axes(self):
+        """Return the axes number of the observable *if available*.
+
+        Raises:
+            AxesNotUnambiguousError: In case
+        """
         raise NotImplementedError
 
-    @data_range.setter
     @abc.abstractmethod
-    def data_range(self, value):
+    def get_subspace(self, obs: ztyping.InputObservableType = None) -> "ZfitNamedSpace":
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def iter_limits(self, as_tuple: bool = True):
+        """Iterate through the limits by returning several observables/(lower, upper)-tuples.
+
+        Args:
+            as_tuple (bool): If True, return the (lower, upper) tuples instead of several
+                observables.
+
+        """
         raise NotImplementedError
 
 
@@ -260,7 +289,7 @@ class ZfitModel(ZfitNumeric):
         raise NotImplementedError
 
     @obs.setter
-    def obs(self, value: ztyping.ObservableType):
+    def obs(self, value: ztyping.InputObservableType):
         raise NotImplementedError
 
 

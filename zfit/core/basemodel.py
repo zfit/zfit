@@ -20,7 +20,7 @@ from .parameter import convert_to_parameter
 from ..settings import types as ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError
-from zfit import ztf, Range, convert_to_range
+from zfit import ztf
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -134,7 +134,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         return self._obs
 
     @obs.setter
-    def obs(self, value: ztyping.ObservableType):
+    def obs(self, value: ztyping.InputObservableType):
         if isinstance(value, Observable):
             value = (value,)
         self._obs = tuple(value)

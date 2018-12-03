@@ -17,7 +17,7 @@ from zfit.models.basefunctor import FunctorMixin
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 
-from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, DimsNotUnambiguousError
+from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError
 from zfit.core.basepdf import BasePDF
 from zfit.core.parameter import Parameter
 from zfit.settings import types as ztypes

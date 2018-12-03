@@ -28,10 +28,12 @@ class SubclassingError(Exception):
 class BasePDFSubclassingError(SubclassingError):
     pass
 
+
 class IntentionNotUnambiguousError(Exception):
     pass
 
-class DimsNotUnambiguousError(IntentionNotUnambiguousError):
+
+class AxesNotUnambiguousError(IntentionNotUnambiguousError):
     pass
 
 
