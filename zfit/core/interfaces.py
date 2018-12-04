@@ -1,4 +1,5 @@
 import abc
+from collections import OrderedDict
 from typing import Union, List, Dict, Callable, Tuple, Mapping
 
 import pep487
@@ -77,7 +78,7 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_obs_index(self, obs: Union[str, Tuple[str, ...]]):
+    def get_obs_index(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = True):
         """Return the axes number of the observable *if available* (set by `set_obs_index`).
 
         Raises:
@@ -86,7 +87,7 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_obs_index(self, indices: Union[List[int, ...], Mapping[str, int]]):
+    def set_obs_index(self, indices: Union[List[int], Mapping[str, int]]):
         """Set the indices (axes) of the observables"""
         raise NotImplementedError
 
@@ -107,7 +108,13 @@ class ZfitNamedSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def lower(self) -> Tuple[Tuple[int, ...]]:
+    def limits(self) -> Tuple[ztyping.ReturnLowerType, ztyping.ReturnUpperType]:
+        """Return the tuple(lower, upper)."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def lower(self) -> ztyping.ReturnLowerType:
         """Return the lower limits.
 
         """
@@ -115,7 +122,7 @@ class ZfitNamedSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def upper(self) -> Tuple[Tuple[int, ...]]:
+    def upper(self) -> ztyping.ReturnUpperType:
         """Return the upper limits.
 
         """
@@ -149,6 +156,11 @@ class ZfitNamedSpace(ZfitObject):
     @abc.abstractmethod
     def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
         """Return the areas of each limit."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def axes(self) -> OrderedDict:
         raise NotImplementedError
 
 

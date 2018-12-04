@@ -71,10 +71,10 @@ which you can now iterate through. For example, to calc an integral (assuming th
 >>> def integrate(lower_limit, upper_limit): return 42  # dummy function
 >>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
 """
-
+from collections import OrderedDict
 import functools
 import inspect
-from typing import Tuple, Union, List, Optional, Iterable, Callable
+from typing import Tuple, Union, List, Optional, Iterable, Callable, Mapping, Dict
 
 import tensorflow as tf
 import numpy as np
@@ -82,10 +82,136 @@ import numpy as np
 from zfit.core.baseobject import BaseObject
 from zfit.core.interfaces import ZfitNamedSpace
 from zfit.util import ztyping
-from zfit.util.exception import NormRangeNotImplementedError, MultipleLimitsNotImplementedError, ConversionError
+from zfit.util.container import convert_to_container
+from zfit.util.exception import (NormRangeNotImplementedError, MultipleLimitsNotImplementedError, ConversionError,
+                                 LimitsNotSpecifiedError, AxesNotSpecifiedError, )
+from zfit.util.temporary import TemporarilySet
+
+NOT_SPECIFIED = object()
+
 
 class NamedSpace(ZfitNamedSpace, BaseObject):
-    pass
+    AUTO_FILL = object()
+
+    def __init__(self, obs, lower=NOT_SPECIFIED, upper=NOT_SPECIFIED):
+        obs = self._check_convert_input_obs(obs)
+        super().__init__(name="_".join(obs))
+        self._axes = NOT_SPECIFIED
+        self._obs = obs
+        self.set_limits(lower=lower, upper=upper)
+
+    @property
+    def lower(self) -> ztyping.ReturnLowerType:
+        return self.limits[0]
+
+    @property
+    def upper(self) -> ztyping.ReturnUpperType:
+        return self.limits[1]
+
+    def set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
+        lower = self._check_convert_input_lower_upper(limit=lower)
+        upper = self._check_convert_input_lower_upper(limit=upper)
+        self._check_input_limits_obs(obs=self.obs, lower=lower, upper=upper)
+
+    @property
+    def limits(self) -> Tuple[ztyping.ReturnLowerType, ztyping.ReturnUpperType]:
+        limits = self._limits
+        if NOT_SPECIFIED in limits:
+            raise LimitsNotSpecifiedError("(some) of the limits have not been specified. Specify them "
+                                          "either by setting them permanently (object creation time or"
+                                          "via setter) or temporarily (via setter in a contextmanager)."
+                                          "\nThe limits are {}".format(limits))
+        return limits
+
+    def _check_input_limits_obs(self, obs, lower, upper):
+        """Check if the input is compatible.
+
+        Args:
+            obs ():
+            lower ():
+            upper ():
+
+        Returns:
+
+        """
+        return lower, upper  # TODO(Mayou36) implement properly
+
+    @property
+    def obs(self) -> Tuple[str, ...]:
+        return self._obs
+
+    @property
+    def n_obs(self) -> int:
+        return len(self.obs)
+
+    def _check_convert_input_lower_upper(self, limit: Union[ztyping.InputLowerType, ztyping.InputUpperType]) -> Union[
+        ztyping.ReturnLowerType, ztyping.ReturnUpperType]:
+        """Check and sanitize the lower or upper limits.
+
+        Args:
+            limit ():
+
+        Returns:
+
+        """
+        if NOT_SPECIFIED:
+            return limit
+        return limit  # TODO(Mayou36) implement properly
+
+    def _check_convert_input_obs(self, obs):
+        if obs is None:
+            raise ValueError("obs cannot be None")
+        obs = convert_to_container(obs, container=tuple)
+        return obs
+        # TODO(Mayou36): improve checks (if str etc.)
+
+    @property
+    def n_limits(self) -> int:
+        return len(self.lower)
+
+    def get_obs_index(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = False):
+        obs = convert_to_container(obs, container=tuple)
+
+        axes = self.axes
+        if obs is not None:
+            try:
+                axes = OrderedDict((k, v) for k, v in axes.items() if k in obs)
+            except KeyError:
+                missing_obs = set(obs) - set(self.obs)
+                raise ValueError("The requested observables {mis} are not contained in the defined "
+                                 "observables {obs}".format(mis=missing_obs, obs=self.obs))
+        if not as_dict:
+            axes = tuple(axes.values())
+
+        return axes
+
+    @property
+    def axes(self) -> OrderedDict:
+        axes = self._axes
+        if axes is NOT_SPECIFIED:
+            raise AxesNotSpecifiedError("The axes have not been set. Use `set_obs_index` either as a function"
+                                        "or with a contextmanager.")
+        return axes
+
+    def set_obs_index(self, indices: Union[Iterable[int], Dict[str, int]]):
+        if not len(indices) == self.n_obs:
+            raise ValueError("`indices` does not have the same length as number of observables."
+                             "They have to match. Cannot partially set axes.")
+        if isinstance(indices, dict):
+            try:
+                indices = OrderedDict((obs, indices[obs]) for obs in self.obs)
+            except KeyError:
+                missing_obs = set(self.obs) - set(indices.keys())
+                raise ValueError("The following observables {mis} are not contained in the indices"
+                                 " {index_keys}".format(mis=missing_obs, index_keys=indices.keys()))
+        else:
+            indices = OrderedDict((obs, i) for obs, i in zip(self.obs, indices))
+
+        def _tmp_setter(value):
+            self._axes = value
+
+        temp_set = TemporarilySet(value=indices, setter=_tmp_setter, getter=lambda: self.axes)
+        return temp_set
 
 
 class Range:
@@ -128,7 +254,7 @@ class Range:
         self._set_boundaries_and_dims(lower=lower, upper=upper, dims=dims, convert_none=convert_none)
 
     @classmethod
-    def from_boundaries(cls, lower: ztyping.InputLowerType, upper: ztyping.UpperType,
+    def from_boundaries(cls, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType,
                         dims: ztyping.DimsType, *, convert_none: bool = False) -> "Range":
         """Create a Range instance from a lower, upper limits pair. Opposite of Range.get_boundaries()
 
@@ -171,9 +297,10 @@ class Range:
         return len(self.get_boundaries()[0])
 
     @staticmethod
-    def sanitize_boundaries(lower: ztyping.InputLowerType, upper: ztyping.UpperType, dims: ztyping.DimsType = None, *,
+    def sanitize_boundaries(lower: ztyping.InputLowerType, upper: ztyping.InputUpperType, dims: ztyping.DimsType = None,
+                            *,
                             convert_none: bool = False) -> Tuple[
-        ztyping.InputLowerType, ztyping.UpperType, ztyping.DimsType]:
+        ztyping.InputLowerType, ztyping.InputUpperType, ztyping.DimsType]:
         """Sanitize (add dim, replace None, check length...)
 
         Args:
@@ -298,7 +425,8 @@ class Range:
             dims = (dims,)
         return dims
 
-    def _set_boundaries_and_dims(self, lower: ztyping.InputLowerType, upper: ztyping.UpperType, dims: ztyping.DimsType,
+    def _set_boundaries_and_dims(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType,
+                                 dims: ztyping.DimsType,
                                  convert_none: bool) -> None:
         # TODO all the conversions come here
         lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=dims,
@@ -360,7 +488,7 @@ class Range:
         """
         return Range.limits_from_boundaries(*self._boundaries)
 
-    def get_boundaries(self) -> Tuple[ztyping.InputLowerType, ztyping.UpperType]:
+    def get_boundaries(self) -> Tuple[ztyping.InputLowerType, ztyping.InputUpperType]:
         """Return a lower and upper boundary tuple containing all possible combinations.
 
         The limits given in the tuple form are converted to two tuples: one containing all of the
@@ -412,7 +540,7 @@ class Range:
         return range_objects
 
     @staticmethod
-    def boundaries_from_limits(limits: ztyping.LimitsType) -> Tuple[ztyping.InputLowerType, ztyping.UpperType]:
+    def boundaries_from_limits(limits: ztyping.LimitsType) -> Tuple[ztyping.InputLowerType, ztyping.InputUpperType]:
         """Convert limits (sorted by dims) to boundaries (sorted by intervalls).
 
         Args:
@@ -437,7 +565,7 @@ class Range:
         return tuple(lower_limits), tuple(upper_limits)
 
     @staticmethod
-    def limits_from_boundaries(lower: ztyping.InputLowerType, upper: ztyping.UpperType) -> ztyping.LimitsType:
+    def limits_from_boundaries(lower: ztyping.InputLowerType, upper: ztyping.InputUpperType) -> ztyping.LimitsType:
         """Convert the lower, upper boundaries to limits.
 
         Args:
@@ -534,6 +662,7 @@ class Range:
         are_equal = lower_equal and upper_equal
 
         return are_equal
+
     #
     # def __getitem__(self, key):
     #     raise Exception("Replace with .get_limits()")
@@ -565,7 +694,7 @@ class Range:
 
 
 def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
-                     boundaries: Optional[Tuple[ztyping.InputLowerType, ztyping.UpperType]] = None,
+                     boundaries: Optional[Tuple[ztyping.InputLowerType, ztyping.InputUpperType]] = None,
                      dims: ztyping.DimsType = None, *,
                      convert_none: bool = False) -> Union[None, 'Range', bool]:
     """Convert *limits* to a Range object if not already None or False.
@@ -601,7 +730,6 @@ def convert_to_one_range(limits: Iterable[Range]):
     dims_tuple = tuple(sum(list(limit.dims) for limit in limits))
     limit = Range.from_limits(limits=limit_tuple, dims=dims_tuple)
     return limit
-
 
 
 def iter_limits(limits):

@@ -36,6 +36,15 @@ class IntentionNotUnambiguousError(Exception):
 class AxesNotUnambiguousError(IntentionNotUnambiguousError):
     pass
 
+class NotSpecifiedError(Exception):
+    pass
+
+class LimitsNotSpecifiedError(NotSpecifiedError):
+    pass
+
+class AxesNotSpecifiedError(NotSpecifiedError):
+    pass
+
 
 # Minimizer errors
 
