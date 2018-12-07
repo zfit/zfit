@@ -71,8 +71,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """
         super().__init__(name=name, dtype=dtype, parameters=parameters, **kwargs)
         self.obs = obs
-        # self.dims = None
-        # self.dims = self._check_input_dims(dims, allow_none=True)
+        # self.axes = None
+        # self.axes = self._check_input_dims(axes, allow_none=True)
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -250,8 +250,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def dims(self) -> ztyping.DimsType:
         return tuple(obs.name for obs in self.obs)
 
-    # @dims.setter
-    # def dims(self, value: ztyping.DimsType):  # TODO: what's the default return?
+    # @axes.setter
+    # def axes(self, value: ztyping.DimsType):  # TODO: what's the default return?
     #     self._dims = value
 
     def _check_input_dims(self, dims, allow_none=True):
@@ -259,7 +259,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             if allow_none:
                 return dims
             else:
-                raise ValueError("dims is None and `allow_none` is False. Specify the dims.")
+                raise ValueError("axes is None and `allow_none` is False. Specify the axes.")
         dims = convert_to_container(dims, container=tuple)
         if self.n_dims is not None and len(dims) != self.n_dims:
             raise ValueError("Dims {} does not match the number of dimensions ({}) of the model."
@@ -320,7 +320,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             return self._fallback_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_integrate(self, limits, norm_range):
-        dims = limits.dims
+        dims = limits.axes
         max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=dims)
 
         integral = None
@@ -436,7 +436,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_analytic_integrate(self, limits, norm_range):
-        return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.dims,
+        return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.axes,
                                                  norm_range=norm_range, params=self.parameters)
 
     @_BaseModel_register_check_support(True)
@@ -514,9 +514,9 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
         Args:
             x (numerical): The values at which the partially integrated function will be evaluated
-            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            limits (tuple, Range): the limits to integrate over. Can contain only some axes
             dims (tuple(int): The dimensions to partially integrate over
-            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -570,18 +570,18 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                                                     norm_range=norm_range)
 
     def _fallback_partial_integrate(self, x, limits, norm_range):
-        max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=limits.dims)
+        max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=limits.axes)
         if max_dims:
             sublimits = limits.subspace(max_dims)
 
-            def part_int(x):  # change to partial integrate max dims?
+            def part_int(x):  # change to partial integrate max axes?
                 """Temporary partial integration function."""
                 return self._norm_partial_analytic_integrate(x=x, limits=sublimits, norm_range=norm_range)
 
-            dims = list(set(limits.dims) - set(max_dims))
+            dims = list(set(limits.axes) - set(max_dims))
         else:
             part_int = self._func_to_integrate
-            dims = limits.dims
+            dims = limits.axes
 
         if norm_range is False:
             integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, dims=dims, x=x)
@@ -603,9 +603,9 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
         Args:
             x (numerical): The values at which the partially integrated function will be evaluated
-            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            limits (tuple, Range): the limits to integrate over. Can contain only some axes
             dims (tuple(int): The dimensions to partially integrate over
-            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -620,7 +620,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: full reasonable?
-        limits = convert_to_range(limits, dims=dims)  # TODO: replace by limits.dims if dims is None?
+        limits = convert_to_range(limits, dims=dims)  # TODO: replace by limits.axes if axes is None?
         return self._hook_partial_analytic_integrate(x=x, limits=limits,
                                                      norm_range=norm_range, name=name)
 
@@ -676,7 +676,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                                                              norm_range=norm_range)
 
     def _fallback_partial_analytic_integrate(self, x, limits, norm_range):
-        return self._analytic_integral.integrate(x=x, limits=limits, dims=limits.dims,
+        return self._analytic_integral.integrate(x=x, limits=limits, dims=limits.axes,
                                                  norm_range=norm_range, params=self.parameters)
 
     @_BaseModel_register_check_support(True)
@@ -693,9 +693,9 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
         Args:
             x (numerical): The values at which the partially integrated function will be evaluated
-            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            limits (tuple, Range): the limits to integrate over. Can contain only some axes
             dims (tuple(int): The dimensions to partially integrate over
-            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -810,23 +810,23 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         if len(limits) > 1:
             raise MultipleLimitsNotImplementedError()
 
-        for lower_bound, upper_bound in zip(*limits.get_boundaries()):
+        for lower_bound, upper_bound in zip(*limits.limits()):
             neg_infinities = (tuple((-float("inf"),) * limits.n_dims),)  # py34 change float("inf") to math.inf
             try:
                 lower_prob_lim = self._norm_analytic_integrate(limits=Range.from_boundaries(lower=neg_infinities,
                                                                                             upper=lower_bound,
-                                                                                            dims=limits.dims,
+                                                                                            axes=limits.axes,
                                                                                             convert_none=True),
                                                                norm_range=False)
 
                 upper_prob_lim = self._norm_analytic_integrate(limits=Range.from_boundaries(lower=neg_infinities,
                                                                                             upper=upper_bound,
-                                                                                            dims=limits.dims,
+                                                                                            axes=limits.axes,
                                                                                             convert_none=True),
                                                                norm_range=False)
             except NotImplementedError:
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
-                                          "implemented for the boundaries:".format(limits.get_boundaries()))
+                                          "implemented for the boundaries:".format(limits.limits()))
             prob_sample = ztf.random_uniform(shape=(n, limits.n_dims), minval=lower_prob_lim,
                                              maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)

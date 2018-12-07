@@ -1,6 +1,6 @@
 import abc
 from collections import OrderedDict
-from typing import Union, List, Dict, Callable, Tuple, Mapping
+from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
 import pep487
 import tensorflow as tf
@@ -36,11 +36,11 @@ class ZfitData(ZfitObject):
         raise NotImplementedError
 
     @property
-    def obs(self) -> "ZfitObservable":
+    def space(self) -> "ZfitObservable":
         raise NotImplementedError
 
-    @obs.setter
-    def obs(self, value: ztyping.InputObservableType):
+    @space.setter
+    def space(self, value: ztyping.InputObservableType):
         raise NotImplementedError
 
 
@@ -78,8 +78,8 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_obs_index(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = True):
-        """Return the axes number of the observable *if available* (set by `set_obs_index`).
+    def get_axes(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = True):
+        """Return the axes number of the observable *if available* (set by `axes_by_obs`).
 
         Raises:
             AxesNotUnambiguousError: In case
@@ -87,23 +87,17 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_obs_index(self, indices: Union[List[int], Mapping[str, int]]):
-        """Set the indices (axes) of the observables"""
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def get_subspace(self, obs: ztyping.InputObservableType = None) -> "ZfitNamedSpace":
         raise NotImplementedError
 
     @abc.abstractmethod
-    def iter_lower_upper(self, as_tuple: bool = True):
+    def iter_limits(self):
         """Iterate through the limits by returning several observables/(lower, upper)-tuples.
 
-        Args:
-            as_tuple (bool): If True, return the (lower, upper) tuples instead of several
-                observables.
-
         """
+        raise NotImplementedError
+
+    def iter_space(self) -> List["ZfitNamedSpace"]:
         raise NotImplementedError
 
     @property
@@ -150,7 +144,7 @@ class ZfitNamedSpace(ZfitObject):
 
     @abc.abstractmethod
     def area(self) -> float:
-        """Return the total area of all the limits and dims. Useful, for example, for MC integration."""
+        """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -160,7 +154,15 @@ class ZfitNamedSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def axes(self) -> OrderedDict:
+    def axes(self) -> List[int]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_obs_axes(self, autofill: bool = False) -> ztyping.OrderedDict[str, int]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):  # TODO: switch if sorting?
         raise NotImplementedError
 
 
@@ -310,9 +312,9 @@ class ZfitModel(ZfitNumeric):
 
         Args:
             x (numerical): The values at which the partially integrated function will be evaluated
-            limits (tuple, Range): the limits to integrate over. Can contain only some dims
+            limits (tuple, Range): the limits to integrate over. Can contain only some axes
             dims (tuple(int): The dimensions to partially integrate over
-            norm_range (tuple, Range, False): the limits to normalize over. Has to have all dims
+            norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -404,5 +406,5 @@ class ZfitFunctorMixin:
 
     # @property
     # @abc.abstractmethod
-    # def dims(self):
+    # def axes(self):
     #     raise NotImplementedError

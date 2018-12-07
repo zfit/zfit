@@ -31,7 +31,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Range, sampler: 
         tf.Tensor:
     """
     n_dims = limits.n_dims
-    lower, upper = limits.get_boundaries()
+    lower, upper = limits.limits()
     lower = ztf.convert_to_tensor(lower, dtype=dtype)
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
     n = tf.to_int64(n)

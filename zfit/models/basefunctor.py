@@ -17,17 +17,17 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     def _check_convert_model_dims_to_index(self, models):
         models_dims_index = None
-        models_dims = tuple(model.dims for model in models)
+        models_dims = tuple(model.axes for model in models)
         if self.dims is None:
             # try to infer from the models
             proposed_dims = set(models_dims)
-            if len(proposed_dims) == 1:  # if all submodels have the *exact* same dims -> intention is "clear"
+            if len(proposed_dims) == 1:  # if all submodels have the *exact* same axes -> intention is "clear"
                 proposed_dim = proposed_dims.pop()
 
-                # models_dims are None and functor dims is None -> allow for easy use-case of sum(exp, gauss)
+                # models_dims are None and functor axes is None -> allow for easy use-case of sum(exp, gauss)
                 if proposed_dim is None and not self._functor_allow_none_dims:
                     raise AxesNotUnambiguousError("Dims of submodels as well as functor are None."
-                                                  "Not allowed for this functor. Specify the dims in the"
+                                                  "Not allowed for this functor. Specify the axes in the"
                                                   "submodels and/or in the Functor.")
                 # in this case, at least the n_dims should coincide
                 elif proposed_dim is None:
@@ -35,9 +35,9 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                     if len(models_n_dims) == 1:
                         models_dims_index = tuple(range(len(models_n_dims))) * len(models)
                     else:
-                        raise AxesNotUnambiguousError("n_dims of models are different and dims are all `None`. "
+                        raise AxesNotUnambiguousError("n_dims of models are different and axes are all `None`. "
                                                       "Therefore they can't be inferered safely. Either use same ranked"
-                                                      "models or specify explicitely the dims.")
+                                                      "models or specify explicitely the axes.")
 
                 self.dims = proposed_dim
 
@@ -50,14 +50,14 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                 models_dims_index = tuple(tuple(self.dims.index(dim) for dim in dims) for dims in models_dims )
             except ValueError:
                 missing_dims = set(models_dims) - set(self.dims)
-                raise ValueError("The following dims are not specified in the pdf: {}".format(str(missing_dims)))
+                raise ValueError("The following axes are not specified in the pdf: {}".format(str(missing_dims)))
 
         return models_dims_index
 
     @property
     @abc.abstractmethod
     def _functor_allow_none_dims(self) -> bool:
-        """If True, allow to set the dims to None. Otherwise raise a `AxesNotUnambiguousError`.
+        """If True, allow to set the axes to None. Otherwise raise a `AxesNotUnambiguousError`.
 
         Returns:
             bool:

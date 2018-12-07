@@ -39,7 +39,7 @@ def sum_prod_gauss():
     sigma2 = Parameter("sigma2a", sigma2_true)
     sigma3 = Parameter("sigma3a", sigma3_true)
 
-    # Gauss for sum, same dims
+    # Gauss for sum, same axes
     gauss1 = Gauss(mu=mu1, sigma=sigma1, dims=0, name="gauss1asum")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, dims=0, name="gauss2asum")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, dims=0, name="gauss3asum")
@@ -91,7 +91,7 @@ def test_prod_gauss_nd_mixed():
     norm_range = (-5, 4)
 
     probs = prod_gauss_4d.pdf(x=test_values, norm_range=Range.from_boundaries(lower=(-5,) * 4,
-                                                                              upper=(4,) * 4, dims=tuple(range(4))))
+                                                                              upper=(4,) * 4, axes=tuple(range(4))))
     zfit.sess.run(tf.global_variables_initializer())
     gauss1, gauss2, gauss3 = gauss_dists2
     true_probs = [gauss1.pdf(test_values[3, :], norm_range=norm_range)]
@@ -99,7 +99,7 @@ def test_prod_gauss_nd_mixed():
     true_probs += [gauss3.pdf(test_values[2, :], norm_range=norm_range)]
     true_probs += [prod_gauss_3d.pdf(test_values[(0, 1, 2), :], norm_range=Range.from_boundaries(lower=(-5,) * 3,
                                                                                                  upper=(4,) * 3,
-                                                                                                 dims=tuple(range(3))))]
+                                                                                                 axes=tuple(range(3))))]
 
     true_probs = np.prod([true_probs])
     probs_np = zfit.sess.run(probs)
@@ -133,7 +133,7 @@ def test_normalization_prod_gauss():
 def normalization_testing(pdf, normalization_value=1.):
     init = tf.global_variables_initializer()
     zfit.sess.run(init)
-    with pdf.temp_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
+    with pdf.temp_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_dims, 40000)),
                           dtype=tf.float64)
         samples.limits = low, high

@@ -228,7 +228,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_dims):
             x_unstacked = unstack_x_dims(x=x, dims=self._model_dims_index)
-            probs = [pdf.pdf(x=x, norm_range=norm_range.subspace(dims=pdf.dims)) for x, pdf in
+            probs = [pdf.pdf(x=x, norm_range=norm_range.subspace(axes=pdf.axes)) for x, pdf in
                      zip(x_unstacked, self.pdfs)]
             return tf.reduce_prod(probs, axis=0)
         else:

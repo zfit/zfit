@@ -88,7 +88,7 @@ def test_normalization():
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
     for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
-        with dist.temp_norm_range(Range.from_boundaries(low, high, dims=Range.FULL)):
+        with dist.temp_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
             samples.limits = low, high
             print("Testing currently: ", dist.name)
             probs = dist.pdf(samples)
@@ -128,7 +128,7 @@ def test_analytic_sampling():
     class SampleGauss(TestGaussian):
         pass
 
-    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.get_boundaries()[1][0][0],
+    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.limits()[1][0][0],
                                            limits=(-float("inf"), None), dims=(0,))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
@@ -148,7 +148,7 @@ def test_multiple_limits():
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
     multiple_limits_range = Range.from_boundaries(lower=multiple_limits_lower, upper=multiple_limits_upper,
-                                                  dims=dims)
+                                                  axes=dims)
     integral_simp = gauss_params1.integrate(limits=simple_limits)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range)
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits)

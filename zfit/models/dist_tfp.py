@@ -46,7 +46,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     # TODO: register integral
     @supports()
     def _analytic_integrate(self, limits):
-        lower, upper = limits.get_boundaries()
+        lower, upper = limits.limits()
         if all(-np.array(lower) == np.array(upper) == np.infty):
             return ztf.to_real(1.)  # tfp distributions are normalized to 1
         lower = ztf.to_real(lower[0], dtype=self.dtype)

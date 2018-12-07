@@ -22,7 +22,7 @@ def auto_integrate(func, limits, n_dims, x=None, method="AUTO", dtype=ztypes.flo
                    mc_options=None):
     if method == "AUTO":  # TODO unfinished, other methods?
         method = "mc"
-    # TODO get n dims
+    # TODO get n axes
     # TODO method
     if method.lower() == "mc":
         mc_options = mc_options or {}
@@ -40,7 +40,7 @@ def numeric_integrate():
     return integral
 
 
-def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyping.DimsType] = None,
+def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.DimsType] = None,
                  x: Optional[ztyping.XType] = None, n_dims: Optional[int] = None, draws_per_dim: int = 10000,
                  method: str = None,
                  dtype: typing.Type = ztypes.float,
@@ -51,7 +51,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
     Args:
         func (callable): The function to be integrated over
         limits (`Range`): The limits of the integral
-        dims (tuple(int)): The row to integrate over. None means integration over all values
+        axes (tuple(int)): The row to integrate over. None means integration over all values
         x (numeric): If a partial integration is performed, this are the values where x will be evaluated.
         n_dims (int): the number of total dimensions (old?)
         draws_per_dim (int): How many random points to draw per dimensions
@@ -64,19 +64,19 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
     Returns:
         numerical: the integral
     """
-    if dims is not None and n_dims is not None:
-        raise ValueError("Either specify dims or n_dims")
-    limits = convert_to_range(limits, dims)
+    if axes is not None and n_dims is not None:
+        raise ValueError("Either specify axes or n_dims")
+    limits = convert_to_range(limits, axes)
 
-    dims = limits.dims
-    partial = (dims is not None) and (x is not None)  # dims, value can be tensors
+    axes = limits.axes
+    partial = (axes is not None) and (x is not None)  # axes, value can be tensors
 
-    if dims is not None and n_dims is None:
-        n_dims = len(dims)
-    if n_dims is not None and dims is None:
-        dims = tuple(range(n_dims))
+    if axes is not None and n_dims is None:
+        n_dims = len(axes)
+    if n_dims is not None and axes is None:
+        axes = tuple(range(n_dims))
 
-    lower, upper = limits.get_boundaries()
+    lower, upper = limits.limits()
     if np.infty in upper[0] or -np.infty in lower[0]:
         raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
                          "\nlower: {}, upper: {}".format(lower, upper))
@@ -103,7 +103,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, dims: Optional[ztyp
         if len(x.shape) == 1:
             x = tf.expand_dims(x, axis=1)
         for i in range(n_dims + x.shape[1].value):
-            if i in dims:
+            if i in axes:
                 value_list.append(samples[index_samples, :, :])
                 index_samples += 1
             else:
@@ -130,7 +130,7 @@ class AnalyticIntegral(object):
         self._integrals = collections.defaultdict(dict)
 
     def get_max_dims(self, limits: ztyping.LimitsType, dims: ztyping.DimsType = None) -> typing.Tuple[int]:
-        """Return the maximal available dims to integrate over analytically for given limits
+        """Return the maximal available axes to integrate over analytically for given limits
 
         Args:
             limits (Range): The integral function will be able to integrate over this limits
@@ -141,7 +141,7 @@ class AnalyticIntegral(object):
         """
         limits = convert_to_range(limits=limits, dims=dims)
 
-        return self._get_max_dims_limits(limits, out_of_dims=dims)[0]  # only dims
+        return self._get_max_dims_limits(limits, out_of_dims=dims)[0]  # only axes
 
     def _get_max_dims_limits(self, limits, out_of_dims):  # TODO: automatic caching? but most probably not relevant
         if out_of_dims:
@@ -158,11 +158,11 @@ class AnalyticIntegral(object):
 
             if limits_matched:  # one or more integrals available
                 return tuple(sorted(dims)), limits_matched
-        return (), ()  # no integral available for this dims
+        return (), ()  # no integral available for this axes
 
     def get_max_integral(self, limits: ztyping.LimitsType,
                          dims: ztyping.DimsType = None) -> typing.Union[None, "Integral"]:
-        """Return the integral over the `limits` with `dims` (or a subset of them).
+        """Return the integral over the `limits` with `axes` (or a subset of them).
 
         Args:
             limits (`zfit.Range`):
@@ -200,18 +200,18 @@ class AnalyticIntegral(object):
         else:
             limits = convert_to_range(limits=limits, dims=dims, convert_none=True)
             # limits = limits.get_limits()
-        dims = frozenset(limits.dims)
+        dims = frozenset(limits.axes)
 
         # add catching everything unsupported:
         func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
 
-        self._integrals[dims][limits.get_boundaries()] = Integral(func=func, limits=limits, dims=dims,
-                                                                  priority=priority)  # TODO improve with
+        self._integrals[dims][limits.limits()] = Integral(func=func, limits=limits, dims=dims,
+                                                          priority=priority)  # TODO improve with
         # database-like access
 
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
                   norm_range: ztyping.LimitsType = None, params: dict = None) -> ztyping.XType:
-        """Integrate analytically over the dims if available.
+        """Integrate analytically over the axes if available.
 
 
         Args:
@@ -234,11 +234,11 @@ class AnalyticIntegral(object):
         dims = frozenset(dims)
         integral_holder = self._integrals.get(dims)
         if integral_holder is None:
-            raise NotImplementedError("Integral is not available for dims {}".format(dims))
+            raise NotImplementedError("Integral is not available for axes {}".format(dims))
         integral_fn = self.get_max_integral(limits=limits, dims=dims)
         if integral_fn is None:
             raise NotImplementedError(
-                "Integral is available for dims {}, but not for limits {}".format(dims, limits))
+                "Integral is available for axes {}, but not for limits {}".format(dims, limits))
 
         if x is None:
             integral = integral_fn(limits=limits, norm_range=norm_range, params=params)
@@ -270,7 +270,7 @@ if __name__ == '__main__':
 
     import tensorflow_probability as tfp
 
-    res = mc_integrate(func=my_fn1, limits=(0., 5.), dims=(1, 3), draws_per_dim=1000,
+    res = mc_integrate(func=my_fn1, limits=(0., 5.), axes=(1, 3), draws_per_dim=1000,
                        x=tf.constant([[i, i, i] for i in range(1, 6)]),
                        mc_sampler=tfp.mcmc.sample_halton_sequence)
 

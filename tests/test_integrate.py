@@ -127,7 +127,7 @@ def func3_2deps(x):
 
 
 def func3_2deps_fully_integrated(limits, params=None):
-    lower, upper = limits.get_boundaries()
+    lower, upper = limits.limits()
     # print("DEBUG": lower, upper", lower, upper)
     lower_a, lower_b = lower[0]
     upper_a, upper_b = upper[0]
@@ -188,16 +188,16 @@ def test_mc_integration():
     # simpel example
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
                                            limits=Range.from_boundaries(*limits_simple_5deps,
-                                                                        dims=tuple(range(5))),
+                                                                        axes=tuple(range(5))),
                                            n_dims=5,
                                            draws_per_dim=5)
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
                                             limits=Range.from_boundaries(*limits2,
-                                                                         dims=tuple(range(1))),
+                                                                         axes=tuple(range(1))),
                                             n_dims=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
                                             limits=Range.from_boundaries(*limits3,
-                                                                         dims=tuple(range(2))),
+                                                                         axes=tuple(range(2))),
                                             n_dims=2,
                                             draws_per_dim=70)
 
@@ -212,20 +212,20 @@ def test_mc_integration():
                                                                               rel=0.1)
     assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
     assert func3_2deps_fully_integrated(
-        Range.from_boundaries(*limits3, dims=(0, 1))) == pytest.approx(integral3, rel=0.03)
+        Range.from_boundaries(*limits3, axes=(0, 1))) == pytest.approx(integral3, rel=0.03)
 
 
 def test_mc_partial_integration():
     num_integral = zintegrate.mc_integrate(x=ztf.convert_to_tensor(func4_values),
                                            func=func4_3deps,
                                            limits=Range.from_boundaries(*limits4_2dim,
-                                                                        dims=(0, 2)),
+                                                                        axes=(0, 2)),
                                            draws_per_dim=70)
     vals_tensor = ztf.convert_to_tensor(func4_2values)
     vals_reshaped = tf.transpose(vals_tensor)
     num_integral2 = zintegrate.mc_integrate(x=vals_reshaped,
                                             func=func4_3deps,
-                                            limits=Range.from_boundaries(*limits4_1dim, dims=(1,)),
+                                            limits=Range.from_boundaries(*limits4_1dim, axes=(1,)),
                                             draws_per_dim=100)
 
     integral = zfit.sess.run(num_integral)
@@ -261,7 +261,7 @@ def test_analytic_integral():
     normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
-                                         limits=Range.from_boundaries(*limits3, dims=(0, 1)), dims=None)
+                                         limits=Range.from_boundaries(*limits3, axes=(0, 1)), dims=None)
 
     dist_func3 = DistFunc3()
     init = tf.global_variables_initializer()
@@ -270,10 +270,10 @@ def test_analytic_integral():
     normal_integral_infs = zfit.sess.run(normal_integral_infs)
     func3_integrated = zfit.sess.run(
         ztf.convert_to_tensor(
-            dist_func3.integrate(limits=Range.from_boundaries(*limits3, dims=(0, 1))),
+            dist_func3.integrate(limits=Range.from_boundaries(*limits3, axes=(0, 1))),
             dtype=tf.float64))
     assert func3_integrated == func3_2deps_fully_integrated(limits=Range.from_boundaries(
-        *limits3, dims=(0, 1)))
+        *limits3, axes=(0, 1)))
     assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert normal_integral_infs == pytest.approx(1, rel=0.0001)
 

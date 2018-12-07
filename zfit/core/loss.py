@@ -33,7 +33,7 @@ def _unbinned_nll_tf(model, data, fit_range, constraints: Optional[dict] = None)
         nll_finished = tf.reduce_sum(nlls)
     else:  # TODO: complicated limits?
         fit_range = convert_to_range(fit_range, dims=Range.FULL)
-        limits = fit_range.get_boundaries()
+        limits = fit_range.limits()
         assert len(limits[0]) == 1, "multiple limits not (yet) supported in nll."
         (lower,), (upper,) = limits
 
