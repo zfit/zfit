@@ -87,7 +87,7 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_subspace(self, obs: ztyping.InputObservableType = None) -> "ZfitNamedSpace":
+    def get_subspace(self, obs: ztyping.InputObservableType = None, axes=None, name=None) -> "ZfitNamedSpace":
         raise NotImplementedError
 
     @abc.abstractmethod

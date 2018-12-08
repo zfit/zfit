@@ -46,6 +46,10 @@ class AxesNotSpecifiedError(NotSpecifiedError):
     pass
 
 
+class ObsNotSpecifiedError(NotSpecifiedError):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):
