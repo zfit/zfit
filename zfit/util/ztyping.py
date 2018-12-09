@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import typing
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 
@@ -21,3 +20,8 @@ BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
 DependentsType = Set['Parameter']
 ReturnNumericalType = Union[tf.Tensor, np.array]
 InputObservableType = Union[str, List[str]]
+
+try:
+    from typing import OrderedDict
+except ImportError:  # < python 3.7
+    OrderedDict = Dict

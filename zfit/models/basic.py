@@ -35,6 +35,6 @@ def _gauss_integral_from_inf_to_inf(limits, params):
     # return ztf.const(1.)
     return tf.sqrt(2 * ztf.pi) * params['sigma']
 
-
-Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
-                                 limits=(-infinity, infinity))
+# TODO: uncomment hack when switched to space
+# Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, dims=(0,),
+#                                  limits=(-infinity, infinity))

@@ -72,6 +72,7 @@ which you can now iterate through. For example, to calc an integral (assuming th
 >>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
 """
 from collections import OrderedDict
+import copy
 import functools
 import inspect
 from typing import Tuple, Union, List, Optional, Iterable, Callable, Mapping, Dict
@@ -87,7 +88,24 @@ from zfit.util.exception import (NormRangeNotImplementedError, MultipleLimitsNot
                                  LimitsNotSpecifiedError, AxesNotSpecifiedError, ObsNotSpecifiedError, )
 from zfit.util.temporary import TemporarilySet
 
-NOT_SPECIFIED = object()
+
+# Singleton
+class NotSpecified:
+    _singleton_instance = None
+
+    def __new__(cls, *args, **kwargs):
+        instance = cls._singleton_instance
+        if instance is None:
+            instance = super().__new__(cls)
+            cls._singleton_instance = instance
+
+        return instance
+
+    def __bool__(self):
+        return False
+
+
+NOT_SPECIFIED = NotSpecified
 
 
 class NamedSpace(ZfitNamedSpace, BaseObject):
@@ -190,7 +208,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def _check_convert_input_lower_upper(self, lower, upper):
         lower = self._check_convert_input_limit(limit=lower)
         upper = self._check_convert_input_limit(limit=upper)
-        if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) == 2:
+        if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) != 2:
             raise ValueError("Lower and/or upper limits invalid:"
                              "\nlower: {lower}"
                              "\nupper: {upper}".format(lower=lower, upper=upper))
@@ -202,7 +220,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         obs = convert_to_container(obs, container=tuple)
         obs_not_str = tuple(o for o in obs if not isinstance(o, str))
-        if not obs_not_str:
+        if obs_not_str:
             raise ValueError("The following observables are not strings: {}".format(obs_not_str))
         return obs
 
@@ -231,9 +249,9 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     @property
     def axes(self) -> Tuple[int]:
         axes = self._axes
-        if axes is NOT_SPECIFIED:
-            raise AxesNotSpecifiedError("The axes have not been set. Use `axes_by_obs` either as a function"
-                                        "or as a contextmanager using `with`.")
+        # if axes is NOT_SPECIFIED:
+        #     raise AxesNotSpecifiedError("The axes have not been set. Use `axes_by_obs` either as a function"
+        #                             "or as a contextmanager using `with`.")
         return axes
 
     #
@@ -267,20 +285,31 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return obs_axes
 
-    def iter_limits(self):
-        return zip(self.lower, self.upper)
-
-    def iter_space(self) -> List["ZfitNamedSpace"]:
-
+    def iter_limits(self, as_tuple=True):
         """Return a list of Range objects each containing a simple boundary
 
         Returns:
             List[zfit.Range]:
         """
-        space_objects = []
-        for lower, upper in self.iter_limits():
-            space_objects.append(NamedSpace(obs=self.obs, lower=lower, upper=upper, axes=self.axes))
-        return space_objects
+        if as_tuple:
+            return zip(self.lower, self.upper)
+        else:
+            space_objects = []
+            for lower, upper in self.iter_limits():
+                space_objects.append(NamedSpace(obs=self.obs, lower=lower, upper=upper, axes=self.axes))
+            return space_objects
+
+    # def iter_space(self) -> List["ZfitNamedSpace"]:
+    #
+    #     """Return a list of Range objects each containing a simple boundary
+    #
+    #     Returns:
+    #         List[zfit.Range]:
+    #     """
+    #     space_objects = []
+    #     for lower, upper in self.iter_limits():
+    #         space_objects.append(NamedSpace(obs=self.obs, lower=lower, upper=upper, axes=self.axes))
+    #     return space_objects
 
     def set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
         # obs = self._check_convert_input_obs(obs=obs)
@@ -305,6 +334,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             return self.lower, self.upper, self.obs, self.axes
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
+
+    def with_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
+        with self.set_obs_axes(obs_axes=obs_axes):
+            new_space = copy.deepcopy(self)
+        return new_space
 
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
@@ -370,6 +404,13 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         new_space = NamedSpace(obs=sub_obs, lower=sub_lower, upper=sub_upper, axes=sub_axes, name=name)
         return new_space
 
+    # def copy(self, deep=False, name=None, **overwrite_kwargs):
+    #     if deep:
+    #         object_copy = copy.deepcopy(self)
+    #     else:
+    #         object_copy = copy.copy(self)
+    #     return object_copy
+
     def __le__(self, other):  # TODO: refactor for boundaries
         if not isinstance(other, type(self)):
             return False
@@ -402,8 +443,28 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def __ge__(self, other):
         return other.__le__(self)
 
+    def __eq__(self, other):
+        if not isinstance(self, type(other)):
+            return NotImplemented
+
+        is_eq = True
+        is_eq *= self.obs == other.obs
+        is_eq *= self.axes == other.axes
+        is_eq *= self.limits == other.limits
+
+
+class FrozenNamedSpace(NamedSpace):
+
     def __hash__(self):
-        return id(self)
+        obs = self.obs
+        axes = self.axes
+        lower = self.lower
+        upper = self.upper
+        # obs = obs if obs is NOT_SPECIFIED else frozenset(obs)
+        # axes = axes if axes is NOT_SPECIFIED else frozenset(axes)
+        lower = lower if lower is NOT_SPECIFIED else frozenset(lower)
+        upper = upper if upper is NOT_SPECIFIED else frozenset(upper)
+        return hash((obs, axes, lower, upper))
 
 
 class Range:

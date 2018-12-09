@@ -1,5 +1,6 @@
 import abc
 from collections import OrderedDict
+import typing
 from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
 import pep487
@@ -158,7 +159,7 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_obs_axes(self, autofill: bool = False) -> ztyping.OrderedDict[str, int]:
+    def get_obs_axes(self, autofill: bool = False) -> typing.Dict[str, int]:
         raise NotImplementedError
 
     @abc.abstractmethod
