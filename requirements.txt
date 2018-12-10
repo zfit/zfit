@@ -1,6 +1,7 @@
 tensorflow>=1.10.0
 tensorflow_probability>=0.3.0
 scipy
+uproot
 numpy
 iminuit
 typing
