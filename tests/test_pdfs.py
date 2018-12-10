@@ -133,7 +133,7 @@ def test_normalization_prod_gauss():
 def normalization_testing(pdf, normalization_value=1.):
     init = tf.global_variables_initializer()
     zfit.sess.run(init)
-    with pdf.temp_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
+    with pdf.set_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_dims, 40000)),
                           dtype=tf.float64)
         samples.limits = low, high

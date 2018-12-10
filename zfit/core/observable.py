@@ -1,7 +1,7 @@
 from typing import Iterable, Tuple, List
 
 import zfit
-from zfit.core.limits import convert_to_range
+from zfit.core.limits import convert_to_space
 from zfit.core.baseobject import BaseObject
 from zfit.core.interfaces import ZfitObservable
 from zfit.util.container import convert_to_container
@@ -33,12 +33,12 @@ class Observable(ZfitObservable, BaseObject):
 
     @obs_range.setter
     def obs_range(self, value):
-        self._obs_range = convert_to_range(value)
+        self._obs_range = convert_to_space(value)
 
     # def _check_input_ranges(self, ranges: List["zfit.Range"]) -> Tuple["zfit.Range"]:
     #
     #     if isinstance(ranges, list):
-    #         ranges = [convert_to_range()]
+    #         ranges = [convert_to_space()]
     #
     #     ranges = convert_to_container(ranges, container=tuple)
     #     self.obs_range = sum(ranges)
@@ -51,7 +51,7 @@ class Observable(ZfitObservable, BaseObject):
 
     @norm_range.setter
     def norm_range(self, value):
-        self._norm_range = convert_to_range(value)
+        self._norm_range = convert_to_space(value)
 
     @property
     def data_range(self) -> "zfit.Range":
@@ -62,7 +62,7 @@ class Observable(ZfitObservable, BaseObject):
 
     @data_range.setter
     def data_range(self, value):
-        self._data_range = convert_to_range(value)
+        self._data_range = convert_to_space(value)
 
     def _repr(self):
         pass  # TODO(Mayou36):

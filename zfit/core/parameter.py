@@ -1,4 +1,4 @@
-"""Define Parameter which holds the values."""
+"""Define Parameter which holds the value."""
 
 import numpy as np
 import tensorflow as tf

@@ -132,7 +132,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             sess (`tf.Session` or None): A TensorFlow session to use for the calculation.
 
         Returns:
-            `dict`: A `dict` containing as keys the parameter names and as values a `dict` which
+            `dict`: A `dict` containing as keys the parameter names and as value a `dict` which
                 contains (next to probably more things) a key 'error', holding the calculated error.
                 Example: result['par1']['error'] -> the symmetric error on 'par1'
         """
@@ -161,7 +161,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             sess (`tf.Session` or None): A TensorFlow session to use for the calculation.
 
         Returns:
-            `dict`: A `dict` containing as keys the parameter names and as values a `dict` which
+            `dict`: A `dict` containing as keys the parameter names and as value a `dict` which
                 contains (next to probably more things) two keys 'lower_error' and 'upper_error',
                 holding the calculated errors.
                 Example: result['par1']['upper_error'] -> the asymmetric upper error of 'par1'
@@ -340,7 +340,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             params (Parameter):
 
         Return:
-            list(const): the current values of parameters
+            list(const): the current value of parameters
         """
         values = [p for p in params]
         # TODO: implement if initial val not given

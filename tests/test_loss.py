@@ -38,8 +38,8 @@ init = tf.global_variables_initializer()
 
 def test_unbinned_nll():
     zfit.sess.run(init)
-    with mu_constr.temp_norm_range((-np.infty, np.infty)):
-        with sigma_constr.temp_norm_range((-np.infty, np.infty)):
+    with mu_constr.set_norm_range((-np.infty, np.infty)):
+        with sigma_constr.set_norm_range((-np.infty, np.infty)):
             test_values = tf.constant(test_values_np)
             # nll = _unbinned_nll_tf(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
             nll_class = UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))

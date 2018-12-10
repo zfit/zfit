@@ -88,7 +88,7 @@ def test_normalization():
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
     for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
-        with dist.temp_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
+        with dist.set_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
             samples.limits = low, high
             print("Testing currently: ", dist.name)
             probs = dist.pdf(samples)

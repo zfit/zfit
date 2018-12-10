@@ -271,7 +271,7 @@ def load_data(sess, phsp, name, data):
 
 def initial_values():
     """
-      Return initial values of free parameters in the same structure
+      Return initial value of free parameters in the same structure
       as for the fit result.
     """
     tfpars = tf.trainable_variables()  # Create TF variables

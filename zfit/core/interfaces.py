@@ -33,7 +33,7 @@ class ZfitObject(pep487.ABC):
 
 class ZfitData(ZfitObject):
     @abc.abstractmethod
-    def value(self, names: str = None) -> ztyping.XType:
+    def value(self, obs: List[str] = None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -139,7 +139,7 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
+    def _set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
         """Set the limits of the NamedSpace (temporarily)."""
         raise NotImplementedError
 
@@ -252,12 +252,12 @@ class ZfitModel(ZfitNumeric):
 
     @property
     @abc.abstractmethod
-    def dims(self) -> ztyping.AxesType:
+    def axes(self) -> ztyping.AxesType:
         raise NotImplementedError
 
-    @dims.setter
+    @axes.setter
     @abc.abstractmethod
-    def dims(self, value: ztyping.AxesType):
+    def axes(self, value: ztyping.AxesType):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -303,8 +303,7 @@ class ZfitModel(ZfitNumeric):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesType = None,
-                          norm_range: ztyping.LimitsType = None,
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
@@ -312,14 +311,13 @@ class ZfitModel(ZfitNumeric):
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The values at which the partially integrated function will be evaluated
+            x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, Range): the limits to integrate over. Can contain only some axes
-            dims (tuple(int): The dimensions to partially integrate over
             norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
-            Tensor: the values of the partially integrated function evaluated at `x`.
+            Tensor: the value of the partially integrated function evaluated at `x`.
         """
         raise NotImplementedError
 

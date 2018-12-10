@@ -21,8 +21,8 @@ class SimpleFunction(BaseFunc):
     def _n_dims(self):
         n_dims = self._user_n_dims
         if n_dims is None:
-            if self.dims is not None:
-                n_dims = len(self.dims)
+            if self.axes is not None:
+                n_dims = len(self.axes)
         return n_dims
 
 

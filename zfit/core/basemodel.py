@@ -12,10 +12,11 @@ from tensorflow_probability.python import mcmc as mc
 
 from zfit.core.observable import Observable
 from zfit.util.container import convert_to_container
+from zfit.util.temporary import TemporarilySet
 from .interfaces import ZfitModel, ZfitParameter
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseObject, BaseNumeric
-from .limits import no_norm_range, Range, convert_to_range, supports
+from .limits import no_norm_range, Range, convert_to_space, supports, NamedSpace
 from .parameter import convert_to_parameter
 from ..settings import types as ztypes
 from ..util import container as zcontainer, ztyping
@@ -70,9 +71,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             parameters (): the parameters the distribution depends on
         """
         super().__init__(name=name, dtype=dtype, parameters=parameters, **kwargs)
-        self.obs = obs
-        # self.axes = None
-        # self.axes = self._check_input_dims(axes, allow_none=True)
+        self._check_set_space(obs)
 
         self._integration = zcontainer.DotDict()
         self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
@@ -131,13 +130,17 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     @property
     def obs(self) -> Tuple[Observable]:
-        return self._obs
+        return self._space.obs
 
-    @obs.setter
-    def obs(self, value: ztyping.InputObservableType):
-        if isinstance(value, Observable):
-            value = (value,)
-        self._obs = tuple(value)
+    def _check_set_space(self, obs):
+        if not isinstance(obs, NamedSpace):
+            obs = NamedSpace(obs=obs)
+        self._space = obs.with_autofill_axes()
+
+    def _convert_check_sort_x(self, x):
+        if isinstance(x, tf.Tensor):
+            return x
+
 
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
                                 general_options: dict = None, analytic_options: dict = None):
@@ -155,14 +158,13 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def gradient(self, x: ztyping.XType, params: ztyping.ParamsType = None):
         raise NotImplementedError
 
-    def _check_input_norm_range_default(self, norm_range, dims=Range.FULL, caller_name="", none_is_error=True):
+    def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):
         if norm_range is None:
             norm_range = self.norm_range
-        return self._check_input_norm_range(norm_range=norm_range, dims=dims, caller_name=caller_name,
-                                            none_is_error=none_is_error)
+        return self._check_input_norm_range(norm_range=norm_range, caller_name=caller_name, none_is_error=none_is_error)
 
     @property
-    def norm_range(self) -> Union[Range, None]:
+    def norm_range(self) -> Union[NamedSpace, None]:
         """Return the current normalization range
 
         Returns:
@@ -171,48 +173,49 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """
         norm_range = self._norm_range
         if norm_range is None:
-            norm_range = [obs.norm_range for obs in self.obs]
+            norm_range = self._space
         return norm_range
 
-    def set_norm_range(self, norm_range: Union[Range, None]):
-        """Fix the normalization range to a certain value. Use with caution!
+    # @contextlib.contextmanager
+    # def set_norm_range(self, norm_range: ztyping.LimitsType) -> Union['Range', None]:  # TODO: rename, better?
+    #     """Temporarily set a normalization range for the model.
+    #
+    #     Args:
+    #         norm_range (): The new normalization range
+    #     """
+    #     old_norm_range = self.norm_range
+    #     self.set_norm_range(norm_range)
+    #     if self.n_dims and self._norm_range is not None:
+    #         if not self.n_dims == self._norm_range.n_dims:
+    #             raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
+    #                              "".format(self._norm_range.n_dims, self.n_dims))
+    #     try:
+    #         yield self.norm_range  # or None, not needed
+    #     finally:
+    #         self.set_norm_range(old_norm_range)
 
-        It is, in general, better to use either the explicit `norm_range` argument when calling
-        a function or the `temp_norm_range` context manager to set a normalization range for a
-        limited amount of code.
+    def set_norm_range(self, norm_range: Union[NamedSpace, None]):
+        """Set the normalization range (temporarily if used with contextmanager).
 
         Args:
             norm_range ():
 
         """
-        self._norm_range = convert_to_range(norm_range, axes=Range.FULL)
-        return self
+        norm_range = self.convert_to_space(norm_range)
 
-    @contextlib.contextmanager
-    def temp_norm_range(self, norm_range: ztyping.LimitsType) -> Union['Range', None]:  # TODO: rename, better?
-        """Temporarily set a normalization range for the model.
+        def setter(value):
+            self._norm_range = value
 
-        Args:
-            norm_range (): The new normalization range
-        """
-        old_norm_range = self.norm_range
-        self.set_norm_range(norm_range)
-        if self.n_dims and self._norm_range is not None:
-            if not self.n_dims == self._norm_range.n_dims:
-                raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
-                                 "".format(self._norm_range.n_dims, self.n_dims))
-        try:
-            yield self.norm_range  # or None, not needed
-        finally:
-            self.set_norm_range(old_norm_range)
+        def getter():
+            return self.norm_range
 
-    def _check_input_norm_range(self, norm_range, dims, caller_name="",
-                                none_is_error=False) -> typing.Union[Range, bool]:
+        return TemporarilySet(value=norm_range, setter=setter, getter=getter)
+
+    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=False) -> typing.Union[Range, bool]:
         """Convert to :py:class:`Range`.
 
         Args:
             norm_range (None or Range compatible):
-            dims (tuple(int)):
             caller_name (str): name of the calling function. Used for exception message.
             none_is_error (bool): if both `norm_range` and `self.norm_range` are None, the default
                 value is `False` (meaning: no range specified-> no normalization to be done). If
@@ -230,7 +233,12 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             else:
                 norm_range = False
 
-        return convert_to_range(limits=norm_range, axes=dims)
+        return self.convert_to_space(limits=norm_range)
+
+    def convert_to_space(self, space: NamedSpace) -> NamedSpace:
+        space = convert_to_space(obs=space)
+        sorted_space = space.with_obs_axes(self._space.get_obs_axes())
+        return sorted_space
 
     @property
     def n_dims(self):
@@ -246,13 +254,13 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def _automatic_n_dims(self):  # this is in case something has changed. TODO(mayou36): handle it
         return self._n_dims
 
-    @property
-    def dims(self) -> ztyping.AxesType:
-        return tuple(obs.name for obs in self.obs)
-
     # @axes.setter
     # def axes(self, value: ztyping.DimsType):  # TODO: what's the default return?
     #     self._dims = value
+
+    @property
+    def axes(self) -> ztyping.AxesType:
+        return self._space.axes
 
     def _check_input_dims(self, dims, allow_none=True):
         if dims is None:
@@ -265,8 +273,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             raise ValueError("Dims {} does not match the number of dimensions ({}) of the model."
                              "".format(dims, self.n_dims))
         return dims
-
     # Integrals
+
     @_BaseModel_register_check_support(True)
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
@@ -284,8 +292,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         Returns:
             Tensor: the integral value
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, axes=Range.FULL)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name)
+        limits = self.convert_to_space(limits)
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
@@ -389,8 +397,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm_range is not available.
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, axes=Range.FULL)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name)
+        limits = self.convert_to_space(limits)
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
@@ -456,8 +464,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             Tensor: the integral value
 
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, axes=Range.FULL)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name)
+        limits = self.convert_to_space(limits)
 
         return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
@@ -504,8 +512,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesType = None,
-                          norm_range: ztyping.LimitsType = None,
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
@@ -513,21 +520,20 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The values at which the partially integrated function will be evaluated
+            x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, Range): the limits to integrate over. Can contain only some axes
-            dims (tuple(int): The dimensions to partially integrate over
             norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
-            Tensor: the values of the partially integrated function evaluated at `x`.
+            Tensor: the value of the partially integrated function evaluated at `x`.
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
-                                                  caller_name=name)  # TODO: FULL reasonable?
-        limits = convert_to_range(limits, axes=dims)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name)  # TODO: FULL reasonable?
+        limits = self.convert_to_space(limits)
+        with self._convert_check_sort_x(x):
 
-        return self._hook_partial_integrate(x=x, limits=limits,
-                                            norm_range=norm_range, name=name)
+            return self._hook_partial_integrate(x=x, limits=limits,
+                                                norm_range=norm_range, name=name)
 
     def _hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
         integral = self._norm_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
@@ -602,14 +608,14 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The values at which the partially integrated function will be evaluated
+            x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, Range): the limits to integrate over. Can contain only some axes
             dims (tuple(int): The dimensions to partially integrate over
             norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
-            Tensor: the values of the partially integrated function evaluated at `x`.
+            Tensor: the value of the partially integrated function evaluated at `x`.
 
         Raises:
             NotImplementedError: if the *analytic* integral (over this limits) is not implemented
@@ -618,9 +624,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                 integral over the limits = norm_range is not available.
 
         """
-        norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
-                                                  caller_name=name)  # TODO: full reasonable?
-        limits = convert_to_range(limits, axes=dims)  # TODO: replace by limits.axes if axes is None?
+        norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)  # TODO: full reasonable?
+        limits = convert_to_space(limits)  # TODO: replace by limits.axes if axes is None?
         return self._hook_partial_analytic_integrate(x=x, limits=limits,
                                                      norm_range=norm_range, name=name)
 
@@ -692,17 +697,17 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The values at which the partially integrated function will be evaluated
+            x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, Range): the limits to integrate over. Can contain only some axes
             dims (tuple(int): The dimensions to partially integrate over
             norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
-            Tensor: the values of the partially integrated function evaluated at `x`.
+            Tensor: the value of the partially integrated function evaluated at `x`.
         """
-        norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, axes=dims)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name)
+        limits = convert_to_space(limits)
 
         return self._hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
@@ -780,7 +785,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         Returns:
             Tensor(n_dims, n_samples)
         """
-        limits = convert_to_range(limits, axes=Range.FULL)
+        limits = convert_to_space(limits)
         return self._hook_sample(n=n, limits=limits, name=name)
 
     def _hook_sample(self, limits, n, name='_hook_sample'):

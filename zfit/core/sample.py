@@ -20,7 +20,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Range, sampler: 
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
         limits (Range): The limits to sample from
-        sampler (function): A function taking n as an argument and returning values between
+        sampler (function): A function taking n as an argument and returning value between
             0 and 1
         dtype ():
         prob_max (Union[None, int]): The maximum of the model function for the given limits. If None

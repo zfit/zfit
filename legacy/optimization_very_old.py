@@ -102,7 +102,7 @@ def fill_NTuple(tupname, data, names):
 
 def read_NTuple(ntuple, variables):
     """
-      Return a numpy tuple_array with the values from TNtuple.
+      Return a numpy tuple_array with the value from TNtuple.
         ntuple : input TNtuple
         variables : list of ntuple variables to read
     """

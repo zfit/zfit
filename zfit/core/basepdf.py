@@ -61,7 +61,7 @@ import tensorflow as tf
 from zfit.core.interfaces import ZfitPDF
 from zfit.util.container import convert_to_container
 from .basemodel import BaseModel, _BaseModel_USER_IMPL_METHODS_TO_CHECK
-from zfit.core.limits import Range, convert_to_range
+from zfit.core.limits import Range, convert_to_space
 from zfit.util import ztyping
 from ..settings import types as ztypes
 
@@ -116,7 +116,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           **override_parameters: String/value dictionary of initialization
-            arguments to override with new values.
+            arguments to override with new value.
 
         Returns:
           model: A new instance of `type(self)` initialized from the union
@@ -199,7 +199,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             Tensor: the normalization value
         """
-        limits = convert_to_range(limits, axes=Range.FULL)
+        limits = convert_to_space(limits)
 
         return self._hook_normalization(limits=limits, name=name)
 
@@ -228,7 +228,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the function unnormalized
 
         Args:
-            x (numerical): The values, have to be convertible to a Tensor
+            x (numerical): The value, have to be convertible to a Tensor
             name (str):
 
         Returns:

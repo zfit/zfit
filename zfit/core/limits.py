@@ -114,25 +114,34 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     ANY_LOWER = object()  # TODO: need different upper, lower?
     ANY_UPPER = object()
 
-    def __init__(self, obs=NOT_SPECIFIED, lower=NOT_SPECIFIED, upper=NOT_SPECIFIED, axes=NOT_SPECIFIED, name=None):
-        if obs is NOT_SPECIFIED and axes is NOT_SPECIFIED:
-            raise ValueError("obs and axes are both not specified, currently not allowed.")
+    def __init__(self, obs, lower=NOT_SPECIFIED, upper=NOT_SPECIFIED, name=None):
+        # if obs is NOT_SPECIFIED and axes is NOT_SPECIFIED:
+        #     raise ValueError("obs and axes are both not specified, currently not allowed.")
 
         obs = self._check_convert_input_obs(obs)
 
         if name is None:
-            obs_name = ("NOT_SPECIFIED",) if obs is NOT_SPECIFIED else obs
+            obs_name = ("NOT_SPECIFIED",) if obs is None else obs
             name = "NamedSpace".join(obs_name)
         super().__init__(name=name)
-        axes = self._check_convert_input_axes(axes)
-        self._axes = axes
+        # axes = self._check_convert_input_axes(axes)
+        self._axes = None
         self._obs = obs
-        self.set_limits(lower=lower, upper=upper)
+        self._set_limits(lower=lower, upper=upper)
+
+    @classmethod
+    def from_axes(cls, axes, lower=NOT_SPECIFIED, upper=NOT_SPECIFIED):
+        axes = convert_to_container(value=axes, container=tuple)
+        fake_obs = (str(axis) for axis in axes)
+        new_space = cls(obs=fake_obs, lower=lower, upper=upper)
+        new_space._obs = None
+        new_space._axes = axes
+        return new_space
 
     @property
     def lower(self) -> ztyping.ReturnLowerType:
         limits = self.limits
-        if limits is NOT_SPECIFIED:
+        if limits is None:
             return limits
         else:
             return limits[0]
@@ -140,19 +149,23 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     @property
     def upper(self) -> ztyping.ReturnUpperType:
         limits = self.limits
-        if limits is NOT_SPECIFIED:
+        if limits is None:
             return limits
         else:
             return self.limits[1]
 
-    def set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
+    def _set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
         lower, upper = self._check_convert_input_lower_upper(lower=lower, upper=upper)
         self._limits = lower, upper
+
+    def with_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType, name=None):
+        new_space = self.copy(lower=lower, upper=upper, name=name)
+        return new_space
 
     @property
     def limits(self) -> Tuple[ztyping.ReturnLowerType, ztyping.ReturnUpperType]:
         limits = self._limits
-        # if NOT_SPECIFIED in limits:
+        # if None in limits:
         #     raise LimitsNotSpecifiedError("(some) of the limits have not been specified. Specify them "
         #                                   "either by setting them permanently (object creation time or"
         #                                   "via setter) or temporarily (via setter in a contextmanager)."
@@ -167,7 +180,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def n_obs(self) -> int:
 
         obs = self.obs
-        if obs is NOT_SPECIFIED:
+        if obs is None:
             length = len(self.axes)
         else:
             length = len(obs)
@@ -175,7 +188,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     def _check_convert_input_axes(self, axes):
         if axes is NOT_SPECIFIED or axes is None:
-            return axes
+            return None
         axes = convert_to_container(value=axes, container=tuple)
         return axes
 
@@ -190,14 +203,14 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         Returns:
 
         """
-        if limit is NOT_SPECIFIED:
-            return limit
+        if limit is NOT_SPECIFIED or limit is None:
+            return None
         if np.shape(limit) == ():
             limit = (limit,)
         if np.shape(limit[0]) == ():
             limit = (limit,)
-        if not len(limit[0]) == self.n_obs:
-            raise ValueError("Limit {} has to have the same dimension as number of observables.".format(limit))
+        # if not len(limit[0]) == self.n_obs:
+        #     raise ValueError("Limit {} has to have the same dimension as number of observables.".format(limit))
 
         # replace
         if replace:
@@ -208,15 +221,16 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def _check_convert_input_lower_upper(self, lower, upper):
         lower = self._check_convert_input_limit(limit=lower)
         upper = self._check_convert_input_limit(limit=upper)
-        if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) != 2:
-            raise ValueError("Lower and/or upper limits invalid:"
-                             "\nlower: {lower}"
-                             "\nupper: {upper}".format(lower=lower, upper=upper))
+        if lower is not None and upper is not None:
+            if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) != 2:
+                raise ValueError("Lower and/or upper limits invalid:"
+                                 "\nlower: {lower}"
+                                 "\nupper: {upper}".format(lower=lower, upper=upper))
         return lower, upper
 
     def _check_convert_input_obs(self, obs):
         if obs is NOT_SPECIFIED or obs is None:
-            return obs
+            return None
 
         obs = convert_to_container(obs, container=tuple)
         obs_not_str = tuple(o for o in obs if not isinstance(o, str))
@@ -249,7 +263,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     @property
     def axes(self) -> Tuple[int]:
         axes = self._axes
-        # if axes is NOT_SPECIFIED:
+        # if axes is None:
         #     raise AxesNotSpecifiedError("The axes have not been set. Use `axes_by_obs` either as a function"
         #                             "or as a contextmanager using `with`.")
         return axes
@@ -275,12 +289,12 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     def get_obs_axes(self, autofill: bool = False) -> ztyping.OrderedDict[str, int]:
         axes = self._axes
-        if axes is NOT_SPECIFIED:
+        if axes is None:
             if autofill:
                 axes = tuple(range(self.n_obs))
             else:
                 raise AxesNotSpecifiedError("The axes are not specified and `autofill` is False.")
-                # axes = [NOT_SPECIFIED] * self.n_obs
+                # axes = [None] * self.n_obs
         obs_axes = OrderedDict((o, ax) for o, ax in zip(self.obs, axes))
 
         return obs_axes
@@ -296,7 +310,9 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         else:
             space_objects = []
             for lower, upper in self.iter_limits():
-                space_objects.append(NamedSpace(obs=self.obs, lower=lower, upper=upper, axes=self.axes))
+                space = NamedSpace(obs=self.obs, lower=lower, upper=upper)
+                space._axes = self.axes
+                space_objects.append(space)
             return space_objects
 
     # def iter_space(self) -> List["ZfitNamedSpace"]:
@@ -313,10 +329,14 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     def set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
         # obs = self._check_convert_input_obs(obs=obs)
-        permutation_index = tuple(self.obs.index(o) for o in obs_axes)  # the future index of the space
-
-        lower = tuple(tuple(lower[i] for i in permutation_index) for lower in self.lower)
-        upper = tuple(tuple(upper[i] for i in permutation_index) for upper in self.upper)
+        permutation_index = tuple(self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
+        lower = self.lower
+        print("DEBUG, lower:", lower)
+        if lower is not None:
+            lower = tuple(tuple(lower[i] for i in permutation_index) for lower in lower)
+        upper = self.upper
+        if upper is not None:
+            upper = tuple(tuple(upper[i] for i in permutation_index) for upper in upper)
 
         obs = tuple(obs_axes.keys())
         axes = tuple(obs_axes.values())
@@ -326,7 +346,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         def setter(arguments):
             lower, upper, obs, axes = arguments
 
-            self.set_limits(lower=lower, upper=upper)
+            self._set_limits(lower=lower, upper=upper)
             self._obs = obs
             self._axes = axes
 
@@ -335,10 +355,13 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
+    def with_autofill_axes(self):
+        with self.set_obs_axes(self.get_obs_axes(autofill=True)):
+            return copy.deepcopy(self)
+
     def with_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
         with self.set_obs_axes(obs_axes=obs_axes):
-            new_space = copy.deepcopy(self)
-        return new_space
+            return copy.deepcopy(self)
 
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
@@ -391,25 +414,34 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             except AttributeError:
                 raise AxesNotSpecifiedError("Axes have not been specified for this space.")
 
-        sub_obs = self.obs if self.obs is NOT_SPECIFIED else tuple(self.obs[i] for i in sub_index)
-        sub_axes = self.axes if self.axes is NOT_SPECIFIED else tuple(self.axes[i] for i in sub_index)
+        sub_obs = self.obs if self.obs is None else tuple(self.obs[i] for i in sub_index)
+        sub_axes = self.axes if self.axes is None else tuple(self.axes[i] for i in sub_index)
 
         # use index to get limits
         lower = self.lower
         upper = self.upper
-        if not (lower is NOT_SPECIFIED or upper is NOT_SPECIFIED):
+        if not (lower is None or upper is None):
             sub_lower = tuple(tuple(lim[i] for i in sub_index) for lim in lower)
             sub_upper = tuple(tuple(lim[i] for i in sub_index) for lim in upper)
 
-        new_space = NamedSpace(obs=sub_obs, lower=sub_lower, upper=sub_upper, axes=sub_axes, name=name)
+        new_space = NamedSpace(obs=sub_obs, lower=sub_lower, upper=sub_upper, name=name)
+        new_space._axes = sub_axes
         return new_space
 
-    # def copy(self, deep=False, name=None, **overwrite_kwargs):
-    #     if deep:
-    #         object_copy = copy.deepcopy(self)
-    #     else:
-    #         object_copy = copy.copy(self)
-    #     return object_copy
+    def copy(self, name=None, **overwrite_kwargs):
+        name = self.name if name is None else name
+
+        kwargs = {}
+        kwargs['name'] = name
+        kwargs['lower'] = NOT_SPECIFIED if self.lower is None else self.lower
+        kwargs['upper'] = NOT_SPECIFIED if self.upper is None else self.upper
+        kwargs['axes'] = NOT_SPECIFIED if self.axes is None else self.axes
+        kwargs['obs'] = NOT_SPECIFIED if self.obs is None else self.obs
+        kwargs.update(overwrite_kwargs)
+        if set(overwrite_kwargs) - set(kwargs):
+            raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
+        new_space = type(self)(**kwargs)
+        return new_space
 
     def __le__(self, other):  # TODO: refactor for boundaries
         if not isinstance(other, type(self)):
@@ -418,8 +450,8 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             return False
 
         # check limits
-        if self.limits is NOT_SPECIFIED:
-            if other.limits is NOT_SPECIFIED:
+        if self.limits is None:
+            if other.limits is None:
                 return True
             else:
                 return False
@@ -460,10 +492,10 @@ class FrozenNamedSpace(NamedSpace):
         axes = self.axes
         lower = self.lower
         upper = self.upper
-        # obs = obs if obs is NOT_SPECIFIED else frozenset(obs)
-        # axes = axes if axes is NOT_SPECIFIED else frozenset(axes)
-        lower = lower if lower is NOT_SPECIFIED else frozenset(lower)
-        upper = upper if upper is NOT_SPECIFIED else frozenset(upper)
+        # obs = obs if obs is None else frozenset(obs)
+        # axes = axes if axes is None else frozenset(axes)
+        lower = lower if lower is None else frozenset(lower)
+        upper = upper if upper is None else frozenset(upper)
         return hash((obs, axes, lower, upper))
 
 
@@ -967,36 +999,25 @@ class Range:
             raise TypeError("unhashable. ", self.limits(), self.axes)
 
 
-def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
-                     boundaries: Optional[Tuple[ztyping.InputLowerType, ztyping.InputUpperType]] = None,
-                     axes: ztyping.AxesType = None, *,
-                     convert_none: bool = False) -> Union[None, 'Range', bool]:
-    """Convert *limits* to a Range object if not already None or False.
+def convert_to_space(obs: Optional[ztyping.LimitsType], *, convert_none: bool = False) -> Union[None, NamedSpace, bool]:
+    """Convert *limits* to a Space object if not already None or False.
 
     Args:
-        limits (Union[Tuple[float, float], zfit.core.limits.Range]):
-        axes (Union[Range, False, None]):
+        obs (Union[Tuple[float, float], zfit.core.limits.Range]):
 
     Returns:
         Union[Range, False, None]:
     """
-    if limits is not None and boundaries is not None:
-        raise ValueError("Both limits and boundaries are specified. Only use 1")
-    if limits is None and boundaries is None:
+    if obs is None:
         return None
-    elif limits is False or boundaries is False:
+    elif obs is False:
         return False
-    elif isinstance(limits, Range):
-        return limits
-    elif isinstance(boundaries, Range):
-        return limits
-    elif limits is not None:
-        return Range.from_limits(limits=limits, dims=axes, convert_none=convert_none)
-    elif boundaries is not None:
-        lower, upper = boundaries
-        return Range.from_boundaries(lower=lower, upper=upper, axes=axes, convert_none=convert_none)
+    elif isinstance(obs, NamedSpace):
+        return obs
+    elif obs is not None:
+        return NamedSpace(obs=obs)
     else:
-        assert False, "This code block should never been reached."
+        assert False, "This code block should never be reached."
 
 
 def convert_to_one_range(limits: Iterable[Range]):
@@ -1006,26 +1027,26 @@ def convert_to_one_range(limits: Iterable[Range]):
     return limit
 
 
-def iter_limits(limits):
-    """Returns (lower, upper) for an iterable containing several such pairs.
-
-    Args:
-        limits (iterable): A 1-dimensional iterable containing an even number of values. The odd
-            values are takes as the lower limit while the even values are taken as the upper limit.
-            Example: [a_lower, a_upper, b_lower, b_upper]
-
-            This is typically a certain dimension in "usual" limits.
-
-    Returns:
-        iterable(tuples(lower, upper)): Returns an iterable containing the lower, upper tuples.
-            Example (from above): [(a_lower, a_upper), (b_lower, b_upper)]
-
-    Raises:
-        ValueError: if limits does not contain an even number of elements.
-    """
-    if not len(limits) % 2 == 0:
-        raise ValueError("limits has to be from even length, not: {}".format(limits))
-    return zip(limits[::2], limits[1::2])
+# def iter_limits(limits):
+#     """Returns (lower, upper) for an iterable containing several such pairs.
+#
+#     Args:
+#         limits (iterable): A 1-dimensional iterable containing an even number of value. The odd
+#             value are takes as the lower limit while the even value are taken as the upper limit.
+#             Example: [a_lower, a_upper, b_lower, b_upper]
+#
+#             This is typically a certain dimension in "usual" limits.
+#
+#     Returns:
+#         iterable(tuples(lower, upper)): Returns an iterable containing the lower, upper tuples.
+#             Example (from above): [(a_lower, a_upper), (b_lower, b_upper)]
+#
+#     Raises:
+#         ValueError: if limits does not contain an even number of elements.
+#     """
+#     if not len(limits) % 2 == 0:
+#         raise ValueError("limits has to be from even length, not: {}".format(limits))
+#     return zip(limits[::2], limits[1::2])
 
 
 def no_norm_range(func):
@@ -1070,7 +1091,7 @@ def no_multiple_limits(func):
         else:
             limits = kwargs['limits']
 
-        if len(limits) > 1:
+        if limits.n_limits > 1:
             raise MultipleLimitsNotImplementedError
         else:
             return func(*args, **kwargs)

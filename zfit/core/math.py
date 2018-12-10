@@ -35,7 +35,7 @@ def interpolate(t, c):
         c (tf.Tensor): Tensor of coordinates for which the interpolation is performed
 
     Returns:
-        tf.Tensor: 1D tensor of interpolated values
+        tf.Tensor: 1D tensor of interpolated value
     """
     rank = len(t.get_shape())
     ind = tf.cast(tf.floor(c), tf.int32)

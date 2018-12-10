@@ -21,7 +21,7 @@ class ScipyMinimizer(BaseMinimizer):
         self._scipy_minimizer = minimizer
         result = minimizer.minimize(session=self.sess)
         result_values = result  # TODO change to receive scipy result, change external optimizer interface
-        # self._assign_parameters(params=var_list, values=list(result_values))
+        # self._assign_parameters(params=var_list, value=list(result_values))
 
         # TODO: make better
         edm = -999  # TODO: get from scipy result or how?

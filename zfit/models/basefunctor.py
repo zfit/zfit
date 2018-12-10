@@ -18,7 +18,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
     def _check_convert_model_dims_to_index(self, models):
         models_dims_index = None
         models_dims = tuple(model.axes for model in models)
-        if self.dims is None:
+        if self.axes is None:
             # try to infer from the models
             proposed_dims = set(models_dims)
             if len(proposed_dims) == 1:  # if all submodels have the *exact* same axes -> intention is "clear"
@@ -47,9 +47,9 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                                               "models, as their dimensions are not *exactly* the same.")
         if models_dims_index is None:
             try:
-                models_dims_index = tuple(tuple(self.dims.index(dim) for dim in dims) for dims in models_dims )
+                models_dims_index = tuple(tuple(self.axes.index(dim) for dim in dims) for dims in models_dims)
             except ValueError:
-                missing_dims = set(models_dims) - set(self.dims)
+                missing_dims = set(models_dims) - set(self.axes)
                 raise ValueError("The following axes are not specified in the pdf: {}".format(str(missing_dims)))
 
         return models_dims_index
@@ -92,7 +92,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     @property
     def _n_dims(self):
-        if self.dims is None:
+        if self.axes is None:
             return None
         else:
-            return len(self.dims)
+            return len(self.axes)

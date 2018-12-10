@@ -23,7 +23,7 @@ class MinuitMinimizer(BaseMinimizer):
 
         def func(values):
 
-            # feed_dict = {p: v for p, v in zip(placeholders, values)}
+            # feed_dict = {p: v for p, v in zip(placeholders, value)}
             # self.sess.run(updated_params, feed_dict=feed_dict)
             for param, value in zip(params, values):
                 param.load(value=value, session=self.sess)
@@ -31,11 +31,11 @@ class MinuitMinimizer(BaseMinimizer):
             loss_new = loss
             loss_evaluated = self.sess.run(loss_new)
             # print("Current loss:", loss_evaluated)
-            # print("Current values:", values)
+            # print("Current value:", value)
             return loss_evaluated
 
         def grad_func(values):
-            # feed_dict = {p: v for p, v in zip(placeholders, values)}
+            # feed_dict = {p: v for p, v in zip(placeholders, value)}
             # self.sess.run(updated_params, feed_dict=feed_dict)
             for param, value in zip(params, values):
                 param.load(value=value, session=self.sess)

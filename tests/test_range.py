@@ -1,7 +1,7 @@
 import copy
 from unittest import TestCase
 
-from zfit.core.limits import Range, convert_to_range, iter_limits
+from zfit.core.limits import Range, convert_to_space, iter_limits
 from zfit.util.exception import ConversionError
 
 limit1 = ((1, 4), (2, 3.5), (-1, 5))
@@ -75,10 +75,10 @@ class TestRange(TestCase):
         self.limit4_range = Range(limits=limit4, axes=limit4_dims)
 
     def test_convert_to_range(self):
-        limit1_range = convert_to_range(limits=limit1, axes=limit1_dims)
-        limit1_range_same = convert_to_range(limit1_range)
+        limit1_range = convert_to_space(obs=limit1)
+        limit1_range_same = convert_to_space(limit1_range)
         self.assertIs(limit1_range, limit1_range_same)
-        limit1_range2 = convert_to_range(limits=limit1, axes=limit1_dims)
+        limit1_range2 = convert_to_space(obs=limit1)
         self.assertIsNot(limit1_range, limit1_range2)
         self.assertEqual(limit1_range, limit1_range2)
 

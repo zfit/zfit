@@ -12,7 +12,7 @@ from typing import Callable, Optional
 
 from zfit import ztf
 from zfit.util import ztyping
-from .limits import convert_to_range, Range, supports
+from .limits import convert_to_space, Range, supports
 from ..settings import types as ztypes
 
 
@@ -51,14 +51,14 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     Args:
         func (callable): The function to be integrated over
         limits (`Range`): The limits of the integral
-        axes (tuple(int)): The row to integrate over. None means integration over all values
-        x (numeric): If a partial integration is performed, this are the values where x will be evaluated.
+        axes (tuple(int)): The row to integrate over. None means integration over all value
+        x (numeric): If a partial integration is performed, this are the value where x will be evaluated.
         n_axes (int): the number of total dimensions (old?)
         draws_per_dim (int): How many random points to draw per dimensions
         method (str): Which integration method to use
         dtype (dtype): |dtype_arg_descr|
         mc_sampler (callable): A function that takes one argument (`n_draws` or similar) and returns
-            random values between 0 and 1.
+            random value between 0 and 1.
         importance_sampling ():
 
     Returns:
@@ -66,7 +66,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     """
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")
-    limits = convert_to_range(limits, axes)
+    limits = convert_to_space(limits)
 
     axes = limits.axes
     partial = (axes is not None) and (x is not None)  # axes, value can be tensors
@@ -114,7 +114,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     else:
         x = samples
 
-    # convert rnd samples with values to feedable vector
+    # convert rnd samples with value to feedable vector
     reduce_axis = 1 if partial else None
     avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
     # TODO: importance sampling?
@@ -139,7 +139,7 @@ class AnalyticIntegral(object):
         Returns:
             Tuple[int]:
         """
-        limits = convert_to_range(limits=limits, axes=axes)
+        limits = convert_to_space(obs=limits)
 
         return self._get_max_axes_limits(limits, out_of_axes=axes)[0]  # only axes
 
@@ -171,7 +171,7 @@ class AnalyticIntegral(object):
         Returns:
             Union[None, Integral]: Return a callable that integrated over the given limits.
         """
-        limits = convert_to_range(limits=limits, axes=axes)
+        limits = convert_to_space(obs=limits)
 
         axes, limits = self._get_max_axes_limits(limits=limits, out_of_axes=axes)
         axes = frozenset(axes)
@@ -196,9 +196,9 @@ class AnalyticIntegral(object):
             raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
         if limits is None:
             limits = tuple((None, None) for _ in range(len(axes)))
-            limits = convert_to_range(limits=limits, axes=axes, convert_none=True)
+            limits = convert_to_space(obs=limits, convert_none=True)
         else:
-            limits = convert_to_range(limits=limits, axes=axes, convert_none=True)
+            limits = convert_to_space(obs=limits, convert_none=True)
             # limits = limits.get_limits()
         axes = frozenset(limits.axes)
 
@@ -215,7 +215,7 @@ class AnalyticIntegral(object):
 
 
         Args:
-            x (numeric): If a partial integration is made, x are the values to be evaluated for the partial
+            x (numeric): If a partial integration is made, x are the value to be evaluated for the partial
                 integrated function. If a full integration is performed, this should be `None`.
             limits (zfit.Range): The limits to integrate
             axes (Tuple[int]): The dimensions to integrate over
@@ -250,7 +250,7 @@ class AnalyticIntegral(object):
 class Integral(object):  # TODO analytic integral
     def __init__(self, func: Callable, limits: ztyping.LimitsType, axes: ztyping.AxesType, priority: int):
         """A lightweight holder for the integral function."""
-        self.limits = convert_to_range(limits=limits, axes=axes)
+        self.limits = convert_to_space(obs=limits)
         self.integrate = func
         self.axes = limits.axes
         self.priority = priority

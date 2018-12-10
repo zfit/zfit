@@ -230,7 +230,7 @@ def test_mc_partial_integration():
 
     integral = zfit.sess.run(num_integral)
     integral2 = zfit.sess.run(num_integral2)
-    # print("DEBUG", values:", zfit.sess.run(vals_reshaped))
+    # print("DEBUG", value:", zfit.sess.run(vals_reshaped))
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[1])
     assert func4_3deps_0and2_integrated(x=func4_values,

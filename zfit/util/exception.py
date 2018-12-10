@@ -55,6 +55,11 @@ class ObsNotSpecifiedError(NotSpecifiedError):
 class NotMinimizedError(Exception):
     pass
 
+# Runtime Erorrs
+
+class NoSessionSpecifiedError(Exception):
+    pass
+
 
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
