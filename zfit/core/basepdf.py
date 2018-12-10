@@ -199,7 +199,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             Tensor: the normalization value
         """
-        limits = convert_to_range(limits, dims=Range.FULL)
+        limits = convert_to_range(limits, axes=Range.FULL)
 
         return self._hook_normalization(limits=limits, name=name)
 

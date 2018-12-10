@@ -185,7 +185,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             norm_range ():
 
         """
-        self._norm_range = convert_to_range(norm_range, dims=Range.FULL)
+        self._norm_range = convert_to_range(norm_range, axes=Range.FULL)
         return self
 
     @contextlib.contextmanager
@@ -230,7 +230,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             else:
                 norm_range = False
 
-        return convert_to_range(limits=norm_range, dims=dims)
+        return convert_to_range(limits=norm_range, axes=dims)
 
     @property
     def n_dims(self):
@@ -247,7 +247,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         return self._n_dims
 
     @property
-    def dims(self) -> ztyping.DimsType:
+    def dims(self) -> ztyping.AxesType:
         return tuple(obs.name for obs in self.obs)
 
     # @axes.setter
@@ -285,7 +285,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             Tensor: the integral value
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, dims=Range.FULL)
+        limits = convert_to_range(limits, axes=Range.FULL)
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
@@ -321,7 +321,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     def _fallback_integrate(self, limits, norm_range):
         dims = limits.axes
-        max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=dims)
+        max_dims = self._analytic_integral.get_max_axes(limits=limits, axes=dims)
 
         integral = None
         if max_dims and integral:  # TODO improve handling of available analytic integrals
@@ -337,7 +337,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
     @classmethod
     def register_analytic_integral(cls, func: typing.Callable, limits: ztyping.LimitsType = None,
-                                   dims: ztyping.DimsType = None, priority: int = 50, *,
+                                   dims: ztyping.AxesType = None, priority: int = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral with the class.
@@ -353,7 +353,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         Returns:
 
         """
-        cls._analytic_integral.register(func=func, dims=dims, limits=limits, supports_norm_range=supports_norm_range,
+        cls._analytic_integral.register(func=func, axes=dims, limits=limits, supports_norm_range=supports_norm_range,
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
 
     @classmethod
@@ -390,7 +390,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                 integral over the limits = norm_range is not available.
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, dims=Range.FULL)
+        limits = convert_to_range(limits, axes=Range.FULL)
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
@@ -436,7 +436,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_analytic_integrate(self, limits, norm_range):
-        return self._analytic_integral.integrate(x=None, limits=limits, dims=limits.axes,
+        return self._analytic_integral.integrate(x=None, limits=limits, axes=limits.axes,
                                                  norm_range=norm_range, params=self.parameters)
 
     @_BaseModel_register_check_support(True)
@@ -457,7 +457,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, dims=Range.FULL)
+        limits = convert_to_range(limits, axes=Range.FULL)
 
         return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
@@ -504,7 +504,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesType = None,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
@@ -524,7 +524,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: FULL reasonable?
-        limits = convert_to_range(limits, dims=dims)
+        limits = convert_to_range(limits, axes=dims)
 
         return self._hook_partial_integrate(x=x, limits=limits,
                                             norm_range=norm_range, name=name)
@@ -570,7 +570,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                                                     norm_range=norm_range)
 
     def _fallback_partial_integrate(self, x, limits, norm_range):
-        max_dims = self._analytic_integral.get_max_dims(limits=limits, dims=limits.axes)
+        max_dims = self._analytic_integral.get_max_axes(limits=limits, axes=limits.axes)
         if max_dims:
             sublimits = limits.subspace(max_dims)
 
@@ -593,7 +593,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_analytic_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType,
+    def partial_analytic_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesType,
                                    norm_range: ztyping.LimitsType = None,
                                    name: str = "partial_analytic_integrate") -> ztyping.XType:
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -620,7 +620,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, dims=Range.FULL,
                                                   caller_name=name)  # TODO: full reasonable?
-        limits = convert_to_range(limits, dims=dims)  # TODO: replace by limits.axes if axes is None?
+        limits = convert_to_range(limits, axes=dims)  # TODO: replace by limits.axes if axes is None?
         return self._hook_partial_analytic_integrate(x=x, limits=limits,
                                                      norm_range=norm_range, name=name)
 
@@ -676,14 +676,14 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
                                                              norm_range=norm_range)
 
     def _fallback_partial_analytic_integrate(self, x, limits, norm_range):
-        return self._analytic_integral.integrate(x=x, limits=limits, dims=limits.axes,
+        return self._analytic_integral.integrate(x=x, limits=limits, axes=limits.axes,
                                                  norm_range=norm_range, params=self.parameters)
 
     @_BaseModel_register_check_support(True)
     def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType,
+    def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesType,
                                   norm_range: ztyping.LimitsType = None,
                                   name: str = "partial_numeric_integrate") -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -702,7 +702,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             Tensor: the values of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range, dims=Range.FULL, caller_name=name)
-        limits = convert_to_range(limits, dims=dims)
+        limits = convert_to_range(limits, axes=dims)
 
         return self._hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
@@ -780,7 +780,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         Returns:
             Tensor(n_dims, n_samples)
         """
-        limits = convert_to_range(limits, dims=Range.FULL)
+        limits = convert_to_range(limits, axes=Range.FULL)
         return self._hook_sample(n=n, limits=limits, name=name)
 
     def _hook_sample(self, limits, n, name='_hook_sample'):

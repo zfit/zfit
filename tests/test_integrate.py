@@ -189,16 +189,16 @@ def test_mc_integration():
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
                                            limits=Range.from_boundaries(*limits_simple_5deps,
                                                                         axes=tuple(range(5))),
-                                           n_dims=5,
+                                           n_axes=5,
                                            draws_per_dim=5)
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
                                             limits=Range.from_boundaries(*limits2,
                                                                          axes=tuple(range(1))),
-                                            n_dims=1)
+                                            n_axes=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
                                             limits=Range.from_boundaries(*limits3,
                                                                          axes=tuple(range(2))),
-                                            n_dims=2,
+                                            n_axes=2,
                                             draws_per_dim=70)
 
     integral = zfit.sess.run(num_integral)
@@ -305,5 +305,5 @@ def test_analytic_integral_selection():
     DistFuncInts.register_analytic_integral(int3, limits=limits3, dims=dims3)
     DistFuncInts.register_analytic_integral(int4, limits=limits4, dims=dims4)
     DistFuncInts.register_analytic_integral(int5, limits=limits5, dims=dims5)
-    dims = DistFuncInts._analytic_integral.get_max_dims(limits=((-5, 4), (1, 5)), dims=dims3)
+    dims = DistFuncInts._analytic_integral.get_max_axes(limits=((-5, 4), (1, 5)), axes=dims3)
     assert dims3 == dims

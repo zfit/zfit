@@ -56,7 +56,7 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
     return new_object
 
 
-def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None,
+def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.AxesType = None,
                      name: str = "multiply_pdf_pdf") -> "ProductPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
@@ -68,7 +68,7 @@ def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None
     return ProductPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
 
-def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType = None,
+def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesType = None,
                        name: str = "multiply_func_func") -> "ProdFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
@@ -171,7 +171,7 @@ def _convert_to_known(object1, object2):
     return object1, object2
 
 
-def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None, name: str = "add_pdf_pdf") -> "SumPDF":
+def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.AxesType = None, name: str = "add_pdf_pdf") -> "SumPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
     from ..models.functor import SumPDF
@@ -179,7 +179,7 @@ def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.DimsType = None, nam
     return SumPDF(pdfs=[pdf1, pdf2], dims=dims, name=name)
 
 
-def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.DimsType = None,
+def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesType = None,
                   name: str = "add_func_func") -> "SumFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))

@@ -252,12 +252,12 @@ class ZfitModel(ZfitNumeric):
 
     @property
     @abc.abstractmethod
-    def dims(self) -> ztyping.DimsType:
+    def dims(self) -> ztyping.AxesType:
         raise NotImplementedError
 
     @dims.setter
     @abc.abstractmethod
-    def dims(self, value: ztyping.DimsType):
+    def dims(self, value: ztyping.AxesType):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -284,7 +284,7 @@ class ZfitModel(ZfitNumeric):
     @classmethod
     @abc.abstractmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
-                                   dims: ztyping.DimsType = None, priority: int = 50, *,
+                                   dims: ztyping.AxesType = None, priority: int = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False):
         """Register an analytic integral with the class.
@@ -303,7 +303,7 @@ class ZfitModel(ZfitNumeric):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.DimsType = None,
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesType = None,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.

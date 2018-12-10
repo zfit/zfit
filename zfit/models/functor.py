@@ -40,7 +40,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.DimsType = None,
+    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.AxesType = None,
                  name: str = "SumPDF") -> "SumPDF":
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 

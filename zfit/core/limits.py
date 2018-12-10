@@ -527,7 +527,7 @@ class Range:
 
     @classmethod
     def from_boundaries(cls, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType,
-                        axes: ztyping.DimsType, *, convert_none: bool = False) -> "Range":
+                        axes: ztyping.AxesType, *, convert_none: bool = False) -> "Range":
         """Create a Range instance from a lower, upper limits pair. Opposite of Range.limits()
 
         Args:
@@ -570,10 +570,10 @@ class Range:
         return len(self.limits()[0])
 
     @staticmethod
-    def sanitize_boundaries(lower: ztyping.InputLowerType, upper: ztyping.InputUpperType, dims: ztyping.DimsType = None,
+    def sanitize_boundaries(lower: ztyping.InputLowerType, upper: ztyping.InputUpperType, dims: ztyping.AxesType = None,
                             *,
                             convert_none: bool = False) -> Tuple[
-        ztyping.InputLowerType, ztyping.InputUpperType, ztyping.DimsType]:
+        ztyping.InputLowerType, ztyping.InputUpperType, ztyping.AxesType]:
         """Sanitize (add dim, replace None, check length...)
 
         Args:
@@ -675,7 +675,7 @@ class Range:
     #     return sanitized_limits, inferred_dims
 
     @staticmethod
-    def sanitize_axes(axes: ztyping.DimsType, allow_none: bool = False) -> Union[Tuple[int], None]:
+    def sanitize_axes(axes: ztyping.AxesType, allow_none: bool = False) -> Union[Tuple[int], None]:
         """Check the axes for dimensionality. None is error, Range.FULL is returned directly
 
         Args:
@@ -699,7 +699,7 @@ class Range:
         return axes
 
     def _set_boundaries_and_dims(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType,
-                                 axes: ztyping.DimsType,
+                                 axes: ztyping.AxesType,
                                  convert_none: bool) -> None:
         # TODO all the conversions come here
         lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=axes,
@@ -778,7 +778,7 @@ class Range:
         """
         return self._limits
 
-    def subspace(self, axes: ztyping.DimsType) -> 'Range':
+    def subspace(self, axes: ztyping.AxesType) -> 'Range':
         """Return an instance of Range containing only a subspace (`axes`) of the instance.
 
         Args:
@@ -946,7 +946,7 @@ class Range:
     #         limits = self.get_limits()[key]
     #     return limits
 
-    def idims_limits(self, axes: ztyping.DimsType) -> ztyping.LimitsType:
+    def idims_limits(self, axes: ztyping.AxesType) -> ztyping.LimitsType:
         """Return the limits of the given *axes*.
 
         Args:
@@ -969,13 +969,13 @@ class Range:
 
 def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
                      boundaries: Optional[Tuple[ztyping.InputLowerType, ztyping.InputUpperType]] = None,
-                     dims: ztyping.DimsType = None, *,
+                     axes: ztyping.AxesType = None, *,
                      convert_none: bool = False) -> Union[None, 'Range', bool]:
     """Convert *limits* to a Range object if not already None or False.
 
     Args:
         limits (Union[Tuple[float, float], zfit.core.limits.Range]):
-        dims (Union[Range, False, None]):
+        axes (Union[Range, False, None]):
 
     Returns:
         Union[Range, False, None]:
@@ -991,10 +991,10 @@ def convert_to_range(limits: Optional[ztyping.LimitsType] = None,
     elif isinstance(boundaries, Range):
         return limits
     elif limits is not None:
-        return Range.from_limits(limits=limits, dims=dims, convert_none=convert_none)
+        return Range.from_limits(limits=limits, dims=axes, convert_none=convert_none)
     elif boundaries is not None:
         lower, upper = boundaries
-        return Range.from_boundaries(lower=lower, upper=upper, axes=dims, convert_none=convert_none)
+        return Range.from_boundaries(lower=lower, upper=upper, axes=axes, convert_none=convert_none)
     else:
         assert False, "This code block should never been reached."
 
