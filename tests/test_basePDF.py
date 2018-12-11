@@ -4,7 +4,7 @@ import numpy as np
 
 from zfit.core.basemodel import model_dims_mixin
 import zfit.core.basepdf
-from zfit.core.limits import Range
+from zfit.core.limits import NamedSpace
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Normal
 from zfit.models.basic import Gauss
@@ -91,7 +91,7 @@ def test_normalization():
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
     for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
-        with dist.set_norm_range(Range.from_boundaries(low, high, axes=Range.FULL)):
+        with dist.set_norm_range(NamedSpace(obs1, limits=(low, high))):
             samples.limits = low, high
             print("Testing currently: ", dist.name)
             probs = dist.pdf(samples)
@@ -131,7 +131,7 @@ def test_analytic_sampling():
     class SampleGauss(TestGaussian):
         pass
 
-    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.limits()[1][0][0],
+    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.limits[1][0][0],
                                            limits=(-float("inf"), None), dims=(0,))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
@@ -150,8 +150,7 @@ def test_multiple_limits():
     simple_limits = (-3.2, 9.1)
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
-    multiple_limits_range = Range.from_boundaries(lower=multiple_limits_lower, upper=multiple_limits_upper,
-                                                  axes=dims)
+    multiple_limits_range = NamedSpace.from_axes(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
     integral_simp = gauss_params1.integrate(limits=simple_limits)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range)
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits)

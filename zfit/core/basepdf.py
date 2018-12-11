@@ -61,7 +61,7 @@ import tensorflow as tf
 from zfit.core.interfaces import ZfitPDF
 from zfit.util.container import convert_to_container
 from .basemodel import BaseModel
-from zfit.core.limits import Range, convert_to_space
+from zfit.core.limits import NamedSpace, convert_to_space
 from zfit.util import ztyping
 from ..settings import types as ztypes
 
@@ -193,7 +193,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits (tuple, Range): The limits on where to normalize over
+            limits (tuple, NamedSpace): The limits on where to normalize over
             name (str):
 
         Returns:
@@ -245,13 +245,13 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, Range): Range to normalize over
+          norm_range (tuple, NamedSpace): NamedSpace to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:
           model: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range_default(norm_range, dims=Range.FULL, caller_name=name,
+        norm_range = self._check_input_norm_range_default(norm_range, caller_name=name,
                                                           none_is_error=True)
         return self._hook_pdf(x, norm_range, name)
 
@@ -299,13 +299,13 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, Range): Range to normalize over
+          norm_range (tuple, NamedSpace): NamedSpace to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:
           log_pdf: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range_default(norm_range, dims=Range.FULL, caller_name=name)
+        norm_range = self._check_input_norm_range_default(norm_range, caller_name=name)
 
         return self._hook_log_pdf(x, norm_range, name)
 

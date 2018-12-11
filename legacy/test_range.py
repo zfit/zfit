@@ -1,7 +1,7 @@
 import copy
 from unittest import TestCase
 
-from zfit.core.limits import Range, convert_to_space, iter_limits
+from zfit.core.limits import NamedSpace, convert_to_space
 from zfit.util.exception import ConversionError
 
 limit1 = ((1, 4), (2, 3.5), (-1, 5))
@@ -67,7 +67,7 @@ def limits_equal(limit1, limit2):
 
 class TestRange(TestCase):
     def setUp(self):
-        self.limit1_range = Range(limits=limit1, axes=limit1_dims)
+        self.limit1_range = Range.from_axes(limits=limit1, axes=limit1_dims)
         self.limit2_range = Range(limits=limit2, axes=limit2_dims)
         self.limit3_1pair_range = Range(limits=limit3_1dim_1pair, axes=limit3_1dim_1pair_dims)
         self.limit3_1pair_0axis_range = Range(limits=limit3_1dim_1pair_0axis, axes=limit3_1dim_1pair_dims_0axis)
@@ -123,8 +123,8 @@ class TestRange(TestCase):
         self.assertFalse(limit2_int_range <= self.limit2_range)  # TODO add test with Nones
         self.assertFalse(self.limit3_1pair_range >= self.limit3_3pair_range)
         self.assertFalse(self.limit3_1pair_range == self.limit3_3pair_range)
-        # self.assertTrue(self.limit3_3pair_range == Range(axes=limit3_1dim_3pair_dims))
-        # limit4_subrange_range = Range(limit4_subrange, axes=limit4_dims)  # TODO add test with Nones in limits
+        # self.assertTrue(self.limit3_3pair_range == NamedSpace(axes=limit3_1dim_3pair_dims))
+        # limit4_subrange_range = NamedSpace(limit4_subrange, axes=limit4_dims)  # TODO add test with Nones in limits
         # self.assertTrue(self.limit4_range > limit4_subrange_range)
         # self.assertTrue(limit4_subrange_range < self.limit4_range)
         # self.assertFalse(self.limit4_range == limit4_subrange_range)

@@ -8,7 +8,7 @@ from zfit.core.baseobject import BaseObject, BaseDependentsMixin
 from zfit.core.interfaces import ZfitLoss
 from zfit.util.container import convert_to_container, is_container
 
-from .limits import convert_to_space, Range
+from .limits import convert_to_space, NamedSpace
 
 
 def _unbinned_nll_tf(model, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
@@ -33,7 +33,7 @@ def _unbinned_nll_tf(model, data, fit_range, constraints: Optional[dict] = None)
         nll_finished = tf.reduce_sum(nlls)
     else:  # TODO: complicated limits?
         fit_range = convert_to_space(fit_range)
-        limits = fit_range.limits()
+        limits = fit_range.limits
         assert len(limits[0]) == 1, "multiple limits not (yet) supported in nll."
         (lower,), (upper,) = limits
 
@@ -115,9 +115,9 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
 
         # simultaneous fit
         if is_container(pdf):
-            if not is_container(fit_range) or not isinstance(fit_range[0], Range):
+            if not is_container(fit_range) or not isinstance(fit_range[0], NamedSpace):
                 raise ValueError(
-                    "If several pdfs are specified, the `fit_range` has to be given as a list of `Range` "
+                    "If several pdfs are specified, the `fit_range` has to be given as a list of `NamedSpace` "
                     "objects and not as pure tuples.")
             if not len(pdf) == len(data) == len(fit_range):
                 raise ValueError("pdf, data and fit_range don't have the same number of components:"

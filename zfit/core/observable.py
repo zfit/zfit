@@ -28,14 +28,14 @@ class Observable(ZfitObservable, BaseObject):
         pass
 
     @property
-    def obs_range(self) -> "zfit.Range":
+    def obs_range(self) -> "zfit.NamedSpace":
         return self._obs_range
 
     @obs_range.setter
     def obs_range(self, value):
         self._obs_range = convert_to_space(value)
 
-    # def _check_input_ranges(self, ranges: List["zfit.Range"]) -> Tuple["zfit.Range"]:
+    # def _check_input_ranges(self, ranges: List["zfit.NamedSpace"]) -> Tuple["zfit.NamedSpace"]:
     #
     #     if isinstance(ranges, list):
     #         ranges = [convert_sort_space()]
@@ -43,7 +43,7 @@ class Observable(ZfitObservable, BaseObject):
     #     ranges = convert_to_container(ranges, container=tuple)
     #     self.obs_range = sum(ranges)
     @property
-    def norm_range(self) -> "zfit.Range":
+    def norm_range(self) -> "zfit.NamedSpace":
         if self._norm_range is None:
             return self.obs_range
         else:
@@ -54,7 +54,7 @@ class Observable(ZfitObservable, BaseObject):
         self._norm_range = convert_to_space(value)
 
     @property
-    def data_range(self) -> "zfit.Range":
+    def data_range(self) -> "zfit.NamedSpace":
         if self._data_range is None:
             return self.obs_range
         else:

@@ -1,23 +1,23 @@
 """
 .. include:: ../../docs/subst_types.rst
 
-# Range and limits
+# NamedSpace and limits
 
 Limits define a certain interval in a specific dimension. This can be used to define, for example,
 the limits of an integral over several dimensions.
 
-There are two ways of creating a :py:class:`Range`, either from the limits or from the boundaries
+There are two ways of creating a :py:class:`NamedSpace`, either from the limits or from the boundaries
 (which are arbitrary definitions here).
 
 ### by dimensions (from limits)
 
 Shortcut: if only a 1-dim tuple is given, it is assumed to be the limits from a 1-dim interval.
 
-If the limits in each dimension are known, this is the easiest way to construct a :py:class:`Range`.
+If the limits in each dimension are known, this is the easiest way to construct a :py:class:`NamedSpace`.
 A simple example to represent the limits for the first dim from 1 to 4 and for the second dim
 from -1 to 4 *and* from 6 to 8:
 >>> limits_as_tuple = ((1, 4), (-1, 4, 6, 8))  # 2 dimensions
->>> limits = Range.from_limits(limits=limits_as_tuple, axes=(0, 1))  # which dimensions the limits correspond to
+>>> limits = NamedSpace.from_limits(limits=limits_as_tuple, axes=(0, 1))  # which dimensions the limits correspond to
 
 This can be retrieved in the same way with
 >>> limits.get_limits()
@@ -38,16 +38,16 @@ lower and the upper limits. The shape is (n_limits, n_dims).
 Example: 1-dim: 1 to 4, 2.-dim: 21 to 24 AND 1.-dim: 6 to 7, 2.-dim 26 to 27
 >>> lower = ((1, 21), (6, 26))
 >>> upper = ((4, 24), (7, 27))
->>> limits2 = Range.from_boundaries(lower=lower, upper=upper, axes=(0, 1))
+>>> limits2 = NamedSpace.from_boundaries(lower=lower, upper=upper, axes=(0, 1))
 
 General form:
 
 lower = ((lower1_dim1, lower1_dim2, lower1_dim3), (lower2_dim1, lower2_dim2, lower2_dim3),...)
 upper = ((upper1_dim1, upper1_dim2, upper1_dim3), (upper2_dim1, upper2_dim2, upper2_dim3),...)
 
-## Using :py:class:`Range`
+## Using :py:class:`NamedSpace`
 
-:py:class:`Range` offers a few useful functions to easier deal with the intervals
+:py:class:`NamedSpace` offers a few useful functions to easier deal with the intervals
 
 ### Handling areas
 
@@ -100,7 +100,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     _limit_replace = {'lower': {None: ANY_LOWER},
                       'upper': {None: ANY_UPPER}}
 
-    def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = NOT_SPECIFIED,
+    def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = None,
                  name: Optional[str] = "NamedSpace"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
 
@@ -120,7 +120,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     @classmethod
     def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-                  limits: Optional[ztyping.LimitsTypeInput] = NOT_SPECIFIED,
+                  limits: Optional[ztyping.LimitsTypeInput] = None,
                   name: str = None):
         if obs is None:
             new_space = NamedSpace.from_axes(axes=axes, limits=limits, name=name)
@@ -132,7 +132,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     @classmethod
     def from_axes(cls, axes: ztyping.AxesTypeInput,
-                  limits: Optional[ztyping.LimitsTypeInput] = NOT_SPECIFIED,
+                  limits: Optional[ztyping.LimitsTypeInput] = None,
                   name: str = None) -> "NamedSpace":
         """Create a space from `axes` instead of from `obs`.
 
@@ -371,8 +371,10 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
                 missing_obs = set(obs) - set(self.obs)
                 raise ValueError("The requested observables {mis} are not contained in the defined "
                                  "observables {obs}".format(mis=missing_obs, obs=self.obs))
-            if as_dict:
-                axes = OrderedDict((o, ax) for o, ax in zip(obs, axes))
+        else:
+            obs = self.obs
+        if as_dict:
+            axes = OrderedDict((o, ax) for o, ax in zip(obs, axes))
 
         return axes
 
@@ -415,13 +417,24 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         new_space = self.copy(limits=limits, name=name)
         return new_space
 
-    def with_obs(self, obs):  # TODO: new instance, right?
+    def with_obs(self, obs: ztyping.ObsTypeInput) -> "NamedSpace":
+        """Sort by `obs` and return the new instance.
+
+        Args:
+            obs ():
+
+        Returns:
+            `NamedSpace`
+        """
         obs = self._convert_obs_to_str(obs)
         new_indices = self.get_reorder_indices(obs=obs)
-        self.reorder_by_indices(indices=new_indices)
+        new_space = self.copy()
+        new_space.reorder_by_indices(indices=new_indices)
+        return new_space
 
-    def get_reorder_indices(self, obs=None, axes=None):
-        """Indices that would `obs` or `axes` order as `self.obs` resp. `self.axes`.
+    def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None,
+                            axes: ztyping.AxesTypeInput = None) -> Tuple[int]:
+        """Indices that would order `self.obs` as `obs` respectively `self.axes` as `axes`.
 
         Args:
             obs ():
@@ -441,14 +454,19 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         if not obs_none:
             old, new = self.obs, obs
-        if not axes_none:
+        else:
             old, new = self.axes, axes
 
         new_indices = _reorder_indices(old=old, new=new)
         return new_indices
 
-    def reorder_by_indices(self, indices: List[int]):
+    def reorder_by_indices(self, indices: Tuple[int]):
+        """Reorder (temporarily) the `Space` with the given indices.
 
+        Args:
+            indices ():
+
+        """
         old_indices = [None] * len(indices)
         for old_i, new_i in enumerate(indices):
             old_indices[new_i] = old_i
@@ -463,7 +481,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return TemporarilySet(value=indices, setter=setter, getter=getter)
 
-    def _reorder_limits(self, indices, inplace=True):
+    def _reorder_limits(self, indices: Tuple[int], inplace: bool = True) -> ztyping.LimitsTypeReturn:
         limits = self.limits
         if limits is not None:
             print("DEBUG,limits", limits)
@@ -477,7 +495,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             self._limits = limits
         return limits
 
-    def _reorder_axes(self, indices, inplace=True):
+    def _reorder_axes(self, indices: Tuple[int], inplace: bool = True) -> ztyping.AxesTypeReturn:
         axes = self.axes
         if axes is not None:
             axes = tuple(axes[i] for i in indices)
@@ -485,7 +503,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             self._axes = axes
         return axes
 
-    def _reorder_obs(self, indices, inplace=True):
+    def _reorder_obs(self, indices: Tuple[int], inplace: bool = True) -> ztyping.ObsTypeReturn:
         obs = self.obs
         if obs is not None:
             obs = tuple(obs[i] for i in indices)
@@ -493,8 +511,17 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             self._obs = obs
         return obs
 
-    def set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
-        # obs = self._check_convert_input_obs(obs=obs)
+    def _set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
+        """Reorder the observables and set the `axes`.
+
+        Temporarily if used with a context manager.
+
+        Args:
+            obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+
+        Returns:
+
+        """
         permutation_index = tuple(self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
         limits = self._reorder_limits(indices=permutation_index, inplace=False)
 
@@ -515,14 +542,28 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def with_autofill_axes(self):
-        new_space = copy.deepcopy(self)
-        new_space._axes = tuple(range(self.n_obs))
+    def with_autofill_axes(self) -> "NamedSpace":
+        """Create a new `Space` with filled axes corresponding to range(len(n_obs)).
+
+        Returns:
+            `NamedSpace`
+        """
+        new_axes = tuple(range(self.n_obs))
+        new_space = self.copy(axes=new_axes)
 
         return new_space
 
-    def with_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
-        with self.set_obs_axes(obs_axes=obs_axes):
+    def with_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]) -> "NamedSpace":
+        """Return a new `Space` with reordered observables and set the `axes`.
+
+
+        Args:
+            obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+
+        Returns:
+            NamedSpace:
+        """
+        with self._set_obs_axes(obs_axes=obs_axes):
             return copy.deepcopy(self)
 
     def area(self) -> float:
@@ -548,13 +589,24 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         areas = tuple(float(np.prod(np.array(up) - np.array(low))) for low, up in zip(*limits))
         return areas
 
-    def get_subspace(self, *, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "ZfitNamedSpace":
+    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
+                     name: Optional[str] = None) -> "NamedSpace":
+        """Create a `Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
+
+        Args:
+            obs (str, Tuple[str]):
+            axes (int, Tuple[int]):
+            name ():
+
+        Returns:
+
+        """
         if obs is not None and axes is not None:
             raise ValueError("Cannot specify `obs` *and* `axes` to get subspace.")
         if axes is None and obs is None:
             raise ValueError("Either `obs` or `axes` has to be specified and not None")
 
-        # use observables to get index
+        # try to use observables to get index
         obs = self._check_convert_input_obs(obs=obs, allow_none=True)
         if obs is not None:
             try:
@@ -565,7 +617,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             except AttributeError:
                 raise ObsNotSpecifiedError("Observables have not been specified in this space.")
 
-        # use axes to get index
+        # try to use axes to get index
         axes = self._check_convert_input_axes(axes=axes)
         if axes is not None:
             try:
@@ -580,41 +632,49 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         sub_axes = self.axes if self.axes is None else tuple(self.axes[i] for i in sub_index)
 
         # use index to get limits
-        lower = self.lower
-        upper = self.upper
-        if not (lower is None or upper is None):
+        limits = self.limits
+        if limits is None or limits is False:
+            sub_limits = limits
+        else:
+            lower, upper = limits
             sub_lower = tuple(tuple(lim[i] for i in sub_index) for lim in lower)
             sub_upper = tuple(tuple(lim[i] for i in sub_index) for lim in upper)
             sub_limits = sub_lower, sub_upper
-        else:
-            sub_limits = None
 
-        if sub_obs is None:
-            new_space = NamedSpace.from_axes(axes=axes, limits=sub_limits, name=name)
-        else:
-            new_space = NamedSpace(obs=sub_obs, limits=sub_limits, name=name)
-            new_space._axes = sub_axes
+        new_space = NamedSpace._from_any(obs=sub_obs, axes=sub_axes, limits=sub_limits, name=name)
+
         return new_space
 
-    def copy(self, name=None, **overwrite_kwargs):
+    def copy(self, name: Optional[str] = None, **overwrite_kwargs) -> "NamedSpace":
+        """Create a new `Space` using the current attributes and overwriting with `overwrite_overwrite_kwargs`.
+
+        Args:
+            name (str): The new name. If not given, the new instance will be named the same as the
+                current one.
+            **overwrite_kwargs ():
+
+        Returns:
+            NamedSpace
+        """
         name = self.name if name is None else name
 
-        kwargs = {}
-        kwargs['name'] = name
-        kwargs['lower'] = NOT_SPECIFIED if self.lower is None else self.lower
-        kwargs['upper'] = NOT_SPECIFIED if self.upper is None else self.upper
-        kwargs['axes'] = NOT_SPECIFIED if self.axes is None else self.axes
-        kwargs['obs'] = NOT_SPECIFIED if self.obs is None else self.obs
+        kwargs = {'name': name,
+                  'limits': self.limits,
+                  'axes': self.axes,
+                  'obs': self.obs}
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
-        new_space = type(self)(**kwargs)
+
+        new_space = NamedSpace._from_any(**kwargs)
         return new_space
+
+    # Operators
 
     def __le__(self, other):  # TODO: refactor for boundaries
         if not isinstance(other, type(self)):
             return False
-        if self.axes != other.axes or self.obs != other.obs:
+        if set(self.axes) != set(other.axes) or set(self.obs) != set(other.obs):
             return False
 
         # check limits
@@ -624,20 +684,34 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             else:
                 return False
 
-        # check explicitely if they match
-        for limits, other_limits in zip(self.limits, other.limits):  # TODO: replace with boundaries
-            for lower, upper in limits:
-                is_le = False
-                for other_lower, other_upper in other_limits:
-                    # a list of `or` conditions
-                    is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower == lower and other_upper is self.ANY_UPPER  # TODO: approx limit comparison?
-                    is_le += other_lower is self.ANY_LOWER and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower is self.ANY_LOWER and other_upper is self.ANY_UPPER
-                    if is_le:
-                        break
-                if not is_le:
-                    return False
+        if self.limits is False:
+            if other.limits is False:
+                return True
+            else:
+                return False
+
+        if self.obs is None:
+            reorder_axes = self.axes
+        else:
+            reorder_axes = None
+        with other.reorder_by_indices(other.get_reorder_indices(obs=self.obs, axes=reorder_axes)):
+
+            # check explicitely if they match
+            for limits, other_limits in zip(self.limits, other.limits):  # TODO: replace with boundaries
+                for lower, upper in limits:
+                    is_le = False
+                    for other_lower, other_upper in other_limits:
+                        # a list of `or` conditions
+                        is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
+                        is_le += other_lower == lower and other_upper is self.ANY_UPPER  # TODO: approx limit
+                        # comparison?
+                        is_le += other_lower is self.ANY_LOWER and upper == other_upper  # TODO: approx limit
+                        # comparison?
+                        is_le += other_lower is self.ANY_LOWER and other_upper is self.ANY_UPPER
+                        if is_le:
+                            break
+                    if not is_le:
+                        return False
         return True
 
     def __ge__(self, other):
@@ -651,534 +725,31 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         is_eq *= self.obs == other.obs
         is_eq *= self.axes == other.axes
         is_eq *= self.limits == other.limits
-
-
-class FrozenNamedSpace(NamedSpace):
+        return bool(is_eq)
 
     def __hash__(self):
-        obs = self.obs
-        axes = self.axes
         lower = self.lower
         upper = self.upper
-        # obs = obs if obs is None else frozenset(obs)
-        # axes = axes if axes is None else frozenset(axes)
-        lower = lower if lower is None else frozenset(lower)
-        upper = upper if upper is None else frozenset(upper)
-        return hash((obs, axes, lower, upper))
+        if not (lower is None or lower is False):
+            lower = frozenset(frozenset(lim) for lim in lower)
+        if not (upper is None or upper is False):
+            upper = frozenset(frozenset(lim) for lim in upper)
 
+        return hash((lower, upper))
 
-class Range:
-    FULL = object()  # unique reference
-    ANY = object()
-    ANY_LOWER = object()  # TODO: need different upper, lower?
-    ANY_UPPER = object()
-    __HASH_DELIMINATOR = object()
 
-    def __init__(self, lower: ztyping.LowerTypeInput = None, upper: ztyping.UpperTypeInput = None,
-                 axes: Tuple[int] = NOT_SPECIFIED,
-                 convert_none: bool = False) -> None:
-        """Range holds limits and specifies dimension.
-
-        Args:
-            limits (Tuple[Tuple]): |limits_arg_descr|
-            lower (Tuple[Tuple]): |lower_arg_descr|
-            upper (Tuple[Tuple]): |upper_arg_descr|
-            axes (Tuple[int]): The dimensions of the given limits/bounds
-            convert_none (bool): If True, convert `None` to `any`
-
-        Returns:
-            Range: Returns the range object itself
-        """
-        # input validation
-        limits_valid_specified = limits is not None and (lower is None and upper is None)
-        boundaries_valid_specified = limits is None and (lower is not None and upper is not None)
-        if not (limits_valid_specified or boundaries_valid_specified):
-            raise ValueError("Invalid argument signature! Either specify the limits OR the lower and upper boundaries.")
-        if axes is None:
-            raise ValueError("`axes` is None. Has to be specified.")
-
-        self._area = None
-        self._area_by_boundaries = None
-        self._limits = None  # gets set below
-        self._axes = None  # gets set below
-        if limits is not None:
-            limits, _ = self.sanitize_limits(limits, axes=axes, convert_none=convert_none)
-            lower, upper = self.boundaries_from_limits(limits)
-        self._set_boundaries_and_dims(lower=lower, upper=upper, axes=axes, convert_none=convert_none)
-
-    def sort_by_axes(self, axes=None):
-        axes = self._check_convert_input_axes(axes=axes)
-        permutation_index = tuple(self.axes.index(axis) for axis in axes)  # the future index of the axes
-
-        lower = tuple(tuple(lower[i] for i in permutation_index) for lower in self.lower)
-        upper = tuple(tuple(upper[i] for i in permutation_index) for upper in self.upper)
-        self.set_limits(lower=lower, upper=upper)
-
-    def set_limits(self, lower, upper):
-        lower = self._check_convert_input_lower_upper(limit=lower)
-        upper = self._check_convert_input_lower_upper(limit=upper)
-        self._check_input_limits_obs(obs=self.obs, lower=lower, upper=upper)
-
-        def _tmp_setter(value):
-            self._limits = value
-
-        temp_set = TemporarilySet(value=(lower, upper), setter=_tmp_setter, getter=lambda: self.limits)
-        return temp_set
-
-    @classmethod
-    def from_boundaries(cls, lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput,
-                        axes: ztyping.AxesTypeInput, *, convert_none: bool = False) -> "Range":
-        """Create a Range instance from a lower, upper limits pair. Opposite of Range.limits()
-
-        Args:
-            lower (Tuple[Tuple]): |lower_arg_descr|
-            upper (tuple):
-            axes (tuple(int)): The dimensions the limits belong to.
-            convert_none (): If True, None will be converted to "any" (either any lower or any upper)
-        Returns:
-            zfit.core.limits.Range:
-        """
-        # TODO: make use of Nones?
-        return Range(lower=lower, upper=upper, axes=axes, convert_none=convert_none)
-
-    # @classmethod
-    # def from_limits(cls, limits: ztyping.LimitsType, axes: ztyping.DimsType, *, convert_none: bool = False) ->
-    # "Range":
-    #     """Create a :py:class:~`zfit.core.limits.Range` instance from limits per dimension given.
-    #
-    #
-    #     Args:
-    #         limits (Tuple): A 1 dimensional tuple is interpreted as a list of 1 dimensional limits
-    #             (lower1, upper1, lower2, upper2,...). Simple example: (-4, 3) means limits from
-    #             -4 to 3.
-    #             Higher dimensions are created with tuples of the shape (n_dims, n_(lower, upper))
-    #             where the number of lower, upper pairs can vary in each dimension.
-    #
-    #             Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5,
-    #                 the second dimension from -4 to 1 and from 2 to 5.
-    #
-    #         axes (Union[Tuple[int]]): The dimensions the limits belong to
-    #         convert_none (bool): If true, convert `None` to any (which is for example useful to specify a
-    #             variable limit on an integral function).
-    #
-    #     Returns:
-    #         Union[zfit.core.limits.Range]:
-    #     """
-    #     return Range(limits=limits, axes=axes, convert_none=convert_none)
-
-    def __len__(self):
-        return len(self.limits()[0])
-
-    @staticmethod
-    def sanitize_boundaries(lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput,
-                            dims: ztyping.AxesTypeInput = None,
-                            *,
-                            convert_none: bool = False) -> Tuple[
-        ztyping.LowerTypeInput, ztyping.UpperTypeInput, ztyping.AxesTypeInput]:
-        """Sanitize (add dim, replace None, check length...)
-
-        Args:
-            lower (iterable):
-            upper (iterable):
-            dims (iterable):
-            convert_none (bool):
-
-        Returns:
-            lower, upper, inferred_dims: each one is a 2-d tuple containing the limits and a tuple
-                with the inferred axes
-        """
-        inferred_dims = None
-        # input check
-        if np.shape(lower) == ():
-            lower = (lower,)
-        if np.shape(upper) == ():
-            upper = (upper,)
-
-        if np.shape(lower[0]) == ():
-            lower = (lower,)
-        if np.shape(upper[0]) == ():
-            upper = (upper,)
-
-        if not len(lower) == len(upper):
-            raise ValueError("lower and upper bounds do not have the same length:"
-                             "\nlower: {}"
-                             "\nupper: {}".format(lower, upper))
-        if not np.shape(lower) == np.shape(upper):
-            raise ValueError("Shapes of lower, upper have to be the shape. Currently:"
-                             "\nlower={}"
-                             "\nupper={}".format(lower, upper))
-        dims = Range.sanitize_axes(dims, allow_none=True)
-
-        new_lower = []
-        new_upper = []
-        for bounds, new_bounds, none_repl in zip((lower, upper), (new_lower, new_upper),
-                                                 (Range.ANY_LOWER, Range.ANY_UPPER)):
-            are_scalars = [np.shape(l) == () for l in bounds]
-            all_scalars = all(are_scalars)
-            all_tuples = not any(are_scalars)
-
-            # check if unambiguously given
-            if not (all_scalars or all_tuples):
-                raise ValueError("Has to be either a list of bounds or just the bounds (so everything"
-                                 "a single value or tuples but not mixed). Is currently: {}".format(bounds))
-
-            # sanitize, make 2-d
-            if all_scalars:
-                if dims is None:
-                    raise ValueError("All bounds are scalars but axes is None -> ill-defined")
-                # if len(bounds) == len(axes):  # only one limit
-                bounds = (bounds,)
-                # elif len(axes) == 1:  # several limits but only 1d
-                #     bounds = tuple((b,) for b in bounds)
-
-            # replace None
-            for bound in bounds:
-                if convert_none:
-                    new_bounds.append(tuple(none_repl if b is None else b for b in bound))  # replace None
-                elif [b for b in bound if b is None]:
-                    raise ValueError("None inside boundaries but `convert_none` not set to True")
-                else:
-                    new_bounds.append(tuple(bound))
-
-        inferred_dims = tuple(range(len(bound)))
-
-        return tuple(new_lower), tuple(new_upper), inferred_dims
-
-    # @staticmethod
-    # def sanitize_limits(limits: ztyping.LimitsType, axes: ztyping.DimsType = None, *,
-    #                     convert_none: bool = False) -> Tuple[ztyping.LimitsType, ztyping.DimsType]:
-    #     """Check and sanitize limits, add the right dimensions if missing, replace None.
-    #
-    #     Args:
-    #         limits (): |limits_arg_descr|
-    #         axes (): |dims_arg_descr|
-    #         convert_none (bool): If true, convert `None` to any
-    #
-    #     Returns:
-    #         limits, inferred_dims: The limits and the inferred_dimensions
-    #     """
-    #     are_scalars = [np.shape(l) == () for l in limits]
-    #     all_scalars = all(are_scalars)
-    #     all_tuples = not any(are_scalars)
-    #
-    #     if not (all_scalars or all_tuples):
-    #         raise ValueError("Invalid format for limits: {}".format(limits))
-    #
-    #     if all_scalars:
-    #         if len(limits) % 2 != 0:
-    #             raise ValueError("Limits is 1-D but has an uneven number of entries. Ill-defined.")
-    #         limits = (limits,)
-    #
-    #     lower, upper = Range.boundaries_from_limits(limits=limits)
-    #     *sanitized_boundaries, inferred_dims = Range.sanitize_boundaries(lower=lower, upper=upper, axes=axes,
-    #                                                                      convert_none=convert_none)
-    #     sanitized_limits = Range.limits_from_boundaries(*sanitized_boundaries)
-    #     return sanitized_limits, inferred_dims
-
-    @staticmethod
-    def sanitize_axes(axes: ztyping.AxesTypeInput, allow_none: bool = False) -> Union[Tuple[int], None]:
-        """Check the axes for dimensionality. None is error, Range.FULL is returned directly
-
-        Args:
-            axes (Union[Tuple[int], int]):
-            allow_none (bool): If true, `None` does not rise an error
-
-        Returns:
-            Tuple[int]:
-        """
-        if axes is None:
-            if not allow_none:
-                raise ValueError("`axes` cannot be None.")
-            else:
-                return None
-
-        if axes is Range.FULL:
-            return axes
-
-        if len(np.shape(axes)) == 0:
-            axes = (axes,)
-        return axes
-
-    def _set_boundaries_and_dims(self, lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput,
-                                 axes: ztyping.AxesTypeInput,
-                                 convert_none: bool) -> None:
-        # TODO all the conversions come here
-        lower, upper, inferred_dims = self.sanitize_boundaries(lower=lower, upper=upper, dims=axes,
-                                                               convert_none=convert_none)
-        axes = self.sanitize_axes(axes, allow_none=False)
-        if axes is Range.FULL:
-            axes = inferred_dims
-        if axes is None:
-            raise ValueError("Due to safety: no axes provided but needed. Provide axes.")
-
-        if not len(lower[0]) == len(axes):
-            raise ValueError("axes (={}) and bounds (e.g. first of lower={}) don't match".format(axes, lower[0]))
-
-        self._limits = lower, upper
-        self._axes = tuple(axes)
-
-    @property
-    def n_dims(self) -> int:
-        return len(self.axes)
-
-    def area(self) -> float:
-        """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
-        if self._area is None:
-            self._calculate_save_area()
-        return self._area
-
-    def area_by_boundaries(self, rel: bool = False) -> Tuple[float, ...]:
-        """Return the areas of each interval
-
-        Args:
-            rel (bool): If True, return the relative fraction of each interval
-        Returns:
-            Tuple[float]:
-        """
-        if self._area_by_boundaries is None:
-            area_by_bound = [np.prod(np.array(up) - np.array(low)) for low, up in zip(*self.limits())]
-        if rel:
-            area_by_bound = np.array(area_by_bound) / self.area()
-        return tuple(area_by_bound)
-
-    def _calculate_save_area(self) -> float:
-        area = sum(self.area_by_boundaries(rel=False))
-        self._area = area
-        return area
-
-    @property
-    def axes(self):
-        return self._axes
-
-    # def get_limits(self) -> Tuple[Tuple[float, ...]]:
-    #     """Return the limits (if possible).
-    #
-    #     Returns:
-    #         Tuple[Tuple[float, ...]]:
-    #
-    #     Raises:
-    #         ConversionError: If the instance was created with boundaries that *cannot* bijectively be
-    #             converted to limits
-    #     """
-    #     return Range.limits_from_boundaries(*self._boundaries)
-
-    @property
-    def limits(self) -> Tuple[ztyping.LowerTypeInput, ztyping.UpperTypeInput]:
-        """Return a lower and upper boundary tuple containing all possible combinations.
-
-        The limits given in the tuple form are converted to two tuples: one containing all of the
-        possible combinations of the lower limits and the other one containing all possible
-        combinations of the upper limits. This is useful to evaluate integrals.
-        Example: the tuple ((low1_a, up1_b), (low2_a, up2_b, low2_c, up2_d, low2_e, up2_f))
-            transforms to two tuples:
-            lower: ((low1_a, low2_a), (low1_a, low2_c), (low1_a, low2_e))
-            upper: ((up1_b, up2_b), (up1_b, up2_d), (up1_b, up2_f))
-
-        Returns:
-            tuple(lower, upper): as defined in the example
-        """
-        return self._limits
-
-    def subspace(self, axes: ztyping.AxesTypeInput) -> 'Range':
-        """Return an instance of Range containing only a subspace (`axes`) of the instance.
-
-        Args:
-            axes (Tuple[int,...]): |dims_arg_descr|
-
-        Returns:
-            zfit.core.limits.Range:
-        """
-        # TODO(Mayou36) fix implementation
-        axes = self.sanitize_axes(axes)
-        lower, upper = self.limits()
-        lower = tuple(tuple(lim[self.axes.index(d)] for d in axes) for lim in lower)
-        upper = tuple(tuple(lim[self.axes.index(d)] for d in axes) for lim in upper)
-        # FUTURE remove double occurrence, do better in the future
-        unique_bounds = list(set(zip(lower, upper)))
-        lower = tuple(limit[0] for limit in unique_bounds)
-        upper = tuple(limit[1] for limit in unique_bounds)
-        # FUTURE END
-
-        sub_range = Range(lower=lower, upper=upper, axes=axes)
-        return sub_range
-
-    def subbounds(self) -> List["Range"]:
-        """Return a list of Range objects each containing a simple boundary
-
-        Returns:
-            List[zfit.Range]:
-        """
-        range_objects = []
-        for lower, upper in zip(*self.limits()):
-            range_objects.append(Range.from_boundaries(lower=lower, upper=upper, axes=self.axes))
-        return range_objects
-
-    # @staticmethod
-    # def boundaries_from_limits(limits: ztyping.LimitsType) -> Tuple[ztyping.InputLowerType, ztyping.InputUpperType]:
-    #     """Convert limits (sorted by axes) to boundaries (sorted by intervalls).
-    #
-    #     Args:
-    #         limits (): |limits_arg_descr|
-    #
-    #     Returns:
-    #
-    #     """
-    #     if len(limits) == 0:
-    #         return (), ()
-    #     lower_limits = []
-    #     upper_limits = []
-    #     # iterate through the dimensions
-    #     for lower, upper in iter_limits(limits[0]):  # recursive algorithm, append 0th dim element
-    #         other_lower = None  # check if for loop gets executed
-    #         for other_lower, other_upper in zip(*Range.boundaries_from_limits(limits[1:])):
-    #             lower_limits.append(tuple([lower] + list(other_lower)))
-    #             upper_limits.append(tuple([upper] + list(other_upper)))
-    #         if other_lower is None:  # we're in the last axis
-    #             lower_limits.append((lower,))
-    #             upper_limits.append((upper,))
-    #     return tuple(lower_limits), tuple(upper_limits)
-
-    # @staticmethod
-    # def limits_from_boundaries(lower: ztyping.InputLowerType, upper: ztyping.InputUpperType) -> ztyping.LimitsType:
-    #     """Convert the lower, upper boundaries to limits.
-    #
-    #     Args:
-    #         lower (): |lower_arg_descr|
-    #         upper (): |upper_arg_descr|
-    #
-    #     Returns:
-    #         limits: Returns the limits
-    #
-    #     Raises:
-    #         ConversionError: If the boundaries cannot safely be converted to limits because there
-    #         is no bijective relationship.
-    #     """
-    #     lower = Range._add_dim_if_scalars(lower)
-    #     upper = Range._add_dim_if_scalars(upper)
-    #
-    #     if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) != 2:
-    #         raise tf.errors.InvalidArugmentError("lower {} and upper {} have to have the same (n_limits,
-    #         n_dims) shape."
-    #                                              "Currently lower shape: {} upper shape: {}"
-    #                                              "".format(lower, upper, np.shape(lower), np.shape(upper)))
-    #     limits = [[] for _ in range(len(lower[0]))]
-    #     already_there_sets = [set() for _ in range(len(lower[0]))]
-    #     for lower_vals, upper_vals in zip(lower, upper):
-    #         for i, (lower_val, upper_val) in enumerate(zip(lower_vals, upper_vals)):
-    #             new_limit = (lower_val, upper_val)
-    #             if new_limit not in already_there_sets[i]:  # only extend if unique
-    #                 limits[i].extend(new_limit)
-    #             already_there_sets[i].add(new_limit)
-    #     limits = tuple([tuple(limit) for limit in limits])
-    #
-    #     # TODO: do some checks here?
-    #     # TODO: sort somehow to make comparable
-    #     check_lower, check_upper = Range.boundaries_from_limits(limits=limits)
-    #     tuples_are_equal = set(check_lower) == set(lower) and set(check_upper) == set(upper)
-    #     length_are_equal = len(check_lower) == len(lower) and len(check_upper) == len(upper)
-    #     if not (tuples_are_equal and length_are_equal):
-    #         raise ConversionError("cannot safely convert boundaries (lower={}, upper={}) to limits "
-    #                               "(check_lower={}, check_upper={}) (boundaries probably contain non "
-    #                               "perpendicular limits)".format(lower, upper, check_lower, check_upper))
-    #     # make boundaries unique
-    #     return tuple(limits)
-
-    @staticmethod
-    def _add_dim_if_scalars(values):
-        if len(np.shape(values)) == 0:
-            values = (values,)
-        if len(np.shape(values)) == 1:
-            if all(np.shape(v) == () for v in values):
-                values = (values,)
-        return values
-
-    # @staticmethod
-    # def sort_limits(limits):
-    #     raise ModuleNotFoundError("YEAH WRONG, but it's not implemented currently")
-    #     # TODO: improve sorting for several Nones (how to sort?)
-    #     if not any(obj is None for dim in limits for obj in dim):  # just a hack
-    #         limits = tuple(tuple(sorted(list(vals))) for vals in limits)
-    #     return tuple(Range._add_dim_if_scalars(limits))
-
-    def __le__(self, other):  # TODO: refactor for boundaries
-        if not isinstance(other, type(self)):
-            raise TypeError("Comparison between other types than Range objects currently not "
-                            "supported")
-        if self.axes != other.axes:
-            return False
-        for dim, other_dim in zip(self.get_limits(), other.get_limits()):  # TODO: replace with boundaries
-            for lower, upper in iter_limits(dim):
-                is_le = False
-                for other_lower, other_upper in iter_limits(other_dim):
-                    # a list of `or` conditions
-                    is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower == lower and other_upper is Range.ANY_UPPER  # TODO: approx limit comparison?
-                    is_le += other_lower is Range.ANY_LOWER and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower is Range.ANY_LOWER and other_upper is Range.ANY_UPPER
-                    if is_le:
-                        break
-                if not is_le:
-                    return False
-        return True
-
-    def __ge__(self, other):
-        return other.__le__(self)
-
-    def __eq__(self, other):
-        if not isinstance(other, type(self)):
-            raise TypeError("Comparison between other types than Range objects currently not "
-                            "supported")
-        if self.axes != other.axes:
-            return False
-        own_lower, own_upper = self.limits()
-        other_lower, other_upper = other.limits()
-        lower_equal = set(own_lower) == set(other_lower)
-        upper_equal = set(own_upper) == set(other_upper)
-        are_equal = lower_equal and upper_equal
-
-        return are_equal
-
-    #
-    # def __getitem__(self, key):
-    #     raise Exception("Replace with .get_limits()")
-    #     try:
-    #         limits = tuple(self.get_limits()[axis] for axis in key)
-    #     except TypeError:
-    #         limits = self.get_limits()[key]
-    #     return limits
-
-    def idims_limits(self, axes: ztyping.AxesTypeInput) -> ztyping.LimitsType:
-        """Return the limits of the given *axes*.
-
-        Args:
-            axes ():
-
-        Returns:
-            Tuple: the limits of the given dimensions
-        """
-        if np.shape(axes) == ():
-            axes = (axes,)
-        limits_by_dims = tuple([self.get_limits()[self.axes.index(dim)] for dim in axes])
-        return limits_by_dims
-
-    def __hash__(self):
-        try:
-            return hash(self.limits(), self.__HASH_DELIMINATOR, self.axes)
-        except TypeError:
-            raise TypeError("unhashable. ", self.limits(), self.axes)
-
-
-def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = NOT_SPECIFIED,
-                     axes: Optional[ztyping.AxesTypeInput] = NOT_SPECIFIED,
-                     limits: Optional[ztyping.LimitsTypeInput] = NOT_SPECIFIED,
+# TODO(Mayou36): extend this function and set what is allowed and what not
+def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None,
+                     axes: Optional[ztyping.AxesTypeInput] = None,
+                     limits: Optional[ztyping.LimitsTypeInput] = None,
                      *, convert_none: bool = False) -> Union[None, NamedSpace, bool]:
     """Convert *limits* to a Space object if not already None or False.
 
     Args:
-        obs (Union[Tuple[float, float], zfit.core.limits.Range]):
+        obs (Union[Tuple[float, float], zfit.core.limits.NamedSpace]):
 
     Returns:
-        Union[Range, False, None]:
+        Union[NamedSpace, False, None]:
     """
     if obs is None:
         return None
@@ -1189,12 +760,14 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = NOT_SPECIFIED,
     else:
         assert False, "This code block should never be reached."
 
+    return space
 
-def convert_to_one_range(limits: Iterable[Range]):
-    limit_tuple = tuple(limit.get_limits() for limit in limits)
-    dims_tuple = tuple(sum(list(limit.axes) for limit in limits))
-    limit = Range.from_limits(limits=limit_tuple, dims=dims_tuple)
-    return limit
+
+# def convert_to_one_range(limits: Iterable[NamedSpace]):
+#     limit_tuple = tuple(limit.get_limits() for limit in limits)
+#     dims_tuple = tuple(sum(list(limit.axes) for limit in limits))
+#     limit = NamedSpace.from_limits(limits=limit_tuple, dims=dims_tuple)
+#     return limit
 
 
 # def iter_limits(limits):

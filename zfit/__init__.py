@@ -9,7 +9,7 @@ import zfit.ztf
 from . import pdf, minimize, loss, core, data
 from .core.parameter import Parameter
 from .core.loss import _unbinned_nll_tf
-from .core.limits import Range, convert_to_space, supports
+from .core.limits import NamedSpace, convert_to_space, supports
 
 from .settings import sess
 

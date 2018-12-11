@@ -16,6 +16,7 @@ sigma3_true = 1.8
 test_values = np.random.uniform(low=-3, high=5, size=100)
 norm_range1 = (-4., 2.)
 
+obs1 = 'obs1'
 
 def create_gauss():
     mu1 = Parameter("mu1a", mu1_true)
@@ -24,12 +25,12 @@ def create_gauss():
     sigma1 = Parameter("sigma1a", sigma1_true)
     sigma2 = Parameter("sigma2a", sigma2_true)
     sigma3 = Parameter("sigma3a", sigma3_true)
-    gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1a")
-    normal1 = Normal(mu=mu1, sigma=sigma1, name="normal1a")
-    gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2a")
-    normal2 = Normal(mu=mu2, sigma=sigma2, name="normal2a")
-    gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss3a")
-    normal3 = Normal(mu=mu3, sigma=sigma3, name="normal3a")
+    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1a")
+    normal1 = Normal(mu=mu1, sigma=sigma1, obs=obs1, name="normal1a")
+    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2a")
+    normal2 = Normal(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
+    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3a")
+    normal3 = Normal(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
     zfit.sess.run(tf.global_variables_initializer())
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 

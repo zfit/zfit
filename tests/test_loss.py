@@ -4,7 +4,7 @@ import numpy as np
 
 from zfit import ztf
 import zfit.core.basepdf
-from zfit.core.limits import Range
+from zfit.core.limits import NamedSpace
 from zfit.minimizers.minimizer_minuit import MinuitMinimizer
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Normal
@@ -27,11 +27,13 @@ sigma2 = Parameter("sigma2", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sig
 # HACK
 # Gauss = Normal
 # HACK END
-mu_constr = Gauss(1.6, 0.2, name="mu_constr")
-sigma_constr = Gauss(3.8, 0.2, name="sigma_constr")
+obs1 = 'obs1'
 
-gaussian1 = Gauss(mu1, sigma1, name="gaussian1")
-gaussian2 = Gauss(mu2, sigma2, name="gaussian2")
+mu_constr = Gauss(1.6, 0.2, obs=obs1, name="mu_constr")
+sigma_constr = Gauss(3.8, 0.2, obs=obs1, name="sigma_constr")
+
+gaussian1 = Gauss(mu1, sigma1, obs=obs1, name="gaussian1")
+gaussian2 = Gauss(mu2, sigma2, obs=obs1, name="gaussian2")
 
 init = tf.global_variables_initializer()
 
@@ -77,10 +79,10 @@ def test_add():
     param2 = Parameter("param2", 2.)
 
     pdfs = [0] * 4
-    pdfs[0] = Gauss(param1, 4)
-    pdfs[1] = Gauss(param2, 5)
-    pdfs[2] = Gauss(3, 6)
-    pdfs[3] = Gauss(4, 7)
+    pdfs[0] = Gauss(param1, 4, obs=obs1)
+    pdfs[1] = Gauss(param2, 5, obs=obs1)
+    pdfs[2] = Gauss(3, 6, obs=obs1)
+    pdfs[3] = Gauss(4, 7, obs=obs1)
 
     datas = [0] * 4
     datas[0] = ztf.constant(1.)
@@ -90,12 +92,12 @@ def test_add():
 
     ranges = [0] * 4
     ranges[0] = (1, 4)
-    ranges[1] = Range.from_limits((2, 5), dims=(0,))
-    ranges[2] = Range.from_limits((3, 6), dims=(0,))
-    ranges[3] = Range.from_limits((4, 7), dims=(0,))
+    ranges[1] = NamedSpace.from_axes(limits=(2, 5), axes=(0,))
+    ranges[2] = NamedSpace.from_axes(limits=(3, 6), axes=(0,))
+    ranges[3] = NamedSpace.from_axes(limits=(4, 7), axes=(0,))
 
-    constraint1 = {param1: Gauss(1, 0.5)}
-    constraint2 = {param2: Gauss(2, 0.25)}
+    constraint1 = {param1: Gauss(1, 0.5, obs=obs1)}
+    constraint2 = {param2: Gauss(2, 0.25, obs=obs1)}
     merged_contraints = constraint1.copy()
     merged_contraints.update(constraint2)
 
@@ -108,7 +110,8 @@ def test_add():
     assert simult_nll.model == pdfs
     assert simult_nll.data == datas
 
-    ranges[0] = Range.from_limits(ranges[0], dims=(0,))  # for comparison, Range can only compare with Range
+    ranges[0] = NamedSpace.from_axes(limits=ranges[0],
+                                     axes=(0,))  # for comparison, NamedSpace can only compare with NamedSpace
     assert simult_nll.fit_range == ranges
 
     assert simult_nll.constraints == merged_contraints

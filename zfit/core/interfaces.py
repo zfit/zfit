@@ -167,7 +167,7 @@ class ZfitNamedSpace(ZfitObject):
     #     raise NotImplementedError
 
     @abc.abstractmethod
-    def set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):  # TODO: switch if sorting?
+    def _set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):  # TODO: switch if sorting?
         raise NotImplementedError
 
 
@@ -239,7 +239,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @property
     @abc.abstractmethod
-    def fit_range(self) -> List["zfit.Range"]:
+    def fit_range(self) -> List["zfit.NamedSpace"]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -275,8 +275,8 @@ class ZfitModel(ZfitNumeric):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, Range): the limits to integrate over
-            norm_range (tuple, Range): the limits to normalize over or False to integrate the
+            limits (tuple, NamedSpace): the limits to integrate over
+            norm_range (tuple, NamedSpace): the limits to normalize over or False to integrate the
                 unnormalized probability
             name (str):
 
@@ -316,8 +316,8 @@ class ZfitModel(ZfitNumeric):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, Range): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, Range, False): the limits to normalize over. Has to have all axes
+            limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -341,7 +341,7 @@ class ZfitModel(ZfitNumeric):
 
         Args:
             n (int): The number of samples to be generated
-            limits (tuple, Range): In which region to sample in
+            limits (tuple, NamedSpace): In which region to sample in
             name (str):
 
         Returns:

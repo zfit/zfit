@@ -6,12 +6,13 @@ import numpy as np
 
 import zfit
 from zfit import ztf
-from zfit.core.limits import Range, no_multiple_limits
+from zfit.core.limits import NamedSpace, no_multiple_limits
 from ..settings import types as ztypes
 
 
 @no_multiple_limits
-def accept_reject_sample(prob: typing.Callable, n: int, limits: Range, sampler: typing.Callable = tf.random_uniform,
+def accept_reject_sample(prob: typing.Callable, n: int, limits: NamedSpace,
+                         sampler: typing.Callable = tf.random_uniform,
                          dtype=ztypes.float, prob_max: typing.Union[None, int] = None) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
@@ -19,7 +20,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Range, sampler: 
         prob (function): A function taking x a Tensor as an argument and returning the probability
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
-        limits (Range): The limits to sample from
+        limits (NamedSpace): The limits to sample from
         sampler (function): A function taking n as an argument and returning value between
             0 and 1
         dtype ():
@@ -31,7 +32,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Range, sampler: 
         tf.Tensor:
     """
     n_dims = limits.n_dims
-    lower, upper = limits.limits()
+    lower, upper = limits.limits
     lower = ztf.convert_to_tensor(lower, dtype=dtype)
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
     n = tf.to_int64(n)
