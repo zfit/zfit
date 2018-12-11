@@ -41,6 +41,7 @@ class Data(ZfitData, BaseObject):
     def obs(self):
         return self._space.obs
 
+    @property
     def dtype(self):
         return self._dtype
 
@@ -173,8 +174,12 @@ class Data(ZfitData, BaseObject):
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
-        if dtype is not None and dtype != self.dtype:
-            return NotImplemented
+        if dtype is not None:
+            if dtype != self.dtype:
+            # upcast_dtype = ztypes[dtype]
+            # if not (ztypes.auto_upcast and upcast_dtype == self.dtype):
+                return ValueError("From Mayou36", self.dtype)
+                # return NotImplemented
         if as_ref:
             # return "NEVER READ THIS"
             raise LogicalUndefinedOperationError("There is no ref for the `Data`")
@@ -224,7 +229,7 @@ def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
 
 ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)
 fetch_function = lambda data: ([data.value()],
-                                   lambda val: val[0])
+                               lambda val: val[0])
 feed_function = lambda data, feed_val: [(data.value(), feed_val)]
 feed_function_for_partial_run = lambda data: [data.value()]
 
@@ -237,7 +242,6 @@ register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch
                                           feed_function_for_partial_run=feed_function_for_partial_run)
 
 Data._OverloadAllOperators()
-
 
 if __name__ == '__main__':
 

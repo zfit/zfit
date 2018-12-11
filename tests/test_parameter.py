@@ -66,3 +66,9 @@ def test_param_limits():
     param2.lower_limit = lower
     param2.load(lower - 1.1, session=zfit.sess)
     assert lower == zfit.sess.run(param2.value())
+
+def test_overloaded_operators():
+    param_a = ComposedParameter('param_ao', 5*4)
+    param_b = ComposedParameter('param_bo', 3)
+    param_c = param_a * param_b
+

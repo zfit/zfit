@@ -1,4 +1,5 @@
 """Define Parameter which holds the value."""
+from contextlib import suppress
 
 import numpy as np
 import tensorflow as tf
@@ -117,7 +118,7 @@ class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         super().__init__(initial_value=initial_value, **kwargs)
-        self._value_tensor = initial_value
+        self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
         self._name = name
 
     @property
@@ -245,30 +246,30 @@ class ZfitParameterMixin:
     def __add__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
-            return operations.add(self, other, dims=None)
-        else:
-            return super().__add__(other)
+            with suppress(NotImplementedError):
+                return operations.add(self, other, dims=None)
+        return super().__add__(other)
 
     def __radd__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
-            return operations.add(other, self, dims=None)
-        else:
-            return super().__radd__(other)
+            with suppress(NotImplementedError):
+                return operations.add(other, self, dims=None)
+        return super().__radd__(other)
 
     def __mul__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
-            return operations.multiply(self, other, dims=None)
-        else:
-            return super().__mul__(other)
+            with suppress(NotImplementedError):
+                return operations.multiply(self, other, dims=None)
+        return super().__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
-            return operations.multiply(other, self, dims=None)
-        else:
-            return super().__rmul__(other)
+            with suppress(NotImplementedError):
+                return operations.multiply(other, self, dims=None)
+        return super().__rmul__(other)
 
 
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
@@ -352,7 +353,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         return self._independent
 
     def __init_subclass__(cls, **kwargs):
-        cls._independent = True  # overwritting independent only for subclass/instance
+        cls._independent = True  # overwriting independent only for subclass/instance
 
     # OLD remove? only keep for speed reasons?
     @property

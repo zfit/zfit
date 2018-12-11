@@ -23,6 +23,7 @@ types = DotDict({'float': tf.float64,
                  tf.int16: tf.int64,
                  tf.int32: tf.int64,
                  tf.int64: tf.int64,
+                 'auto_upcast': True,
                  })
 
 options = DotDict({'epsilon': 1e-8})
