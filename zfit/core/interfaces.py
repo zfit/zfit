@@ -41,7 +41,7 @@ class ZfitData(ZfitObject):
         raise NotImplementedError
 
     @space.setter
-    def space(self, value: ztyping.InputObservableType):
+    def space(self, value: ztyping.ObsTypeInput):
         raise NotImplementedError
 
 
@@ -88,7 +88,7 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_subspace(self, obs: ztyping.InputObservableType = None, axes=None, name=None) -> "ZfitNamedSpace":
+    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "ZfitNamedSpace":
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -103,13 +103,13 @@ class ZfitNamedSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def limits(self) -> Tuple[ztyping.ReturnLowerType, ztyping.ReturnUpperType]:
+    def limits(self) -> Tuple[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
         """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def lower(self) -> ztyping.ReturnLowerType:
+    def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
         """
@@ -117,7 +117,7 @@ class ZfitNamedSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def upper(self) -> ztyping.ReturnUpperType:
+    def upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
 
         """
@@ -139,8 +139,12 @@ class ZfitNamedSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _set_limits(self, lower: ztyping.InputLowerType, upper: ztyping.InputUpperType):
+    def _check_set_limits(self, limits: ztyping.LimitsTypeInput):
         """Set the limits of the NamedSpace (temporarily)."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _check_set_lower_upper(self, lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -158,9 +162,9 @@ class ZfitNamedSpace(ZfitObject):
     def axes(self) -> List[int]:
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def get_obs_axes(self, autofill: bool = False) -> typing.Dict[str, int]:
-        raise NotImplementedError
+    # @abc.abstractmethod
+    # def get_obs_axes(self, autofill: bool = False) -> typing.Dict[str, int]:
+    #     raise NotImplementedError
 
     @abc.abstractmethod
     def set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):  # TODO: switch if sorting?
@@ -216,7 +220,7 @@ class ZfitParameter(ZfitNumeric):
 class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @abc.abstractmethod
-    def value(self) -> ztyping.ReturnNumericalType:
+    def value(self) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -252,12 +256,12 @@ class ZfitModel(ZfitNumeric):
 
     @property
     @abc.abstractmethod
-    def axes(self) -> ztyping.AxesType:
+    def axes(self) -> ztyping.AxesTypeInput:
         raise NotImplementedError
 
     @axes.setter
     @abc.abstractmethod
-    def axes(self, value: ztyping.AxesType):
+    def axes(self, value: ztyping.AxesTypeInput):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -284,7 +288,7 @@ class ZfitModel(ZfitNumeric):
     @classmethod
     @abc.abstractmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
-                                   dims: ztyping.AxesType = None, priority: int = 50, *,
+                                   dims: ztyping.AxesTypeInput = None, priority: int = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False):
         """Register an analytic integral with the class.
@@ -350,7 +354,7 @@ class ZfitModel(ZfitNumeric):
         raise NotImplementedError
 
     @obs.setter
-    def obs(self, value: ztyping.InputObservableType):
+    def obs(self, value: ztyping.ObsTypeInput):
         raise NotImplementedError
 
 
@@ -384,7 +388,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def normalization(self) -> ztyping.ReturnNumericalType:
+    def normalization(self) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abc.abstractmethod

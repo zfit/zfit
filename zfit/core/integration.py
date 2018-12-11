@@ -40,7 +40,7 @@ def numeric_integrate():
     return integral
 
 
-def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesType] = None,
+def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 10000,
                  method: str = None,
                  dtype: typing.Type = ztypes.float,
@@ -129,7 +129,7 @@ class AnalyticIntegral(object):
         super(AnalyticIntegral, self).__init__(*args, **kwargs)
         self._integrals = collections.defaultdict(dict)
 
-    def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesType = None) -> typing.Tuple[int]:
+    def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> typing.Tuple[int]:
         """Return the maximal available axes to integrate over analytically for given limits
 
         Args:
@@ -161,7 +161,7 @@ class AnalyticIntegral(object):
         return (), ()  # no integral available for this axes
 
     def get_max_integral(self, limits: ztyping.LimitsType,
-                         axes: ztyping.AxesType = None) -> typing.Union[None, "Integral"]:
+                         axes: ztyping.AxesTypeInput = None) -> typing.Union[None, "Integral"]:
         """Return the integral over the `limits` with `axes` (or a subset of them).
 
         Args:
@@ -179,7 +179,8 @@ class AnalyticIntegral(object):
         integral_fn = max(integrals, key=lambda l: l.priority, default=None)
         return integral_fn
 
-    def register(self, func: Callable, axes: ztyping.AxesType, limits: ztyping.LimitsType = None, priority: int = 50, *,
+    def register(self, func: Callable, axes: ztyping.AxesTypeInput, limits: ztyping.LimitsType = None,
+                 priority: int = 50, *,
                  supports_norm_range: bool = False, supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral.
 
@@ -209,7 +210,7 @@ class AnalyticIntegral(object):
                                                           priority=priority)  # TODO improve with
         # database-like access
 
-    def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesType = None,
+    def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
                   norm_range: ztyping.LimitsType = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
@@ -248,7 +249,7 @@ class AnalyticIntegral(object):
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, func: Callable, limits: ztyping.LimitsType, axes: ztyping.AxesType, priority: int):
+    def __init__(self, func: Callable, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput, priority: int):
         """A lightweight holder for the integral function."""
         self.limits = convert_to_space(obs=limits)
         self.integrate = func

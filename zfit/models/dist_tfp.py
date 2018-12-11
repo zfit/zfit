@@ -25,12 +25,12 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     """
 
-    def __init__(self, distribution, dims=None, name=None, **kwargs):
+    def __init__(self, distribution, obs, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
         parameters = OrderedDict((k, v) for k, v in distribution.parameters.items() if isinstance(v, ZfitParameter))
 
-        super().__init__(dims=dims, dtype=distribution.dtype, name=name, parameters=parameters, **kwargs)
+        super().__init__(obs=obs, dtype=distribution.dtype, name=name, parameters=parameters, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
         self.tf_distribution = distribution
 
@@ -56,18 +56,18 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
 
 class Normal(WrapDistribution):
-    def __init__(self, mu, sigma, name="Normal"):
+    def __init__(self, mu, sigma, obs, name="Normal"):
         distribution = tfp.distributions.Normal(loc=mu, scale=sigma, name=name + "_tfp")
-        super().__init__(distribution=distribution, name=name)
+        super().__init__(distribution=distribution, obs=obs, name=name)
 
 
 class Exponential(WrapDistribution):
-    def __init__(self, tau, name="Exponential"):
+    def __init__(self, tau, obs, name="Exponential"):
         distribution = tfp.distributions.Exponential(rate=tau, name=name + "_tfp")
-        super().__init__(distribution=distribution, name=name)
+        super().__init__(distribution=distribution, obs=obs, name=name)
 
 
 class Uniform(WrapDistribution):
-    def __init__(self, low, high, name="Uniform"):
+    def __init__(self, low, high, obs, name="Uniform"):
         distribution = tfp.distributions.Uniform(low=low, high=high, name=name + "_tfp")
-        super().__init__(distribution=distribution, name=name)
+        super().__init__(distribution=distribution, obs=obs, name=name)

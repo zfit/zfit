@@ -40,28 +40,28 @@ def sum_prod_gauss():
     sigma3 = Parameter("sigma3a", sigma3_true)
 
     # Gauss for sum, same axes
-    gauss1 = Gauss(mu=mu1, sigma=sigma1, dims=0, name="gauss1asum")
-    gauss2 = Gauss(mu=mu2, sigma=sigma2, dims=0, name="gauss2asum")
-    gauss3 = Gauss(mu=mu3, sigma=sigma3, dims=0, name="gauss3asum")
+    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=0, name="gauss1asum")
+    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=0, name="gauss2asum")
+    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=0, name="gauss3asum")
     gauss_dists = [gauss1, gauss2, gauss3]
 
     zfit.sess.run(tf.global_variables_initializer())
     sum_gauss = SumPDF(pdfs=gauss_dists, fracs=fracs)
-    prod_gauss = ProductPDF(pdfs=gauss_dists, dims=(0,))
+    prod_gauss = ProductPDF(pdfs=gauss_dists, obs=(0,))
 
     # Gauss for product, independent
-    gauss13 = Gauss(mu=mu1, sigma=sigma1, dims=0, name="gauss1a")
-    gauss23 = Gauss(mu=mu2, sigma=sigma2, dims=1, name="gauss2a")
-    gauss33 = Gauss(mu=mu3, sigma=sigma3, dims=2, name="gauss3a")
+    gauss13 = Gauss(mu=mu1, sigma=sigma1, obs=0, name="gauss1a")
+    gauss23 = Gauss(mu=mu2, sigma=sigma2, obs=1, name="gauss2a")
+    gauss33 = Gauss(mu=mu3, sigma=sigma3, obs=2, name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
-    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, dims=range(3))
+    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=range(3))
     prod_gauss_3d.set_integration_options(mc_options={'draws_per_dim': 33})
 
-    gauss12 = Gauss(mu=mu1, sigma=sigma1, dims=3, name="gauss12a")
-    gauss22 = Gauss(mu=mu2, sigma=sigma2, dims=0, name="gauss22a")
-    gauss32 = Gauss(mu=mu3, sigma=sigma3, dims=2, name="gauss32a")
+    gauss12 = Gauss(mu=mu1, sigma=sigma1, obs=3, name="gauss12a")
+    gauss22 = Gauss(mu=mu2, sigma=sigma2, obs=0, name="gauss22a")
+    gauss32 = Gauss(mu=mu3, sigma=sigma3, obs=2, name="gauss32a")
     gauss_dists2 = [gauss12, gauss22, gauss32]
-    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_gauss_3d], dims=range(4))
+    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_gauss_3d], obs=range(4))
     prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 33})
     return sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2, gauss_dists
 

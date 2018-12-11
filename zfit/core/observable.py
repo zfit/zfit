@@ -38,7 +38,7 @@ class Observable(ZfitObservable, BaseObject):
     # def _check_input_ranges(self, ranges: List["zfit.Range"]) -> Tuple["zfit.Range"]:
     #
     #     if isinstance(ranges, list):
-    #         ranges = [convert_to_space()]
+    #         ranges = [convert_sort_space()]
     #
     #     ranges = convert_to_container(ranges, container=tuple)
     #     self.obs_range = sum(ranges)

@@ -70,3 +70,7 @@ class NormRangeNotImplementedError(Exception):
 class MultipleLimitsNotImplementedError(Exception):
     """Indicates that a function does not support several limits in a `Range`."""
     pass
+
+
+class DueToLazynessNotImplementedError(Exception):
+    """Only for developing purpose! Does not serve as a 'real' Exception."""

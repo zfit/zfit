@@ -60,7 +60,7 @@ import tensorflow as tf
 
 from zfit.core.interfaces import ZfitPDF
 from zfit.util.container import convert_to_container
-from .basemodel import BaseModel, _BaseModel_USER_IMPL_METHODS_TO_CHECK
+from .basemodel import BaseModel
 from zfit.core.limits import Range, convert_to_space
 from zfit.util import ztyping
 from ..settings import types as ztypes
@@ -94,9 +94,9 @@ def _BasePDF_register_check_support(has_support: bool):
 
 class BasePDF(ZfitPDF, BaseModel):
 
-    def __init__(self, dims=None, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
+    def __init__(self, obs: ztyping.ObsTypeInput, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
                  parameters: typing.Any = None, **kwargs):
-        super().__init__(dims=dims, dtype=dtype, name=name, parameters=parameters, **kwargs)
+        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters, **kwargs)
 
         self._yield = None
         self._temp_yield = None

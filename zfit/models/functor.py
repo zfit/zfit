@@ -40,7 +40,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, dims: ztyping.AxesType = None,
+    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, obs: ztyping.AxesTypeInput = None,
                  name: str = "SumPDF") -> "SumPDF":
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 
@@ -56,11 +56,11 @@ class SumPDF(BaseFunctor):
             name (str):
         """
         # Check user input, improve TODO
-        super().__init__(dims=dims, pdfs=pdfs, name=name)
+        super().__init__(dims=obs, pdfs=pdfs, name=name)
         pdfs = self.pdfs
         if len(pdfs) < 2:
             raise ValueError("Cannot build a sum of a single pdf")
-        self.dims = dims
+        self.dims = obs
         if fracs is not None:
             fracs = convert_to_container(fracs)
             fracs = [ztf.convert_to_tensor(frac) for frac in fracs]
@@ -214,8 +214,8 @@ class SumPDF(BaseFunctor):
 
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
-    def __init__(self, pdfs, dims, name="ProductPDF"):
-        super().__init__(dims=dims, pdfs=pdfs, name=name)
+    def __init__(self, pdfs, obs, name="ProductPDF"):
+        super().__init__(dims=obs, pdfs=pdfs, name=name)
 
     @property
     def _functor_allow_none_dims(self) -> bool:

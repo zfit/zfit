@@ -4,22 +4,43 @@ from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 import numpy as np
 import tensorflow as tf
 
-InputLowerType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-ReturnLowerType = Tuple[Tuple[float, ...]]
-InputUpperType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-ReturnUpperType = Tuple[Tuple[float, ...]]
+# space
+LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
+LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, "False"]
+
+UpperTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
+UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, "False"]
+
 LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], "False"]
-AxesType = Tuple[str, ...]
+LimitsTypeSimpleInput = Union[Tuple[float, float], "False"]
+LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], "False"]
+LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, "False"]
+
+_IterLimitsTypeReturn = Union[List['NamedSpace'], List[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
+
+AxesTypeInput = Union[int, Tuple[int, ...]]
+AxesTypeReturn = Union[List[int], None]
+
+ObsTypeInput = Union[str, List[str], "NamedSpace"]
+ObsTypeReturn = Union[Tuple[str, ...], None]
+SpaceTypeReturn = "NamedSpace"
+
+# Data
 XType = Union[float, tf.Tensor]
+NumericalTypeReturn = Union[tf.Tensor, np.array]
+
+# Parameter
 ParamsType = Optional[Iterable['ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]
 ParamsOrNameType = Optional[Union[ParamsType, Iterable[str]]]
 ParametersType = Dict[str, "ZfitParameter"]
+
+# TensorFlow specific
 SessionType = Optional[tf.Session]
+
+# Zfit Structure
 BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
 DependentsType = Set['Parameter']
-ReturnNumericalType = Union[tf.Tensor, np.array]
-InputObservableType = Union[str, List[str]]
 
 try:
     from typing import OrderedDict

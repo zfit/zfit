@@ -20,7 +20,10 @@ sigma_true = 1.8
 low, high = -4.3, 1.9
 mu = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
 sigma = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
-gauss_params1 = Gauss(mu=mu, sigma=sigma, name="gauss_params1")
+
+obs1 = 'obs1'
+
+gauss_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
 
 
 class TestGaussian(model_dims_mixin(1), zfit.core.basepdf.BasePDF):
@@ -47,12 +50,12 @@ sigma2 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 mu3 = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
 sigma3 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
-wrapped_gauss = zfit.models.dist_tfp.WrapDistribution(tf_gauss1)
+wrapped_gauss = zfit.models.dist_tfp.WrapDistribution(tf_gauss1, obs=obs1)
 
-gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3)
+gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3, obs=obs1)
 
-test_gauss1 = TestGaussian(name="test_gauss1")
-wrapped_normal1 = Normal(mu=mu2, sigma=sigma2, name='wrapped_normal1')
+test_gauss1 = TestGaussian(name="test_gauss1", obs=obs1)
+wrapped_normal1 = Normal(mu=mu2, sigma=sigma2, obs=obs1, name='wrapped_normal1')
 
 init = tf.global_variables_initializer()
 

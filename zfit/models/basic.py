@@ -20,8 +20,8 @@ except AttributeError:  # py34
 
 class Gauss(model_dims_mixin(1), BasePDF):
 
-    def __init__(self, mu, sigma, dims=None, name="Gauss"):  # TODO: names? TF dist?
-        super().__init__(name=name, dims=dims, parameters=dict(mu=mu, sigma=sigma))
+    def __init__(self, mu, sigma, obs, name="Gauss"):  # TODO: names? TF dist?
+        super().__init__(name=name, obs=obs, parameters=dict(mu=mu, sigma=sigma))
 
     def _unnormalized_pdf(self, x, norm_range=False):
         mu = self.parameters['mu']

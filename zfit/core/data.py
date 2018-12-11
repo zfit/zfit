@@ -156,7 +156,7 @@ class Data(ZfitData, BaseObject):
             permutation_indices_data = permutation_indices
         else:
             permutation_indices_data = tuple(self._permutation_indices_data[i] for i in permutation_indices)
-        obs_axes_items = tuple(self._space.get_obs_axes().items())
+        obs_axes_items = tuple(self._space.get_axes(as_dict=True, autofill=True).items())
         obs_axes = OrderedDict(obs_axes_items[i] for i in permutation_indices)
 
         space = self._space.with_obs_axes(obs_axes=obs_axes)

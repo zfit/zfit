@@ -17,8 +17,8 @@ limit1_areas = (2, 3)
 limit1_axes = (1,)
 limit1_obs = ("obs1",)
 limit1_axes_true = limit1_axes
-space1 = NamedSpace.from_axes(lower=lower1, upper=upper1, axes=limit1_axes)
-space1_obs = NamedSpace(lower=lower1, upper=upper1, obs=limit1_obs)
+space1 = NamedSpace.from_axes(limits=limit1, axes=limit1_axes)
+space1_obs = NamedSpace(obs=limit1_obs, limits=limit1)
 arguments1 = (space1, lower1, upper1, limit1_true, limit1_axes, limit1_areas, 2)
 
 lower2 = (1, 2, 3), (-4, -5, 5)
@@ -34,9 +34,9 @@ sub_limit2_axes = (1, 6)
 limit2_obs = ('obs1', 'obs2', 'obs3')
 sub_limit2_obs = ('obs1', 'obs3')
 
-space2 = NamedSpace.from_axes(lower=lower2, upper=upper2, axes=limit2_axes)
-space2_obs = NamedSpace(obs=limit2_obs, lower=lower2, upper=upper2)
-sub_space2 = NamedSpace.from_axes(lower=sub_lower2, upper=sub_upper2, axes=sub_limit2_axes)
+space2 = NamedSpace.from_axes(limits=limit2, axes=limit2_axes)
+space2_obs = NamedSpace(obs=limit2_obs, limits=limit2)
+sub_space2 = NamedSpace.from_axes(limits=sub_limit2, axes=sub_limit2_axes)
 space2_subbed = space2.get_subspace(axes=sub_limit2_axes)
 
 arguments2 = (space2, lower2, upper2, limit2, limit2_axes, limit2_areas, 2)
