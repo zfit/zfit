@@ -33,6 +33,17 @@ class IntentionNotUnambiguousError(Exception):
     pass
 
 
+class UnderdefinedError(IntentionNotUnambiguousError):
+    pass
+
+
+class LimitsUnderdefinedError(UnderdefinedError):
+    pass
+
+
+class OverdefinedError(IntentionNotUnambiguousError):
+    pass
+
 class AxesNotUnambiguousError(IntentionNotUnambiguousError):
     pass
 
@@ -47,6 +58,11 @@ class AxesNotSpecifiedError(NotSpecifiedError):
 
 
 class ObsNotSpecifiedError(NotSpecifiedError):
+    pass
+
+
+# Operation errors
+class ShapeIncompatibleError(Exception):
     pass
 
 
@@ -74,3 +90,4 @@ class MultipleLimitsNotImplementedError(Exception):
 
 class DueToLazynessNotImplementedError(Exception):
     """Only for developing purpose! Does not serve as a 'real' Exception."""
+    pass

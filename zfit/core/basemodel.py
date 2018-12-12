@@ -5,24 +5,23 @@ import contextlib
 from contextlib import suppress
 import typing
 import warnings
-from typing import Type, Dict, List, Union, Tuple
+from typing import Type, Dict, Union
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from zfit.core.observable import Observable
+from zfit.core.data import Data
 from zfit.util.checks import NOT_SPECIFIED
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
 from .interfaces import ZfitModel, ZfitParameter
 from . import integration as zintegrate, sample as zsample
-from .baseobject import BaseObject, BaseNumeric
-from .limits import no_norm_range, NamedSpace, convert_to_space, supports, NamedSpace
-from .parameter import convert_to_parameter
+from .baseobject import BaseNumeric
+from .limits import no_norm_range, convert_to_space, supports, NamedSpace
 from ..settings import types as ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import (BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError,
-                              DueToLazynessNotImplementedError, )
+                              DueToLazynessNotImplementedError, ShapeIncompatibleError, )
 from zfit import ztf
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
@@ -48,7 +47,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
+class BaseModel(BaseNumeric, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
@@ -131,7 +130,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         raise NotImplementedError
 
     @property
-    def obs(self) -> Tuple[Observable]:
+    def obs(self) -> ztyping.ObsTypeReturn:
         return self._space.obs
 
     def _check_set_space(self, obs):
@@ -139,9 +138,23 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
             obs = NamedSpace(obs=obs)
         self._space = obs.with_autofill_axes()
 
-    def _convert_check_sort_x(self, x):
-        if isinstance(x, tf.Tensor):
-            return x
+    @contextlib.contextmanager
+    def _convert_sort_x(self, x):
+        if isinstance(x, Data):
+            with x.sort_by_obs(obs=self.obs):
+                yield x
+        else:
+            if not isinstance(x, tf.Tensor):
+                try:
+                    x = ztf.convert_to_tensor(value=x)
+                except TypeError:
+                    raise TypeError("Wrong type of x ({}). Has to be a `Data` or convertible to a tf.Tensor")
+            # check dimension
+            x_shape = x.shape.as_list()[0]
+            if x_shape != self.n_dims:
+                raise ShapeIncompatibleError("The shape of x (={}) (in the first dim) does not"
+                                             "match the shape (={})of the model".format(x_shape, self.n_dims))
+            yield x
 
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
                                 general_options: dict = None, analytic_options: dict = None):
@@ -159,61 +172,8 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
     def gradient(self, x: ztyping.XType, params: ztyping.ParamsType = None):
         raise NotImplementedError
 
-    def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):
-        if norm_range is None:
-            norm_range = self.norm_range
-        return self._check_input_norm_range(norm_range=norm_range, caller_name=caller_name, none_is_error=none_is_error)
-
-    @property
-    def norm_range(self) -> Union[NamedSpace, None]:
-        """Return the current normalization range
-
-        Returns:
-            NamedSpace or None: The current normalization range
-
-        """
-        norm_range = self._norm_range
-        if norm_range is None:
-            norm_range = self._space
-        return norm_range
-
-    # @contextlib.contextmanager
-    # def set_norm_range(self, norm_range: ztyping.LimitsType) -> Union['NamedSpace', None]:  # TODO: rename, better?
-    #     """Temporarily set a normalization range for the model.
-    #
-    #     Args:
-    #         norm_range (): The new normalization range
-    #     """
-    #     old_norm_range = self.norm_range
-    #     self.set_norm_range(norm_range)
-    #     if self.n_dims and self._norm_range is not None:
-    #         if not self.n_dims == self._norm_range.n_dims:
-    #             raise ValueError("norm_range n_dims {} does not match dist.n_dims {}"
-    #                              "".format(self._norm_range.n_dims, self.n_dims))
-    #     try:
-    #         yield self.norm_range  # or None, not needed
-    #     finally:
-    #         self.set_norm_range(old_norm_range)
-
-    def set_norm_range(self, norm_range: Union[NamedSpace, None]):
-        """Set the normalization range (temporarily if used with contextmanager).
-
-        Args:
-            norm_range ():
-
-        """
-        norm_range = self.convert_sort_space(norm_range)
-
-        def setter(value):
-            self._norm_range = value
-
-        def getter():
-            return self.norm_range
-
-        return TemporarilySet(value=norm_range, setter=setter, getter=getter)
-
-    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=False) -> typing.Union[
-        NamedSpace, bool]:
+    def _check_input_norm_range(self, norm_range, caller_name="",
+                                none_is_error=False) -> typing.Union[NamedSpace, bool]:
         """Convert to :py:class:`NamedSpace`.
 
         Args:
@@ -237,21 +197,15 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
 
         return self.convert_sort_space(obs=norm_range)
 
-    def convert_sort_space(self, obs: ztyping.ObsTypeInput = NOT_SPECIFIED,
-                           axes: ztyping.AxesTypeInput = NOT_SPECIFIED,
-                           limits: ztyping.LimitsTypeInput = NOT_SPECIFIED) -> NamedSpace:
-        if isinstance(obs, NamedSpace):
-            space = obs
-        elif obs is not NOT_SPECIFIED or obs is not None:
-            obs = convert_to_container(value=obs, container=tuple)
-            space = convert_to_space(obs=obs)
-        else:
-            DueToLazynessNotImplementedError("More is not yet implemented")
+    def convert_sort_space(self, obs: ztyping.ObsTypeInput = None,
+                           axes: ztyping.AxesTypeInput = None,
+                           limits: ztyping.LimitsTypeInput = None) -> Union[NamedSpace, None]:
+        space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         self_space = self._space
         if self_space is not None:
-            sorted_space = space.with_obs_axes(self_space.get_axes(as_dict=True, autofill=True))
-        return sorted_space
+            space = space.with_obs_axes(self_space.get_axes(as_dict=True, autofill=True))
+        return space
 
     @property
     def n_dims(self):
@@ -544,7 +498,7 @@ class BaseModel(BaseNumeric, ZfitModel):  # __init_subclass__ backport
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)  # TODO: FULL reasonable?
         limits = self.convert_sort_space(limits)
-        with self._convert_check_sort_x(x):
+        with self._convert_sort_x(x):
             return self._hook_partial_integrate(x=x, limits=limits,
                                                 norm_range=norm_range, name=name)
 

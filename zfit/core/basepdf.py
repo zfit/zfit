@@ -60,6 +60,7 @@ import tensorflow as tf
 
 from zfit.core.interfaces import ZfitPDF
 from zfit.util.container import convert_to_container
+from zfit.util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from zfit.core.limits import NamedSpace, convert_to_space
 from zfit.util import ztyping
@@ -108,27 +109,11 @@ class BasePDF(ZfitPDF, BaseModel):
         cls._subclass_check_support(methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BasePDF_register_check_support)
 
-    def copy(self, **override_parameters):
-        """Creates a deep copy of the model.
-
-        Note: the copy model may continue to depend on the original
-        initialization arguments.
-
-        Args:
-          **override_parameters: String/value dictionary of initialization
-            arguments to override with new value.
-
-        Returns:
-          model: A new instance of `type(self)` initialized from the union
-            of self.parameters and override_parameters_kwargs, i.e.,
-            `dict(self.parameters, **override_parameters_kwargs)`.
-        """
-        parameters = dict(self.parameters, **override_parameters)
-        yield_ = parameters.pop('yield', None)
-        new_instance = type(self)(**parameters)
-        if yield_ is not None:
-            new_instance.set_yield(yield_)
-        return new_instance
+    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True):
+        if norm_range is None:
+            norm_range = self.norm_range
+        return super()._check_input_norm_range(norm_range=norm_range, caller_name=caller_name,
+                                               none_is_error=none_is_error)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)
@@ -167,6 +152,36 @@ class BasePDF(ZfitPDF, BaseModel):
         integral = super()._hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
+
+    @property
+    def norm_range(self) -> Union[NamedSpace, None, "False"]:
+        """Return the current normalization range.
+
+        Returns:
+            NamedSpace or None: The current normalization range
+
+        """
+        norm_range = self._norm_range
+        if norm_range is None:
+            norm_range = self._space
+        return norm_range
+
+    def set_norm_range(self, norm_range: Union[NamedSpace, None]):
+        """Set the normalization range (temporarily if used with contextmanager).
+
+        Args:
+            norm_range ():
+
+        """
+        norm_range = self.convert_sort_space(norm_range)
+
+        def setter(value):
+            self._norm_range = value
+
+        def getter():
+            return self.norm_range
+
+        return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
     @property
     def _yield(self):
@@ -251,8 +266,8 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           model: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range_default(norm_range, caller_name=name,
-                                                          none_is_error=True)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name,
+                                                  none_is_error=True)
         return self._hook_pdf(x, norm_range, name)
 
     def _hook_pdf(self, x, norm_range, name="_hook_pdf"):
@@ -305,7 +320,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           log_pdf: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range_default(norm_range, caller_name=name)
+        norm_range = self._check_input_norm_range(norm_range, caller_name=name)
 
         return self._hook_log_pdf(x, norm_range, name)
 
@@ -361,7 +376,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def set_yield(self, value: Union[Parameter, float, None]):
-        """Make the model extended by setting a yield.
+        """Make the model extended by (temporarily) setting a yield.
 
         This alters the behavior of `model` and similar and `integrate` and similar. If there is a
         `norm_range` given, the output of the above functions does not represent a normalized
@@ -370,7 +385,14 @@ class BasePDF(ZfitPDF, BaseModel):
         Args:
             value ():
         """
-        self._set_yield(value=value)
+
+        def setter(value):
+            self._set_yield(value=value)
+
+        def getter():
+            return self.get_yield()
+
+        return TemporarilySet(value=value, setter=setter, getter=getter)
 
     def _set_yield(self, value: Union[Parameter, None]):
         self._yield = value
@@ -384,19 +406,19 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         return self._yield is not None
 
-    @contextlib.contextmanager
-    def temp_yield(self, value: Union[Parameter, None]) -> Union[Parameter, None]:
-        """Temporary set (or unset with None) the yield of the model.
-
-        Args:
-            value ():
-        """
-        old_yield = self.get_yield()
-        self.set_yield(value)
-        try:
-            yield value
-        finally:
-            self.set_yield(old_yield)
+    # @contextlib.contextmanager
+    # def temp_yield(self, value: Union[Parameter, None]) -> Union[Parameter, None]:
+    #     """Temporary set (or unset with None) the yield of the model.
+    #
+    #     Args:
+    #         value ():
+    #     """
+    #     old_yield = self.get_yield()
+    #     self.set_yield(value)
+    #     try:
+    #         yield value
+    #     finally:
+    #         self.set_yield(old_yield)
 
     def get_yield(self) -> Union[Parameter, None]:
         """Return the yield (only for extended models).
@@ -404,9 +426,31 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             Parameter: the yield of the current model or None
         """
-        if not self.is_extended:
-            raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
+        # if not self.is_extended:
+        #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
+
+    def copy(self, **override_parameters):
+        """Creates a deep copy of the model.
+
+        Note: the copy model may continue to depend on the original
+        initialization arguments.
+
+        Args:
+          **override_parameters: String/value dictionary of initialization
+            arguments to override with new value.
+
+        Returns:
+          model: A new instance of `type(self)` initialized from the union
+            of self.parameters and override_parameters_kwargs, i.e.,
+            `dict(self.parameters, **override_parameters_kwargs)`.
+        """
+        parameters = dict(self.parameters, **override_parameters)
+        yield_ = parameters.pop('yield', None)
+        new_instance = type(self)(**parameters)
+        if yield_ is not None:
+            new_instance.set_yield(yield_)
+        return new_instance
 
     def as_func(self, norm_range: ztyping.LimitsType = False):
         """Return a `Function` with the function `model(x, norm_range=norm_range)`.

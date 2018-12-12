@@ -49,4 +49,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         from zfit.core.operations import convert_func_to_pdf
         return convert_func_to_pdf(func=self)
 
-
+    def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):
+        if norm_range is None:
+            norm_range = self.norm_range
+        return self._check_input_norm_range(norm_range=norm_range, caller_name=caller_name, none_is_error=none_is_error)

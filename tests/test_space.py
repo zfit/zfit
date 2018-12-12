@@ -6,8 +6,8 @@ from unittest import TestCase
 import pytest
 import numpy as np
 
-from zfit.core.limits import NamedSpace
-from zfit.util.exception import ConversionError
+from zfit.core.limits import NamedSpace, convert_to_space
+from zfit.util.exception import ConversionError, ObsNotSpecifiedError, AxesNotSpecifiedError, LimitsUnderdefinedError
 
 lower1 = (1,), (4,)
 upper1 = (3,), (7,)
@@ -37,20 +37,29 @@ sub_limit2_obs = ('obs1', 'obs3')
 space2 = NamedSpace.from_axes(limits=limit2, axes=limit2_axes)
 space2_obs = NamedSpace(obs=limit2_obs, limits=limit2)
 sub_space2 = NamedSpace.from_axes(limits=sub_limit2, axes=sub_limit2_axes)
-space2_subbed = space2.get_subspace(axes=sub_limit2_axes)
+space2_subbed_axes = space2.get_subspace(axes=sub_limit2_axes)
 
 arguments2 = (space2, lower2, upper2, limit2, limit2_axes, limit2_areas, 2)
 sub_arguments2 = (sub_space2, sub_lower2, sub_upper2, sub_limit2, sub_limit2_axes, sub_limit2_areas, 2)
 
 
 @pytest.mark.parametrize("space1, space2", [
-    [space2_subbed, sub_space2]
+    [space2_subbed_axes, sub_space2]
     ])
 def test_equality(space1, space2):
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
     assert space1.limits == space2.limits
     assert space1.iter_areas() == pytest.approx(space2.iter_areas(), rel=1e-8)
+
+
+def test_sub_space():
+    sub_space2_true_axes = NamedSpace.from_axes(axes=sub_limit2_axes, limits=sub_limit2)
+    assert sub_space2_true_axes == space2_subbed_axes
+
+    sub_space2_true = NamedSpace(obs=sub_limit2_obs, limits=sub_limit2)
+    space2_subbed = space2_obs.get_subspace(obs=sub_limit2_obs)
+    assert space2_subbed == sub_space2_true
 
 
 @pytest.mark.parametrize("space,lower, upper, limit, axes, areas, n_limits",
@@ -126,3 +135,73 @@ def test_setting_axes(space, obs):
     assert obs == space.obs
     assert lower == space.lower
     assert upper == space.upper
+
+
+def test_exception():
+    invalid_obs = (1, 4)
+    with pytest.raises(ValueError):
+        NamedSpace(obs=invalid_obs)
+    with pytest.raises(ObsNotSpecifiedError):
+        NamedSpace(obs=None, limits=limit2)
+    with pytest.raises(AxesNotSpecifiedError):
+        NamedSpace.from_axes(axes=None, limits=limit2)
+    with pytest.raises(ValueError):  # one obs only, but two dims
+        NamedSpace(obs='obs1', limits=(((1, 2),), ((2, 3),)))
+    with pytest.raises(ValueError):  # two obs but only 1 dim
+        NamedSpace(obs=['obs1', 'obs2'], limits=(((1,),), ((2,),)))
+    with pytest.raises(ValueError):  # one axis but two dims
+        NamedSpace.from_axes(axes=(1,), limits=(((1, 2),), ((2, 3),)))
+    with pytest.raises(ValueError):  # two axes but only 1 dim
+        NamedSpace.from_axes(axes=(1, 2), limits=(((1,),), ((2,),)))
+    with pytest.raises(ValueError):  # two obs, two limits but each one only 1 dim
+        NamedSpace(obs=['obs1', 'obs2'], limits=(((1,), (2,)), ((2,), (3,))))
+
+
+def test_dimensions():
+    space = NamedSpace(obs=['obs1', 'obs2'], limits=(((1, 2),), ((2, 3),)))
+    assert space.n_obs == 2
+    assert space.n_limits == 1
+
+    space = NamedSpace(obs='obs1', limits=(((1,), (2,)), ((2,), (3,))))
+    assert space.n_obs == 1
+    assert space.n_limits == 2
+
+    space = NamedSpace(obs=['obs1', 'obs2'], limits=(((1, 5), (2, 4)), ((2, 3), (3, 2))))
+    assert space.n_obs == 2
+    assert space.n_limits == 2
+
+    space = NamedSpace(obs='obs1', limits=(((1,),), ((2,),)))
+    assert space.n_obs == 1
+    assert space.n_limits == 1
+
+    space = NamedSpace(obs=['obs1', 'obs2'],
+                       limits=(((1, 5), (2, 4), (1, 5), (2, 4)), ((2, 3), (3, 2), (1, 5), (2, 4))))
+    assert space.n_obs == 2
+    assert space.n_limits == 4
+
+    space = NamedSpace(obs=['obs1', 'obs2', 'obs3', 'obs4'],
+                       limits=(((1, 5, 2, 4), (1, 5, 2, 4)), ((2, 3, 3, 2), (1, 5, 2, 4))))
+    assert space.n_obs == 4
+    assert space.n_limits == 2
+
+    space = NamedSpace.from_axes(axes=(1,), limits=(((1,), (2,)), ((2,), (3,))))
+    assert space.n_obs == 1
+    assert space.n_limits == 2
+
+    space = NamedSpace.from_axes(axes=(1, 2), limits=(((1, 5), (2, 4)), ((2, 3), (3, 2))))
+    assert space.n_obs == 2
+    assert space.n_limits == 2
+
+    space = NamedSpace.from_axes(axes=(1,), limits=(((1,),), ((2,),)))
+    assert space.n_obs == 1
+    assert space.n_limits == 1
+
+    space = NamedSpace.from_axes(axes=(1, 2, 4, 5),
+                                 limits=(((1, 5, 2, 4), (1, 5, 2, 4)), ((2, 3, 3, 2), (1, 5, 2, 4))))
+    assert space.n_obs == 4
+    assert space.n_limits == 2
+
+
+def test_autoconvert():
+    with pytest.raises(LimitsUnderdefinedError):
+        convert_to_space(obs=['obs1', 'obs2'], limits=(((1, 2),), ((2, 3),)))

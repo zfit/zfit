@@ -63,7 +63,7 @@ def test_from_root():
 def test_from_numpy():
     example_data = np.random.random(size=(len(obs1), 1000))
     data = zfit.data.Data.from_numpy(obs=obs1, array=example_data)
-    data.initialize(sess=zfit.sess)
+    # data.initialize(sess=zfit.sess)
     x = data.value()
     x_np = zfit.sess.run(x)
     np.testing.assert_array_equal(example_data, x_np)

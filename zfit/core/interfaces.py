@@ -10,7 +10,7 @@ import zfit
 from ..util import ztyping
 
 
-class ZfitObject(pep487.ABC):
+class ZfitObject(pep487.ABC):  # __init_subclass__ backport
 
     @property
     @abc.abstractmethod
