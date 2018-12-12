@@ -8,8 +8,8 @@ from zfit.util.container import convert_to_container
 
 class SimpleFunction(BaseFunc):
 
-    def __init__(self, func,  name="Function", dims=None, n_dims=None, **parameters):
-        super().__init__(name=name, dims=dims, parameters=parameters)
+    def __init__(self, func, obs, name="Function", n_dims=None, **parameters):
+        super().__init__(name=name, obs=obs, parameters=parameters)
         self._value_func = self._check_input_x_function(func)
         self._user_n_dims = n_dims
 
@@ -43,9 +43,9 @@ class BaseFunctorFunc(BaseFunc):
 
 
 class SumFunc(BaseFunctorFunc):
-    def __init__(self, funcs, dims=None, name="SumFunc", **kwargs):
+    def __init__(self, funcs, obs, name="SumFunc", **kwargs):
         super().__init__(funcs=funcs, name=name, **kwargs)
-        self.dims = dims
+        self.obs = obs
 
     def _value(self, x):
         # sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
@@ -59,9 +59,9 @@ class SumFunc(BaseFunctorFunc):
 
 
 class ProdFunc(BaseFunctorFunc):
-    def __init__(self, funcs, dims=None, name="SumFunc", **kwargs):
+    def __init__(self, funcs, obs, name="SumFunc", **kwargs):
         super().__init__(funcs=funcs, name=name, **kwargs)
-        self.dims = dims
+        self.obs = obs
 
     def _value(self, x):
         value = self.funcs[0].value(x)

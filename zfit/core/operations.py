@@ -76,7 +76,7 @@ def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesTypeI
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
     from ..models.functions import ProdFunc
 
-    return ProdFunc(funcs=[func1, func2], dims=dims, name=name)
+    return ProdFunc(funcs=[func1, func2], obs=dims, name=name)
 
 
 def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
@@ -190,7 +190,7 @@ def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesTypeInput 
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
     from ..models.functions import SumFunc
 
-    return SumFunc(funcs=[func1, func2], dims=dims, name=name)
+    return SumFunc(funcs=[func1, func2], obs=dims, name=name)
 
 
 def add_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:

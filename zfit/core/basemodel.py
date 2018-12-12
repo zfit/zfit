@@ -150,11 +150,18 @@ class BaseModel(BaseNumeric, ZfitModel):
                 except TypeError:
                     raise TypeError("Wrong type of x ({}). Has to be a `Data` or convertible to a tf.Tensor")
             # check dimension
+            x = self._add_dim_to_x(x=x)
             x_shape = x.shape.as_list()[0]
             if x_shape != self.n_dims:
                 raise ShapeIncompatibleError("The shape of x (={}) (in the first dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_dims))
             yield x
+
+    def _add_dim_to_x(self, x):
+        if self.n_dims == 1:
+            if len(x.shape.as_list()) == 1:
+                x = tf.expand_dims(x, 0)
+        return x
 
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
                                 general_options: dict = None, analytic_options: dict = None):
@@ -173,7 +180,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         raise NotImplementedError
 
     def _check_input_norm_range(self, norm_range, caller_name="",
-                                none_is_error=False) -> typing.Union[NamedSpace, bool]:
+                                none_is_error=False, convert_false=False) -> typing.Union[NamedSpace, bool]:
         """Convert to :py:class:`NamedSpace`.
 
         Args:
@@ -194,12 +201,16 @@ class BaseModel(BaseNumeric, ZfitModel):
                                  "".format(name=caller_name))
             else:
                 norm_range = False
-
-        return self.convert_sort_space(obs=norm_range)
+        if norm_range is False and not convert_false:
+            return False
+        else:
+            return self.convert_sort_space(limits=norm_range)
 
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None,
                            axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[NamedSpace, None]:
+        if obs is None:
+            obs = self.obs
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         self_space = self._space
@@ -261,7 +272,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             Tensor: the integral value
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
-        limits = self.convert_sort_space(limits)
+        limits = self.convert_sort_space(limits=limits)
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
@@ -366,7 +377,7 @@ class BaseModel(BaseNumeric, ZfitModel):
                 integral over the limits = norm_range is not available.
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
-        limits = self.convert_sort_space(limits)
+        limits = self.convert_sort_space(limits=limits)
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
@@ -433,7 +444,7 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
-        limits = self.convert_sort_space(limits)
+        limits = self.convert_sort_space(limits=limits)
 
         return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
@@ -497,7 +508,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             Tensor: the value of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)  # TODO: FULL reasonable?
-        limits = self.convert_sort_space(limits)
+        limits = self.convert_sort_space(limits=limits)
         with self._convert_sort_x(x):
             return self._hook_partial_integrate(x=x, limits=limits,
                                                 norm_range=norm_range, name=name)
@@ -593,8 +604,9 @@ class BaseModel(BaseNumeric, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)  # TODO: full reasonable?
         limits = convert_to_space(limits)  # TODO: replace by limits.axes if axes is None?
-        return self._hook_partial_analytic_integrate(x=x, limits=limits,
-                                                     norm_range=norm_range, name=name)
+        with self._convert_sort_x(x):
+            return self._hook_partial_analytic_integrate(x=x, limits=limits,
+                                                         norm_range=norm_range, name=name)
 
     def _hook_partial_analytic_integrate(self, x, limits, norm_range,
                                          name='_hook_partial_analytic_integrate'):
@@ -675,8 +687,9 @@ class BaseModel(BaseNumeric, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         limits = convert_to_space(limits)
-
-        return self._hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
+        with self._convert_sort_x(x):
+            return self._hook_partial_numeric_integrate(x=x, limits=limits,
+                                                        norm_range=norm_range, name=name)
 
     def _hook_partial_numeric_integrate(self, x, limits, norm_range,
                                         name='_hook_partial_numeric_integrate'):
@@ -721,7 +734,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, x=x)
 
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
-        integration_options = dict(func=func, limits=limits, n_dims=limits.n_dims, x=x, norm_range=norm_range,
+        integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x, norm_range=norm_range,
                                    # auto from self
                                    dtype=self.dtype,
                                    mc_sampler=self._integration.mc_sampler,
@@ -752,7 +765,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         Returns:
             Tensor(n_dims, n_samples)
         """
-        limits = convert_to_space(limits)
+        limits = convert_to_space(limits=limits)
         return self._hook_sample(n=n, limits=limits, name=name)
 
     def _hook_sample(self, limits, n, name='_hook_sample'):
@@ -779,7 +792,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             return self._fallback_sample(n=n, limits=limits)
 
     def _analytic_sample(self, n, limits: NamedSpace):
-        if len(limits.n_limits) > 1:
+        if limits.n_limits > 1:
             raise MultipleLimitsNotImplementedError()
 
         for lower_bound, upper_bound in zip(*limits.limits()):
@@ -873,10 +886,10 @@ class BaseModel(BaseNumeric, ZfitModel):
         if not callable(func):
             raise TypeError("Function {} is not callable.")
         return func
-
-    def convert_to_tensor(self, value, dtype=None):
-
-        tf.convert_to_tensor
+    #
+    # def convert_to_tensor(self, value, dtype=None):
+    #
+    #     tf.convert_to_tensor
 
     def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_parameters())

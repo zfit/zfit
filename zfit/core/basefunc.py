@@ -12,15 +12,15 @@ from zfit import ztf
 
 class BaseFunc(BaseModel, ZfitFunc):
 
-    def __init__(self, dims=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
+    def __init__(self, obs=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
                  parameters: typing.Any = None):
-        super().__init__(dims=dims, dtype=dtype, name=name, parameters=parameters)
+        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters)
 
     def _func_to_sample_from(self, x):
         return self.value(x=x)
 
     def _func_to_integrate(self, x: ztyping.XType):
-        self._hook_value(x=x)
+        return self._hook_value(x=x)
 
     def copy(self, **override_parameters):
         new_params = self.parameters

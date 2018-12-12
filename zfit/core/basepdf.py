@@ -109,11 +109,11 @@ class BasePDF(ZfitPDF, BaseModel):
         cls._subclass_check_support(methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BasePDF_register_check_support)
 
-    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True):
+    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True, convert_false=False):
         if norm_range is None:
             norm_range = self.norm_range
         return super()._check_input_norm_range(norm_range=norm_range, caller_name=caller_name,
-                                               none_is_error=none_is_error)
+                                               none_is_error=none_is_error, convert_false=convert_false)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)
@@ -173,7 +173,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm_range ():
 
         """
-        norm_range = self.convert_sort_space(norm_range)
+        norm_range = self.convert_sort_space(limits=norm_range)
 
         def setter(value):
             self._norm_range = value
@@ -214,7 +214,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             Tensor: the normalization value
         """
-        limits = convert_to_space(limits)
+        limits = self.convert_sort_space(limits=limits)
 
         return self._hook_normalization(limits=limits, name=name)
 
@@ -249,7 +249,8 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             graph: A runnable graph
         """
-        return self._call_unnormalized_pdf(x=x, name=name)
+        with self._convert_sort_x(x):
+            return self._call_unnormalized_pdf(x=x, name=name)
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -268,7 +269,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name,
                                                   none_is_error=True)
-        return self._hook_pdf(x, norm_range, name)
+        with self._convert_sort_x(x):
+            return self._hook_pdf(x, norm_range, name)
 
     def _hook_pdf(self, x, norm_range, name="_hook_pdf"):
         probability = self._norm_pdf(x=x, norm_range=norm_range, name=name)
@@ -321,8 +323,8 @@ class BasePDF(ZfitPDF, BaseModel):
           log_pdf: a `Tensor` of type `self.dtype`.
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
-
-        return self._hook_log_pdf(x, norm_range, name)
+        with self._convert_sort_x(x):
+            return self._hook_log_pdf(x, norm_range, name)
 
     def _norm_log_pdf(self, x, norm_range, name='_norm_log_pdf'):
         log_prob = self._call_log_pdf(x, norm_range, name)
@@ -445,7 +447,8 @@ class BasePDF(ZfitPDF, BaseModel):
             of self.parameters and override_parameters_kwargs, i.e.,
             `dict(self.parameters, **override_parameters_kwargs)`.
         """
-        parameters = dict(self.parameters, **override_parameters)
+        parameters = dict(self.parameters, obs=self.obs, **override_parameters)
+
         yield_ = parameters.pop('yield', None)
         new_instance = type(self)(**parameters)
         if yield_ is not None:

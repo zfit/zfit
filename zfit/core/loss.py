@@ -32,7 +32,7 @@ def _unbinned_nll_tf(model, data, fit_range, constraints: Optional[dict] = None)
                 for p, d, r in zip(model, data, fit_range)]
         nll_finished = tf.reduce_sum(nlls)
     else:  # TODO: complicated limits?
-        fit_range = convert_to_space(fit_range)
+        fit_range = model.convert_sort_space(fit_range)
         limits = fit_range.limits
         assert len(limits[0]) == 1, "multiple limits not (yet) supported in nll."
         (lower,), (upper,) = limits
@@ -126,12 +126,12 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
                                  "\nfit_range: {}".format(pdf, data, fit_range))
 
         else:
-            fit_range = convert_to_space(fit_range)  # fit_range may be a tuple and
+            fit_range = pdf.convert_sort_space(limits=fit_range)  # fit_range may be a tuple and
             # therefore is a container already!
         # convert everything to containers
         pdf, data, fit_range = (convert_to_container(obj) for obj in (pdf, data, fit_range))
         # sanitize fit_range
-        fit_range = [convert_to_space(range_) for range_ in fit_range]
+        fit_range = [p.convert_sort_space(limits=range_) for p, range_ in zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
 
         return pdf, data, fit_range

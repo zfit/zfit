@@ -41,7 +41,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 class SumPDF(BaseFunctor):
 
     def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, obs: ztyping.AxesTypeInput = None,
-                 name: str = "SumPDF") -> "SumPDF":
+                 name: str = "SumPDF"):
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 
         Args:
@@ -56,11 +56,11 @@ class SumPDF(BaseFunctor):
             name (str):
         """
         # Check user input, improve TODO
-        super().__init__(dims=obs, pdfs=pdfs, name=name)
+        super().__init__(obs=obs, pdfs=pdfs, name=name)
         pdfs = self.pdfs
         if len(pdfs) < 2:
             raise ValueError("Cannot build a sum of a single pdf")
-        self.dims = obs
+        # self.obs = obs
         if fracs is not None:
             fracs = convert_to_container(fracs)
             fracs = [ztf.convert_to_tensor(frac) for frac in fracs]
@@ -215,7 +215,7 @@ class SumPDF(BaseFunctor):
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, obs, name="ProductPDF"):
-        super().__init__(dims=obs, pdfs=pdfs, name=name)
+        super().__init__(obs=obs, pdfs=pdfs, name=name)
 
     @property
     def _functor_allow_none_dims(self) -> bool:
@@ -223,7 +223,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
 
     def _unnormalized_pdf(self, x, norm_range=False):
         x_unstacked = unstack_x_dims(x=x, dims=self._model_dims_index)
-        return tf.reduce_prod([pdf.unnormalized_pdf(x) for x, pdf in zip(x_unstacked, self.pdfs)], axis=0)
+        return tf.reduce_prod(tf.stack([pdf.unnormalized_pdf(x) for x, pdf in zip(x_unstacked, self.pdfs)]), axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_dims):

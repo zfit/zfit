@@ -335,6 +335,8 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         Returns:
             int >= 1
         """
+        if self.lower is None or self.lower is False:
+            return 0
         return len(self.lower)
 
     @property
@@ -507,7 +509,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     def _reorder_limits(self, indices: Tuple[int], inplace: bool = True) -> ztyping.LimitsTypeReturn:
         limits = self.limits
-        if limits is not None:
+        if limits is not None and limits is not False:
             print("DEBUG,limits", limits)
             lower, upper = limits
             lower = tuple(tuple(lower[i] for i in indices) for lower in lower)
@@ -816,10 +818,10 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     if not (obs is None and axes is None):
         # check if limits are allowed
         space = NamedSpace._from_any(obs=obs, axes=axes, limits=limits)  # create and test if valid
-        if one_dim_limits_only and space.n_obs > 1:
+        if one_dim_limits_only and space.n_obs > 1 and space.limits:
             raise LimitsUnderdefinedError(
                 "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `NamedSpace` instead.")
-        if simple_limits_only and space.n_limits > 1:
+        if simple_limits_only and space.limits and space.n_limits > 1:
             raise LimitsUnderdefinedError("Limits with multiple limits cannot be auto-created"
                                           " from tuples. Use `NamedSpace` instead.")
     return space

@@ -31,6 +31,7 @@ def true_gaussian_sum(x):
 
 obs1 = NamedSpace(obs='obs1')
 
+
 # @pytest.fixture()
 def sum_prod_gauss():
     # define parameters
@@ -48,22 +49,22 @@ def sum_prod_gauss():
     gauss_dists = [gauss1, gauss2, gauss3]
 
     zfit.sess.run(tf.global_variables_initializer())
-    sum_gauss = SumPDF(pdfs=gauss_dists, fracs=fracs)
+    sum_gauss = SumPDF(pdfs=gauss_dists, fracs=fracs, obs=obs1)
     prod_gauss = ProductPDF(pdfs=gauss_dists, obs=obs1)
 
     # Gauss for product, independent
-    gauss13 = Gauss(mu=mu1, sigma=sigma1, obs=0, name="gauss1a")
-    gauss23 = Gauss(mu=mu2, sigma=sigma2, obs=1, name="gauss2a")
-    gauss33 = Gauss(mu=mu3, sigma=sigma3, obs=2, name="gauss3a")
+    gauss13 = Gauss(mu=mu1, sigma=sigma1, obs='a', name="gauss1a")
+    gauss23 = Gauss(mu=mu2, sigma=sigma2, obs='b', name="gauss2a")
+    gauss33 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
-    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=range(3))
+    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=['a', 'b', 'c'])
     prod_gauss_3d.set_integration_options(mc_options={'draws_per_dim': 33})
 
-    gauss12 = Gauss(mu=mu1, sigma=sigma1, obs=3, name="gauss12a")
-    gauss22 = Gauss(mu=mu2, sigma=sigma2, obs=0, name="gauss22a")
-    gauss32 = Gauss(mu=mu3, sigma=sigma3, obs=2, name="gauss32a")
+    gauss12 = Gauss(mu=mu1, sigma=sigma1, obs='d', name="gauss12a")
+    gauss22 = Gauss(mu=mu2, sigma=sigma2, obs='a', name="gauss22a")
+    gauss32 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss32a")
     gauss_dists2 = [gauss12, gauss22, gauss32]
-    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_gauss_3d], obs=range(4))
+    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_gauss_3d], obs=['a', 'b', 'c', 'd'])
     prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 33})
     return sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2, gauss_dists
 
@@ -80,7 +81,10 @@ sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2,
 def test_prod_gauss_nd():
     # return
     test_values = np.random.random(size=(3, 10))
-    probs = prod_gauss_3d.pdf(x=test_values, norm_range=(-5, 4))
+    lower = ((-5, -5, -5),)
+    upper = ((4, 4, 4),)
+    norm_range_3d = NamedSpace(obs=['a', 'b', 'c'], limits=(lower, upper))
+    probs = prod_gauss_3d.pdf(x=test_values, norm_range=norm_range_3d)
     zfit.sess.run(tf.global_variables_initializer())
     true_probs = np.prod([gauss.pdf(test_values[i, :], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
     probs_np = zfit.sess.run(probs)
@@ -159,16 +163,16 @@ def test_extended_gauss():
         yield3 = Parameter("yield31", 2500.)
         sum_yields = 150 + 550 + 2500
 
-        gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss11")
-        gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss21")
-        gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss31")
+        gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss11")
+        gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss21")
+        gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss31")
         gauss1.set_yield(yield1)
         gauss2.set_yield(yield2)
         gauss3.set_yield(yield3)
 
         gauss_dists = [gauss1, gauss2, gauss3]
 
-        sum_gauss = SumPDF(pdfs=gauss_dists)
+        sum_gauss = SumPDF(pdfs=gauss_dists, obs=obs1, )
 
     zfit.sess.run(tf.global_variables_initializer())
     normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)

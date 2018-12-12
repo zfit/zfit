@@ -39,7 +39,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                                                       "Therefore they can't be inferered safely. Either use same ranked"
                                                       "models or specify explicitely the axes.")
 
-                self.dims = proposed_dim
+                self.obs = proposed_dim
 
             # different dimensions in submodels -> how to merge? Ambiguous
             else:
