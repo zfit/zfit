@@ -5,7 +5,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import Parameter, ztf
-from zfit.models.functions import SimpleFunction
+from zfit.models.functions import SimpleFunc
 from zfit.models.functor import SumPDF
 from zfit.models.special import SimplePDF
 from zfit.util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError
@@ -27,8 +27,8 @@ def test_not_allowed():
     def func2_pure(x):
         return param2 * x + param3
 
-    func1 = SimpleFunction(func=func1_pure, obs=obs1, p1=param1)
-    func2 = SimpleFunction(func=func2_pure, obs=obs1, p2=param2, p3=param3)
+    func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
+    func2 = SimpleFunc(func=func2_pure, obs=obs1, p2=param2, p3=param3)
 
     pdf1 = SimplePDF(func=lambda x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
@@ -55,7 +55,7 @@ def test_param_func():
     param4 = Parameter('param41s', 4.)
     a = ztf.log(3. * param1) * tf.square(param2) - param3
     # a = 3. * param1
-    func = SimpleFunction(func=lambda x: a * x, obs=obs1)
+    func = SimpleFunc(func=lambda x: a * x, obs=obs1)
 
     new_func = param4 * func
 
@@ -81,8 +81,8 @@ def test_func_func():
     def func2_pure(x):
         return param2 * x + param3
 
-    func1 = SimpleFunction(func=func1_pure, obs=obs1, p1=param1)
-    func2 = SimpleFunction(func=func2_pure, obs=obs1, p2=param2, p3=param3)
+    func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
+    func2 = SimpleFunc(func=func2_pure, obs=obs1, p2=param2, p3=param3)
 
     added_func = func1 + func2
     prod_func = func1 * func2

@@ -20,8 +20,9 @@ class BaseFunc(BaseModel, ZfitFunc):
         return self.value(x=x)
 
     def _func_to_integrate(self, x: ztyping.XType):
-        return self._hook_value(x=x)
+        return self.value(x=x)
 
+    # TODO(Mayou36): how to deal with copy properly?
     def copy(self, **override_parameters):
         new_params = self.parameters
         new_params.update(override_parameters)
@@ -35,14 +36,14 @@ class BaseFunc(BaseModel, ZfitFunc):
         raise NotImplementedError
 
     def value(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
-        return self._hook_value(x, name)
+        with self._convert_sort_x(x):
+            return self._hook_value(x, name)
 
     def _hook_value(self, x, name='_hook_value'):
         return self._call_value(x=x, name=name)
 
     def _call_value(self, x, name):
         with self._name_scope(name, values=[x]):
-            x = ztf.convert_to_tensor(x, name="x")
             return self._value(x=x)
 
     def as_pdf(self):

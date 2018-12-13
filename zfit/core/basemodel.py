@@ -203,8 +203,8 @@ class BaseModel(BaseNumeric, ZfitModel):
                 norm_range = False
         # if norm_range is False and not convert_false:
         #     return False
-        else:
-            return self.convert_sort_space(limits=norm_range)
+
+        return self.convert_sort_space(limits=norm_range)
 
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None,
                            axes: ztyping.AxesTypeInput = None,
@@ -795,22 +795,22 @@ class BaseModel(BaseNumeric, ZfitModel):
         if limits.n_limits > 1:
             raise MultipleLimitsNotImplementedError()
 
-        for lower_bound, upper_bound in zip(*limits.limits()):
+        for lower_bound, upper_bound in limits.iter_limits(as_tuple=True):
             neg_infinities = (tuple((-float("inf"),) * limits.n_obs),)  # py34 change float("inf") to math.inf
+
             try:
                 lower_prob_lim = self._norm_analytic_integrate(limits=NamedSpace.from_axes(limits=(neg_infinities,
-                                                                                                   lower_bound),
+                                                                                                   (lower_bound,)),
                                                                                            axes=limits.axes),
                                                                norm_range=False)
 
                 upper_prob_lim = self._norm_analytic_integrate(limits=NamedSpace.from_axes(limits=(neg_infinities,
-                                                                                                   upper_bound),
-                                                                                           axes=limits.axes,
-                                                                                           convert_none=True),
+                                                                                                   (upper_bound,)),
+                                                                                           axes=limits.axes),
                                                                norm_range=False)
             except NotImplementedError:
                 raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
-                                          "implemented for the boundaries:".format(limits.limits()))
+                                          " implemented for the boundaries:".format(limits.limits))
             prob_sample = ztf.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
                                              maxval=upper_prob_lim)
             sample = self._inverse_analytic_integrate(x=prob_sample)
@@ -886,6 +886,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         if not callable(func):
             raise TypeError("Function {} is not callable.")
         return func
+
     #
     # def convert_to_tensor(self, value, dtype=None):
     #

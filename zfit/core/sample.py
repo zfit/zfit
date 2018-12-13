@@ -33,8 +33,8 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: NamedSpace,
     """
     n_dims = limits.n_obs
     lower, upper = limits.limits
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)
-    upper = ztf.convert_to_tensor(upper, dtype=dtype)
+    lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
+    upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
     n = tf.to_int64(n)
 
     def enough_produced(n, sample, n_total_drawn, eff):

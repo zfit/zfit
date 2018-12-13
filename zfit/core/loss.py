@@ -6,7 +6,7 @@ from typing import Optional, Union
 from zfit import ztf
 from zfit.core.baseobject import BaseObject, BaseDependentsMixin
 from zfit.core.interfaces import ZfitLoss
-from zfit.models.functions import SimpleFunction
+from zfit.models.functions import SimpleFunc
 from zfit.util.container import convert_to_container, is_container
 
 from .limits import convert_to_space, NamedSpace
@@ -213,7 +213,7 @@ class SimpleLoss(BaseLoss):
 
     def __init__(self, func):
         self._simple_func = func
-        model= SimpleFunction(func=func, obs='obs1')
+        model= SimpleFunc(func=func, obs='obs1')
         super().__init__(model=model, data=None, fit_range=False)
 
     def errordef(self, func):

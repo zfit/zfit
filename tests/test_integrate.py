@@ -1,3 +1,4 @@
+from contextlib import suppress
 import math as mt
 
 import pytest
@@ -15,11 +16,12 @@ from zfit.core.parameter import Parameter
 from zfit.models.basic import Gauss
 from zfit.models.dist_tfp import Normal
 
-limits1_5deps = [(1., -1., 2., 4., 3.), (5., 4., 5., 8., 9.)]
+limits1_5deps = [((1., -1., 2., 4., 3.),), ((5., 4., 5., 8., 9.),)]
 # limits_simple_5deps = (0.9, 4.7)
-limits_simple_5deps = [(1., -1., -5., 3.4, 2.1), (5., 5.4, -1.1, 7.6, 3.5)]
+limits_simple_5deps = [((1., -1., -5., 3.4, 2.1),), ((5., 5.4, -1.1, 7.6, 3.5),)]
 
 obs1 = 'obs1'
+
 
 def func1_5deps(x):
     a, b, c, d, e = tf.unstack(x)
@@ -28,6 +30,7 @@ def func1_5deps(x):
 
 def func1_5deps_fully_integrated(limits):
     lower, upper = limits
+    lower, upper = lower[0], upper[0]
     a_lower, b_lower, c_lower, d_lower, e_lower = lower
     a_upper, b_upper, c_upper, d_upper, e_upper = upper
 
@@ -112,6 +115,8 @@ def func2_1deps(x):
 
 def func2_1deps_fully_integrated(limits):
     lower, upper = limits
+    with suppress(TypeError):
+        lower, upper = lower[0], upper[0]
 
     def func_int(x):
         return (1 / 3) * x ** 3
@@ -119,7 +124,7 @@ def func2_1deps_fully_integrated(limits):
     return func_int(upper) - func_int(lower)
 
 
-limits3 = [(-1., -4.3), (2.3, -1.2)]
+limits3 = [((-1., -4.3),), ((2.3, -1.2),)]
 
 
 def func3_2deps(x):
@@ -129,16 +134,19 @@ def func3_2deps(x):
 
 def func3_2deps_fully_integrated(limits, params=None):
     lower, upper = limits.limits
+    with suppress(TypeError):
+        lower, upper = lower[0], upper[0]
+
     # print("DEBUG": lower, upper", lower, upper)
-    lower_a, lower_b = lower[0]
-    upper_a, upper_b = upper[0]
+    lower_a, lower_b = lower
+    upper_a, upper_b = upper
     integral = (lower_a ** 3 - upper_a ** 3) * (lower_b - upper_b)
     integral += (lower_a - upper_a) * (lower_b ** 3 - upper_b ** 3)
     integral /= 3
     return integral
 
 
-limits4_2dim = [(-4., 1.), (-1., 4.5)]
+limits4_2dim = [((-4., 1.),), ((-1., 4.5),)]
 limits4_1dim = (-2., 3.)
 
 func4_values = np.array([-12., -4.5, 1.9, 4.1])
@@ -160,8 +168,8 @@ def func4_3deps(x):
 def func4_3deps_0and2_integrated(x, limits):
     b = x
     lower, upper = limits
-    a_lower, c_lower = lower
-    a_upper, c_upper = upper
+    a_lower, c_lower = lower[0]
+    a_upper, c_upper = upper[0]
     integral = -c_lower ** 2 * (-0.25 * a_lower + 0.25 * a_upper) - c_lower * (
         -0.333333333333333 * a_lower ** 3 - 1.0 * a_lower * b ** 3 + 0.333333333333333 *
         a_upper ** 3 + 1.0 * a_upper * b ** 3) + c_upper ** 2 * (
@@ -176,6 +184,8 @@ def func4_3deps_0and2_integrated(x, limits):
 def func4_3deps_1_integrated(x, limits):
     a, c = x
     b_lower, b_upper = limits
+    with suppress(TypeError):
+        b_lower, b_upper = b_lower[0], b_upper[0]
 
     integral = -0.25 * b_lower ** 4 - b_lower * (
         1.0 * a ** 2 + 0.5 * c) + 0.25 * b_upper ** 4 + b_upper * (1.0 * a ** 2 + 0.5 * c)
@@ -291,19 +301,23 @@ def test_analytic_integral_selection():
     int5 = lambda x: 5
     limits1 = (-1, 5)
     dims1 = (1,)
-    limits2 = ((None, 5),)
+    limits2 = (NamedSpace.ANY_LOWER, 5)
     dims2 = (1,)
-    limits3 = ((None, None), (1, 5))
+    limits3 = ((NamedSpace.ANY_LOWER, 1),), ((NamedSpace.ANY_UPPER, 5),)
     dims3 = (0, 1)
-    limits4 = ((None, None), (0, 5), (None, 42))
+    limits3 = NamedSpace.from_axes(axes=dims3, limits=limits3)
+    limits4 = (((NamedSpace.ANY_LOWER, 0, NamedSpace.ANY_LOWER),), ((NamedSpace.ANY_UPPER, 5, 42),))
     dims4 = (0, 1, 2)
-    limits5 = ((None, 10), (1, None))
+    limits4 = NamedSpace.from_axes(axes=dims4, limits=limits4)
+    limits5 = (((NamedSpace.ANY_LOWER, 1),), ((10, NamedSpace.ANY_UPPER),))
     dims5 = (1, 2)
+    limits5 = NamedSpace.from_axes(axes=dims5, limits=limits5)
     DistFuncInts.register_analytic_integral(int1, limits=limits1, dims=dims1)
     DistFuncInts.register_analytic_integral(int2, limits=limits2, dims=dims2)
     DistFuncInts.register_analytic_integral(int22, limits=limits2, dims=dims2, priority=60)
     DistFuncInts.register_analytic_integral(int3, limits=limits3, dims=dims3)
     DistFuncInts.register_analytic_integral(int4, limits=limits4, dims=dims4)
     DistFuncInts.register_analytic_integral(int5, limits=limits5, dims=dims5)
-    dims = DistFuncInts._analytic_integral.get_max_axes(limits=((-5, 4), (1, 5)), axes=dims3)
+    dims = DistFuncInts._analytic_integral.get_max_axes(limits=NamedSpace.from_axes(limits=(((-5, 4),), ((1, 5),)),
+                                                        axes=dims3))
     assert dims3 == dims

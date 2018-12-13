@@ -197,9 +197,9 @@ class AnalyticIntegral(object):
             raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
         if limits is None:
             limits = tuple((None, None) for _ in range(len(axes)))
-            limits = self.convert_to_space(limits =limits)
+            limits = convert_to_space(axes=axes, limits =limits)
         else:
-            limits = self.convert_to_space(limits=limits)
+            limits = convert_to_space(axes=axes, limits=limits)
             # limits = limits.get_limits()
         axes = frozenset(limits.axes)
 

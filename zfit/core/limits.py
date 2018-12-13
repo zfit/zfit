@@ -474,7 +474,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """
         obs_none = obs is None
         axes_none = axes is None
-        if obs_none ^ axes_none:
+        if not obs_none ^ axes_none:
             raise ValueError("Exactly one of `obs` _or_ `axes` have to be specified.")
         if self.obs is None and not obs_none:
             raise ObsNotSpecifiedError("Observables `obs` not specified in this space.")
@@ -552,9 +552,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         """
         if self.obs is not None:
-            permutation_index = tuple(self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
+            permutation_index = tuple(
+                self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
         elif self.axes is not None:
-            permutation_index = tuple(self.axes.index(ax) for ax in obs_axes.values() if ax in self.axes)  # the future index of the space
+            permutation_index = tuple(
+                self.axes.index(ax) for ax in obs_axes.values() if ax in self.axes)  # the future index of the space
         else:
             assert False, "This should never be reached."
         limits = self._reorder_limits(indices=permutation_index, inplace=False)
@@ -708,7 +710,13 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def __le__(self, other):  # TODO: refactor for boundaries
         if not isinstance(other, type(self)):
             return False
-        if set(self.axes) != set(other.axes) or set(self.obs) != set(other.obs):
+        axes_not_none = self.axes is not None and other.axes is not None
+        obs_not_none = self.obs is not None and other.obs is not None
+        axes_set_not_same = axes_not_none and set(self.axes) != set(other.axes)
+
+        obs_set_not_same = obs_not_none and set(self.obs) != set(other.obs)
+        axes_obs_not_same = self.axes != other.axes or self.obs != other.obs
+        if obs_set_not_same or axes_set_not_same or axes_obs_not_same:
             return False
 
         # check limits
@@ -731,21 +739,20 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         with other.reorder_by_indices(other.get_reorder_indices(obs=self.obs, axes=reorder_axes)):
 
             # check explicitely if they match
-            for limits, other_limits in zip(self.limits, other.limits):  # TODO: replace with boundaries
-                for lower, upper in limits:
-                    is_le = False
-                    for other_lower, other_upper in other_limits:
-                        # a list of `or` conditions
-                        is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
-                        is_le += other_lower == lower and other_upper is self.ANY_UPPER  # TODO: approx limit
-                        # comparison?
-                        is_le += other_lower is self.ANY_LOWER and upper == other_upper  # TODO: approx limit
-                        # comparison?
-                        is_le += other_lower is self.ANY_LOWER and other_upper is self.ANY_UPPER
-                        if is_le:
-                            break
-                    if not is_le:
-                        return False
+            for lower, upper in self.iter_limits(as_tuple=True):  # TODO: replace with boundaries
+                is_le = False
+                for other_lower, other_upper in other.iter_limits(as_tuple=True):
+                    # a list of `or` conditions
+                    is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
+                    is_le += other_lower == lower and other_upper is self.ANY_UPPER  # TODO: approx limit
+                    # comparison?
+                    is_le += other_lower is self.ANY_LOWER and upper == other_upper  # TODO: approx limit
+                    # comparison?
+                    is_le += other_lower is self.ANY_LOWER and other_upper is self.ANY_UPPER
+                    if is_le:
+                        break
+                if not is_le:
+                    return False
         return True
 
     def __ge__(self, other):
@@ -756,14 +763,13 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             return NotImplemented
 
         is_eq = True
-        if self.obs is None or other.obs is None:
-            is_eq *= self.axes == other.axes
-        elif self.axes is None or other.axes is None:
-            is_eq *= self.obs == other.obs
-        else:
-            is_eq *= self.obs == other.obs
-            is_eq *= self.axes == other.axes
-        # is_eq *= self.axes == other.axes
+        # if self.obs is None or other.obs is None:
+        #     is_eq *= self.axes == other.axes
+        # elif self.axes is None or other.axes is None:
+        #     is_eq *= self.obs == other.obs
+        # else:
+        is_eq *= self.obs == other.obs
+        is_eq *= self.axes == other.axes
         is_eq *= self.limits == other.limits
         return bool(is_eq)
 
@@ -781,7 +787,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 # TODO(Mayou36): extend this function and set what is allowed and what not, allow for simple limits?
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
                      limits: Optional[ztyping.LimitsTypeInput] = None,
-                     *, overwrite_limits: bool = False, one_dim_limits_only: bool = True,
+                     *, none_is_any=False, overwrite_limits: bool = False, one_dim_limits_only: bool = True,
                      simple_limits_only: bool = True) -> Union[None, NamedSpace, bool]:
     """Convert *limits* to a Space object if not already None or False.
 

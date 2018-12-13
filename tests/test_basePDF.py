@@ -131,17 +131,17 @@ def test_analytic_sampling():
     class SampleGauss(TestGaussian):
         pass
 
-    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.limits[1][0][0],
-                                           limits=(-float("inf"), None), dims=(0,))  # DUMMY!
+    SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.upper[0][0],
+                                           limits=(-float("inf"), NamedSpace.ANY_UPPER), dims=(0,))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
-    gauss1 = SampleGauss()
+    gauss1 = SampleGauss(obs=obs1)
     sample = gauss1.sample(n=10000, limits=(2., 5.))
 
     sample = zfit.sess.run(sample)
 
-    assert 1004. <= min(sample)
-    assert 10010. >= max(sample)
+    assert 1004. <= min(sample[0])
+    assert 10010. >= max(sample[0])
 
 
 def test_multiple_limits():

@@ -6,7 +6,7 @@ from zfit.core.basefunc import BaseFunc
 from zfit.util.container import convert_to_container
 
 
-class SimpleFunction(BaseFunc):
+class SimpleFunc(BaseFunc):
 
     def __init__(self, func, obs, name="Function", n_dims=None, **parameters):
         super().__init__(name=name, obs=obs, parameters=parameters)
