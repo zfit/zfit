@@ -288,7 +288,7 @@ class ZfitModel(ZfitNumeric):
     @classmethod
     @abc.abstractmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
-                                   dims: ztyping.AxesTypeInput = None, priority: int = 50, *,
+                                   priority: int = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False):
         """Register an analytic integral with the class.

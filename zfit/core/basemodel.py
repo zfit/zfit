@@ -237,7 +237,7 @@ class BaseModel(BaseNumeric, ZfitModel):
     #     self._dims = value
 
     @property
-    def axes(self) -> ztyping.AxesTypeInput:
+    def axes(self) -> ztyping.AxesTypeReturn:
         return self._space.axes
 
     def _check_input_dims(self, dims, allow_none=True):
@@ -293,7 +293,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             integral = self._call_integrate(limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.subbounds():
+            for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_integrate(limits=sub_limits, norm_range=norm_range, name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
         return integral
@@ -324,7 +324,7 @@ class BaseModel(BaseNumeric, ZfitModel):
 
     @classmethod
     def register_analytic_integral(cls, func: typing.Callable, limits: ztyping.LimitsType = None,
-                                   dims: ztyping.AxesTypeInput = None, priority: int = 50, *,
+                                   priority: Union[int, float] = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral with the class.
@@ -332,7 +332,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         Args:
             func ():
             limits (): |limits_arg_descr|
-            dims (tuple(int)):
+            axes (tuple(int)):
             priority (int):
             supports_multiple_limits (bool):
             supports_norm_range (bool):
@@ -340,7 +340,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         Returns:
 
         """
-        cls._analytic_integral.register(func=func, axes=dims, limits=limits, supports_norm_range=supports_norm_range,
+        cls._analytic_integral.register(func=func, limits=limits, supports_norm_range=supports_norm_range,
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
 
     @classmethod
@@ -410,7 +410,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             integral = self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.subbounds():
+            for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_analytic_integrate(limits=sub_limits, norm_range=norm_range,
                                                                name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
@@ -469,7 +469,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             integral = self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.subbounds():
+            for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range, name=name))
             integral = tf.accumulate_n(integrals)
 
@@ -534,7 +534,7 @@ class BaseModel(BaseNumeric, ZfitModel):
                                                     name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limit in limits.subbounds():
+            for sub_limit in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range,
                                                               name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
@@ -642,7 +642,7 @@ class BaseModel(BaseNumeric, ZfitModel):
                                                              norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.subbounds():
+            for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range,
                                                                        name=name))
             integral = ztf.reduce_sum(integrals, axis=0)
@@ -713,7 +713,7 @@ class BaseModel(BaseNumeric, ZfitModel):
                                                             norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.subbounds():
+            for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range,
                                                                       name=name))
             integral = ztf.reduce_sum(integrals, axis=0)

@@ -160,8 +160,15 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         if isinstance(obs, NamedSpace):
             obs = obs.obs
         else:
-            obs = convert_to_container(obs)
+            obs = convert_to_container(obs, container=tuple)
         return obs
+
+    def _convert_axes_to_str(self, axes):
+        if isinstance(axes, NamedSpace):
+            axes = axes.axes
+        else:
+            axes = convert_to_container(axes, container=tuple)
+        return axes
 
     def _check_set_limits(self, limits: ztyping.LimitsTypeInput):
 
@@ -351,6 +358,8 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """
         return self._obs
 
+    # TODO: do we need an get_obs_axes?
+
     @property
     def axes(self) -> ztyping.AxesTypeReturn:
         """The axes ("obs with int") the space is defined in.
@@ -359,8 +368,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         """
         return self._axes
-
-    # TODO: do we need an get_obs_axes?
 
     def get_axes(self, obs: ztyping.ObsTypeInput = None,
                  as_dict: bool = False,
@@ -457,6 +464,22 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """
         obs = self._convert_obs_to_str(obs)
         new_indices = self.get_reorder_indices(obs=obs)
+        new_space = self.copy()
+        new_space.reorder_by_indices(indices=new_indices)
+        return new_space
+
+    def with_axes(self, axes: ztyping.AxesTypeInput) -> "NamedSpace":
+        """Sort by `obs` and return the new instance.
+
+        Args:
+            axes ():
+
+        Returns:
+            `NamedSpace`
+        """
+        # TODO: what if self.axes is None? Just add them?
+        axes = self._convert_axes_to_str(axes)
+        new_indices = self.get_reorder_indices(axes=axes)
         new_space = self.copy()
         new_space.reorder_by_indices(indices=new_indices)
         return new_space
@@ -681,6 +704,8 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return new_space
 
+    # Operators
+
     def copy(self, name: Optional[str] = None, **overwrite_kwargs) -> "NamedSpace":
         """Create a new `Space` using the current attributes and overwriting with `overwrite_overwrite_kwargs`.
 
@@ -704,8 +729,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         new_space = NamedSpace._from_any(**kwargs)
         return new_space
-
-    # Operators
 
     def __le__(self, other):  # TODO: refactor for boundaries
         if not isinstance(other, type(self)):

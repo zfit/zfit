@@ -4,11 +4,10 @@ This module contains functions for the numeric as well as the analytic (partial)
 
 import collections
 import numpy as np
-import typing
 
 import tensorflow as tf
 import tensorflow_probability as tfp
-from typing import Callable, Optional
+from typing import Callable, Optional, Union, Type, Tuple
 
 from zfit import ztf
 from zfit.util import ztyping
@@ -43,7 +42,7 @@ def numeric_integrate():
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 10000,
                  method: str = None,
-                 dtype: typing.Type = ztypes.float,
+                 dtype: Type = ztypes.float,
                  mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
                  importance_sampling: Optional[Callable] = None) -> tf.Tensor:
     """Monte Carlo integration of `func` over `limits`.
@@ -123,30 +122,32 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     return ztf.to_real(integral, dtype=dtype)
 
 
-class AnalyticIntegral(object):
+class AnalyticIntegral:
     def __init__(self, *args, **kwargs):
         """Hold analytic integrals and manage their dimensions, limits etc."""
         super(AnalyticIntegral, self).__init__(*args, **kwargs)
         self._integrals = collections.defaultdict(dict)
 
-    def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> typing.Tuple[int]:
+    def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> Tuple[int]:
         """Return the maximal available axes to integrate over analytically for given limits
 
         Args:
             limits (NamedSpace): The integral function will be able to integrate over this limits
-            axes (tuple): The dimensions it has to integrate over (or a subset!)
+            axes (tuple): The axes over which (or over a subset) it will integrate
 
         Returns:
             Tuple[int]:
         """
-        limits = convert_to_space(obs=limits)
+        if not isinstance(limits, NamedSpace):
+            raise TypeError("`limits` have to be a `NamedSpace`")
+        # limits = convert_to_space(limits=limits)
 
-        return self._get_max_axes_limits(limits, out_of_axes=axes)[0]  # only axes
+        return self._get_max_axes_limits(limits, out_of_axes=limits.axes)[0]  # only axes
 
     def _get_max_axes_limits(self, limits, out_of_axes):  # TODO: automatic caching? but most probably not relevant
         if out_of_axes:
             out_of_axes = frozenset(out_of_axes)
-            implemented_axes = set(d for d in self._integrals.keys() if d <= out_of_axes)
+            implemented_axes = frozenset(d for d in self._integrals.keys() if d <= out_of_axes)
         else:
             implemented_axes = set(self._integrals.keys())
         implemented_axes = sorted(implemented_axes, key=len, reverse=True)  # iter through biggest first
@@ -161,7 +162,7 @@ class AnalyticIntegral(object):
         return (), ()  # no integral available for this axes
 
     def get_max_integral(self, limits: ztyping.LimitsType,
-                         axes: ztyping.AxesTypeInput = None) -> typing.Union[None, "Integral"]:
+                         axes: ztyping.AxesTypeInput = None) -> Union[None, "Integral"]:
         """Return the integral over the `limits` with `axes` (or a subset of them).
 
         Args:
@@ -179,7 +180,7 @@ class AnalyticIntegral(object):
         integral_fn = max(integrals, key=lambda l: l.priority, default=None)
         return integral_fn
 
-    def register(self, func: Callable, axes: ztyping.AxesTypeInput, limits: ztyping.LimitsType = None,
+    def register(self, func: Callable, limits: ztyping.LimitsType,
                  priority: int = 50, *,
                  supports_norm_range: bool = False, supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral.
@@ -193,20 +194,23 @@ class AnalyticIntegral(object):
             supports_norm_range (bool): If True, norm_range will (if needed) be given to `func` as an argument.
             supports_multiple_limits (bool): If True, multiple limits may be given as an argument to `func`.
         """
-        if limits is False:
-            raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
-        if limits is None:
-            limits = tuple((None, None) for _ in range(len(axes)))
-            limits = convert_to_space(axes=axes, limits =limits)
-        else:
-            limits = convert_to_space(axes=axes, limits=limits)
+
+        # if limits is False:
+        #     raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
+        # if limits is None:
+        #     limits = tuple((NamedSpace.ANY_LOWER, NamedSpace.ANY_UPPER) for _ in range(len(axes)))
+        #     limits = convert_to_space(axes=axes, limits=limits)
+        # else:
+        #     limits = convert_to_space(axes=self.axes, limits=limits)
             # limits = limits.get_limits()
+        if not isinstance(limits, NamedSpace):
+            raise TypeError("Limits for registering an integral have to be `NamedSpace`")
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
         func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
-
-        self._integrals[axes][limits.limits] = Integral(func=func, limits=limits, axes=axes,
+        limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
+        self._integrals[axes][limits.limits] = Integral(func=func, limits=limits,
                                                         priority=priority)  # TODO improve with
         # database-like access
 
@@ -234,9 +238,10 @@ class AnalyticIntegral(object):
             axes = limits.axes
         axes = frozenset(axes)
         integral_holder = self._integrals.get(axes)
+        # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
             raise NotImplementedError("Integral is not available for axes {}".format(axes))
-        integral_fn = self.get_max_integral(limits=limits, axes=axes)
+        integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
             raise NotImplementedError(
                 "Integral is available for axes {}, but not for limits {}".format(axes, limits))
@@ -249,9 +254,9 @@ class AnalyticIntegral(object):
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, func: Callable, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput, priority: int):
+    def __init__(self, func: Callable, limits: "NamedSpace", priority: Union[int, float]):
         """A lightweight holder for the integral function."""
-        self.limits = convert_to_space(obs=limits)
+        self.limits = limits
         self.integrate = func
         self.axes = limits.axes
         self.priority = priority

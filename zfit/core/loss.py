@@ -111,7 +111,7 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
         cls._name = "UnnamedSubBaseLoss"
 
     def _input_check(self, pdf, data, fit_range):
-        if (is_container(pdf) ^ is_container(data)):
+        if is_container(pdf) ^ is_container(data):
             raise ValueError("`pdf` and `data` either both have to be a list or not.")
 
         # simultaneous fit

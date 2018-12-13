@@ -272,7 +272,7 @@ def test_analytic_integral():
     normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
-                                         limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)), dims=None)
+                                         limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)), axes=None)
 
     dist_func3 = DistFunc3()
     init = tf.global_variables_initializer()
@@ -301,8 +301,10 @@ def test_analytic_integral_selection():
     int5 = lambda x: 5
     limits1 = (-1, 5)
     dims1 = (1,)
+    limits1 = NamedSpace.from_axes(axes=dims1, limits=limits1)
     limits2 = (NamedSpace.ANY_LOWER, 5)
     dims2 = (1,)
+    limits2 = NamedSpace.from_axes(axes=dims2, limits=limits2)
     limits3 = ((NamedSpace.ANY_LOWER, 1),), ((NamedSpace.ANY_UPPER, 5),)
     dims3 = (0, 1)
     limits3 = NamedSpace.from_axes(axes=dims3, limits=limits3)
@@ -312,12 +314,12 @@ def test_analytic_integral_selection():
     limits5 = (((NamedSpace.ANY_LOWER, 1),), ((10, NamedSpace.ANY_UPPER),))
     dims5 = (1, 2)
     limits5 = NamedSpace.from_axes(axes=dims5, limits=limits5)
-    DistFuncInts.register_analytic_integral(int1, limits=limits1, dims=dims1)
-    DistFuncInts.register_analytic_integral(int2, limits=limits2, dims=dims2)
-    DistFuncInts.register_analytic_integral(int22, limits=limits2, dims=dims2, priority=60)
-    DistFuncInts.register_analytic_integral(int3, limits=limits3, dims=dims3)
-    DistFuncInts.register_analytic_integral(int4, limits=limits4, dims=dims4)
-    DistFuncInts.register_analytic_integral(int5, limits=limits5, dims=dims5)
+    DistFuncInts.register_analytic_integral(int1, limits=limits1)
+    DistFuncInts.register_analytic_integral(int2, limits=limits2)
+    DistFuncInts.register_analytic_integral(int22, limits=limits2, priority=60)
+    DistFuncInts.register_analytic_integral(int3, limits=limits3)
+    DistFuncInts.register_analytic_integral(int4, limits=limits4)
+    DistFuncInts.register_analytic_integral(int5, limits=limits5)
     dims = DistFuncInts._analytic_integral.get_max_axes(limits=NamedSpace.from_axes(limits=(((-5, 4),), ((1, 5),)),
                                                         axes=dims3))
     assert dims3 == dims

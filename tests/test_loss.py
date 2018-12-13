@@ -92,9 +92,9 @@ def test_add():
 
     ranges = [0] * 4
     ranges[0] = (1, 4)
-    ranges[1] = NamedSpace.from_axes(limits=(2, 5), axes=(0,))
-    ranges[2] = NamedSpace.from_axes(limits=(3, 6), axes=(0,))
-    ranges[3] = NamedSpace.from_axes(limits=(4, 7), axes=(0,))
+    ranges[1] = NamedSpace(limits=(2, 5), obs=obs1)
+    ranges[2] = NamedSpace(limits=(3, 6), obs=obs1)
+    ranges[3] = NamedSpace(limits=(4, 7), obs=obs1)
 
     constraint1 = {param1: Gauss(1, 0.5, obs=obs1)}
     constraint2 = {param2: Gauss(2, 0.25, obs=obs1)}
@@ -110,8 +110,9 @@ def test_add():
     assert simult_nll.model == pdfs
     assert simult_nll.data == datas
 
-    ranges[0] = NamedSpace.from_axes(limits=ranges[0],
+    ranges[0] = NamedSpace._from_any(limits=ranges[0], obs=obs1,
                                      axes=(0,))  # for comparison, NamedSpace can only compare with NamedSpace
+
     assert simult_nll.fit_range == ranges
 
     assert simult_nll.constraints == merged_contraints

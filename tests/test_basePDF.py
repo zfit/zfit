@@ -132,7 +132,8 @@ def test_analytic_sampling():
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.upper[0][0],
-                                           limits=(-float("inf"), NamedSpace.ANY_UPPER), dims=(0,))  # DUMMY!
+                                           limits=NamedSpace.from_axes(limits=(-float("inf"), NamedSpace.ANY_UPPER),
+                                                                       axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     gauss1 = SampleGauss(obs=obs1)
