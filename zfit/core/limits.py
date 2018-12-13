@@ -273,10 +273,13 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             else:
                 raise ObsNotSpecifiedError("TODO: Cannot be None")
 
-        obs = convert_to_container(obs, container=tuple)
-        obs_not_str = tuple(o for o in obs if not isinstance(o, str))
-        if obs_not_str:
-            raise ValueError("The following observables are not strings: {}".format(obs_not_str))
+        if isinstance(obs, NamedSpace):
+            obs = obs.obs
+        else:
+            obs = convert_to_container(obs, container=tuple)
+            obs_not_str = tuple(o for o in obs if not isinstance(o, str))
+            if obs_not_str:
+                raise ValueError("The following observables are not strings: {}".format(obs_not_str))
         return obs
 
     @property
@@ -548,7 +551,12 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         Returns:
 
         """
-        permutation_index = tuple(self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
+        if self.obs is not None:
+            permutation_index = tuple(self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
+        elif self.axes is not None:
+            permutation_index = tuple(self.axes.index(ax) for ax in obs_axes.values() if ax in self.axes)  # the future index of the space
+        else:
+            assert False, "This should never be reached."
         limits = self._reorder_limits(indices=permutation_index, inplace=False)
 
         obs = tuple(obs_axes.keys())
@@ -748,8 +756,14 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             return NotImplemented
 
         is_eq = True
-        is_eq *= self.obs == other.obs
-        is_eq *= self.axes == other.axes
+        if self.obs is None or other.obs is None:
+            is_eq *= self.axes == other.axes
+        elif self.axes is None or other.axes is None:
+            is_eq *= self.obs == other.obs
+        else:
+            is_eq *= self.obs == other.obs
+            is_eq *= self.axes == other.axes
+        # is_eq *= self.axes == other.axes
         is_eq *= self.limits == other.limits
         return bool(is_eq)
 
@@ -843,7 +857,7 @@ def no_norm_range(func):
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        norm_range_not_false = not (kwargs.get('norm_range') is None or kwargs.get('norm_range') is False)
+        norm_range_not_false = not (kwargs.get('norm_range').limits is None or kwargs.get('norm_range').limits is False)
         if norm_range_index is not None:
             norm_range_is_arg = len(args) > norm_range_index
         else:

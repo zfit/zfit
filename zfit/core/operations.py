@@ -216,7 +216,7 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFun
 
     from ..models.functions import SimpleFunction
 
-    func = SimpleFunction(func=value_func, name=pdf.name + "_as_func", **pdf.parameters)
+    func = SimpleFunction(func=value_func, obs=pdf.obs, name=pdf.name + "_as_func", **pdf.parameters)
     return func
 
 
@@ -225,5 +225,5 @@ def convert_func_to_pdf(func: ZfitFunc) -> ZfitPDF:
         from ..models.functions import SimpleFunction
         func = SimpleFunction(func=func)
     from ..models.special import SimplePDF
-    pdf = SimplePDF(func=func.value, name=func.name, **func.parameters)
+    pdf = SimplePDF(func=func.value, obs=func.obs, name=func.name, **func.parameters)
     return pdf

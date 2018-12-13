@@ -62,7 +62,7 @@ from zfit.core.interfaces import ZfitPDF
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
 from .basemodel import BaseModel
-from zfit.core.limits import NamedSpace, convert_to_space
+from zfit.core.limits import NamedSpace
 from zfit.util import ztyping
 from ..settings import types as ztypes
 
@@ -292,7 +292,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _fallback_pdf(self, x, norm_range):
         pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf")
-        if norm_range is not False:  # identity check!
+        if norm_range.limits is not False:  # identity check!
             pdf /= self._hook_normalization(limits=norm_range)
         return pdf
 
@@ -357,7 +357,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> float:
-        if self.is_extended and norm_range is not False:
+        if self.is_extended and norm_range.limits is not False:
             if log:
                 value += tf.log(self.get_yield())
             else:

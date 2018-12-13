@@ -97,7 +97,7 @@ def test_prod_gauss_nd_mixed():
     norm_range = (-5, 4)
 
     probs = prod_gauss_4d.pdf(x=test_values,
-                              norm_range=NamedSpace.from_axes(limits=((-5,) * 4, (4,) * 4), axes=tuple(range(4))))
+                              norm_range=NamedSpace.from_axes(limits=(((-5,) * 4,), ((4,) * 4,)), axes=tuple(range(4))))
     zfit.sess.run(tf.global_variables_initializer())
     gauss1, gauss2, gauss3 = gauss_dists2
     true_probs = [gauss1.pdf(test_values[3, :], norm_range=norm_range)]

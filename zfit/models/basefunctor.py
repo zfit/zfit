@@ -15,6 +15,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         models = convert_to_container(models, container=list)
         self._model_dims_index = self._check_convert_model_dims_to_index(models=models)
 
+    # TODO(Mayou36): implement properly with obs
     def _check_convert_model_dims_to_index(self, models):
         models_dims_index = None
         models_dims = tuple(model.axes for model in models)

@@ -201,8 +201,8 @@ class BaseModel(BaseNumeric, ZfitModel):
                                  "".format(name=caller_name))
             else:
                 norm_range = False
-        if norm_range is False and not convert_false:
-            return False
+        # if norm_range is False and not convert_false:
+        #     return False
         else:
             return self.convert_sort_space(limits=norm_range)
 
@@ -454,9 +454,9 @@ class BaseModel(BaseNumeric, ZfitModel):
 
     def _norm_numeric_integrate(self, limits, norm_range, name='_norm_numeric_integrate'):
         try:
-            integral = self._limits_numeric_integrate(limits, norm_range, name)
+            integral = self._limits_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the caught Error should not be raised."
+            assert norm_range.limits is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_numeric_integrate(limits=limits, norm_range=False,
                                                                    name=name)
             normalization = self._limits_numeric_integrate(limits=norm_range, norm_range=False,
@@ -521,7 +521,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         try:
             integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the caught Error should not be raised."
+            assert norm_range.limits is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm_range=False, name=name)
             normalization = self._hook_integrate(limits=norm_range, norm_range=False)
             integral = unnormalized_integral / normalization
@@ -567,7 +567,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             part_int = self._func_to_integrate
             dims = limits.axes
 
-        if norm_range is False:
+        if norm_range.limits is False:
             integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, dims=dims, x=x)
         else:
             raise NormRangeNotImplementedError
@@ -603,7 +603,7 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)  # TODO: full reasonable?
-        limits = convert_to_space(limits)  # TODO: replace by limits.axes if axes is None?
+        limits = self.convert_sort_space(limits=limits)
         with self._convert_sort_x(x):
             return self._hook_partial_analytic_integrate(x=x, limits=limits,
                                                          norm_range=norm_range, name=name)
@@ -618,7 +618,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         try:
             integral = self._limits_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the caught Error should not be raised."
+            assert norm_range.limits is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_analytic_integrate(x=x, limits=limits,
                                                                             norm_range=False,
                                                                             name=name)
@@ -686,7 +686,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             Tensor: the value of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
-        limits = convert_to_space(limits)
+        limits = self.convert_sort_space(limits=limits)
         with self._convert_sort_x(x):
             return self._hook_partial_numeric_integrate(x=x, limits=limits,
                                                         norm_range=norm_range, name=name)
@@ -701,7 +701,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
                                                               norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
-            assert norm_range is not False, "Internal: the caught Error should not be raised."
+            assert norm_range.limits is not False, "Internal: the caught Error should not be raised."
             unnormalized_integral = self._limits_partial_numeric_integrate(x=x, limits=limits,
                                                                            norm_range=None, name=name)
             integral = unnormalized_integral / self._hook_numeric_integrate(limits=norm_range, norm_range=norm_range)
@@ -765,7 +765,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         Returns:
             Tensor(n_dims, n_samples)
         """
-        limits = convert_to_space(limits=limits)
+        limits = self.convert_sort_space(limits=limits)
         return self._hook_sample(n=n, limits=limits, name=name)
 
     def _hook_sample(self, limits, n, name='_hook_sample'):
