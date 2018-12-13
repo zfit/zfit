@@ -112,6 +112,9 @@ def test_add():
 
     ranges[0] = NamedSpace._from_any(limits=ranges[0], obs=obs1,
                                      axes=(0,))  # for comparison, NamedSpace can only compare with NamedSpace
+    ranges[1]._axes = (0,)
+    ranges[2]._axes = (0,)
+    ranges[3]._axes = (0,)
 
     assert simult_nll.fit_range == ranges
 
