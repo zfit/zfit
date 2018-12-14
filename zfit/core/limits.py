@@ -775,9 +775,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         with other.reorder_by_indices(reorder_indices):
 
             # check explicitely if they match
+            # for each limit in self, find another matching in other
             for lower, upper in self.iter_limits(as_tuple=True):
                 limit_is_le = False
                 for other_lower, other_upper in other.iter_limits(as_tuple=True):
+                    # each entry *has to* match the entry of the other limit, otherwise it's not the same
                     for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
                         axis_le = 0  # False
                         # a list of `or` conditions
@@ -787,11 +789,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
                         axis_le += other_low is self.ANY_LOWER and up == other_up  # TODO: approx limit
                         # comparison?
                         axis_le += other_low is self.ANY_LOWER and other_up is self.ANY_UPPER
-                        if not axis_le:
+                        if not axis_le:  # if not the same, don't test other dims
                             break
                     else:
-                        limit_is_le = True
-                if not limit_is_le:
+                        limit_is_le = True  # no break -> all axes coincide
+                if not limit_is_le:  # for this `limit`, no other_limit matched
                     return False
         return True
 

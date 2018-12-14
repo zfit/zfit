@@ -101,7 +101,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
 
     params = {param.name: param}
     params.update(func.parameters)
-    new_func = SimpleFunc(func=combined_func, **params)  # TODO: implement with new parameters
+    new_func = SimpleFunc(func=combined_func, obs=func.obs, **params)  # TODO: implement with new parameters
     return new_func
 
 
@@ -190,7 +190,7 @@ def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesTypeInput 
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
     from ..models.functions import SumFunc
 
-    return SumFunc(funcs=[func1, func2], obs=dims, name=name)
+    return SumFunc(funcs=[func1, func2], name=name)
 
 
 def add_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:

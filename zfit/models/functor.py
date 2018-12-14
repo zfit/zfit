@@ -10,6 +10,7 @@ from typing import Union, List, Optional
 
 import tensorflow as tf
 from zfit import ztf
+from zfit.core.data import Data
 from zfit.core.dimension import get_same_dims, unstack_x_dims
 from zfit.core.interfaces import ZfitPDF, ZfitModel
 from zfit.core.limits import no_norm_range, supports
@@ -40,7 +41,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, obs: ztyping.AxesTypeInput = None,
+    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, obs: ztyping.ObsTypeInput = None,
                  name: str = "SumPDF"):
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 
@@ -56,11 +57,10 @@ class SumPDF(BaseFunctor):
             name (str):
         """
         # Check user input, improve TODO
-        super().__init__(obs=obs, pdfs=pdfs, name=name)
+        super().__init__(pdfs=pdfs, obs=obs, name=name)
         pdfs = self.pdfs
         if len(pdfs) < 2:
             raise ValueError("Cannot build a sum of a single pdf")
-        # self.obs = obs
         if fracs is not None:
             fracs = convert_to_container(fracs)
             fracs = [ztf.convert_to_tensor(frac) for frac in fracs]
@@ -145,7 +145,7 @@ class SumPDF(BaseFunctor):
 
     @property
     def _n_dims(self):
-        return 1  # TODO(mayou36): properly implement dimensions
+        return self._space.n_obs  # TODO(mayou36): properly implement dimensions
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
@@ -170,7 +170,7 @@ class SumPDF(BaseFunctor):
         return prob
 
     def _set_yield(self, value: Union[Parameter, None]):
-        # TODO: what happens now with the daugthers?
+        # TODO: what happens now with the daughters?
         if all(
             self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
             # beginning
@@ -182,11 +182,11 @@ class SumPDF(BaseFunctor):
             super()._set_yield(value=value)
 
     @supports()
-    def _analytic_integrate(self, limits):  # TODO: deal with norm_range?
+    def _analytic_integrate(self, limits, norm_range):  # TODO: deal with norm_range?
         pdfs = self.pdfs
         frac = self.fracs
         try:
-            integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
+            integral = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
         except NotImplementedError as original_error:
             raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
                                       " SumPDF, as at least one sub-pdf does not implement it."
@@ -198,11 +198,11 @@ class SumPDF(BaseFunctor):
         return integral
 
     @supports()
-    def _partial_analytic_integrate(self, x, limits):
+    def _partial_analytic_integrate(self, x, limits, norm_range):
         pdfs = self.pdfs
         frac = self.fracs
         try:
-            partial_integral = [pdf.analytic_integrate(limits) for pdf in pdfs]
+            partial_integral = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
         except NotImplementedError as original_error:
             raise NotImplementedError("partial_analytic_integrate of pdf {name} is not implemented in this"
                                       " SumPDF, as at least one sub-pdf does not implement it."
@@ -214,22 +214,31 @@ class SumPDF(BaseFunctor):
 
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
-    def __init__(self, pdfs, obs, name="ProductPDF"):
-        super().__init__(obs=obs, pdfs=pdfs, name=name)
+    def __init__(self, pdfs, obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
+        super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     @property
     def _functor_allow_none_dims(self) -> bool:
         return False
 
     def _unnormalized_pdf(self, x, norm_range=False):
-        x_unstacked = unstack_x_dims(x=x, dims=self._model_dims_index)
-        return tf.reduce_prod(tf.stack([pdf.unnormalized_pdf(x) for x, pdf in zip(x_unstacked, self.pdfs)]), axis=0)
+        # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
+        # HACK START
+        if not isinstance(x, Data):
+            x = Data.from_tensors(obs=self.obs, tensors=x)
+        # HACK END
+        return tf.reduce_prod(tf.stack([pdf.unnormalized_pdf(x) for pdf in self.pdfs]), axis=0)
 
     def _pdf(self, x, norm_range):
-        if all(not dep for dep in self._model_same_dims):
-            x_unstacked = unstack_x_dims(x=x, dims=self._model_dims_index)
-            probs = [pdf.pdf(x=x, norm_range=norm_range.subspace(axes=pdf.axes)) for x, pdf in
-                     zip(x_unstacked, self.pdfs)]
+        if all(not dep for dep in self._model_same_obs):
+            # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
+            # HACK START
+            if not isinstance(x, Data):
+                x = Data.from_tensors(obs=self.obs, tensors=x)
+            # HACK END
+
+            probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in
+                     self.pdfs]
             return tf.reduce_prod(probs, axis=0)
         else:
             raise NotImplementedError

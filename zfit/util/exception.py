@@ -44,14 +44,22 @@ class LimitsUnderdefinedError(UnderdefinedError):
 class OverdefinedError(IntentionNotUnambiguousError):
     pass
 
+
 class AxesNotUnambiguousError(IntentionNotUnambiguousError):
     pass
+
 
 class NotSpecifiedError(Exception):
     pass
 
+
 class LimitsNotSpecifiedError(NotSpecifiedError):
     pass
+
+
+class NormRangeNotSpecifiedError(NotSpecifiedError):
+    pass
+
 
 class AxesNotSpecifiedError(NotSpecifiedError):
     pass
@@ -70,6 +78,7 @@ class ShapeIncompatibleError(Exception):
 
 class NotMinimizedError(Exception):
     pass
+
 
 # Runtime Erorrs
 

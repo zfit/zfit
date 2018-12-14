@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 from zfit import ztf
+from zfit.core.data import Data
 from zfit.core.limits import NamedSpace
 from zfit.core.parameter import Parameter
 from zfit.models.functor import SumPDF, ProductPDF
@@ -83,8 +84,10 @@ def test_prod_gauss_nd():
     test_values = np.random.random(size=(3, 10))
     lower = ((-5, -5, -5),)
     upper = ((4, 4, 4),)
-    norm_range_3d = NamedSpace(obs=['a', 'b', 'c'], limits=(lower, upper))
-    probs = prod_gauss_3d.pdf(x=test_values, norm_range=norm_range_3d)
+    obs1 = ['a', 'b', 'c']
+    norm_range_3d = NamedSpace(obs=obs1, limits=(lower, upper))
+    test_values_data = Data.from_tensors(obs=obs1, tensors=test_values)
+    probs = prod_gauss_3d.pdf(x=test_values_data, norm_range=norm_range_3d)
     zfit.sess.run(tf.global_variables_initializer())
     true_probs = np.prod([gauss.pdf(test_values[i, :], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
     probs_np = zfit.sess.run(probs)
@@ -96,7 +99,8 @@ def test_prod_gauss_nd_mixed():
     test_values = np.random.random(size=(4, 10))
     norm_range = (-5, 4)
 
-    probs = prod_gauss_4d.pdf(x=test_values,
+    test_values_data = Data.from_tensors(obs=['a', 'b', 'c', 'd'], tensors=test_values)
+    probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=NamedSpace.from_axes(limits=(((-5,) * 4,), ((4,) * 4,)), axes=tuple(range(4))))
     zfit.sess.run(tf.global_variables_initializer())
     gauss1, gauss2, gauss3 = gauss_dists2
@@ -104,12 +108,12 @@ def test_prod_gauss_nd_mixed():
     true_probs += [gauss2.pdf(test_values[0, :], norm_range=norm_range)]
     true_probs += [gauss3.pdf(test_values[2, :], norm_range=norm_range)]
     true_probs += [prod_gauss_3d.pdf(test_values[(0, 1, 2), :],
-                                     norm_range=NamedSpace.from_axes(limits=((-5,) * 3, (4,) * 3),
+                                     norm_range=NamedSpace.from_axes(limits=((((-5,) * 3,), ((4,) * 3,))),
                                                                      axes=tuple(range(3))))]
 
     true_probs = np.prod([true_probs])
     probs_np = zfit.sess.run(probs)
-    np.testing.assert_allclose(zfit.sess.run(true_probs), probs_np[0, :], rtol=1e-2)
+    np.testing.assert_allclose(zfit.sess.run(true_probs[0, :]), probs_np[0, :], rtol=1e-2)
 
 
 def test_func_sum():

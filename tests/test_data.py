@@ -104,3 +104,25 @@ def test_sort_by_obs():
 
     assert data1.obs == obs1
     np.testing.assert_array_equal(example_data1, zfit.sess.run(data1.value()))
+
+
+def test_subdata():
+    new_obs = (obs1[0], obs1[1])
+    new_array = copy.deepcopy(example_data1)
+    new_array = np.array([new_array[0, :], new_array[1, :]])
+    with data1.sort_by_obs(obs=new_obs):
+        assert data1.obs == new_obs
+        np.testing.assert_array_equal(new_array, zfit.sess.run(data1))
+        new_array2 = copy.deepcopy(new_array)
+        new_array2 = np.array([new_array2[1, :]])
+        new_obs2 = (new_obs[1],)
+        with data1.sort_by_obs(new_obs2):
+            assert data1.obs == new_obs2
+            np.testing.assert_array_equal(new_array2, zfit.sess.run(data1.value()))
+
+            with pytest.raises(ValueError):
+                with data1.sort_by_obs(obs=new_obs):
+                    print(zfit.sess.run(data1.value()))
+
+    assert data1.obs == obs1
+    np.testing.assert_array_equal(example_data1, zfit.sess.run(data1.value()))

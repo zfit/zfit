@@ -21,7 +21,7 @@ def convert_to_container(value: Any, container: Callable = list, convert_none=Fa
     """
     if value is None and not convert_none:
         return value
-    if not is_container(value):
+    if not isinstance(value, container):
         try:
             if isinstance(value, str):
                 raise TypeError

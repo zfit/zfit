@@ -118,7 +118,7 @@ class Data(ZfitData, BaseObject):
     @classmethod
     def from_tensors(cls, obs, tensors, name=None):
         dataset = tf.data.Dataset.from_tensors(tensors=tensors)
-        dataset.repeat()
+        dataset = dataset.repeat()
         return Data(dataset=dataset, obs=obs, name=name)
 
     def initialize(self, sess=None):
@@ -138,19 +138,29 @@ class Data(ZfitData, BaseObject):
         values = self.get_iteration()
         perm_indices = self._permutation_indices_data
 
-        permutate = perm_indices is not None and len(perm_indices) > 1
-        if permutate or obs:
+        # permutate = perm_indices is not None
+        if perm_indices or obs:
             values = tf.unstack(values)
-            if permutate:
+            if perm_indices:
                 values = list(values[i] for i in perm_indices)
             if obs:
+                if not frozenset(obs) <= frozenset(self.obs):
+                    raise ValueError("The observable(s) {} are not contained in the dataset. "
+                                     "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
+                                                                         self.obs))
                 values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
-            tf.stack(values)
+            values = tf.stack(values)
 
         return values
 
     # TODO(Mayou36): use Space to permute data?
-    def sort_by_obs(self, obs):
+    # TODO(Mayou36): raise error is not obs <= self.obs?
+    def sort_by_obs(self, obs, allow_not_subset=False):
+        if not allow_not_subset:
+            if not frozenset(obs) <= frozenset(self.obs):
+                raise ValueError("The observable(s) {} are not contained in the dataset. "
+                                 "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
+                                                                     self.obs))
         permutation_indices = tuple(self.obs.index(o) for o in obs if o in self.obs)
         if self._permutation_indices_data is None:
             permutation_indices_data = permutation_indices
@@ -176,8 +186,8 @@ class Data(ZfitData, BaseObject):
         del name
         if dtype is not None:
             if dtype != self.dtype:
-            # upcast_dtype = ztypes[dtype]
-            # if not (ztypes.auto_upcast and upcast_dtype == self.dtype):
+                # upcast_dtype = ztypes[dtype]
+                # if not (ztypes.auto_upcast and upcast_dtype == self.dtype):
                 return ValueError("From Mayou36", self.dtype)
                 # return NotImplemented
         if as_ref:

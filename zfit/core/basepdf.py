@@ -236,7 +236,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name, norm_range=False):
         with self._name_scope(name, values=[x]):
-            x = ztf.convert_to_tensor(x, name="x")
             return self._unnormalized_pdf(x)
 
     def unnormalized_pdf(self, x: ztyping.XType, name: str = "unnormalized_pdf") -> ztyping.XType:
@@ -282,7 +281,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_pdf(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
-            x = ztf.convert_to_tensor(x, name="x")
+            # x = ztf.convert_to_tensor(x, name="x")
 
             with suppress(NotImplementedError):
                 return self._pdf(x, norm_range=norm_range)
@@ -335,7 +334,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_log_pdf(self, x, norm_range, name):
         with self._name_scope(name, values=[x, norm_range]):
-            x = ztf.convert_to_tensor(x, name="x")
+            # x = ztf.convert_to_tensor(x, name="x")
 
             with suppress(NotImplementedError):
                 return self._log_pdf(x=x, norm_range=norm_range)
