@@ -8,6 +8,7 @@ import math as mt
 import tensorflow as tf
 
 from zfit.core import math as zmath
+from zfit.core.limits import NamedSpace
 from zfit.core.basemodel import model_dims_mixin
 from zfit.core.basepdf import BasePDF
 from zfit import ztf
@@ -35,6 +36,7 @@ def _gauss_integral_from_inf_to_inf(limits, params):
     # return ztf.const(1.)
     return tf.sqrt(2 * ztf.pi) * params['sigma']
 
+
 # TODO: uncomment hack when switched to space
-# Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf, axes=(0,),
-#                                  limits=(-infinity, infinity))
+Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
+                                 limits=NamedSpace.from_axes(limits=(-infinity, infinity), axes=(0,)))

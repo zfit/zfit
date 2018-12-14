@@ -172,7 +172,7 @@ class AnalyticIntegral:
         Returns:
             Union[None, Integral]: Return a callable that integrated over the given limits.
         """
-        limits = convert_to_space(obs=limits)
+        limits = convert_to_space(limits=limits, axes=axes)
 
         axes, limits = self._get_max_axes_limits(limits=limits, out_of_axes=axes)
         axes = frozenset(axes)

@@ -272,9 +272,9 @@ def test_analytic_integral():
     normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity))
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
-                                         limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)), axes=None)
+                                         limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)))
 
-    dist_func3 = DistFunc3()
+    dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     init = tf.global_variables_initializer()
     zfit.sess.run(init)
     gauss_integral_infs = zfit.sess.run(gauss_integral_infs)

@@ -497,14 +497,18 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """
         obs_none = obs is None
         axes_none = axes is None
-        if not obs_none ^ axes_none:
-            raise ValueError("Exactly one of `obs` _or_ `axes` have to be specified.")
-        if self.obs is None and not obs_none:
-            raise ObsNotSpecifiedError("Observables `obs` not specified in this space.")
-        if self.axes is None and not axes_none:
-            raise AxesNotSpecifiedError("Axes`axes` not specified in this space.")
+        # if not obs_none ^ axes_none:
+        #     raise ValueError("Exactly one of `obs` _or_ `axes` have to be specified.")
 
-        if not obs_none:
+        # raise ObsNotSpecifiedError("Observables `obs` not specified in this space.")
+        # if self.axes is None and not axes_none:
+        #     raise AxesNotSpecifiedError("Axes`axes` not specified in this space.")
+        obs_is_defined = self.obs is not None and not obs_none
+        axes_is_defined = self.axes is not None and not axes_none
+        if not (obs_is_defined or axes_is_defined):
+            raise ValueError("Neither the `obs` nor `axes` are defined.")
+
+        if obs_is_defined:
             old, new = self.obs, obs
         else:
             old, new = self.axes, axes
@@ -732,15 +736,23 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     def __le__(self, other):  # TODO: refactor for boundaries
         if not isinstance(other, type(self)):
-            return False
+            return NotImplemented
         axes_not_none = self.axes is not None and other.axes is not None
         obs_not_none = self.obs is not None and other.obs is not None
-        axes_set_not_same = axes_not_none and set(self.axes) != set(other.axes)
-
-        obs_set_not_same = obs_not_none and set(self.obs) != set(other.obs)
-        axes_obs_not_same = self.axes != other.axes or self.obs != other.obs
-        if obs_set_not_same or axes_set_not_same or axes_obs_not_same:
+        if not (axes_not_none or obs_not_none):  # if both are None
             return False
+        if axes_not_none:
+            if set(self.axes) != set(other.axes):
+                return False
+
+        if obs_not_none:
+            if set(self.obs) != set(other.obs):
+                return False
+
+        # if not (obs_not_none or o)
+        # axes_obs_not_same = self.axes != other.axes or self.obs != other.obs
+        # if obs_set_not_same or axes_set_not_same or axes_obs_not_same:
+        #     return False
 
         # check limits
         if self.limits is None:
@@ -749,17 +761,17 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             else:
                 return False
 
-        if self.limits is False:
+        elif self.limits is False:
             if other.limits is False:
                 return True
             else:
                 return False
 
-        if self.obs is None:
-            reorder_axes = self.axes
-        else:
-            reorder_axes = None
-        with other.reorder_by_indices(other.get_reorder_indices(obs=self.obs, axes=reorder_axes)):
+        # if self.obs is None:
+        #     reorder_axes = self.axes
+        # else:
+        #     reorder_axes = None
+        with other.reorder_by_indices(other.get_reorder_indices(obs=self.obs, axes=self.axes)):
 
             # check explicitely if they match
             for lower, upper in self.iter_limits(as_tuple=True):  # TODO: replace with boundaries
