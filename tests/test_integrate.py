@@ -320,6 +320,6 @@ def test_analytic_integral_selection():
     DistFuncInts.register_analytic_integral(int3, limits=limits3)
     DistFuncInts.register_analytic_integral(int4, limits=limits4)
     DistFuncInts.register_analytic_integral(int5, limits=limits5)
-    dims = DistFuncInts._analytic_integral.get_max_axes(limits=NamedSpace.from_axes(limits=(((-5, 4),), ((1, 5),)),
-                                                        axes=dims3))
+    dims = DistFuncInts._analytic_integral.get_max_axes(limits=NamedSpace.from_axes(limits=(((-5, 1),), ((1, 5),)),
+                                                                                    axes=dims3))
     assert dims3 == dims

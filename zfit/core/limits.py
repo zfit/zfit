@@ -771,22 +771,27 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         #     reorder_axes = self.axes
         # else:
         #     reorder_axes = None
-        with other.reorder_by_indices(other.get_reorder_indices(obs=self.obs, axes=self.axes)):
+        reorder_indices = other.get_reorder_indices(obs=self.obs, axes=self.axes)
+        with other.reorder_by_indices(reorder_indices):
 
             # check explicitely if they match
-            for lower, upper in self.iter_limits(as_tuple=True):  # TODO: replace with boundaries
-                is_le = False
+            for lower, upper in self.iter_limits(as_tuple=True):
+                limit_is_le = False
                 for other_lower, other_upper in other.iter_limits(as_tuple=True):
-                    # a list of `or` conditions
-                    is_le = other_lower == lower and upper == other_upper  # TODO: approx limit comparison?
-                    is_le += other_lower == lower and other_upper is self.ANY_UPPER  # TODO: approx limit
-                    # comparison?
-                    is_le += other_lower is self.ANY_LOWER and upper == other_upper  # TODO: approx limit
-                    # comparison?
-                    is_le += other_lower is self.ANY_LOWER and other_upper is self.ANY_UPPER
-                    if is_le:
-                        break
-                if not is_le:
+                    for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
+                        axis_le = 0  # False
+                        # a list of `or` conditions
+                        axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
+                        axis_le += other_low == low and other_up is self.ANY_UPPER  # TODO: approx limit
+                        # comparison?
+                        axis_le += other_low is self.ANY_LOWER and up == other_up  # TODO: approx limit
+                        # comparison?
+                        axis_le += other_low is self.ANY_LOWER and other_up is self.ANY_UPPER
+                        if not axis_le:
+                            break
+                    else:
+                        limit_is_le = True
+                if not limit_is_le:
                     return False
         return True
 
@@ -898,7 +903,11 @@ def no_norm_range(func):
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        norm_range_not_false = not (kwargs.get('norm_range').limits is None or kwargs.get('norm_range').limits is False)
+        norm_range = kwargs.get('norm_range')
+        if isinstance(norm_range, NamedSpace):
+            norm_range_not_false = not (norm_range.limits is None or norm_range.limits is False)
+        else:
+            norm_range_not_false = not (norm_range is None or norm_range is False)
         if norm_range_index is not None:
             norm_range_is_arg = len(args) > norm_range_index
         else:

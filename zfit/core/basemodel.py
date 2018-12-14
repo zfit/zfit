@@ -159,6 +159,8 @@ class BaseModel(BaseNumeric, ZfitModel):
 
     def _add_dim_to_x(self, x):
         if self.n_dims == 1:
+            if len(x.shape.as_list()) == 0:
+                x = tf.expand_dims(x, 0)
             if len(x.shape.as_list()) == 1:
                 x = tf.expand_dims(x, 0)
         return x
