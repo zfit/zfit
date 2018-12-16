@@ -163,7 +163,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             obs = convert_to_container(obs, container=tuple)
         return obs
 
-    def _convert_axes_to_str(self, axes):
+    def _convert_axes_to_int(self, axes):
         if isinstance(axes, NamedSpace):
             axes = axes.axes
         else:
@@ -329,7 +329,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """Return the number of observables/axes.
 
         Returns:
-            int
+            int >= 1
         """
 
         if self.obs is None:
@@ -357,8 +357,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         """
         return self._obs
-
-    # TODO: do we need an get_obs_axes?
 
     @property
     def axes(self) -> ztyping.AxesTypeReturn:
@@ -478,7 +476,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             `NamedSpace`
         """
         # TODO: what if self.axes is None? Just add them?
-        axes = self._convert_axes_to_str(axes)
+        axes = self._convert_axes_to_int(axes)
         new_indices = self.get_reorder_indices(axes=axes)
         new_space = self.copy()
         new_space.reorder_by_indices(indices=new_indices)
@@ -540,12 +538,12 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def _reorder_limits(self, indices: Tuple[int], inplace: bool = True) -> ztyping.LimitsTypeReturn:
         limits = self.limits
         if limits is not None and limits is not False:
-            print("DEBUG,limits", limits)
+            # print("DEBUG,limits", limits)
             lower, upper = limits
             lower = tuple(tuple(lower[i] for i in indices) for lower in lower)
             upper = tuple(tuple(upper[i] for i in indices) for upper in upper)
             limits = lower, upper
-        print("DEBUG 2,limits", limits)
+        # print("DEBUG 2,limits", limits)
 
         if inplace:
             self._limits = limits
@@ -567,8 +565,18 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             self._obs = obs
         return obs
 
-    def _set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):
-        """Reorder the observables and set the `axes`.
+    def get_obs_axes(self):
+        if self.obs is None:
+            raise ObsNotSpecifiedError("Obs not specified, cannot create `obs_axes`")
+        if self.axes is None:
+            raise AxesNotSpecifiedError("Axes not specified, cannot create `obs_axes`")
+
+        # creaet obs_axes dict
+        obs_axes = OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
+        return obs_axes
+
+    def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False):
+        """(Reorder) set the observables and the `axes`.
 
         Temporarily if used with a context manager.
 
@@ -578,18 +586,34 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         Returns:
 
         """
-        if self.obs is not None:
-            permutation_index = tuple(
-                self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
-        elif self.axes is not None:
-            permutation_index = tuple(
-                self.axes.index(ax) for ax in obs_axes.values() if ax in self.axes)  # the future index of the space
+        if ordered and not isinstance(obs_axes, OrderedDict):
+            raise IntentionNotUnambiguousError("`ordered` is True but not an `OrderedDict` was given."
+                                               "Error due to safety (in Python <3.7, dicts are not guaranteed to be"
+                                               "ordered).")
+        if ordered:
+            if self.obs is not None:
+                permutation_index = tuple(
+                    self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
+            elif self.axes is not None:
+                permutation_index = tuple(
+                    self.axes.index(ax) for ax in obs_axes.values() if ax in self.axes)  # the future index of the space
+            else:
+                assert False, "This should never be reached."
+            limits = self._reorder_limits(indices=permutation_index, inplace=False)
+            obs = tuple(obs_axes.keys())
+            axes = tuple(obs_axes.values())
         else:
-            assert False, "This should never be reached."
-        limits = self._reorder_limits(indices=permutation_index, inplace=False)
-
-        obs = tuple(obs_axes.keys())
-        axes = tuple(obs_axes.values())
+            if self.obs is not None:
+                obs = self.obs
+                axes = tuple(obs_axes[o] for o in obs)
+            elif self.axes is not None:
+                axes = self.axes
+                axes_obs = {v: k for k, v in obs_axes.items()}
+                obs = tuple(axes_obs[ax] for ax in axes)
+            else:
+                raise ValueError("Either `obs` or `axes` have to be specified if the `obs_axes` dict"
+                                 "is not ordered and `ordered` is False.")
+            limits = self.limits
 
         value = limits, obs, axes
 
@@ -605,29 +629,38 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def with_autofill_axes(self) -> "NamedSpace":
-        """Create a new `Space` with filled axes corresponding to range(len(n_obs)).
-
-        Returns:
-            `NamedSpace`
-        """
-        new_axes = tuple(range(self.n_obs))
-        new_space = self.copy(axes=new_axes)
-
-        return new_space
-
-    def with_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]) -> "NamedSpace":
+    def with_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]],
+                      ordered: bool = False) -> "NamedSpace":
         """Return a new `Space` with reordered observables and set the `axes`.
 
 
         Args:
+            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
             obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
 
         Returns:
             NamedSpace:
         """
-        with self._set_obs_axes(obs_axes=obs_axes):
+        with self._set_obs_axes(obs_axes=obs_axes, ordered=ordered):
             return copy.deepcopy(self)
+
+    def with_autofill_axes(self, overwrite: bool = False) -> "NamedSpace":
+        """Return a `Space` with filled axes corresponding to range(len(n_obs)).
+
+        Args:
+            overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.
+                If axes is already set, don't do anything if `overwrite` is False.
+
+        Returns:
+            `NamedSpace`
+        """
+        if self.axes is None or overwrite:
+            new_axes = tuple(range(self.n_obs))
+            new_space = self.copy(axes=new_axes)
+        else:
+            new_space = self
+
+        return new_space
 
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""

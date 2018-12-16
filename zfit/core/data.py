@@ -29,6 +29,7 @@ class Data(ZfitData, BaseObject):
             iterator_feed_dict = {}
         self._data_range = None
         self._permutation_indices_data = None
+        self._next_batch = None
         self._dtype = dtype
 
         self._set_space(obs)
@@ -131,8 +132,9 @@ class Data(ZfitData, BaseObject):
         self.iterator = iterator
 
     def get_iteration(self):
-        next_batch = self.iterator.get_next()
-        return next_batch
+        if self._next_batch is None:
+            self._next_batch = self.iterator.get_next()
+        return self._next_batch
 
     def value(self, obs: List[str] = None):
         values = self.get_iteration()
@@ -169,7 +171,7 @@ class Data(ZfitData, BaseObject):
         obs_axes_items = tuple(self._space.get_axes(as_dict=True, autofill=True).items())
         obs_axes = OrderedDict(obs_axes_items[i] for i in permutation_indices)
 
-        space = self._space.with_obs_axes(obs_axes=obs_axes)
+        space = self._space.with_obs_axes(obs_axes=obs_axes, ordered=True)
         value = space, permutation_indices_data
 
         def setter(value):
@@ -186,10 +188,8 @@ class Data(ZfitData, BaseObject):
         del name
         if dtype is not None:
             if dtype != self.dtype:
-                # upcast_dtype = ztypes[dtype]
-                # if not (ztypes.auto_upcast and upcast_dtype == self.dtype):
-                return ValueError("From Mayou36", self.dtype)
-                # return NotImplemented
+                # return ValueError("From Mayou36", self.dtype)
+                return NotImplemented
         if as_ref:
             # return "NEVER READ THIS"
             raise LogicalUndefinedOperationError("There is no ref for the `Data`")

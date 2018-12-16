@@ -217,7 +217,7 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         self_space = self._space
         if self_space is not None:
-            space = space.with_obs_axes(self_space.get_axes(as_dict=True, autofill=True))
+            space = space.with_obs_axes(self_space.get_axes(as_dict=True, autofill=True), ordered=True)
         return space
 
     @property

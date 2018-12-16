@@ -112,7 +112,7 @@ def test_setting_axes(space, obs):
         assert true_lower != lower
         assert true_upper != upper
 
-    new_space = space.with_obs_axes(obs_axes=obs_axes)
+    new_space = space.with_obs_axes(obs_axes=obs_axes, ordered=True)
     # check new object
     assert new_axes == new_space.axes
     assert new_obs == new_space.obs
@@ -125,7 +125,7 @@ def test_setting_axes(space, obs):
     assert lower == space.lower
     assert upper == space.upper
 
-    with space._set_obs_axes(obs_axes=obs_axes):
+    with space._set_obs_axes(obs_axes=obs_axes, ordered=True):
         assert new_axes == space.axes
         assert new_obs == space.obs
         assert true_lower == space.lower
