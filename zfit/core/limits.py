@@ -462,8 +462,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """
         obs = self._convert_obs_to_str(obs)
         new_indices = self.get_reorder_indices(obs=obs)
-        new_space = self.copy()
-        new_space.reorder_by_indices(indices=new_indices)
+        new_space = self.reorder_by_indices(indices=new_indices)
         return new_space
 
     def with_axes(self, axes: ztyping.AxesTypeInput) -> "NamedSpace":
@@ -495,12 +494,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         """
         obs_none = obs is None
         axes_none = axes is None
-        # if not obs_none ^ axes_none:
-        #     raise ValueError("Exactly one of `obs` _or_ `axes` have to be specified.")
 
-        # raise ObsNotSpecifiedError("Observables `obs` not specified in this space.")
-        # if self.axes is None and not axes_none:
-        #     raise AxesNotSpecifiedError("Axes`axes` not specified in this space.")
         obs_is_defined = self.obs is not None and not obs_none
         axes_is_defined = self.axes is not None and not axes_none
         if not (obs_is_defined or axes_is_defined):
@@ -515,25 +509,22 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         return new_indices
 
     def reorder_by_indices(self, indices: Tuple[int]):
-        """Reorder (temporarily) the `Space` with the given indices.
+        """Return a `Space` reordered by the indices.
 
         Args:
             indices ():
 
         """
-        old_indices = [None] * len(indices)
-        for old_i, new_i in enumerate(indices):
-            old_indices[new_i] = old_i
+        # old_indices = [None] * len(indices)
+        # for old_i, new_i in enumerate(indices):
+        #     old_indices[new_i] = old_i
 
-        def setter(indices):
-            self._reorder_limits(indices=indices)
-            self._reorder_axes(indices=indices)
-            self._reorder_obs(indices=indices)
+        new_space = self.copy()
+        new_space._reorder_limits(indices=indices)
+        new_space._reorder_axes(indices=indices)
+        new_space._reorder_obs(indices=indices)
 
-        def getter():
-            return old_indices
-
-        return TemporarilySet(value=indices, setter=setter, getter=getter)
+        return new_space
 
     def _reorder_limits(self, indices: Tuple[int], inplace: bool = True) -> ztyping.LimitsTypeReturn:
         limits = self.limits
@@ -565,15 +556,29 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             self._obs = obs
         return obs
 
-    def get_obs_axes(self):
+    def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
         if self.obs is None:
             raise ObsNotSpecifiedError("Obs not specified, cannot create `obs_axes`")
         if self.axes is None:
             raise AxesNotSpecifiedError("Axes not specified, cannot create `obs_axes`")
 
-        # creaet obs_axes dict
-        obs_axes = OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
+        obs = self._check_convert_input_obs(obs, allow_none=True)
+        axes = self._check_convert_input_axes(axes, allow_none=True)
+        if obs is not None and axes is not None:
+            raise OverdefinedError("Cannot use `obs` and `axes` to define which subset to access.")
+        obs = self.obs if obs is None else obs
+        axes = self.axes if axes is None else axes
+        # only membership testing below
+        obs = frozenset(obs)
+        axes = frozenset(axes)
+
+        # create obs_axes dict
+        obs_axes = OrderedDict((o, ax) for o, ax in self.obs_axes.items() if o in obs or ax in axes)
         return obs_axes
+
+    @property
+    def obs_axes(self):
+        return OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
 
     def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False):
         """(Reorder) set the observables and the `axes`.
@@ -805,29 +810,29 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         # else:
         #     reorder_axes = None
         reorder_indices = other.get_reorder_indices(obs=self.obs, axes=self.axes)
-        with other.reorder_by_indices(reorder_indices):
+        other = other.reorder_by_indices(reorder_indices)
 
-            # check explicitely if they match
-            # for each limit in self, find another matching in other
-            for lower, upper in self.iter_limits(as_tuple=True):
-                limit_is_le = False
-                for other_lower, other_upper in other.iter_limits(as_tuple=True):
-                    # each entry *has to* match the entry of the other limit, otherwise it's not the same
-                    for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
-                        axis_le = 0  # False
-                        # a list of `or` conditions
-                        axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
-                        axis_le += other_low == low and other_up is self.ANY_UPPER  # TODO: approx limit
-                        # comparison?
-                        axis_le += other_low is self.ANY_LOWER and up == other_up  # TODO: approx limit
-                        # comparison?
-                        axis_le += other_low is self.ANY_LOWER and other_up is self.ANY_UPPER
-                        if not axis_le:  # if not the same, don't test other dims
-                            break
-                    else:
-                        limit_is_le = True  # no break -> all axes coincide
-                if not limit_is_le:  # for this `limit`, no other_limit matched
-                    return False
+        # check explicitely if they match
+        # for each limit in self, find another matching in other
+        for lower, upper in self.iter_limits(as_tuple=True):
+            limit_is_le = False
+            for other_lower, other_upper in other.iter_limits(as_tuple=True):
+                # each entry *has to* match the entry of the other limit, otherwise it's not the same
+                for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
+                    axis_le = 0  # False
+                    # a list of `or` conditions
+                    axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
+                    axis_le += other_low == low and other_up is self.ANY_UPPER  # TODO: approx limit
+                    # comparison?
+                    axis_le += other_low is self.ANY_LOWER and up == other_up  # TODO: approx limit
+                    # comparison?
+                    axis_le += other_low is self.ANY_LOWER and other_up is self.ANY_UPPER
+                    if not axis_le:  # if not the same, don't test other dims
+                        break
+                else:
+                    limit_is_le = True  # no break -> all axes coincide
+            if not limit_is_le:  # for this `limit`, no other_limit matched
+                return False
         return True
 
     def __ge__(self, other):

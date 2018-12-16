@@ -92,6 +92,7 @@ def test_sort_by_obs():
     new_obs = (obs1[1], obs1[2], obs1[0])
     new_array = copy.deepcopy(example_data1)
     new_array = np.array([new_array[1, :], new_array[2, :], new_array[0, :]])
+    assert data1.obs == obs1, "If this is not True, then the test will be flawed."
     with data1.sort_by_obs(new_obs):
         assert data1.obs == new_obs
         np.testing.assert_array_equal(new_array, zfit.sess.run(data1.value()))
@@ -101,6 +102,8 @@ def test_sort_by_obs():
         with data1.sort_by_obs(new_obs2):
             assert data1.obs == new_obs2
             np.testing.assert_array_equal(new_array2, zfit.sess.run(data1.value()))
+
+        assert data1.obs == new_obs
 
     assert data1.obs == obs1
     np.testing.assert_array_equal(example_data1, zfit.sess.run(data1.value()))

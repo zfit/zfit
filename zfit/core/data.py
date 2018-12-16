@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List
+from typing import List, Tuple
 import warnings
 
 import tensorflow as tf
@@ -14,6 +14,7 @@ from zfit.core.baseobject import BaseObject
 from zfit.core.interfaces import ZfitData
 from zfit.core.limits import NamedSpace, convert_to_space
 from zfit.settings import types as ztypes
+from zfit.util.container import convert_to_container
 from zfit.util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError
 from zfit.util.temporary import TemporarilySet
 
@@ -136,21 +137,31 @@ class Data(ZfitData, BaseObject):
             self._next_batch = self.iterator.get_next()
         return self._next_batch
 
-    def value(self, obs: List[str] = None):
+    @property
+    def n_obs(self):
+        return self._space.n_obs
+
+    def value(self, obs: Tuple[str] = None):
+        obs = convert_to_container(value=obs, container=tuple)
         values = self.get_iteration()
-        perm_indices = self._permutation_indices_data
+        # TODO(Mayou36): add conversion to right dimension? (n_dims, n_events)? # check if 1-D?
+        if len(values.shape.as_list()) == 0:
+            values = tf.expand_dims(values, 0)
+        if len(values.shape.as_list()) == 1:
+            values = tf.expand_dims(values, 0)
+        perm_indices = self._space.axes if self._space.axes != tuple(range(values.shape[0])) else False
 
         # permutate = perm_indices is not None
-        if perm_indices or obs:
+        if obs:
+            if not frozenset(obs) <= frozenset(self.obs):
+                raise ValueError("The observable(s) {} are not contained in the dataset. "
+                                 "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
+                                                                     self.obs))
+            perm_indices = self._space.get_axes(obs=obs)
+            # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
+        if perm_indices:
             values = tf.unstack(values)
-            if perm_indices:
-                values = list(values[i] for i in perm_indices)
-            if obs:
-                if not frozenset(obs) <= frozenset(self.obs):
-                    raise ValueError("The observable(s) {} are not contained in the dataset. "
-                                     "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
-                                                                         self.obs))
-                values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
+            values = list(values[i] for i in perm_indices)
             values = tf.stack(values)
 
         return values
@@ -163,24 +174,24 @@ class Data(ZfitData, BaseObject):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
-        permutation_indices = tuple(self.obs.index(o) for o in obs if o in self.obs)
-        if self._permutation_indices_data is None:
-            permutation_indices_data = permutation_indices
-        else:
-            permutation_indices_data = tuple(self._permutation_indices_data[i] for i in permutation_indices)
-        obs_axes_items = tuple(self._space.get_axes(as_dict=True, autofill=True).items())
-        obs_axes = OrderedDict(obs_axes_items[i] for i in permutation_indices)
+        # permutation_indices = tuple(self.obs.index(o) for o in obs if o in self.obs)
+        # if self._permutation_indices_data is None:
+        #     permutation_indices_data = permutation_indices
+        # else:
+        #     permutation_indices_data = tuple(self._permutation_indices_data[i] for i in permutation_indices)
+        # obs_axes_items = tuple(self._space.get_axes(as_dict=True, autofill=True).items())
+        # obs_axes = OrderedDict(obs_axes_items[i] for i in permutation_indices)
 
-        space = self._space.with_obs_axes(obs_axes=obs_axes, ordered=True)
-        value = space, permutation_indices_data
+        space = self._space.with_obs(obs=obs)
+        value = space
 
         def setter(value):
-            space, permutation_indices_data = value
-            self._permutation_indices_data = permutation_indices_data
-            self._space = space
+            # space, permutation_indices_data = value
+            # self._permutation_indices_data = permutation_indices_data
+            self._space = value
 
         def getter():
-            return self._space, self._permutation_indices_data
+            return self._space
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
