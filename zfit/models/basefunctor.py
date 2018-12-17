@@ -33,44 +33,6 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     # TODO(Mayou36): implement properly with obs
 
-    def _check_convert_model_dims_to_index(self, models):
-        models_dims_index = None
-        models_dims = tuple(model.axes for model in models)
-        if self.axes is None:
-            # try to infer from the models
-            proposed_dims = set(models_dims)
-            if len(proposed_dims) == 1:  # if all submodels have the *exact* same axes -> intention is "clear"
-                proposed_dim = proposed_dims.pop()
-
-                # models_dims are None and functor axes is None -> allow for easy use-case of sum(exp, gauss)
-                if proposed_dim is None and not self._functor_allow_none_dims:
-                    raise AxesNotUnambiguousError("Dims of submodels as well as functor are None."
-                                                  "Not allowed for this functor. Specify the axes in the"
-                                                  "submodels and/or in the Functor.")
-                # in this case, at least the n_obs should coincide
-                elif proposed_dim is None:
-                    models_n_dims = set(model.n_obs for model in models)
-                    if len(models_n_dims) == 1:
-                        models_dims_index = tuple(range(len(models_n_dims))) * len(models)
-                    else:
-                        raise AxesNotUnambiguousError("n_obs of models are different and axes are all `None`. "
-                                                      "Therefore they can't be inferered safely. Either use same ranked"
-                                                      "models or specify explicitely the axes.")
-
-                self.obs = proposed_dim
-
-            # different dimensions in submodels -> how to merge? Ambiguous
-            else:
-                raise AxesNotUnambiguousError("Dimensions are `None` for this functor and cannot be taken from the"
-                                              "models, as their dimensions are not *exactly* the same.")
-        if models_dims_index is None:
-            try:
-                models_dims_index = tuple(tuple(self.axes.index(dim) for dim in dims) for dims in models_dims)
-            except ValueError:
-                missing_dims = set(models_dims) - set(self.axes)
-                raise ValueError("The following axes are not specified in the pdf: {}".format(str(missing_dims)))
-
-        return models_dims_index
 
     def _get_dependents(self):
         dependents = super()._get_dependents()  # get the own parameter dependents

@@ -191,10 +191,6 @@ class SumPDF(BaseFunctor):
             self.fracs = fracs
 
     @property
-    def _functor_allow_none_dims(self) -> bool:
-        return True
-
-    @property
     def _n_dims(self):
         return self._space.n_obs  # TODO(mayou36): properly implement dimensions
 
@@ -267,30 +263,14 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def __init__(self, pdfs, obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
-    @property
-    def _functor_allow_none_dims(self) -> bool:  # TODO(Mayou36): remove property, old
-        return False
-
     def _unnormalized_pdf(self, x: ztyping.XType):
-        # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
-        # HACK START
-        if not isinstance(x, Data):
-            x = Data.from_tensors(obs=self.obs, tensors=x)
-        # HACK END
-        # return tf.reduce_prod(tf.stack([pdf.pdf(x, norm_range=norm_range.get_subspace(obs=pdf.obs))
-        #                                 for pdf in self.pdfs]),
-        #                       axis=0)
+
         norm_range = self._get_component_norm_range()
         return np.prod([pdf.pdf(x, norm_range=norm_range.get_subspace(obs=pdf.obs))
-                        for pdf in self.pdfs])
+                        for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):
-        if all(not dep for dep in self._model_same_obs) and False:  # HACK(critical): remove `and False`
-            # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
-            # HACK START
-            if not isinstance(x, Data):
-                x = Data.from_tensors(obs=self.obs, tensors=x)
-            # HACK END
+        if all(not dep for dep in self._model_same_obs):
 
             probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in
                      self.pdfs]

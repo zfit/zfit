@@ -220,8 +220,8 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._hook_normalization(limits=limits, name=name)
 
     def _hook_normalization(self, limits, name="_hook_normalization"):
-        normalization = self._call_normalization(limits=limits, name=name)  # no _norm_* needed
-        return normalization
+        return self._call_normalization(limits=limits, name=name)  # no _norm_* needed
+
 
     def _call_normalization(self, limits, name):
         # TODO: caching? alternative

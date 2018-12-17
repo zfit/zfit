@@ -303,8 +303,8 @@ class BaseModel(BaseNumeric, ZfitModel):
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
-        integral = self._norm_integrate(limits=limits, norm_range=norm_range, name=name)
-        return integral
+        return self._norm_integrate(limits=limits, norm_range=norm_range, name=name)
+
 
     def _norm_integrate(self, limits, norm_range, name='_norm_integrate'):
         try:
