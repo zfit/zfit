@@ -47,39 +47,39 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
     def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_integrate(limits, norm_range, name)
+            return super()._single_hook_integrate(limits, norm_range, name)
 
     def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_analytic_integrate(limits, norm_range, name)
+            return super()._single_hook_analytic_integrate(limits, norm_range, name)
 
     def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_numeric_integrate(limits, norm_range, name)
+            return super()._single_hook_numeric_integrate(limits, norm_range, name)
 
     def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_partial_integrate(x, limits, norm_range, name)
+            return super()._single_hook_partial_integrate(x, limits, norm_range, name)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_partial_analytic_integrate(x, limits, norm_range, name)
+            return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_partial_numeric_integrate(x, limits, norm_range, name)
+            return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)
 
     def _single_hook_normalization(self, limits, name="_hook_normalization"):
         with self._set_component_norm_range(norm_range=limits):
-            return super()._hook_normalization(limits, name)
+            return super()._single_hook_normalization(limits, name)
 
     def _single_hook_pdf(self, x, norm_range, name="_hook_pdf"):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_pdf(x, norm_range, name)
+            return super()._single_hook_pdf(x, norm_range, name)
 
     def _single_hook_log_pdf(self, x, norm_range, name):
         with self._set_component_norm_range(norm_range=norm_range):
-            return super()._hook_log_pdf(x, norm_range, name)
+            return super()._single_hook_log_pdf(x, norm_range, name)
 
     @property
     def pdfs_extended(self):
@@ -222,8 +222,7 @@ class SumPDF(BaseFunctor):
 
     def _set_yield(self, value: Union[Parameter, None]):
         # TODO: what happens now with the daughters?
-        if all(
-            self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
+        if all(self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
             # beginning
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
         elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
