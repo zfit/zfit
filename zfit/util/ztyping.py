@@ -27,6 +27,8 @@ SpaceTypeReturn = "NamedSpace"
 
 # Data
 XType = Union[float, tf.Tensor]
+XTypeInput = Union[np.ndarray, tf.Tensor, "Data"]
+XTypeReturn = Union[tf.Tensor, "Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
 
 # Parameter

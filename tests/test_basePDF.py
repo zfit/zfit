@@ -68,7 +68,7 @@ def test_gradient():
     zfit.sess.run(init)
     tensor_grad = gauss3.gradient(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = zfit.sess.run(tensor_grad)
-    assert random_vals_eval == pytest.approx(true_gaussian_grad(random_vals), rel=1e-5)
+    np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-5)
 
 
 def test_func():
@@ -79,7 +79,7 @@ def test_func():
         vals = dist.unnormalized_pdf(test_values_tf)
         zfit.sess.run(init)
         vals = zfit.sess.run(vals)
-        np.testing.assert_almost_equal(vals, true_gaussian_unnorm_func(test_values),
+        np.testing.assert_almost_equal(vals[0, :], true_gaussian_unnorm_func(test_values),
                                        err_msg="assert_almost_equal failed for ".format(
                                            dist.name))
 

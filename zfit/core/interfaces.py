@@ -388,7 +388,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def normalization(self) -> ztyping.NumericalTypeReturn:
+    def normalization(self, limits: ztyping.LimitsType, name: str = "normalization") -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abc.abstractmethod

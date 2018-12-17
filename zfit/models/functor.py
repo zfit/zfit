@@ -204,7 +204,7 @@ class SumPDF(BaseFunctor):
         else:
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def _unnormalized_pdf(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x):
         raise NotImplementedError
         # TODO: deal with yields
         # pdfs = self.pdfs
@@ -272,7 +272,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def _functor_allow_none_dims(self) -> bool:  # TODO(Mayou36): remove property, old
         return False
 
-    def _unnormalized_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsTypeInput = False):
+    def _unnormalized_pdf(self, x: ztyping.XType):
         # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
         # HACK START
         if not isinstance(x, Data):

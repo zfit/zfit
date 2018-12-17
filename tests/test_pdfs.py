@@ -91,7 +91,7 @@ def test_prod_gauss_nd():
     zfit.sess.run(tf.global_variables_initializer())
     true_probs = np.prod([gauss.pdf(test_values[i, :], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
     probs_np = zfit.sess.run(probs)
-    np.testing.assert_allclose(zfit.sess.run(true_probs), probs_np[0, :], rtol=1e-2)
+    np.testing.assert_allclose(zfit.sess.run(true_probs)[0, :], probs_np[0, :], rtol=1e-2)
 
 
 def test_prod_gauss_nd_mixed():
@@ -103,7 +103,7 @@ def test_prod_gauss_nd_mixed():
 
     obs4d = ['a', 'b', 'c', 'd']
     test_values_data = Data.from_tensors(obs=obs4d, tensors=test_values)
-    prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 40})
+    prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 30})
     probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=NamedSpace(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d))
     zfit.sess.run(tf.global_variables_initializer())
@@ -139,7 +139,7 @@ def test_func_sum():
         x=ztf.convert_to_tensor(test_values, dtype=zfit.settings.types.float))
     vals = zfit.sess.run(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])
-    np.testing.assert_allclose(vals, true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
+    np.testing.assert_allclose(vals[0, :], true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
 
 
 def test_normalization_sum_gauss():
