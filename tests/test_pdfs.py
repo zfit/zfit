@@ -95,26 +95,41 @@ def test_prod_gauss_nd():
 
 
 def test_prod_gauss_nd_mixed():
-    return
+    # return
     # HACK(critical): undo return hack
-    test_values = np.random.random(size=(4, 10))
     norm_range = (-5, 4)
+    low, high = norm_range
+    test_values = np.random.uniform(low=low, high=high, size=(4, 1000))
 
-    test_values_data = Data.from_tensors(obs=['a', 'b', 'c', 'd'], tensors=test_values)
+    obs4d = ['a', 'b', 'c', 'd']
+    test_values_data = Data.from_tensors(obs=obs4d, tensors=test_values)
+    prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 40})
     probs = prod_gauss_4d.pdf(x=test_values_data,
-                              norm_range=NamedSpace.from_axes(limits=(((-5,) * 4,), ((4,) * 4,)), axes=tuple(range(4))))
+                              norm_range=NamedSpace(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d))
     zfit.sess.run(tf.global_variables_initializer())
     gauss1, gauss2, gauss3 = gauss_dists2
-    true_probs = [gauss1.pdf(test_values[3, :], norm_range=norm_range)]
-    true_probs += [gauss2.pdf(test_values[0, :], norm_range=norm_range)]
-    true_probs += [gauss3.pdf(test_values[2, :], norm_range=norm_range)]
-    true_probs += [prod_gauss_3d.pdf(test_values[(0, 1, 2), :],
-                                     norm_range=NamedSpace(limits=(((-5,) * 3,), ((4,) * 3,)),
-                                                           obs=['a', 'b', 'c']))]
 
-    true_probs = np.prod([true_probs])
+    def probs_4d(values):
+        true_prob = [gauss1.pdf(values[3, :], norm_range=norm_range)]
+        true_prob += [gauss2.pdf(values[0, :], norm_range=norm_range)]
+        true_prob += [gauss3.pdf(values[2, :], norm_range=norm_range)]
+        true_prob += [prod_gauss_3d.pdf(values[(0, 1, 2), :],
+                                        norm_range=NamedSpace(limits=(((-5,) * 3,), ((4,) * 3,)),
+                                                              obs=['a', 'b', 'c']))]
+        return np.prod(true_prob, axis=0)
+
+    true_unnormalized_probs = probs_4d(values=test_values)
+
+    normalization_probs = probs_4d(np.random.uniform(low=low, high=high, size=(4, 40 ** 4)))
+    # print(np.average(probs_4d))
+    true_probs = true_unnormalized_probs / tf.reduce_mean(normalization_probs)
     probs_np = zfit.sess.run(probs)
-    np.testing.assert_allclose(zfit.sess.run(true_probs[0, :]), probs_np[0, :], rtol=1e-2)
+    print(np.average(probs_np))
+    true_probs_np = zfit.sess.run(true_probs[0, :])
+    # assert np.average(true_probs_np) == pytest.approx(1., rel=0.1)
+    assert np.average(probs_np) == pytest.approx(1., rel=0.1)
+
+    np.testing.assert_allclose(true_probs_np, probs_np[0, :], rtol=1e-2)
 
 
 def test_func_sum():
@@ -145,7 +160,7 @@ def normalization_testing(pdf, normalization_value=1.):
     init = tf.global_variables_initializer()
     zfit.sess.run(init)
     with pdf.set_norm_range(NamedSpace(obs=obs1, limits=(low, high))):
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_dims, 40000)),
+        samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_obs, 40000)),
                           dtype=tf.float64)
         samples.limits = low, high
         probs = pdf.pdf(samples)

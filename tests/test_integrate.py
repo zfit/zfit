@@ -268,8 +268,8 @@ def test_analytic_integral():
         infinity = mt.inf
     except AttributeError:  # py34
         infinity = float('inf')
-    gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity))
-    normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity))
+    gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity), norm_range=False)
+    normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity), norm_range=False)
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
                                          limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)))
@@ -281,7 +281,7 @@ def test_analytic_integral():
     normal_integral_infs = zfit.sess.run(normal_integral_infs)
     func3_integrated = zfit.sess.run(
         ztf.convert_to_tensor(
-            dist_func3.integrate(limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1))),
+            dist_func3.integrate(limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
             dtype=tf.float64))
     assert func3_integrated == func3_2deps_fully_integrated(limits=NamedSpace.from_axes(limits=limits3, axes=(0, 1)))
     assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)

@@ -100,7 +100,7 @@ def test_normalization():
             probs, log_probs = zfit.sess.run([probs, log_probs])
             probs = np.average(probs) * (high - low)
             assert probs == pytest.approx(1., rel=0.05)
-            assert log_probs == pytest.approx(zfit.sess.run(tf.log(probs_small)), rel=0.001)
+            assert log_probs == pytest.approx(zfit.sess.run(tf.log(probs_small)), rel=0.05)
             dist.set_yield(tf.constant(test_yield, dtype=tf.float64))
             probs_extended = dist.pdf(samples)
             result_extended = zfit.sess.run(probs_extended)
@@ -152,16 +152,16 @@ def test_multiple_limits():
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
     multiple_limits_range = NamedSpace.from_axes(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
-    integral_simp = gauss_params1.integrate(limits=simple_limits)
-    integral_mult = gauss_params1.integrate(limits=multiple_limits_range)
-    integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits)
-    integral_mult_num = gauss_params1.numeric_integrate(limits=multiple_limits_range)
+    integral_simp = gauss_params1.integrate(limits=simple_limits, norm_range=False)
+    integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm_range=False)
+    integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)
+    integral_mult_num = gauss_params1.numeric_integrate(limits=multiple_limits_range, norm_range=False)
 
     integral_simp, integral_mult = zfit.sess.run([integral_simp, integral_mult])
     integral_simp_num, integral_mult_num = zfit.sess.run([integral_simp_num, integral_mult_num])
-    assert integral_simp == pytest.approx(integral_mult, rel=1e-3)  # big tolerance as mc is used
-    assert integral_simp == pytest.approx(integral_simp_num, rel=1e-3)  # big tolerance as mc is used
-    assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-3)  # big tolerance as mc is used
+    assert integral_simp == pytest.approx(integral_mult, rel=1e-2)  # big tolerance as mc is used
+    assert integral_simp == pytest.approx(integral_simp_num, rel=1e-2)  # big tolerance as mc is used
+    assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-2)  # big tolerance as mc is used
 
 
 def test_copy():

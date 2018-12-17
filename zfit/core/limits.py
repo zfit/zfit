@@ -33,7 +33,7 @@ The disadvantage of the previous method is that only rectangular limits are cove
 (in the sense that you can't specify e.g. 1-dim: from 1 to 2 and second dim from 4 to 6 AND 1-dim
 from 10 to 12 and 2.-dim from 50 to 52, so creating individual patches in the multidimensional space).
 Therefore a different way of specifying limits is possible, basically by defining chunks of the
-lower and the upper limits. The shape is (n_limits, n_dims).
+lower and the upper limits. The shape is (n_limits, n_obs).
 
 Example: 1-dim: 1 to 4, 2.-dim: 21 to 24 AND 1.-dim: 6 to 7, 2.-dim 26 to 27
 >>> lower = ((1, 21), (6, 26))
@@ -580,13 +580,15 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def obs_axes(self):
         return OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
 
-    def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False):
+    def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
+                      allow_subset=False):
         """(Reorder) set the observables and the `axes`.
 
         Temporarily if used with a context manager.
 
         Args:
-            obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            allow_subset ():
+            obs_axes (OrderedDict[str, int]): An (ordered) dict with {obs: axes}.
 
         Returns:
 
@@ -595,23 +597,40 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             raise IntentionNotUnambiguousError("`ordered` is True but not an `OrderedDict` was given."
                                                "Error due to safety (in Python <3.7, dicts are not guaranteed to be"
                                                "ordered).")
+        tmp_obs = self.obs if self.obs is not None else obs_axes.keys()
+        self_obs_set = frozenset(tmp_obs)
+        tmp_axes = self.axes if self.axes is not None else obs_axes.values()
+        self_axes_set = frozenset(tmp_axes)
         if ordered:
             if self.obs is not None:
+                if not frozenset(obs_axes.keys()) <= self_obs_set:
+                    raise ValueError("TODO observables not contained")
+                if not allow_subset and frozenset(obs_axes.keys()) < self_obs_set:
+                    raise ValueError("subset not allowed but `obs` is only a subset of `self.obs`")
                 permutation_index = tuple(
-                    self.obs.index(o) for o in obs_axes if o in self.obs)  # the future index of the space
+                    self.obs.index(o) for o in obs_axes if o in self_obs_set)  # the future index of the space
             elif self.axes is not None:
+                if not frozenset(obs_axes.values()) <= self_axes_set:
+                    raise ValueError("TODO axes not contained")
+                if not allow_subset and frozenset(obs_axes.values()) < self_axes_set:
+                    raise ValueError("subset not allowed but `axes` is only a subset of `self.axes`")
                 permutation_index = tuple(
-                    self.axes.index(ax) for ax in obs_axes.values() if ax in self.axes)  # the future index of the space
+                    self.axes.index(ax) for ax in obs_axes.values() if
+                    ax in self_axes_set)  # the future index of the space
             else:
                 assert False, "This should never be reached."
             limits = self._reorder_limits(indices=permutation_index, inplace=False)
-            obs = tuple(obs_axes.keys())
-            axes = tuple(obs_axes.values())
+            obs = tuple(o for o in obs_axes.keys() if o in self_obs_set)
+            axes = tuple(ax for ax in obs_axes.values() if ax in self_axes_set)
         else:
             if self.obs is not None:
+                if not allow_subset and frozenset(obs_axes.keys()) < self_obs_set:
+                    raise ValueError("subset not allowed TODO")
                 obs = self.obs
                 axes = tuple(obs_axes[o] for o in obs)
             elif self.axes is not None:
+                if not allow_subset and frozenset(obs_axes.values()) < self_axes_set:
+                    raise ValueError("subset not allowed TODO")
                 axes = self.axes
                 axes_obs = {v: k for k, v in obs_axes.items()}
                 obs = tuple(axes_obs[ax] for ax in axes)
@@ -634,19 +653,20 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def with_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]],
-                      ordered: bool = False) -> "NamedSpace":
+    def with_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
+                      allow_subset=False) -> "NamedSpace":
         """Return a new `Space` with reordered observables and set the `axes`.
 
 
         Args:
+            allow_subset ():
             ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
             obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
 
         Returns:
             NamedSpace:
         """
-        with self._set_obs_axes(obs_axes=obs_axes, ordered=ordered):
+        with self._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset):
             return copy.deepcopy(self)
 
     def with_autofill_axes(self, overwrite: bool = False) -> "NamedSpace":

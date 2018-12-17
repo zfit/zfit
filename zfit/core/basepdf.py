@@ -109,11 +109,11 @@ class BasePDF(ZfitPDF, BaseModel):
         cls._subclass_check_support(methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BasePDF_register_check_support)
 
-    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True, convert_false=False):
+    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True):
         if norm_range is None:
             norm_range = self.norm_range
         return super()._check_input_norm_range(norm_range=norm_range, caller_name=caller_name,
-                                               none_is_error=none_is_error, convert_false=convert_false)
+                                               none_is_error=none_is_error)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)
@@ -200,10 +200,6 @@ class BasePDF(ZfitPDF, BaseModel):
     def _normalization(self, norm_range):
         raise NotImplementedError
 
-    def _hook_normalization(self, limits, name="_hook_normalization"):
-        normalization = self._call_normalization(norm_range=limits, name=name)  # no _norm_* needed
-        return normalization
-
     def normalization(self, limits: ztyping.LimitsType, name: str = "normalization") -> ztyping.XType:
         """Return the normalization of the function (usually the integral over `limits`).
 
@@ -216,12 +212,14 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         limits = self.convert_sort_space(limits=limits)
 
+        return self._single_hook_normalization(limits=limits, name=name)
+
+    def _single_hook_normalization(self, limits, name):
         return self._hook_normalization(limits=limits, name=name)
 
-    def _fallback_normalization(self, norm_range):
-        # TODO: multi-dim, more complicated range
-        normalization_value = self.integrate(limits=norm_range, norm_range=False)
-        return normalization_value
+    def _hook_normalization(self, limits, name="_hook_normalization"):
+        normalization = self._call_normalization(norm_range=limits, name=name)  # no _norm_* needed
+        return normalization
 
     def _call_normalization(self, norm_range, name):
         # TODO: caching? alternative
@@ -230,15 +228,21 @@ class BasePDF(ZfitPDF, BaseModel):
                 return self._normalization(norm_range)
             return self._fallback_normalization(norm_range)
 
+    def _fallback_normalization(self, norm_range):
+        # TODO: multi-dim, more complicated range
+        normalization_value = self.integrate(limits=norm_range, norm_range=False)
+        return normalization_value
+
     @abc.abstractmethod
     def _unnormalized_pdf(self, x, norm_range=False):
         raise NotImplementedError
 
     def _call_unnormalized_pdf(self, x, name, norm_range=False):
         with self._name_scope(name, values=[x]):
-            return self._unnormalized_pdf(x)
+            return self._unnormalized_pdf(x, norm_range=norm_range)
 
-    def unnormalized_pdf(self, x: ztyping.XType, name: str = "unnormalized_pdf") -> ztyping.XType:
+    def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = False,
+                         name: str = "unnormalized_pdf") -> ztyping.XType:
         """Return the function unnormalized
 
         Args:
@@ -248,8 +252,9 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             graph: A runnable graph
         """
+        component_norm_range = self._check_input_norm_range(norm_range=component_norm_range)
         with self._convert_sort_x(x):
-            return self._call_unnormalized_pdf(x=x, name=name)
+            return self._call_unnormalized_pdf(x=x, norm_range=component_norm_range, name=name)
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -269,7 +274,10 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range, caller_name=name,
                                                   none_is_error=True)
         with self._convert_sort_x(x):
-            return self._hook_pdf(x, norm_range, name)
+            return self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
+
+    def _single_hook_pdf(self, x, norm_range, name):
+        return self._hook_pdf(x=x, norm_range=norm_range, name=name)
 
     def _hook_pdf(self, x, norm_range, name="_hook_pdf"):
         probability = self._norm_pdf(x=x, norm_range=norm_range, name=name)
@@ -290,7 +298,7 @@ class BasePDF(ZfitPDF, BaseModel):
             return self._fallback_pdf(x=x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):
-        pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf")
+        pdf = self._call_unnormalized_pdf(x, norm_range=norm_range, name="_call_unnormalized_pdf")
         if norm_range.limits is not False:  # identity check!
             pdf /= self._hook_normalization(limits=norm_range)
         return pdf
@@ -298,16 +306,6 @@ class BasePDF(ZfitPDF, BaseModel):
     @_BasePDF_register_check_support(False)
     def _log_pdf(self, x, norm_range):
         raise NotImplementedError
-
-    def _hook_log_pdf(self, x, norm_range, name):
-        log_prob = self._norm_log_pdf(x, norm_range, name)
-
-        # apply yield
-        try:
-            log_prob = self.apply_yield(value=log_prob, norm_range=norm_range, log=True)
-        except NotImplementedError:
-            log_prob = tf.log(self.apply_yield(value=tf.exp(log_prob, norm_range=norm_range)))
-        return log_prob
 
     def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None,
                 name: str = "log_pdf") -> ztyping.XType:
@@ -323,7 +321,20 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         with self._convert_sort_x(x):
-            return self._hook_log_pdf(x, norm_range, name)
+            return self._single_log_pdf(x=x, norm_range=norm_range, name=name)
+
+    def _single_log_pdf(self, x, norm_range, name):
+        return self._hook_log_pdf(x=x, norm_range=norm_range, name=name)
+
+    def _hook_log_pdf(self, x, norm_range, name):
+        log_prob = self._norm_log_pdf(x, norm_range, name)
+
+        # apply yield
+        try:
+            log_prob = self.apply_yield(value=log_prob, norm_range=norm_range, log=True)
+        except NotImplementedError:
+            log_prob = tf.log(self.apply_yield(value=tf.exp(log_prob, norm_range=norm_range)))
+        return log_prob
 
     def _norm_log_pdf(self, x, norm_range, name='_norm_log_pdf'):
         log_prob = self._call_log_pdf(x, norm_range, name)

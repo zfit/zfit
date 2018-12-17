@@ -251,7 +251,7 @@ class ZfitModel(ZfitNumeric):
 
     @property
     @abc.abstractmethod
-    def n_dims(self):
+    def n_obs(self):
         raise NotImplementedError
 
     @property
@@ -345,7 +345,7 @@ class ZfitModel(ZfitNumeric):
             name (str):
 
         Returns:
-            Tensor(n_dims, n_samples)
+            Tensor(n_obs, n_samples)
         """
         raise NotImplementedError
 

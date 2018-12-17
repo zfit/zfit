@@ -1,7 +1,7 @@
 .. |range_init| replace:: This is the range object description
 
 .. |limits_init| replace:: A tuple containing the limits (as tuple) per dimension. So a tuple of the
-    shape (n_dims, n_lower_upper) is expected. The limits within one dimension are specified by a
+    shape (n_obs, n_lower_upper) is expected. The limits within one dimension are specified by a
     tuple like (lower1, upper1, lower2, upper2,...). This example contains two ranges, from
     lower1 to upper1 and from lower2 to upper 2 (+ ,... more).
     Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5,
@@ -11,11 +11,11 @@
     limits. Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|
 
 .. |lower_arg_descr| replace:: The lower bounds of the intervall. Has to be of the
-    form (n_intervalls, n_dims). The intervall is the differenz to the upper bounds.
+    form (n_intervalls, n_obs). The intervall is the differenz to the upper bounds.
     Example: ((-1, 4), (1, 6), (3, 10),...)  # 2-d function
 
 .. |upper_arg_descr| replace:: The upper bounds of the intervall. Has to be of the
-    form (n_intervalls, n_dims). The intervall is the differenz to the lower bounds.
+    form (n_intervalls, n_obs). The intervall is the differenz to the lower bounds.
     Example: ((-0.1, 5), (2, 8), (7, 14),...)  # 2-d function
 
 .. |dims_arg_descr| replace:: The dimensions given as a tuple of integers.

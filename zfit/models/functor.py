@@ -9,6 +9,8 @@ import itertools
 from typing import Union, List, Optional
 
 import tensorflow as tf
+import numpy as np
+
 from zfit import ztf
 from zfit.core.data import Data
 from zfit.core.dimension import get_same_dims, unstack_x_dims
@@ -22,6 +24,7 @@ from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesN
 from zfit.core.basepdf import BasePDF
 from zfit.core.parameter import Parameter
 from zfit.settings import types as ztypes
+from zfit.util.temporary import TemporarilySet
 
 
 class BaseFunctor(FunctorMixin, BasePDF):
@@ -29,6 +32,54 @@ class BaseFunctor(FunctorMixin, BasePDF):
     def __init__(self, pdfs, name="BaseFunctor", **kwargs):
         self.pdfs = convert_to_container(pdfs)
         super().__init__(models=self.pdfs, name=name, **kwargs)
+        self._component_norm_range_holder = None
+
+    def _get_component_norm_range(self):
+        return self._component_norm_range_holder
+
+    def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
+        norm_range = self._check_input_norm_range(norm_range=norm_range)  # TODO: only set if different?
+
+        def setter(value):
+            self._component_norm_range_holder = value
+
+        return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
+
+    def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_integrate(limits, norm_range, name)
+
+    def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_analytic_integrate(limits, norm_range, name)
+
+    def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_numeric_integrate(limits, norm_range, name)
+
+    def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_partial_integrate(x, limits, norm_range, name)
+
+    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_partial_analytic_integrate(x, limits, norm_range, name)
+
+    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_partial_numeric_integrate(x, limits, norm_range, name)
+
+    def _single_hook_normalization(self, limits, name="_hook_normalization"):
+        with self._set_component_norm_range(norm_range=limits):
+            return super()._hook_normalization(limits, name)
+
+    def _single_hook_pdf(self, x, norm_range, name="_hook_pdf"):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_pdf(x, norm_range, name)
+
+    def _single_hook_log_pdf(self, x, norm_range, name):
+        with self._set_component_norm_range(norm_range=norm_range):
+            return super()._hook_log_pdf(x, norm_range, name)
 
     @property
     def pdfs_extended(self):
@@ -218,19 +269,24 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     @property
-    def _functor_allow_none_dims(self) -> bool:
+    def _functor_allow_none_dims(self) -> bool:  # TODO(Mayou36): remove property, old
         return False
 
-    def _unnormalized_pdf(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsTypeInput = False):
         # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
         # HACK START
         if not isinstance(x, Data):
             x = Data.from_tensors(obs=self.obs, tensors=x)
         # HACK END
-        return tf.reduce_prod(tf.stack([pdf.unnormalized_pdf(x) for pdf in self.pdfs]), axis=0)
+        # return tf.reduce_prod(tf.stack([pdf.pdf(x, norm_range=norm_range.get_subspace(obs=pdf.obs))
+        #                                 for pdf in self.pdfs]),
+        #                       axis=0)
+        norm_range = self._get_component_norm_range()
+        return np.prod([pdf.pdf(x, norm_range=norm_range.get_subspace(obs=pdf.obs))
+                        for pdf in self.pdfs])
 
     def _pdf(self, x, norm_range):
-        if all(not dep for dep in self._model_same_obs):
+        if all(not dep for dep in self._model_same_obs) and False:  # HACK(critical): remove `and False`
             # x_unstacked = unstack_x_dims(x=x, dims=self._model_obs)
             # HACK START
             if not isinstance(x, Data):

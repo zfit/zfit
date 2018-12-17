@@ -89,7 +89,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
-    # TODO: deal with n_dims properly?
+    # TODO: deal with n_obs properly?
     samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
     samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
     samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it

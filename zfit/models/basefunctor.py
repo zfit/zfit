@@ -47,13 +47,13 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                     raise AxesNotUnambiguousError("Dims of submodels as well as functor are None."
                                                   "Not allowed for this functor. Specify the axes in the"
                                                   "submodels and/or in the Functor.")
-                # in this case, at least the n_dims should coincide
+                # in this case, at least the n_obs should coincide
                 elif proposed_dim is None:
-                    models_n_dims = set(model.n_dims for model in models)
+                    models_n_dims = set(model.n_obs for model in models)
                     if len(models_n_dims) == 1:
                         models_dims_index = tuple(range(len(models_n_dims))) * len(models)
                     else:
-                        raise AxesNotUnambiguousError("n_dims of models are different and axes are all `None`. "
+                        raise AxesNotUnambiguousError("n_obs of models are different and axes are all `None`. "
                                                       "Therefore they can't be inferered safely. Either use same ranked"
                                                       "models or specify explicitely the axes.")
 

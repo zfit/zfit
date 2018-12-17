@@ -10,10 +10,12 @@ import numpy as np
 
 # from ..settings import types as ztypes
 import zfit
+from zfit import ztf
 from zfit.core.baseobject import BaseObject
 from zfit.core.interfaces import ZfitData
 from zfit.core.limits import NamedSpace, convert_to_space
 from zfit.settings import types as ztypes
+from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 from zfit.util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError
 from zfit.util.temporary import TemporarilySet
@@ -22,6 +24,7 @@ from zfit.util.temporary import TemporarilySet
 class Data(ZfitData, BaseObject):
 
     def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
+
 
         if name is None:
             name = "Data"
@@ -38,6 +41,10 @@ class Data(ZfitData, BaseObject):
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
         self.iterator = None
+
+    @property
+    def axes(self):
+        return self._space.axes
 
     @property
     def obs(self):
@@ -119,8 +126,9 @@ class Data(ZfitData, BaseObject):
 
     @classmethod
     def from_tensors(cls, obs, tensors, name=None):
-        dataset = tf.data.Dataset.from_tensors(tensors=tensors)
-        dataset = dataset.repeat()
+        # dataset = tf.data.Dataset.from_tensors(tensors=tensors)
+        # dataset = dataset.repeat()
+        dataset = LightDataset.from_tensor(tensor=tensors)
         return Data(dataset=dataset, obs=obs, name=name)
 
     def initialize(self, sess=None):
@@ -133,6 +141,8 @@ class Data(ZfitData, BaseObject):
         self.iterator = iterator
 
     def get_iteration(self):
+        if isinstance(self.dataset, LightDataset):
+            return self.dataset.value()
         if self._next_batch is None:
             self._next_batch = self.iterator.get_next()
         return self._next_batch
@@ -144,7 +154,7 @@ class Data(ZfitData, BaseObject):
     def value(self, obs: Tuple[str] = None):
         obs = convert_to_container(value=obs, container=tuple)
         values = self.get_iteration()
-        # TODO(Mayou36): add conversion to right dimension? (n_dims, n_events)? # check if 1-D?
+        # TODO(Mayou36): add conversion to right dimension? (n_obs, n_events)? # check if 1-D?
         if len(values.shape.as_list()) == 0:
             values = tf.expand_dims(values, 0)
         if len(values.shape.as_list()) == 1:
@@ -168,32 +178,38 @@ class Data(ZfitData, BaseObject):
 
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
-    def sort_by_obs(self, obs, allow_not_subset=False):
-        if not allow_not_subset:
-            if not frozenset(obs) <= frozenset(self.obs):
+    def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = False):
+        if not allow_superset:
+            if not frozenset(axes) <= frozenset(self.axes):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
-                                 "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
-                                                                     self.obs))
-        # permutation_indices = tuple(self.obs.index(o) for o in obs if o in self.obs)
-        # if self._permutation_indices_data is None:
-        #     permutation_indices_data = permutation_indices
-        # else:
-        #     permutation_indices_data = tuple(self._permutation_indices_data[i] for i in permutation_indices)
-        # obs_axes_items = tuple(self._space.get_axes(as_dict=True, autofill=True).items())
-        # obs_axes = OrderedDict(obs_axes_items[i] for i in permutation_indices)
-
-        space = self._space.with_obs(obs=obs)
-        value = space
+                                 "Only the following are: {}".format(frozenset(axes) - frozenset(self.axes),
+                                                                     self.axes))
+        space = self._space.with_axes(axes=axes)
 
         def setter(value):
-            # space, permutation_indices_data = value
-            # self._permutation_indices_data = permutation_indices_data
             self._space = value
 
         def getter():
             return self._space
 
-        return TemporarilySet(value=value, setter=setter, getter=getter)
+        return TemporarilySet(value=space, setter=setter, getter=getter)
+
+    def sort_by_obs(self, obs: ztyping.ObsTypeInput, allow_superset: bool = False):
+        if not allow_superset:
+            if not frozenset(obs) <= frozenset(self.obs):
+                raise ValueError("The observable(s) {} are not contained in the dataset. "
+                                 "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
+                                                                     self.obs))
+
+        space = self._space.with_obs(obs=obs)
+
+        def setter(value):
+            self._space = value
+
+        def getter():
+            return self._space
+
+        return TemporarilySet(value=space, setter=setter, getter=getter)
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
@@ -263,6 +279,20 @@ register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch
                                           feed_function_for_partial_run=feed_function_for_partial_run)
 
 Data._OverloadAllOperators()
+
+
+class LightDataset:
+
+    def __init__(self, tensor):
+        self.tensor = ztf.convert_to_tensor(tensor)
+
+    @classmethod
+    def from_tensor(cls, tensor):
+        return cls(tensor=tensor)
+
+    def value(self):
+        return self.tensor
+
 
 if __name__ == '__main__':
 
