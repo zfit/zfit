@@ -16,12 +16,12 @@ LimitsTypeSimpleInput = Union[Tuple[float, float], "False"]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], "False"]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, "False"]
 
-_IterLimitsTypeReturn = Union[List['NamedSpace'], List[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
+_IterLimitsTypeReturn = Union[Tuple['NamedSpace'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
-AxesTypeInput = Union[int, Tuple[int, ...]]
-AxesTypeReturn = Union[List[int], None]
+AxesTypeInput = Union[int, Iterable[int, ...]]
+AxesTypeReturn = Union[Tuple[int], None]
 
-ObsTypeInput = Union[str, List[str], "NamedSpace"]
+ObsTypeInput = Union[str, Iterable[str], "NamedSpace"]
 ObsTypeReturn = Union[Tuple[str, ...], None]
 SpaceTypeReturn = "NamedSpace"
 

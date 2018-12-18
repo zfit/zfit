@@ -583,7 +583,7 @@ class BaseModel(BaseNumeric, ZfitModel):
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_analytic_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType, dims: ztyping.AxesTypeInput,
+    def partial_analytic_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                                    norm_range: ztyping.LimitsType = None,
                                    name: str = "partial_analytic_integrate") -> ztyping.XTypeReturn:
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -594,7 +594,6 @@ class BaseModel(BaseNumeric, ZfitModel):
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
-            dims (tuple(int): The dimensions to partially integrate over
             norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
             name (str):
 
@@ -664,7 +663,7 @@ class BaseModel(BaseNumeric, ZfitModel):
     def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, dims: ztyping.AxesTypeInput,
+    def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
                                   norm_range: ztyping.LimitsType = None,
                                   name: str = "partial_numeric_integrate") -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -675,7 +674,6 @@ class BaseModel(BaseNumeric, ZfitModel):
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
-            dims (tuple(int): The dimensions to partially integrate over
             norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
             name (str):
 
@@ -822,7 +820,7 @@ class BaseModel(BaseNumeric, ZfitModel):
     def _name_scope(self, name=None, values=None):
         """Helper function to standardize op scope."""
         with tf.name_scope(self.name):
-            with tf.name_scope(name, values=(([] if values is None else values))) as scope:
+            with tf.name_scope(name, values=([] if values is None else values)) as scope:
                 yield scope
 
     @classmethod
