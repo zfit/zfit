@@ -19,12 +19,3 @@ def get_same_obs(obs):
     deps = tuple(tuple(dep) for dep in deps)
 
     return deps
-
-
-def unstack_x_dims(x, dims):
-    if len(np.shape(dims[0])) == ():
-        dims = (dims,)
-    x_unstacked = ztf.unstack_x(x)
-
-    x_per_dims = [tf.stack([x_unstacked[d] for d in dim]) for dim in dims]
-    return x_per_dims

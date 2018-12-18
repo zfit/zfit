@@ -13,7 +13,6 @@ import numpy as np
 
 from zfit import ztf
 from zfit.core.data import Data
-from zfit.core.dimension import get_same_dims, unstack_x_dims
 from zfit.core.interfaces import ZfitPDF, ZfitModel
 from zfit.core.limits import no_norm_range, supports
 from zfit.models.basefunctor import FunctorMixin
