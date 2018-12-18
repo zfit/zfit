@@ -1,6 +1,5 @@
 import abc
 from collections import OrderedDict
-import typing
 from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
 import pep487
@@ -37,7 +36,7 @@ class ZfitData(ZfitObject):
         raise NotImplementedError
 
     @property
-    def space(self) -> "NamedSpace":
+    def space(self) -> "ZfitNamedSpace":
         raise NotImplementedError
 
     @space.setter
@@ -327,11 +326,7 @@ class ZfitModel(ZfitNumeric):
         raise NotImplementedError
 
     @property
-    def obs(self) -> Tuple["Observable"]:
-        raise NotImplementedError
-
-    @obs.setter
-    def obs(self, value: ztyping.ObsTypeInput):
+    def obs(self) -> Tuple[str]:
         raise NotImplementedError
 
 

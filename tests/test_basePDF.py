@@ -2,7 +2,6 @@ import pytest
 import tensorflow as tf
 import numpy as np
 
-from zfit.core.basemodel import model_dims_mixin
 import zfit.core.basepdf
 from zfit.core.limits import NamedSpace
 import zfit.models.dist_tfp
@@ -26,7 +25,7 @@ obs1 = 'obs1'
 gauss_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
 
 
-class TestGaussian(model_dims_mixin(1), zfit.core.basepdf.BasePDF):
+class TestGaussian(zfit.core.basepdf.BasePDF):
 
     def _unnormalized_pdf(self, x, norm_range=False):
         return tf.exp((-(x - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian

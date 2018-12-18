@@ -9,7 +9,6 @@ import tensorflow as tf
 
 from zfit.core import math as zmath
 from zfit.core.limits import NamedSpace
-from zfit.core.basemodel import model_dims_mixin
 from zfit.core.basepdf import BasePDF
 from zfit import ztf
 
@@ -19,7 +18,7 @@ except AttributeError:  # py34
     infinity = float('inf')
 
 
-class Gauss(model_dims_mixin(1), BasePDF):
+class Gauss(BasePDF):
 
     def __init__(self, mu, sigma, obs, name="Gauss"):  # TODO: names? TF dist?
         super().__init__(name=name, obs=obs, parameters=dict(mu=mu, sigma=sigma))

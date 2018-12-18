@@ -1,28 +1,27 @@
+"""Baseclass for a Model. Handle integration and sampling"""
+
 import abc
 import builtins
 from collections import OrderedDict
 import contextlib
 from contextlib import suppress
 import typing
+from typing import Dict, Type, Union
 import warnings
-from typing import Type, Dict, Union
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
+from zfit import ztf
 from zfit.core.data import Data
-from zfit.util.checks import NOT_SPECIFIED
-from zfit.util.container import convert_to_container
-from zfit.util.temporary import TemporarilySet
-from .interfaces import ZfitModel, ZfitParameter
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
-from .limits import no_norm_range, convert_to_space, supports, NamedSpace, no_multiple_limits
+from .interfaces import ZfitModel, ZfitParameter
+from .limits import NamedSpace, convert_to_space, no_multiple_limits, no_norm_range, supports
 from ..settings import types as ztypes
 from ..util import container as zcontainer, ztyping
-from ..util.exception import (BasePDFSubclassingError, NormRangeNotImplementedError, MultipleLimitsNotImplementedError,
-                              DueToLazynessNotImplementedError, ShapeIncompatibleError, )
-from zfit import ztf
+from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
+                              ShapeIncompatibleError, )
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -39,6 +38,14 @@ def _BaseModel_register_check_support(has_support: bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
+        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+
+        Args:
+            func (function):
+
+        Returns:
+            function:
+        """
         name = func.__name__
         _BaseModel_USER_IMPL_METHODS_TO_CHECK[name] = has_support
         func.__wrapped__ = _BaseModel_register_check_support
@@ -142,7 +149,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self, x: Data) -> Data:
+    def _convert_sort_x(self, x: ztyping.XTypeInput) -> Data:
         if isinstance(x, Data):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs):
@@ -228,13 +235,20 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         return self.convert_sort_space(limits=limits)
 
-    def convert_sort_space(self, obs: ztyping.ObsTypeInput = None,
-                           axes: ztyping.AxesTypeInput = None,
+    def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[NamedSpace, None]:
+        """Convert the inputs (using eventually `obs`, `axes`) to `Space` and sort them according to own `obs`.
+
+        Args:
+            obs ():
+            axes ():
+            limits ():
+
+        Returns:
+
+        """
         if obs is None:  # for simple limits to convert them
             obs = self.obs
-        # if axes is None:
-        #     axes = self.axes
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         self_space = self._space
@@ -246,35 +260,9 @@ class BaseModel(BaseNumeric, ZfitModel):
     def n_obs(self):
         return self._space.n_obs
 
-    # @property
-    # @abc.abstractmethod
-    # def _n_dims(self) -> int:
-    #     """The number of dimensions of this model. Overwrite when subclassing."""
-    #     raise NotImplementedError
-    #
-    # @property
-    # def _automatic_n_dims(self):  # this is in case something has changed. TODO(mayou36): handle it
-    #     return self._n_dims
-
-    # @axes.setter
-    # def axes(self, value: ztyping.DimsType):  # TODO: what's the default return?
-    #     self._dims = value
-
     @property
     def axes(self) -> ztyping.AxesTypeReturn:
         return self._space.axes
-
-    # def _check_input_dims(self, dims, allow_none=True):
-    #     if dims is None:
-    #         if allow_none:
-    #             return dims
-    #         else:
-    #             raise ValueError("axes is None and `allow_none` is False. Specify the axes.")
-    #     dims = convert_to_container(dims, container=tuple)
-    #     if self.n_obs is not None and len(dims) != self.n_obs:
-    #         raise ValueError("Dims {} does not match the number of dimensions ({}) of the model."
-    #                          "".format(dims, self.n_obs))
-    #     return dims
 
     # Integrals
 
@@ -304,7 +292,6 @@ class BaseModel(BaseNumeric, ZfitModel):
 
     def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         return self._norm_integrate(limits=limits, norm_range=norm_range, name=name)
-
 
     def _norm_integrate(self, limits, norm_range, name='_norm_integrate'):
         try:
@@ -357,14 +344,11 @@ class BaseModel(BaseNumeric, ZfitModel):
         """Register an analytic integral with the class.
 
         Args:
-            func ():
+            func (callable):
             limits (): |limits_arg_descr|
-            axes (tuple(int)):
             priority (int):
             supports_multiple_limits (bool):
             supports_norm_range (bool):
-
-        Returns:
 
         """
         cls._analytic_integral.register(func=func, limits=limits, supports_norm_range=supports_norm_range,
@@ -383,7 +367,7 @@ class BaseModel(BaseNumeric, ZfitModel):
             cls._inverse_analytic_integral.append(func)
 
     @_BaseModel_register_check_support(True)
-    def _analytic_integrate(self, limits, norm_range):  # TODO: typing on overwritable methods
+    def _analytic_integrate(self, limits, norm_range):  # TODO: typing on overwriteable methods
         raise NotImplementedError
 
     def analytic_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
@@ -883,26 +867,19 @@ class BaseModel(BaseNumeric, ZfitModel):
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
 
         return ("<zfit.{type_name} "
-                # "'{self_name}'"
                 " parameters=[{params}]"
-                " dtype={dtype}>".format(
-            type_name=type(self).__name__,
-            # self_name=self.name,
-            params=", ".join(sorted(str(p.name) for p in self.parameters.values())),
-            dtype=self.dtype.name) +
-                str(sum(
-                    " {k}={v}".format(k=str(k), v=str(v)) for k, v in self._get_additional_repr(sorted=True).items())))
+                " dtype={dtype}>".format(type_name=type(self).__name__,
+                                         params=", ".join(sorted(str(p.name) for p in self.parameters.values())),
+                                         dtype=self.dtype.name) + str(sum(" {k}={v}".format(k=str(k), v=str(v))
+                                                                          for k, v in
+                                                                          self._get_additional_repr(
+                                                                              sorted=True).items())))
 
     def _check_input_x_function(self, func):
         # TODO: signature etc?
         if not callable(func):
             raise TypeError("Function {} is not callable.")
         return func
-
-    #
-    # def convert_to_tensor(self, value, dtype=None):
-    #
-    #     tf.convert_to_tensor
 
     def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_parameters())
@@ -922,12 +899,3 @@ class BaseModel(BaseNumeric, ZfitModel):
     def __rmul__(self, other):
         from . import operations
         return operations.multiply(other, self)
-
-
-def model_dims_mixin(n):
-    class NDimensional:
-        @property
-        def _n_dims(self):
-            return n
-
-    return NDimensional

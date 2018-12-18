@@ -14,7 +14,6 @@ import tensorflow_probability as tfp
 import tensorflow as tf
 
 from zfit import ztf
-from zfit.core.basemodel import model_dims_mixin
 from zfit.core.basepdf import BasePDF
 from zfit.core.interfaces import ZfitParameter
 from zfit.core.limits import no_norm_range, supports
@@ -45,7 +44,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     # TODO: register integral
     @supports()
-    def _analytic_integrate(self, limits):
+    def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits.limits
         if all(-np.array(lower) == np.array(upper) == np.infty):
             return ztf.to_real(1.)  # tfp distributions are normalized to 1

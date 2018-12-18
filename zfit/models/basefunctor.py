@@ -31,9 +31,6 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                 raise ValueError("The given obs do not coincide with the obs from the daughter models.")
         return obs
 
-    # TODO(Mayou36): implement properly with obs
-
-
     def _get_dependents(self):
         dependents = super()._get_dependents()  # get the own parameter dependents
         model_dependents = self._extract_dependents(self.get_models())
