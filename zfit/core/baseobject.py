@@ -50,7 +50,7 @@ class BaseObject(ZfitObject):
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
         return new_object
 
-    def _copy(self, deep, name, overwrite_params):
+    def _copy(self, deep, name, overwrite_params):  # TODO(Mayou36) L: representation?
         if deep:
             raise NotImplementedError("Unfortunately, this feature is not implemented.")
         if name is None:

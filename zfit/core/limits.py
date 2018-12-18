@@ -71,6 +71,8 @@ which you can now iterate through. For example, to calc an integral (assuming th
 >>> def integrate(lower_limit, upper_limit): return 42  # dummy function
 >>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
 """
+# TODO(Mayou36): update docs above
+
 from collections import OrderedDict
 import copy
 import functools
@@ -78,6 +80,7 @@ import inspect
 from typing import Tuple, Union, List, Optional, Iterable, Callable, Dict
 
 import numpy as np
+import pep487
 
 from zfit.core.baseobject import BaseObject
 from zfit.core.interfaces import ZfitNamedSpace
@@ -91,12 +94,43 @@ from zfit.util.temporary import TemporarilySet
 
 
 # Singleton
+class Any(pep487.PEP487Object):  # pep487 for _init_subclass backport
+    _singleton_instance = None
+
+    def __new__(cls, *args, **kwargs):
+        instance = cls._singleton_instance
+        if instance is None:
+            instance = super().__new__(cls)
+            cls._singleton_instance = instance
+
+        return instance
+
+    def __init_subclass__(cls, **kwargs):
+        cls._singleton_instance = None  # each subclass is a singleton of "itself"
+
+    def __repr__(self):
+        return '<Any>'
+
+
+class AnyLower(Any):
+    def __repr__(self):
+        return '<Any Lower Limit>'
+
+
+class AnyUpper(Any):
+    def __repr__(self):
+        return '<Any Upper Limit>'
+
+
+ANY = Any()
+ANY_LOWER = AnyLower()
+ANY_UPPER = AnyUpper()
 
 
 class NamedSpace(ZfitNamedSpace, BaseObject):
     AUTO_FILL = object()
     ANY = object()
-    ANY_LOWER = object()  # TODO: need different upper, lower?
+    ANY_LOWER = object()
     ANY_UPPER = object()
     _limit_replace = {'lower': {None: ANY_LOWER},
                       'upper': {None: ANY_UPPER}}
@@ -219,12 +253,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         replace = {} if replace is None else replace
         if limit is NOT_SPECIFIED or limit is None:
             return None
-        # TODO: allow automatically correct shape?
+        # TODO(Mayou36): allow automatically correct shape? Up to which extend?
         if np.shape(limit) == ():
             limit = ((limit,),)
         if np.shape(limit[0]) == ():
             raise ValueError("Shape of limit {} wrong.".format(limit))
-        #     limit = (limit,)
 
         # replace
         if replace:
@@ -245,17 +278,17 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def _check_convert_input_axes(self, axes: ztyping.AxesTypeInput,
                                   allow_none: bool = False,
                                   allow_not_spec: bool = False) -> ztyping.AxesTypeReturn:
-        if axes is NOT_SPECIFIED:
-            if allow_not_spec:
-                return None
-            else:
-                raise AxesNotSpecifiedError("TODO: Cannot be NOT_SPECIFIED")
+        # if axes is NOT_SPECIFIED:
+        #     if allow_not_spec:
+        #         return None
+        #     else:
+        #         raise AxesNotSpecifiedError("TODO: Cannot be NOT_SPECIFIED")
         if axes is None:
             if allow_none:
                 return None
             else:
                 raise AxesNotSpecifiedError("TODO: Cannot be None")
-        axes = convert_to_container(value=axes, container=tuple)
+        axes = convert_to_container(value=axes, container=tuple)  # TODO(Mayou36): extend like _check_obs?
         return axes
 
     def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
@@ -269,11 +302,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         Returns:
             type:
         """
-        if obs is NOT_SPECIFIED:
-            if allow_not_spec:
-                return None
-            else:
-                raise ObsNotSpecifiedError("TODO: Cannot be NOT_SPECIFIED")
+        # if obs is NOT_SPECIFIED:
+        #     if allow_not_spec:
+        #         return None
+        #     else:
+        #         raise ObsNotSpecifiedError("TODO: Cannot be NOT_SPECIFIED")
         if obs is None:
             if allow_none:
                 return None
@@ -515,9 +548,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             indices ():
 
         """
-        # old_indices = [None] * len(indices)
-        # for old_i, new_i in enumerate(indices):
-        #     old_indices[new_i] = old_i
 
         new_space = self.copy()
         new_space._reorder_limits(indices=indices)
@@ -529,12 +559,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     def _reorder_limits(self, indices: Tuple[int], inplace: bool = True) -> ztyping.LimitsTypeReturn:
         limits = self.limits
         if limits is not None and limits is not False:
-            # print("DEBUG,limits", limits)
+
             lower, upper = limits
             lower = tuple(tuple(lower[i] for i in indices) for lower in lower)
             upper = tuple(tuple(upper[i] for i in indices) for upper in upper)
             limits = lower, upper
-        # print("DEBUG 2,limits", limits)
 
         if inplace:
             self._limits = limits
@@ -807,11 +836,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             if set(self.obs) != set(other.obs):
                 return False
 
-        # if not (obs_not_none or o)
-        # axes_obs_not_same = self.axes != other.axes or self.obs != other.obs
-        # if obs_set_not_same or axes_set_not_same or axes_obs_not_same:
-        #     return False
-
         # check limits
         if self.limits is None:
             if other.limits is None:
@@ -825,10 +849,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             else:
                 return False
 
-        # if self.obs is None:
-        #     reorder_axes = self.axes
-        # else:
-        #     reorder_axes = None
         reorder_indices = other.get_reorder_indices(obs=self.obs, axes=self.axes)
         other = other.reorder_by_indices(reorder_indices)
 
@@ -840,7 +860,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
                 # each entry *has to* match the entry of the other limit, otherwise it's not the same
                 for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
                     axis_le = 0  # False
-                    # a list of `or` conditions
                     axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
                     axis_le += other_low == low and other_up is self.ANY_UPPER  # TODO: approx limit
                     # comparison?
@@ -863,11 +882,6 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             return NotImplemented
 
         is_eq = True
-        # if self.obs is None or other.obs is None:
-        #     is_eq *= self.axes == other.axes
-        # elif self.axes is None or other.axes is None:
-        #     is_eq *= self.obs == other.obs
-        # else:
         is_eq *= self.obs == other.obs
         is_eq *= self.axes == other.axes
         is_eq *= self.limits == other.limits

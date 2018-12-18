@@ -122,7 +122,6 @@ def test_prod_gauss_nd_mixed():
     true_unnormalized_probs = probs_4d(values=test_values)
 
     normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(4, 40 ** 4)))
-    # print(np.average(probs_4d))
     true_probs = true_unnormalized_probs / tf.reduce_mean(normalization_probs)
     probs_np = zfit.sess.run(probs)
     print(np.average(probs_np))

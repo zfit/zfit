@@ -37,34 +37,11 @@ class ZfitData(ZfitObject):
         raise NotImplementedError
 
     @property
-    def space(self) -> "ZfitObservable":
+    def space(self) -> "NamedSpace":
         raise NotImplementedError
 
     @space.setter
     def space(self, value: ztyping.ObsTypeInput):
-        raise NotImplementedError
-
-
-class ZfitObservable(ZfitObject):
-
-    @property
-    @abc.abstractmethod
-    def names(self) -> Tuple[str, ...]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_subspace(self, names: str = None) -> "ZfitObservable":
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def iter_limits(self, as_tuple: bool = True):
-        """Iterate through the limits by returning several observables/(lower, upper)-tuples.
-
-        Args:
-            as_tuple (bool): If True, return the (lower, upper) tuples instead of several
-                observables.
-
-        """
         raise NotImplementedError
 
 
