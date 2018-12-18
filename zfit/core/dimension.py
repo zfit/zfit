@@ -5,17 +5,6 @@ import tensorflow as tf
 
 from zfit import ztf
 
-@functools.lru_cache(maxsize=500)
-def get_same_dims(dims):
-    deps = [set() for _ in range(len(dims))]
-    for i, dim in enumerate(dims):
-        for j, other_dim in enumerate(dims[i + 1:]):
-            if not set(dim).isdisjoint(other_dim):
-                deps[i].add(i)
-                deps[i].add(j + i + 1)
-                deps[j + i + 1].add(i)
-    return deps
-
 
 @functools.lru_cache(maxsize=500)
 def get_same_obs(obs):

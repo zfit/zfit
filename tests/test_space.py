@@ -22,8 +22,8 @@ space1_obs = NamedSpace(obs=limit1_obs, limits=limit1)
 arguments1 = (space1, lower1, upper1, limit1_true, limit1_axes, limit1_areas, 2)
 
 lower2 = (1, 2, 3), (-4, -5, 5)
-sub_lower2 = (1, 3), (-4, 5)
 upper2 = (2, 4, 6), (-1, 5, 5.6)
+sub_lower2 = (1, 3), (-4, 5)
 sub_upper2 = (2, 6), (-1, 5.6)
 limit2 = lower2, upper2
 sub_limit2 = sub_lower2, sub_upper2

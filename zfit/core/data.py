@@ -25,7 +25,6 @@ class Data(ZfitData, BaseObject):
 
     def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
 
-
         if name is None:
             name = "Data"
         super().__init__(name=name)
@@ -94,7 +93,7 @@ class Data(ZfitData, BaseObject):
         return Data(dataset=dataset, name=name)
 
     @classmethod
-    def from_root(cls, path, treepath, branches=None, name=None, root_dir_options=None, **kwargs):
+    def from_root(cls, path, treepath, branches=None, name=None, root_dir_options=None):
         # branches = convert_to_container(branches)
         if root_dir_options is None:
             root_dir_options = {}
@@ -106,9 +105,7 @@ class Data(ZfitData, BaseObject):
             yield data
 
         dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
-        # dataset.prefetch(2)
 
-        # dataset = dataset.batch(int(5))
         dataset = dataset.repeat()
         return Data(dataset=dataset, obs=branches, name=name)
 

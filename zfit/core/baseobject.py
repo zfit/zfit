@@ -1,3 +1,4 @@
+"""Baseclass for most objects appearing in zfit."""
 import abc
 from collections import OrderedDict
 import itertools

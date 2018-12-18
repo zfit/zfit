@@ -58,18 +58,17 @@ import warnings
 
 import tensorflow as tf
 
+from zfit import ztf
 from zfit.core.interfaces import ZfitPDF
-from zfit.util.container import convert_to_container
-from zfit.util.exception import IntentionNotUnambiguousError, DueToLazynessNotImplementedError
-from zfit.util.temporary import TemporarilySet
-from .basemodel import BaseModel
 from zfit.core.limits import NamedSpace
 from zfit.util import ztyping
-from ..settings import types as ztypes
-
+from zfit.util.container import convert_to_container
+from zfit.util.exception import DueToLazynessNotImplementedError, IntentionNotUnambiguousError
+from zfit.util.temporary import TemporarilySet
+from .basemodel import BaseModel
 from .parameter import Parameter
+from ..settings import types as ztypes
 from ..util import exception as zexception
-from zfit import ztf
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -86,6 +85,14 @@ def _BasePDF_register_check_support(has_support: bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
+        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+
+        Args:
+            func (function):
+
+        Returns:
+            function:
+        """
         name = func.__name__
         _BasePDF_USER_IMPL_METHODS_TO_CHECK[name] = has_support
         func.__wrapped__ = _BasePDF_register_check_support
@@ -194,8 +201,6 @@ class BasePDF(ZfitPDF, BaseModel):
             # unset
             self._parameters.pop('yield', None)  # safely remove if still there
         else:
-            # if not self.parameters.get('yield', None) is None:
-            #     raise IntentionNotUnambiguousError("Yield is alreaddy set.")
             self._parameters['yield'] = value
 
     @_BasePDF_register_check_support(True)
@@ -221,7 +226,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _hook_normalization(self, limits, name="_hook_normalization"):
         return self._call_normalization(limits=limits, name=name)  # no _norm_* needed
-
 
     def _call_normalization(self, limits, name):
         # TODO: caching? alternative
@@ -357,7 +361,7 @@ class BasePDF(ZfitPDF, BaseModel):
         gradients = [tf.gradients(prob, params) for prob in tf.unstack(probs[0])]
         return tf.stack(gradients)
 
-    def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> float:
+    def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and norm_range.limits is not False:
             if log:
                 value += tf.log(self.get_yield())
@@ -366,7 +370,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return value
 
     def apply_yield(self, value: Union[float, tf.Tensor], norm_range: ztyping.LimitsTypeInput = False,
-                    log: bool = False) -> tf.Tensor:
+                    log: bool = False) -> Union[float, tf.Tensor]:
         """If a norm_range is given, the value will be multiplied by the yield.
 
         Args:
