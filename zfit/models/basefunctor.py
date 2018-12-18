@@ -3,7 +3,7 @@ from typing import List, Union, Dict, Tuple
 
 from zfit.core.limits import NamedSpace
 from zfit.core.basemodel import BaseModel
-from zfit.core.dimension import get_same_dims, get_same_obs
+from zfit.core.dimension import get_same_obs
 from zfit.core.interfaces import ZfitFunctorMixin, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.exception import AxesNotUnambiguousError, NormRangeNotSpecifiedError

@@ -202,7 +202,7 @@ class AnalyticIntegral:
         #     limits = convert_to_space(axes=axes, limits=limits)
         # else:
         #     limits = convert_to_space(axes=self.axes, limits=limits)
-            # limits = limits.get_limits()
+        # limits = limits.get_limits()
         if not isinstance(limits, NamedSpace):
             raise TypeError("Limits for registering an integral have to be `NamedSpace`")
         axes = frozenset(limits.axes)

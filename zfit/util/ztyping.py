@@ -18,7 +18,7 @@ LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]
 
 _IterLimitsTypeReturn = Union[Tuple['NamedSpace'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
-AxesTypeInput = Union[int, Iterable[int, ...]]
+AxesTypeInput = Union[int, Iterable[int]]
 AxesTypeReturn = Union[Tuple[int], None]
 
 ObsTypeInput = Union[str, Iterable[str], "NamedSpace"]

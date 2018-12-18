@@ -30,17 +30,27 @@ class ZfitObject(pep487.ABC):  # __init_subclass__ backport
     #     raise NotImplementedError
 
 
-class ZfitData(ZfitObject):
-    @abc.abstractmethod
-    def value(self, obs: List[str] = None) -> ztyping.XType:
-        raise NotImplementedError
+class ZfitDimensional(ZfitObject):
 
     @property
+    @abc.abstractmethod
     def space(self) -> "ZfitNamedSpace":
         raise NotImplementedError
 
-    @space.setter
-    def space(self, value: ztyping.ObsTypeInput):
+    @property
+    @abc.abstractmethod
+    def obs(self):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def axes(self):
+        raise NotImplementedError
+
+
+class ZfitData(ZfitDimensional):
+    @abc.abstractmethod
+    def value(self, obs: List[str] = None) -> ztyping.XType:
         raise NotImplementedError
 
 
