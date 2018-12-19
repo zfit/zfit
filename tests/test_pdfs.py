@@ -4,7 +4,7 @@ import numpy as np
 
 from zfit import ztf
 from zfit.core.data import Data
-from zfit.core.limits import NamedSpace
+from zfit.core.limits import Space
 from zfit.core.parameter import Parameter
 from zfit.models.functor import SumPDF, ProductPDF
 from zfit.models.basic import Gauss
@@ -30,7 +30,7 @@ def true_gaussian_sum(x):
     return sum_gauss
 
 
-obs1 = NamedSpace(obs='obs1')
+obs1 = Space(obs='obs1')
 
 
 # @pytest.fixture()
@@ -85,7 +85,7 @@ def test_prod_gauss_nd():
     lower = ((-5, -5, -5),)
     upper = ((4, 4, 4),)
     obs1 = ['a', 'b', 'c']
-    norm_range_3d = NamedSpace(obs=obs1, limits=(lower, upper))
+    norm_range_3d = Space(obs=obs1, limits=(lower, upper))
     test_values_data = Data.from_tensors(obs=obs1, tensors=test_values)
     probs = prod_gauss_3d.pdf(x=test_values_data, norm_range=norm_range_3d)
     zfit.sess.run(tf.global_variables_initializer())
@@ -104,7 +104,7 @@ def test_prod_gauss_nd_mixed():
     obs4d = ['a', 'b', 'c', 'd']
     test_values_data = Data.from_tensors(obs=obs4d, tensors=test_values)
     prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 30})
-    limits_4d = NamedSpace(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
+    limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=limits_4d)
     zfit.sess.run(tf.global_variables_initializer())
@@ -115,8 +115,8 @@ def test_prod_gauss_nd_mixed():
         true_prob += [gauss2.pdf(values[0, :], norm_range=norm_range)]
         true_prob += [gauss3.pdf(values[2, :], norm_range=norm_range)]
         true_prob += [prod_gauss_3d.pdf(values[(0, 1, 2), :],
-                                        norm_range=NamedSpace(limits=(((-5,) * 3,), ((4,) * 3,)),
-                                                              obs=['a', 'b', 'c']))]
+                                        norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
+                                                         obs=['a', 'b', 'c']))]
         return np.prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
@@ -157,7 +157,7 @@ def test_normalization_prod_gauss():
 def normalization_testing(pdf, normalization_value=1.):
     init = tf.global_variables_initializer()
     zfit.sess.run(init)
-    with pdf.set_norm_range(NamedSpace(obs=obs1, limits=(low, high))):
+    with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_obs, 40000)),
                           dtype=tf.float64)
         samples.limits = low, high

@@ -60,7 +60,7 @@ import tensorflow as tf
 
 from zfit import ztf
 from zfit.core.interfaces import ZfitPDF
-from zfit.core.limits import NamedSpace
+from zfit.core.limits import Space
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 from zfit.util.exception import DueToLazynessNotImplementedError, IntentionNotUnambiguousError
@@ -160,11 +160,11 @@ class BasePDF(ZfitPDF, BaseModel):
         return integral
 
     @property
-    def norm_range(self) -> Union[NamedSpace, None, "False"]:
+    def norm_range(self) -> Union[Space, None, "False"]:
         """Return the current normalization range.
 
         Returns:
-            NamedSpace or None: The current normalization range
+            Space or None: The current normalization range
 
         """
         norm_range = self._norm_range
@@ -173,7 +173,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm_range = self._space
         return norm_range
 
-    def set_norm_range(self, norm_range: Union[NamedSpace, None]):
+    def set_norm_range(self, norm_range: Union[Space, None]):
         """Set the normalization range (temporarily if used with contextmanager).
 
         Args:
@@ -211,7 +211,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits (tuple, NamedSpace): The limits on where to normalize over
+            limits (tuple, Space): The limits on where to normalize over
             name (str):
 
         Returns:
@@ -267,7 +267,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, NamedSpace): NamedSpace to normalize over
+          norm_range (tuple, Space): Space to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:
@@ -311,7 +311,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, NamedSpace): NamedSpace to normalize over
+          norm_range (tuple, Space): Space to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:

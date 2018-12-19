@@ -16,14 +16,14 @@ LimitsTypeSimpleInput = Union[Tuple[float, float], "False"]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], "False"]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, "False"]
 
-_IterLimitsTypeReturn = Union[Tuple['NamedSpace'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
+_IterLimitsTypeReturn = Union[Tuple['Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
 AxesTypeInput = Union[int, Iterable[int]]
 AxesTypeReturn = Union[Tuple[int], None]
 
-ObsTypeInput = Union[str, Iterable[str], "NamedSpace"]
+ObsTypeInput = Union[str, Iterable[str], "Space"]
 ObsTypeReturn = Union[Tuple[str, ...], None]
-SpaceTypeReturn = "NamedSpace"
+SpaceTypeReturn = "Space"
 
 # Data
 XType = Union[float, tf.Tensor]

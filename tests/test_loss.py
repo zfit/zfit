@@ -4,7 +4,7 @@ import numpy as np
 
 from zfit import ztf
 import zfit.core.basepdf
-from zfit.core.limits import NamedSpace
+from zfit.core.limits import Space
 from zfit.minimizers.minimizer_minuit import MinuitMinimizer
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Normal
@@ -92,9 +92,9 @@ def test_add():
 
     ranges = [0] * 4
     ranges[0] = (1, 4)
-    ranges[1] = NamedSpace(limits=(2, 5), obs=obs1)
-    ranges[2] = NamedSpace(limits=(3, 6), obs=obs1)
-    ranges[3] = NamedSpace(limits=(4, 7), obs=obs1)
+    ranges[1] = Space(limits=(2, 5), obs=obs1)
+    ranges[2] = Space(limits=(3, 6), obs=obs1)
+    ranges[3] = Space(limits=(4, 7), obs=obs1)
 
     constraint1 = {param1: Gauss(1, 0.5, obs=obs1)}
     constraint2 = {param2: Gauss(2, 0.25, obs=obs1)}
@@ -110,8 +110,8 @@ def test_add():
     assert simult_nll.model == pdfs
     assert simult_nll.data == datas
 
-    ranges[0] = NamedSpace._from_any(limits=ranges[0], obs=obs1,
-                                     axes=(0,))  # for comparison, NamedSpace can only compare with NamedSpace
+    ranges[0] = Space._from_any(limits=ranges[0], obs=obs1,
+                                axes=(0,))  # for comparison, Space can only compare with Space
     ranges[1]._axes = (0,)
     ranges[2]._axes = (0,)
     ranges[3]._axes = (0,)

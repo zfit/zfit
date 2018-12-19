@@ -9,7 +9,7 @@ from zfit.core.interfaces import ZfitLoss
 from zfit.models.functions import SimpleFunc
 from zfit.util.container import convert_to_container, is_container
 
-from .limits import convert_to_space, NamedSpace
+from .limits import convert_to_space, Space
 
 
 def _unbinned_nll_tf(model, data, fit_range, constraints: Optional[dict] = None) -> tf.Tensor:
@@ -116,9 +116,9 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
 
         # simultaneous fit
         if is_container(pdf):
-            if not is_container(fit_range) or not isinstance(fit_range[0], NamedSpace):
+            if not is_container(fit_range) or not isinstance(fit_range[0], Space):
                 raise ValueError(
-                    "If several pdfs are specified, the `fit_range` has to be given as a list of `NamedSpace` "
+                    "If several pdfs are specified, the `fit_range` has to be given as a list of `Space` "
                     "objects and not as pure tuples.")
             if not len(pdf) == len(data) == len(fit_range):
                 raise ValueError("pdf, data and fit_range don't have the same number of components:"

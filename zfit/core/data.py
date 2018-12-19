@@ -12,8 +12,9 @@ import numpy as np
 import zfit
 from zfit import ztf
 from zfit.core.baseobject import BaseObject
+from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData
-from zfit.core.limits import NamedSpace, convert_to_space
+from zfit.core.limits import Space, convert_to_space
 from zfit.settings import types as ztypes
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
@@ -21,7 +22,7 @@ from zfit.util.exception import LogicalUndefinedOperationError, NoSessionSpecifi
 from zfit.util.temporary import TemporarilySet
 
 
-class Data(ZfitData, BaseObject):
+class Data(ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
 
@@ -42,18 +43,10 @@ class Data(ZfitData, BaseObject):
         self.iterator = None
 
     @property
-    def axes(self):
-        return self._space.axes
-
-    @property
-    def obs(self):
-        return self._space.obs
-
-    @property
     def dtype(self):
         return self._dtype
 
-    def _set_space(self, obs: NamedSpace):
+    def _set_space(self, obs: Space):
         obs = convert_to_space(obs)
         obs = obs.with_autofill_axes()
         self._space = obs
@@ -62,8 +55,12 @@ class Data(ZfitData, BaseObject):
     def data_range(self):
         data_range = self._data_range
         if data_range is None:
-            data_range = self._space
+            data_range = self.space
         return data_range
+
+    @property
+    def space(self) -> "ZfitSpace":
+        return self._space
 
     @property
     def iterator(self):
@@ -144,9 +141,6 @@ class Data(ZfitData, BaseObject):
             self._next_batch = self.iterator.get_next()
         return self._next_batch
 
-    @property
-    def n_obs(self):
-        return self._space.n_obs
 
     def value(self, obs: Tuple[str] = None):
         obs = convert_to_container(value=obs, container=tuple)
@@ -156,7 +150,7 @@ class Data(ZfitData, BaseObject):
             values = tf.expand_dims(values, 0)
         if len(values.shape.as_list()) == 1:
             values = tf.expand_dims(values, 0)
-        perm_indices = self._space.axes if self._space.axes != tuple(range(values.shape[0])) else False
+        perm_indices = self.space.axes if self.space.axes != tuple(range(values.shape[0])) else False
 
         # permutate = perm_indices is not None
         if obs:
@@ -164,7 +158,7 @@ class Data(ZfitData, BaseObject):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
-            perm_indices = self._space.get_axes(obs=obs)
+            perm_indices = self.space.get_axes(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
             values = tf.unstack(values)
@@ -181,13 +175,13 @@ class Data(ZfitData, BaseObject):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(axes) - frozenset(self.axes),
                                                                      self.axes))
-        space = self._space.with_axes(axes=axes)
+        space = self.space.with_axes(axes=axes)
 
         def setter(value):
             self._space = value
 
         def getter():
-            return self._space
+            return self.space
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
 
@@ -198,13 +192,13 @@ class Data(ZfitData, BaseObject):
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
 
-        space = self._space.with_obs(obs=obs)
+        space = self.space.with_obs(obs=obs)
 
         def setter(value):
             self._space = value
 
         def getter():
-            return self._space
+            return self.space
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
 

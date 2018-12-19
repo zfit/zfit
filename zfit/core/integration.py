@@ -11,7 +11,7 @@ from typing import Callable, Optional, Union, Type, Tuple
 
 from zfit import ztf
 from zfit.util import ztyping
-from .limits import convert_to_space, NamedSpace, supports
+from .limits import convert_to_space, Space, supports
 from ..settings import types as ztypes
 
 
@@ -49,7 +49,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
     Args:
         func (callable): The function to be integrated over
-        limits (`NamedSpace`): The limits of the integral
+        limits (`Space`): The limits of the integral
         axes (tuple(int)): The row to integrate over. None means integration over all value
         x (numeric): If a partial integration is performed, this are the value where x will be evaluated.
         n_axes (int): the number of total dimensions (old?)
@@ -132,14 +132,14 @@ class AnalyticIntegral:
         """Return the maximal available axes to integrate over analytically for given limits
 
         Args:
-            limits (NamedSpace): The integral function will be able to integrate over this limits
+            limits (Space): The integral function will be able to integrate over this limits
             axes (tuple): The axes over which (or over a subset) it will integrate
 
         Returns:
             Tuple[int]:
         """
-        if not isinstance(limits, NamedSpace):
-            raise TypeError("`limits` have to be a `NamedSpace`")
+        if not isinstance(limits, Space):
+            raise TypeError("`limits` have to be a `Space`")
         # limits = convert_to_space(limits=limits)
 
         return self._get_max_axes_limits(limits, out_of_axes=limits.axes)[0]  # only axes
@@ -166,7 +166,7 @@ class AnalyticIntegral:
         """Return the integral over the `limits` with `axes` (or a subset of them).
 
         Args:
-            limits (`zfit.NamedSpace`):
+            limits (`zfit.Space`):
             axes (Tuple[int]):
 
         Returns:
@@ -188,7 +188,7 @@ class AnalyticIntegral:
         Args:
             func (callable): The integral function. Takes 1 argument.
             axes (tuple): |dims_arg_descr|
-            limits (NamedSpace): |limits_arg_descr| `Limits` can be None if `func` works for any possible limits
+            limits (Space): |limits_arg_descr| `Limits` can be None if `func` works for any possible limits
             priority (int): If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
             supports_norm_range (bool): If True, norm_range will (if needed) be given to `func` as an argument.
@@ -198,13 +198,13 @@ class AnalyticIntegral:
         # if limits is False:
         #     raise ValueError("Limits for the analytical integral have to be specified or None (for any limits).")
         # if limits is None:
-        #     limits = tuple((NamedSpace.ANY_LOWER, NamedSpace.ANY_UPPER) for _ in range(len(axes)))
+        #     limits = tuple((Space.ANY_LOWER, Space.ANY_UPPER) for _ in range(len(axes)))
         #     limits = convert_to_space(axes=axes, limits=limits)
         # else:
         #     limits = convert_to_space(axes=self.axes, limits=limits)
         # limits = limits.get_limits()
-        if not isinstance(limits, NamedSpace):
-            raise TypeError("Limits for registering an integral have to be `NamedSpace`")
+        if not isinstance(limits, Space):
+            raise TypeError("Limits for registering an integral have to be `Space`")
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
@@ -222,7 +222,7 @@ class AnalyticIntegral:
         Args:
             x (numeric): If a partial integration is made, x are the value to be evaluated for the partial
                 integrated function. If a full integration is performed, this should be `None`.
-            limits (zfit.NamedSpace): The limits to integrate
+            limits (zfit.Space): The limits to integrate
             axes (Tuple[int]): The dimensions to integrate over
             norm_range (bool): |norm_range_arg_descr|
             params (dict): The parameters of the function
@@ -254,7 +254,7 @@ class AnalyticIntegral:
 
 
 class Integral(object):  # TODO analytic integral
-    def __init__(self, func: Callable, limits: "NamedSpace", priority: Union[int, float]):
+    def __init__(self, func: Callable, limits: "Space", priority: Union[int, float]):
         """A lightweight holder for the integral function."""
         self.limits = limits
         self.integrate = func

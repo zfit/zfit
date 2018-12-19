@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit.core.basepdf
-from zfit.core.limits import NamedSpace
+from zfit.core.limits import Space
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Normal
 from zfit.models.basic import Gauss
@@ -90,7 +90,7 @@ def test_normalization():
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
     for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
-        with dist.set_norm_range(NamedSpace(obs1, limits=(low, high))):
+        with dist.set_norm_range(Space(obs1, limits=(low, high))):
             samples.limits = low, high
             print("Testing currently: ", dist.name)
             probs = dist.pdf(samples)
@@ -131,8 +131,8 @@ def test_analytic_sampling():
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.upper[0][0],
-                                           limits=NamedSpace.from_axes(limits=(-float("inf"), NamedSpace.ANY_UPPER),
-                                                                       axes=(0,)))  # DUMMY!
+                                           limits=Space.from_axes(limits=(-float("inf"), Space.ANY_UPPER),
+                                                                  axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     gauss1 = SampleGauss(obs=obs1)
@@ -150,7 +150,7 @@ def test_multiple_limits():
     simple_limits = (-3.2, 9.1)
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
-    multiple_limits_range = NamedSpace.from_axes(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
+    multiple_limits_range = Space.from_axes(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
     integral_simp = gauss_params1.integrate(limits=simple_limits, norm_range=False)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm_range=False)
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)

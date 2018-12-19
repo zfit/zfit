@@ -1,7 +1,7 @@
 import abc
 from typing import List, Union, Dict, Tuple
 
-from zfit.core.limits import NamedSpace
+from zfit.core.limits import Space
 from zfit.core.basemodel import BaseModel
 from zfit.core.dimension import get_same_obs
 from zfit.core.interfaces import ZfitFunctorMixin, ZfitModel
@@ -23,7 +23,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         if obs is None:
             obs = extracted_obs
         else:
-            if isinstance(obs, NamedSpace):
+            if isinstance(obs, Space):
                 obs_str = obs.obs
             else:
                 obs_str = convert_to_container(value=obs, container=tuple)
@@ -73,8 +73,8 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         return self._check_input_norm_range(norm_range=norm_range, caller_name=caller_name, none_is_error=none_is_error)
 
 
-def _extract_common_obs(obs: Tuple[Union[Tuple[str], NamedSpace]]) -> Tuple[str]:
-    obs_iter = [space.obs if isinstance(space, NamedSpace) else space for space in obs]
+def _extract_common_obs(obs: Tuple[Union[Tuple[str], Space]]) -> Tuple[str]:
+    obs_iter = [space.obs if isinstance(space, Space) else space for space in obs]
     unique_obs = []
     for obs in obs_iter:
         for o in obs:

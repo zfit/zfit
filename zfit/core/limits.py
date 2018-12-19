@@ -4,41 +4,19 @@
 # NamedSpace and limits
 
 Limits define a certain interval in a specific dimension. This can be used to define, for example,
-the limits of an integral over several dimensions.
+the limits of an integral over several dimensions or a normalization range.
 
-There are two ways of creating a :py:class:`NamedSpace`, either from the limits or from the boundaries
-(which are arbitrary definitions here).
 
-### by dimensions (from limits)
 
-Shortcut: if only a 1-dim tuple is given, it is assumed to be the limits from a 1-dim interval.
+### with limits
 
-If the limits in each dimension are known, this is the easiest way to construct a :py:class:`NamedSpace`.
-A simple example to represent the limits for the first dim from 1 to 4 and for the second dim
-from -1 to 4 *and* from 6 to 8:
->>> limits_as_tuple = ((1, 4), (-1, 4, 6, 8))  # 2 dimensions
->>> limits = NamedSpace.from_limits(limits=limits_as_tuple, axes=(0, 1))  # which dimensions the limits correspond to
-
-This can be retrieved in the same way with
->>> limits.get_limits()
-
-General form: ((lower1_dim1, upper1_dim1, lower2_dim1, upper2_dim1,...),
-(lower1_dim2, upper1_dim2, lower2_dim2, upper2_dim2,...), ...
-
-The tuples don't have to have the same length!
-
-### by intervals (from boundaries)
-
-The disadvantage of the previous method is that only rectangular limits are covered
-(in the sense that you can't specify e.g. 1-dim: from 1 to 2 and second dim from 4 to 6 AND 1-dim
-from 10 to 12 and 2.-dim from 50 to 52, so creating individual patches in the multidimensional space).
 Therefore a different way of specifying limits is possible, basically by defining chunks of the
-lower and the upper limits. The shape is (n_limits, n_obs).
+lower and the upper limits. The shape of a lower resp. upper limit is (n_limits, n_obs).
 
 Example: 1-dim: 1 to 4, 2.-dim: 21 to 24 AND 1.-dim: 6 to 7, 2.-dim 26 to 27
 >>> lower = ((1, 21), (6, 26))
 >>> upper = ((4, 24), (7, 27))
->>> limits2 = NamedSpace.from_boundaries(lower=lower, upper=upper, axes=(0, 1))
+>>> limits2 = Space(limits=(lower, upper), obs=('obs1', 'obs2')
 
 General form:
 
@@ -55,15 +33,12 @@ For example when doing a MC integration using the expectation value, it is manda
 the total area of your intervals. You can retrieve the total area or (if multiple limits (=intervals
  are given) the area of each interval.
 
- >>> area = limits2.areas
- >>> area_1, area_2 = limits2.area_by_boundaries(rel=False)  # if rel is True, return the fraction of 1
+ >>> area = limits2.area()
+ >>> area_1, area_2 = limits2.iter_areas(rel=False)  # if rel is True, return the fraction of 1
 
 
-### Convert and retrieve the limits
+### Retrieve the limits
 
-The limits can be converted from the "by dimensions" form to "by intervals" and vice-versa, though
-the latter will raise an error if no save conversion is possible! (e.g. in our example above,
-limits2 converted limits "by dimension" will raise an error). So retrieving limits should be done via
 >>> lower, upper = limits2.limits
 
 which you can now iterate through. For example, to calc an integral (assuming there is a function
@@ -83,7 +58,7 @@ import numpy as np
 import pep487
 
 from zfit.core.baseobject import BaseObject
-from zfit.core.interfaces import ZfitNamedSpace
+from zfit.core.interfaces import ZfitSpace
 from zfit.util import ztyping
 from zfit.util.checks import NOT_SPECIFIED
 from zfit.util.container import convert_to_container
@@ -127,7 +102,7 @@ ANY_LOWER = AnyLower()
 ANY_UPPER = AnyUpper()
 
 
-class NamedSpace(ZfitNamedSpace, BaseObject):
+class Space(ZfitSpace, BaseObject):
     AUTO_FILL = object()
     ANY = object()
     ANY_LOWER = object()
@@ -136,7 +111,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
                       'upper': {None: ANY_UPPER}}
 
     def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = None,
-                 name: Optional[str] = "NamedSpace"):
+                 name: Optional[str] = "Space"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
 
         Args:
@@ -156,11 +131,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     @classmethod
     def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                   limits: Optional[ztyping.LimitsTypeInput] = None,
-                  name: str = None) -> "NamedSpace":
+                  name: str = None) -> "Space":
         if obs is None:
-            new_space = NamedSpace.from_axes(axes=axes, limits=limits, name=name)
+            new_space = Space.from_axes(axes=axes, limits=limits, name=name)
         else:
-            new_space = NamedSpace(obs=obs, limits=limits, name=name)
+            new_space = Space(obs=obs, limits=limits, name=name)
             new_space._axes = axes
 
         return new_space
@@ -168,7 +143,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
     @classmethod
     def from_axes(cls, axes: ztyping.AxesTypeInput,
                   limits: Optional[ztyping.LimitsTypeInput] = None,
-                  name: str = None) -> "NamedSpace":
+                  name: str = None) -> "Space":
         """Create a space from `axes` instead of from `obs`.
 
         Args:
@@ -177,7 +152,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             name (str):
 
         Returns:
-            NamedSpace
+            Space
         """
         axes = convert_to_container(value=axes, container=tuple)
         if axes is None:
@@ -191,14 +166,14 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 
     @staticmethod
     def _convert_obs_to_str(obs):
-        if isinstance(obs, NamedSpace):
+        if isinstance(obs, Space):
             obs = obs.obs
         else:
             obs = convert_to_container(obs, container=tuple)
         return obs
 
     def _convert_axes_to_int(self, axes):
-        if isinstance(axes, NamedSpace):
+        if isinstance(axes, Space):
             axes = axes.axes
         else:
             axes = convert_to_container(axes, container=tuple)
@@ -313,7 +288,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             else:
                 raise ObsNotSpecifiedError("TODO: Cannot be None")
 
-        if isinstance(obs, NamedSpace):
+        if isinstance(obs, Space):
             obs = obs.obs
         else:
             obs = convert_to_container(obs, container=tuple)
@@ -456,7 +431,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             ```
 
         Returns:
-            List[NamedSpace] or List[limit,...]:
+            List[Space] or List[limit,...]:
         """
         if as_tuple:
             return list(zip(self.lower, self.upper))
@@ -467,11 +442,11 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
                     lower = (lower,)
                     upper = (upper,)
                     limit = lower, upper
-                space = NamedSpace._from_any(obs=self.obs, axes=self.axes, limits=limit)
+                space = Space._from_any(obs=self.obs, axes=self.axes, limits=limit)
                 space_objects.append(space)
             return space_objects
 
-    def with_limits(self, limits: ztyping.LimitsTypeInput, name: Optional[str] = None) -> "NamedSpace":
+    def with_limits(self, limits: ztyping.LimitsTypeInput, name: Optional[str] = None) -> "Space":
         """Return a copy of the space with the new `limits` (and the new `name`).
 
         Args:
@@ -479,33 +454,33 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             name (str):
 
         Returns:
-            NamedSpace
+            Space
         """
         new_space = self.copy(limits=limits, name=name)
         return new_space
 
-    def with_obs(self, obs: ztyping.ObsTypeInput) -> "NamedSpace":
+    def with_obs(self, obs: ztyping.ObsTypeInput) -> "Space":
         """Sort by `obs` and return the new instance.
 
         Args:
             obs ():
 
         Returns:
-            `NamedSpace`
+            `Space`
         """
         obs = self._convert_obs_to_str(obs)
         new_indices = self.get_reorder_indices(obs=obs)
         new_space = self.reorder_by_indices(indices=new_indices)
         return new_space
 
-    def with_axes(self, axes: ztyping.AxesTypeInput) -> "NamedSpace":
+    def with_axes(self, axes: ztyping.AxesTypeInput) -> "Space":
         """Sort by `obs` and return the new instance.
 
         Args:
             axes ():
 
         Returns:
-            `NamedSpace`
+            `Space`
         """
         # TODO: what if self.axes is None? Just add them?
         axes = self._convert_axes_to_int(axes)
@@ -683,7 +658,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
     def with_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
-                      allow_subset=False) -> "NamedSpace":
+                      allow_subset=False) -> "Space":
         """Return a new `Space` with reordered observables and set the `axes`.
 
 
@@ -693,12 +668,12 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
 
         Returns:
-            NamedSpace:
+            Space:
         """
         with self._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset):
             return copy.deepcopy(self)
 
-    def with_autofill_axes(self, overwrite: bool = False) -> "NamedSpace":
+    def with_autofill_axes(self, overwrite: bool = False) -> "Space":
         """Return a `Space` with filled axes corresponding to range(len(n_obs)).
 
         Args:
@@ -706,7 +681,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
                 If axes is already set, don't do anything if `overwrite` is False.
 
         Returns:
-            `NamedSpace`
+            `Space`
         """
         if self.axes is None or overwrite:
             new_axes = tuple(range(self.n_obs))
@@ -740,7 +715,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         return areas
 
     def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-                     name: Optional[str] = None) -> "NamedSpace":
+                     name: Optional[str] = None) -> "Space":
         """Create a `Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
@@ -791,13 +766,13 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             sub_upper = tuple(tuple(lim[i] for i in sub_index) for lim in upper)
             sub_limits = sub_lower, sub_upper
 
-        new_space = NamedSpace._from_any(obs=sub_obs, axes=sub_axes, limits=sub_limits, name=name)
+        new_space = Space._from_any(obs=sub_obs, axes=sub_axes, limits=sub_limits, name=name)
 
         return new_space
 
     # Operators
 
-    def copy(self, name: Optional[str] = None, **overwrite_kwargs) -> "NamedSpace":
+    def copy(self, name: Optional[str] = None, **overwrite_kwargs) -> "Space":
         """Create a new `Space` using the current attributes and overwriting with `overwrite_overwrite_kwargs`.
 
         Args:
@@ -806,7 +781,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
             **overwrite_kwargs ():
 
         Returns:
-            NamedSpace
+            Space
         """
         name = self.name if name is None else name
 
@@ -818,7 +793,7 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
 
-        new_space = NamedSpace._from_any(**kwargs)
+        new_space = Space._from_any(**kwargs)
         return new_space
 
     def __le__(self, other):  # TODO: refactor for boundaries
@@ -902,45 +877,45 @@ class NamedSpace(ZfitNamedSpace, BaseObject):
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
                      limits: Optional[ztyping.LimitsTypeInput] = None,
                      *, none_is_any=False, overwrite_limits: bool = False, one_dim_limits_only: bool = True,
-                     simple_limits_only: bool = True) -> Union[None, NamedSpace, bool]:
+                     simple_limits_only: bool = True) -> Union[None, Space, bool]:
     """Convert *limits* to a Space object if not already None or False.
 
     Args:
-        obs (Union[Tuple[float, float], zfit.core.limits.NamedSpace]):
+        obs (Union[Tuple[float, float], zfit.core.limits.Space]):
         limits ():
         axes ():
-        overwrite_limits (bool): If `obs` or `axes` is a `NamedSpace` _and_ `limits` are given, return an instance
-            of `NamedSpace` with the new limits. If the flag is `False`, the `limits` argument will be ignored if
+        overwrite_limits (bool): If `obs` or `axes` is a `Space` _and_ `limits` are given, return an instance
+            of `Space` with the new limits. If the flag is `False`, the `limits` argument will be ignored if
         one_dim_limits_only (bool):
         simple_limits_only (bool):
 
     Returns:
-        Union[NamedSpace, False, None]:
+        Union[Space, False, None]:
 
     Raises:
-        OverdefinedError: if `obs` or `axes` is a `NamedSpace` and `axes` respectively `obs` is not `None`.
+        OverdefinedError: if `obs` or `axes` is a `Space` and `axes` respectively `obs` is not `None`.
     """
     space = None
 
-    # Test if already `NamedSpace` and handle
-    if isinstance(obs, NamedSpace):
+    # Test if already `Space` and handle
+    if isinstance(obs, Space):
         if axes is not None:
-            raise OverdefinedError("if `obs` is a `NamedSpace`, `axes` cannot be defined.")
+            raise OverdefinedError("if `obs` is a `Space`, `axes` cannot be defined.")
         space = obs
-    elif isinstance(axes, NamedSpace):
+    elif isinstance(axes, Space):
         if obs is not None:
-            raise OverdefinedError("if `axes` is a `NamedSpace`, `obs` cannot be defined.")
+            raise OverdefinedError("if `axes` is a `Space`, `obs` cannot be defined.")
         space = axes
-    elif isinstance(limits, NamedSpace):
+    elif isinstance(limits, Space):
         return limits
     if space is not None:
         # set the limits if given
         if limits is not None and (overwrite_limits or space.limits is None):
-            if isinstance(limits, NamedSpace):  # figure out if compatible if limits is `NamedSpace`
+            if isinstance(limits, Space):  # figure out if compatible if limits is `Space`
                 if not (limits.obs == space.obs or
                         (limits.axes == space.axes and limits.obs is None and space.obs is None)):
                     raise IntentionNotUnambiguousError(
-                        "`obs`/`axes` is a `NamedSpace` as well as the `limits`, but the "
+                        "`obs`/`axes` is a `Space` as well as the `limits`, but the "
                         "obs/axes of them do not match")
                 else:
                     limits = limits.limits
@@ -951,13 +926,13 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     # space is None again
     if not (obs is None and axes is None):
         # check if limits are allowed
-        space = NamedSpace._from_any(obs=obs, axes=axes, limits=limits)  # create and test if valid
+        space = Space._from_any(obs=obs, axes=axes, limits=limits)  # create and test if valid
         if one_dim_limits_only and space.n_obs > 1 and space.limits:
             raise LimitsUnderdefinedError(
-                "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `NamedSpace` instead.")
+                "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `Space` instead.")
         if simple_limits_only and space.limits and space.n_limits > 1:
             raise LimitsUnderdefinedError("Limits with multiple limits cannot be auto-created"
-                                          " from tuples. Use `NamedSpace` instead.")
+                                          " from tuples. Use `Space` instead.")
     return space
 
 
@@ -978,7 +953,7 @@ def no_norm_range(func):
     @functools.wraps(func)
     def new_func(*args, **kwargs):
         norm_range = kwargs.get('norm_range')
-        if isinstance(norm_range, NamedSpace):
+        if isinstance(norm_range, Space):
             norm_range_not_false = not (norm_range.limits is None or norm_range.limits is False)
         else:
             norm_range_not_false = not (norm_range is None or norm_range is False)

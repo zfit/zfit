@@ -14,10 +14,11 @@ from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
 from zfit.core.data import Data
+from zfit.core.dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .interfaces import ZfitModel, ZfitParameter
-from .limits import NamedSpace, convert_to_space, no_multiple_limits, no_norm_range, supports
+from .limits import Space, convert_to_space, no_multiple_limits, no_norm_range, supports
 from ..settings import types as ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
@@ -54,7 +55,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumeric, ZfitModel):
+class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
@@ -140,12 +141,12 @@ class BaseModel(BaseNumeric, ZfitModel):
         raise NotImplementedError
 
     @property
-    def obs(self) -> ztyping.ObsTypeReturn:
-        return self._space.obs
+    def space(self) -> "ZfitSpace":
+        return self._space
 
     def _check_set_space(self, obs):
-        if not isinstance(obs, NamedSpace):
-            obs = NamedSpace(obs=obs)
+        if not isinstance(obs, Space):
+            obs = Space(obs=obs)
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
@@ -199,21 +200,21 @@ class BaseModel(BaseNumeric, ZfitModel):
         raise NotImplementedError
 
     def _check_input_norm_range(self, norm_range, caller_name="",
-                                none_is_error=False) -> typing.Union[NamedSpace, bool]:
-        """Convert to :py:class:`NamedSpace`.
+                                none_is_error=False) -> typing.Union[Space, bool]:
+        """Convert to :py:class:`Space`.
 
         Args:
-            norm_range (None or NamedSpace compatible):
+            norm_range (None or Space compatible):
             caller_name (str): name of the calling function. Used for exception message.
             none_is_error (bool): if both `norm_range` and `self.norm_range` are None, the default
                 value is `False` (meaning: no range specified-> no normalization to be done). If
                 this is set to true, two `None` will raise a Value error.
 
         Returns:
-            Union[NamedSpace, False]:
+            Union[Space, False]:
 
         """
-        if norm_range is None or (isinstance(norm_range, NamedSpace) and norm_range.limits is None):
+        if norm_range is None or (isinstance(norm_range, Space) and norm_range.limits is None):
             if none_is_error:
                 raise ValueError("Normalization range `norm_range` has to be specified when calling {name} or"
                                  "a default normalization range has to be set. Currently, both are None"
@@ -226,7 +227,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         return self.convert_sort_space(limits=norm_range)
 
     def _check_input_limits(self, limits, caller_name="", none_is_error=False):
-        if limits is None or (isinstance(limits, NamedSpace) and limits.limits is None):
+        if limits is None or (isinstance(limits, Space) and limits.limits is None):
             if none_is_error:
                 raise ValueError("The `limits` have to be specified when calling {name} and not be None"
                                  "".format(name=caller_name))
@@ -236,7 +237,7 @@ class BaseModel(BaseNumeric, ZfitModel):
         return self.convert_sort_space(limits=limits)
 
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-                           limits: ztyping.LimitsTypeInput = None) -> Union[NamedSpace, None]:
+                           limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
         """Convert the inputs (using eventually `obs`, `axes`) to `Space` and sort them according to own `obs`.
 
         Args:
@@ -256,14 +257,6 @@ class BaseModel(BaseNumeric, ZfitModel):
             space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
         return space
 
-    @property
-    def n_obs(self):
-        return self._space.n_obs
-
-    @property
-    def axes(self) -> ztyping.AxesTypeReturn:
-        return self._space.axes
-
     # Integrals
 
     @_BaseModel_register_check_support(True)
@@ -275,8 +268,8 @@ class BaseModel(BaseNumeric, ZfitModel):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, NamedSpace): the limits to integrate over
-            norm_range (tuple, NamedSpace): the limits to normalize over or False to integrate the
+            limits (tuple, Space): the limits to integrate over
+            norm_range (tuple, Space): the limits to normalize over or False to integrate the
                 unnormalized probability
             name (str):
 
@@ -375,8 +368,8 @@ class BaseModel(BaseNumeric, ZfitModel):
         """Do analytical integration over function and raise Error if not possible.
 
         Args:
-            limits (tuple, NamedSpace): the limits to integrate over
-            norm_range (tuple, NamedSpace, False): the limits to normalize over
+            limits (tuple, Space): the limits to integrate over
+            norm_range (tuple, Space, False): the limits to normalize over
             name (str):
 
         Returns:
@@ -446,8 +439,8 @@ class BaseModel(BaseNumeric, ZfitModel):
         """Numerical integration over the model.
 
         Args:
-            limits (tuple, NamedSpace): the limits to integrate over
-            norm_range (tuple, NamedSpace, False): the limits to normalize over
+            limits (tuple, Space): the limits to integrate over
+            norm_range (tuple, Space, False): the limits to normalize over
             name (str):
 
         Returns:
@@ -510,8 +503,8 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
+            limits (tuple, Space): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, Space, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -593,8 +586,8 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
+            limits (tuple, Space): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, Space, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -673,8 +666,8 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
+            limits (tuple, Space): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, Space, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -750,7 +743,7 @@ class BaseModel(BaseNumeric, ZfitModel):
 
         Args:
             n (int): The number of samples to be generated
-            limits (tuple, NamedSpace): In which region to sample in
+            limits (tuple, Space): In which region to sample in
             name (str):
 
         Returns:
@@ -786,20 +779,20 @@ class BaseModel(BaseNumeric, ZfitModel):
             return self._fallback_sample(n=n, limits=limits)
 
     @no_multiple_limits
-    def _analytic_sample(self, n, limits: NamedSpace):
+    def _analytic_sample(self, n, limits: Space):
 
         (lower_bound,), (upper_bound,) = limits.limits
         neg_infinities = (tuple((-float("inf"),) * limits.n_obs),)  # py34 change float("inf") to math.inf
         # to the cdf to get the limits for the inverse analytic integral
         try:
-            lower_prob_lim = self._norm_analytic_integrate(limits=NamedSpace.from_axes(limits=(neg_infinities,
-                                                                                               (lower_bound,)),
-                                                                                       axes=limits.axes),
+            lower_prob_lim = self._norm_analytic_integrate(limits=Space.from_axes(limits=(neg_infinities,
+                                                                                          (lower_bound,)),
+                                                                                  axes=limits.axes),
                                                            norm_range=False)
 
-            upper_prob_lim = self._norm_analytic_integrate(limits=NamedSpace.from_axes(limits=(neg_infinities,
-                                                                                               (upper_bound,)),
-                                                                                       axes=limits.axes),
+            upper_prob_lim = self._norm_analytic_integrate(limits=Space.from_axes(limits=(neg_infinities,
+                                                                                          (upper_bound,)),
+                                                                                  axes=limits.axes),
                                                            norm_range=False)
         except NotImplementedError:
             raise NotImplementedError("analytic sampling not possible because the analytic integral is not"

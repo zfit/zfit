@@ -34,17 +34,26 @@ class ZfitDimensional(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def space(self) -> "ZfitNamedSpace":
+    def space(self) -> "ZfitSpace":
+        """Return the `Space` object that defines the dimensionality of the object."""
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def obs(self):
+    def obs(self) -> ztyping.ObsTypeReturn:
+        """Return the observables."""
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def axes(self):
+    def axes(self) -> ztyping.AxesTypeReturn:
+        """Return the axes."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def n_obs(self) -> int:
+        """Return the number of observables."""
         raise NotImplementedError
 
 
@@ -54,7 +63,7 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
 
-class ZfitNamedSpace(ZfitObject):
+class ZfitSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
@@ -62,6 +71,23 @@ class ZfitNamedSpace(ZfitObject):
         """Return a list of the observable names.
 
         """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def n_limits(self) -> int:
+        """Return the number of limits."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def n_obs(self) -> int:
+        """Return the number of observables (axis)."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def axes(self) -> ztyping.AxesTypeReturn:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -73,8 +99,10 @@ class ZfitNamedSpace(ZfitObject):
         """
         raise NotImplementedError
 
+    @property
     @abc.abstractmethod
-    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "ZfitNamedSpace":
+    def limits(self) -> Tuple[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
+        """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -82,15 +110,6 @@ class ZfitNamedSpace(ZfitObject):
         """Iterate through the limits by returning several observables/(lower, upper)-tuples.
 
         """
-        raise NotImplementedError
-
-    def iter_space(self) -> List["ZfitNamedSpace"]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def limits(self) -> Tuple[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
-        """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
     @property
@@ -109,28 +128,8 @@ class ZfitNamedSpace(ZfitObject):
         """
         raise NotImplementedError
 
-    # @abc.abstractmethod
-    # def get_limits(self):
-
-    @property
     @abc.abstractmethod
-    def n_limits(self) -> int:
-        """Return the number of limits."""
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def n_obs(self) -> int:
-        """Return the number of observables (axis)."""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def _check_set_limits(self, limits: ztyping.LimitsTypeInput):
-        """Set the limits of the NamedSpace (temporarily)."""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def _check_set_lower_upper(self, lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput):
+    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "ZfitSpace":
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -141,19 +140,6 @@ class ZfitNamedSpace(ZfitObject):
     @abc.abstractmethod
     def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
         """Return the areas of each limit."""
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def axes(self) -> List[int]:
-        raise NotImplementedError
-
-    # @abc.abstractmethod
-    # def get_obs_axes(self, autofill: bool = False) -> typing.Dict[str, int]:
-    #     raise NotImplementedError
-
-    @abc.abstractmethod
-    def _set_obs_axes(self, obs_axes: ztyping.OrderedDict[str, int]):  # TODO: switch if sorting?
         raise NotImplementedError
 
 
@@ -225,7 +211,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @property
     @abc.abstractmethod
-    def fit_range(self) -> List["zfit.NamedSpace"]:
+    def fit_range(self) -> List["zfit.Space"]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -233,22 +219,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
         raise NotImplementedError
 
 
-class ZfitModel(ZfitNumeric):
-
-    @property
-    @abc.abstractmethod
-    def n_obs(self):
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def axes(self) -> ztyping.AxesTypeInput:
-        raise NotImplementedError
-
-    @axes.setter
-    @abc.abstractmethod
-    def axes(self, value: ztyping.AxesTypeInput):
-        raise NotImplementedError
+class ZfitModel(ZfitNumeric, ZfitDimensional):
 
     @abc.abstractmethod
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
@@ -261,8 +232,8 @@ class ZfitModel(ZfitNumeric):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, NamedSpace): the limits to integrate over
-            norm_range (tuple, NamedSpace): the limits to normalize over or False to integrate the
+            limits (tuple, Space): the limits to integrate over
+            norm_range (tuple, Space): the limits to normalize over or False to integrate the
                 unnormalized probability
             name (str):
 
@@ -302,8 +273,8 @@ class ZfitModel(ZfitNumeric):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, NamedSpace): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, NamedSpace, False): the limits to normalize over. Has to have all axes
+            limits (tuple, Space): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, Space, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -327,16 +298,12 @@ class ZfitModel(ZfitNumeric):
 
         Args:
             n (int): The number of samples to be generated
-            limits (tuple, NamedSpace): In which region to sample in
+            limits (tuple, Space): In which region to sample in
             name (str):
 
         Returns:
             Tensor(n_obs, n_samples)
         """
-        raise NotImplementedError
-
-    @property
-    def obs(self) -> Tuple[str]:
         raise NotImplementedError
 
 
@@ -388,8 +355,3 @@ class ZfitFunctorMixin:
     @abc.abstractmethod
     def get_models(self) -> List[ZfitModel]:
         raise NotImplementedError
-
-    # @property
-    # @abc.abstractmethod
-    # def axes(self):
-    #     raise NotImplementedError

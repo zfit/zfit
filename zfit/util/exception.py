@@ -93,7 +93,7 @@ class NormRangeNotImplementedError(Exception):
 
 
 class MultipleLimitsNotImplementedError(Exception):
-    """Indicates that a function does not support several limits in a `NamedSpace`."""
+    """Indicates that a function does not support several limits in a `Space`."""
     pass
 
 

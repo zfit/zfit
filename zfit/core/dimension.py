@@ -1,5 +1,23 @@
 import functools
 
+from zfit.core.interfaces import ZfitDimensional
+from zfit.util import ztyping
+
+
+class BaseDimensional(ZfitDimensional):
+
+    @property
+    def obs(self) -> ztyping.ObsTypeReturn:
+        return self.space.obs
+
+    @property
+    def axes(self) -> ztyping.AxesTypeReturn:
+        return self.space.axes
+
+    @property
+    def n_obs(self) -> int:
+        return self.space.n_obs
+
 
 @functools.lru_cache(maxsize=500)
 def get_same_obs(obs):
