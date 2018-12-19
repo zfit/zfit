@@ -52,7 +52,7 @@ from collections import OrderedDict
 import copy
 import functools
 import inspect
-from typing import Tuple, Union, List, Optional, Iterable, Callable, Dict
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pep487
@@ -62,9 +62,9 @@ from zfit.core.interfaces import ZfitSpace
 from zfit.util import ztyping
 from zfit.util.checks import NOT_SPECIFIED
 from zfit.util.container import convert_to_container
-from zfit.util.exception import (NormRangeNotImplementedError, MultipleLimitsNotImplementedError, AxesNotSpecifiedError,
-                                 ObsNotSpecifiedError, OverdefinedError, IntentionNotUnambiguousError,
-                                 LimitsUnderdefinedError, )
+from zfit.util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
+                                 MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
+                                 OverdefinedError, )
 from zfit.util.temporary import TemporarilySet
 
 
@@ -107,8 +107,6 @@ class Space(ZfitSpace, BaseObject):
     ANY = object()
     ANY_LOWER = object()
     ANY_UPPER = object()
-    _limit_replace = {'lower': {None: ANY_LOWER},
-                      'upper': {None: ANY_UPPER}}
 
     def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = None,
                  name: Optional[str] = "Space"):
@@ -119,7 +117,7 @@ class Space(ZfitSpace, BaseObject):
             limits ():
             name (str):
         """
-        obs = self._check_convert_input_obs(obs, allow_not_spec=True)
+        obs = self._check_convert_input_obs(obs)
 
         if name is None:
             name = "NamedSpace_" + "_".join(obs)
@@ -172,7 +170,8 @@ class Space(ZfitSpace, BaseObject):
             obs = convert_to_container(obs, container=tuple)
         return obs
 
-    def _convert_axes_to_int(self, axes):
+    @staticmethod
+    def _convert_axes_to_int(axes):
         if isinstance(axes, Space):
             axes = axes.axes
         else:
@@ -187,17 +186,15 @@ class Space(ZfitSpace, BaseObject):
         self._limits = limits
 
     def _check_convert_input_lower_upper(self, lower, upper):
-        replace_lower = self._limit_replace.get('lower', {})
-        replace_upper = self._limit_replace.get('upper', {})
 
-        lower = self._check_convert_input_limit(limit=lower, replace=replace_lower)
-        upper = self._check_convert_input_limit(limit=upper, replace=replace_upper)
+        lower = self._check_convert_input_limit(limit=lower)
+        upper = self._check_convert_input_limit(limit=upper)
         lower_is_iterable = lower is not None or lower is not False
         upper_is_iterable = upper is not None or upper is not False
         if not (lower_is_iterable or upper_is_iterable) and lower is not upper:
             ValueError("Lower and upper limits wrong:"
-                       "\nlower = {l}"
-                       "\nupper = {u}".format(l=lower, u=upper))
+                       "\nlower = {lower}"
+                       "\nupper = {upper}".format(lower=lower, upper=upper))
         if lower_is_iterable ^ upper_is_iterable:
             raise ValueError("Lower and upper limits wrong:"
                              "\nlower = {l}"
@@ -251,13 +248,7 @@ class Space(ZfitSpace, BaseObject):
         self._check_set_limits(limits=limits)
 
     def _check_convert_input_axes(self, axes: ztyping.AxesTypeInput,
-                                  allow_none: bool = False,
-                                  allow_not_spec: bool = False) -> ztyping.AxesTypeReturn:
-        # if axes is NOT_SPECIFIED:
-        #     if allow_not_spec:
-        #         return None
-        #     else:
-        #         raise AxesNotSpecifiedError("TODO: Cannot be NOT_SPECIFIED")
+                                  allow_none: bool = False) -> ztyping.AxesTypeReturn:
         if axes is None:
             if allow_none:
                 return None
@@ -267,8 +258,7 @@ class Space(ZfitSpace, BaseObject):
         return axes
 
     def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
-                                 allow_none: bool = False,
-                                 allow_not_spec: bool = False) -> ztyping.ObsTypeReturn:
+                                 allow_none: bool = False) -> ztyping.ObsTypeReturn:
         """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
 
         Args:
@@ -277,11 +267,6 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             type:
         """
-        # if obs is NOT_SPECIFIED:
-        #     if allow_not_spec:
-        #         return None
-        #     else:
-        #         raise ObsNotSpecifiedError("TODO: Cannot be NOT_SPECIFIED")
         if obs is None:
             if allow_none:
                 return None
@@ -434,7 +419,7 @@ class Space(ZfitSpace, BaseObject):
             List[Space] or List[limit,...]:
         """
         if as_tuple:
-            return list(zip(self.lower, self.upper))
+            return tuple(zip(self.lower, self.upper))
         else:
             space_objects = []
             for lower, upper in self.iter_limits(as_tuple=True):
@@ -442,9 +427,11 @@ class Space(ZfitSpace, BaseObject):
                     lower = (lower,)
                     upper = (upper,)
                     limit = lower, upper
+                else:
+                    limit = lower
                 space = Space._from_any(obs=self.obs, axes=self.axes, limits=limit)
                 space_objects.append(space)
-            return space_objects
+            return tuple(space_objects)
 
     def with_limits(self, limits: ztyping.LimitsTypeInput, name: Optional[str] = None) -> "Space":
         """Return a copy of the space with the new `limits` (and the new `name`).
@@ -827,7 +814,7 @@ class Space(ZfitSpace, BaseObject):
         reorder_indices = other.get_reorder_indices(obs=self.obs, axes=self.axes)
         other = other.reorder_by_indices(reorder_indices)
 
-        # check explicitely if they match
+        # check explicitly if they match
         # for each limit in self, find another matching in other
         for lower, upper in self.iter_limits(as_tuple=True):
             limit_is_le = False
@@ -876,7 +863,7 @@ class Space(ZfitSpace, BaseObject):
 # TODO(Mayou36): extend this function and set what is allowed and what not, allow for simple limits?
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
                      limits: Optional[ztyping.LimitsTypeInput] = None,
-                     *, none_is_any=False, overwrite_limits: bool = False, one_dim_limits_only: bool = True,
+                     *, overwrite_limits: bool = False, one_dim_limits_only: bool = True,
                      simple_limits_only: bool = True) -> Union[None, Space, bool]:
     """Convert *limits* to a Space object if not already None or False.
 
