@@ -11,21 +11,12 @@ from zfit.util.container import convert_to_container
 
 class SimpleFunc(BaseFunc):
 
-    def __init__(self, func, obs, name="Function", n_dims=None, **parameters):
+    def __init__(self, func, obs, name="Function", **parameters):
         super().__init__(name=name, obs=obs, parameters=parameters)
         self._value_func = self._check_input_x_function(func)
-        self._user_n_dims = n_dims
 
     def _value(self, x):
         return self._value_func(x)
-
-    @property
-    def _n_dims(self):
-        n_dims = self._user_n_dims
-        if n_dims is None:
-            if self.axes is not None:
-                n_dims = len(self.axes)
-        return n_dims
 
 
 class BaseFunctorFunc(FunctorMixin, BaseFunc):

@@ -314,11 +314,11 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
             return self._fallback_integrate(limits=limits, norm_range=norm_range)
 
     def _fallback_integrate(self, limits, norm_range):
-        dims = limits.axes
-        max_dims = self._analytic_integral.get_max_axes(limits=limits, axes=dims)
+        axes = limits.axes
+        max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=axes)
 
         integral = None
-        if max_dims and integral:  # TODO improve handling of available analytic integrals
+        if max_axes and integral:  # TODO improve handling of available analytic integrals
             with suppress(NotImplementedError):
                 def part_int(x):
                     """Temporary partial integration function."""
@@ -553,21 +553,21 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
             return self._fallback_partial_integrate(x=x, limits=limits, norm_range=norm_range)
 
     def _fallback_partial_integrate(self, x, limits, norm_range):
-        max_dims = self._analytic_integral.get_max_axes(limits=limits, axes=limits.axes)
-        if max_dims:
-            sublimits = limits.subspace(max_dims)
+        max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=limits.axes)
+        if max_axes:
+            sublimits = limits.subspace(max_axes)
 
             def part_int(x):  # change to partial integrate max axes?
                 """Temporary partial integration function."""
                 return self._hook_partial_analytic_integrate(x=x, limits=sublimits, norm_range=norm_range)
 
-            dims = list(set(limits.axes) - set(max_dims))
+            axes = list(set(limits.axes) - set(max_axes))
         else:
             part_int = self._func_to_integrate
-            dims = limits.axes
+            axes = limits.axes
 
         if norm_range.limits is False:
-            integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, dims=dims, x=x)
+            integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, axes=axes, x=x)
         else:
             raise NormRangeNotImplementedError
         return integral_vals

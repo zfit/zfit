@@ -247,28 +247,28 @@ class ZfitParameterMixin:
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             with suppress(NotImplementedError):
-                return operations.add(self, other, dims=None)
+                return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             with suppress(NotImplementedError):
-                return operations.add(other, self, dims=None)
+                return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             with suppress(NotImplementedError):
-                return operations.multiply(self, other, dims=None)
+                return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, zinterfaces.ZfitObject):
             from . import operations
             with suppress(NotImplementedError):
-                return operations.multiply(other, self, dims=None)
+                return operations.multiply(other, self)
         return super().__rmul__(other)
 
 

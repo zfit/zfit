@@ -253,7 +253,6 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
         Args:
             func ():
             limits (): |limits_arg_descr|
-            dims (tuple(int)):
             priority (int):
             supports_multiple_limits (bool):
             supports_norm_range (bool):

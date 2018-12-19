@@ -8,17 +8,12 @@ from ..util import ztyping
 from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError, IntentionNotUnambiguousError
 
 
-def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
-             dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.BaseObjectType:
+def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:
     """Multiply two objects and return a new object (may depending on the old).
 
     Args:
         object1 (): A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object2
-        object2 ():
-        dims (Tuple[Tuple[int, ...], Tuple[int, ...]]): The dimensions to multiply the objects in.
-            So for example if object1 and object2 are 1-dimensional objects, then ((0,), (0,)) will
-            return a 1-dim object and correspond to the normal multiplication while ((0,), (1,)) will
-            create a 2-dim object.
+        object2 (): A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object1
     Raises:
         TypeError: if one of the objects is neither a ZfitFunc, ZfitPDF or convertable to a ZfitParameter
     """
@@ -42,14 +37,14 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         if isinstance(object2, ZfitParameter):
             new_object = multiply_param_func(param=object2, func=object1)
         elif isinstance(object2, ZfitFunc):
-            new_object = multiply_func_func(func1=object1, func2=object2, dims=dims)
+            new_object = multiply_func_func(func1=object1, func2=object2)
         elif isinstance(object2, ZfitPDF):
             raise TypeError("Cannot multiply a function with a model. Use `func.as_pdf` or `model.as_func`.")
 
     # object 1 is PDF
     elif isinstance(object1, ZfitPDF):
         if isinstance(object2, ZfitPDF):
-            new_object = multiply_pdf_pdf(pdf1=object1, pdf2=object2, dims=dims)
+            new_object = multiply_pdf_pdf(pdf1=object1, pdf2=object2)
 
     if new_object is None:
         raise TypeError("Multiplication for {} and {} of type {} and {} is not"
@@ -58,25 +53,24 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
     return new_object
 
 
-def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.AxesTypeInput = None,
-                     name: str = "multiply_pdf_pdf") -> "ProductPDF":
+def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf") -> "ProductPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
     from ..models.functor import ProductPDF
     if not pdf1.is_extended and pdf2.is_extended:
         raise IntentionNotUnambiguousError("Cannot multiply this way a non-extendended PDF with an extended PDF."
-                                           "Only vice-versa is allowed: to multiply an extended PDF with an non-extended PDF.")
+                                           "Only vice-versa is allowed: to multiply an extended PDF with an "
+                                           "non-extended PDF.")
 
-    return ProductPDF(pdfs=[pdf1, pdf2], obs=dims, name=name)
+    return ProductPDF(pdfs=[pdf1, pdf2], name=name)
 
 
-def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesTypeInput = None,
-                       name: str = "multiply_func_func") -> "ProdFunc":
+def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_func_func") -> "ProdFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
     from ..models.functions import ProdFunc
 
-    return ProdFunc(funcs=[func1, func2], obs=dims, name=name)
+    return ProdFunc(funcs=[func1, func2], name=name)
 
 
 def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
@@ -113,17 +107,12 @@ def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitPa
 
 
 # Addition logic
-def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
-        dims: Optional[Tuple[Tuple[int, ...], Tuple[int, ...]]] = None) -> ztyping.BaseObjectType:
+def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:
     """Add two objects and return a new object (may depending on the old).
 
     Args:
         object1 (): A ZfitParameter, ZfitFunc or ZfitPDF to add with object2
-        object2 ():
-        dims (Tuple[Tuple[int, ...], Tuple[int, ...]]): The dimensions to add the objects in.
-            So for example if object1 and object2 are 1-dimensional objects, then ((0,), (0,)) will
-            return a 1-dim object and correspond to the normal multiplication while ((0,), (1,)) will
-            create a 2-dim object.
+        object2 (): A ZfitParameter, ZfitFunc or ZfitPDF to add with object1
     """
     # converting the objects to known types
     object1, object2 = _convert_to_known(object1, object2)
@@ -141,7 +130,7 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         if isinstance(object2, ZfitParameter):
             new_object = add_param_func(param=object2, func=object1)
         elif isinstance(object2, ZfitFunc):
-            new_object = add_func_func(func1=object1, func2=object2, dims=dims)
+            new_object = add_func_func(func1=object1, func2=object2)
         elif isinstance(object2, ZfitPDF):
             raise TypeError("Cannot add a function with a model. Use `func.as_pdf` or `model.as_func`.")
 
@@ -150,7 +139,7 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType,
         if isinstance(object2, ZfitFunc):
             raise TypeError("Cannot add a function with a model. Use `func.as_pdf` or `model.as_func`.")
         elif isinstance(object2, ZfitPDF):
-            new_object = add_pdf_pdf(pdf1=object1, pdf2=object2, dims=dims)
+            new_object = add_pdf_pdf(pdf1=object1, pdf2=object2)
 
     if new_object is None:
         raise TypeError("Addition for {} and {} of type {} and {} is not"
@@ -173,17 +162,15 @@ def _convert_to_known(object1, object2):
     return object1, object2
 
 
-def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, dims: ztyping.AxesTypeInput = None,
-                name: str = "add_pdf_pdf") -> "SumPDF":
+def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "SumPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
     from ..models.functor import SumPDF
 
-    return SumPDF(pdfs=[pdf1, pdf2], obs=dims, name=name)
+    return SumPDF(pdfs=[pdf1, pdf2], name=name)
 
 
-def add_func_func(func1: ZfitFunc, func2: ZfitFunc, dims: ztyping.AxesTypeInput = None,
-                  name: str = "add_func_func") -> "SumFunc":
+def add_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func") -> "SumFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
     from ..models.functions import SumFunc
@@ -205,6 +192,7 @@ def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParamet
     # param = param1 + param2
     # return ComposedParameter(name=param1.name + "_add_" + param2.name, tensor=param)
     # return param
+
 
 # Conversions
 
