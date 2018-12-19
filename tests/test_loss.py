@@ -24,9 +24,6 @@ sigma1 = Parameter("sigma1", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sig
 mu2 = Parameter("mu2", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
 sigma2 = Parameter("sigma2", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
 
-# HACK
-# Gauss = Normal
-# HACK END
 obs1 = 'obs1'
 
 mu_constr = Gauss(1.6, 0.2, obs=obs1, name="mu_constr")

@@ -450,28 +450,6 @@ if __name__ == '__main__':
             high_dim_func = (a - sample) ** 2 * abs(tf.sin(sample * a + b) + 2) + \
                             (b - sample * 4.) ** 2 + \
                             (c - sample * 8) ** 4 + 1.1
-            # high_dim_func = 5*high_dim_func*tf.exp(high_dim_func + 5)
-            # high_dim_func = tf.exp(high_dim_func**3 + 5*high_dim_func)*tf.sqrt(high_dim_func - 5)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 160.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 20.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
             return tf.reduce_sum(tf.log(high_dim_func))
 
 
@@ -482,37 +460,9 @@ if __name__ == '__main__':
 
         n_steps = 0
 
-        #
-        # def test_func(val):
-        #     global n_steps
-        #     print("alive!", n_steps)
-        #     global a
-        #     print(a)
-        #     n_steps += 1
-        #     print(val)
-        #     # a = val
-        #     with tf.variable_scope("func1", reuse=True):
-        #         var1 = tf.get_variable(name="variable_a", shape=a.shape, dtype=a.dtype)
-        #     with tf.control_dependencies([val, var1]):
-        #         f = func(var1)
-        #         # a.assign(val, use_locking=True)
-        #         with tf.control_dependencies([var1]):
-        #             # grad = tf.gradients(f, a)[0]
-        #             grad = 2. * (var1 - 1.)  # HACK
-        #             return f, grad
-
         # loss_func = func(par_a=a, par_b=b, par_c=c)
         # loss_func = func()
         loss_func = func
-        # with tf.control_dependencies([a]):
-        #     min = tfp.optimizer.bfgs_minimize(test_func,
-        #                                       initial_position=tf.constant(10.0,
-        # dtype=tf.float64))
-        # minimizer = tf.train.AdamOptimizer()
-
-        # min = minimizer.minimize(loss=loss_func, var_list=[a, b, c])
-        # minimizer = AdamMinimizer(sess=sess, learning_rate=0.3)
-        #########################################################################
 
         # which_minimizer = 'bfgs'
         which_minimizer = 'minuit'
@@ -563,9 +513,7 @@ if __name__ == '__main__':
             minimum = test1.minimize(params=[a, b, c])
             last_val = 100000
             cur_val = 9999999
-            # HACK
             loss_func = loss_func()
-            # HACK END
             # while abs(last_val - cur_val) > 0.00001:
             start = time.time()
             result = sess.run(minimum)

@@ -72,27 +72,6 @@ if __name__ == '__main__':
 
         n_steps = 0
 
-        #
-        # def test_func(val):
-        #     global n_steps
-        #     print("alive!", n_steps)
-        #     global a
-        #     print(a)
-        #     n_steps += 1
-        #     print(val)
-        #     # a = val
-        #     with ztf.variable_scope("func1", reuse=True):
-        #         var1 = ztf.get_variable(name="variable_a", shape=a.shape, dtype=a.dtype)
-        #     with ztf.control_dependencies([val, var1]):
-        #         f = func(var1)
-        #         # a.assign(val, use_locking=True)
-        #         with ztf.control_dependencies([var1]):
-        #             # grad = ztf.gradients(f, a)[0]
-        #             grad = 2. * (var1 - 1.)  # HACK
-        #             return f, grad
-
-        # loss_func = func(par_a=a, par_b=b, par_c=c)
-        # loss_func = func()
         loss_func = func
         # with ztf.control_dependencies([a]):
         #     min = tfp.optimizer.bfgs_minimize(test_func,
@@ -153,9 +132,7 @@ if __name__ == '__main__':
             min = test1.minimize()
             last_val = 100000
             cur_val = 9999999
-            # HACK
             loss_func = loss_func()
-            # HACK END
             # while abs(last_val - cur_val) > 0.00001:
             start = time.time()
             result = sess.run(min)

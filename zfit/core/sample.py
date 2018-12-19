@@ -108,7 +108,6 @@ if __name__ == '__main__':
         sampled_dist_ar = accept_reject_sample(prob=dist.prob, n=100000000, limits=(-13.5, 16.5), sampler=None,
                                                prob_max=maximum)
 
-        # HACK
 
         start = time.time()
         for _ in range(40):

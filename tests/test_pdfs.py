@@ -95,8 +95,6 @@ def test_prod_gauss_nd():
 
 
 def test_prod_gauss_nd_mixed():
-    # return
-    # HACK(critical): undo return hack
     norm_range = (-5, 4)
     low, high = norm_range
     test_values = np.random.uniform(low=low, high=high, size=(4, 1000))
@@ -168,7 +166,6 @@ def normalization_testing(pdf, normalization_value=1.):
 
 
 def test_extended_gauss():
-    # return  # HACK: no clue whatsoever why this fails...
     with tf.name_scope("gauss_params2"):
         mu1 = Parameter("mu11", 1.)
         mu2 = Parameter("mu21", 12.)

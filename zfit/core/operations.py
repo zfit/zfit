@@ -108,9 +108,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
 def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
         raise TypeError("`param1` and `param2` need to be `ZfitParameter` and not {}, {}".format(param1, param2))
-    # raise NotImplementedError()  # use the default behavior of variables
     param = tf.multiply(param1, param2)
-    # return ComposedParameter(name=param1.name + "_mult_" + param2.name, tensor=param)
     return param
 
 
