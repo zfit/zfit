@@ -38,21 +38,26 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     n = tf.to_int64(n)
 
     def enough_produced(n, sample, n_total_drawn, eff):
-        return tf.less(tf.shape(sample, out_type=tf.int64)[1], n)
+        return tf.greater(n, tf.shape(sample, out_type=tf.int64)[1])
 
     def sample_body(n, sample, n_total_drawn=0, eff=1.):
         if sample is None:
             n_to_produce = n
         else:
             n_to_produce = n - tf.shape(sample, out_type=tf.int64)[1]
-        # TODO: add efficiency cap for memory efficiency (prevent too many samples at once produced)
-        n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 0.99) + 100  # just to make sure
+        n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
+        # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
+        n_to_produce = tf.minimum(n_to_produce, tf.to_int64(5e5))  # introduce a cap to force serial
         n_total_drawn += n_to_produce
         n_total_drawn = tf.to_int64(n_total_drawn)
 
         sample_drawn = sampler(shape=(n_dims + 1, n_to_produce),  # + 1 dim for the function value
                                dtype=ztypes.float)
-        rnd_sample = sample_drawn[:-1, :] * (upper - lower) + lower
+        # HACK n dims?
+
+        rnd_sample = tf.transpose(sample_drawn[:-1, :]) * (upper - lower) + lower
+        rnd_sample = tf.transpose(rnd_sample)
+        # HACK END
 
         probabilities = prob(rnd_sample)
         if prob_max is None:
@@ -61,7 +66,9 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
             prob_max_inferred = prob_max
         random_thresholds = sample_drawn[-1, :] * prob_max_inferred
         take_or_not = probabilities > random_thresholds
-        filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not[0], axis=1)
+        # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
+        take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
+        filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=1)
 
         if sample is None:
             sample = filtered_sample
@@ -75,7 +82,8 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
                            loop_vars=sample_body(n=n, sample=None,  # run first once for initialization
                                                  n_total_drawn=0, eff=1.),
-                           swap_memory=True, parallel_iterations=4,
+                           # swap_memory=True,
+                           parallel_iterations=1,
                            back_prop=False)[1]  # backprop not needed here
     return sample[:, :n]  # cutting away to many produced
 
@@ -107,7 +115,6 @@ if __name__ == '__main__':
 
         sampled_dist_ar = accept_reject_sample(prob=dist.prob, n=100000000, limits=(-13.5, 16.5), sampler=None,
                                                prob_max=maximum)
-
 
         start = time.time()
         for _ in range(40):
