@@ -1,17 +1,26 @@
 import itertools
-from typing import Dict, Union
+from typing import Dict, Union, Callable, Iterable
 
 import tensorflow as tf
 
 from zfit.core.basefunc import BaseFunc
-from zfit.core.interfaces import ZfitModel
+from zfit.core.interfaces import ZfitModel, ZfitFunc
 from zfit.models.basefunctor import FunctorMixin
+from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 
 
 class SimpleFunc(BaseFunc):
 
-    def __init__(self, func, obs, name="Function", **parameters):
+    def __init__(self, func: Callable, obs: ztyping.ObsTypeInput, name: str = "Function", **parameters):
+        """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
+
+        Args:
+            func (function):
+            obs (Union[str, Tuple[str]]):
+            name (str):
+            **parameters (): The parameters as keyword arguments. E.g. `mu=Parameter(...)`
+        """
         super().__init__(name=name, obs=obs, parameters=parameters)
         self._value_func = self._check_input_x_function(func)
 
@@ -40,7 +49,7 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
 
 
 class SumFunc(BaseFunctorFunc):
-    def __init__(self, funcs, obs=None, name="SumFunc", **kwargs):
+    def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _value(self, x):
@@ -49,13 +58,9 @@ class SumFunc(BaseFunctorFunc):
         sum_funcs = tf.accumulate_n(funcs)
         return sum_funcs
 
-    @property
-    def _n_dims(self):
-        return self._space.n_obs
-
 
 class ProdFunc(BaseFunctorFunc):
-    def __init__(self, funcs, obs=None, name="SumFunc", **kwargs):
+    def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _value(self, x):
@@ -63,7 +68,3 @@ class ProdFunc(BaseFunctorFunc):
         for func in self.funcs[1:]:
             value *= func.value(x)
         return value
-
-    @property
-    def _n_dims(self):
-        return self._space.n_obs  # TODO(mayou36): working? implement like this is superclass?
