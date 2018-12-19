@@ -8,19 +8,19 @@ from .minimizers.minimizers_scipy import ScipyMinimizer
 
 # WIP below
 if __name__ == '__main__':
-    from zfit.core.parameter import FitParameter
+    from zfit.core.parameter import Parameter
     import time
 
     from zfit import ztf
 
     with ztf.Session() as sess:
         with ztf.variable_scope("func1"):
-            a = FitParameter("variable_a", ztf.constant(1.5),
-                             ztf.constant(-1.),
-                             ztf.constant(20.),
-                             step_size=ztf.constant(0.1))
-            b = FitParameter("variable_b", 2.)
-            c = FitParameter("variable_c", 3.1)
+            a = Parameter("variable_a", ztf.constant(1.5),
+                          ztf.constant(-1.),
+                          ztf.constant(20.),
+                          step_size=ztf.constant(0.1))
+            b = Parameter("variable_b", 2.)
+            c = Parameter("variable_c", 3.1)
         # minimizer_fn = tfp.optimizer.bfgs_minimize
 
         # sample = ztf.constant(np.random.normal(loc=1., size=100000), dtype=ztf.float64)
@@ -72,27 +72,6 @@ if __name__ == '__main__':
 
         n_steps = 0
 
-        #
-        # def test_func(val):
-        #     global n_steps
-        #     print("alive!", n_steps)
-        #     global a
-        #     print(a)
-        #     n_steps += 1
-        #     print(val)
-        #     # a = val
-        #     with ztf.variable_scope("func1", reuse=True):
-        #         var1 = ztf.get_variable(name="variable_a", shape=a.shape, dtype=a.dtype)
-        #     with ztf.control_dependencies([val, var1]):
-        #         f = func(var1)
-        #         # a.assign(val, use_locking=True)
-        #         with ztf.control_dependencies([var1]):
-        #             # grad = ztf.gradients(f, a)[0]
-        #             grad = 2. * (var1 - 1.)  # HACK
-        #             return f, grad
-
-        # loss_func = func(par_a=a, par_b=b, par_c=c)
-        # loss_func = func()
         loss_func = func
         # with ztf.control_dependencies([a]):
         #     min = tfp.optimizer.bfgs_minimize(test_func,
@@ -153,9 +132,7 @@ if __name__ == '__main__':
             min = test1.minimize()
             last_val = 100000
             cur_val = 9999999
-            # HACK
             loss_func = loss_func()
-            # HACK END
             # while abs(last_val - cur_val) > 0.00001:
             start = time.time()
             result = sess.run(min)
@@ -167,12 +144,11 @@ if __name__ == '__main__':
 
             # cur_val = sess.run(loss_func)
             # aval, bval, cval = sess.run([v for v in (a, b, c)])
-            # aval, bval, cval = sess.run([v.read_value() for v in (a, b, c)])
             # print("a, b, c", aval, bval, cval)
             # minimizer.minimize(loss=loss_func, var_list=[a, b, c])
             cur_val = sess.run(loss_func)
             result = cur_val
-            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(sess.run([v for v in (a, b, c)]))
             print(result)
         #####################################################################
 
@@ -201,7 +177,7 @@ if __name__ == '__main__':
             end = time.time()
             value = result
             print("value from calculations:", value)
-            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(sess.run([v for v in (a, b, c)]))
 
             print("time needed", (end - start))
 

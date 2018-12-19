@@ -8,7 +8,7 @@ import zfit.minimizers.optimizers_tf
 
 
 def minimize_func(minimizer_class_and_kwargs, sess):
-    from zfit.core.parameter import FitParameter
+    from zfit.core.parameter import Parameter
 
     parameter_tolerance = 0.3
     max_distance_to_min = 0.11
@@ -17,12 +17,12 @@ def minimize_func(minimizer_class_and_kwargs, sess):
         true_a = 1.
         true_b = 4.
         true_c = 7.
-        a_param = FitParameter("variable_a", ztf.constant(1.5),
-                               ztf.constant(-1.),
-                               ztf.constant(20.),
-                               step_size=ztf.constant(0.1))
-        b_param = FitParameter("variable_b", 3.5)
-        c_param = FitParameter("variable_c", 7.8)
+        a_param = Parameter("variable_a", ztf.constant(1.5),
+                            ztf.constant(-1.),
+                            ztf.constant(20.),
+                            step_size=ztf.constant(0.1))
+        b_param = Parameter("variable_b", 3.5)
+        c_param = Parameter("variable_c", 7.8)
 
     def func(a, b, c):
         return ztf.convert_to_tensor((a - true_a) ** 6 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
@@ -41,11 +41,11 @@ def minimize_func(minimizer_class_and_kwargs, sess):
     minimizer_class, minimizer_kwargs = minimizer_class_and_kwargs
     minimizer = minimizer_class(loss=loss_func, **minimizer_kwargs)
     init = tf.initialize_all_variables()
-    sess.run(init)
+    zfit.sess.run(init)
 
-    minimizer.minimize(sess=sess, params=[a_param, b_param, c_param])
-    cur_val = sess.run(loss_func.eval())
-    aval, bval, cval = sess.run([v.read_value() for v in (a_param, b_param, c_param)])
+    minimizer.minimize(sess=zfit.sess, params=[a_param, b_param, c_param])
+    cur_val = zfit.sess.run(loss_func.value())
+    aval, bval, cval = zfit.sess.run([v for v in (a_param, b_param, c_param)])
 
     assert abs(cur_val - true_minimum) < max_distance_to_min
     assert abs(aval - true_a) < parameter_tolerance
@@ -70,11 +70,9 @@ minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.tr
 @pytest.mark.parametrize("minimizer_class", minimizers)
 def test_minimizers(minimizer_class):
     # for minimizer_class in minimizers:
-    with tf.Session() as sess:
-        minimize_func(minimizer_class, sess=sess)
+    minimize_func(minimizer_class, sess=zfit.sess)
 
 
 if __name__ == '__main__':
-    with tf.Session() as sess:
-        for minimizer in minimizers:
-            test_minimizers(minimizer_class=minimizer)
+    for minimizer in minimizers:
+        test_minimizers(minimizer_class=minimizer)

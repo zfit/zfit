@@ -35,7 +35,7 @@ def interpolate(t, c):
         c (tf.Tensor): Tensor of coordinates for which the interpolation is performed
 
     Returns:
-        tf.Tensor: 1D tensor of interpolated values
+        tf.Tensor: 1D tensor of interpolated value
     """
     rank = len(t.get_shape())
     ind = tf.cast(tf.floor(c), tf.int32)
@@ -48,17 +48,3 @@ def interpolate(t, c):
         wts += [weight * wt]
     interp = tf.reduce_sum(tf.stack(wts), 0)
     return interp
-
-
-def gradient_par(func):
-    """Return TF graph for analytic gradient_par of the input func wrt all floating variables.
-
-    Arguments:
-            func (Tensor): A function of which the derivatives with respect to the free floating
-                           parameters will be taken.
-    Return:
-        list(graph): the derivative
-    """
-    tfpars = tf.trainable_variables()  # Create TF variables
-    float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
-    return tf.gradients(func, float_tfpars)  # Get analytic gradient_par

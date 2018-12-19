@@ -14,7 +14,6 @@ import tensorflow_probability as tfp
 import pep487
 from typing import Dict, List, Union, Optional
 
-import zfit.core.math as zmath
 from zfit import ztf
 from zfit.minimizers.state import MinimizerState
 from zfit.util import ztyping
@@ -133,7 +132,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             sess (`tf.Session` or None): A TensorFlow session to use for the calculation.
 
         Returns:
-            `dict`: A `dict` containing as keys the parameter names and as values a `dict` which
+            `dict`: A `dict` containing as keys the parameter names and as value a `dict` which
                 contains (next to probably more things) a key 'error', holding the calculated error.
                 Example: result['par1']['error'] -> the symmetric error on 'par1'
         """
@@ -162,7 +161,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             sess (`tf.Session` or None): A TensorFlow session to use for the calculation.
 
         Returns:
-            `dict`: A `dict` containing as keys the parameter names and as values a `dict` which
+            `dict`: A `dict` containing as keys the parameter names and as value a `dict` which
                 contains (next to probably more things) two keys 'lower_error' and 'upper_error',
                 holding the calculated errors.
                 Example: result['par1']['upper_error'] -> the asymmetric upper error of 'par1'
@@ -185,7 +184,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         elif callable(method):
             self._current_error_method = method
         else:
-            raise ValueError("Method {} neither a valid method name nor a callable function.".format(method))
+            raise ValueError("Method {} is neither a valid method name nor a callable function.".format(method))
 
     def set_error_options(self, replace: bool = False, **options):
         """Specify the options for the `error` calculation.
@@ -261,7 +260,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             self.sess = old_sess
 
     def get_parameters(self, names: Optional[Union[List[str], str]] = None,
-                       only_floating: bool = True) -> List['FitParameter']:  # TODO: automatically set?
+                       only_floating: bool = True) -> List['Parameter']:  # TODO: automatically set?
         """Return the parameters. If it is empty, automatically set and return all trainable variables.
 
         Args:
@@ -285,11 +284,11 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             params = list(self._params.values())
 
         if only_floating:
-            params = self._filter_trainable_params(params=params)
+            params = self._filter_floating_params(params=params)
         return params
 
     @staticmethod
-    def _filter_trainable_params(params):
+    def _filter_floating_params(params):
         params = [param for param in params if param.floating]
         return params
 
@@ -338,12 +337,12 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         """Extract the current value if defined, otherwise random.
 
         Arguments:
-            params (FitParameter):
+            params (Parameter):
 
         Return:
-            list(const): the current values of parameters
+            list(const): the current value of parameters
         """
-        values = [p.read_value() for p in params]
+        values = [p for p in params]
         # TODO: implement if initial val not given
         return values
 
@@ -365,7 +364,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
         """Fully minimize the `loss` with respect to `params` using `sess`.
 
         Args:
-            params (list(str) or list(`zfit.FitParameter`): The parameters with respect to which to
+            params (list(str) or list(`zfit.Parameter`): The parameters with respect to which to
                 minimize the `loss`.
             sess (`tf.Session`): The session to use.
 
@@ -404,7 +403,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
-            cur_val = self.sess.run(self.loss.eval())  # TODO: improve...
+            cur_val = self.sess.run(self.loss.value())  # TODO: improve...
         fmin = cur_val
         edm = -999  # TODO: get edm
         status = {}  # TODO: create status
@@ -418,7 +417,7 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
 
 # WIP below
 if __name__ == '__main__':
-    from zfit.core.parameter import FitParameter
+    from zfit.core.parameter import Parameter
     from zfit.minimizers.minimizer_minuit import MinuitMinimizer, MinuitTFMinimizer
     from zfit.minimizers.minimizer_tfp import BFGSMinimizer
 
@@ -426,12 +425,12 @@ if __name__ == '__main__':
 
     with tf.Session() as sess:
         with tf.variable_scope("func1"):
-            a = FitParameter("variable_a", ztf.constant(1.5),
-                             ztf.constant(-1.),
-                             ztf.constant(20.),
-                             step_size=ztf.constant(0.1))
-            b = FitParameter("variable_b", 2.)
-            c = FitParameter("variable_c", 3.1)
+            a = Parameter("variable_a", ztf.constant(1.5),
+                          ztf.constant(-1.),
+                          ztf.constant(20.),
+                          step_size=ztf.constant(0.1))
+            b = Parameter("variable_b", 2.)
+            c = Parameter("variable_c", 3.1)
         minimizer_fn = tfp.optimizer.bfgs_minimize
 
         # sample = tf.constant(np.random.normal(loc=1., size=100000), dtype=tf.float64)
@@ -451,28 +450,6 @@ if __name__ == '__main__':
             high_dim_func = (a - sample) ** 2 * abs(tf.sin(sample * a + b) + 2) + \
                             (b - sample * 4.) ** 2 + \
                             (c - sample * 8) ** 4 + 1.1
-            # high_dim_func = 5*high_dim_func*tf.exp(high_dim_func + 5)
-            # high_dim_func = tf.exp(high_dim_func**3 + 5*high_dim_func)*tf.sqrt(high_dim_func - 5)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4) **3
-            # high_dim_func = tf.sqrt(high_dim_func + 160.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 20.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
-            # high_dim_func = tf.sqrt(high_dim_func + 100.4)
             return tf.reduce_sum(tf.log(high_dim_func))
 
 
@@ -483,37 +460,9 @@ if __name__ == '__main__':
 
         n_steps = 0
 
-        #
-        # def test_func(val):
-        #     global n_steps
-        #     print("alive!", n_steps)
-        #     global a
-        #     print(a)
-        #     n_steps += 1
-        #     print(val)
-        #     # a = val
-        #     with tf.variable_scope("func1", reuse=True):
-        #         var1 = tf.get_variable(name="variable_a", shape=a.shape, dtype=a.dtype)
-        #     with tf.control_dependencies([val, var1]):
-        #         f = func(var1)
-        #         # a.assign(val, use_locking=True)
-        #         with tf.control_dependencies([var1]):
-        #             # grad = tf.gradients(f, a)[0]
-        #             grad = 2. * (var1 - 1.)  # HACK
-        #             return f, grad
-
         # loss_func = func(par_a=a, par_b=b, par_c=c)
         # loss_func = func()
         loss_func = func
-        # with tf.control_dependencies([a]):
-        #     min = tfp.optimizer.bfgs_minimize(test_func,
-        #                                       initial_position=tf.constant(10.0,
-        # dtype=tf.float64))
-        # minimizer = tf.train.AdamOptimizer()
-
-        # min = minimizer.minimize(loss=loss_func, var_list=[a, b, c])
-        # minimizer = AdamMinimizer(sess=sess, learning_rate=0.3)
-        #########################################################################
 
         # which_minimizer = 'bfgs'
         which_minimizer = 'minuit'
@@ -564,9 +513,7 @@ if __name__ == '__main__':
             minimum = test1.minimize(params=[a, b, c])
             last_val = 100000
             cur_val = 9999999
-            # HACK
             loss_func = loss_func()
-            # HACK END
             # while abs(last_val - cur_val) > 0.00001:
             start = time.time()
             result = sess.run(minimum)
@@ -583,7 +530,7 @@ if __name__ == '__main__':
             # minimizer.minimize(loss=loss_func, var_list=[a, b, c])
             cur_val = sess.run(loss_func)
             result = cur_val
-            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(sess.run([v for v in (a, b, c)]))
             print(result)
         #####################################################################
 
@@ -613,7 +560,7 @@ if __name__ == '__main__':
             end = time.time()
             value = result
             print("value from calculations:", value)
-            print(sess.run([v.read_value() for v in (a, b, c)]))
+            print(sess.run([v for v in (a, b, c)]))
 
             print("time needed", (end - start))
 

@@ -1,12 +1,50 @@
-from typing import Union, Tuple, Iterable, Optional
+import typing
+from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 
+import numpy as np
 import tensorflow as tf
 
-LowerType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
-UpperType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
-LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...]]
-DimsType = Union[Tuple[int, ...], Tuple[int, ...]]
+# space
+LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
+LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, "False"]
+
+UpperTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
+UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, "False"]
+
+LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], "False"]
+LimitsTypeSimpleInput = Union[Tuple[float, float], "False"]
+LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], "False"]
+LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, "False"]
+
+_IterLimitsTypeReturn = Union[Tuple['Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
+
+AxesTypeInput = Union[int, Iterable[int]]
+AxesTypeReturn = Union[Tuple[int], None]
+
+ObsTypeInput = Union[str, Iterable[str], "Space"]
+ObsTypeReturn = Union[Tuple[str, ...], None]
+SpaceTypeReturn = "Space"
+
+# Data
 XType = Union[float, tf.Tensor]
-ParamsType = Optional[Iterable['FitParameter']]
+XTypeInput = Union[np.ndarray, tf.Tensor, "Data"]
+XTypeReturn = Union[tf.Tensor, "Data"]
+NumericalTypeReturn = Union[tf.Tensor, np.array]
+
+# Parameter
+ParamsType = Optional[Iterable['ZfitParameter']]
+ParamsNameOpt = Optional[Union[str, List[str]]]
 ParamsOrNameType = Optional[Union[ParamsType, Iterable[str]]]
+ParametersType = Dict[str, "ZfitParameter"]
+
+# TensorFlow specific
 SessionType = Optional[tf.Session]
+
+# Zfit Structure
+BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
+DependentsType = Set['Parameter']
+
+try:
+    from typing import OrderedDict
+except ImportError:  # < python 3.7
+    OrderedDict = Dict

@@ -1,11 +1,19 @@
-# TODO: improve errors of pdfs. Generate more general error, inherit and use more specific?
+# TODO: improve errors of models. Generate more general error, inherit and use more specific?
 
 
 class PDFCompatibilityError(Exception):
     pass
 
 
+class LogicalUndefinedOperationError(ValueError):
+    pass
+
+
 class ExtendedPDFError(Exception):
+    pass
+
+
+class AlreadyExtendedPDFError(ExtendedPDFError):
     pass
 
 
@@ -21,10 +29,62 @@ class BasePDFSubclassingError(SubclassingError):
     pass
 
 
+class IntentionNotUnambiguousError(Exception):
+    pass
+
+
+class UnderdefinedError(IntentionNotUnambiguousError):
+    pass
+
+
+class LimitsUnderdefinedError(UnderdefinedError):
+    pass
+
+
+class OverdefinedError(IntentionNotUnambiguousError):
+    pass
+
+
+class AxesNotUnambiguousError(IntentionNotUnambiguousError):
+    pass
+
+
+class NotSpecifiedError(Exception):
+    pass
+
+
+class LimitsNotSpecifiedError(NotSpecifiedError):
+    pass
+
+
+class NormRangeNotSpecifiedError(NotSpecifiedError):
+    pass
+
+
+class AxesNotSpecifiedError(NotSpecifiedError):
+    pass
+
+
+class ObsNotSpecifiedError(NotSpecifiedError):
+    pass
+
+
+# Operation errors
+class ShapeIncompatibleError(Exception):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):
     pass
+
+
+# Runtime Erorrs
+
+class NoSessionSpecifiedError(Exception):
+    pass
+
 
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
@@ -33,5 +93,10 @@ class NormRangeNotImplementedError(Exception):
 
 
 class MultipleLimitsNotImplementedError(Exception):
-    """Indicates that a function does not support several limits in a `Range`."""
+    """Indicates that a function does not support several limits in a `Space`."""
+    pass
+
+
+class DueToLazynessNotImplementedError(Exception):
+    """Only for developing purpose! Does not serve as a 'real' Exception."""
     pass

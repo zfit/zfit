@@ -1,8 +1,10 @@
+from typing import List, Union
+
 import iminuit
-import numpy as np
 import tensorflow as tf
 
-from zfit.core.minimizer import BaseMinimizer
+from ..core.parameter import Parameter
+from ..core.minimizer import BaseMinimizer
 
 
 class MinuitMinimizer(BaseMinimizer):
@@ -14,28 +16,31 @@ class MinuitMinimizer(BaseMinimizer):
         self._error_methods['default'] = self._error_methods['minos']  # before super call!
         super().__init__(*args, **kwargs)
 
-    def _minimize(self, params):
-        loss = self.loss.eval()
-        # params = self.get_parameters()
+    def _minimize(self, params: List[Parameter]):
+        loss = self.loss.value()
         gradients = tf.gradients(loss, params)
-        updated_params = self._extract_update_op(params)
-        placeholders = [param.placeholder for param in params]
         assign_params = self._extract_assign_method(params=params)
 
         def func(values):
 
-            feed_dict = {p: v for p, v in zip(placeholders, values)}
-            self.sess.run(updated_params, feed_dict=feed_dict)
-            loss_new = tf.identity(loss)
+            # feed_dict = {p: v for p, v in zip(placeholders, value)}
+            # self.sess.run(updated_params, feed_dict=feed_dict)
+            for param, value in zip(params, values):
+                param.load(value=value, session=self.sess)
+            # loss_new = tf.identity(loss)
+            loss_new = loss
             loss_evaluated = self.sess.run(loss_new)
             # print("Current loss:", loss_evaluated)
-            # print("Current values:", values)
+            # print("Current value:", value)
             return loss_evaluated
 
         def grad_func(values):
-            feed_dict = {p: v for p, v in zip(placeholders, values)}
-            self.sess.run(updated_params, feed_dict=feed_dict)
-            gradients1 = tf.identity(gradients)
+            # feed_dict = {p: v for p, v in zip(placeholders, value)}
+            # self.sess.run(updated_params, feed_dict=feed_dict)
+            for param, value in zip(params, values):
+                param.load(value=value, session=self.sess)
+            # gradients1 = tf.identity(gradients)
+            gradients1 = gradients
             gradients_values = self.sess.run(gradients1)
             return gradients_values
 
@@ -43,7 +48,7 @@ class MinuitMinimizer(BaseMinimizer):
         error_limit_kwargs = {}
         for param in params:
             param_kwargs = {}
-            param_kwargs[param.name] = self.sess.run(param.read_value())
+            param_kwargs[param.name] = self.sess.run(param)
             param_kwargs['limit_' + param.name] = self.sess.run([param.lower_limit, param.upper_limit])
             param_kwargs['error_' + param.name] = self.sess.run(param.step_size)
 
@@ -64,7 +69,7 @@ class MinuitMinimizer(BaseMinimizer):
         status = result[0]
 
         self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
-        return self.get_state()
+        return self.get_state(copy=False)  # HACK(mayou36): copy not working?
 
     def _minuit_minos(self, params=None, sigma=1.0):
         if params is None:

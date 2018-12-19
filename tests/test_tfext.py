@@ -1,4 +1,3 @@
-
 # deactivating CUDA capable gpus
 
 suppress_gpu = False
@@ -28,7 +27,7 @@ def test_polynomial():
     polynom_np = np.polyval(coeffs[::-1], true_dict['x'])
 
     init = tf.global_variables_initializer()
-    with tf.Session() as sess:
-        sess.run(init)
-        result = sess.run(polynom_tf, feed_dict=feed_dict)
-        assert result == pytest.approx(polynom_np, rel=prec)
+    zfit.sess.run(init)
+    result = zfit.sess.run(polynom_tf, feed_dict=feed_dict)
+    assert result == pytest.approx(polynom_np, rel=prec)
+

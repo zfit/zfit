@@ -3,12 +3,6 @@ import tensorflow as tf
 
 from zfit.util.container import DotDict
 
-# legacy settings
-LEGACY_MODE = True
-
-
-# Use double precision throughout
-
 
 def set_seed(seed):
     """
@@ -29,4 +23,17 @@ types = DotDict({'float': tf.float64,
                  tf.int16: tf.int64,
                  tf.int32: tf.int64,
                  tf.int64: tf.int64,
+                 'auto_upcast': True,
                  })
+
+options = DotDict({'epsilon': 1e-8})
+
+# sess = tf.InteractiveSession()
+sess = tf.Session()
+
+
+def reset_session():
+    global sess
+    sess.close()
+    # sess = tf.InteractiveSession()
+    sess = tf.Session()

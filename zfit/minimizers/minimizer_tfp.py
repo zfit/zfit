@@ -19,8 +19,8 @@ class BFGSMinimizer(BaseMinimizer):
             minimizer_fn = tfp.optimizer.bfgs_minimize
 
             def to_minimize_func(values):
-                # tf.Print(values, [values])
-                # print("============values", values)
+                # tf.Print(value, [value])
+                # print("============value", value)
 
                 # def update_one(param_value):
                 #     param, value = param_value

@@ -30,7 +30,6 @@ if failed_imports:
     warnings.warn("The following modules/attributes from TensorFlow could NOT be imported:\n{}".format(failed_imports))
 globals().update(imported)
 
-
 try:
     from math import inf as _inf
 except ImportError:  # py34 remove try-except
@@ -76,7 +75,6 @@ def nth_pow(x, n, name=None):
 
 def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
     return tf.unstack(value=value, num=num, axis=axis, name=name)
-
 
 
 # same as in TensorFlow, wrapped

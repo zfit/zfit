@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from zfit import ztf
 from zfit.core import tfext
-from zfit.core.parameter import FitParameter
+from zfit.core.parameter import Parameter
 import zfit.ztf
 
 
@@ -44,16 +44,16 @@ class GaussianMixture2D(object):
     def __init__(self, prefix, n, x_range, y_range):
         self.params = []
         for i in range(n):
-            norm = FitParameter(prefix + "n{:d}".format(i), 1. / (1. + float(i)), 0., 2.)
-            xmean = FitParameter(prefix + "xm{:d}".format(i),
-                                 np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
-            ymean = FitParameter(prefix + "ym{:d}".format(i),
-                                 np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
-            xsigma = FitParameter(prefix + "xs{:d}".format(i),
-                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
-            ysigma = FitParameter(prefix + "ys{:d}".format(i),
-                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
-            corr = FitParameter(prefix + "c{:d}".format(i), 0., -0.9, 0.9)
+            norm = Parameter(prefix + "n{:d}".format(i), 1. / (1. + float(i)), 0., 2.)
+            xmean = Parameter(prefix + "xm{:d}".format(i),
+                              np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
+            ymean = Parameter(prefix + "ym{:d}".format(i),
+                              np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
+            xsigma = Parameter(prefix + "xs{:d}".format(i),
+                               (x_range[1] - x_range[0]) / 4., 0., 2.)
+            ysigma = Parameter(prefix + "ys{:d}".format(i),
+                               (x_range[1] - x_range[0]) / 4., 0., 2.)
+            corr = Parameter(prefix + "c{:d}".format(i), 0., -0.9, 0.9)
             self.params += [(norm, xmean, ymean, xsigma, ysigma, corr)]
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
@@ -68,16 +68,16 @@ class GaussianMixture4D(object):
     def __init__(self, prefix, n, ranges):  # TODO: ranges? x_range, y_range?
         self.params = []
         for i in range(n):
-            norm = FitParameter(prefix + "n{:d}".format(i), 1. / (1. + float(i)), 0., 2.)
-            xmean = FitParameter(prefix + "xm{:d}".format(i),
-                                 np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
-            ymean = FitParameter(prefix + "ym{:d}".format(i),
-                                 np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
-            xsigma = FitParameter(prefix + "xs{:d}".format(i),
-                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
-            ysigma = FitParameter(prefix + "ys{:d}".format(i),
-                                  (x_range[1] - x_range[0]) / 4., 0., 2.)
-            corr = FitParameter(prefix + "c{:d}".format(i), 0., -0.9, 0.9)
+            norm = Parameter(prefix + "n{:d}".format(i), 1. / (1. + float(i)), 0., 2.)
+            xmean = Parameter(prefix + "xm{:d}".format(i),
+                              np.random.uniform(x_range[0], x_range[1], 1)[0], -1., 1.)
+            ymean = Parameter(prefix + "ym{:d}".format(i),
+                              np.random.uniform(y_range[0], y_range[1], 1)[0], -1., 1.)
+            xsigma = Parameter(prefix + "xs{:d}".format(i),
+                               (x_range[1] - x_range[0]) / 4., 0., 2.)
+            ysigma = Parameter(prefix + "ys{:d}".format(i),
+                               (x_range[1] - x_range[0]) / 4., 0., 2.)
+            corr = Parameter(prefix + "c{:d}".format(i), 0., -0.9, 0.9)
             self.params += [(norm, xmean, ymean, xsigma, ysigma, corr)]
         self.params[0][0].step_size = 0.  # Fix first normalisation term
 
