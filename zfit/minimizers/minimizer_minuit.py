@@ -46,11 +46,15 @@ class MinuitMinimizer(BaseMinimizer):
 
         # create Minuit compatible names
         error_limit_kwargs = {}
-        for param in params:
+        param_lower_upper_step = tuple(
+            (param, param.lower_limit, param.upper_limit, param.step_size)
+            for param in params)
+        param_lower_upper_step = self.sess.run(param_lower_upper_step)
+        for param, (value, low, up, step) in zip(params, param_lower_upper_step):
             param_kwargs = {}
-            param_kwargs[param.name] = self.sess.run(param)
-            param_kwargs['limit_' + param.name] = self.sess.run([param.lower_limit, param.upper_limit])
-            param_kwargs['error_' + param.name] = self.sess.run(param.step_size)
+            param_kwargs[param.name] = value
+            param_kwargs['limit_' + param.name] = low, up
+            param_kwargs['error_' + param.name] = step
 
             error_limit_kwargs.update(param_kwargs)
         params_name = [param.name for param in params]

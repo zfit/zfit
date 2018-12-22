@@ -82,7 +82,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
                            loop_vars=sample_body(n=n, sample=None,  # run first once for initialization
                                                  n_total_drawn=0, eff=1.),
-                           # swap_memory=True,
+                           swap_memory=True,
                            parallel_iterations=1,
                            back_prop=False)[1]  # backprop not needed here
     return sample[:, :n]  # cutting away to many produced
