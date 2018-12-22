@@ -400,8 +400,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         else:
             maxval = tf.cast(maxval, dtype=self.dtype)
 
-        value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
-        self.load(value=value, session=sess)
+        # value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
+        value = np.random.uniform(size=self.shape, low=minval, high=maxval)
+        self.load(value=sess.run(value), session=sess)
         return value
 
 

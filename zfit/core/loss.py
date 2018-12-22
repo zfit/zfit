@@ -38,8 +38,9 @@ def _unbinned_nll_tf(model, data, fit_range, constraints: Optional[dict] = None)
         assert len(limits[0]) == 1, "multiple limits not (yet) supported in nll."
         (lower,), (upper,) = limits
 
-        in_limits = tf.logical_and(lower <= data, data <= upper)
-        data = tf.boolean_mask(tensor=data, mask=in_limits)
+        # TODO(Mayou36): implement properly data cutting
+        # in_limits = tf.logical_and(lower <= data, data <= upper)
+        # data = tf.boolean_mask(tensor=data, mask=in_limits)
         log_probs = tf.log(model.pdf(data, norm_range=fit_range))
         nll = -tf.reduce_sum(log_probs)
         nll_finished = nll
