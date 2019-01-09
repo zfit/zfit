@@ -1,14 +1,51 @@
+import contextlib
 import copy
+import os
+from typing import List
 
 import tensorflow as tf
+
+from zfit.util.temporary import TemporarilySet
+from .container import DotDict
 
 
 class RunManager:
 
-    def __init__(self):
+    def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
         self._sess = None
         self._sess_kwargs = {}
+        self.serialize = DotDict()
+        self._cpu = []
+
+        self.set_n_cpu(n_cpu=n_cpu)
+
+        # set default values
+        self.serialize.max_n_points = 100000
+
+    @property
+    def n_cpu(self):
+        return len(self._cpu)
+
+    def set_n_cpu(self, n_cpu='auto'):
+        if n_cpu == 'auto':
+            cpu = sorted(os.sched_getaffinity(0))
+        elif isinstance(n_cpu, int):
+            cpu = range(n_cpu)
+        self._cpu = ['dummy_cpu{}'.format(i) for i in cpu]
+
+    @contextlib.contextmanager
+    def aquire_cpu(self, max_cpu: int = -1) -> List[str]:
+        if isinstance(max_cpu, int):
+            if max_cpu < 0:
+                max_cpu = max((self.n_cpu + 1 + max_cpu, 0))  # -1 means all
+            n_cpu = min((max_cpu, self.n_cpu))
+
+            cpu = self._cpu[n_cpu:]
+            self._cpu = self._cpu[:n_cpu]
+
+            yield cpu
+            self._cpu.extend(cpu)
 
     def __call__(self, *args, **kwargs):
         return self.sess.run(*args, **kwargs)
