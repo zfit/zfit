@@ -128,7 +128,7 @@ class Data(ZfitData, BaseDimensional, BaseObject):
     def initialize(self, sess=None):
         iterator = self.dataset.make_initializable_iterator()
         if sess is None:
-            sess = zfit.sess
+            sess = zfit.run.sess
             if sess is None:
                 raise NoSessionSpecifiedError()
         sess.run(iterator.initializer, self.iterator_feed_dict)

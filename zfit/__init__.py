@@ -11,6 +11,6 @@ from .core.parameter import Parameter
 from .core.loss import _unbinned_nll_tf
 from .core.limits import Space, convert_to_space, supports
 
-from .settings import sess, run
+from .settings import run
 
 # EOF

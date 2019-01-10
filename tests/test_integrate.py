@@ -211,9 +211,9 @@ def test_mc_integration():
                                             n_axes=2,
                                             draws_per_dim=70)
 
-    integral = zfit.sess.run(num_integral)
-    integral2 = zfit.sess.run(num_integral2)
-    integral3 = zfit.sess.run(num_integral3)
+    integral = zfit.run(num_integral)
+    integral2 = zfit.run(num_integral2)
+    integral3 = zfit.run(num_integral3)
 
     assert not hasattr(integral, "__len__")
     assert not hasattr(integral2, "__len__")
@@ -238,9 +238,9 @@ def test_mc_partial_integration():
                                             limits=Space.from_axes(limits=limits4_1dim, axes=(1,)),
                                             draws_per_dim=100)
 
-    integral = zfit.sess.run(num_integral)
-    integral2 = zfit.sess.run(num_integral2)
-    # print("DEBUG", value:", zfit.sess.run(vals_reshaped))
+    integral = zfit.run(num_integral)
+    integral2 = zfit.run(num_integral2)
+    # print("DEBUG", value:", zfit.run(vals_reshaped))
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[1])
     assert func4_3deps_0and2_integrated(x=func4_values,
@@ -275,10 +275,10 @@ def test_analytic_integral():
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     init = tf.global_variables_initializer()
-    zfit.sess.run(init)
-    gauss_integral_infs = zfit.sess.run(gauss_integral_infs)
-    normal_integral_infs = zfit.sess.run(normal_integral_infs)
-    func3_integrated = zfit.sess.run(
+    zfit.run(init)
+    gauss_integral_infs = zfit.run(gauss_integral_infs)
+    normal_integral_infs = zfit.run(normal_integral_infs)
+    func3_integrated = zfit.run(
         ztf.convert_to_tensor(
             dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
             dtype=tf.float64))

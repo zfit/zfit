@@ -12,6 +12,7 @@ from typing import Callable, Optional, Union, Type, Tuple
 import zfit
 from zfit import ztf
 from zfit.util import ztyping
+from zfit.util.exception import DueToLazynessNotImplementedError
 from .limits import convert_to_space, Space, supports
 from ..settings import types as ztypes
 
@@ -91,10 +92,11 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     else:
         n_vals = 1
 
-    if zfit.run.chunksize:
+    if zfit.run.chunksize < n_samples:
         n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
         chunksize = int(np.ceil(n_samples / n_chunks))
-        avg = chunked_average(func=func, num_batches=n_chunks, batch_size=chunksize, space=limits)
+        avg = chunked_average(func=func, x=x, num_batches=n_chunks, batch_size=chunksize, space=limits,
+                              mc_sampler=mc_sampler)
 
     else:
         # TODO: deal with n_obs properly?
@@ -131,44 +133,77 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     return ztf.to_real(integral, dtype=dtype)
 
 
-def chunked_average(func, num_batches, batch_size, space):
+def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
-    def body(batch_num, mean):
-        start_idx = batch_num * batch_size
-        end_idx = start_idx + batch_size
-        indices = tf.range(start_idx, end_idx, dtype=tf.int32)
-        sample = tfp.mcmc.sample_halton_sequence(space.n_obs,
-                                                        # num_results=batch_size,
-                                                        sequence_indices=indices,
-                                                        dtype=ztypes.float,
-                                                        randomized=False)
-        # sample = tf.random_uniform(shape=(batch_size, space.n_obs), dtype=ztypes.float)
-        sample = tf.guarantee_const(sample)
-        sample = (np.array(upper[0]) - np.array(lower[0])) * sample + lower[0]
-        sample = tf.transpose(sample)
-        sample = func(sample)
-        sample = tf.guarantee_const(sample)
 
-        batch_mean = tf.reduce_mean(sample)
-        # batch_mean = tf.guarantee_const(batch_mean)
-        # with tf.control_dependencies([batch_mean]):
-        err_weight = 1 / tf.to_double(batch_num + 1)
-        # err_weight /= err_weight + 1
-        # print_op = tf.print(batch_mean)
-        print_op = tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))
+    fake_resource_var = tf.get_variable("fake_hack_ResVar_for_custom_gradient",
+                                        initializer=ztf. constant(4242.))
+    fake_x = ztf.constant(42.) * fake_resource_var
+
+    @tf.custom_gradient
+    def dummy_func(fake_x):  # to make working with custom_gradient
+        if x is not None:
+            raise DueToLazynessNotImplementedError("partial not yet implemented")
+
+        def body(batch_num, mean):
+            if mc_sampler == tfp.mcmc.sample_halton_sequence:
+                start_idx = batch_num * batch_size
+                end_idx = start_idx + batch_size
+                indices = tf.range(start_idx, end_idx, dtype=tf.int32)
+                sample = mc_sampler(space.n_obs, sequence_indices=indices,
+                                    dtype=ztypes.float, randomized=False)
+            else:
+                sample = mc_sampler(shape=(batch_size, space.n_obs), dtype=ztypes.float)
+            sample = tf.guarantee_const(sample)
+            sample = (np.array(upper[0]) - np.array(lower[0])) * sample + lower[0]
+            sample = tf.transpose(sample)
+            sample = func(sample)
+            sample = tf.guarantee_const(sample)
+
+            batch_mean = tf.reduce_mean(sample)
+            batch_mean = tf.guarantee_const(batch_mean)
+            # with tf.control_dependencies([batch_mean]):
+            err_weight = 1 / tf.to_double(batch_num + 1)
+            # err_weight /= err_weight + 1
+            # print_op = tf.print(batch_mean)
+            print_op = tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))
+            with tf.control_dependencies([print_op]):
+                return batch_num + 1, mean + err_weight * (batch_mean - mean)
+            # return batch_num + 1, tf.guarantee_const(mean + err_weight * (batch_mean - mean))
+
+        cond = lambda batch_num, _: batch_num < num_batches
+
+        initial_mean = tf.convert_to_tensor(0, dtype=ztypes.float)
+        _, final_mean = tf.while_loop(cond, body, (0, initial_mean), parallel_iterations=1,
+                                      swap_memory=False, back_prop=False, maximum_iterations=num_batches)
+
+        def dummy_grad_with_var(dy, variables=None):
+            raise DueToLazynessNotImplementedError("Who called me? Mayou36")
+            if variables is None:
+                raise DueToLazynessNotImplementedError("Is this needed? Why? It's not a NN. Please make an issue.")
+
+            def dummy_grad_func(x):
+                values = func(x)
+                if variables:
+                    gradients = tf.gradients(values, variables, grad_ys=dy)
+                else:
+                    gradients = None
+                return gradients
+
+            return chunked_average(func=dummy_grad_func, x=x, num_batches=num_batches, batch_size=batch_size,
+                                   space=space, mc_sampler=mc_sampler)
+
+        def dummy_grad_without_var(dy):
+            return dummy_grad_with_var(dy=dy, variables=None)
+
+        print_op = tf.print(final_mean)
         with tf.control_dependencies([print_op]):
-            return batch_num + 1, mean + err_weight * (batch_mean - mean)
-        # return batch_num + 1, tf.guarantee_const(mean + err_weight * (batch_mean - mean))
+            return tf.guarantee_const(final_mean), dummy_grad_with_var
 
-    cond = lambda batch_num, _: batch_num < num_batches
-
-    initial_mean = tf.convert_to_tensor(0, dtype=ztypes.float)
-    _, final_mean = tf.while_loop(cond, body, (0, initial_mean), parallel_iterations=1,
-                                  swap_memory=False, back_prop=False, maximum_iterations=num_batches)
-
-    print_op = tf.print(final_mean)
-    with tf.control_dependencies([print_op]):
-        return tf.guarantee_const(final_mean)
+    try:
+        return dummy_func(fake_x)
+    except TypeError:
+        return dummy_func(fake_x)
 
 
 class AnalyticIntegral:

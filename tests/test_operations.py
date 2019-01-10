@@ -61,10 +61,10 @@ def test_param_func():
 
     new_func_equivalent = func * param4
 
-    zfit.sess.run(tf.global_variables_initializer())
-    result1 = zfit.sess.run(new_func.value(x=rnd_test_values))
-    result1_equivalent = zfit.sess.run(new_func_equivalent.value(x=rnd_test_values))
-    result2 = zfit.sess.run(func.value(x=rnd_test_values) * param4)
+    zfit.run(tf.global_variables_initializer())
+    result1 = zfit.run(new_func.value(x=rnd_test_values))
+    result1_equivalent = zfit.run(new_func_equivalent.value(x=rnd_test_values))
+    result2 = zfit.run(func.value(x=rnd_test_values) * param4)
     np.testing.assert_array_equal(result1, result2)
     np.testing.assert_array_equal(result1_equivalent, result2)
 
@@ -92,11 +92,11 @@ def test_func_func():
     prod_values = prod_func.value(rnd_test_values)
     true_prod_values = func1_pure(rnd_test_values) * func2_pure(rnd_test_values)
 
-    zfit.sess.run(tf.global_variables_initializer())
-    added_values = zfit.sess.run(added_values)
-    true_added_values = zfit.sess.run(true_added_values)
-    prod_values = zfit.sess.run(prod_values)
-    true_prod_values = zfit.sess.run(true_prod_values)
+    zfit.run(tf.global_variables_initializer())
+    added_values = zfit.run(added_values)
+    true_added_values = zfit.run(true_added_values)
+    prod_values = zfit.run(prod_values)
+    true_prod_values = zfit.run(true_prod_values)
     np.testing.assert_allclose(true_added_values, added_values)
     np.testing.assert_allclose(true_prod_values, prod_values)
 
@@ -169,16 +169,16 @@ def test_implicit_sumpdf():
     assert isinstance(sum_pdf, SumPDF)
     assert not sum_pdf.is_extended
 
-    zfit.sess.run(tf.global_variables_initializer())
-    assert zfit.sess.run(sum(sum_pdf.fracs)) == 1.
-    true_values = zfit.sess.run(true_values)
-    test_values = zfit.sess.run(sum_pdf.pdf(rnd_test_values, norm_range=norm_range))
+    zfit.run(tf.global_variables_initializer())
+    assert zfit.run(sum(sum_pdf.fracs)) == 1.
+    true_values = zfit.run(true_values)
+    test_values = zfit.run(sum_pdf.pdf(rnd_test_values, norm_range=norm_range))
     np.testing.assert_allclose(true_values, test_values, rtol=1e-2)  # it's MC normalized
 
     # sugar 2
     sum_pdf2_part1 = frac1 * pdf1 + frac2 * pdf3
     sum_pdf2 = sum_pdf2_part1 + pdf2
 
-    zfit.sess.run(tf.global_variables_initializer())
-    test_values2 = zfit.sess.run(sum_pdf2.pdf(rnd_test_values, norm_range=norm_range))
+    zfit.run(tf.global_variables_initializer())
+    test_values2 = zfit.run(sum_pdf2.pdf(rnd_test_values, norm_range=norm_range))
     np.testing.assert_allclose(true_values, test_values2, rtol=1e-2)  # it's MC normalized

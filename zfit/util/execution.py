@@ -23,7 +23,7 @@ class RunManager:
         self.set_n_cpu(n_cpu=n_cpu)
 
         # set default values
-        self.chunking.active = True
+        self.chunking.active = False  # not yet implemented the chunking...
         self.chunking.max_n_points = 100000
 
     @property
@@ -32,7 +32,6 @@ class RunManager:
             return self.chunking.max_n_points
         else:
             return self.MAX_CHUNK_SIZE
-
 
     @property
     def n_cpu(self):
@@ -50,10 +49,13 @@ class RunManager:
         if isinstance(max_cpu, int):
             if max_cpu < 0:
                 max_cpu = max((self.n_cpu + 1 + max_cpu, 0))  # -1 means all
-            n_cpu = min((max_cpu, self.n_cpu))
+            if max_cpu == 0:
+                cpu = []
+            else:
+                n_cpu = min((max_cpu, self.n_cpu))
 
-            cpu = self._cpu[n_cpu:]
-            self._cpu = self._cpu[:n_cpu]
+                cpu = self._cpu[-n_cpu:]
+                self._cpu = self._cpu[:-n_cpu]
 
             yield cpu
             self._cpu.extend(cpu)
@@ -85,5 +87,3 @@ class RunManager:
     @sess.setter
     def sess(self, value):
         self._sess = value
-
-

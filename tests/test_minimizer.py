@@ -29,7 +29,7 @@ def minimize_func(minimizer_class_and_kwargs, sess):
 
     # print("DEBUG": before true_minimum")
 
-    true_minimum = sess.run(func(true_a, true_b, true_c))
+    true_minimum = zfit.run(func(true_a, true_b, true_c))
     # print("DEBUG": true_minimum", true_minimum)
     loss_func_tf = func(a_param, b_param, c_param)
 
@@ -41,11 +41,11 @@ def minimize_func(minimizer_class_and_kwargs, sess):
     minimizer_class, minimizer_kwargs = minimizer_class_and_kwargs
     minimizer = minimizer_class(loss=loss_func, **minimizer_kwargs)
     init = tf.initialize_all_variables()
-    zfit.sess.run(init)
+    zfit.run(init)
 
-    minimizer.minimize(sess=zfit.sess, params=[a_param, b_param, c_param])
-    cur_val = zfit.sess.run(loss_func.value())
-    aval, bval, cval = zfit.sess.run([v for v in (a_param, b_param, c_param)])
+    minimizer.minimize(sess=zfit.run.sess, params=[a_param, b_param, c_param])
+    cur_val = zfit.run(loss_func.value())
+    aval, bval, cval = zfit.run([v for v in (a_param, b_param, c_param)])
 
     assert abs(cur_val - true_minimum) < max_distance_to_min
     assert abs(aval - true_a) < parameter_tolerance
@@ -70,7 +70,7 @@ minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.tr
 @pytest.mark.parametrize("minimizer_class", minimizers)
 def test_minimizers(minimizer_class):
     # for minimizer_class in minimizers:
-    minimize_func(minimizer_class, sess=zfit.sess)
+    minimize_func(minimizer_class, sess=zfit.run.sess)
 
 
 if __name__ == '__main__':

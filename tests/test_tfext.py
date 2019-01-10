@@ -27,7 +27,7 @@ def test_polynomial():
     polynom_np = np.polyval(coeffs[::-1], true_dict['x'])
 
     init = tf.global_variables_initializer()
-    zfit.sess.run(init)
-    result = zfit.sess.run(polynom_tf, feed_dict=feed_dict)
+    zfit.run(init)
+    result = zfit.run(polynom_tf, feed_dict=feed_dict)
     assert result == pytest.approx(polynom_np, rel=prec)
 
