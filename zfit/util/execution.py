@@ -15,13 +15,20 @@ class RunManager:
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
         self._sess = None
         self._sess_kwargs = {}
-        self.serialize = DotDict()
+        self.chunking = DotDict()
         self._cpu = []
 
         self.set_n_cpu(n_cpu=n_cpu)
 
         # set default values
-        self.serialize.max_n_points = 100000
+        self.chunking.active = False
+        self.chunking.max_n_points = 100000
+
+    @property
+    def chunksize(self):
+        if self.chunking.active:
+            return self.chunking.max_n_points
+
 
     @property
     def n_cpu(self):
@@ -74,3 +81,5 @@ class RunManager:
     @sess.setter
     def sess(self, value):
         self._sess = value
+
+
