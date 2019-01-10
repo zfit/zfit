@@ -9,6 +9,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple
 
+import zfit
 from zfit import ztf
 from zfit.util import ztyping
 from .limits import convert_to_space, Space, supports
@@ -89,37 +90,85 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
-    # TODO: deal with n_obs properly?
-    samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
-    samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
-    samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-    samples = tf.transpose(samples, perm=[2, 0, 1])
 
-    if partial:
-        value_list = []
-        index_samples = 0
-        index_values = 0
-        if len(x.shape) == 1:
-            x = tf.expand_dims(x, axis=1)
-        for i in range(n_axes + x.shape[1].value):
-            if i in axes:
-                value_list.append(samples[index_samples, :, :])
-                index_samples += 1
-            else:
-                value_list.append(tf.expand_dims(x[:, index_values], axis=1))
-                index_values += 1
-        value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-        x = value_list
+    if zfit.run.chunksize:
+        n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
+        chunksize = int(np.ceil(n_samples / n_chunks))
+        avg = chunked_average(func=func, num_batches=n_chunks, batch_size=chunksize, space=limits)
+
     else:
-        x = samples
+        # TODO: deal with n_obs properly?
 
-    # convert rnd samples with value to feedable vector
-    reduce_axis = 1 if partial else None
-    avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
-    # TODO: importance sampling?
-    # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
+        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
+        samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
+        samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+        samples = tf.transpose(samples, perm=[2, 0, 1])
+
+        if partial:
+            value_list = []
+            index_samples = 0
+            index_values = 0
+            if len(x.shape) == 1:
+                x = tf.expand_dims(x, axis=1)
+            for i in range(n_axes + x.shape[1].value):
+                if i in axes:
+                    value_list.append(samples[index_samples, :, :])
+                    index_samples += 1
+                else:
+                    value_list.append(tf.expand_dims(x[:, index_values], axis=1))
+                    index_values += 1
+            value_list = [tf.cast(val, dtype=dtype) for val in value_list]
+            x = value_list
+        else:
+            x = samples
+
+        # convert rnd samples with value to feedable vector
+        reduce_axis = 1 if partial else None
+        avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
+        # TODO: importance sampling?
+        # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     integral = avg * limits.area()
     return ztf.to_real(integral, dtype=dtype)
+
+
+def chunked_average(func, num_batches, batch_size, space):
+    lower, upper = space.limits
+    def body(batch_num, mean):
+        start_idx = batch_num * batch_size
+        end_idx = start_idx + batch_size
+        indices = tf.range(start_idx, end_idx, dtype=tf.int32)
+        sample = tfp.mcmc.sample_halton_sequence(space.n_obs,
+                                                        # num_results=batch_size,
+                                                        sequence_indices=indices,
+                                                        dtype=ztypes.float,
+                                                        randomized=False)
+        # sample = tf.random_uniform(shape=(batch_size, space.n_obs), dtype=ztypes.float)
+        sample = tf.guarantee_const(sample)
+        sample = (np.array(upper[0]) - np.array(lower[0])) * sample + lower[0]
+        sample = tf.transpose(sample)
+        sample = func(sample)
+        sample = tf.guarantee_const(sample)
+
+        batch_mean = tf.reduce_mean(sample)
+        # batch_mean = tf.guarantee_const(batch_mean)
+        # with tf.control_dependencies([batch_mean]):
+        err_weight = 1 / tf.to_double(batch_num + 1)
+        # err_weight /= err_weight + 1
+        # print_op = tf.print(batch_mean)
+        print_op = tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))
+        with tf.control_dependencies([print_op]):
+            return batch_num + 1, mean + err_weight * (batch_mean - mean)
+        # return batch_num + 1, tf.guarantee_const(mean + err_weight * (batch_mean - mean))
+
+    cond = lambda batch_num, _: batch_num < num_batches
+
+    initial_mean = tf.convert_to_tensor(0, dtype=ztypes.float)
+    _, final_mean = tf.while_loop(cond, body, (0, initial_mean), parallel_iterations=1,
+                                  swap_memory=False, back_prop=False, maximum_iterations=num_batches)
+
+    print_op = tf.print(final_mean)
+    with tf.control_dependencies([print_op]):
+        return tf.guarantee_const(final_mean)
 
 
 class AnalyticIntegral:

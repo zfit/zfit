@@ -1,6 +1,7 @@
 import contextlib
 import copy
 import os
+import sys
 from typing import List
 
 import tensorflow as tf
@@ -13,6 +14,7 @@ class RunManager:
 
     def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
+        self.MAX_CHUNK_SIZE = sys.maxsize
         self._sess = None
         self._sess_kwargs = {}
         self.chunking = DotDict()
@@ -21,13 +23,15 @@ class RunManager:
         self.set_n_cpu(n_cpu=n_cpu)
 
         # set default values
-        self.chunking.active = False
+        self.chunking.active = True
         self.chunking.max_n_points = 100000
 
     @property
     def chunksize(self):
         if self.chunking.active:
             return self.chunking.max_n_points
+        else:
+            return self.MAX_CHUNK_SIZE
 
 
     @property
