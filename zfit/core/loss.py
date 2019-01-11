@@ -104,6 +104,8 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
         self._model = model
         self._data = data
         self._fit_range = fit_range
+        if constraints is None:
+            constraints = []
         self._constraints = convert_to_container(constraints, list)
 
     def __init_subclass__(cls, **kwargs):
@@ -138,13 +140,7 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
 
     def add_constraints(self, constraints):
         constraints = convert_to_container(constraints, container=list)
-        if not isinstance(constraints, dict):
-            raise TypeError("`constraint` has to be a dict, is currently {}".format(type(constraints)))
-        overwritting_keys = set(constraints).intersection(self._constraints)
-        if overwritting_keys:
-            raise ValueError("Cannot change existing constraints but only add (currently). Constrain for "
-                             "parameter(s) {} already there.".format(overwritting_keys))
-        self._constraints.update(constraints)
+        self._constraints.extend(constraints)
 
     @property
     def name(self):
@@ -200,9 +196,10 @@ class UnbinnedNLL(BaseLoss):
 
     def _loss_func(self, model, data, fit_range, constraints):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
-        constraints = _nll_constraints_tf(constraints=constraints)
-        nll_constr = nll + constraints
-        return nll_constr
+        if constraints:
+            constraints = ztf.reduce_sum(constraints)
+            nll += constraints
+        return nll
 
     def errordef(self, sigma: Union[float, int]) -> Union[float, int]:
         return sigma
