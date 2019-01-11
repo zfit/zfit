@@ -54,7 +54,7 @@ setup(
     keywords='zfit',
     name='zfit',
     python_requires=">=2.7",
-    packages=find_packages(include=['zfit']),
+    packages=find_packages(include=['zfit', 'zfit.ztf']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
