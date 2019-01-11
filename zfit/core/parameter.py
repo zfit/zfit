@@ -7,6 +7,7 @@ import tensorflow as tf
 # TF backwards compatibility
 from tensorflow.python import ops, array_ops
 
+import zfit
 from zfit import ztf
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
@@ -307,10 +308,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint, **kwargs)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
-        init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
+        # init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
+        # self.init_value = init_value
         self.floating = floating
-        self.init_value = init_value
         self.step_size = step_size
+        zfit.run.auto_initialize(self)
 
         # self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
         # self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
@@ -359,9 +361,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         cls._independent = True  # overwriting independent only for subclass/instance
 
     # OLD remove? only keep for speed reasons?
-    @property
-    def update_op(self):
-        return self._update_op
+    # @property
+    # def update_op(self):
+    #     return self._update_op
 
     @property
     def step_size(self):  # TODO: improve default step_size?
@@ -385,7 +387,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def step_size(self, value):
         self._step_size = value
 
-    def randomize(self, sess, minval=None, maxval=None, seed=None):
+    # TODO: make it a random variable? return tensor that evaluates new all the time?
+    def randomize(self, sess, minval=None, maxval=None):
         """Update the value with a randomised value between minval and maxval.
 
         Args:

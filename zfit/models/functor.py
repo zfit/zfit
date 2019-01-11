@@ -281,7 +281,7 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
 if __name__ == '__main__':
 
     import numpy as np
-    from zfit.models.basic import Gauss
+    from zfit.pdf import Gauss
 
 
     def true_gaussian_sum(x):

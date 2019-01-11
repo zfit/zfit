@@ -7,8 +7,7 @@ from zfit.core.data import Data
 from zfit.core.limits import Space
 from zfit.core.parameter import Parameter
 from zfit.models.functor import SumPDF, ProductPDF
-from zfit.models.basic import Gauss
-from zfit.models.dist_tfp import Normal
+from zfit.models.dist_tfp import Gauss
 import zfit
 
 low, high = -0.64, 5.9
@@ -24,9 +23,12 @@ fracs = [0.3, 0.15]
 
 
 def true_gaussian_sum(x):
-    sum_gauss = fracs[0] * np.exp(- (x - mu1_true) ** 2 / (2 * sigma1_true ** 2))
-    sum_gauss += fracs[1] * np.exp(- (x - mu2_true) ** 2 / (2 * sigma2_true ** 2))
-    sum_gauss += (1. - sum(fracs)) * np.exp(- (x - mu3_true) ** 2 / (2 * sigma3_true ** 2))
+    def norm(sigma):
+        return np.sqrt(2 * np.pi) * sigma
+
+    sum_gauss = fracs[0] * np.exp(- (x - mu1_true) ** 2 / (2 * sigma1_true ** 2)) / norm(sigma1_true)
+    sum_gauss += fracs[1] * np.exp(- (x - mu2_true) ** 2 / (2 * sigma2_true ** 2)) / norm(sigma2_true)
+    sum_gauss += (1. - sum(fracs)) * np.exp(- (x - mu3_true) ** 2 / (2 * sigma3_true ** 2)) / norm(sigma3_true)
     return sum_gauss
 
 
@@ -153,8 +155,8 @@ def test_normalization_prod_gauss():
 
 
 def normalization_testing(pdf, normalization_value=1.):
-    init = tf.global_variables_initializer()
-    zfit.run(init)
+    # init = tf.global_variables_initializer()
+    # zfit.run(init)
     with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_obs, 40000)),
                           dtype=tf.float64)

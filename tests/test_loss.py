@@ -7,8 +7,7 @@ import zfit.core.basepdf
 from zfit.core.limits import Space
 from zfit.minimizers.minimizer_minuit import MinuitMinimizer
 import zfit.models.dist_tfp
-from zfit.models.dist_tfp import Normal
-from zfit.models.basic import Gauss
+from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
@@ -32,11 +31,12 @@ sigma_constr = Gauss(3.8, 0.2, obs=obs1, name="sigma_constr")
 gaussian1 = Gauss(mu1, sigma1, obs=obs1, name="gaussian1")
 gaussian2 = Gauss(mu2, sigma2, obs=obs1, name="gaussian2")
 
-init = tf.global_variables_initializer()
+
+# init = tf.global_variables_initializer()
 
 
 def test_unbinned_nll():
-    zfit.run(init)
+    # zfit.run(init)
     with mu_constr.set_norm_range((-np.infty, np.infty)):
         with sigma_constr.set_norm_range((-np.infty, np.infty)):
             test_values = tf.constant(test_values_np)
@@ -51,7 +51,7 @@ def test_unbinned_nll():
             assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
 
             # with constraints
-            zfit.run(init)
+            # zfit.run(init)
 
             nll_class = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                                     constraints={mu2: mu_constr,

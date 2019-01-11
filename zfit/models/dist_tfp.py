@@ -17,6 +17,7 @@ from zfit import ztf
 from zfit.core.basepdf import BasePDF
 from zfit.core.interfaces import ZfitParameter
 from zfit.core.limits import no_norm_range, supports
+from ..core.parameter import convert_to_parameter
 
 
 class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like icdf
@@ -24,10 +25,13 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     """
 
-    def __init__(self, distribution, obs, name=None, **kwargs):
+    def __init__(self, distribution, obs, parameters=None, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
-        parameters = OrderedDict((k, v) for k, v in distribution.parameters.items() if isinstance(v, ZfitParameter))
+        if parameters is None:  # auto extract from distribution
+            parameters = OrderedDict((k, v) for k, v in distribution.parameters.items() if isinstance(v, ZfitParameter))
+        else:
+            parameters = OrderedDict((k, convert_to_parameter(p)) for k, p in parameters.items())
 
         super().__init__(obs=obs, dtype=distribution.dtype, name=name, parameters=parameters, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
@@ -39,8 +43,8 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         n_dims = (n_dims or [1])[0]  # n_obs is a list
         return n_dims
 
-    def _unnormalized_pdf(self, x, norm_range=False):
-        return self.tf_distribution.prob(value=x, name="unnormalized_pdf")  # TODO name
+    def _unnormalized_pdf(self, x: "zfit.core.data.Data", norm_range=False):
+        return self.tf_distribution.prob(value=x.value(), name="unnormalized_pdf")  # TODO name
 
     # TODO: register integral
     @supports()
@@ -54,19 +58,25 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         return integral
 
 
-class Normal(WrapDistribution):
-    def __init__(self, mu, sigma, obs, name="Normal"):
+class Gauss(WrapDistribution):
+    def __init__(self, mu, sigma, obs, name="Gauss"):
+        mu, sigma = self._check_input_parameters(mu, sigma)
+        parameters = OrderedDict((('mu', mu), ('sigma', sigma)))
         distribution = tfp.distributions.Normal(loc=mu, scale=sigma, name=name + "_tfp")
-        super().__init__(distribution=distribution, obs=obs, name=name)
+        super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
 
 
 class Exponential(WrapDistribution):
     def __init__(self, tau, obs, name="Exponential"):
+        tau = self._check_input_parameters(tau)
+        parameters = OrderedDict(('tau', tau))
         distribution = tfp.distributions.Exponential(rate=tau, name=name + "_tfp")
-        super().__init__(distribution=distribution, obs=obs, name=name)
+        super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
 
 
 class Uniform(WrapDistribution):
     def __init__(self, low, high, obs, name="Uniform"):
+        low, high = self._check_input_parameters(low, high)
+        parameters = OrderedDict((("low", low), ("high", high)))
         distribution = tfp.distributions.Uniform(low=low, high=high, name=name + "_tfp")
-        super().__init__(distribution=distribution, obs=obs, name=name)
+        super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)

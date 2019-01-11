@@ -3,8 +3,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import Parameter
-from zfit.models.basic import Gauss
-from zfit.models.dist_tfp import Normal
+from zfit.models.dist_tfp import Gauss
 
 mu1_true = 1.
 mu2_true = 2.
@@ -26,11 +25,11 @@ def create_gauss():
     sigma2 = Parameter("sigma2a", sigma2_true)
     sigma3 = Parameter("sigma3a", sigma3_true)
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1a")
-    normal1 = Normal(mu=mu1, sigma=sigma1, obs=obs1, name="normal1a")
+    normal1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="normal1a")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2a")
-    normal2 = Normal(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
+    normal2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3a")
-    normal3 = Normal(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
+    normal3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
     zfit.run(tf.global_variables_initializer())
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 
