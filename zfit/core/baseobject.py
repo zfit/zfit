@@ -7,7 +7,7 @@ from typing import List, Set
 import tensorflow as tf
 
 import zfit
-from zfit.util import ztyping
+from ..util import ztyping
 from .interfaces import ZfitObject, ZfitNumeric, ZfitDependentsMixin
 from ..util.container import convert_to_container, DotDict
 

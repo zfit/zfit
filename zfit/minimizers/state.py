@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from zfit.util.exception import NotMinimizedError
+from ..util.exception import NotMinimizedError
 
 
 class MinimizerState:

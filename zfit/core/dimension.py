@@ -1,7 +1,7 @@
 import functools
 
-from zfit.core.interfaces import ZfitDimensional
-from zfit.util import ztyping
+from .interfaces import ZfitDimensional
+from ..util import ztyping
 
 
 class BaseDimensional(ZfitDimensional):

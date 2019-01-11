@@ -2,9 +2,9 @@ import itertools
 
 import tensorflow as tf
 
-from zfit.settings import types as ztypes
-from zfit.core import tfext
 from zfit import ztf
+from ..settings import types as ztypes
+from . import tfext
 
 
 def poly_complex(*args, real_x=False):

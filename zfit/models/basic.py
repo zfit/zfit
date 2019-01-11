@@ -7,10 +7,10 @@ import math as mt
 
 import tensorflow as tf
 
-from zfit.core import math as zmath
-from zfit.core.limits import Space
-from zfit.core.basepdf import BasePDF
 from zfit import ztf
+from ..core import math as zmath
+from ..core.limits import Space
+from ..core.basepdf import BasePDF
 
 try:
     infinity = mt.inf

@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from zfit.core.minimizer import MinimizerInterface
-from zfit.minimizers.base_tf import WrapOptimizer
+from ..core.minimizer import MinimizerInterface
+from .base_tf import WrapOptimizer
 
 
 # class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, MinimizerInterface):

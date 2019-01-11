@@ -13,7 +13,7 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
-from zfit.ztf import convert_to_tensor
+
 from ..util.graph import get_dependents
 from ..util.exception import LogicalUndefinedOperationError
 from . import baseobject as zbaseobject
@@ -440,7 +440,7 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 class ComposedParameter(BaseComposedParameter):
     # TODO: raise error if eager is on (because it's very errorprone)
     def __init__(self, name, tensor, **kwargs):
-        tensor = convert_to_tensor(tensor)
+        tensor = ztf.convert_to_tensor(tensor)
         independend_params = tf.get_collection("zfit_independent")
         params = get_dependents(tensor=tensor, candidates=independend_params)
         params_init_op = [param.initializer for param in params]

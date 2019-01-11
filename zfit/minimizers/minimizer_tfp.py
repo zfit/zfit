@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from zfit.core.minimizer import BaseMinimizer
+from ..core.minimizer import BaseMinimizer
 
 
 class BFGSMinimizer(BaseMinimizer):

@@ -4,10 +4,10 @@ import tensorflow as tf
 from typing import Optional, Union
 
 from zfit import ztf
-from zfit.core.baseobject import BaseObject, BaseDependentsMixin
-from zfit.core.interfaces import ZfitLoss
-from zfit.models.functions import SimpleFunc
-from zfit.util.container import convert_to_container, is_container
+from .baseobject import BaseObject, BaseDependentsMixin
+from .interfaces import ZfitLoss
+from ..models.functions import SimpleFunc
+from ..util.container import convert_to_container, is_container
 
 from .limits import convert_to_space, Space
 

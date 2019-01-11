@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from zfit.core.minimizer import BaseMinimizer
+from ..core.minimizer import BaseMinimizer
 
 
 class WrapOptimizer(BaseMinimizer):

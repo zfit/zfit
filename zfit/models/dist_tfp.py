@@ -14,9 +14,9 @@ import tensorflow_probability as tfp
 import tensorflow as tf
 
 from zfit import ztf
-from zfit.core.basepdf import BasePDF
-from zfit.core.interfaces import ZfitParameter
-from zfit.core.limits import no_norm_range, supports
+from ..core.basepdf import BasePDF
+from ..core.interfaces import ZfitParameter
+from ..core.limits import no_norm_range, supports
 from ..core.parameter import convert_to_parameter
 
 

@@ -8,7 +8,7 @@ except ImportError:  # py34 remove try-except
     _inf = float('inf')
 
 import tensorflow as tf
-from zfit.settings import types as ztypes
+from ..settings import types as ztypes
 
 inf = tf.constant(_inf, dtype=ztypes.float)
 

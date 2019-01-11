@@ -8,7 +8,7 @@ from .minimizers.minimizers_scipy import ScipyMinimizer
 
 # WIP below
 if __name__ == '__main__':
-    from zfit.core.parameter import Parameter
+    from .core.parameter import Parameter
     import time
 
     from zfit import ztf

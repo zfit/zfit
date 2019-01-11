@@ -57,15 +57,15 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pep487
 
-from zfit.core.baseobject import BaseObject
-from zfit.core.interfaces import ZfitSpace
-from zfit.util import ztyping
-from zfit.util.checks import NOT_SPECIFIED
-from zfit.util.container import convert_to_container
-from zfit.util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
+from .baseobject import BaseObject
+from .interfaces import ZfitSpace
+from ..util import ztyping
+from ..util.checks import NOT_SPECIFIED
+from ..util.container import convert_to_container
+from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
                                  MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
                                  OverdefinedError, )
-from zfit.util.temporary import TemporarilySet
+from ..util.temporary import TemporarilySet
 
 
 # Singleton

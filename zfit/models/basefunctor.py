@@ -1,12 +1,12 @@
 import abc
 from typing import List, Union, Dict, Tuple
 
-from zfit.core.limits import Space
-from zfit.core.basemodel import BaseModel
-from zfit.core.dimension import get_same_obs
-from zfit.core.interfaces import ZfitFunctorMixin, ZfitModel
-from zfit.util.container import convert_to_container
-from zfit.util.exception import AxesNotUnambiguousError, NormRangeNotSpecifiedError
+from ..core.limits import Space
+from ..core.basemodel import BaseModel
+from ..core.dimension import get_same_obs
+from ..core.interfaces import ZfitFunctorMixin, ZfitModel
+from ..util.container import convert_to_container
+from ..util.exception import AxesNotUnambiguousError, NormRangeNotSpecifiedError
 
 
 class FunctorMixin(ZfitFunctorMixin, BaseModel):

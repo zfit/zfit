@@ -2,9 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import ztf
-from zfit.core import tfext
-from zfit.core.parameter import Parameter
-import zfit.ztf
+from ..core.parameter import Parameter
 
 
 def multivariate_gauss(x, norm, mean, inv_cov):

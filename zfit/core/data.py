@@ -11,15 +11,15 @@ import numpy as np
 # from ..settings import types as ztypes
 import zfit
 from zfit import ztf
-from zfit.core.baseobject import BaseObject
-from zfit.core.dimension import BaseDimensional
-from zfit.core.interfaces import ZfitData
-from zfit.core.limits import Space, convert_to_space
-from zfit.settings import types as ztypes
-from zfit.util import ztyping
-from zfit.util.container import convert_to_container
-from zfit.util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError
-from zfit.util.temporary import TemporarilySet
+from .baseobject import BaseObject
+from .dimension import BaseDimensional
+from .interfaces import ZfitData
+from .limits import Space, convert_to_space
+from ..settings import types as ztypes
+from ..util import ztyping
+from ..util.container import convert_to_container
+from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError
+from ..util.temporary import TemporarilySet
 
 
 class Data(ZfitData, BaseDimensional, BaseObject):

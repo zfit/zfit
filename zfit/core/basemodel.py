@@ -13,8 +13,8 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
-from zfit.core.data import Data
-from zfit.core.dimension import BaseDimensional
+from .data import Data
+from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .interfaces import ZfitModel, ZfitParameter

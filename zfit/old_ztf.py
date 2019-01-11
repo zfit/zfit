@@ -6,7 +6,7 @@ import tensorflow
 import tensorflow as tf
 from typing import Any
 
-from zfit.settings import types as _ztypes  # pay attention with the names in here!
+from .settings import types as _ztypes  # pay attention with the names in here!
 
 # fill the following in to the namespace for (future) wrapping
 

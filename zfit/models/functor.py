@@ -12,18 +12,17 @@ import tensorflow as tf
 import numpy as np
 
 from zfit import ztf
-from zfit.core.data import Data
-from zfit.core.interfaces import ZfitPDF, ZfitModel
-from zfit.core.limits import no_norm_range, supports
-from zfit.models.basefunctor import FunctorMixin
-from zfit.util import ztyping
-from zfit.util.container import convert_to_container
-
-from zfit.util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError
-from zfit.core.basepdf import BasePDF
-from zfit.core.parameter import Parameter
-from zfit.settings import types as ztypes
-from zfit.util.temporary import TemporarilySet
+from ..core.data import Data
+from ..core.interfaces import ZfitPDF, ZfitModel
+from ..core.limits import no_norm_range, supports
+from ..core.basepdf import BasePDF
+from ..core.parameter import Parameter
+from ..models.basefunctor import FunctorMixin
+from ..util import ztyping
+from ..util.container import convert_to_container
+from ..util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError
+from ..util.temporary import TemporarilySet
+from ..settings import types as ztypes
 
 
 class BaseFunctor(FunctorMixin, BasePDF):

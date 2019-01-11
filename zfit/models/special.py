@@ -8,9 +8,9 @@ from types import MethodType
 
 import tensorflow as tf
 
-from zfit.core.basepdf import BasePDF
-from zfit.core.limits import no_norm_range
-from zfit.util.exception import NormRangeNotImplementedError
+from ..core.basepdf import BasePDF
+from ..core.limits import no_norm_range
+from ..util.exception import NormRangeNotImplementedError
 
 
 class SimplePDF(BasePDF):

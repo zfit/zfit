@@ -3,11 +3,11 @@ from typing import Dict, Union, Callable, Iterable
 
 import tensorflow as tf
 
-from zfit.core.basefunc import BaseFunc
-from zfit.core.interfaces import ZfitModel, ZfitFunc
-from zfit.models.basefunctor import FunctorMixin
-from zfit.util import ztyping
-from zfit.util.container import convert_to_container
+from ..core.basefunc import BaseFunc
+from ..core.interfaces import ZfitModel, ZfitFunc
+from ..models.basefunctor import FunctorMixin
+from ..util import ztyping
+from ..util.container import convert_to_container
 
 
 class SimpleFunc(BaseFunc):

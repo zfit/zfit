@@ -1,10 +1,10 @@
 import tensorflow as tf
 
+from zfit import ztf
 import math as _mt
-from zfit.settings import types as ztypes
-from zfit.ztf import pi
+from ..settings import types as ztypes
 
-pi = tf.constant(_mt.pi, dtype=ztypes.float)
+ztf.pi = tf.constant(_mt.pi, dtype=ztypes.float)
 
 
 # density for a complex amplitude

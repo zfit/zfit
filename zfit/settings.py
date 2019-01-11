@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from zfit.util.container import DotDict
+from .util.container import DotDict
 from .util.execution import RunManager
 
 run = RunManager()

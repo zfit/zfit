@@ -2,7 +2,7 @@ import functools
 
 import tensorflow as tf
 
-from zfit.settings import types as ztypes
+from ..settings import types as ztypes
 
 
 def log(x, name=None):
@@ -24,6 +24,7 @@ def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, na
 
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random_uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+
 
 #
 # @functools.wraps(tf.reduce_sum)

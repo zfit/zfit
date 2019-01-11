@@ -6,7 +6,6 @@ from typing import List
 
 import tensorflow as tf
 
-from zfit.util.temporary import TemporarilySet
 from .container import DotDict
 
 
