@@ -13,12 +13,12 @@ def nll_gaussian(params, mu, sigma):
         constraint += ztf.reduce_sum(ztf.square(param - mean) / (2. * ztf.square(sig)))
 
 
-def nll_pdf(constraints: dict):
-    if not constraints:
-        return ztf.constant(0.)  # adding 0 to nll
-    probs = []
-    for param, dist in constraints.items():
-        probs.append(dist.pdf(param))
-    # probs = [dist.pdf(param) for param, dist in constraints.items()]
-    constraints_neg_log_prob = -tf.reduce_sum(tf.log(probs))
-    return constraints_neg_log_prob
+# def nll_pdf(constraints: dict):
+#     if not constraints:
+#         return ztf.constant(0.)  # adding 0 to nll
+#     probs = []
+#     for param, dist in constraints.items():
+#         probs.append(dist.pdf(param))
+#     # probs = [dist.pdf(param) for param, dist in constraints.items()]
+#     constraints_neg_log_prob = -tf.reduce_sum(tf.log(probs))
+#     return constraints_neg_log_prob

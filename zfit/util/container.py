@@ -22,14 +22,15 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
 
     """
     if non_containers is None:
-        non_containers = ()
-    if not isinstance(non_containers, (list, tuple)):
+        non_containers = []
+    if not isinstance(non_containers, list):
         raise TypeError("`non_containers` have to be a list or a tuple")
     if value is None and not convert_none:
         return value
     if not isinstance(value, container):
         try:
-            if isinstance(value, [str, tf.Tensor].extend(non_containers)):
+            non_containers.extend([str, tf.Tensor])
+            if isinstance(value, tuple(non_containers)):
                 raise TypeError
             value = container(value)
         except TypeError:
