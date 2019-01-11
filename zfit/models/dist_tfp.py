@@ -68,7 +68,7 @@ class Gauss(WrapDistribution):
 
 class Exponential(WrapDistribution):
     def __init__(self, tau, obs, name="Exponential"):
-        tau = self._check_input_parameters(tau)
+        (tau,) = self._check_input_parameters(tau)
         parameters = OrderedDict((('tau', tau),))
         distribution = tfp.distributions.Exponential(rate=tau, name=name + "_tfp")
         super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
