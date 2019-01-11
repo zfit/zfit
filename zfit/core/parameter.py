@@ -7,15 +7,18 @@ import tensorflow as tf
 # TF backwards compatibility
 from tensorflow.python import ops, array_ops
 
+import zfit
 from zfit import ztf
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from zfit.ztf import convert_to_tensor
+from ..util.graph import get_dependents
 from ..util.exception import LogicalUndefinedOperationError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
-from zfit.settings import types as ztypes
+from ..settings import types as ztypes
 
 
 class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
@@ -293,21 +296,23 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             lower_limit = -np.infty
         if upper_limit is None:
             upper_limit = np.infty
-        no_limits = -lower_limit == upper_limit == np.infty
+        # no_limits = -lower_limit == upper_limit == np.infty
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
-        constraint = lambda x: tf.clip_by_value(x,
-                                                clip_value_min=self.lower_limit,
-                                                clip_value_max=self.upper_limit)
+
+        def constraint(x):
+            return tf.clip_by_value(x, clip_value_min=self.lower_limit, clip_value_max=self.upper_limit)
+
         # self.constraint = constraint
 
         super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint, **kwargs)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
-        init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
+        # init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
+        # self.init_value = init_value
         self.floating = floating
-        self.init_value = init_value
         self.step_size = step_size
+        zfit.run.auto_initialize(self)
 
         # self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
         # self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
@@ -356,9 +361,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         cls._independent = True  # overwriting independent only for subclass/instance
 
     # OLD remove? only keep for speed reasons?
-    @property
-    def update_op(self):
-        return self._update_op
+    # @property
+    # def update_op(self):
+    #     return self._update_op
 
     @property
     def step_size(self):  # TODO: improve default step_size?
@@ -382,7 +387,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def step_size(self, value):
         self._step_size = value
 
-    def randomise(self, sess, minval=None, maxval=None, seed=None):
+    # TODO: make it a random variable? return tensor that evaluates new all the time?
+    def randomize(self, sess, minval=None, maxval=None):
         """Update the value with a randomised value between minval and maxval.
 
         Args:
@@ -434,9 +440,9 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 class ComposedParameter(BaseComposedParameter):
     # TODO: raise error if eager is on (because it's very errorprone)
     def __init__(self, name, tensor, **kwargs):
+        tensor = convert_to_tensor(tensor)
         independend_params = tf.get_collection("zfit_independent")
-        grad_indep_params = tf.gradients(tensor, independend_params)
-        params = [param for param, grad in zip(independend_params, grad_indep_params) if grad is not None]
+        params = get_dependents(tensor=tensor, candidates=independend_params)
         params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         with tf.control_dependencies(params_init_op):

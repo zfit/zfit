@@ -2,6 +2,9 @@ import numpy as np
 import tensorflow as tf
 
 from zfit.util.container import DotDict
+from .util.execution import RunManager
+
+run = RunManager()
 
 
 def set_seed(seed):
@@ -28,8 +31,8 @@ types = DotDict({'float': tf.float64,
 
 options = DotDict({'epsilon': 1e-8})
 
+
 # sess = tf.InteractiveSession()
-sess = tf.Session()
 
 
 def reset_session():

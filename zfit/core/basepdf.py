@@ -50,10 +50,10 @@ also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tut
 """
 
 import abc
+from collections import OrderedDict
 import contextlib
 from contextlib import suppress
-import typing
-from typing import Union
+from typing import Union, Iterable, Any, Type
 import warnings
 
 import tensorflow as tf
@@ -66,7 +66,7 @@ from zfit.util.container import convert_to_container
 from zfit.util.exception import DueToLazynessNotImplementedError, IntentionNotUnambiguousError
 from zfit.util.temporary import TemporarilySet
 from .basemodel import BaseModel
-from .parameter import Parameter
+from .parameter import Parameter, convert_to_parameter
 from ..settings import types as ztypes
 from ..util import exception as zexception
 
@@ -103,8 +103,8 @@ def _BasePDF_register_check_support(has_support: bool):
 
 class BasePDF(ZfitPDF, BaseModel):
 
-    def __init__(self, obs: ztyping.ObsTypeInput, dtype: typing.Type = ztypes.float, name: str = "BasePDF",
-                 parameters: typing.Any = None, **kwargs):
+    def __init__(self, obs: ztyping.ObsTypeInput, dtype: Type = ztypes.float, name: str = "BasePDF",
+                 parameters: Any = None, **kwargs):
         super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters, **kwargs)
 
         self._yield = None
@@ -122,6 +122,9 @@ class BasePDF(ZfitPDF, BaseModel):
             norm_range = self.norm_range
         return super()._check_input_norm_range(norm_range=norm_range, caller_name=caller_name,
                                                none_is_error=none_is_error)
+
+    def _check_input_parameters(self, *parameters):
+        return tuple(convert_to_parameter(p) for p in parameters)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)

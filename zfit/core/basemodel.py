@@ -729,7 +729,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     @no_norm_range
     def _inverse_analytic_integrate(self, x):
-        if self._inverse_analytic_integral is None:
+        if not self._inverse_analytic_integral:
             raise NotImplementedError
         else:
             return self._inverse_analytic_integral[0](x=x, params=self.parameters)

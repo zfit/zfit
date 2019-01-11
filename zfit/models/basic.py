@@ -18,7 +18,7 @@ except AttributeError:  # py34
     infinity = float('inf')
 
 
-class Gauss(BasePDF):
+class CustomGaussOLD(BasePDF):
 
     def __init__(self, mu, sigma, obs, name="Gauss"):  # TODO: names? TF dist?
         super().__init__(name=name, obs=obs, parameters=dict(mu=mu, sigma=sigma))
@@ -37,5 +37,5 @@ def _gauss_integral_from_inf_to_inf(limits, params):
 
 
 # TODO: uncomment hack when switched to space
-Gauss.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
-                                 limits=Space.from_axes(limits=(-infinity, infinity), axes=(0,)))
+CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
+                                          limits=Space.from_axes(limits=(-infinity, infinity), axes=(0,)))

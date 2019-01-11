@@ -16,10 +16,10 @@ def test_complex_param():
     param1 = ComplexParameter("param1", complex_value)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value ** 2 - 1.2j
-    zfit.sess.run(tf.global_variables_initializer())
-    assert true_value == pytest.approx(zfit.sess.run(some_value), rel=1e-8)
+    zfit.run(tf.global_variables_initializer())
+    assert true_value == pytest.approx(zfit.run(some_value), rel=1e-8)
     part1, part2 = param1.get_dependents()
-    part1_val, part2_val = zfit.sess.run([part1.value(), part2.value()])
+    part1_val, part2_val = zfit.run([part1.value(), part2.value()])
     if part1_val == pytest.approx(real_part):
         assert part2_val == pytest.approx(imag_part)
     elif part2_val == pytest.approx(real_part):
@@ -39,18 +39,18 @@ def test_composed_param():
     assert isinstance(param_a.get_dependents(only_floating=True), set)
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
-    zfit.sess.run(tf.global_variables_initializer())
-    a_unchanged = zfit.sess.run(a)
-    assert a_unchanged == zfit.sess.run(param_a)
-    assert zfit.sess.run(param2.assign(3.5))
-    a_changed = zfit.sess.run(a)
-    assert a_changed == zfit.sess.run(param_a)
+    zfit.run(tf.global_variables_initializer())
+    a_unchanged = zfit.run(a)
+    assert a_unchanged == zfit.run(param_a)
+    assert zfit.run(param2.assign(3.5))
+    a_changed = zfit.run(a)
+    assert a_changed == zfit.run(param_a)
     assert a_changed != a_unchanged
 
     with pytest.raises(LogicalUndefinedOperationError):
         param_a.assign(value=5.)
     with pytest.raises(LogicalUndefinedOperationError):
-        param_a.load(value=5., session=zfit.sess)
+        param_a.load(value=5., session=zfit.run.sess)
 
 
 def test_param_limits():
@@ -58,14 +58,14 @@ def test_param_limits():
     param1 = Parameter('param1lim', 1., lower_limit=lower, upper_limit=upper)
     param2 = Parameter('param2lim', 2.)
 
-    zfit.sess.run(tf.global_variables_initializer())
-    param1.load(upper + 0.5, session=zfit.sess)
-    assert upper == zfit.sess.run(param1.value())
-    param1.load(lower - 1.1, session=zfit.sess)
-    assert lower == zfit.sess.run(param1.value())
+    zfit.run(tf.global_variables_initializer())
+    param1.load(upper + 0.5, session=zfit.run.sess)
+    assert upper == zfit.run(param1.value())
+    param1.load(lower - 1.1, session=zfit.run.sess)
+    assert lower == zfit.run(param1.value())
     param2.lower_limit = lower
-    param2.load(lower - 1.1, session=zfit.sess)
-    assert lower == zfit.sess.run(param2.value())
+    param2.load(lower - 1.1, session=zfit.run.sess)
+    assert lower == zfit.run(param2.value())
 
 def test_overloaded_operators():
     param_a = ComposedParameter('param_ao', 5*4)

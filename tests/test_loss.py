@@ -7,8 +7,7 @@ import zfit.core.basepdf
 from zfit.core.limits import Space
 from zfit.minimizers.minimizer_minuit import MinuitMinimizer
 import zfit.models.dist_tfp
-from zfit.models.dist_tfp import Normal
-from zfit.models.basic import Gauss
+from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
@@ -32,33 +31,34 @@ sigma_constr = Gauss(3.8, 0.2, obs=obs1, name="sigma_constr")
 gaussian1 = Gauss(mu1, sigma1, obs=obs1, name="gaussian1")
 gaussian2 = Gauss(mu2, sigma2, obs=obs1, name="gaussian2")
 
-init = tf.global_variables_initializer()
+
+# init = tf.global_variables_initializer()
 
 
 def test_unbinned_nll():
-    zfit.sess.run(init)
+    # zfit.run(init)
     with mu_constr.set_norm_range((-np.infty, np.infty)):
         with sigma_constr.set_norm_range((-np.infty, np.infty)):
             test_values = tf.constant(test_values_np)
             # nll = _unbinned_nll_tf(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
             nll_class = UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-            # nll_eval = zfit.sess.run(nll)
+            # nll_eval = zfit.run(nll)
             minimizer = MinuitMinimizer(loss=nll_class)
-            status = minimizer.minimize(params=[mu1, sigma1], sess=zfit.sess)
+            status = minimizer.minimize(params=[mu1, sigma1], sess=zfit.run.sess)
             params = status.get_parameters()
             # print(params)
             assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
             assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
 
             # with constraints
-            zfit.sess.run(init)
+            # zfit.run(init)
 
             nll_class = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                                     constraints={mu2: mu_constr,
                                                  sigma2: sigma_constr})
 
             minimizer = MinuitMinimizer(loss=nll_class)
-            status = minimizer.minimize(params=[mu2, sigma2], sess=zfit.sess)
+            status = minimizer.minimize(params=[mu2, sigma2], sess=zfit.run.sess)
             params = status.get_parameters()
 
             assert params[mu2.name]['value'] > np.mean(test_values_np)

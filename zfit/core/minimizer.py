@@ -14,6 +14,7 @@ import tensorflow_probability as tfp
 import pep487
 from typing import Dict, List, Union, Optional
 
+import zfit
 from zfit import ztf
 from zfit.minimizers.state import MinimizerState
 from zfit.util import ztyping
@@ -317,8 +318,10 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
 
     @property
     def sess(self):
-        # TODO: return default? or error?
-        return self._sess
+        sess = self._sess
+        if sess is None:
+            sess = zfit.run.sess
+        return sess
 
     @sess.setter
     def sess(self, sess):

@@ -3,8 +3,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import Parameter
-from zfit.models.basic import Gauss
-from zfit.models.dist_tfp import Normal
+from zfit.models.dist_tfp import Gauss
 
 mu1_true = 1.
 mu2_true = 2.
@@ -26,12 +25,12 @@ def create_gauss():
     sigma2 = Parameter("sigma2a", sigma2_true)
     sigma3 = Parameter("sigma3a", sigma3_true)
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1a")
-    normal1 = Normal(mu=mu1, sigma=sigma1, obs=obs1, name="normal1a")
+    normal1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="normal1a")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2a")
-    normal2 = Normal(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
+    normal2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3a")
-    normal3 = Normal(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
-    zfit.sess.run(tf.global_variables_initializer())
+    normal3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
+    zfit.run(tf.global_variables_initializer())
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 
 gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
@@ -39,14 +38,14 @@ gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
 def test_gauss1():
     probs1 = gauss1.pdf(x=test_values, norm_range=norm_range1)
     probs1_tfp = normal1.pdf(x=test_values, norm_range=norm_range1)
-    probs1 = zfit.sess.run(probs1)
-    probs1_tfp = zfit.sess.run(probs1_tfp)
+    probs1 = zfit.run(probs1)
+    probs1_tfp = zfit.run(probs1_tfp)
     np.testing.assert_allclose(probs1, probs1_tfp, rtol=1e-2)
 
     probs1_unnorm = gauss1.pdf(x=test_values, norm_range=False)
     probs1_tfp_unnorm = normal1.pdf(x=test_values, norm_range=False)
-    probs1_unnorm = zfit.sess.run(probs1_unnorm)
-    probs1_tfp_unnorm = zfit.sess.run(probs1_tfp_unnorm)
+    probs1_unnorm = zfit.run(probs1_unnorm)
+    probs1_tfp_unnorm = zfit.run(probs1_tfp_unnorm)
     assert not np.allclose(probs1_tfp, probs1_tfp_unnorm, rtol=1e-2)
     assert not np.allclose(probs1, probs1_unnorm, rtol=1e-2)
     # np.testing.assert_allclose(probs1_unnorm, probs1_tfp_unnorm, rtol=1e-2)
