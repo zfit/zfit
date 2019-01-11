@@ -1,8 +1,10 @@
 import contextlib
 import copy
+import multiprocessing
 import os
 import sys
 from typing import List
+import warnings
 
 import tensorflow as tf
 
@@ -41,7 +43,13 @@ class RunManager:
 
     def set_n_cpu(self, n_cpu='auto'):
         if n_cpu == 'auto':
-            cpu = sorted(os.sched_getaffinity(0))
+            try:
+                cpu = sorted(os.sched_getaffinity(0))
+            except AttributeError:
+                cpu = range(multiprocessing.cpu_count())
+                warnings.warn("Not running on Linux. Determining available cpus for thread can fail"
+                              "and be overestimated. Workaround (only if too many cpus are used):"
+                              "`zfit.run.set_n_cpu(your_cpu_number)`")
         elif isinstance(n_cpu, int):
             cpu = range(n_cpu)
         self._cpu = ['dummy_cpu{}'.format(i) for i in cpu]
