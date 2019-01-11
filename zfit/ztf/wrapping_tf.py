@@ -26,6 +26,10 @@ def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, 
     return tf.random_uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
 
+def square(x, name=None):
+    return tf.square(x, name)
+
+
 #
 # @functools.wraps(tf.reduce_sum)
 # def reduce_sum(*args, **kwargs):
