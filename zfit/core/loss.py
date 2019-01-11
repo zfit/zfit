@@ -100,13 +100,11 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
 
     def __init__(self, model, data, fit_range, constraints=None):
         super().__init__(name=type(self).__name__)
-        if constraints is None:
-            constraints = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
         self._data = data
         self._fit_range = fit_range
-        self._constraints = constraints.copy()
+        self._constraints = convert_to_container(constraints, list)
 
     def __init_subclass__(cls, **kwargs):
         cls._name = "UnnamedSubBaseLoss"
@@ -139,6 +137,7 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
         return pdf, data, fit_range
 
     def add_constraints(self, constraints):
+        constraints = convert_to_container(constraints, container=list)
         if not isinstance(constraints, dict):
             raise TypeError("`constraint` has to be a dict, is currently {}".format(type(constraints)))
         overwritting_keys = set(constraints).intersection(self._constraints)
