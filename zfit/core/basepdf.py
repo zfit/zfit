@@ -67,7 +67,7 @@ from ..util.exception import DueToLazynessNotImplementedError, IntentionNotUnamb
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
-from ..settings import types as ztypes
+from ..settings import ztypes
 from ..util import exception as zexception
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}

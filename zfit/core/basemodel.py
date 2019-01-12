@@ -19,7 +19,7 @@ from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .interfaces import ZfitModel, ZfitParameter
 from .limits import Space, convert_to_space, no_multiple_limits, no_norm_range, supports
-from ..settings import types as ztypes
+from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
                               ShapeIncompatibleError, )

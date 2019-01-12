@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 from zfit import ztf
-from zfit.settings import types as ztypes
+from zfit.settings import ztypes
 
 # start legacy
 

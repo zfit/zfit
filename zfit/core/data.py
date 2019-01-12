@@ -15,7 +15,7 @@ from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
 from .limits import Space, convert_to_space
-from ..settings import types as ztypes
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError

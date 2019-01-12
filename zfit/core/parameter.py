@@ -18,7 +18,7 @@ from ..util.graph import get_dependents
 from ..util.exception import LogicalUndefinedOperationError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
-from ..settings import types as ztypes
+from ..settings import ztypes
 
 
 class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses

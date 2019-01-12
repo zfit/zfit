@@ -7,7 +7,7 @@ import numpy as np
 import zfit
 from zfit import ztf
 from .limits import Space, no_multiple_limits
-from ..settings import types as ztypes
+from ..settings import ztypes
 
 
 @no_multiple_limits

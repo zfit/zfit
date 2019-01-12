@@ -2,7 +2,7 @@ import functools
 
 import tensorflow as tf
 
-from ..settings import types as ztypes
+from ..settings import ztypes
 
 
 def log(x, name=None):

@@ -16,6 +16,9 @@ class ExtendedPDFError(Exception):
 class AlreadyExtendedPDFError(ExtendedPDFError):
     pass
 
+class NotExtendedPDFError(ExtendedPDFError):
+    pass
+
 
 class ConversionError(Exception):
     pass
@@ -96,6 +99,7 @@ class MultipleLimitsNotImplementedError(Exception):
     """Indicates that a function does not support several limits in a `Space`."""
     pass
 
+# Developer verbose messages
 
 class DueToLazynessNotImplementedError(Exception):
     """Only for developing purpose! Does not serve as a 'real' Exception."""
