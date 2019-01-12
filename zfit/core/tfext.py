@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from zfit import ztf
 import math as _mt
-from ..settings import types as ztypes
+from ..settings import ztypes
 
 ztf.pi = tf.constant(_mt.pi, dtype=ztypes.float)
 

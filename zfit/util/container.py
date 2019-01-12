@@ -1,5 +1,7 @@
 from typing import Callable, Any
 
+import tensorflow as tf
+
 
 class DotDict(dict):
     """dot.notation access to dictionary attributes"""
@@ -9,21 +11,26 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def convert_to_container(value: Any, container: Callable = list, convert_none=False) -> "container":
+def convert_to_container(value: Any, container: Callable = list, non_containers=None, convert_none=False) -> "container":
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:
         value (object):
-        container (callable): Converts an iterable to a container.
+        container (callable): Converts a tuple to a container.
 
     Returns:
 
     """
+    if non_containers is None:
+        non_containers = []
+    if not isinstance(non_containers, list):
+        raise TypeError("`non_containers` have to be a list or a tuple")
     if value is None and not convert_none:
         return value
     if not isinstance(value, container):
         try:
-            if isinstance(value, str):
+            non_containers.extend([str, tf.Tensor])
+            if isinstance(value, tuple(non_containers)):
                 raise TypeError
             value = container(value)
         except TypeError:

@@ -72,7 +72,7 @@ def test_gradient():
 def test_func():
     return  # HACK(Mayou36): changed Gauss to TF gauss -> different normalization
     test_values = np.array([3., 11.3, -0.2, -7.82])
-    test_values_tf = ztf.convert_to_tensor(test_values, dtype=zfit.settings.types.float)
+    test_values_tf = ztf.convert_to_tensor(test_values, dtype=zfit.settings.ztypes.float)
 
     for dist in gaussian_dists:
         vals = dist.unnormalized_pdf(test_values_tf)

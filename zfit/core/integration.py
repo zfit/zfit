@@ -14,7 +14,7 @@ from zfit import ztf
 from ..util import ztyping
 from ..util.exception import DueToLazynessNotImplementedError
 from .limits import convert_to_space, Space, supports
-from ..settings import types as ztypes
+from ..settings import ztypes
 
 
 @supports()

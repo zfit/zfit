@@ -3,8 +3,7 @@ import itertools
 import tensorflow as tf
 
 from zfit import ztf
-from ..settings import types as ztypes
-from . import tfext
+from ..settings import ztypes
 
 
 def poly_complex(*args, real_x=False):

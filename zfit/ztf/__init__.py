@@ -18,7 +18,8 @@
 #     except KeyError as error:
 #         _failed_imports.append(_name)
 # if _failed_imports:
-#     warnings.warn("The following modules/attributes from TensorFlow could NOT be imported:\n{}".format(_failed_imports))
+#     warnings.warn("The following modules/attributes from TensorFlow could NOT be imported:\n{}".format(
+#     _failed_imports))
 # globals().update(_imported)
 #
 # del _imported, _failed_imports, _to_import, _module_dict
@@ -26,6 +27,4 @@
 # same as in TensorFlow, wrapped
 
 from .zextension import to_complex, to_real, constant, inf, pi, abs_square, nth_pow, unstack_x
-from .wrapping_tf import log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum
-
-
+from .wrapping_tf import log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, square

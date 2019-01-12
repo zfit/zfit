@@ -22,7 +22,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError
 from ..util.temporary import TemporarilySet
-from ..settings import types as ztypes
+from ..settings import ztypes
 
 
 class BaseFunctor(FunctorMixin, BasePDF):

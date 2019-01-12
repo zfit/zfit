@@ -9,7 +9,7 @@ import tensorflow as tf
 
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
-from ..settings import types as ztypes
+from ..settings import ztypes
 from ..util import ztyping
 
 
