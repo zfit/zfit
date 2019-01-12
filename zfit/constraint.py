@@ -10,7 +10,11 @@ def nll_gaussian(params, mu, sigma):
     if not len(params) == len(mu) == len(sigma):
         raise ValueError("params, mu and sigma have to have the same length.")
     for param, mean, sig in zip(params, mu, sigma):
+        mean = ztf.convert_to_tensor(mean)
+        sig = ztf.convert_to_tensor(sig)
         constraint += ztf.reduce_sum(ztf.square(param - mean) / (2. * ztf.square(sig)))
+
+    return constraint
 
 
 # def nll_pdf(constraints: dict):
