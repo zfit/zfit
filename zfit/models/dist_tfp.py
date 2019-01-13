@@ -35,16 +35,16 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
         super().__init__(obs=obs, dtype=distribution.dtype, name=name, parameters=parameters, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
-        self.tf_distribution = distribution
+        self.distribution = distribution
 
     @property
     def _n_dims(self):
-        n_dims = self.tf_distribution.event_shape.as_list()
+        n_dims = self.distribution.event_shape.as_list()
         n_dims = (n_dims or [1])[0]  # n_obs is a list
         return n_dims
 
     def _unnormalized_pdf(self, x: "zfit.core.data.Data", norm_range=False):
-        return self.tf_distribution.prob(value=x.value(), name="unnormalized_pdf")  # TODO name
+        return self.distribution.prob(value=x.value(), name="unnormalized_pdf")  # TODO name
 
     # TODO: register integral
     @supports()
@@ -54,7 +54,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
             return ztf.to_real(1.)  # tfp distributions are normalized to 1
         lower = ztf.to_real(lower[0], dtype=self.dtype)
         upper = ztf.to_real(upper[0], dtype=self.dtype)
-        integral = self.tf_distribution.cdf(upper) - self.tf_distribution.cdf(lower)
+        integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
         return integral
 
 

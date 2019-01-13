@@ -7,9 +7,13 @@ def parents(op):
     return set(input.op for input in op.inputs)
 
 
-def all_parents(op):
-    ops = set(input.op for input in op.inputs)
-    return ops.union(*(all_parents(op) for op in ops))
+# TODO(Mayou36): make not recursive
+def all_parents(op, current_obs=None):
+    if current_obs is None:
+        current_obs = set()
+    ops = set(input_.op for input_ in op.inputs if input_.op not in current_obs)
+    current_obs = current_obs.union(ops)
+    return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
 
 
 def children(op):

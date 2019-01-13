@@ -31,11 +31,14 @@ XTypeInput = Union[np.ndarray, tf.Tensor, "Data"]
 XTypeReturn = Union[tf.Tensor, "Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
 
+NumericalScalarType = Union[int, float, complex, tf.Tensor]
+
 # Parameter
 ParamsType = Optional[Iterable['ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]
 ParamsOrNameType = Optional[Union[ParamsType, Iterable[str]]]
 ParametersType = Dict[str, "ZfitParameter"]
+ParamTypeInput = Union['ZfitParameter', NumericalScalarType]
 
 # TensorFlow specific
 SessionType = Optional[tf.Session]
