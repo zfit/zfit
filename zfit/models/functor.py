@@ -149,13 +149,18 @@ class SumPDF(BaseFunctor):
         if not extended and implicit:
             fracs = []
             not_extended_position = None
+            new_pdfs = []
             for i, pdf in enumerate(pdfs):
                 if pdf.is_extended:
                     fracs.append(pdf.get_yield())
-                    pdf.set_yield(None)  # make non-extended
+                    pdf = pdf.copy()
+                    pdf._set_yield_inplace(None)  # make non-extended
+
                 else:
                     fracs.append(tf.constant(0., dtype=ztypes.float))
                     not_extended_position = i
+                new_pdfs.append(pdf)
+            pdfs = new_pdfs
             remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
             assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                   data=[remaining_frac])  # check fractions
@@ -173,8 +178,8 @@ class SumPDF(BaseFunctor):
         # make extended
         elif extended and not implicit:
             yields = fracs
-            for pdf, yield_ in zip(pdfs, yields):
-                pdf.set_yield(yield_)
+            pdfs = [pdf.create_extended(yield_) for pdf, yield_ in zip(pdfs, yields)]
+
             implicit = True
 
         elif extended and implicit:
@@ -183,10 +188,13 @@ class SumPDF(BaseFunctor):
         if extended:
             # yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
             # self.fracs = yield_fracs
-            self.set_yield(tf.reduce_sum(yields))
+            self._set_yield_inplace(tf.reduce_sum(yields))
             self.fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
         else:
             self.fracs = fracs
+
+        self.pdfs = pdfs
+
 
     @property
     def _n_dims(self):

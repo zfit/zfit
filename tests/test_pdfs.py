@@ -146,8 +146,8 @@ def test_normalization_sum_gauss():
 
 def test_normalization_sum_gauss_extended():
     test_yield = 109.
-    sum_gauss.set_yield(test_yield)
-    normalization_testing(sum_gauss, normalization_value=test_yield)
+    sum_gauss_extended = sum_gauss.create_extended(test_yield)
+    normalization_testing(sum_gauss_extended, normalization_value=test_yield)
 
 
 def test_normalization_prod_gauss():
@@ -183,9 +183,9 @@ def test_extended_gauss():
         gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss11")
         gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss21")
         gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss31")
-        gauss1.set_yield(yield1)
-        gauss2.set_yield(yield2)
-        gauss3.set_yield(yield3)
+        gauss1 = gauss1.create_extended(yield1)
+        gauss2 = gauss2.create_extended(yield2)
+        gauss3 = gauss3.create_extended(yield3)
 
         gauss_dists = [gauss1, gauss2, gauss3]
 

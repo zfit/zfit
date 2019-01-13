@@ -100,7 +100,7 @@ def test_normalization():
             probs = np.average(probs) * (high - low)
             assert probs == pytest.approx(1., rel=0.05)
             assert log_probs == pytest.approx(zfit.run(tf.log(probs_small)), rel=0.05)
-            dist.set_yield(tf.constant(test_yield, dtype=tf.float64))
+            dist = dist.create_extended(ztf.constant(test_yield))
             probs_extended = dist.pdf(samples)
             result_extended = zfit.run(probs_extended)
             result_extended = np.average(result_extended) * (high - low)

@@ -38,7 +38,7 @@ sigma_constr = [3.8, 0.2]
 gaussian1 = Gauss(mu1, sigma1, obs=obs1, name="gaussian1")
 gaussian2 = Gauss(mu2, sigma2, obs=obs1, name="gaussian2")
 gaussian3 = Gauss(mu3, sigma3, obs=obs1, name="gaussian3")
-gaussian3.set_yield(value=yield3)
+gaussian3 = gaussian3.create_extended(yield3)
 
 
 def test_extended_unbinned_nll():

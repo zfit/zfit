@@ -39,7 +39,7 @@ We can create an extended PDF, which will result in anything using a `norm_range
 probability but the number probability (the function will be normalized to `yield` instead of 1 inside
 the `norm_range`)
 >>> yield1 = Parameter("yield1", 100, 0, 1000)
->>> gauss.set_yield(yield1)
+>>> gauss._set_yield_inplace(yield1)
 >>> gauss.is_extended
 True
 
@@ -63,12 +63,11 @@ from .interfaces import ZfitPDF
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import DueToLazynessNotImplementedError, IntentionNotUnambiguousError
+from ..util.exception import DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes
-from ..util import exception as zexception
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -387,7 +386,7 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def set_yield(self, value: Union[Parameter, float, None]):
+    def _set_yield_inplace(self, value: Union[Parameter, float, None]):
         """Make the model extended by (temporarily) setting a yield.
 
         This alters the behavior of `model` and similar and `integrate` and similar. If there is a
@@ -406,6 +405,25 @@ class BasePDF(ZfitPDF, BaseModel):
             return self.get_yield()
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
+
+    def create_extended(self, yield_: ztyping.ParamTypeInput, name_addition="_extended") -> "ZfitPDF":
+        """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
+
+        Args:
+            yield_ (numeric, Parameter):
+            name_addition (str):
+
+        Returns:
+            ZfitPDF
+        """
+        # TODO(Mayou36): fix copy
+        warnings.warn("As `copy` is not yet properly implemented, this may fails (for ProductPDF for example?). This"
+                      "will be fixed in the future.")
+        if self.is_extended:
+            raise AlreadyExtendedPDFError("This PDF is already extended, cannot create an extended one.")
+        new_pdf = self.copy(name=self.name + str(name_addition))
+        new_pdf._set_yield_inplace(value=yield_)
+        return new_pdf
 
     def _set_yield(self, value: Union[Parameter, None]):
         self._yield = value
@@ -429,8 +447,8 @@ class BasePDF(ZfitPDF, BaseModel):
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
-    def copy(self, **override_parameters):
-        """Creates a deep copy of the model.
+    def copy(self, **override_parameters) -> 'BasePDF':
+        """Creates a copy of the model.
 
         Note: the copy model may continue to depend on the original
         initialization arguments.
@@ -441,15 +459,36 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Returns:
           model: A new instance of `type(self)` initialized from the union
-            of self.parameters and override_parameters_kwargs, i.e.,
-            `dict(self.parameters, **override_parameters_kwargs)`.
+            of self.parameters and override_parameters, i.e.,
+            `dict(self.parameters, **override_parameters)`.
         """
-        parameters = dict(self.parameters, obs=self.obs, **override_parameters)
+        obs = self.norm_range
+        if obs is None:
+            obs = self.space
 
+        # HACK(Mayou36): remove once copy is proper implemented
+        from ..models.dist_tfp import WrapDistribution
+
+        if type(self) == WrapDistribution:
+            parameters = dict(distribution=self.distribution)
+        else:
+            # HACK END
+
+            parameters = dict(self.parameters)
+        from zfit.models.functor import BaseFunctor
+        if isinstance(self, BaseFunctor):
+            fracs = self.fracs
+            if not self.is_extended:
+                fracs = fracs[:-1]
+            parameters.update(pdfs=self.pdfs, fracs=fracs)
+        parameters.update(obs=obs, name=self.name)
+        parameters.update(**override_parameters)
+        # if hasattr(self, "distribution"):
+        #     parameters.update(distribution=self.distribution)
         yield_ = parameters.pop('yield', None)
         new_instance = type(self)(**parameters)
         if yield_ is not None:
-            new_instance.set_yield(yield_)
+            new_instance._set_yield_inplace(yield_)
         return new_instance
 
     def as_func(self, norm_range: ztyping.LimitsType = False):

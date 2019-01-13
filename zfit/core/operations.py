@@ -79,8 +79,7 @@ def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
                         "{}, {}".format(param, pdf))
     if pdf.is_extended:
         raise AlreadyExtendedPDFError()
-    new_pdf = pdf.copy(name=pdf.name + "_autoextended")
-    new_pdf.set_yield(param)
+    new_pdf = pdf.create_extended(param, name_addition="_autoextended")
     return new_pdf
 
 

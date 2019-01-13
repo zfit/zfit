@@ -206,7 +206,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @property
     @abc.abstractmethod
-    def data(self) -> "TODO(mayou36): add Dataset":
+    def data(self) -> List["ZfitData"]:
         raise NotImplementedError
 
     @property
@@ -215,7 +215,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_constraints(self, constraints: Dict[ZfitParameter, "ZfitModel"]):
+    def add_constraints(self, constraints: List[tf.Tensor]):
         raise NotImplementedError
 
 
@@ -328,7 +328,11 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_yield(self, value: Union[ZfitParameter, None]):
+    def _set_yield_inplace(self, value: Union[ZfitParameter, None]):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create_extended(self, yield_: ztyping.ParamTypeInput) -> "ZfitPDF":
         raise NotImplementedError
 
     @abc.abstractmethod
