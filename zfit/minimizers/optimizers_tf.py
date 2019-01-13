@@ -3,22 +3,22 @@ import tensorflow as tf
 from .base_tf import WrapOptimizer
 
 
-# class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, MinimizerInterface):
+# class AdadeltaMinimizer(AdapterTFOptimizer, tf.train.AdadeltaOptimizer, ZfitMinimizer):
 #     def __init__(self):
 #         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
 #
 #
-# class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, MinimizerInterface):
+# class AdagradMinimizer(AdapterTFOptimizer, tf.train.AdagradOptimizer, ZfitMinimizer):
 #     def __init__(self):
 #         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
 #
 #
-# class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer, MinimizerInterface):
+# class GradientDescentMinimizer(AdapterTFOptimizer, tf.train.GradientDescentOptimizer, ZfitMinimizer):
 #     def __init__(self):
 #         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
 #
 #
-# class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, MinimizerInterface):
+# class RMSPropMinimizer(AdapterTFOptimizer, tf.train.RMSPropOptimizer, ZfitMinimizer):
 #     def __init__(self):
 #         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
 

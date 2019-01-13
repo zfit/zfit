@@ -16,13 +16,12 @@ from typing import Dict, List, Union, Optional
 
 import zfit
 from zfit import ztf
-from zfit.core.interfaces import ZfitLoss
-from zfit.minimizers.fitresult import FitResult
-from zfit.util import ztyping
-from zfit.util.temporary import TemporarilySet
+from ..core.interfaces import ZfitLoss
+from ..util import ztyping
+from ..util.temporary import TemporarilySet
 
 
-class MinimizerInterface(object):
+class ZfitMinimizer(object):
     """Define the minimizer interface."""
 
     @abc.abstractmethod
@@ -53,7 +52,7 @@ class MinimizerInterface(object):
         raise NotImplementedError
 
 
-class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
+class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
     _DEFAULT_name = "BaseMinimizer"
 
     def __init__(self, name=None, tolerance=None):

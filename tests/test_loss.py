@@ -46,13 +46,14 @@ def test_extended_unbinned_nll():
     nll_object = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
                                                data=test_values,
                                                fit_range=(-20, 20))
-    minimizer = MinuitMinimizer(loss=nll_object)
-    status = minimizer.minimize(params=[mu3, sigma3, yield3], sess=zfit.run.sess)
-    params = status.get_parameters()
+    minimizer = MinuitMinimizer()
+    status = minimizer.minimize(loss=nll_object, params=[mu3, sigma3, yield3])
+    # params = status.get_parameters()
+    params = status.params
     # print(params)
-    assert params[mu3.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
-    assert params[sigma3.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
-    assert params[yield3.name]['value'] == pytest.approx(yield_true, rel=0.005)
+    assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
+    assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
+    assert params[yield3]['value'] == pytest.approx(yield_true, rel=0.005)
 
 def test_unbinned_simultaneous_nll():
     test_values = tf.constant(test_values_np)

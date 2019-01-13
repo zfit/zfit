@@ -1,8 +1,10 @@
+from collections import OrderedDict
 from typing import List
 
 import iminuit
 import tensorflow as tf
 
+from zfit.minimizers.fitresult import FitResult
 from ..core.parameter import Parameter
 from .baseminimizer import BaseMinimizer
 
@@ -12,12 +14,10 @@ class MinuitMinimizer(BaseMinimizer):
 
     def __init__(self, *args, **kwargs):
         self._minuit_minimizer = None
-        self._error_methods['minos'] = self._minuit_minos  # before super call!
-        self._error_methods['default'] = self._error_methods['minos']  # before super call!
         super().__init__(*args, **kwargs)
 
-    def _minimize(self, params: List[Parameter]):
-        loss = self.loss.value()
+    def _minimize(self, loss, params: List[Parameter]):
+        loss = loss.value()
         gradients = tf.gradients(loss, params)
         assign_params = self._extract_assign_method(params=params)
 
@@ -64,30 +64,14 @@ class MinuitMinimizer(BaseMinimizer):
                                    forced_parameters=params_name,
                                    **error_limit_kwargs)
         self._minuit_minimizer = minimizer
-        result = minimizer.migrad(precision=self.tolerance, **self._current_error_options)
-        params = [p_dict for p_dict in result[1]]
-        self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params)])
+        result = minimizer.migrad(precision=self.tolerance)
+        params_result = [p_dict for p_dict in result[1]]
+        self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
 
         edm = result[0]['edm']
         fmin = result[0]['fval']
         status = result[0]
-
-        self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
-        return self.get_state(copy=False)  # HACK(mayou36): copy not working?
-
-    def _minuit_minos(self, params=None, sigma=1.0):
-        if params is None:
-            params = self.get_parameters()
-        params_name = self._extract_parameter_names(params=params)
-        result = [self._minuit_minimizer.minos(var=p_name) for p_name in params_name][-1]  # returns every var
-        result = {p_name: result[p_name] for p_name in params_name}
-        for error_dict in result.values():
-            error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
-            error_dict['upper_error'] = error_dict['upper']  # TODO change value for protocol?
-        return result
-
-    def _hesse(self, params=None):
-        params_name = self._extract_parameter_names(params=params)
-        result = self._minuit_minimizer.hesse()
-        result = {p_dict.pop('name'): p_dict for p_dict in result if params is None or p_dict['name'] in params_name}
+        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        result = FitResult(params=params, edm=edm, fmin=fmin, status=status, loss=loss,
+                           minimizer=self)  # TODO(Mayou36): should be a copy of self
         return result

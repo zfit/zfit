@@ -1,37 +1,110 @@
 from collections import OrderedDict
+from typing import Dict
 
+import zfit
+from ..core.interfaces import ZfitLoss, ZfitParameter
+from .baseminimizer import ZfitMinimizer
+from ..util.temporary import TemporarilySet
+from ..util.container import convert_to_container
 from ..util.exception import NotMinimizedError
 
 
-class FitResult:
+def _hesse_minuit(result: "FitResult", params):
+    fit_result = result
+    params_name = [param.name for param in params]
+    result = fit_result.minimizer.hesse()
+    result = {p_dict.pop('name'): p_dict for p_dict in result if params is None or p_dict['name'] in params_name}
+    return result
 
-    def __init__(self, params, edm, fmin, status, loss, minimizer):
-        self._parameters = params
+
+def _minos_minuit(result, params, sigma=1.0):
+    fitresult = result
+    params_name = [param.name for param in params]
+    result = [fitresult.minimizer.minos(var=p_name) for p_name in params_name][-1]  # returns every var
+    result = {p_name: result[p_name] for p_name in params_name}
+    for error_dict in result.values():
+        error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
+        error_dict['upper_error'] = error_dict['upper']  # TODO change value for protocol?
+    return result
+
+
+class FitResult:
+    _default_hesse = 'minuit'
+    _hesse_methods = {'minuit': _hesse_minuit}
+    _default_error = 'minuit_minos'
+    _error_methods = {"minuit_minos": _minos_minuit}
+
+    def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: dict, loss: ZfitLoss,
+                 minimizer: ZfitMinimizer):
+        self._params = self._input_convert_params(params)
         self._edm = edm
         self._fmin = fmin
         self._status = status
         self._loss = loss
         self._minimizer = minimizer
 
-    def _set_parameters(self, params):  # TODO: define exactly one way to do it
-        try:
-            self._parameters = OrderedDict((p.name, p) for p in params)
-        except AttributeError:
-            self._parameters = OrderedDict((p['name'], p) for p in params)
+        self._sess = None
 
-    def get_parameters(self):  # TODO: more args?
-        params = self._parameters
-        if params is None:
-            raise NotMinimizedError("No minimization performed so far. No params set.")
+    def _input_convert_params(self, params):
+        params = OrderedDict((p, OrderedDict((('value', v),))) for p, v in params.items())
         return params
+
+    # def get_parameters(self):  # TODO: more args?
+    #     params = self._parameters
+    #     if params is None:
+    #         raise NotMinimizedError("No minimization performed so far. No params set.")
+    #     return params
+    def set_sess(self, sess):
+        value = sess
+
+        def getter():
+            return self._sess  # use private attribute! self.sess creates default session
+
+        def setter(value):
+            self.sess = value
+
+        return TemporarilySet(value=value, setter=setter, getter=getter)
+
+    @property
+    def sess(self):
+        sess = self._sess
+        if sess is None:
+            sess = zfit.run.sess
+        return sess
+
+    @sess.setter
+    def sess(self, sess):
+        self._sess = sess
+
+    @property
+    def params(self):
+        return self._params
 
     @property
     def edm(self):
+        """The estimated distance to the minimum.
+
+        Returns:
+            numeric
+        """
         edm = self._edm
-        return
+        return edm
+
+    @property
+    def minimizer(self):
+        return self._minimizer
+
+    @property
+    def loss(self):
+        return self._loss
 
     @property
     def fmin(self):
+        """Function value at the minimum.
+
+        Returns:
+            numeric
+        """
         fmin = self._fmin
         return fmin
 
@@ -40,13 +113,20 @@ class FitResult:
         status = self._status
         return status
 
-    # # just copy pasted
-    # @abc.abstractmethod
-    # def hesse(self, params=None, sess=None):
-    #     raise NotImplementedError
-    #
-    # def _hesse(self, params):
-    #     raise NotImplementedError
+    def hesse(self, params=None, method='minuit'):
+        if params is not None:
+            params = convert_to_container(params)
+        else:
+            params = list(self.params.keys())
+        return self._hesse(params=params, method=method)
+
+    def _hesse(self, params, method):
+        if not callable(method):
+            try:
+                method = self._hesse_methods[method]
+            except KeyError:
+                raise KeyError("The following method is not a valid, implemented method: {}".format(method))
+        return method(result=self, params=params)
     #
     # @abc.abstractmethod
     # def error(self, params=None, sigma=1., sess=None):
@@ -62,24 +142,7 @@ class FitResult:
     #
     # def _raises_error_method(*_, **__):
     #     raise NotImplementedError("No error method specified or implemented as default")
-    #
-    # @property
-    # def edm(self):
-    #     """The estimated distance to the minimum.
-    #
-    #     Returns:
-    #         numeric
-    #     """
-    #     return self.get_state(copy=False).edm
-    #
-    # @property
-    # def fmin(self):
-    #     """Function value at the minimum.
-    #
-    #     Returns:
-    #         numeric
-    #     """
-    #     return self.get_state(copy=False).fmin
+
     #
     # def hesse(self, params: ztyping.ParamsOrNameType = None, sess: ztyping.SessionType = None) -> Dict:
     #     """Calculate and set for `params` the symmetric error using the Hessian matrix.
@@ -144,6 +207,5 @@ class FitResult:
     #             (add/overwrite existing).
     #         **options (keyword arguments): The keyword arguments that will be given to `error`.
     #     """
-    #     if replace:
     #         self._current_error_options = {}
     #     self._current_error_options.update(options)
