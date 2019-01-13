@@ -1,10 +1,10 @@
-from typing import List, Union
+from typing import List
 
 import iminuit
 import tensorflow as tf
 
 from ..core.parameter import Parameter
-from ..core.minimizer import BaseMinimizer
+from .baseminimizer import BaseMinimizer
 
 
 class MinuitMinimizer(BaseMinimizer):

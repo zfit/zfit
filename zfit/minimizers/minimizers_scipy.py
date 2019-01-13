@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from ..core.minimizer import MinimizerInterface, BaseMinimizer
+from .baseminimizer import BaseMinimizer
 
 
 class ScipyMinimizer(BaseMinimizer):

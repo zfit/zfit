@@ -2,7 +2,7 @@ import pytest
 import tensorflow as tf
 
 from zfit.core.loss import SimpleLoss
-import zfit.core.minimizer as zmin
+import zfit.minimizers.baseminimizer as zmin
 from zfit import ztf
 import zfit.minimizers.optimizers_tf
 

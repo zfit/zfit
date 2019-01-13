@@ -16,8 +16,8 @@ from typing import Dict, List, Union, Optional
 
 import zfit
 from zfit import ztf
-from ..minimizers.state import MinimizerState
-from ..util import ztyping
+from zfit.minimizers.fitresult import MinimizerState
+from zfit.util import ztyping
 
 
 class MinimizerInterface(object):
@@ -420,9 +420,9 @@ class BaseMinimizer(MinimizerInterface, pep487.PEP487Object):
 
 # WIP below
 if __name__ == '__main__':
-    from .parameter import Parameter
-    from ..minimizers.minimizer_minuit import MinuitMinimizer, MinuitTFMinimizer
-    from ..minimizers.minimizer_tfp import BFGSMinimizer
+    from zfit.core.parameter import Parameter
+    from zfit.minimizers.minimizer_minuit import MinuitMinimizer, MinuitTFMinimizer
+    from zfit.minimizers.minimizer_tfp import BFGSMinimizer
 
     import time
 

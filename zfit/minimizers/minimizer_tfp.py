@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from ..core.minimizer import BaseMinimizer
+from .baseminimizer import BaseMinimizer
 
 
 class BFGSMinimizer(BaseMinimizer):

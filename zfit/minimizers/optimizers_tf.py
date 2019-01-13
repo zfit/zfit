@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-from ..core.minimizer import MinimizerInterface
 from .base_tf import WrapOptimizer
 
 
