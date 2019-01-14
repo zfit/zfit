@@ -32,7 +32,6 @@ class ScipyMinimizer(BaseMinimizer):
                   'grad': result['jac'],
                   'message': result['message'],
                   'original': result}
-        # self._assign_parameters(params=var_list, value=list(result_values))
 
         # TODO: make better
         edm = -999  # TODO: get from scipy result or how?
