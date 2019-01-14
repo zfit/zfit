@@ -55,22 +55,23 @@ def test_extended_unbinned_nll():
     assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
     assert params[yield3]['value'] == pytest.approx(yield_true, rel=0.005)
 
+
 def test_unbinned_simultaneous_nll():
     test_values = tf.constant(test_values_np)
     test_values2 = tf.constant(test_values_np2)
     nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
                                        data=[test_values, test_values2],
                                        fit_range=[(-np.infty, np.infty), (-np.infty, np.infty)]
-                                        )
+                                       )
     # nll_eval = zfit.run(nll)
-    minimizer = MinuitMinimizer(loss=nll_object)
-    status = minimizer.minimize(params=[mu1, sigma1, mu2, sigma2], sess=zfit.run.sess)
-    params = status.get_parameters()
+    minimizer = MinuitMinimizer()
+    status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
+    params = status.params
     # print(params)
-    assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
-    assert params[mu2.name]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.005)
-    assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
-    assert params[sigma2.name]['value'] == pytest.approx(np.std(test_values_np2), rel=0.005)
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
+    assert params[mu2]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.005)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
+    assert params[sigma2]['value'] == pytest.approx(np.std(test_values_np2), rel=0.005)
 
 
 def test_unbinned_nll():
@@ -80,12 +81,12 @@ def test_unbinned_nll():
     # nll = _unbinned_nll_tf(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
     # nll_eval = zfit.run(nll)
-    minimizer = MinuitMinimizer(loss=nll_object)
-    status = minimizer.minimize(params=[mu1, sigma1], sess=zfit.run.sess)
-    params = status.get_parameters()
+    minimizer = MinuitMinimizer()
+    status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
+    params = status.params
     # print(params)
-    assert params[mu1.name]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
-    assert params[sigma1.name]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
 
     # with constraints
     # zfit.run(init)
@@ -99,12 +100,12 @@ def test_unbinned_nll():
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                              constraints=constraints)
 
-    minimizer = MinuitMinimizer(loss=nll_object)
-    status = minimizer.minimize(params=[mu2, sigma2], sess=zfit.run.sess)
-    params = status.get_parameters()
+    minimizer = MinuitMinimizer()
+    status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
+    params = status.params
 
-    assert params[mu2.name]['value'] > np.mean(test_values_np)
-    assert params[sigma2.name]['value'] < np.std(test_values_np)
+    assert params[mu2]['value'] > np.mean(test_values_np)
+    assert params[sigma2]['value'] < np.std(test_values_np)
 
     print(status)
 

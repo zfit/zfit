@@ -7,7 +7,7 @@ from zfit import ztf
 import zfit.minimizers.optimizers_tf
 
 
-def minimize_func(minimizer_class_and_kwargs, sess):
+def minimize_func(minimizer_class_and_kwargs):
     from zfit.core.parameter import Parameter
 
     parameter_tolerance = 0.3
@@ -39,11 +39,9 @@ def minimize_func(minimizer_class_and_kwargs, sess):
     loss_func = SimpleLoss(loss_to_call)
 
     minimizer_class, minimizer_kwargs = minimizer_class_and_kwargs
-    minimizer = minimizer_class(loss=loss_func, **minimizer_kwargs)
-    init = tf.initialize_all_variables()
-    zfit.run(init)
+    minimizer = minimizer_class(**minimizer_kwargs)
 
-    minimizer.minimize(sess=zfit.run.sess, params=[a_param, b_param, c_param])
+    minimizer.minimize(loss=loss_func, params=[a_param, b_param, c_param])
     cur_val = zfit.run(loss_func.value())
     aval, bval, cval = zfit.run([v for v in (a_param, b_param, c_param)])
 
@@ -61,7 +59,7 @@ minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.tr
               # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
               # (zfit.minimize.MinuitTFMinimizer, {}),
               (zfit.minimize.MinuitMinimizer, {}),
-              # (zfit.minimize.ScipyMinimizer, {}),
+              (zfit.minimize.ScipyMinimizer, {}),
               ]
 
 
@@ -70,7 +68,7 @@ minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.tr
 @pytest.mark.parametrize("minimizer_class", minimizers)
 def test_minimizers(minimizer_class):
     # for minimizer_class in minimizers:
-    minimize_func(minimizer_class, sess=zfit.run.sess)
+    minimize_func(minimizer_class)
 
 
 if __name__ == '__main__':

@@ -3,10 +3,6 @@ from typing import List
 import tensorflow as tf
 
 
-def parents(op):
-    return set(input.op for input in op.inputs)
-
-
 # TODO(Mayou36): make not recursive
 def all_parents(op, current_obs=None):
     if current_obs is None:
@@ -14,10 +10,6 @@ def all_parents(op, current_obs=None):
     ops = set(input_.op for input_ in op.inputs if input_.op not in current_obs)
     current_obs = current_obs.union(ops)
     return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
-
-
-def children(op):
-    return set(op for out in op.outputs for op in out.consumers())
 
 
 def get_dependents(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[tf.Tensor]:
@@ -31,13 +23,6 @@ def get_dependents(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[tf.Te
     dependent_ops = all_parents(tensor.op)
     dependent_candidates = [cand for cand in candidates if cand.op in dependent_ops]
     return dependent_candidates
-
-
-# def print_tf_graph(graph):
-#     """Prints tensorflow graph in dictionary form."""
-#     for node in graph:
-#         for child in graph[node]:
-#             print("%s -> %s" % (node.name, child.name))
 
 
 if __name__ == '__main__':

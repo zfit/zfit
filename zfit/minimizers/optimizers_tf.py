@@ -26,7 +26,7 @@ from .base_tf import WrapOptimizer
 class AdamMinimizer(WrapOptimizer):
     _DEFAULT_name = 'Adam'
 
-    def __init__(self, loss, params=None, tolerance=None,
+    def __init__(self, tolerance=None,
                  learning_rate=0.2,
                  beta1=0.9,
                  beta2=0.999,
@@ -37,5 +37,4 @@ class AdamMinimizer(WrapOptimizer):
                                            beta1=beta1, beta2=beta2,
                                            epsilon=epsilon, use_locking=use_locking,
                                            name=name)
-        super().__init__(optimizer=optimizer, loss=loss, params=params,
-                         tolerance=tolerance, **kwargs)
+        super().__init__(optimizer=optimizer, tolerance=tolerance, **kwargs)
