@@ -16,6 +16,7 @@ from typing import Dict, List, Union, Optional
 
 import zfit
 from zfit import ztf
+from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss
 from ..util import ztyping
 from ..util.temporary import TemporarilySet
@@ -70,41 +71,6 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
             params = loss.get_dependents(only_floating=only_floating)
         return params
 
-    # def set_params(self, params: ztyping.ParamsType, update: bool = False):
-    #     """Set the parameters of the minimizer.
-    #
-    #     If `None`, the parameters are empty. If a dictionary is given,
-    #
-    #     Args:
-    #         params (list, dict, None): The parameters.
-    #         update (bool): If True, add (or overwrite if existing) the `params` to the currently
-    #             stored parameters.
-    #     """
-    #     if params is None:
-    #         if update:
-    #             raise ValueError("Cannot specify `None` as params *and* set `update` to True.")
-    #         self._params = OrderedDict()
-    #         return
-    #     if not hasattr(params, "__len__"):
-    #         params = (params,)
-    #
-    #     if not update:  # overwrite: create empty instance
-    #         self._params = OrderedDict()
-    #     if isinstance(params, dict):
-    #         self._params.update(params)
-    #     else:
-    #         for param in params:
-    #             self._params[param.name] = param
-
-    # @contextlib.contextmanager
-    # def _temp_set_parameters(self, params):
-    #     old_params = self._params
-    #     try:
-    #         self.set_params(params)
-    #         yield params
-    #     finally:
-    #         self.set_params(old_params)
-
     def set_sess(self, sess):
         value = sess
 
@@ -115,34 +81,6 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
             self.sess = value
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
-
-    # def get_parameters(self, names: Optional[Union[List[str], str]] = None,
-    #                    only_floating: bool = True) -> List['Parameter']:  # TODO: automatically set?
-    #     """Return the parameters. If it is empty, automatically set and return all trainable variables.
-    #
-    #     Args:
-    #         names (str, list(str)): The names of the parameters to return.
-    #         only_floating (bool): If True, return only the floating parameters.
-    #
-    #     Returns:
-    #         list(`zfit.FitParameters`):
-    #     """
-    #     if not self._params:
-    #         raise RuntimeError("Currently need to pass explicitely the parameters.")
-    #         self.set_params(params=tf.trainable_variables())
-    #     if isinstance(names, str):
-    #         names = (names,)
-    #     if names is not None:
-    #         missing_names = set(names).difference(self._params.keys())
-    #         if missing_names:
-    #             raise KeyError("The following names are not valid parameter names")
-    #         params = [self._params[name] for name in names]
-    #     else:
-    #         params = list(self._params.values())
-    #
-    #     if only_floating:
-    #         params = self._filter_floating_params(params=params)
-    #     return params
 
     @staticmethod
     def _filter_floating_params(params):
@@ -219,7 +157,7 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
         params = self._check_input_params(params)
         return self._step(params=params)
 
-    def minimize(self, loss, params: ztyping.ParamsOrNameType = None) -> "FitResult":
+    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsOrNameType = None) -> "FitResult":
         """Fully minimize the `loss` with respect to `params` using `sess`.
 
         Args:
@@ -248,31 +186,29 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
     def _minimize_with_step(self, loss, params):  # TODO improve
         changes = collections.deque(np.ones(10))
         last_val = -10
-        cur_val = 9999999
         try:
             step = self._step_tf(loss=loss, params=params)
         except NotImplementedError:
             step_fn = self.step
         else:
             def step_fn(loss, params):
-                return self.sess.run(step)
+                return self.sess.run([step, loss.value()])
+
         while sum(sorted(changes)[-3:]) > self.tolerance:  # TODO: improve condition
-            _ = step_fn(loss=loss, params=params)
+            _, cur_val = step_fn(loss=loss, params=params)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
-            cur_val = self.sess.run(loss.value())  # TODO: improve...
         fmin = cur_val
         edm = -999  # TODO: get edm
         status = {}  # TODO: create status
+        param_values = self.sess.run(params)
+        params = OrderedDict((p, val) for p, val in zip(params, param_values))
 
-        # TODO(Mayou36): create FitResult
-        # HACK remove the line, `get_state()` currently cannot return Tensors
-        return fmin
-        # HACK END
+        return FitResult(params=params, edm=edm, fmin=fmin, status=status,
+                         loss=loss, minimizer=self)
 
 
-# WIP below
 if __name__ == '__main__':
     from zfit.core.parameter import Parameter
     from zfit.minimizers.minimizer_minuit import MinuitMinimizer, MinuitTFMinimizer

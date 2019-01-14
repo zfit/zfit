@@ -3,7 +3,6 @@ from typing import Dict
 
 import zfit
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from .baseminimizer import ZfitMinimizer
 from ..util.temporary import TemporarilySet
 from ..util.container import convert_to_container
 from ..util.exception import NotMinimizedError
@@ -35,7 +34,7 @@ class FitResult:
     _error_methods = {"minuit_minos": _minos_minuit}
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: dict, loss: ZfitLoss,
-                 minimizer: ZfitMinimizer):
+                 minimizer: "ZfitMinimizer"):
         self._params = self._input_convert_params(params)
         self._edm = edm
         self._fmin = fmin

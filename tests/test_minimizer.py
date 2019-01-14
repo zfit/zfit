@@ -63,7 +63,7 @@ minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.tr
               ]
 
 
-# print("DEBUG": after minimizer instanciation")
+# print("DEBUG": after minimizer instantiation")
 
 @pytest.mark.parametrize("minimizer_class", minimizers)
 def test_minimizers(minimizer_class):
