@@ -7,6 +7,7 @@ import abc
 import collections
 from collections import OrderedDict
 import contextlib
+import copy
 
 import numpy as np
 import tensorflow as tf
@@ -184,7 +185,8 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
                 raise error
 
     def _minimize_with_step(self, loss, params):  # TODO improve
-        changes = collections.deque(np.ones(10))
+        n_old_vals = 10
+        changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
         try:
             step = self._step_tf(loss=loss, params=params)
@@ -201,12 +203,24 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
             last_val = cur_val
         fmin = cur_val
         edm = -999  # TODO: get edm
-        status = {}  # TODO: create status
+
+        # compose fit result
+        message = "successful finished"
+        are_unique = len(set(changes)) > 1  # values didn't change...
+        if not are_unique:
+            message = "Loss unchanged for last {} steps".format(n_old_vals)
+
+        success = are_unique
+
+        status = {'success': success, 'message': message}  # TODO: create status
         param_values = self.sess.run(params)
         params = OrderedDict((p, val) for p, val in zip(params, param_values))
 
         return FitResult(params=params, edm=edm, fmin=fmin, status=status,
-                         loss=loss, minimizer=self)
+                         loss=loss, minimizer=self.copy())
+
+    def copy(self):
+        return copy.copy(self)
 
 
 if __name__ == '__main__':

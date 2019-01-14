@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import copy
 
 import tensorflow as tf
 
@@ -22,7 +23,7 @@ class ScipyMinimizer(BaseMinimizer):
         minimizer = ScipyOptimizerInterface(loss=loss, var_list=var_list,
                                             var_to_bounds=var_to_bounds,
                                             **self._scipy_init_kwargs)
-        self._scipy_minimizer = minimizer
+        # self._scipy_minimizer = minimizer
         result = minimizer.minimize(session=self.sess)
         result_values = result['x']
         status = {'converged': result['success'],
@@ -40,7 +41,7 @@ class ScipyMinimizer(BaseMinimizer):
         params = OrderedDict((p, v) for p, v in zip(var_list, result_values))
 
         fitresult = FitResult(params=params, edm=edm, fmin=fmin, status=status,
-                              loss=loss, minimizer=self)
+                              loss=loss, minimizer=self.copy())
 
         # self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
 

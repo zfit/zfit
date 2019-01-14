@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import copy
 from typing import List
 
 import iminuit
@@ -59,10 +60,11 @@ class MinuitMinimizer(BaseMinimizer):
             error_limit_kwargs.update(param_kwargs)
         params_name = [param.name for param in params]
 
-        minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
-                                   grad=grad_func,
-                                   forced_parameters=params_name,
-                                   **error_limit_kwargs)
+        if self._minuit_minimizer is None:
+            minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
+                                       grad=grad_func,
+                                       forced_parameters=params_name,
+                                       **error_limit_kwargs)
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(precision=self.tolerance)
         params_result = [p_dict for p_dict in result[1]]
@@ -73,5 +75,12 @@ class MinuitMinimizer(BaseMinimizer):
         status = result[0]
         params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
         result = FitResult(params=params, edm=edm, fmin=fmin, status=status, loss=loss,
-                           minimizer=self)  # TODO(Mayou36): should be a copy of self
+                           minimizer=self.copy())  # TODO(Mayou36): should be a copy of self
         return result
+
+    def copy(self):
+        tmp_minimizer = self._minuit_minimizer
+        self._minuit_minimizer = None
+        new_minimizer = super().copy()
+        new_minimizer._minuit_minimizer = tmp_minimizer
+        return new_minimizer
