@@ -5,7 +5,6 @@ import zfit
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util.temporary import TemporarilySet
 from ..util.container import convert_to_container
-from ..util.exception import NotMinimizedError
 
 
 def _hesse_minuit(result: "FitResult", params):
@@ -19,7 +18,7 @@ def _hesse_minuit(result: "FitResult", params):
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
     params_name = [param.name for param in params]
-    result = [fitresult.minimizer.minos(var=p_name) for p_name in params_name][-1]  # returns every var
+    result = [fitresult.minimizer.minos(var=p_name, sigma=sigma) for p_name in params_name][-1]  # returns every var
     result = {p_name: result[p_name] for p_name in params_name}
     for error_dict in result.values():
         error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
@@ -33,12 +32,15 @@ class FitResult:
     _default_error = 'minuit_minos'
     _error_methods = {"minuit_minos": _minos_minuit}
 
-    def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: dict, loss: ZfitLoss,
+    def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int,
+                 converged: bool, info: dict, loss: ZfitLoss,
                  minimizer: "ZfitMinimizer"):
+        self._status = status
+        self._converged = converged
         self._params = self._input_convert_params(params)
         self._edm = edm
         self._fmin = fmin
-        self._status = status
+        self._info = info
         self._loss = loss
         self._minimizer = minimizer
 
@@ -111,6 +113,10 @@ class FitResult:
     def status(self):
         status = self._status
         return status
+
+    @property
+    def info(self):
+        return self._info
 
     def hesse(self, params=None, method='minuit'):
         if params is not None:

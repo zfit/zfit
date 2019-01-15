@@ -26,12 +26,13 @@ class ScipyMinimizer(BaseMinimizer):
         # self._scipy_minimizer = minimizer
         result = minimizer.minimize(session=self.sess)
         result_values = result['x']
-        status = {'converged': result['success'],
-                  'n_eval': result['nfev'],
-                  'n_iter': result['nit'],
-                  'grad': result['jac'],
-                  'message': result['message'],
-                  'original': result}
+        converged = result['success']
+        status = result['status']
+        info = {'n_eval': result['nfev'],
+                'n_iter': result['nit'],
+                'grad': result['jac'],
+                'message': result['message'],
+                'original': result}
 
         # TODO: make better
         edm = -999  # TODO: get from scipy result or how?
@@ -39,7 +40,8 @@ class ScipyMinimizer(BaseMinimizer):
 
         params = OrderedDict((p, v) for p, v in zip(var_list, result_values))
 
-        fitresult = FitResult(params=params, edm=edm, fmin=fmin, status=status,
+        fitresult = FitResult(params=params, edm=edm, fmin=fmin, info=info,
+                              converged=converged, status=status,
                               loss=loss, minimizer=self.copy())
 
         # self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])

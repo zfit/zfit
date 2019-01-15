@@ -68,6 +68,7 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
         if isinstance(params, (str, tf.Variable)) or (not hasattr(params, "__len__") and params is not None):
             params = [params, ]
+            params = self._filter_floating_params(params)
         if params is None or isinstance(params[0], str):
             params = loss.get_dependents(only_floating=only_floating)
         return params
@@ -211,12 +212,14 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
             message = "Loss unchanged for last {} steps".format(n_old_vals)
 
         success = are_unique
+        status = 0 if success else 10
 
-        status = {'success': success, 'message': message}  # TODO: create status
+        info = {'success': success, 'message': message}  # TODO: create status
         param_values = self.sess.run(params)
         params = OrderedDict((p, val) for p, val in zip(params, param_values))
 
-        return FitResult(params=params, edm=edm, fmin=fmin, status=status,
+        return FitResult(params=params, edm=edm, fmin=fmin, info=info,
+                         converged=success, status=status,
                          loss=loss, minimizer=self.copy())
 
     def copy(self):

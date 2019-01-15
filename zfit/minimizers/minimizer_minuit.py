@@ -70,12 +70,19 @@ class MinuitMinimizer(BaseMinimizer):
         params_result = [p_dict for p_dict in result[1]]
         self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
 
+        info = {'n_eval': result[0]['nfcn'],
+                # 'n_iter': result['nit'],
+                # 'grad': result['jac'],
+                # 'message': result['message'],
+                'original': result[0]}
         edm = result[0]['edm']
         fmin = result[0]['fval']
-        status = result[0]
+        status = -999  # TODO: set?
+        converged = result[0]['is_valid']
         params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
-        result = FitResult(params=params, edm=edm, fmin=fmin, status=status, loss=loss,
-                           minimizer=self.copy())  # TODO(Mayou36): should be a copy of self
+        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+                           status=status, converged=converged,
+                           minimizer=self.copy())
         return result
 
     def copy(self):
