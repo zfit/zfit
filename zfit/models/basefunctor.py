@@ -19,7 +19,8 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         self._model_obs = tuple(model.obs for model in models)
         possible_obs = self._infer_obs_from_daughters(daughter_obs=self._model_obs)
         if possible_obs is False:
-            raise RuntimeError("TODO: space not compatible for functor")
+            pass
+            # raise RuntimeError("TODO: space not compatible for functor")
         else:
             self._obs = possible_obs
 
