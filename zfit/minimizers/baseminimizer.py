@@ -3,58 +3,26 @@ Definition of minimizers, wrappers etc.
 
 """
 
-import abc
 import collections
 from collections import OrderedDict
-import contextlib
 import copy
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 import pep487
-from typing import Dict, List, Union, Optional
 
 import zfit
 from zfit import ztf
+from .interface import ZfitMinimizer
+from ..util.execution import SessionHolderMixin
 from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss
 from ..util import ztyping
 from ..util.temporary import TemporarilySet
 
 
-class ZfitMinimizer(object):
-    """Define the minimizer interface."""
-
-    @abc.abstractmethod
-    def minimize(self, loss, params=None):
-        raise NotImplementedError
-
-    def _minimize(self, loss, params):
-        raise NotImplementedError
-
-    def _minimize_with_step(self, loss, params):
-        raise NotImplementedError
-
-    def step(self, loss, params=None):
-        raise NotImplementedError
-
-    def _step_tf(self, loss, params):
-        raise NotImplementedError
-
-    def _step(self, loss, params):
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def tolerance(self):
-        raise NotImplementedError
-
-    def _tolerance(self):
-        raise NotImplementedError
-
-
-class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
+class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
     _DEFAULT_name = "BaseMinimizer"
 
     def __init__(self, name=None, tolerance=None):
@@ -72,17 +40,6 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
         if params is None or isinstance(params[0], str):
             params = loss.get_dependents(only_floating=only_floating)
         return params
-
-    def set_sess(self, sess):
-        value = sess
-
-        def getter():
-            return self._sess  # use private attribute! self.sess creates default session
-
-        def setter(value):
-            self.sess = value
-
-        return TemporarilySet(value=value, setter=setter, getter=getter)
 
     @staticmethod
     def _filter_floating_params(params):
@@ -111,17 +68,6 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
     def _update_parameters(self, params, values):
         feed_dict = {param.placeholder: val for param, val in zip(params, values)}
         return self.sess.run(self._extract_update_op(params), feed_dict=feed_dict)
-
-    @property
-    def sess(self):
-        sess = self._sess
-        if sess is None:
-            sess = zfit.run.sess
-        return sess
-
-    @sess.setter
-    def sess(self, sess):
-        self._sess = sess
 
     @property
     def tolerance(self):
@@ -159,13 +105,13 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
         params = self._check_input_params(params)
         return self._step(params=params)
 
-    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsOrNameType = None) -> FitResult:
-        """Fully minimize the `loss` with respect to `params` using `sess`.
+    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
+        """Fully minimize the `loss` with respect to `params`.
 
         Args:
-            params (list(str) or list(`zfit.Parameter`): The parameters with respect to which to
-                minimize the `loss`.
-            sess (`tf.Session`): The session to use.
+            loss (ZfitLoss): Loss to be minimized.
+            params (list(`zfit.Parameter`): The parameters with respect to which to
+                minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
 
         Returns:
             `FitResult`: The fit result.

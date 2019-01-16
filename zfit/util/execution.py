@@ -8,6 +8,8 @@ import warnings
 
 import tensorflow as tf
 
+import zfit
+from zfit.util.temporary import TemporarilySet
 from .container import DotDict
 
 
@@ -97,3 +99,39 @@ class RunManager:
     @sess.setter
     def sess(self, value):
         self._sess = value
+
+
+class SessionHolderMixin:
+
+    def __init__(self, *args, **kwargs):
+        """Creates a `self.sess` attribute, a setter `set_sess` (with a fallback to the zfit default session)."""
+        super().__init__(*args, **kwargs)
+        self._sess = None
+
+    def set_sess(self, sess: tf.Session):
+        """Set the session (temporarily) for this instance. If None, the auto-created default is taken.
+
+        Args:
+            sess (tf.Session):
+        """
+        if not isinstance(sess, tf.Session):
+            raise TypeError("`sess` has to be a TensorFlow Session but is {}".format(sess))
+
+        def getter():
+            return self._sess  # use private attribute! self.sess creates default session
+
+        def setter(value):
+            self.sess = value
+
+        return TemporarilySet(value=sess, setter=setter, getter=getter)
+
+    @property
+    def sess(self):
+        sess = self._sess
+        if sess is None:
+            sess = zfit.run.sess
+        return sess
+
+    @sess.setter
+    def sess(self, sess: tf.Session):
+        self._sess = sess

@@ -4,17 +4,23 @@ from typing import Dict, Union, Callable
 import tensorflow as tf
 
 import zfit
-from zfit.minimizers.baseminimizer import ZfitMinimizer
-from ..util.ztyping import ParamsOrNameType, ParamsTypeOpt
+from zfit.util.execution import SessionHolderMixin
+from .interface import ZfitMinimizer, ZfitResult
+from ..util.ztyping import ParamsTypeOpt
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util.temporary import TemporarilySet
 from ..util.container import convert_to_container
 
 
 def _hesse_minuit(result: "FitResult", params):
-    fit_result = result
+    fitresult = result
+    minimizer = fitresult.minimizer
+    from zfit.minimizers.minimizer_minuit import MinuitMinimizer
+    if not isinstance(minimizer, MinuitMinimizer):
+        raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
+                        "`MinuitMinimizer`.")
     params_name = OrderedDict((param.name, param) for param in params)
-    result_hesse = fit_result.minimizer._minuit_minimizer.hesse()
+    result_hesse = fitresult.minimizer._minuit_minimizer.hesse()
     result_hesse = OrderedDict((res['name'], res) for res in result_hesse)
 
     result = OrderedDict((params_name[p_name], {'error': res['error']})
@@ -24,21 +30,25 @@ def _hesse_minuit(result: "FitResult", params):
 
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
-    result = [fitresult.minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
+    minimizer = fitresult.minimizer
+    from zfit.minimizers.minimizer_minuit import MinuitMinimizer
+    if not isinstance(minimizer, MinuitMinimizer):
+        raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer then"
+                        "`MinuitMinimizer`.")
+    result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
               for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
     return result
 
 
-class FitResult:
+class FitResult(SessionHolderMixin, ZfitResult):
     _default_hesse = 'minuit'
     _hesse_methods = {'minuit': _hesse_minuit}
     _default_error = 'minuit_minos'
     _error_methods = {"minuit_minos": _minos_minuit}
 
-    def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int,
-                 converged: bool, info: dict, loss: ZfitLoss,
-                 minimizer: "ZfitMinimizer"):
+    def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
+                 info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
         Args:
@@ -56,6 +66,7 @@ class FitResult:
                 and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
                 won't be altered.
         """
+        super().__init__()
         self._status = status
         self._converged = converged
         self._params = self._input_convert_params(params)
@@ -73,32 +84,6 @@ class FitResult:
         params = OrderedDict((p, OrderedDict((('value', v),))) for p, v in params.items())
         return params
 
-    def set_sess(self, sess: tf.Session):
-        """Set the session (temporarily) the `FitResult` works with (for errors etc.). If None, the default is taken.
-
-        Args:
-            sess (tf.Session):
-        """
-        value = sess
-
-        def getter():
-            return self._sess  # use private attribute! self.sess creates default session
-
-        def setter(value):
-            self.sess = value
-
-        return TemporarilySet(value=value, setter=setter, getter=getter)
-
-    @property
-    def sess(self):
-        sess = self._sess
-        if sess is None:
-            sess = zfit.run.sess
-        return sess
-
-    @sess.setter
-    def sess(self, sess):
-        self._sess = sess
 
     @property
     def params(self):
