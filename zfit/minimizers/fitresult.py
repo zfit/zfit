@@ -20,7 +20,7 @@ def _hesse_minuit(result: "FitResult", params):
         raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
                         "`MinuitMinimizer`.")
     params_name = OrderedDict((param.name, param) for param in params)
-    result_hesse = fitresult.minimizer._minuit_minimizer.hesse()
+    result_hesse = minimizer._minuit_minimizer.hesse()
     result_hesse = OrderedDict((res['name'], res) for res in result_hesse)
 
     result = OrderedDict((params_name[p_name], {'error': res['error']})
@@ -83,7 +83,6 @@ class FitResult(SessionHolderMixin, ZfitResult):
     def _input_convert_params(self, params):
         params = OrderedDict((p, OrderedDict((('value', v),))) for p, v in params.items())
         return params
-
 
     @property
     def params(self):
@@ -170,6 +169,12 @@ class FitResult(SessionHolderMixin, ZfitResult):
                      errors. If `params` is `None`, use all *floating* parameters.
                 method (str or Callable): The method to use to calculate the errors. Valid choices are
                     {'minuit_minos'} or a Callable.
+                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition
+                    of 1 sigma depends on the loss function and is defined there.
+
+                    For example, the negative log-likelihood (without the factor of 2) has a correspondents
+                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
+
 
             Returns:
                 `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which

@@ -13,9 +13,11 @@ from .baseminimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name=None, tolerance=None):
+        if name is None:
+            name = self._DEFAULT_name
+        super().__init__(name=name, tolerance=tolerance)
         self._minuit_minimizer = None
-        super().__init__(*args, **kwargs)
 
     def _minimize(self, loss, params: List[Parameter]):
         loss = loss.value()

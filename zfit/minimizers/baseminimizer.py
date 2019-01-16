@@ -88,7 +88,6 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             list(const): the current value of parameters
         """
         values = [p for p in params]
-        # TODO: implement if initial val not given
         return values
 
     def step(self, loss, params: ztyping.ParamsOrNameType = None):
