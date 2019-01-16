@@ -59,9 +59,10 @@ def minimize_func(minimizer_class_and_kwargs):
         errors = result.error()
         a_error = a_errors[a_param]
         assert a_error['lower'] == pytest.approx(-a_error['upper'], rel=0.01)
-        assert abs(a_error['lower']) < 0.01
-        assert abs(errors[b_param]['lower']) < 0.01
-        assert abs(errors[c_param]['lower']) < 0.5
+        assert abs(a_error['lower']) == pytest.approx(0.0067, rel=0.07)
+        assert abs(errors[b_param]['lower']) == pytest.approx(0.0067, rel=0.07)
+        assert abs(errors[c_param]['lower']) == pytest.approx(0.074, rel=0.07)
+        assert abs(errors[c_param]['upper']) == pytest.approx(0.088, rel=0.07)
 
         assert errors[a_param]['lower'] == pytest.approx(a_error['lower'], rel=0.01)
         assert errors[a_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
@@ -71,23 +72,24 @@ def minimize_func(minimizer_class_and_kwargs):
         assert tuple(b_hesses.keys()) == (b_param,)
         errors = result.hesse()
         b_hesse = b_hesses[b_param]
-        assert abs(b_hesse['error']) < 0.01
-        assert abs(errors[b_param]['error']) < 0.01
-        assert abs(errors[c_param]['error']) < 0.5
+        assert abs(b_hesse['error']) == pytest.approx(0.0065, rel=0.07)
+        assert abs(errors[b_param]['error']) == pytest.approx(0.0065, rel=0.07)
+        assert abs(errors[c_param]['error']) == pytest.approx(0.3, rel=0.07)
 
         assert errors[b_param]['error'] == pytest.approx(b_hesse['error'], rel=0.01)
 
 
-minimizers = [(zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer()), False),
-              (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.5), False),
-              # zmin.AdadeltaMinimizer,  # not working well...
-              # (zfit.minimizers.optimizers_tf.AdagradMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
-              # (zfit.minimizers.optimizers_tf.GradientDescentMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
-              # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
-              # (zfit.minimize.MinuitTFMinimizer, {}),
-              (zfit.minimize.MinuitMinimizer, {}, True),
-              (zfit.minimize.ScipyMinimizer, {}, False),
-              ]
+minimizers = [
+    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
+    (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.5), False),
+    # zmin.AdadeltaMinimizer,  # not working well...
+    # (zfit.minimizers.optimizers_tf.AdagradMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+    # (zfit.minimizers.optimizers_tf.GradientDescentMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+    # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
+    # (zfit.minimize.MinuitTFMinimizer, {}),
+    (zfit.minimize.MinuitMinimizer, {}, True),
+    (zfit.minimize.ScipyMinimizer, {}, False),
+    ]
 
 
 # print("DEBUG": after minimizer instantiation")

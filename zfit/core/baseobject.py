@@ -56,10 +56,12 @@ class BaseObject(ZfitObject):
             raise NotImplementedError("Unfortunately, this feature is not implemented.")
         if name is None:
             name = self.name + "_copy"  # TODO: improve name mangling
-        params = self.parameters.copy()
-        params.update(overwrite_params)
-        new_object = type(self)(name=name, **params)
-        return new_object
+        # params = self.parameters.copy()
+        raise RuntimeError("This copy should not be used.")
+
+        # params.update(overwrite_params)
+        # new_object = type(self)(name=name, **params)
+        # return new_object
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):

@@ -1,8 +1,11 @@
 from collections import OrderedDict
 from typing import Dict, Union, Callable
 
+import tensorflow as tf
+
 import zfit
-from zfit.util.ztyping import ParamsOrNameType
+from zfit.minimizers.baseminimizer import ZfitMinimizer
+from ..util.ztyping import ParamsOrNameType, ParamsTypeOpt
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util.temporary import TemporarilySet
 from ..util.container import convert_to_container
@@ -21,13 +24,9 @@ def _hesse_minuit(result: "FitResult", params):
 
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
-    # params_name = [param.name for param in params]
-    result = [fitresult.minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma) for p in params][
-        -1]  # returns every var
+    result = [fitresult.minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
+              for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
-    # for error_dict in result.values():
-    #     error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
-    #     error_dict['upper_error'] = error_dict['upper']  # TODO change value for protocol?
     return result
 
 
@@ -40,6 +39,23 @@ class FitResult:
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int,
                  converged: bool, info: dict, loss: ZfitLoss,
                  minimizer: "ZfitMinimizer"):
+        """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
+
+        Args:
+            params (OrderedDict[Parameter, float]): Result of the fit where each Parameter key has the value
+                from the minimum found by the minimizer.
+            edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)
+            fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer
+            status (int): A status code (if available)
+            converged (bool): Whether the fit has succesfully converged or not.
+            info (Dict): Additional information (if available) like *number of function calls* and the
+                original minimizer return message.
+            loss (Union[ZfitLoss]): The loss function that was minimized. Contains also the pdf, data etc.
+            minimizer (ZfitMinimizer): Minimizer that was used to obtain this `FitResult` and will be used to
+                calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
+                and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                won't be altered.
+        """
         self._status = status
         self._converged = converged
         self._params = self._input_convert_params(params)
@@ -57,7 +73,12 @@ class FitResult:
         params = OrderedDict((p, OrderedDict((('value', v),))) for p, v in params.items())
         return params
 
-    def set_sess(self, sess):
+    def set_sess(self, sess: tf.Session):
+        """Set the session (temporarily) the `FitResult` works with (for errors etc.). If None, the default is taken.
+
+        Args:
+            sess (tf.Session):
+        """
         value = sess
 
         def getter():
@@ -127,12 +148,21 @@ class FitResult:
             params = list(self.params.keys())
         return params
 
-    def hesse(self, params: ParamsOrNameType = None, method='minuit') -> OrderedDict:
+    def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit') -> OrderedDict:
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
         Args:
             params (list(`zfit.FitParameters`)): The parameters  to calculate the
                 Hessian symmetric error. If None, use all parameters.
+            method (str): the method to calculate the hessian. Can be {'minuit'} or a callable.
+
+        Returns:
+            OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding
+                the error dict {'error': sym_error}.
+
+                So given param_a (from zfit.Parameter(.))
+                `error_a = result.hesse(params=param_a)[param_a]['error']`
+                error_a is the hessian error.
         """
         params = self._input_check_params(params)
         return self._hesse(params=params, method=method)
@@ -145,7 +175,7 @@ class FitResult:
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params)
 
-    def error(self, params: ParamsOrNameType = None, method: Union[str, Callable] = 'minuit_minos',
+    def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_minos',
               sigma: float = 1.) -> OrderedDict:
 
         """Calculate and set for `params` the asymmetric error using the set error method.
@@ -153,9 +183,11 @@ class FitResult:
             Args:
                 params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
+                method (str or Callable): The method to use to calculate the errors. Valid choices are
+                    {'minuit_minos'} or a Callable.
 
             Returns:
-                `dict`: A `dict` containing as keys the parameter names and as value a `dict` which
+                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
                     contains (next to probably more things) two keys 'lower' and 'upper',
                     holding the calculated errors.
                     Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
