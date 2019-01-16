@@ -1,3 +1,6 @@
+import functools
+import time
+
 import pytest
 import tensorflow as tf
 import numpy as np
@@ -6,6 +9,39 @@ from zfit.core.loss import SimpleLoss
 import zfit.minimizers.baseminimizer as zmin
 from zfit import ztf
 import zfit.minimizers.optimizers_tf
+
+
+# helper function
+def retry(exception, tries=4, delay=0.001, backoff=1):
+    """Call the decorated function catching `exception` for `tries` time.
+
+    Args:
+        exception (Exception):
+        tries (int): The number of tries to try
+        delay (float): the delay in seconds between the  function calls
+        backoff (float): Factor to increase/decrease the delay time each call
+    """
+    if not tries >= 1:
+        raise ValueError("Number of tries has to be >= 1")
+
+    def deco_retry(func):
+
+        @functools.wraps(func)
+        def func_retry(*args, **kwargs):
+            delay_time = delay
+            for i in range(start=tries, stop=0, step=-1):
+                try:
+                    return func(*args, **kwargs)
+                except exception as error:
+                    time.sleep(delay_time)
+
+                    delay_time *= backoff
+            else:
+                raise error
+
+        return func_retry
+
+    return deco_retry
 
 
 def minimize_func(minimizer_class_and_kwargs):
@@ -72,11 +108,9 @@ def minimize_func(minimizer_class_and_kwargs):
         assert tuple(b_hesses.keys()) == (b_param,)
         errors = result.hesse()
         b_hesse = b_hesses[b_param]
-        assert abs(b_hesse['error']) == pytest.approx(0.0065, rel=0.07)
+        assert abs(b_hesse['error']) == pytest.approx(0.0065, rel=0.01)
         assert abs(errors[b_param]['error']) == pytest.approx(0.0065, rel=0.07)
         assert abs(errors[c_param]['error']) == pytest.approx(0.3, rel=0.07)
-
-        assert errors[b_param]['error'] == pytest.approx(b_hesse['error'], rel=0.01)
 
 
 minimizers = [
@@ -95,11 +129,7 @@ minimizers = [
 # print("DEBUG": after minimizer instantiation")
 
 @pytest.mark.parametrize("minimizer_class", minimizers)
+@pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class):
     # for minimizer_class in minimizers:
     minimize_func(minimizer_class)
-
-
-if __name__ == '__main__':
-    for minimizer in minimizers:
-        test_minimizers(minimizer_class=minimizer)

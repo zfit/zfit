@@ -3,7 +3,9 @@ import functools
 import time
 
 test_length = 0
-test_length = 10
+
+
+# test_length = 10
 
 
 def test_choice(*args):

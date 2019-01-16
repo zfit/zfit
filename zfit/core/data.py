@@ -141,7 +141,6 @@ class Data(ZfitData, BaseDimensional, BaseObject):
             self._next_batch = self.iterator.get_next()
         return self._next_batch
 
-
     def value(self, obs: Tuple[str] = None):
         obs = convert_to_container(value=obs, container=tuple)
         values = self.get_iteration()

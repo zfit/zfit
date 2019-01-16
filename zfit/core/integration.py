@@ -137,7 +137,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 
     fake_resource_var = tf.get_variable("fake_hack_ResVar_for_custom_gradient",
-                                        initializer=ztf. constant(4242.))
+                                        initializer=ztf.constant(4242.))
     fake_x = ztf.constant(42.) * fake_resource_var
 
     @tf.custom_gradient

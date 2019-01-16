@@ -25,10 +25,6 @@ class ZfitObject(pep487.ABC):  # __init_subclass__ backport
     def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
         raise NotImplementedError
 
-    # @abc.abstractmethod
-    # def _repr(self):  # TODO: needed? Should fully represent the object
-    #     raise NotImplementedError
-
 
 class ZfitDimensional(ZfitObject):
 
