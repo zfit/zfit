@@ -10,17 +10,20 @@ from ..util.container import convert_to_container
 
 def _hesse_minuit(result: "FitResult", params):
     fit_result = result
-    params_name = [param.name for param in params]
-    result = fit_result.minimizer.hesse()
-    result = OrderedDict((p_dict.pop('name'), p_dict)
-                         for p_dict in result if params is None or p_dict['name'] in params_name)
+    params_name = OrderedDict((param.name, param) for param in params)
+    result_hesse = fit_result.minimizer._minuit_minimizer.hesse()
+    result_hesse = OrderedDict((res['name'], res) for res in result_hesse)
+
+    result = OrderedDict((params_name[p_name], {'error': res['error']})
+                         for p_name, res in result_hesse.items() if p_name in params_name)
     return result
 
 
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
     # params_name = [param.name for param in params]
-    result = [fitresult.minimizer.minos(var=p.name, sigma=sigma) for p in params][-1]  # returns every var
+    result = [fitresult.minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma) for p in params][
+        -1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
     # for error_dict in result.values():
     #     error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?

@@ -159,7 +159,7 @@ class BaseMinimizer(ZfitMinimizer, pep487.PEP487Object):
         params = self._check_input_params(params)
         return self._step(params=params)
 
-    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsOrNameType = None) -> "FitResult":
+    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsOrNameType = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params` using `sess`.
 
         Args:
