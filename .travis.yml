@@ -1,14 +1,18 @@
 language: python
 os:
-- linux
+    - linux
 python:
-- 3.7
-- 3.6
-#- 3.5
-- 3.4
+    - 3.7
+    - 3.6
+    #- 3.5
+    - 3.4
 matrix:
     allow_failures:
         - python: 3.7
+    include:
+        - python: 3.7
+          dist: xenial
+          sudo: true
 #matrix:
 #  include:
 #  - os: osx
@@ -21,7 +25,7 @@ install: pip install -U tox-travis
 script: tox
 
 after_success:
-- coveralls
+    - coveralls
 
 deploy:
     provider: pypi
