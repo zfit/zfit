@@ -47,6 +47,9 @@ class LimitsUnderdefinedError(UnderdefinedError):
 class OverdefinedError(IntentionNotUnambiguousError):
     pass
 
+class LimitsOverdefinedError(OverdefinedError):
+    pass
+
 
 class AxesNotUnambiguousError(IntentionNotUnambiguousError):
     pass

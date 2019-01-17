@@ -63,8 +63,8 @@ from ..util import ztyping
 from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
-                                 MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                                 OverdefinedError, )
+                              MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
+                              OverdefinedError, )
 from ..util.temporary import TemporarilySet
 
 
@@ -840,12 +840,12 @@ class Space(ZfitSpace, BaseObject):
         return other.__le__(self)
 
     def __eq__(self, other):
-        if not isinstance(self, type(other)):
+        if not isinstance(self, type(other)):  # TODO(Mayou36): what is a proper comparison?
             return NotImplemented
 
         is_eq = True
         is_eq *= self.obs == other.obs
-        is_eq *= self.axes == other.axes
+        is_eq *= self.axes == other.axes or self.axes is None or other.axes is None
         is_eq *= self.limits == other.limits
         return bool(is_eq)
 

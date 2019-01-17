@@ -20,7 +20,7 @@ from ..core.parameter import Parameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError
+from ..util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError, LimitsOverdefinedError
 from ..util.temporary import TemporarilySet
 from ..settings import ztypes
 
@@ -42,6 +42,25 @@ class BaseFunctor(FunctorMixin, BasePDF):
             self._component_norm_range_holder = value
 
         return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
+
+    @property
+    def norm_range(self):
+        norm_range = super().norm_range
+        if norm_range.limits is None:
+            norm_range_candidat = self._infer_norm_range_from_daughters()
+            if norm_range_candidat is False:
+                raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
+                                             "has been explicitly set.")
+            else:
+                norm_range = norm_range_candidat
+        return norm_range
+
+    def _infer_norm_range_from_daughters(self):
+        norm_ranges = set(model.norm_range for model in self.models)
+        if len(norm_ranges) == 1:
+            return norm_ranges.pop()
+        else:
+            return False
 
     def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
@@ -90,7 +109,8 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
 class SumPDF(BaseFunctor):
 
-    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[List[float]] = None, obs: ztyping.ObsTypeInput = None,
+    def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[ztyping.ParamTypeInput] = None,
+                 obs: ztyping.ObsTypeInput = None,
                  name: str = "SumPDF"):
         """Create the sum of the `pdfs` with `fracs` as coefficients.
 
@@ -194,7 +214,6 @@ class SumPDF(BaseFunctor):
             self.fracs = fracs
 
         self.pdfs = pdfs
-
 
     @property
     def _n_dims(self):

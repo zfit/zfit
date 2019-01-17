@@ -63,7 +63,8 @@ from .interfaces import ZfitPDF
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError
+from ..util.exception import (DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
+                              NormRangeNotSpecifiedError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
@@ -172,7 +173,9 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._norm_range
         if norm_range is None:
             # raise IntentionNotUnambiguousError("Should now the space from the observable be taken?")  # TODO
-            norm_range = self._space
+            norm_range = self.space
+            # if norm_range.limits is None:
+            #     raise NormRangeNotSpecifiedError("Normalization Range not spedified.")
         return norm_range
 
     def set_norm_range(self, norm_range: Union[Space, None]):
@@ -188,7 +191,7 @@ class BasePDF(ZfitPDF, BaseModel):
             self._norm_range = value
 
         def getter():
-            return self.norm_range
+            return self._norm_range
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
@@ -463,8 +466,8 @@ class BasePDF(ZfitPDF, BaseModel):
             `dict(self.parameters, **override_parameters)`.
         """
         obs = self.norm_range
-        if obs is None:
-            obs = self.space
+        # if obs.limits is None:
+        #     obs = self.space
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
