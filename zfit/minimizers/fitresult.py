@@ -1,5 +1,5 @@
-from collections import OrderedDict
-from typing import Dict, Union, Callable
+from collections import OrderedDict, defaultdict
+from typing import Dict, Union, Callable, Optional
 
 import tensorflow as tf
 
@@ -42,8 +42,8 @@ def _minos_minuit(result, params, sigma=1.0):
 
 
 class FitResult(SessionHolderMixin, ZfitResult):
-    _default_hesse = 'minuit'
-    _hesse_methods = {'minuit': _hesse_minuit}
+    _default_hesse = 'minuit_hesse'
+    _hesse_methods = {'minuit_hesse': _hesse_minuit}
     _default_error = 'minuit_minos'
     _error_methods = {"minuit_minos": _minos_minuit}
 
@@ -51,13 +51,16 @@ class FitResult(SessionHolderMixin, ZfitResult):
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
+        Any errors calculated are saved under `self.params` dictionary with {parameter: {error_name1: {'low': value
+        'high': value or similar}}
+
         Args:
             params (OrderedDict[Parameter, float]): Result of the fit where each Parameter key has the value
                 from the minimum found by the minimizer.
             edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)
             fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer
             status (int): A status code (if available)
-            converged (bool): Whether the fit has succesfully converged or not.
+            converged (bool): Whether the fit has successfully converged or not.
             info (Dict): Additional information (if available) like *number of function calls* and the
                 original minimizer return message.
             loss (Union[ZfitLoss]): The loss function that was minimized. Contains also the pdf, data etc.
@@ -75,14 +78,18 @@ class FitResult(SessionHolderMixin, ZfitResult):
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
-        self.param_error = OrderedDict((p, {}) for p in params)
-        self.param_hesse = OrderedDict((p, {}) for p in params)
+        # self.param_error = OrderedDict((p, {}) for p in params)
+        # self.param_hesse = OrderedDict((p, {}) for p in params)
 
         self._sess = None
 
     def _input_convert_params(self, params):
-        params = OrderedDict((p, OrderedDict((('value', v),))) for p, v in params.items())
+        params = OrderedDict((p, {'value': v}) for p, v in params.items())
         return params
+
+    def _get_uncached_params(self, params, method_name):
+        params_uncached = [p for p in params if self.params['p'].get(method_name) is not None]
+        return params_uncached
 
     @property
     def params(self):
@@ -132,13 +139,15 @@ class FitResult(SessionHolderMixin, ZfitResult):
             params = list(self.params.keys())
         return params
 
-    def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit') -> OrderedDict:
+    def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_hesse',
+              error_name: Optional[str] = None) -> OrderedDict:
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
         Args:
             params (list(`zfit.FitParameters`)): The parameters  to calculate the
                 Hessian symmetric error. If None, use all parameters.
             method (str): the method to calculate the hessian. Can be {'minuit'} or a callable.
+            error_name (str): The name for the error in the dictionary.
 
         Returns:
             OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding
@@ -148,8 +157,21 @@ class FitResult(SessionHolderMixin, ZfitResult):
                 `error_a = result.hesse(params=param_a)[param_a]['error']`
                 error_a is the hessian error.
         """
+        if error_name is None:
+            if not isinstance(method, str):
+                raise ValueError("Need to specify `error_name` or use a string as `method`")
+            error_name = method
         params = self._input_check_params(params)
-        return self._hesse(params=params, method=method)
+        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+
+        error_dict = self._hesse(params=uncached_params, method=method)
+        self._cache_errors(error_name=error_name, errors=error_dict)
+        all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
+        return all_errors
+
+    def _cache_errors(self, error_name, errors):
+        for param, errors in errors.items():
+            self.params[param][error_name] = errors
 
     def _hesse(self, params, method):
         if not callable(method):
@@ -159,7 +181,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params)
 
-    def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_minos',
+    def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_minos', error_name: str = None,
               sigma: float = 1.) -> OrderedDict:
 
         """Calculate and set for `params` the asymmetric error using the set error method.
@@ -174,6 +196,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
 
                     For example, the negative log-likelihood (without the factor of 2) has a correspondents
                     of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
+                error_name (str): The name for the error in the dictionary.
 
 
             Returns:
@@ -182,8 +205,17 @@ class FitResult(SessionHolderMixin, ZfitResult):
                     holding the calculated errors.
                     Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
+        if error_name is None:
+            if not isinstance(method, str):
+                raise ValueError("Need to specify `error_name` or use a string as `method`")
+            error_name = method
         params = self._input_check_params(params)
-        return self._error(params=params, method=method, sigma=sigma)
+        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+
+        error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
+        self._cache_errors(error_name=error_name, errors=error_dict)
+        all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
+        return all_errors
 
     def _error(self, params, method, sigma):
         if not callable(method):
