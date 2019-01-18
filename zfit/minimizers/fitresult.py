@@ -88,7 +88,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         return params
 
     def _get_uncached_params(self, params, method_name):
-        params_uncached = [p for p in params if self.params['p'].get(method_name) is not None]
+        params_uncached = [p for p in params if self.params[p].get(method_name) is None]
         return params_uncached
 
     @property
@@ -163,9 +163,9 @@ class FitResult(SessionHolderMixin, ZfitResult):
             error_name = method
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
-
-        error_dict = self._hesse(params=uncached_params, method=method)
-        self._cache_errors(error_name=error_name, errors=error_dict)
+        if uncached_params:
+            error_dict = self._hesse(params=uncached_params, method=method)
+            self._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
 
@@ -212,8 +212,9 @@ class FitResult(SessionHolderMixin, ZfitResult):
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
-        error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
-        self._cache_errors(error_name=error_name, errors=error_dict)
+        if uncached_params:
+            error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
+            self._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
 
