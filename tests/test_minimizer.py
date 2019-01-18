@@ -111,6 +111,9 @@ def minimize_func(minimizer_class_and_kwargs):
         assert abs(b_hesse['error']) == pytest.approx(0.0065, rel=0.01)
         assert abs(errors[b_param]['error']) == pytest.approx(0.0065, rel=0.07)
         assert abs(errors[c_param]['error']) == pytest.approx(0.3, rel=0.07)
+    else:
+        with pytest.raises(TypeError):
+            _ = result.error(params=a_param)
 
 
 minimizers = [
