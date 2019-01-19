@@ -17,13 +17,6 @@ def polar(a, ph):
     return tf.complex(a * tf.cos(ph), a * tf.sin(ph))
 
 
-# Cast a real number to complex
-
-
-# Declare constant
-
-
-# Declare invariant
 def invariant(c): return tf.constant([c], dtype=ztypes.float)
 
 

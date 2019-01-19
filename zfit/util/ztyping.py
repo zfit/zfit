@@ -34,9 +34,9 @@ NumericalTypeReturn = Union[tf.Tensor, np.array]
 NumericalScalarType = Union[int, float, complex, tf.Tensor]
 
 # Parameter
-ParamsType = Optional[Iterable['ZfitParameter']]
+ParamsTypeOpt = Optional[Iterable['ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]
-ParamsOrNameType = Optional[Union[ParamsType, Iterable[str]]]
+ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]
 ParametersType = Dict[str, "ZfitParameter"]
 ParamTypeInput = Union['ZfitParameter', NumericalScalarType]
 

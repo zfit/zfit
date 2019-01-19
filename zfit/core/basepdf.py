@@ -362,7 +362,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _fallback_log_pdf(self, x, norm_range):
         return tf.log(self._hook_pdf(x=x, norm_range=norm_range))
 
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsType = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
                       "respect to the loss function.")
         if params is not None:
@@ -430,8 +430,11 @@ class BasePDF(ZfitPDF, BaseModel):
             ZfitPDF
         """
         # TODO(Mayou36): fix copy
-        warnings.warn("As `copy` is not yet properly implemented, this may fails (for ProductPDF for example?). This"
-                      "will be fixed in the future.")
+        from zfit.models.functor import ProductPDF
+        if isinstance(self, ProductPDF):
+            warnings.warn(
+                "As `copy` is not yet properly implemented, this may fails (for ProductPDF for example?). This"
+                "will be fixed in the future.")
         if self.is_extended:
             raise AlreadyExtendedPDFError("This PDF is already extended, cannot create an extended one.")
         new_pdf = self.copy(name=self.name + str(name_addition))

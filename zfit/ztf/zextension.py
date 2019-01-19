@@ -13,8 +13,8 @@ from ..settings import ztypes
 inf = tf.constant(_inf, dtype=ztypes.float)
 
 
-def constant(x, dtype=ztypes.float):
-    return tf.constant(x, dtype)
+def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=False):
+    return tf.constant(value, dtype=dtype, shape=shape, name=name, verify_shape=verify_shape)
 
 
 pi = constant(_mt.pi)

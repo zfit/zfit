@@ -96,6 +96,7 @@ def test_prod_gauss_nd():
     np.testing.assert_allclose(zfit.run(true_probs)[0, :], probs_np[0, :], rtol=1e-2)
 
 
+@pytest.mark.flaky(reruns=3)
 def test_prod_gauss_nd_mixed():
     norm_range = (-5, 4)
     low, high = norm_range
@@ -103,7 +104,7 @@ def test_prod_gauss_nd_mixed():
 
     obs4d = ['a', 'b', 'c', 'd']
     test_values_data = Data.from_tensors(obs=obs4d, tensors=test_values)
-    prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 30})
+    prod_gauss_4d.set_integration_options(mc_options={'draws_per_dim': 10})
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=limits_4d)

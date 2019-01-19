@@ -196,7 +196,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         self._integration.update(general_options)
 
     @abc.abstractmethod
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsType = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise NotImplementedError
 
     def _check_input_norm_range(self, norm_range, caller_name="",

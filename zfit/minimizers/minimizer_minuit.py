@@ -1,23 +1,26 @@
-from typing import List, Union
+from collections import OrderedDict
+import copy
+from typing import List
 
 import iminuit
 import tensorflow as tf
 
+from zfit.minimizers.fitresult import FitResult
 from ..core.parameter import Parameter
-from ..core.minimizer import BaseMinimizer
+from .baseminimizer import BaseMinimizer
 
 
 class MinuitMinimizer(BaseMinimizer):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name=None, tolerance=None):
+        if name is None:
+            name = self._DEFAULT_name
+        super().__init__(name=name, tolerance=tolerance)
         self._minuit_minimizer = None
-        self._error_methods['minos'] = self._minuit_minos  # before super call!
-        self._error_methods['default'] = self._error_methods['minos']  # before super call!
-        super().__init__(*args, **kwargs)
 
-    def _minimize(self, params: List[Parameter]):
-        loss = self.loss.value()
+    def _minimize(self, loss, params: List[Parameter]):
+        loss = loss.value()
         gradients = tf.gradients(loss, params)
         assign_params = self._extract_assign_method(params=params)
 
@@ -59,35 +62,34 @@ class MinuitMinimizer(BaseMinimizer):
             error_limit_kwargs.update(param_kwargs)
         params_name = [param.name for param in params]
 
-        minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
-                                   grad=grad_func,
-                                   forced_parameters=params_name,
-                                   **error_limit_kwargs)
+        if self._minuit_minimizer is None:
+            minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
+                                       grad=grad_func,
+                                       forced_parameters=params_name,
+                                       **error_limit_kwargs)
         self._minuit_minimizer = minimizer
-        result = minimizer.migrad(precision=self.tolerance, **self._current_error_options)
-        params = [p_dict for p_dict in result[1]]
-        self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params)])
+        result = minimizer.migrad(precision=self.tolerance)
+        params_result = [p_dict for p_dict in result[1]]
+        self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
 
+        info = {'n_eval': result[0]['nfcn'],
+                # 'n_iter': result['nit'],
+                # 'grad': result['jac'],
+                # 'message': result['message'],
+                'original': result[0]}
         edm = result[0]['edm']
         fmin = result[0]['fval']
-        status = result[0]
-
-        self.get_state(copy=False)._set_new_state(params=params, edm=edm, fmin=fmin, status=status)
-        return self.get_state(copy=False)  # HACK(mayou36): copy not working?
-
-    def _minuit_minos(self, params=None, sigma=1.0):
-        if params is None:
-            params = self.get_parameters()
-        params_name = self._extract_parameter_names(params=params)
-        result = [self._minuit_minimizer.minos(var=p_name) for p_name in params_name][-1]  # returns every var
-        result = {p_name: result[p_name] for p_name in params_name}
-        for error_dict in result.values():
-            error_dict['lower_error'] = error_dict['lower']  # TODO change value for protocol?
-            error_dict['upper_error'] = error_dict['upper']  # TODO change value for protocol?
+        status = -999  # TODO: set?
+        converged = result[0]['is_valid']
+        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+                           status=status, converged=converged,
+                           minimizer=self.copy())
         return result
 
-    def _hesse(self, params=None):
-        params_name = self._extract_parameter_names(params=params)
-        result = self._minuit_minimizer.hesse()
-        result = {p_dict.pop('name'): p_dict for p_dict in result if params is None or p_dict['name'] in params_name}
-        return result
+    def copy(self):
+        tmp_minimizer = self._minuit_minimizer
+        self._minuit_minimizer = None
+        new_minimizer = super().copy()
+        new_minimizer._minuit_minimizer = tmp_minimizer
+        return new_minimizer
