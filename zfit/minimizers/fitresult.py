@@ -12,7 +12,9 @@ from ..util.temporary import TemporarilySet
 from ..util.container import convert_to_container
 
 
-def _hesse_minuit(result: "FitResult", params):
+def _hesse_minuit(result: "FitResult", params, sigma=1.0):
+    if sigma != 1.0:
+        raise ValueError("sigma other then 1 is not valid for minuit hesse.")
     fitresult = result
     minimizer = fitresult.minimizer
     from zfit.minimizers.minimizer_minuit import MinuitMinimizer

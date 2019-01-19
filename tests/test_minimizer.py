@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import functools
 import time
 
@@ -114,6 +115,14 @@ def minimize_func(minimizer_class_and_kwargs):
         for param, errors2 in result.params.items():
             assert errors[param]['lower'] == pytest.approx(errors2['error42']['lower'], rel=0.001)
             assert errors[param]['upper'] == pytest.approx(errors2['error42']['upper'], rel=0.001)
+
+        # test custom error
+        def custom_error_func(result, params, sigma):
+            return OrderedDict((param, {'myval': 42}) for param in params)
+
+        custom_errors = result.error(method=custom_error_func, error_name='custom_method1')
+        for param, errors2 in result.params.items():
+            assert custom_errors[param]['myval'] == 42
 
         # Test Hesse
         b_hesses = result.hesse(params=b_param)
