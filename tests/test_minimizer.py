@@ -103,6 +103,18 @@ def minimize_func(minimizer_class_and_kwargs):
         assert errors[a_param]['lower'] == pytest.approx(a_error['lower'], rel=0.01)
         assert errors[a_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
 
+        # Test Error method name
+        a_errors = result.error(params=a_param, error_name='error1')
+        assert tuple(a_errors.keys()) == (a_param,)
+        errors = result.error(error_name='error42')
+        a_error = a_errors[a_param]
+
+        assert a_error['lower'] == pytest.approx(result.params[a_param]['error42']['lower'], rel=0.001)
+        assert a_error['lower'] == pytest.approx(result.params[a_param]['error1']['lower'], rel=0.001)
+        for param, errors2 in result.params.items():
+            assert errors[param]['lower'] == pytest.approx(errors2['error42']['lower'], rel=0.001)
+            assert errors[param]['upper'] == pytest.approx(errors2['error42']['upper'], rel=0.001)
+
         # Test Hesse
         b_hesses = result.hesse(params=b_param)
         assert tuple(b_hesses.keys()) == (b_param,)

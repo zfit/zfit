@@ -81,8 +81,6 @@ class FitResult(SessionHolderMixin, ZfitResult):
         # self.param_error = OrderedDict((p, {}) for p in params)
         # self.param_hesse = OrderedDict((p, {}) for p in params)
 
-        self._sess = None
-
     def _input_convert_params(self, params):
         params = OrderedDict((p, {'value': v}) for p, v in params.items())
         return params
