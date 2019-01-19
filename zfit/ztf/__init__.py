@@ -27,4 +27,4 @@
 # same as in TensorFlow, wrapped
 
 from .zextension import to_complex, to_real, constant, inf, pi, abs_square, nth_pow, unstack_x
-from .wrapping_tf import log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, square
+from .wrapping_tf import log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square

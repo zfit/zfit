@@ -23,7 +23,7 @@ class CustomGaussOLD(BasePDF):
     def __init__(self, mu, sigma, obs, name="Gauss"):  # TODO: names? TF dist?
         super().__init__(name=name, obs=obs, parameters=dict(mu=mu, sigma=sigma))
 
-    def _unnormalized_pdf(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x):
         mu = self.parameters['mu']
         sigma = self.parameters['sigma']
         gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma))

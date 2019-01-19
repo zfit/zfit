@@ -35,3 +35,5 @@ def square(x, name=None):
 # def reduce_sum(*args, **kwargs):
 #     return tf.reduce_sum(*args, **kwargs)
 reduce_sum = tf.reduce_sum
+
+reduce_prod = tf.reduce_prod

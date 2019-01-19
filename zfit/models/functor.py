@@ -51,16 +51,27 @@ class BaseFunctor(FunctorMixin, BasePDF):
             if norm_range_candidat is False:
                 raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
                                              "has been explicitly set.")
-            else:
+            elif norm_range_candidat is not None:  # TODO(Mayou36, #77): different obs?
                 norm_range = norm_range_candidat
+
         return norm_range
 
     def _infer_norm_range_from_daughters(self):
         norm_ranges = set(model.norm_range for model in self.models)
+        obs = set(norm_range.obs for norm_range in norm_ranges)
         if len(norm_ranges) == 1:
             return norm_ranges.pop()
+        elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
+            return None
         else:
             return False
+
+    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
+        if component_norm_range.limits is not None:
+            with self._set_component_norm_range(norm_range=component_norm_range):
+                return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
+        else:
+            return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
 
     def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         with self._set_component_norm_range(norm_range=norm_range):
@@ -97,6 +108,10 @@ class BaseFunctor(FunctorMixin, BasePDF):
     def _single_hook_log_pdf(self, x, norm_range, name):
         with self._set_component_norm_range(norm_range=norm_range):
             return super()._single_hook_log_pdf(x, norm_range, name)
+
+    def _single_hook_sample(self, n, limits, name):
+        with self._set_component_norm_range(norm_range=limits):
+            return super()._single_hook_sample(n, limits, name)
 
     @property
     def pdfs_extended(self):
@@ -285,79 +300,19 @@ class SumPDF(BaseFunctor):
 
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished
-    def __init__(self, pdfs, obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
+    def __init__(self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
 
         norm_range = self._get_component_norm_range()
-        return np.prod([pdf.pdf(x, norm_range=norm_range.get_subspace(obs=pdf.obs))
-                        for pdf in self.pdfs], axis=0)
+        return ztf.reduce_prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
+                                for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_obs):
 
-            probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in
-                     self.pdfs]
+            probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in self.pdfs]
             return tf.reduce_prod(probs, axis=0)
         else:
             raise NotImplementedError
-
-
-if __name__ == '__main__':
-
-    import numpy as np
-    from zfit.pdf import Gauss
-
-
-    def true_gaussian_sum(x):
-        sum_gauss = np.exp(- (x - 1.) ** 2 / (2 * 11. ** 2))
-        sum_gauss += np.exp(- (x - 2.) ** 2 / (2 * 22. ** 2))
-        sum_gauss += np.exp(- (x - 3.) ** 2 / (2 * 33. ** 2))
-        return sum_gauss
-
-
-    with tf.Session() as sess:
-        mu1 = Parameter("mu1", 1.)
-        mu2 = Parameter("mu2", 2.)
-        mu3 = Parameter("mu3", 3.)
-        sigma1 = Parameter("sigma1", 11.)
-        sigma2 = Parameter("sigma2", 22.)
-        sigma3 = Parameter("sigma3", 33.)
-
-        gauss1 = Gauss(mu=mu1, sigma=sigma1, name="gauss1")
-        gauss2 = Gauss(mu=mu2, sigma=sigma2, name="gauss2")
-        gauss3 = Gauss(mu=mu3, sigma=sigma3, name="gauss3")
-
-        sum_gauss = SumPDF(pdfs=[gauss1, gauss2, gauss3])
-
-        sum_gauss.set_norm_range = -55., 55.
-
-        init = tf.global_variables_initializer()
-        sess.run(init)
-
-
-        def test_func_sum():
-            test_values = np.array([3., 129., -0.2, -78.2])
-            vals = sum_gauss.unnormalized_pdf(
-                ztf.convert_to_tensor(test_values, dtype=ztypes.float))
-            vals = sess.run(vals)
-            test_sum = sum([g.unnormalized_pdf(test_values) for g in [gauss1, gauss2, gauss3]])
-            print(sess.run(test_sum))
-            np.testing.assert_almost_equal(vals, true_gaussian_sum(test_values))
-
-
-        def test_normalization():
-            low, high = sum_gauss.norm_range
-            samples = tf.cast(np.random.uniform(low=low, high=high, size=100000),
-                              dtype=tf.float64)
-            samples.limits = low, high
-            probs = sum_gauss.pdf(samples)
-            result = sess.run(probs)
-            result = np.average(result) * (high - low)
-            print(result)
-            assert 0.95 < result < 1.05
-
-
-        test_func_sum()
-        test_normalization()

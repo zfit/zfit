@@ -246,18 +246,28 @@ class BasePDF(ZfitPDF, BaseModel):
     def _unnormalized_pdf(self, x):
         raise NotImplementedError
 
-    def unnormalized_pdf(self, x: ztyping.XType, name: str = "unnormalized_pdf") -> ztyping.XType:
-        """Return the function unnormalized
+    def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None,
+                         name: str = "unnormalized_pdf") -> ztyping.XType:
+        """PDF "unnormalized". Use `functions` for unnormalized pdfs. this is only for performance in special cases.
 
         Args:
             x (numerical): The value, have to be convertible to a Tensor
+            component_norm_range (`Space`): The normalization range for the components. Needed for certain composition
+                pdfs.
             name (str):
 
         Returns:
             graph: A runnable graph
         """
+        # if component_norm_range is None:
+        #     component_norm_range = self._get
         with self._convert_sort_x(x) as x:
-            return self._call_unnormalized_pdf(x=x, name=name)
+            component_norm_range = self._check_input_norm_range(component_norm_range, caller_name=name,
+                                                                none_is_error=False)
+            return self._single_hook_unnormalized_pdf(x, component_norm_range, name)
+
+    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
+        return self._call_unnormalized_pdf(x=x, name=name)
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):

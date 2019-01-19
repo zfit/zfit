@@ -19,7 +19,7 @@ class SimplePDF(BasePDF):
         self._unnormalized_prob_func = self._check_input_x_function(func)
         self._user_n_dims = n_dims
 
-    def _unnormalized_pdf(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x):
         return self._unnormalized_prob_func(x)
 
     @property
@@ -38,4 +38,3 @@ def raise_error_if_norm_range(func):
             raise tf.errors.InvalidArgumentError("Norm_range given to Function: cannot be normalized.")
 
     return wrapped
-
