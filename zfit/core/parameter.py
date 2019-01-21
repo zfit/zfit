@@ -13,7 +13,7 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
-
+from zfit.core.interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents
 from ..util.exception import LogicalUndefinedOperationError
 from . import baseobject as zbaseobject
@@ -247,28 +247,28 @@ class ZfitParameterMixin:
         self._floating = value
 
     def __add__(self, other):
-        if isinstance(other, zinterfaces.ZfitObject):
+        if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
             with suppress(NotImplementedError):
                 return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
-        if isinstance(other, zinterfaces.ZfitObject):
+        if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
             with suppress(NotImplementedError):
                 return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
-        if isinstance(other, zinterfaces.ZfitObject):
+        if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
             with suppress(NotImplementedError):
                 return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
-        if isinstance(other, zinterfaces.ZfitObject):
+        if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
             with suppress(NotImplementedError):
                 return operations.multiply(other, self)

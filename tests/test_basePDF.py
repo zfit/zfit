@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit.core.basepdf
-from zfit.core.limits import Space
+from zfit.core.limits import Space, ANY_UPPER
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
@@ -130,7 +130,7 @@ def test_analytic_sampling():
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params: 2 * limits.upper[0][0],
-                                           limits=Space.from_axes(limits=(-float("inf"), Space.ANY_UPPER),
+                                           limits=Space.from_axes(limits=(-float("inf"), ANY_UPPER),
                                                                   axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 

@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Callable, Union
 
 import tensorflow as tf
 
-from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
+from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter, ZfitData
 from .parameter import convert_to_parameter, ComposedParameter
 from ..util import ztyping
 from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError, IntentionNotUnambiguousError
@@ -150,11 +150,11 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> zty
 def _convert_to_known(object1, object2):
     objects = []
     for obj in (object1, object2):
-        if not isinstance(obj, ZfitModel):
+        if not isinstance(obj, (ZfitModel,)):
             try:
                 obj = convert_to_parameter(obj)
             except TypeError as error:
-                raise TypeError("Object is neither an instance of ZfitModel nor convertible to a parameter: "
+                raise TypeError("Object is neither an instance of ZfitModel nor convertible to a Parameter: "
                                 "{}".format(obj))
         objects.append(obj)
     object1, object2 = objects

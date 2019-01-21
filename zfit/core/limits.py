@@ -104,9 +104,9 @@ ANY_UPPER = AnyUpper()
 
 class Space(ZfitSpace, BaseObject):
     AUTO_FILL = object()
-    ANY = object()
-    ANY_LOWER = object()
-    ANY_UPPER = object()
+    ANY = ANY
+    ANY_LOWER = ANY_LOWER
+    ANY_UPPER = ANY_UPPER
 
     def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = None,
                  name: Optional[str] = "Space"):
@@ -823,11 +823,11 @@ class Space(ZfitSpace, BaseObject):
                 for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
                     axis_le = 0  # False
                     axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
-                    axis_le += other_low == low and other_up is self.ANY_UPPER  # TODO: approx limit
+                    axis_le += other_low == low and other_up is ANY_UPPER  # TODO: approx limit
                     # comparison?
-                    axis_le += other_low is self.ANY_LOWER and up == other_up  # TODO: approx limit
+                    axis_le += other_low is ANY_LOWER and up == other_up  # TODO: approx limit
                     # comparison?
-                    axis_le += other_low is self.ANY_LOWER and other_up is self.ANY_UPPER
+                    axis_le += other_low is ANY_LOWER and other_up is ANY_UPPER
                     if not axis_le:  # if not the same, don't test other dims
                         break
                 else:

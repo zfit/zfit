@@ -155,6 +155,15 @@ def test_normalization_prod_gauss():
     normalization_testing(prod_gauss)
 
 
+def test_exp():
+    lambda_true = 3.1
+    lambda_ = zfit.Parameter('lambda1', lambda_true)
+    exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
+    exp1.sample(n=10, limits=(-10, 10))
+    exp1.pdf(x=np.random.normal(size=100), norm_range=(-5, 5))
+    normalization_testing(exp1, 1)
+
+
 def normalization_testing(pdf, normalization_value=1.):
     # init = tf.global_variables_initializer()
     # zfit.run(init)

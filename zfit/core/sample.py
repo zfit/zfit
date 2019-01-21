@@ -83,7 +83,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                            loop_vars=sample_body(n=n, sample=None,  # run first once for initialization
                                                  n_total_drawn=0, eff=1.),
                            swap_memory=True,
-                           parallel_iterations=1,
+                           parallel_iterations=4,
                            back_prop=False)[1]  # backprop not needed here
     return sample[:, :n]  # cutting away to many produced
 
