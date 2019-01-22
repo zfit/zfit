@@ -47,6 +47,11 @@ class Exponential(BasePDF):
 
     def __init__(self, lambda_, obs: ztyping.ObsTypeInput, dtype: Type = ztypes.float, name: str = "Exponential",
                  **kwargs):
+        """Exponential function exp(lambda * x).
+
+        The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
+        defined as :math:`\\frac{e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
+        """
         parameters = {'lambda': lambda_}
         super().__init__(obs, dtype, name, parameters, **kwargs)
 
