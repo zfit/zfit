@@ -406,7 +406,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         shape = self.shape.as_list()
         if shape == []:
             size = 1
-        value = sess.run(value)
+        value = self.sess.run(value)
         # value = np.random.uniform(size=self.shape, low=minval, high=maxval)
         # value = np.random.uniform(size=size, low=minval, high=maxval)
         if shape == []:
