@@ -10,8 +10,8 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import ztf
-from zfit.settings import ztypes
-from zfit.util import ztyping
+from ..settings import ztypes
+from ..util import ztyping
 from ..core.limits import Space, ANY_LOWER, ANY_UPPER
 from ..core.basepdf import BasePDF
 
@@ -45,15 +45,21 @@ CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
 
 class Exponential(BasePDF):
 
-    def __init__(self, lambda_, obs: ztyping.ObsTypeInput, dtype: Type = ztypes.float, name: str = "Exponential",
+    def __init__(self, lambda_, obs: ztyping.ObsTypeInput, name: str = "Exponential",
                  **kwargs):
         """Exponential function exp(lambda * x).
 
         The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
-        defined as :math:`\\frac{e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
+        defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
+
+        Args:
+            lambda_ (zfit.Parameter): Accessed as "lambda".
+            obs (Space): The Space the pdf is defined in.
+            name (str): Name of the pdf.
+            dtype (DType):
         """
         parameters = {'lambda': lambda_}
-        super().__init__(obs, dtype, name, parameters, **kwargs)
+        super().__init__(obs, name=name, parameters=parameters, **kwargs)
 
     def _unnormalized_pdf(self, x):
         lambda_ = self.parameters['lambda']
