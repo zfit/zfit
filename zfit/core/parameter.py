@@ -402,11 +402,13 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # else:
         #     maxval = tf.cast(maxval, dtype=self.dtype)
 
-        # value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
+        value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
         shape = self.shape.as_list()
         if shape == []:
             size = 1
-        value = np.random.uniform(size=size, low=minval, high=maxval)
+        value = sess.run(value)
+        # value = np.random.uniform(size=self.shape, low=minval, high=maxval)
+        # value = np.random.uniform(size=size, low=minval, high=maxval)
         if shape == []:
             value = value[0]
         self.load(value=value)
