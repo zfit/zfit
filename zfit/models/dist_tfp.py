@@ -66,7 +66,7 @@ class Gauss(WrapDistribution):
         super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
 
 
-class Exponential(WrapDistribution):
+class ExponentialTFP(WrapDistribution):
     def __init__(self, tau, obs, name="Exponential"):
         (tau,) = self._check_input_parameters(tau)
         parameters = OrderedDict((('tau', tau),))
@@ -83,4 +83,4 @@ class Uniform(WrapDistribution):
 
 
 if __name__ == '__main__':
-    exp1 = Exponential(tau=5., obs=['a'])
+    exp1 = ExponentialTFP(tau=5., obs=['a'])
