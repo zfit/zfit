@@ -7,22 +7,6 @@ import tensorflow as tf
 
 import zfit
 
-# for i in range(1):
-#     print(i)
-#     try:
-#         func = tf.log(x) * tf.sin(x) * tf.reduce_mean(x ** 2 - tf.cos(x) ** 2) / tf.reduce_sum(x)
-#         start = time.time()
-#         result_grad = sess.run(tf.gradients(func, x))
-#         result = sess.run(func)
-#         end = time.time()
-#         print("time needed", (end - start))
-#     except tf.errors.OutOfRangeError:
-#         print("finished at i = ", i)
-#         break
-#     print(np.shape(result))
-#     print(result[:, :10])
-#     print(result_grad)
-
 obs1 = ('obs1', 'obs2', 'obs3')
 
 example_data1 = np.random.random(size=(len(obs1), 7))
@@ -63,20 +47,21 @@ def test_from_root():
 def test_from_numpy():
     example_data = np.random.random(size=(len(obs1), 1000))
     data = zfit.data.Data.from_numpy(obs=obs1, array=example_data)
-    # data.initialize(sess=zfit.sess)
     x = data.value()
     x_np = zfit.run(x)
     np.testing.assert_array_equal(example_data, x_np)
 
 
 def test_from_tensors():
-    pass
+    data = zfit.data.Data.from_tensors(obs='obs1', tensors=tf.random_normal(shape=(100,), dtype=tf.float64))
     # data.initialize(sess=zfit.sess)
-    # x = data.value()
+
+    x = data.value()
+    zfit.run(x)
 
 
-def test_values():
-    pass
+# def test_values():
+#     pass
 
 
 def test_overloaded_operators():
