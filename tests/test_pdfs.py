@@ -10,7 +10,6 @@ from zfit.models.functor import SumPDF, ProductPDF
 from zfit.models.dist_tfp import Gauss
 import zfit
 
-
 low, high = -0.64, 5.9
 
 mu1_true = 1.

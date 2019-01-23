@@ -66,13 +66,18 @@ def func(a, b, c):
 
 loss_func_tf = func(a_param, b_param, c_param)
 
+
 def minimize_func(minimizer_class_and_kwargs):
     from zfit.core.parameter import Parameter
 
     parameter_tolerance = 0.05
     max_distance_to_min = 0.8
 
+    for param in [a_param, b_param, c_param]:
+        zfit.run(param.initializer)
+
     true_minimum = zfit.run(func(true_a, true_b, true_c))
+
     # print("DEBUG: true_minimum", true_minimum)
 
     def loss_to_call():

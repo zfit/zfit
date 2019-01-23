@@ -13,6 +13,8 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from ..util import ztyping
+from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
@@ -275,7 +277,7 @@ class ZfitParameterMixin:
         return super().__rmul__(other)
 
 
-class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
+class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -308,14 +310,15 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint, **kwargs)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
+        else:
+            tf.add_to_collection("zfit_dependent", self)
         # init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
-        # self.init_value = init_value
         self.floating = floating
         self.step_size = step_size
         zfit.run.auto_initialize(self)
 
-        # self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
-        # self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
+    def __init_subclass__(cls, **kwargs):
+        cls._independent = True  # overwriting independent only for subclass/instance
 
     @property
     def lower_limit(self):
@@ -357,14 +360,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def independent(self):
         return self._independent
 
-    def __init_subclass__(cls, **kwargs):
-        cls._independent = True  # overwriting independent only for subclass/instance
-
-    # OLD remove? only keep for speed reasons?
-    # @property
-    # def update_op(self):
-    #     return self._update_op
-
     @property
     def step_size(self):  # TODO: improve default step_size?
         step_size = self._step_size
@@ -387,15 +382,16 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def step_size(self, value):
         self._step_size = value
 
+    def load(self, value: ztyping.NumericalScalarType):
+        return super().load(value=value, session=self.sess)
+
     # TODO: make it a random variable? return tensor that evaluates new all the time?
-    def randomize(self, sess, minval=None, maxval=None):
+    def randomize(self, minval=None, maxval=None):
         """Update the value with a randomised value between minval and maxval.
 
         Args:
-            sess (`tf.Session`): The TensorFlow session to execute the operation
             minval (Numerical):
             maxval (Numerical):
-            seed ():
         """
         if minval is None:
             minval = self.lower_limit
@@ -407,8 +403,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             maxval = tf.cast(maxval, dtype=self.dtype)
 
         # value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
+        shape = self.shape.as_list()
+        if shape == []:
+            shape = (1,)
         value = np.random.uniform(size=self.shape, low=minval, high=maxval)
-        self.load(value=sess.run(value), session=sess)
+        self.load(value=value)
         return value
 
 

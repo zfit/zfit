@@ -58,12 +58,12 @@ def test_param_limits():
     param2 = Parameter('param2lim', 2.)
 
     zfit.run(tf.global_variables_initializer())
-    param1.load(upper + 0.5, session=zfit.run.sess)
+    param1.load(upper + 0.5)
     assert upper == zfit.run(param1.value())
-    param1.load(lower - 1.1, session=zfit.run.sess)
+    param1.load(lower - 1.1)
     assert lower == zfit.run(param1.value())
     param2.lower_limit = lower
-    param2.load(lower - 1.1, session=zfit.run.sess)
+    param2.load(lower - 1.1)
     assert lower == zfit.run(param2.value())
 
 

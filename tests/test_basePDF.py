@@ -10,7 +10,6 @@ from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit import ztf
 
-
 # from zfit.ztf import
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
