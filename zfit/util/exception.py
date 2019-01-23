@@ -75,6 +75,11 @@ class ObsNotSpecifiedError(NotSpecifiedError):
     pass
 
 
+# Parameter Errors
+class NameAlreadyTakenError(Exception):
+    pass
+
+
 # Operation errors
 class ShapeIncompatibleError(Exception):
     pass

@@ -45,32 +45,35 @@ def retry(exception, tries=4, delay=0.001, backoff=1):
     return deco_retry
 
 
+with tf.variable_scope("func1"):
+    true_a = 1.
+    a_data = np.random.normal(loc=true_a, size=10000, scale=0.1)
+    true_b = 4.
+    true_c = 7.
+    a_param = zfit.Parameter("variable_a15151", ztf.constant(1.5),
+                             ztf.constant(-1.),
+                             ztf.constant(20.),
+                             step_size=ztf.constant(0.1))
+    b_param = zfit.Parameter("variable_b15151", 3.5)
+    c_param = zfit.Parameter("variable_c15151", 7.8)
+
+
+def func(a, b, c):
+    probs = ztf.convert_to_tensor((a - a_data) ** 2 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
+    # return tf.reduce_sum(tf.log(probs))
+    return tf.reduce_sum(tf.log(probs))
+
+
+loss_func_tf = func(a_param, b_param, c_param)
+
 def minimize_func(minimizer_class_and_kwargs):
     from zfit.core.parameter import Parameter
 
     parameter_tolerance = 0.05
     max_distance_to_min = 0.8
 
-    with tf.variable_scope("func1"):
-        true_a = 1.
-        a_data = np.random.normal(loc=true_a, size=10000, scale=0.1)
-        true_b = 4.
-        true_c = 7.
-        a_param = Parameter("variable_a", ztf.constant(1.5),
-                            ztf.constant(-1.),
-                            ztf.constant(20.),
-                            step_size=ztf.constant(0.1))
-        b_param = Parameter("variable_b", 3.5)
-        c_param = Parameter("variable_c", 7.8)
-
-    def func(a, b, c):
-        probs = ztf.convert_to_tensor((a - a_data) ** 2 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
-        # return tf.reduce_sum(tf.log(probs))
-        return tf.reduce_sum(tf.log(probs))
-
     true_minimum = zfit.run(func(true_a, true_b, true_c))
     # print("DEBUG: true_minimum", true_minimum)
-    loss_func_tf = func(a_param, b_param, c_param)
 
     def loss_to_call():
         return loss_func_tf
@@ -140,17 +143,10 @@ def minimize_func(minimizer_class_and_kwargs):
 minimizers = [
     (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
     (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.5), False),
-    # zmin.AdadeltaMinimizer,  # not working well...
-    # (zfit.minimizers.optimizers_tf.AdagradMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
-    # (zfit.minimizers.optimizers_tf.GradientDescentMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
-    # (zfit.minimizers.optimizers_tf.RMSPropMinimizer, dict(learning_rate=0.4, tolerance=0.3)),
-    # (zfit.minimize.MinuitTFMinimizer, {}),
     (zfit.minimize.MinuitMinimizer, {}, True),
     (zfit.minimize.ScipyMinimizer, {}, False),
     ]
 
-
-# print("DEBUG": after minimizer instantiation")
 
 @pytest.mark.parametrize("minimizer_class", minimizers)
 @pytest.mark.flaky(reruns=3)

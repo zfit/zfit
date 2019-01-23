@@ -152,12 +152,6 @@ func4_values = np.array([-12., -4.5, 1.9, 4.1])
 func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-11., 3.2, 7.4, -0.3]])
 
 
-# func4_2values = np.array([[-12., -12],
-#                           [-4.5, -4.5],
-#                           [1.9, 1.9],
-#                           [4.1, 4.1]])
-
-
 def func4_3deps(x):
     # a, b, c = tf.unstack(x)
     a, b, c = x
@@ -189,9 +183,6 @@ def func4_3deps_1_integrated(x, limits):
     integral = -0.25 * b_lower ** 4 - b_lower * (
         1.0 * a ** 2 + 0.5 * c) + 0.25 * b_upper ** 4 + b_upper * (1.0 * a ** 2 + 0.5 * c)
     return integral
-
-
-# @pytest.mark.parametrize
 
 
 def test_mc_integration():
@@ -259,8 +250,8 @@ def test_analytic_integral():
     mu_true = 1.4
     sigma_true = 1.8
     limits = -4.3, 1.9
-    mu = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-    sigma = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+    mu = Parameter("mu_1414", mu_true, mu_true - 2., mu_true + 7.)
+    sigma = Parameter("sigma_1414", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = CustomGaussOLD(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
     normal_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
     try:
@@ -274,8 +265,6 @@ def test_analytic_integral():
                                          limits=Space.from_axes(limits=limits3, axes=(0, 1)))
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
-    # init = tf.global_variables_initializer()
-    # zfit.run(init)
     gauss_integral_infs = zfit.run(gauss_integral_infs)
     normal_integral_infs = zfit.run(normal_integral_infs)
     func3_integrated = zfit.run(
@@ -283,7 +272,6 @@ def test_analytic_integral():
             dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
             dtype=tf.float64))
     assert func3_integrated == func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1)))
-    # assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert normal_integral_infs == pytest.approx(1, rel=0.0001)
 

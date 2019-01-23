@@ -13,9 +13,9 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
-from zfit.core.interfaces import ZfitModel, ZfitParameter
+from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents
-from ..util.exception import LogicalUndefinedOperationError
+from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
 from ..settings import ztypes
@@ -222,16 +222,16 @@ class BaseParameter(zbaseobject.BaseNumeric, zinterfaces.ZfitParameter, metaclas
 class ZfitParameterMixin:
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
-        # super().__init__(initial_value=initial_value, name=name, **kwargs)
         super().__init__(initial_value=initial_value, name=name, **kwargs)
-        self.floating = floating
-
-        # def __init__(self, name, initial_value, floating=True, **kwargs):
-        #     name += str(np.random.randint(1, 1000000))
-        #     initial_value = ztf.to_real(initial_value)
-        #     variable = tf.get_variable(initializer=initial_value, dtype=ztypes.float,
-        #                                name=name, use_resource=True)
-        #     super().__init__(variable=variable, **kwargs)
+        # try:
+        #     new_name = self.op.name
+        # except AttributeError:  # no `op` attribute -> take normal name
+        #     new_name = self.name
+        new_name = self.name.rsplit(':', 1)[0]  # get rid of tf node
+        new_name = new_name.rsplit('/', 1)[-1]  # get rid of the scope preceding the name
+        if not new_name == name:  # name has been mangled because it already exists
+            raise NameAlreadyTakenError("Another parameter is already named {}. "
+                                        "Use a different, unique one.".format(name))
         self.floating = floating
 
     @property
@@ -443,10 +443,10 @@ class ComposedParameter(BaseComposedParameter):
         tensor = ztf.convert_to_tensor(tensor)
         independend_params = tf.get_collection("zfit_independent")
         params = get_dependents(tensor=tensor, candidates=independend_params)
-        params_init_op = [param.initializer for param in params]
+        # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
-        with tf.control_dependencies(params_init_op):
-            super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
+        # with tf.control_dependencies(params_init_op):
+        super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
 
 class ComplexParameter(BaseComposedParameter):
@@ -458,6 +458,16 @@ class ComplexParameter(BaseComposedParameter):
         imag_part = Parameter(name=name + "_imag", init_value=imag_value, floating=floating, dtype=imag_value.dtype)
         params = {'real': real_part, 'imag': imag_part}
         super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
+
+
+_auto_number = 0
+
+
+def get_auto_number():
+    global _auto_number
+    auto_number = _auto_number
+    _auto_number += 1
+    return auto_number
 
 
 def convert_to_parameter(value) -> "Parameter":
@@ -473,10 +483,10 @@ def convert_to_parameter(value) -> "Parameter":
     if not isinstance(value, tf.Tensor):
         if isinstance(value, complex):
             value = ztf.to_complex(value)
-            value = ComplexParameter("FIXED_autoparam", init_value=value, floating=False)
+            value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
         else:
             value = ztf.to_real(value)
-            value = Parameter("FIXED_autoparam", init_value=value, floating=False)
+            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
 
     # TODO: check if Tensor is complex
 

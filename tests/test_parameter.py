@@ -6,7 +6,7 @@ import tensorflow as tf
 import zfit
 from zfit import Parameter, ztf
 from zfit.core.parameter import ComposedParameter, ComplexParameter
-from zfit.util.exception import LogicalUndefinedOperationError
+from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 
 
 def test_complex_param():
@@ -29,7 +29,6 @@ def test_complex_param():
 
 
 def test_composed_param():
-    # tf.reset_default_graph()
     param1 = Parameter('param1s', 1.)
     param2 = Parameter('param2s', 2.)
     param3 = Parameter('param3s', 3., floating=False)
@@ -67,8 +66,18 @@ def test_param_limits():
     param2.load(lower - 1.1, session=zfit.run.sess)
     assert lower == zfit.run(param2.value())
 
+
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_ao', 5*4)
+    param_a = ComposedParameter('param_ao', 5 * 4)
     param_b = ComposedParameter('param_bo', 3)
     param_c = param_a * param_b
+    assert not isinstance(param_c, zfit.Parameter)
+    param_d = ComposedParameter("param_do", param_a + param_a * param_b ** 2)
+    param_d_val = zfit.run(param_d)
+    assert param_d_val == zfit.run(param_a + param_a * param_b ** 2)
 
+
+def test_equal_naming():
+    param_unique_name = zfit.Parameter('fafdsfds', 5.)
+    with pytest.raises(NameAlreadyTakenError):
+        param_unique_name2 = zfit.Parameter('fafdsfds', 3.)

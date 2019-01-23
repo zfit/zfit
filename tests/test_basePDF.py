@@ -10,6 +10,7 @@ from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit import ztf
 
+
 # from zfit.ztf import
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -43,10 +44,10 @@ def true_gaussian_grad(x):
     return np.array((grad_mu, grad_sigma)).transpose()
 
 
-mu2 = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma2 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
-mu3 = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma3 = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
+mu2 = Parameter("mu2", mu_true, mu_true - 2., mu_true + 7.)
+sigma2 = Parameter("sigma2", sigma_true, sigma_true - 10., sigma_true + 5.)
+mu3 = Parameter("mu3", mu_true, mu_true - 2., mu_true + 7.)
+sigma3 = Parameter("sigma3", sigma_true, sigma_true - 10., sigma_true + 5.)
 tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
 wrapped_gauss = zfit.models.dist_tfp.WrapDistribution(tf_gauss1, obs=obs1)
 
