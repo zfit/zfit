@@ -40,7 +40,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     def enough_produced(n, sample, n_total_drawn, eff):
         return tf.greater(n, tf.shape(sample, out_type=tf.int64)[1])
 
-    def sample_body(n, sample, n_total_drawn=0, eff=1.):
+    def sample_body(n, sample, n_total_drawn=0, eff=1.5):
         if sample is None:
             n_to_produce = n
         else:

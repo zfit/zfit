@@ -164,6 +164,8 @@ class Data(ZfitData, BaseDimensional, BaseObject):
             values = list(values[i] for i in perm_indices)
             values = tf.stack(values)
 
+        # cut data to right range
+
         return values
 
     # TODO(Mayou36): use Space to permute data?
