@@ -114,3 +114,28 @@ def test_subdata():
 
     assert data1.obs == obs1
     np.testing.assert_array_equal(example_data1, zfit.run(data1.value()))
+
+
+def test_data_range():
+    data1 = np.array([[1., 2],
+                      [0, 1],
+                      [-2, 1],
+                      [-1, -1],
+                      [-5, 10]])
+    data1 = data1.transpose()
+    obs = ['obs1', 'obs2']
+    lower = ((0.5, 1), (-3, -2))
+    upper = ((1.5, 2.5), (-1.5, 1.5))
+    data_range = zfit.Space(obs=obs, limits=(lower, upper))
+    cut_data1 = data1[:, np.array((0, 2))]
+
+    dataset = zfit.data.Data.from_tensors(obs=obs, tensors=data1)
+    value_uncut = dataset.value()
+    np.testing.assert_equal(data1, zfit.run(value_uncut))
+    with dataset.set_data_range(data_range):
+        value_cut = dataset.value()
+        np.testing.assert_equal(cut_data1, zfit.run(value_cut))
+        np.testing.assert_equal(data1, zfit.run(value_uncut))  # check  that the original did NOT change
+
+    np.testing.assert_equal(cut_data1, zfit.run(value_cut))
+    np.testing.assert_equal(data1, zfit.run(dataset.value()))

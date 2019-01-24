@@ -1008,3 +1008,12 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
         return func
 
     return create_deco_stack
+
+
+def convert_to_obs_str(obs):
+    """Convert `obs` to the list of obs, also if it is a `Space`.
+
+    """
+    obs = convert_to_container(value=obs, container=tuple)
+    obs = tuple(ob.obs if isinstance(obs, Space) else obs for ob in obs)
+    return obs

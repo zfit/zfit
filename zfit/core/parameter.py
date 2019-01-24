@@ -394,19 +394,21 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
             maxval (Numerical):
         """
         if minval is None:
-            minval = self.lower_limit
-        else:
-            minval = tf.cast(minval, dtype=self.dtype)
+            minval = self.sess.run(self.lower_limit)
+        # else:
+        #     minval = tf.cast(minval, dtype=self.dtype)
         if maxval is None:
-            maxval = self.upper_limit
-        else:
-            maxval = tf.cast(maxval, dtype=self.dtype)
+            maxval = self.sess.run(self.upper_limit)
+        # else:
+        #     maxval = tf.cast(maxval, dtype=self.dtype)
 
         # value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
         shape = self.shape.as_list()
         if shape == []:
-            shape = (1,)
-        value = np.random.uniform(size=self.shape, low=minval, high=maxval)
+            size = 1
+        value = np.random.uniform(size=size, low=minval, high=maxval)
+        if shape == []:
+            value = value[0]
         self.load(value=value)
         return value
 

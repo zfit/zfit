@@ -153,7 +153,7 @@ def test_implicit_sumpdf():
     pdf3 = SimplePDF(func=lambda x: x * 2 + param3, obs=obs1)
 
     # sugar 1
-    sum_pdf = frac1_param * pdf1 + pdf2 + frac2_param * pdf3
+    sum_pdf = frac1_param * pdf1 + frac2_param * pdf2 + pdf3
 
     true_values = pdf1.pdf(rnd_test_values, norm_range=norm_range)
     true_values *= frac1_param
