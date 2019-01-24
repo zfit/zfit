@@ -67,8 +67,9 @@ class MinuitMinimizer(BaseMinimizer):
                                        grad=grad_func,
                                        forced_parameters=params_name,
                                        **error_limit_kwargs)
+            minimizer.set_strategy(0)  # TODO(Mayou36): where to properly set strategy etc?
         self._minuit_minimizer = minimizer
-        result = minimizer.migrad(precision=self.tolerance)
+        result = minimizer.migrad()
         params_result = [p_dict for p_dict in result[1]]
         self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
 

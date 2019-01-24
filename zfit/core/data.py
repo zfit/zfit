@@ -11,6 +11,7 @@ import numpy as np
 # from ..settings import types as ztypes
 import zfit
 from zfit import ztf
+from zfit.util.execution import SessionHolderMixin
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
@@ -22,7 +23,7 @@ from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedE
 from ..util.temporary import TemporarilySet
 
 
-class Data(ZfitData, BaseDimensional, BaseObject):
+class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
 
@@ -101,8 +102,11 @@ class Data(ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, name=name)
 
     @classmethod
-    def from_root(cls, path, treepath, branches=None, name=None, root_dir_options=None):
-        # branches = convert_to_container(branches)
+    def from_root(cls, path, treepath, branches=None, branches_alias=None, name=None, root_dir_options=None):
+        if branches_alias is None:
+            branches_alias = {}
+
+        branches = convert_to_container(branches)
         if root_dir_options is None:
             root_dir_options = {}
 
@@ -115,7 +119,8 @@ class Data(ZfitData, BaseDimensional, BaseObject):
         dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
 
         dataset = dataset.repeat()
-        return Data(dataset=dataset, obs=branches, name=name)
+        obs = [branches_alias.get(branch, branch) for branch in branches]
+        return Data(dataset=dataset, obs=obs, name=name)
 
     @classmethod
     def from_numpy(cls, obs, array, name=None):
@@ -136,13 +141,10 @@ class Data(ZfitData, BaseDimensional, BaseObject):
         dataset = LightDataset.from_tensor(tensor=tensors)
         return Data(dataset=dataset, obs=obs, name=name)
 
-    def initialize(self, sess=None):
+    def initialize(self):
         iterator = self.dataset.make_initializable_iterator()
-        if sess is None:
-            sess = zfit.run.sess
-            if sess is None:
-                raise NoSessionSpecifiedError()
-        sess.run(iterator.initializer, self.iterator_feed_dict)
+
+        self.sess.run(iterator.initializer, self.iterator_feed_dict)
         self.iterator = iterator
 
     def get_iteration(self):
