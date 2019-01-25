@@ -105,7 +105,7 @@ ANY_UPPER = AnyUpper()
 class Space(ZfitSpace, BaseObject):
     AUTO_FILL = object()
     ANY = ANY
-    ANY_LOWER = ANY_LOWER
+    ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
     ANY_UPPER = ANY_UPPER
 
     def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = None,
@@ -496,9 +496,9 @@ class Space(ZfitSpace, BaseObject):
             raise ValueError("Neither the `obs` nor `axes` are defined.")
 
         if obs_is_defined:
-            old, new = self.obs, obs
+            old, new = self.obs, [o for o in obs if o in self.obs]
         else:
-            old, new = self.axes, axes
+            old, new = self.axes, [a for a in axes if a in self.axes]
 
         new_indices = _reorder_indices(old=old, new=new)
         return new_indices
@@ -578,8 +578,8 @@ class Space(ZfitSpace, BaseObject):
         Temporarily if used with a context manager.
 
         Args:
-            allow_subset ():
             obs_axes (OrderedDict[str, int]): An (ordered) dict with {obs: axes}.
+            allow_subset ():
 
         Returns:
 
@@ -650,9 +650,9 @@ class Space(ZfitSpace, BaseObject):
 
 
         Args:
-            allow_subset ():
-            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
             obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
+            allow_subset ():
 
         Returns:
             Space:
@@ -726,7 +726,7 @@ class Space(ZfitSpace, BaseObject):
             except KeyError:
                 raise KeyError("Cannot get subspace from `obs` {} as this observables are not defined"
                                "in this space.".format({set(obs) - set(self.obs)}))
-            except AttributeError:
+            except AttributeError:  # `obs` is None -> has not attribute `index`
                 raise ObsNotSpecifiedError("Observables have not been specified in this space.")
 
         # try to use axes to get index
