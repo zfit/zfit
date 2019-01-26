@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Union, List
 from contextlib import ExitStack
 import functools
 
@@ -64,12 +64,27 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     return True  # TODO
 
 
-def limits_overlap(spaces, allow_exact_match=False):  # TODO(Mayou36): add approx comparison
+def limits_overlap(spaces: Union["zfit.Space", Iterable["zfit.Space"]], allow_exact_match: bool = False) -> bool:
+    """Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.
+
+    This also checks multiple limits within one space. If `allow_exact_match` is set to true, then
+    an *exact* overlap of limits is allowed.
+
+
+    Args:
+        spaces (Iterable[zfit.Space]):
+        allow_exact_match (bool): An exact overlap of two limits is counted as "not overlapping".
+            Example: limits from -1 to 3 and 4 to 5 to *NOT* overlap with the limits 4 to 5 *iff*
+            `allow_exact_match` is True.
+
+    Returns:
+        bool: if there are overlapping limits.
+    """
+    # TODO(Mayou36): add approx comparison global in zfit
     eps = 1e-8  # epsilon for float comparisons
     spaces = convert_to_container(spaces, container=tuple)
     all_obs = common_obs(spaces=spaces)
     for obs in all_obs:
-        # lowers = [[] for _ in range(len(all_obs))]
         lowers = []
         uppers = []
         for space in spaces:
@@ -96,7 +111,22 @@ def limits_overlap(spaces, allow_exact_match=False):  # TODO(Mayou36): add appro
     return False
 
 
-def common_obs(spaces):
+def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> List[str]:
+    """Extract the union of `obs` from `spaces` in the order of `spaces`.
+
+    For example:
+        | space1.obs: ['obs1', 'obs3']
+        | space2.obs: ['obs2', 'obs3', 'obs1']
+        | space3.obs: ['obs2']
+
+        returns ['obs1', 'obs3', 'obs2']
+
+    Args:
+        spaces (): Spaces to extract the obs from
+
+    Returns:
+        List[str]: The observables as `str`
+    """
     spaces = convert_to_container(spaces, container=tuple)
     all_obs = []
     for space in spaces:
@@ -106,7 +136,21 @@ def common_obs(spaces):
     return all_obs
 
 
-def limits_consistent(spaces: Iterable["zfit.Space"]):
+def limits_consistent(spaces: ztyping.SpaceOrSpacesTypeInput):
+    """Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.
+
+    In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
+    to be consistent with this limits, other limits have to have (in this obs) also the limits
+    from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.
+
+    This function is useful to check if several spaces with *different* observables can be _combined_.
+
+    Args:
+        spaces (List[zfit.core.limits.Space]):
+
+    Returns:
+        bool:
+    """
     spaces = convert_to_container(spaces, container=tuple)
     if len(spaces) <= 1:
         raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?

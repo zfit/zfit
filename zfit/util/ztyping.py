@@ -1,4 +1,3 @@
-import typing
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 
 import numpy as np
@@ -23,7 +22,10 @@ AxesTypeReturn = Union[Tuple[int], None]
 
 ObsTypeInput = Union[str, Iterable[str], "Space"]
 ObsTypeReturn = Union[Tuple[str, ...], None]
-SpaceTypeReturn = "Space"
+
+# Space
+SpaceOrSpacesTypeInput = Union["zfit.Space", Iterable["zfit.Space"]]
+SpaceTypeReturn = "zfit.Space"
 
 # Data
 XType = Union[float, tf.Tensor]

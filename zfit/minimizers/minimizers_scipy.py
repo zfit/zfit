@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import copy
 
-from scipy.optimize import SR1
+from scipy.optimize import SR1, BFGS
 import tensorflow as tf
 
 from zfit.minimizers.fitresult import FitResult
@@ -17,6 +17,9 @@ class ScipyMinimizer(BaseMinimizer):
         super().__init__(tolerance=tolerance, name=name)
         kwargs.update(method=minimizer)  # named method in ScipyOptimizerInterface
         kwargs.update(hess=SR1())
+        # kwargs.update(hess=BFGS())
+        kwargs.update(options={'maxiter': 3000}
+                      )
         self._scipy_init_kwargs = kwargs
 
     def _minimize(self, loss, params):
