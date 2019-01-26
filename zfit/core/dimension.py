@@ -5,7 +5,8 @@ import functools
 import numpy as np
 
 import zfit
-from zfit.util.exception import SpaceIncompatibleError, DueToLazynessNotImplementedError
+from zfit.util.exception import (SpaceIncompatibleError, DueToLazynessNotImplementedError, LimitsIncompatibleError,
+                                 LimitsNotSpecifiedError, )
 from ..util.container import convert_to_container
 from .interfaces import ZfitDimensional
 from ..util import ztyping
@@ -46,6 +47,17 @@ def is_combinable(spaces):
 
 
 def add_spaces(spaces: Iterable["zfit.Space"]):
+    """Add two spaces and merge their limits if possible or return False.
+
+    Args:
+        spaces (Iterable[`zfit.Space`]):
+
+    Returns:
+        Union[None, zfit.core.limits.Space, bool]:
+
+    Raises:
+        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
+    """
     spaces = convert_to_container(spaces)
     if len(spaces) <= 1:
         raise ValueError("Need at least two spaces to be added.")  # TODO: allow? usecase?
@@ -58,7 +70,7 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     spaces = [space.with_obs(obs=obs) if not space.obs == obs1 else space for space in spaces]
 
     if limits_overlap(spaces=spaces, allow_exact_match=True):
-        raise SpaceIncompatibleError("")
+        raise LimitsIncompatibleError("Limits of spaces overlap, cannot merge spaces.")
 
     lowers = []
     uppers = []
@@ -172,6 +184,28 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     Returns:
         bool:
     """
+    try:
+        new_space = combine_spaces(spaces=spaces)
+    except LimitsIncompatibleError:
+        return False
+    return bool(new_space)
+
+
+def combine_spaces(spaces: Iterable["zfit.Space"]):
+    """Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.
+
+    In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
+    to be consistent with this limits, other limits have to have (in this obs) also the limits
+    from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.
+
+    This function is useful to check if several spaces with *different* observables can be _combined_.
+
+    Args:
+        spaces (List[zfit.Space]):
+
+    Returns:
+        bool:
+    """
     spaces = convert_to_container(spaces, container=tuple)
     if len(spaces) <= 1:
         raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
@@ -179,7 +213,13 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     all_obs = common_obs(spaces=spaces)
     all_lower = []
     all_upper = []
-    spaces = [space.with_obs(all_obs) for space in spaces]
+    spaces = tuple(space.with_obs(all_obs) for space in spaces)
+
+    # create the lower and upper limits with all obs replacing missing dims with None
+    # With this, all limits have the same length
+    if limits_overlap(spaces=spaces, allow_exact_match=True):
+        raise LimitsIncompatibleError("Limits overlap")
+
     for space in spaces:
         if space.limits is None:
             continue
@@ -189,16 +229,44 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
         all_lower.append(lower)
         all_upper.append(upper)
 
-    all_limits_to_check = all_lower, all_upper
-    for limits_to_check in all_limits_to_check:
-        for index in range(len(all_obs)):
+    def check_extract_limits(limits_spaces):
+        new_limits = []
+
+        if not limits_spaces:
+            return None
+        for index, obs in enumerate(all_obs):
             current_limit = None
-            for limit in limits_to_check:
+            for limit in limits_spaces:
                 lim = limit[index]
+
                 if lim is not None:
                     if current_limit is None:
                         current_limit = lim
                     elif not np.allclose(current_limit, lim):
                         return False
+            else:
+                if current_limit is None:
+                    raise LimitsNotSpecifiedError("Limits in obs {} are not specified".format(obs))
+                new_limits.append(current_limit)
 
-    return not limits_overlap(spaces=spaces, allow_exact_match=True)
+        n_limits = int(np.prod(tuple(len(lim) for lim in new_limits)))
+        new_limits_comb = [[] for _ in range(n_limits)]
+        for limit in new_limits:
+            for lim in limit:
+                for i in range(int(n_limits / len(limit))):
+                    new_limits_comb[i].append(lim)
+
+        new_limits = tuple(tuple(limit) for limit in new_limits_comb)
+        return new_limits
+
+    new_lower = check_extract_limits(all_lower)
+    new_upper = check_extract_limits(all_upper)
+    assert not (new_lower is None) ^ (new_upper is None), "Bug, please report issue. either both are defined or None."
+    if new_lower is None:
+        limits = None
+    elif new_lower is False:
+        return False
+    else:
+        limits = (new_lower, new_upper)
+    new_space = zfit.Space(obs=all_obs, limits=limits)
+    return new_space

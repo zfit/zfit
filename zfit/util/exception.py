@@ -95,6 +95,10 @@ class SpaceIncompatibleError(IncompatibleError):
     pass
 
 
+class LimitsIncompatibleError(IncompatibleError):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):
