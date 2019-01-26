@@ -5,7 +5,7 @@ import pytest
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import zfit
-from zfit.core.dimension import add_spaces, limits_consistent
+from zfit.core.dimension import add_spaces, limits_consistent, limits_overlap
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
@@ -64,3 +64,11 @@ def test_limits_consistent():
     assert limits_consistent(spaces=[space1d_1, space2d_2])
     assert limits_consistent(spaces=[space1d_1, space2d_2, space1d_12])
     assert not limits_consistent(spaces=[space1d_1, space2d_1, space1d_12])
+
+
+def test_limits_overlap():
+    assert not limits_overlap([space1d_1, space1d_2], allow_exact_match=True)
+    assert limits_overlap([space1d_1, space1d_2])
+    assert limits_overlap([space1d_1, space1d_2, space1d_12])
+    assert limits_overlap([space1d_1, space2d_2, space1d_12])
+    assert not limits_overlap([space1d_1, space2d_2, space1d_12], allow_exact_match=True)

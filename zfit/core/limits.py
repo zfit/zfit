@@ -64,7 +64,7 @@ from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                              OverdefinedError, )
+                              OverdefinedError, LimitsNotSpecifiedError, )
 from ..util.temporary import TemporarilySet
 
 
@@ -86,15 +86,51 @@ class Any(pep487.PEP487Object):  # pep487 for _init_subclass backport
     def __repr__(self):
         return '<Any>'
 
+    def __lt__(self, other):
+        return True
+
+    def __le__(self, other):
+        return True
+
+    # def __eq__(self, other):
+    #     return True
+
+    def __ge__(self, other):
+        return True
+
+    def __gt__(self, other):
+        return True
+
+    # def __hash__(self):
+    #     return
+
 
 class AnyLower(Any):
     def __repr__(self):
         return '<Any Lower Limit>'
 
+    # def __eq__(self, other):
+    #     return False
+
+    def __ge__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return False
+
 
 class AnyUpper(Any):
     def __repr__(self):
         return '<Any Upper Limit>'
+
+    # def __eq__(self, other):
+    #     return False
+
+    def __le__(self, other):
+        return False
+
+    def __lt__(self, other):
+        return False
 
 
 ANY = Any()
@@ -418,6 +454,8 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             List[Space] or List[limit,...]:
         """
+        if not self.limits:
+            raise LimitsNotSpecifiedError("Space does not have limits, cannot iterate over them.")
         if as_tuple:
             return tuple(zip(self.lower, self.upper))
         else:

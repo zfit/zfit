@@ -34,9 +34,6 @@ class ExternalOptimizerInterface:  # COPYRIGHT: remove explicit `object` inherit
     `ExternalOptimizerInterface` should not be instantiated directly; instead use
     e.g. `ScipyOptimizerInterface`.
 
-    @@__init__
-
-    @@minimize
     """
 
     def __init__(self,
@@ -168,7 +165,7 @@ class ExternalOptimizerInterface:  # COPYRIGHT: remove explicit `object` inherit
         fetches = fetches or []
 
         loss_callback = loss_callback or (lambda *fetches: None)
-        step_callback = step_callback or (lambda xk: None)
+        step_callback = step_callback or (lambda *xk: None)
 
         # Construct loss function and associated gradient.
         loss_grad_func = self._make_eval_func([self._loss,

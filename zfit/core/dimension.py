@@ -2,7 +2,10 @@ from typing import Iterable
 from contextlib import ExitStack
 import functools
 
+import numpy as np
+
 import zfit
+from zfit.util.exception import SpaceIncompatibleError, DueToLazynessNotImplementedError
 from ..util.container import convert_to_container
 from .interfaces import ZfitDimensional
 from ..util import ztyping
@@ -55,10 +58,42 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     spaces = [space.with_obs_axes(obs=obs) if not space.obs == obs1 else space for space in spaces]
 
     limits = frozenset(space.limits for space in spaces)
-    if len(limits) != 1:
-        return False
+    if limits_overlap(spaces=spaces):
+        raise SpaceIncompatibleError("")
 
     return True  # TODO
+
+
+def limits_overlap(spaces, allow_exact_match=False):  # TODO(Mayou36): add approx comparison
+    eps = 1e-8  # epsilon for float comparisons
+    spaces = convert_to_container(spaces, container=tuple)
+    all_obs = common_obs(spaces=spaces)
+    for obs in all_obs:
+        # lowers = [[] for _ in range(len(all_obs))]
+        lowers = []
+        uppers = []
+        for space in spaces:
+            if not space.limits or obs not in space.obs:
+                continue
+            else:
+                index = space.obs.index(obs)
+
+            for lower, upper in space.iter_limits(as_tuple=True):
+                low = lower[index]
+                up = upper[index]
+
+                for other_lower, other_upper in zip(lowers, uppers):
+                    if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
+                        continue
+                    # TODO(Mayou36): tolerance? add global flags?
+                    low_overlaps = other_lower - eps < low < other_upper + eps
+                    up_overlaps = other_lower - eps < up < other_upper + eps
+                    overlap = low_overlaps or up_overlaps
+                    if overlap:
+                        return True
+                lowers.append(low)
+                uppers.append(up)
+    return False
 
 
 def common_obs(spaces):
@@ -92,12 +127,13 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     all_limits_to_check = all_lower, all_upper
     for limits_to_check in all_limits_to_check:
         for index in range(len(all_obs)):
-            current_lower = None
+            current_limit = None
             for limit in limits_to_check:
                 lim = limit[index]
                 if lim is not None:
-                    if current_lower is None:
-                        current_lower = lim
-                    elif current_lower != lim:
+                    if current_limit is None:
+                        current_limit = lim
+                    elif not np.allclose(current_limit, lim):
                         return False
-    return True
+
+    return not limits_overlap(spaces=spaces, allow_exact_match=True)

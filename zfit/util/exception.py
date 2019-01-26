@@ -16,6 +16,7 @@ class ExtendedPDFError(Exception):
 class AlreadyExtendedPDFError(ExtendedPDFError):
     pass
 
+
 class NotExtendedPDFError(ExtendedPDFError):
     pass
 
@@ -46,6 +47,7 @@ class LimitsUnderdefinedError(UnderdefinedError):
 
 class OverdefinedError(IntentionNotUnambiguousError):
     pass
+
 
 class LimitsOverdefinedError(OverdefinedError):
     pass
@@ -81,7 +83,15 @@ class NameAlreadyTakenError(Exception):
 
 
 # Operation errors
-class ShapeIncompatibleError(Exception):
+class IncompatibleError(Exception):
+    pass
+
+
+class ShapeIncompatibleError(IncompatibleError):
+    pass
+
+
+class SpaceIncompatibleError(IncompatibleError):
     pass
 
 
@@ -91,7 +101,7 @@ class NotMinimizedError(Exception):
     pass
 
 
-# Runtime Erorrs
+# Runtime Errors
 
 class NoSessionSpecifiedError(Exception):
     pass
@@ -106,6 +116,7 @@ class NormRangeNotImplementedError(Exception):
 class MultipleLimitsNotImplementedError(Exception):
     """Indicates that a function does not support several limits in a `Space`."""
     pass
+
 
 # Developer verbose messages
 
