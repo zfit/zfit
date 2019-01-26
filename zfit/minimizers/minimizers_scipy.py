@@ -26,8 +26,15 @@ class ScipyMinimizer(BaseMinimizer):
         loss = loss.value()
         # var_list = self.get_parameters()
         var_list = params
+
         # params_name = self._extract_parameter_names(var_list)
-        var_to_bounds = {p.name: (p.lower_limit, p.upper_limit) for p in var_list}
+        def try_run(obj):
+            if isinstance(obj, tf.Tensor):
+                return self.sess.run(obj)
+            else:
+                return obj
+
+        var_to_bounds = {p.name: (try_run(p.lower_limit), try_run(p.upper_limit)) for p in var_list}
         minimizer = ScipyOptimizerInterface(loss=loss, var_list=var_list,
                                             var_to_bounds=var_to_bounds,
                                             **self._scipy_init_kwargs)

@@ -55,16 +55,37 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
         return False
 
     obs1 = spaces[0].obs
-    spaces = [space.with_obs_axes(obs=obs) if not space.obs == obs1 else space for space in spaces]
+    spaces = [space.with_obs(obs=obs) if not space.obs == obs1 else space for space in spaces]
 
-    limits = frozenset(space.limits for space in spaces)
-    if limits_overlap(spaces=spaces):
+    if limits_overlap(spaces=spaces, allow_exact_match=True):
         raise SpaceIncompatibleError("")
 
-    return True  # TODO
+    lowers = []
+    uppers = []
+    for space in spaces:
+        if space.limits is None:
+            continue
+        for lower, upper in space.iter_limits(as_tuple=True):
+            for other_lower, other_upper in zip(lowers, uppers):
+                lower_same = np.allclose(lower, other_lower)
+                upper_same = np.allclose(upper, other_upper)
+                assert not lower_same ^ upper_same, "Bug, please report as issue. limits_overlap did not catch right."
+                if lower_same and upper_same:
+                    break
+            else:
+                lowers.append(lower)
+                uppers.append(upper)
+    lowers = tuple(lowers)
+    uppers = tuple(uppers)
+    if len(lowers) == 0:
+        limits = None
+    else:
+        limits = lowers, uppers
+    new_space = zfit.Space(obs=spaces[0].obs, limits=limits)
+    return new_space
 
 
-def limits_overlap(spaces: Union["zfit.Space", Iterable["zfit.Space"]], allow_exact_match: bool = False) -> bool:
+def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False) -> bool:
     """Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.
 
     This also checks multiple limits within one space. If `allow_exact_match` is set to true, then
@@ -136,7 +157,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> List[str]:
     return all_obs
 
 
-def limits_consistent(spaces: ztyping.SpaceOrSpacesTypeInput):
+def limits_consistent(spaces: Iterable["zfit.Space"]):
     """Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.
 
     In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
@@ -146,7 +167,7 @@ def limits_consistent(spaces: ztyping.SpaceOrSpacesTypeInput):
     This function is useful to check if several spaces with *different* observables can be _combined_.
 
     Args:
-        spaces (List[zfit.core.limits.Space]):
+        spaces (List[zfit.Space]):
 
     Returns:
         bool:

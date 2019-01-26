@@ -261,6 +261,8 @@ class Space(ZfitSpace, BaseObject):
         replace = {} if replace is None else replace
         if limit is NOT_SPECIFIED or limit is None:
             return None
+        if limit == ():
+            raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
         # TODO(Mayou36): allow automatically correct shape? Up to which extend?
         if np.shape(limit) == ():
             limit = ((limit,),)
