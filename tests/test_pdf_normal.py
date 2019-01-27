@@ -17,6 +17,7 @@ norm_range1 = (-4., 2.)
 
 obs1 = 'obs1'
 
+
 def create_gauss():
     mu1 = Parameter("mu1a", mu1_true)
     mu2 = Parameter("mu2a", mu2_true)
@@ -33,7 +34,9 @@ def create_gauss():
     zfit.run(tf.global_variables_initializer())
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 
+
 gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
+
 
 def test_gauss1():
     probs1 = gauss1.pdf(x=test_values, norm_range=norm_range1)
@@ -49,5 +52,3 @@ def test_gauss1():
     assert not np.allclose(probs1_tfp, probs1_tfp_unnorm, rtol=1e-2)
     assert not np.allclose(probs1, probs1_unnorm, rtol=1e-2)
     # np.testing.assert_allclose(probs1_unnorm, probs1_tfp_unnorm, rtol=1e-2)
-
-

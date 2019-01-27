@@ -12,6 +12,7 @@ from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 
+
 mu_true = 1.2
 sigma_true = 4.1
 mu_true2 = 1.01
@@ -24,11 +25,11 @@ test_values_np2 = np.random.normal(loc=mu_true2, scale=sigma_true2, size=yield_t
 low, high = -24.3, 28.6
 mu1 = Parameter("mu1", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
 sigma1 = Parameter("sigma1", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-mu2 = Parameter("mu2", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma2 = Parameter("sigma2", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-mu3 = Parameter("mu3", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma3 = Parameter("sigma3", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-yield3 = Parameter("yield3", yield_true + 300, 0, yield_true + 20000)
+mu2 = Parameter("mu25", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+sigma2 = Parameter("sigma25", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+mu3 = Parameter("mu35", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+sigma3 = Parameter("sigma35", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+yield3 = Parameter("yield35", yield_true + 300, 0, yield_true + 20000)
 
 obs1 = 'obs1'
 
@@ -48,9 +49,7 @@ def test_extended_unbinned_nll():
                                                fit_range=(-20, 20))
     minimizer = MinuitMinimizer()
     status = minimizer.minimize(loss=nll_object, params=[mu3, sigma3, yield3])
-    # params = status.get_parameters()
     params = status.params
-    # print(params)
     assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
     assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
     assert params[yield3]['value'] == pytest.approx(yield_true, rel=0.005)
@@ -67,7 +66,6 @@ def test_unbinned_simultaneous_nll():
     minimizer = MinuitMinimizer()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
-    # print(params)
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
     assert params[mu2]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.005)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
@@ -75,25 +73,14 @@ def test_unbinned_simultaneous_nll():
 
 
 def test_unbinned_nll():
-    # zfit.run(init)
-
     test_values = tf.constant(test_values_np)
-    # nll = _unbinned_nll_tf(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-    # nll_eval = zfit.run(nll)
     minimizer = MinuitMinimizer()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
-    # print(params)
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
 
-    # with constraints
-    # zfit.run(init)
-
-    # nll_object = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
-    #                         constraints={mu2: mu_constr,
-    #                                      sigma2: sigma_constr})
     constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
                                                mu=[mu_constr[0], sigma_constr[0]],
                                                sigma=[mu_constr[1], sigma_constr[1]])
@@ -107,12 +94,6 @@ def test_unbinned_nll():
     assert params[mu2]['value'] > np.mean(test_values_np)
     assert params[sigma2]['value'] < np.std(test_values_np)
 
-    print(status)
-
-
-#
-# def true_gaussian_func(x):
-#     return np.exp(- (x - mu_true) ** 2 / (2 * sigma_true ** 2))
 
 def test_add():
     param1 = Parameter("param1", 1.)

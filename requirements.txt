@@ -1,6 +1,6 @@
 tensorflow>=1.10.0
 tensorflow_probability>=0.3.0
-scipy
+scipy>=1.2
 uproot
 numpy
 iminuit

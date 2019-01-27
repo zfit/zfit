@@ -25,7 +25,7 @@ from tensorflow.python.platform import tf_logging as logging
 __all__ = ['ExternalOptimizerInterface', 'ScipyOptimizerInterface']
 
 
-class ExternalOptimizerInterface(object):
+class ExternalOptimizerInterface:  # COPYRIGHT: remove explicit `object` inheritance (py3+ only)
     """Base class for interfaces with external optimization algorithms.
 
     Subclass this and implement `_minimize` in order to wrap a new optimization
@@ -34,9 +34,6 @@ class ExternalOptimizerInterface(object):
     `ExternalOptimizerInterface` should not be instantiated directly; instead use
     e.g. `ScipyOptimizerInterface`.
 
-    @@__init__
-
-    @@minimize
     """
 
     def __init__(self,
@@ -168,7 +165,7 @@ class ExternalOptimizerInterface(object):
         fetches = fetches or []
 
         loss_callback = loss_callback or (lambda *fetches: None)
-        step_callback = step_callback or (lambda xk: None)
+        step_callback = step_callback or (lambda *xk: None)
 
         # Construct loss function and associated gradient.
         loss_grad_func = self._make_eval_func([self._loss,
@@ -208,7 +205,7 @@ class ExternalOptimizerInterface(object):
         # LICENSE: changed lines below on updating the parameters
         # Set optimization variables to their new values.
         for param, val in zip(self._vars, var_vals):
-            param.load(session=session, value=val[0], **run_kwargs)
+            param.load(value=val[0], **run_kwargs)
 
         # LICENSE: return fit result from scipy
         return result
@@ -272,7 +269,7 @@ class ExternalOptimizerInterface(object):
             augmented_feed_dict.update(feed_dict)
             # LICENSE: added loop below, as feed_dict cannot (anymore) replace `Variables` value
             for param, value in augmented_feed_dict.items():
-                param.load(value=value, session=session)
+                param.load(value=value)
             augmented_fetches = tensors + fetches
 
             augmented_fetch_vals = session.run(

@@ -62,7 +62,8 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     """
     _DEFAULTS_integration = zcontainer.DotDict()
-    _DEFAULTS_integration.mc_sampler = mc.sample_halton_sequence
+    _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
+                                                                                         **kwargs)
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)

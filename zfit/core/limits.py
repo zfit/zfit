@@ -64,7 +64,7 @@ from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                              OverdefinedError, )
+                              OverdefinedError, LimitsNotSpecifiedError, )
 from ..util.temporary import TemporarilySet
 
 
@@ -86,15 +86,51 @@ class Any(pep487.PEP487Object):  # pep487 for _init_subclass backport
     def __repr__(self):
         return '<Any>'
 
+    def __lt__(self, other):
+        return True
+
+    def __le__(self, other):
+        return True
+
+    # def __eq__(self, other):
+    #     return True
+
+    def __ge__(self, other):
+        return True
+
+    def __gt__(self, other):
+        return True
+
+    # def __hash__(self):
+    #     return
+
 
 class AnyLower(Any):
     def __repr__(self):
         return '<Any Lower Limit>'
 
+    # def __eq__(self, other):
+    #     return False
+
+    def __ge__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return False
+
 
 class AnyUpper(Any):
     def __repr__(self):
         return '<Any Upper Limit>'
+
+    # def __eq__(self, other):
+    #     return False
+
+    def __le__(self, other):
+        return False
+
+    def __lt__(self, other):
+        return False
 
 
 ANY = Any()
@@ -105,7 +141,7 @@ ANY_UPPER = AnyUpper()
 class Space(ZfitSpace, BaseObject):
     AUTO_FILL = object()
     ANY = ANY
-    ANY_LOWER = ANY_LOWER
+    ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
     ANY_UPPER = ANY_UPPER
 
     def __init__(self, obs: ztyping.ObsTypeInput, limits: Optional[ztyping.LimitsTypeInput] = None,
@@ -225,6 +261,8 @@ class Space(ZfitSpace, BaseObject):
         replace = {} if replace is None else replace
         if limit is NOT_SPECIFIED or limit is None:
             return None
+        if limit == ():
+            raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
         # TODO(Mayou36): allow automatically correct shape? Up to which extend?
         if np.shape(limit) == ():
             limit = ((limit,),)
@@ -418,6 +456,8 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             List[Space] or List[limit,...]:
         """
+        if not self.limits:
+            raise LimitsNotSpecifiedError("Space does not have limits, cannot iterate over them.")
         if as_tuple:
             return tuple(zip(self.lower, self.upper))
         else:
@@ -496,9 +536,9 @@ class Space(ZfitSpace, BaseObject):
             raise ValueError("Neither the `obs` nor `axes` are defined.")
 
         if obs_is_defined:
-            old, new = self.obs, obs
+            old, new = self.obs, [o for o in obs if o in self.obs]
         else:
-            old, new = self.axes, axes
+            old, new = self.axes, [a for a in axes if a in self.axes]
 
         new_indices = _reorder_indices(old=old, new=new)
         return new_indices
@@ -578,8 +618,8 @@ class Space(ZfitSpace, BaseObject):
         Temporarily if used with a context manager.
 
         Args:
-            allow_subset ():
             obs_axes (OrderedDict[str, int]): An (ordered) dict with {obs: axes}.
+            allow_subset ():
 
         Returns:
 
@@ -650,9 +690,9 @@ class Space(ZfitSpace, BaseObject):
 
 
         Args:
-            allow_subset ():
-            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
             obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
+            allow_subset ():
 
         Returns:
             Space:
@@ -726,7 +766,7 @@ class Space(ZfitSpace, BaseObject):
             except KeyError:
                 raise KeyError("Cannot get subspace from `obs` {} as this observables are not defined"
                                "in this space.".format({set(obs) - set(self.obs)}))
-            except AttributeError:
+            except AttributeError:  # `obs` is None -> has not attribute `index`
                 raise ObsNotSpecifiedError("Observables have not been specified in this space.")
 
         # try to use axes to get index
@@ -1008,3 +1048,12 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
         return func
 
     return create_deco_stack
+
+
+def convert_to_obs_str(obs):
+    """Convert `obs` to the list of obs, also if it is a `Space`.
+
+    """
+    obs = convert_to_container(value=obs, container=tuple)
+    obs = tuple(ob.obs if isinstance(obs, Space) else obs for ob in obs)
+    return obs

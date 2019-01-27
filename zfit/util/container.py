@@ -11,12 +11,17 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def convert_to_container(value: Any, container: Callable = list, non_containers=None, convert_none=False) -> "container":
+def convert_to_container(value: Any, container: Callable = list, non_containers=None,
+                         convert_none=False) -> "container":
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:
         value (object):
         container (callable): Converts a tuple to a container.
+        non_containers (Optional[List[Container]]): Types that do not count as a container. Has to
+            be a list of types. As an example, if `non_containers` is [list, tuple] and the value
+            is [5, 3] (-> a list with two entries),this won't be converted to the `container` but end
+            up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).
 
     Returns:
 

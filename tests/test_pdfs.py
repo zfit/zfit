@@ -38,12 +38,12 @@ obs1 = Space(obs='obs1')
 # @pytest.fixture()
 def sum_prod_gauss():
     # define parameters
-    mu1 = Parameter("mu1a", mu1_true)
-    mu2 = Parameter("mu2a", mu2_true)
-    mu3 = Parameter("mu3a", mu3_true)
-    sigma1 = Parameter("sigma1a", sigma1_true)
-    sigma2 = Parameter("sigma2a", sigma2_true)
-    sigma3 = Parameter("sigma3a", sigma3_true)
+    mu1 = Parameter("mu1a123", mu1_true)
+    mu2 = Parameter("mu2a123", mu2_true)
+    mu3 = Parameter("mu3a123", mu3_true)
+    sigma1 = Parameter("sigma1a123", sigma1_true)
+    sigma2 = Parameter("sigma2a123", sigma2_true)
+    sigma3 = Parameter("sigma3a123", sigma3_true)
 
     # Gauss for sum, same axes
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")

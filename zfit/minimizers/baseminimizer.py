@@ -5,6 +5,7 @@ Definition of minimizers, wrappers etc.
 
 import collections
 from collections import OrderedDict
+from contextlib import ExitStack
 import copy
 
 import numpy as np
@@ -102,7 +103,10 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             NotImplementedError: if the `step` method is not implemented in the minimizer.
         """
         params = self._check_input_params(params)
-        return self._step(params=params)
+        with ExitStack() as stack:
+            tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
+
+            return self._step(params=params)
 
     def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params`.
@@ -116,7 +120,9 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             `FitResult`: The fit result.
         """
         params = self._check_input_params(loss=loss, params=params)
-        return self._hook_minimize(loss=loss, params=params)
+        with ExitStack() as stack:
+            tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
+            return self._hook_minimize(loss=loss, params=params)
 
     def _hook_minimize(self, loss, params):
         return self._call_minimize(loss=loss, params=params)

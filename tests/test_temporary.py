@@ -1,9 +1,6 @@
 from zfit.util.temporary import TemporarilySet
 
 
-
-
-
 def test_simple_x():
     class SimpleX:
 

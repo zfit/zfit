@@ -33,11 +33,8 @@ def test_not_allowed():
     pdf1 = SimplePDF(func=lambda x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
 
-    # TODO:what about addition? Not allowed?
-    # with pytest.raises(TypeError):
-    #     pdf1 + pdf2
-    # with pytest.raises(TypeError):
-    #     pdf1 + pdf2
+    with pytest.raises(TypeError):
+        pdf1 + pdf2
     with pytest.raises(NotImplementedError):
         param1 + func1
     with pytest.raises(NotImplementedError):
@@ -54,7 +51,6 @@ def test_param_func():
     param3 = Parameter('param31s', 3., floating=False)
     param4 = Parameter('param41s', 4.)
     a = ztf.log(3. * param1) * tf.square(param2) - param3
-    # a = 3. * param1
     func = SimpleFunc(func=lambda x: a * x, obs=obs1)
 
     new_func = param4 * func
@@ -107,8 +103,6 @@ def test_param_pdf():
     param2 = Parameter('param22sa', 22.)
     yield1 = Parameter('yield12sa', 21.)
     yield2 = Parameter('yield22sa', 22.)
-    # with tf.Session() as sess:
-    #     sess.run(tf.global_variables_initializer())
     pdf1 = SimplePDF(func=lambda x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
     assert not pdf1.is_extended
@@ -159,7 +153,7 @@ def test_implicit_sumpdf():
     pdf3 = SimplePDF(func=lambda x: x * 2 + param3, obs=obs1)
 
     # sugar 1
-    sum_pdf = frac1_param * pdf1 + pdf2 + frac2_param * pdf3
+    sum_pdf = frac1_param * pdf1 + frac2_param * pdf2 + pdf3
 
     true_values = pdf1.pdf(rnd_test_values, norm_range=norm_range)
     true_values *= frac1_param

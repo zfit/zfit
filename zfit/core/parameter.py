@@ -13,9 +13,11 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
-from zfit.core.interfaces import ZfitModel, ZfitParameter
+from ..util import ztyping
+from ..util.execution import SessionHolderMixin
+from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents
-from ..util.exception import LogicalUndefinedOperationError
+from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
 from ..settings import ztypes
@@ -222,16 +224,16 @@ class BaseParameter(zbaseobject.BaseNumeric, zinterfaces.ZfitParameter, metaclas
 class ZfitParameterMixin:
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
-        # super().__init__(initial_value=initial_value, name=name, **kwargs)
         super().__init__(initial_value=initial_value, name=name, **kwargs)
-        self.floating = floating
-
-        # def __init__(self, name, initial_value, floating=True, **kwargs):
-        #     name += str(np.random.randint(1, 1000000))
-        #     initial_value = ztf.to_real(initial_value)
-        #     variable = tf.get_variable(initializer=initial_value, dtype=ztypes.float,
-        #                                name=name, use_resource=True)
-        #     super().__init__(variable=variable, **kwargs)
+        # try:
+        #     new_name = self.op.name
+        # except AttributeError:  # no `op` attribute -> take normal name
+        #     new_name = self.name
+        new_name = self.name.rsplit(':', 1)[0]  # get rid of tf node
+        new_name = new_name.rsplit('/', 1)[-1]  # get rid of the scope preceding the name
+        if not new_name == name:  # name has been mangled because it already exists
+            raise NameAlreadyTakenError("Another parameter is already named {}. "
+                                        "Use a different, unique one.".format(name))
         self.floating = floating
 
     @property
@@ -275,7 +277,7 @@ class ZfitParameterMixin:
         return super().__rmul__(other)
 
 
-class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
+class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -308,14 +310,15 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint, **kwargs)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
+        else:
+            tf.add_to_collection("zfit_dependent", self)
         # init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
-        # self.init_value = init_value
         self.floating = floating
         self.step_size = step_size
         zfit.run.auto_initialize(self)
 
-        # self._placeholder = tf.placeholder(dtype=self.dtype, shape=self.get_shape())
-        # self._update_op = self.assign(self._placeholder)  # for performance! Run with sess.run
+    def __init_subclass__(cls, **kwargs):
+        cls._independent = True  # overwriting independent only for subclass/instance
 
     @property
     def lower_limit(self):
@@ -357,14 +360,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def independent(self):
         return self._independent
 
-    def __init_subclass__(cls, **kwargs):
-        cls._independent = True  # overwriting independent only for subclass/instance
-
-    # OLD remove? only keep for speed reasons?
-    # @property
-    # def update_op(self):
-    #     return self._update_op
-
     @property
     def step_size(self):  # TODO: improve default step_size?
         step_size = self._step_size
@@ -387,28 +382,34 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def step_size(self, value):
         self._step_size = value
 
+    def load(self, value: ztyping.NumericalScalarType):
+        return super().load(value=value, session=self.sess)
+
     # TODO: make it a random variable? return tensor that evaluates new all the time?
-    def randomize(self, sess, minval=None, maxval=None):
+    def randomize(self, minval=None, maxval=None):
         """Update the value with a randomised value between minval and maxval.
 
         Args:
-            sess (`tf.Session`): The TensorFlow session to execute the operation
             minval (Numerical):
             maxval (Numerical):
-            seed ():
         """
         if minval is None:
-            minval = self.lower_limit
-        else:
-            minval = tf.cast(minval, dtype=self.dtype)
+            minval = self.sess.run(self.lower_limit)
+        # else:
+        #     minval = tf.cast(minval, dtype=self.dtype)
         if maxval is None:
-            maxval = self.upper_limit
-        else:
-            maxval = tf.cast(maxval, dtype=self.dtype)
+            maxval = self.sess.run(self.upper_limit)
+        # else:
+        #     maxval = tf.cast(maxval, dtype=self.dtype)
 
         # value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
-        value = np.random.uniform(size=self.shape, low=minval, high=maxval)
-        self.load(value=sess.run(value), session=sess)
+        shape = self.shape.as_list()
+        if shape == []:
+            size = 1
+        value = np.random.uniform(size=size, low=minval, high=maxval)
+        if shape == []:
+            value = value[0]
+        self.load(value=value)
         return value
 
 
@@ -443,10 +444,10 @@ class ComposedParameter(BaseComposedParameter):
         tensor = ztf.convert_to_tensor(tensor)
         independend_params = tf.get_collection("zfit_independent")
         params = get_dependents(tensor=tensor, candidates=independend_params)
-        params_init_op = [param.initializer for param in params]
+        # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
-        with tf.control_dependencies(params_init_op):
-            super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
+        # with tf.control_dependencies(params_init_op):
+        super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
 
 class ComplexParameter(BaseComposedParameter):
@@ -458,6 +459,16 @@ class ComplexParameter(BaseComposedParameter):
         imag_part = Parameter(name=name + "_imag", init_value=imag_value, floating=floating, dtype=imag_value.dtype)
         params = {'real': real_part, 'imag': imag_part}
         super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
+
+
+_auto_number = 0
+
+
+def get_auto_number():
+    global _auto_number
+    auto_number = _auto_number
+    _auto_number += 1
+    return auto_number
 
 
 def convert_to_parameter(value) -> "Parameter":
@@ -473,10 +484,10 @@ def convert_to_parameter(value) -> "Parameter":
     if not isinstance(value, tf.Tensor):
         if isinstance(value, complex):
             value = ztf.to_complex(value)
-            value = ComplexParameter("FIXED_autoparam", init_value=value, floating=False)
+            value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
         else:
             value = ztf.to_real(value)
-            value = Parameter("FIXED_autoparam", init_value=value, floating=False)
+            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
 
     # TODO: check if Tensor is complex
 

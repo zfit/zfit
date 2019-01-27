@@ -23,7 +23,6 @@ def auto_integrate(func, limits, n_axes, x=None, method="AUTO", dtype=ztypes.flo
                    mc_options=None):
     if method == "AUTO":  # TODO unfinished, other methods?
         method = "mc"
-    # TODO get n axes
     # TODO method
     if method.lower() == "mc":
         mc_options = mc_options or {}

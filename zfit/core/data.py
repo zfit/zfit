@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import warnings
 
 import tensorflow as tf
@@ -11,10 +11,11 @@ import numpy as np
 # from ..settings import types as ztypes
 import zfit
 from zfit import ztf
+from zfit.util.execution import SessionHolderMixin
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
-from .limits import Space, convert_to_space
+from .limits import Space, convert_to_space, convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -22,7 +23,7 @@ from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedE
 from ..util.temporary import TemporarilySet
 
 
-class Data(ZfitData, BaseDimensional, BaseObject):
+class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
 
@@ -58,6 +59,17 @@ class Data(ZfitData, BaseDimensional, BaseObject):
             data_range = self.space
         return data_range
 
+    def set_data_range(self, data_range):
+        data_range = self._check_input_data_range(data_range=data_range)
+
+        def setter(value):
+            self._data_range = value
+
+        def getter():
+            return self._data_range
+
+        return TemporarilySet(value=data_range, setter=setter, getter=getter)
+
     @property
     def space(self) -> "ZfitSpace":
         return self._space
@@ -90,8 +102,11 @@ class Data(ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, name=name)
 
     @classmethod
-    def from_root(cls, path, treepath, branches=None, name=None, root_dir_options=None):
-        # branches = convert_to_container(branches)
+    def from_root(cls, path, treepath, branches=None, branches_alias=None, name=None, root_dir_options=None):
+        if branches_alias is None:
+            branches_alias = {}
+
+        branches = convert_to_container(branches)
         if root_dir_options is None:
             root_dir_options = {}
 
@@ -104,7 +119,8 @@ class Data(ZfitData, BaseDimensional, BaseObject):
         dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
 
         dataset = dataset.repeat()
-        return Data(dataset=dataset, obs=branches, name=name)
+        obs = [branches_alias.get(branch, branch) for branch in branches]
+        return Data(dataset=dataset, obs=obs, name=name)
 
     @classmethod
     def from_numpy(cls, obs, array, name=None):
@@ -125,13 +141,10 @@ class Data(ZfitData, BaseDimensional, BaseObject):
         dataset = LightDataset.from_tensor(tensor=tensors)
         return Data(dataset=dataset, obs=obs, name=name)
 
-    def initialize(self, sess=None):
+    def initialize(self):
         iterator = self.dataset.make_initializable_iterator()
-        if sess is None:
-            sess = zfit.run.sess
-            if sess is None:
-                raise NoSessionSpecifiedError()
-        sess.run(iterator.initializer, self.iterator_feed_dict)
+
+        self.sess.run(iterator.initializer, self.iterator_feed_dict)
         self.iterator = iterator
 
     def get_iteration(self):
@@ -141,7 +154,30 @@ class Data(ZfitData, BaseDimensional, BaseObject):
             self._next_batch = self.iterator.get_next()
         return self._next_batch
 
+    def _cut_data(self, value):
+        if self.data_range.limits is not None:
+
+            inside_limits = []
+            value = tf.transpose(value)
+            for lower, upper in self.data_range.iter_limits():
+                above_lower = tf.reduce_all(tf.less_equal(value, upper), axis=1)
+                below_upper = tf.reduce_all(tf.greater_equal(value, lower), axis=1)
+                inside_limits.append(tf.logical_and(above_lower, below_upper))
+            inside_any_limit = tf.reduce_any(inside_limits, axis=0)  # has to be inside one limits
+
+            value = tf.boolean_mask(tensor=value, mask=inside_any_limit)
+            value = tf.transpose(value)
+
+        return value
+
     def value(self, obs: Tuple[str] = None):
+        if obs is not None:
+            obs = convert_to_obs_str(obs)
+        value = self._value(obs=obs)
+        value = self._cut_data(value)
+        return value
+
+    def _value(self, obs: Tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
         values = self.get_iteration()
         # TODO(Mayou36): add conversion to right dimension? (n_obs, n_events)? # check if 1-D?
@@ -163,6 +199,8 @@ class Data(ZfitData, BaseDimensional, BaseObject):
             values = tf.unstack(values)
             values = list(values[i] for i in perm_indices)
             values = tf.stack(values)
+
+        # cut data to right range
 
         return values
 
@@ -248,6 +286,31 @@ class Data(ZfitData, BaseDimensional, BaseObject):
             pass
 
         setattr(Data, operator, _run_op)
+
+    def _check_input_data_range(self, data_range):
+        return self.convert_sort_space(obs=data_range)
+
+    # TODO(Mayou36): refactor with pdf or other range things?
+    def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
+                           limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
+        """Convert the inputs (using eventually `obs`, `axes`) to `Space` and sort them according to own `obs`.
+
+        Args:
+            obs ():
+            axes ():
+            limits ():
+
+        Returns:
+
+        """
+        if obs is None:  # for simple limits to convert them
+            obs = self.obs
+        space = convert_to_space(obs=obs, axes=axes, limits=limits)
+
+        self_space = self._space
+        if self_space is not None:
+            space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
+        return space
 
 
 def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):

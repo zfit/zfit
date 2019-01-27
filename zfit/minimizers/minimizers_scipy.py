@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import copy
 
+from scipy.optimize import SR1, BFGS
 import tensorflow as tf
 
 from zfit.minimizers.fitresult import FitResult
@@ -10,16 +11,29 @@ from .baseminimizer import BaseMinimizer
 
 class ScipyMinimizer(BaseMinimizer):
 
-    def __init__(self, tolerance=None, name="ScipyMinimizer", **kwargs):
+    def __init__(self, minimizer='L-BFGS-B', tolerance=None, name=None, **kwargs):
+        if name is None:
+            name = minimizer
         super().__init__(tolerance=tolerance, name=name)
+        kwargs.update(method=minimizer)  # named method in ScipyOptimizerInterface
+        # kwargs.update(hess=SR1())
+        # kwargs.update(hess=BFGS())
+        # kwargs.update(options={'maxiter': 3000, 'xtol': 1e-12})
         self._scipy_init_kwargs = kwargs
 
     def _minimize(self, loss, params):
         loss = loss.value()
         # var_list = self.get_parameters()
         var_list = params
+
         # params_name = self._extract_parameter_names(var_list)
-        var_to_bounds = {p.name: (p.lower_limit, p.upper_limit) for p in var_list}
+        def try_run(obj):
+            if isinstance(obj, tf.Tensor):
+                return self.sess.run(obj)
+            else:
+                return obj
+
+        var_to_bounds = {p.name: (try_run(p.lower_limit), try_run(p.upper_limit)) for p in var_list}
         minimizer = ScipyOptimizerInterface(loss=loss, var_list=var_list,
                                             var_to_bounds=var_to_bounds,
                                             **self._scipy_init_kwargs)
