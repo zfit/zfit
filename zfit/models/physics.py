@@ -1,33 +1,210 @@
+from typing import Type, Any
+
 import tensorflow as tf
 import tensorflow_probability.python.distributions as tfd
 import numpy as np
 
 import zfit
 from zfit import ztf
+from zfit.core.basepdf import BasePDF
+from zfit.core.limits import ANY_UPPER, ANY_LOWER
+from zfit.settings import ztypes
+from zfit.util import ztyping
 
 
-def powerlaw(x, a, k):
+def _powerlaw(x, a, k):
     return a * x ** k
 
 
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     # t = tf.where(tf.greater_equal(alpha, 0.), t, -t)
-    # t *= tf.sign(alpha)
+    t *= tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
     A = (n / abs_alpha) ** n * tf.exp(- 0.5 * abs_alpha ** 2)
     B = (n / abs_alpha) - abs_alpha
     cond = tf.greater_equal(t, -abs_alpha)
-    func = tf.where(cond, tf.exp(0.5 * t ** 2), powerlaw(B - t, A, -n))
+    func = tf.where(cond, tf.exp(0.5 * t ** 2), _powerlaw(B - t, A, -n))
 
     return func
 
-def crystalball_integral(limits, params):
-    pass
 
+# def _python_crystalball_integral(limits, params):  # not working with tf, used for autoconvert
+#     mu = params['mu']
+#     sigma = params['sigma']
+#     alpha = params['alpha']
+#     n = params['n']
+#
+#     (lower,), (upper,) = limits.limits
+#
+#     sqrt_pi_over_two = np.sqrt(np.pi / 2)
+#     sqrt2 = np.sqrt(2)
+#
+#     result = 0.0
+#     use_log = tf.abs(n - 1.0) < 1.0e-05
+#
+#     abs_sigma = tf.abs(sigma)
+#     abs_alpha = tf.abs(alpha)
+#
+#     tmin = (lower - mu) / abs_sigma
+#     tmax = (upper - mu) / abs_sigma
+#
+#     if alpha < 0:
+#         tmin, tmax = -tmax, -tmin
+#
+#     if tmin >= -abs_alpha:
+#         result += abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2)
+#                                                   - tf.erf(tmin / sqrt2))
+#
+#     elif tmax <= -abs_alpha:
+#         a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+#
+#         b = n / abs_alpha - abs_alpha
+#
+#         if use_log:
+#             result += a * abs_sigma * (tf.log(b - tmin) - tf.log(b - tmax))
+#         else:
+#             result += a * abs_sigma / (1.0 - n) * (1.0 / (tf.pow(b - tmin, n - 1.0))
+#                                                    - 1.0 / (tf.pow(b - tmax, n - 1.0)))
+#     else:
+#         a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+#         b = n / abs_alpha - abs_alpha
+#
+#         if use_log:
+#             term1 = a * abs_sigma * (tf.log(b - tmin) - tf.log(n / abs_alpha))
+#
+#         else:
+#             term1 = a * abs_sigma / (1.0 - n) * (1.0 / (tf.pow(b - tmin, n - 1.0))
+#                                                  - 1.0 / (tf.pow(n / abs_alpha, n - 1.0)))
+#
+#         term2 = abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2)
+#                                                 - tf.erf(-abs_alpha / sqrt2))
+#
+#         result += term1 + term2
+#
+#     return result
+
+# created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
+def crystalball_integral(limits, params):
+    mu = params['mu']
+    sigma = params['sigma']
+    alpha = params['alpha']
+    n = params['n']
+
+    (lower,), (upper,) = limits.limits
+    lower = lower[0]  # obs number 0
+    upper = upper[0]
+
+    sqrt_pi_over_two = np.sqrt(np.pi / 2)
+    sqrt2 = np.sqrt(2)
+    result = 0.0
+
+    use_log = tf.less(tf.abs(n - 1.0), 1e-05)
+    abs_sigma = tf.abs(sigma)
+    abs_alpha = tf.abs(alpha)
+
+    tmin = (lower - mu) / abs_sigma
+    tmax = (upper - mu) / abs_sigma
+
+    def if_true():
+        return tf.negative(tmin), tf.negative(tmax)
+
+    def if_false():
+        return tmax, tmin
+
+    tmax, tmin = tf.cond(tf.less(alpha, 0), if_true, if_false)
+
+    def if_true_4():
+        result_5, = result,
+        result_5 += abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2) - tf.erf(tmin / sqrt2))
+        return result_5
+
+    def if_false_4():
+        result_6 = result
+
+        def if_true_3():
+            result_3, = result_6,
+            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+            b = n / abs_alpha - abs_alpha
+
+            def if_true_1():
+                result_1, = result_3,
+                result_1 += a * abs_sigma * (tf.log(b - tmin) - tf.log(b - tmax))
+                return result_1
+
+            def if_false_1():
+                result_2, = result_3,
+                result_2 += a * abs_sigma / (1.0 - n) * (
+                    1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(b - tmax, n - 1.0))
+                return result_2
+
+            result_3 = tf.cond(use_log, if_true_1, if_false_1)
+            return result_3
+
+        def if_false_3():
+            result_4, = result_6,
+            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+            b = n / abs_alpha - abs_alpha
+
+            def if_true_2():
+                term1 = a * abs_sigma * (tf.log(b - tmin) - tf.log(n / abs_alpha))
+                return term1
+
+            def if_false_2():
+                term1 = a * abs_sigma / (1.0 - n) * (
+                    1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(n / abs_alpha, n - 1.0))
+                return term1
+
+            term1 = tf.cond(use_log, if_true_2, if_false_2)
+            term2 = abs_sigma * sqrt_pi_over_two * (
+                tf.erf(tmax / sqrt2) - tf.erf(-abs_alpha / sqrt2))
+            result_4 += term1 + term2
+            return result_4
+
+        result_6 = tf.cond(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
+        return result_6
+
+    if_false_4()
+    result = tf.cond(tf.greater_equal(tmin, abs_alpha), if_true_4, if_false_4)
+    return result
+
+
+class CrystalBallPDF(BasePDF):
+
+    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
+                 alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput, dtype: Type = ztypes.float, name: str = "CrystalBallPDF"):
+        parameters = {'mu': mu,
+                      'sigma': sigma,
+                      'alpha': alpha,
+                      'n': n}
+        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.parameters['mu']
+        sigma = self.parameters['sigma']
+        alpha = self.parameters['alpha']
+        n = self.parameters['n']
+        x = x.value()
+        return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
+
+
+# crystalball_integral_limits = zfit.Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+# CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
 if __name__ == '__main__':
     mu, sigma, alpha, n = [ztf.constant(1.) for _ in range(4)]
-    res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)
+    # res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)
+    # int1 = crystalball_integral(limits=zfit.Space(obs='obs1', limits=(-3, 5)),
+    #                             params={'mu': mu, "sigma": sigma, "alpha": alpha, "n": n})
+    from tensorflow.contrib import autograph
 
+    new_code = autograph.to_code(crystalball_integral)
+    obs = zfit.Space(obs='obs1', limits=(-3, 5))
+    cb1 = CrystalBallPDF(mu, sigma, alpha, n, obs=obs)
+    res = cb1.pdf(np.random.random(size=100))
+    int1 = cb1.integrate(limits=(0, 2), norm_range=obs)
+
+    # print(new_code)
     print(zfit.run(res))
+    print(zfit.run(int1))
