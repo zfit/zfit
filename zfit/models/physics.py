@@ -7,26 +7,23 @@ from zfit import ztf
 
 
 def powerlaw(x, a, k):
-    return a * x ** (k)
+    return a * x ** k
 
 
-def crystalball_func(x, mean, sigma, alpha, n):
-    t = (x - mean) / sigma
+def crystalball_func(x, mu, sigma, alpha, n):
+    t = (x - mu) / sigma * tf.sign(alpha)
     # t = tf.where(tf.greater_equal(alpha, 0.), t, -t)
-    t *= tf.sign(alpha)
+    # t *= tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
-    A = (n / abs_alpha) ** n * tf.exp(- abs_alpha ** 2 / 2)
+    A = (n / abs_alpha) ** n * tf.exp(- 0.5 * abs_alpha ** 2)
     B = (n / abs_alpha) - abs_alpha
     cond = tf.greater_equal(t, -abs_alpha)
-    func = tf.where(cond, tf.exp(t ** 2 / 2), powerlaw(B - t, A, -n))
+    func = tf.where(cond, tf.exp(0.5 * t ** 2), powerlaw(B - t, A, -n))
 
-    if False:
-        data_norm = tf.random_uniform(shape=(normsize,), minval=xmin, maxval=xmax, dtype=tf.float64)
-        func_intg = numeric_integral(func, xmin, xmax)
-        return fun
-        c / func_intg
-    else:
-        return func
+    return func
+
+def crystalball_integral(limits, params):
+    pass
 
 
 if __name__ == '__main__':
