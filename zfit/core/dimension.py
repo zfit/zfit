@@ -192,19 +192,22 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
 
 
 def combine_spaces(spaces: Iterable["zfit.Space"]):
-    """Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.
+    """Combine spaces with different `obs` and `limits` to one `space`.
 
-    In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
-    to be consistent with this limits, other limits have to have (in this obs) also the limits
-    from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.
-
-    This function is useful to check if several spaces with *different* observables can be _combined_.
+    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
+    is not unambiguous and `False` is returned
 
     Args:
         spaces (List[zfit.Space]):
 
     Returns:
-        bool:
+        `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
+            return the Space with all obs from `spaces` sorted by the order of `spaces` and with the
+            combined limits.
+    Raises:
+        ValueError: if only one space is given
+        LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
+        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
     """
     spaces = convert_to_container(spaces, container=tuple)
     if len(spaces) <= 1:

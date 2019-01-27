@@ -16,8 +16,8 @@ class ScipyMinimizer(BaseMinimizer):
             name = minimizer
         super().__init__(tolerance=tolerance, name=name)
         kwargs.update(method=minimizer)  # named method in ScipyOptimizerInterface
-        kwargs.update(hess=SR1())
-        # kwargs.update(hess=BFGS())
+        # kwargs.update(hess=SR1())
+        kwargs.update(hess=BFGS())
         kwargs.update(options={'maxiter': 3000}
                       )
         self._scipy_init_kwargs = kwargs
