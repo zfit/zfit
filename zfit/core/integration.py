@@ -351,7 +351,7 @@ class Integral(object):  # TODO analytic integral
 if __name__ == '__main__':
     def my_fn1(x):
         if isinstance(x, tf.Tensor):
-            x = tf.unstack(x)
+            x = ztf.unstack_x(x)
         w, x, y, z, l = x
         # return x ** 2 + 0.1 * y ** 2 + 0.01 * z ** 2 + 0.001 * w ** 2 + 0.0001 * l ** 2
         return w + x

@@ -75,14 +75,14 @@ def test_overloaded_operators():
 
 def test_sort_by_obs():
     new_obs = (obs1[1], obs1[2], obs1[0])
-    new_array = copy.deepcopy(example_data1)
-    new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
+    new_array = copy.deepcopy(example_data1)[:, np.array((1, 2, 0))]
+    # new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
     assert data1.obs == obs1, "If this is not True, then the test will be flawed."
     with data1.sort_by_obs(new_obs):
         assert data1.obs == new_obs
         np.testing.assert_array_equal(new_array, zfit.run(data1.value()))
-        new_array2 = copy.deepcopy(new_array)
-        new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
+        new_array2 = copy.deepcopy(new_array)[:, np.array((1, 2, 0))]
+        # new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
         new_obs2 = (new_obs[1], new_obs[2], new_obs[0])
         with data1.sort_by_obs(new_obs2):
             assert data1.obs == new_obs2
@@ -96,17 +96,17 @@ def test_sort_by_obs():
 
 def test_subdata():
     new_obs = (obs1[0], obs1[1])
-    new_array = copy.deepcopy(example_data1)
-    new_array = np.array([new_array[:, 0], new_array[:, 1]])
+    new_array = copy.deepcopy(example_data1)[:, np.array((0, 1))]
+    # new_array = np.array([new_array[:, 0], new_array])
     with data1.sort_by_obs(obs=new_obs):
         assert data1.obs == new_obs
         np.testing.assert_array_equal(new_array, zfit.run(data1))
-        new_array2 = copy.deepcopy(new_array)
-        new_array2 = np.array([new_array2[:, 1]])
+        new_array2 = copy.deepcopy(new_array)[:, 1]
+        # new_array2 = np.array([new_array2[:, 1]])
         new_obs2 = (new_obs[1],)
         with data1.sort_by_obs(new_obs2):
             assert data1.obs == new_obs2
-            np.testing.assert_array_equal(new_array2, zfit.run(data1.value()))
+            np.testing.assert_array_equal(new_array2, zfit.run(data1.value())[:, 0])
 
             with pytest.raises(ValueError):
                 with data1.sort_by_obs(obs=new_obs):
@@ -122,12 +122,12 @@ def test_data_range():
                       [-2, 1],
                       [-1, -1],
                       [-5, 10]])
-    data1 = data1.transpose()
+    # data1 = data1.transpose()
     obs = ['obs1', 'obs2']
     lower = ((0.5, 1), (-3, -2))
     upper = ((1.5, 2.5), (-1.5, 1.5))
     data_range = zfit.Space(obs=obs, limits=(lower, upper))
-    cut_data1 = data1[np.array((0, 2, 3)), :]
+    cut_data1 = data1[np.array((0, 2)), :]
 
     dataset = zfit.data.Data.from_tensors(obs=obs, tensors=data1)
     value_uncut = dataset.value()

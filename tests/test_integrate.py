@@ -127,7 +127,7 @@ limits3 = [((-1., -4.3),), ((2.3, -1.2),)]
 
 
 def func3_2deps(x):
-    a, b = tf.unstack(x)
+    a, b = ztf.unstack_x(x)
     return a ** 2 + b ** 2
 
 

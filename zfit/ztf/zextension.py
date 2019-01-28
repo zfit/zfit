@@ -49,15 +49,16 @@ def nth_pow(x, n, name=None):
     return power
 
 
-def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
+def unstack_x(value: Any, num: Any = None, axis: int = -1, name: str = "unstack_x"):
+
     return tf.unstack(value=value, num=num, axis=axis, name=name)
+
+
+def stack_x(values, axis: int = -1, name: str = "stack_x"):
+    return tf.stack(values=values, axis=axis, name=name)
 
 
 # random sampling
-
-
-def unstack_x(value: Any, num: Any = None, axis: int = 0, name: str = "unstack_x"):
-    return tf.unstack(value=value, num=num, axis=axis, name=name)
 
 
 def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):

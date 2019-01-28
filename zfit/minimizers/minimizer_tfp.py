@@ -35,7 +35,7 @@ class BFGSMinimizer(BaseMinimizer):
 
                 with tf.control_dependencies([values, printed]):
                     updated_values = []
-                    for param, val in zip(params, tf.unstack(values)):
+                    for param, val in zip(params, ztf.unstack_x(values)):
                         updated_values.append(tf.assign(param, value=val))
                     with tf.control_dependencies(updated_values):
                         func_graph = func()
