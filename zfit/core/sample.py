@@ -13,7 +13,8 @@ from ..settings import ztypes
 @no_multiple_limits
 def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                          sampler: typing.Callable = tf.random_uniform,
-                         dtype=ztypes.float, prob_max: typing.Union[None, int] = None) -> tf.Tensor:
+                         dtype=ztypes.float, prob_max: typing.Union[None, int] = None,
+                         efficiency_estimation: float = 1.5) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
     Args:
@@ -27,6 +28,7 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
         prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
             is given, it will be automatically, safely estimated (by a 10% increase in computation time
             (constant weak scaling)).
+        efficiency_estimation (float): estimation of the initial sampling efficiency.
 
     Returns:
         tf.Tensor:
@@ -39,42 +41,39 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     n = tf.to_int64(n)
 
     def enough_produced(n, sample, n_total_drawn, eff):
-        return tf.greater(n, tf.shape(sample, out_type=tf.int64)[1])
+        return tf.greater(n, tf.shape(sample, out_type=tf.int64)[0])
 
-    def sample_body(n, sample, n_total_drawn=0, eff=1.5):
+    def sample_body(n, sample, n_total_drawn=0, eff=1.0):
         if sample is None:
             n_to_produce = n
         else:
-            n_to_produce = n - tf.shape(sample, out_type=tf.int64)[1]
+            n_to_produce = n - tf.shape(sample, out_type=tf.int64)[0]
         n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
         # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
         n_to_produce = tf.minimum(n_to_produce, tf.to_int64(5e5))  # introduce a cap to force serial
         n_total_drawn += n_to_produce
         n_total_drawn = tf.to_int64(n_total_drawn)
 
-        sample_drawn = sampler(shape=(n_dims + 1, n_to_produce),  # + 1 dim for the function value
+        sample_drawn = sampler(shape=(n_to_produce, n_dims + 1),  # + 1 dim for the function value
                                dtype=ztypes.float)
-        # HACK n dims?
 
-        rnd_sample = tf.transpose(sample_drawn[:-1, :]) * (upper - lower) + lower
-        rnd_sample = tf.transpose(rnd_sample)
-        # HACK END
+        rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
 
         probabilities = prob(rnd_sample)
-        if prob_max is None:
+        if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             prob_max_inferred = tf.reduce_max(probabilities)
         else:
             prob_max_inferred = prob_max
-        random_thresholds = sample_drawn[-1, :] * prob_max_inferred
+        random_thresholds = sample_drawn[:, -1] * prob_max_inferred
         take_or_not = probabilities > random_thresholds
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
-        filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=1)
+        filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=0)
 
         if sample is None:
             sample = filtered_sample
         else:
-            sample = tf.concat([sample, filtered_sample], axis=1)
+            sample = tf.concat([sample, filtered_sample], axis=0)
 
         # efficiency (estimate) of how many samples we get
         eff = ztf.to_real(tf.shape(sample, out_type=tf.int64)[1]) / ztf.to_real(n_total_drawn)
@@ -82,11 +81,12 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
 
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
                            loop_vars=sample_body(n=n, sample=None,  # run first once for initialization
-                                                 n_total_drawn=0, eff=1.),
+                                                 n_total_drawn=0, eff=efficiency_estimation),
                            swap_memory=True,
                            parallel_iterations=4,
                            back_prop=False)[1]  # backprop not needed here
-    return sample[:, :n]  # cutting away to many produced
+    new_sample = sample[:n, :]  # cutting away to many produced
+    return new_sample
 
 
 if __name__ == '__main__':

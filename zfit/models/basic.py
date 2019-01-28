@@ -62,6 +62,7 @@ class Exponential(BasePDF):
 
     def _unnormalized_pdf(self, x):
         lambda_ = self.parameters['lambda']
+        x = ztf.unstack_x(x)
         return tf.exp(lambda_ * x)
 
 

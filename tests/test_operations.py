@@ -72,9 +72,11 @@ def test_func_func():
     param4 = Parameter('param41sd', 4.)
 
     def func1_pure(x):
+        x = ztf.unstack_x(x)
         return param1 * x
 
     def func2_pure(x):
+        x = ztf.unstack_x(x)
         return param2 * x + param3
 
     func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)

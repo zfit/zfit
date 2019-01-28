@@ -81,12 +81,12 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
                          "\nlower: {}, upper: {}".format(lower, upper))
 
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)
+    lower = ztf.convert_to_tensor(lower, dtype=dtype)  # TODO(Mayou36): why not lower[0]?
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
     n_samples = draws_per_dim ** n_axes
     if partial:
-        n_vals = x.get_shape()[0].value
+        n_vals = x.get_shape()[0].value  # TODO(Mayou36): correctly get n_entries
         n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
@@ -103,9 +103,9 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
         samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-        samples = tf.transpose(samples, perm=[2, 0, 1])
+        # samples = tf.transpose(samples, perm=[2, 0, 1])
 
-        if partial:
+        if partial:  # TODO(Mayou36): shape of partial integral?
             value_list = []
             index_samples = 0
             index_values = 0
@@ -113,7 +113,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 x = tf.expand_dims(x, axis=1)
             for i in range(n_axes + x.shape[1].value):
                 if i in axes:
-                    value_list.append(samples[index_samples, :, :])
+                    value_list.append(samples[:, :, index_samples])
                     index_samples += 1
                 else:
                     value_list.append(tf.expand_dims(x[:, index_values], axis=1))

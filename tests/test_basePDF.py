@@ -103,9 +103,9 @@ def test_sampling():
     n_draws = 1000
     sample_tensor = gauss_params1.sample(n=n_draws, limits=(low, high))
     sampled_from_gauss1 = zfit.run(sample_tensor)
-    assert max(sampled_from_gauss1[0]) <= high
-    assert min(sampled_from_gauss1[0]) >= low
-    assert n_draws == len(sampled_from_gauss1[0])
+    assert max(sampled_from_gauss1[:, 0]) <= high
+    assert min(sampled_from_gauss1[:, 0]) >= low
+    assert n_draws == len(sampled_from_gauss1[:, 0])
 
     sampled_gauss1_full = zfit.run(gauss_params1.sample(n=10000,
                                                         limits=(mu_true - abs(sigma_true) * 5,

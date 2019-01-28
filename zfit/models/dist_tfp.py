@@ -43,8 +43,9 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         n_dims = (n_dims or [1])[0]  # n_obs is a list
         return n_dims
 
-    def _unnormalized_pdf(self, x: "zfit.core.data.Data", norm_range=False):
-        return self.distribution.prob(value=x.value(), name="unnormalized_pdf")  # TODO name
+    def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
+        value = ztf.unstack_x(x.value())
+        return self.distribution.prob(value=value, name="unnormalized_pdf")  # TODO name
 
     # TODO: register integral
     @supports()
