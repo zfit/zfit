@@ -171,7 +171,38 @@ class CrystalBallPDF(BasePDF):
 
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
                  alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
-                 obs: ztyping.ObsTypeInput, dtype: Type = ztypes.float, name: str = "CrystalBallPDF"):
+                 obs: ztyping.ObsTypeInput, name: str = "CrystalBallPDF", dtype: Type = ztypes.float):
+        """`Crystal Ball shaped PDF`__. A combination of a Gaussian with an powerlaw tail.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma, \\alpha, n) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
+            & \\mbox{for}\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
+            A \\cdot (B - \\frac{x - \\mu}{\\sigma})^{-n}, & \\mbox{for }\\frac{x - \\mu}{\\sigma}
+             < -\\alpha \\end{cases}
+
+        with
+
+        .. math::
+            A = \\left(\\frac{n}{\\left| \\alpha \\right|}\\right)^n \\cdot
+            \\exp\\left(- \\frac {\\left|\\alpha \\right|^2}{2}\\right)
+
+            B = \\frac{n}{\\left| \\alpha \\right|}  - \\left| \\alpha \\right|
+
+        Args:
+            mu (`zfit.Parameter`): The mean of the gaussian
+            sigma (`zfit.Parameter`): Standard deviation of the gaussian
+            alpha (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail
+            n (`zfit.Parameter`): Exponent of the powertail
+            obs (`zfit.Space`):
+            name (str):
+            dtype (tf.DType):
+
+        .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
+
+        __CBShape_
+        """
         parameters = {'mu': mu,
                       'sigma': sigma,
                       'alpha': alpha,
