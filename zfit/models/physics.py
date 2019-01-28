@@ -18,13 +18,11 @@ def _powerlaw(x, a, k):
 
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
-    # t = tf.where(tf.greater_equal(alpha, 0.), t, -t)
-    t *= tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
-    A = (n / abs_alpha) ** n * tf.exp(- 0.5 * abs_alpha ** 2)
-    B = (n / abs_alpha) - abs_alpha
+    a = (n / abs_alpha) ** n * tf.exp(-0.5 * tf.square(abs_alpha))
+    b = (n / abs_alpha) - abs_alpha
     cond = tf.greater_equal(t, -abs_alpha)
-    func = tf.where(cond, tf.exp(0.5 * t ** 2), _powerlaw(B - t, A, -n))
+    func = tf.where(cond, tf.exp(-0.5 * tf.square(t)), _powerlaw(b - t, a, -n))
 
     return func
 
@@ -123,7 +121,7 @@ def crystalball_integral(limits, params):
         result_6 = result
 
         def if_true_3():
-            result_3, = result_6,
+            result_3 = result_6
             a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
             b = n / abs_alpha - abs_alpha
 
@@ -165,7 +163,7 @@ def crystalball_integral(limits, params):
         return result_6
 
     if_false_4()
-    result = tf.cond(tf.greater_equal(tmin, abs_alpha), if_true_4, if_false_4)
+    result = tf.cond(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     return result
 
 
@@ -189,21 +187,32 @@ class CrystalBallPDF(BasePDF):
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
-# crystalball_integral_limits = zfit.Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
-# CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
+crystalball_integral_limits = zfit.Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
 if __name__ == '__main__':
-    mu, sigma, alpha, n = [ztf.constant(1.) for _ in range(4)]
+    mu = ztf.constant(0)
+    sigma = ztf.constant(0.5)
+    alpha = ztf.constant(3)
+    n = ztf.constant(1)
     # res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)
     # int1 = crystalball_integral(limits=zfit.Space(obs='obs1', limits=(-3, 5)),
     #                             params={'mu': mu, "sigma": sigma, "alpha": alpha, "n": n})
     from tensorflow.contrib import autograph
+    import matplotlib.pyplot as plt
 
     new_code = autograph.to_code(crystalball_integral)
-    obs = zfit.Space(obs='obs1', limits=(-3, 5))
+    obs = zfit.Space(obs='obs1', limits=(-3, 1))
     cb1 = CrystalBallPDF(mu, sigma, alpha, n, obs=obs)
     res = cb1.pdf(np.random.random(size=100))
-    int1 = cb1.integrate(limits=(0, 2), norm_range=obs)
+    int1 = cb1.integrate(limits=(-0.01, 2), norm_range=obs)
+    # tf.add_check_numerics_ops()
+
+    x = np.linspace(-5, 1, num=1000)
+    vals = cb1.pdf(x=x)
+    y = zfit.run(vals)[0]
+    plt.plot(x, y)
+    plt.show()
 
     # print(new_code)
     print(zfit.run(res))
