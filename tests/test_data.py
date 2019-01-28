@@ -9,7 +9,7 @@ import zfit
 
 obs1 = ('obs1', 'obs2', 'obs3')
 
-example_data1 = np.random.random(size=(len(obs1), 7))
+example_data1 = np.random.random(size=(7, len(obs1)))
 data1 = zfit.data.Data.from_numpy(obs=obs1, array=example_data1)
 
 
@@ -45,7 +45,7 @@ def test_from_root():
 
 
 def test_from_numpy():
-    example_data = np.random.random(size=(len(obs1), 1000))
+    example_data = np.random.random(size=(1000, len(obs1)))
     data = zfit.data.Data.from_numpy(obs=obs1, array=example_data)
     x = data.value()
     x_np = zfit.run(x)
@@ -76,13 +76,13 @@ def test_overloaded_operators():
 def test_sort_by_obs():
     new_obs = (obs1[1], obs1[2], obs1[0])
     new_array = copy.deepcopy(example_data1)
-    new_array = np.array([new_array[1, :], new_array[2, :], new_array[0, :]])
+    new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
     assert data1.obs == obs1, "If this is not True, then the test will be flawed."
     with data1.sort_by_obs(new_obs):
         assert data1.obs == new_obs
         np.testing.assert_array_equal(new_array, zfit.run(data1.value()))
         new_array2 = copy.deepcopy(new_array)
-        new_array2 = np.array([new_array2[1, :], new_array2[2, :], new_array2[0, :]])
+        new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
         new_obs2 = (new_obs[1], new_obs[2], new_obs[0])
         with data1.sort_by_obs(new_obs2):
             assert data1.obs == new_obs2
@@ -97,12 +97,12 @@ def test_sort_by_obs():
 def test_subdata():
     new_obs = (obs1[0], obs1[1])
     new_array = copy.deepcopy(example_data1)
-    new_array = np.array([new_array[0, :], new_array[1, :]])
+    new_array = np.array([new_array[:, 0], new_array[:, 1]])
     with data1.sort_by_obs(obs=new_obs):
         assert data1.obs == new_obs
         np.testing.assert_array_equal(new_array, zfit.run(data1))
         new_array2 = copy.deepcopy(new_array)
-        new_array2 = np.array([new_array2[1, :]])
+        new_array2 = np.array([new_array2[:, 1]])
         new_obs2 = (new_obs[1],)
         with data1.sort_by_obs(new_obs2):
             assert data1.obs == new_obs2
