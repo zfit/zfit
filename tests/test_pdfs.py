@@ -83,7 +83,7 @@ sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2,
 
 def test_prod_gauss_nd():
     # return
-    test_values = np.random.random(size=(3, 10))
+    test_values = np.random.random(size=(10, 3))
     lower = ((-5, -5, -5),)
     upper = ((4, 4, 4),)
     obs1 = ['a', 'b', 'c']
@@ -93,14 +93,14 @@ def test_prod_gauss_nd():
     zfit.run(tf.global_variables_initializer())
     true_probs = np.prod([gauss.pdf(test_values[i, :], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
     probs_np = zfit.run(probs)
-    np.testing.assert_allclose(zfit.run(true_probs)[0, :], probs_np[0, :], rtol=1e-2)
+    np.testing.assert_allclose(zfit.run(true_probs)[:, 0], probs_np[:, 0], rtol=1e-2)
 
 
 @pytest.mark.flaky(reruns=3)
 def test_prod_gauss_nd_mixed():
     norm_range = (-5, 4)
     low, high = norm_range
-    test_values = np.random.uniform(low=low, high=high, size=(4, 1000))
+    test_values = np.random.uniform(low=low, high=high, size=(1000, 4))
 
     obs4d = ['a', 'b', 'c', 'd']
     test_values_data = Data.from_tensors(obs=obs4d, tensors=test_values)
@@ -112,23 +112,23 @@ def test_prod_gauss_nd_mixed():
     gauss1, gauss2, gauss3 = gauss_dists2
 
     def probs_4d(values):
-        true_prob = [gauss1.pdf(values[3, :], norm_range=norm_range)]
-        true_prob += [gauss2.pdf(values[0, :], norm_range=norm_range)]
-        true_prob += [gauss3.pdf(values[2, :], norm_range=norm_range)]
-        true_prob += [prod_gauss_3d.pdf(values[(0, 1, 2), :],
+        true_prob = [gauss1.pdf(values[:, 3], norm_range=norm_range)]
+        true_prob += [gauss2.pdf(values[:, 0], norm_range=norm_range)]
+        true_prob += [gauss3.pdf(values[:, 2], norm_range=norm_range)]
+        true_prob += [prod_gauss_3d.pdf(values[:, (0, 1, 2)],
                                         norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
                                                          obs=['a', 'b', 'c']))]
         return np.prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
 
-    normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(4, 40 ** 4)))
+    normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(40 ** 4, 4)))
     true_probs = true_unnormalized_probs / tf.reduce_mean(normalization_probs)
     probs_np = zfit.run(probs)
     print(np.average(probs_np))
-    true_probs_np = zfit.run(true_probs[0, :])
+    true_probs_np = zfit.run(true_probs[:, 0])
     assert np.average(probs_np * limits_4d.area()) == pytest.approx(1., rel=0.33)  # low n mc
-    np.testing.assert_allclose(true_probs_np, probs_np[0, :], rtol=2e-2)
+    np.testing.assert_allclose(true_probs_np, probs_np[:, 0], rtol=2e-2)
 
 
 def test_func_sum():
@@ -138,7 +138,7 @@ def test_func_sum():
         x=ztf.convert_to_tensor(test_values, dtype=zfit.settings.ztypes.float))
     vals = zfit.run(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])
-    np.testing.assert_allclose(vals[0, :], true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
+    np.testing.assert_allclose(vals[:, 0], true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
 
 
 def test_normalization_sum_gauss():
@@ -168,7 +168,7 @@ def normalization_testing(pdf, normalization_value=1.):
     # init = tf.global_variables_initializer()
     # zfit.run(init)
     with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=(pdf.n_obs, 40000)),
+        samples = tf.cast(np.random.uniform(low=low, high=high, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
         samples = zfit.data.Data.from_tensors(obs=pdf.obs, tensors=samples)
         probs = pdf.pdf(samples)

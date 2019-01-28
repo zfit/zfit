@@ -127,7 +127,7 @@ def test_data_range():
     lower = ((0.5, 1), (-3, -2))
     upper = ((1.5, 2.5), (-1.5, 1.5))
     data_range = zfit.Space(obs=obs, limits=(lower, upper))
-    cut_data1 = data1[:, np.array((0, 2))]
+    cut_data1 = data1[np.array((0, 2, 3)), :]
 
     dataset = zfit.data.Data.from_tensors(obs=obs, tensors=data1)
     value_uncut = dataset.value()

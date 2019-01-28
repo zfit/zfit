@@ -23,7 +23,7 @@ obs1 = 'obs1'
 
 
 def func1_5deps(x):
-    a, b, c, d, e = tf.unstack(x)
+    a, b, c, d, e = ztf.unstack_x(x)
     return a + b * c ** 2 + d ** 2 * e ** 3
 
 

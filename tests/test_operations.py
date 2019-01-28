@@ -134,10 +134,10 @@ def test_implicit_extended():
 
 
 def test_implicit_sumpdf():
-    return  # TODO(Mayou36): deps: impl_copy,
+    return  # TODO(Mayou36): deps: impl_copy, (mostly for Simple{PDF,Func})
     # tf.reset_default_graph()
     norm_range = (-5.7, 13.6)
-    param1 = Parameter('param23s', 1.1)
+    param1 = Parameter('param13s', 1.1)
     frac1 = 0.11
     frac1_param = Parameter('frac13s', frac1)
     frac2 = 0.66
