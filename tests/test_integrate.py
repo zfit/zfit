@@ -23,7 +23,7 @@ obs1 = 'obs1'
 
 
 def func1_5deps(x):
-    a, b, c, d, e = tf.unstack(x)
+    a, b, c, d, e = ztf.unstack_x(x)
     return a + b * c ** 2 + d ** 2 * e ** 3
 
 
@@ -127,7 +127,7 @@ limits3 = [((-1., -4.3),), ((2.3, -1.2),)]
 
 
 def func3_2deps(x):
-    a, b = tf.unstack(x)
+    a, b = ztf.unstack_x(x)
     return a ** 2 + b ** 2
 
 
@@ -153,8 +153,11 @@ func4_2values = np.array([[-12., -4.5, 1.9, 4.1], [-11., 3.2, 7.4, -0.3]])
 
 
 def func4_3deps(x):
-    # a, b, c = tf.unstack(x)
-    a, b, c = x
+    if isinstance(x, np.ndarray):
+        a, b, c = x
+    else:
+        a, b, c = ztf.unstack_x(x)
+
     return a ** 2 + b ** 3 + 0.5 * c
 
 
@@ -217,12 +220,14 @@ def test_mc_integration():
 
 
 def test_mc_partial_integration():
-    num_integral = zintegrate.mc_integrate(x=ztf.convert_to_tensor(func4_values),
+    values = ztf.convert_to_tensor(func4_values)
+    num_integral = zintegrate.mc_integrate(x=tf.expand_dims(values, axis=-1),
                                            func=func4_3deps,
                                            limits=Space.from_axes(limits=limits4_2dim,
                                                                   axes=(0, 2)),
                                            draws_per_dim=70)
     vals_tensor = ztf.convert_to_tensor(func4_2values)
+
     vals_reshaped = tf.transpose(vals_tensor)
     num_integral2 = zintegrate.mc_integrate(x=vals_reshaped,
                                             func=func4_3deps,

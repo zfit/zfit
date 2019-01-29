@@ -72,9 +72,11 @@ def test_func_func():
     param4 = Parameter('param41sd', 4.)
 
     def func1_pure(x):
+        x = ztf.unstack_x(x)
         return param1 * x
 
     def func2_pure(x):
+        x = ztf.unstack_x(x)
         return param2 * x + param3
 
     func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
@@ -134,10 +136,10 @@ def test_implicit_extended():
 
 
 def test_implicit_sumpdf():
-    return  # TODO(Mayou36): deps: impl_copy,
+    return  # TODO(Mayou36): deps: impl_copy, (mostly for Simple{PDF,Func})
     # tf.reset_default_graph()
     norm_range = (-5.7, 13.6)
-    param1 = Parameter('param23s', 1.1)
+    param1 = Parameter('param13s', 1.1)
     frac1 = 0.11
     frac1_param = Parameter('frac13s', frac1)
     frac2 = 0.66

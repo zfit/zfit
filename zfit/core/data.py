@@ -89,7 +89,9 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
     @classmethod
     def from_root_iter(cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs):
         # branches = convert_to_container(branches)
-        warnings.warn("Using the iterator is hardcore! Don't do it if you don't fully understand what happens.")
+        warnings.warn(
+            "Using the iterator is hardcore and will most probably fail! Don't use it (yet) if you don't fully "
+            "understand what happens.")
 
         def uproot_generator():
             for data in uproot.iterate(path=path, treepath=treepath,
@@ -125,7 +127,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
     @classmethod
     def from_numpy(cls, obs, array, name=None):
         if not isinstance(array, np.ndarray):
-            raise TypeError("`array` has to be a `np..ndarray`. Is currently {}".format(type(array)))
+            raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
         np_placeholder = tf.placeholder(dtype=array.dtype, shape=array.shape)
         iterator_feed_dict = {np_placeholder: array}
         dataset = tf.data.Dataset.from_tensors(np_placeholder)
@@ -158,7 +160,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         if self.data_range.limits is not None:
 
             inside_limits = []
-            value = tf.transpose(value)
+            # value = tf.transpose(value)
             for lower, upper in self.data_range.iter_limits():
                 above_lower = tf.reduce_all(tf.less_equal(value, upper), axis=1)
                 below_upper = tf.reduce_all(tf.greater_equal(value, lower), axis=1)
@@ -166,7 +168,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
             inside_any_limit = tf.reduce_any(inside_limits, axis=0)  # has to be inside one limits
 
             value = tf.boolean_mask(tensor=value, mask=inside_any_limit)
-            value = tf.transpose(value)
+            # value = tf.transpose(value)
 
         return value
 
@@ -182,10 +184,10 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         values = self.get_iteration()
         # TODO(Mayou36): add conversion to right dimension? (n_obs, n_events)? # check if 1-D?
         if len(values.shape.as_list()) == 0:
-            values = tf.expand_dims(values, 0)
+            values = tf.expand_dims(values, -1)
         if len(values.shape.as_list()) == 1:
-            values = tf.expand_dims(values, 0)
-        perm_indices = self.space.axes if self.space.axes != tuple(range(values.shape[0])) else False
+            values = tf.expand_dims(values, -1)
+        perm_indices = self.space.axes if self.space.axes != tuple(range(values.shape[1])) else False
 
         # permutate = perm_indices is not None
         if obs:
@@ -196,9 +198,9 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
             perm_indices = self.space.get_axes(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
-            values = tf.unstack(values)
+            values = ztf.unstack_x(values)
             values = list(values[i] for i in perm_indices)
-            values = tf.stack(values)
+            values = ztf.stack_x(values)
 
         # cut data to right range
 
@@ -349,15 +351,13 @@ class LightDataset:
 
 if __name__ == '__main__':
 
-    from skhep_testdata import data_path
+    # from skhep_testdata import data_path
 
-    # path_root = "/data/uni/b2k1ee/classification_new/2012/"
-    # big_root = 'Bu2KpipiEE-MC-12125000-2012-MagAll-StrippingBu2LLK.root'
-    # small_root = 'small.root'
+    path_root = "/data/uni/b2k1ee/classification_new/2012/"
+    small_root = 'small.root'
     #
-    # # path_root += big_root
-    # path_root += small_root
-    path_root = data_path("uproot-Zmumu.root")
+    path_root += small_root
+    # path_root = data_path("uproot-Zmumu.root")
 
     branches = [b'pt1', b'pt2']  # b needed currently -> uproot
 

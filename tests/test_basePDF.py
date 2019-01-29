@@ -59,7 +59,7 @@ gaussian_dists = [test_gauss1, gauss_params1]
 
 
 def test_gradient():
-    random_vals = np.random.normal(2., 4., size=5)
+    random_vals = np.random.normal(4., 2., size=5)
     tensor_grad = gauss3.gradient(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = zfit.run(tensor_grad)
     np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-5)
@@ -103,9 +103,9 @@ def test_sampling():
     n_draws = 1000
     sample_tensor = gauss_params1.sample(n=n_draws, limits=(low, high))
     sampled_from_gauss1 = zfit.run(sample_tensor)
-    assert max(sampled_from_gauss1[0]) <= high
-    assert min(sampled_from_gauss1[0]) >= low
-    assert n_draws == len(sampled_from_gauss1[0])
+    assert max(sampled_from_gauss1[:, 0]) <= high
+    assert min(sampled_from_gauss1[:, 0]) >= low
+    assert n_draws == len(sampled_from_gauss1[:, 0])
 
     sampled_gauss1_full = zfit.run(gauss_params1.sample(n=10000,
                                                         limits=(mu_true - abs(sigma_true) * 5,

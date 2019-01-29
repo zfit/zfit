@@ -169,19 +169,19 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
                     raise TypeError("Wrong type of x ({}). Has to be a `Data` or convertible to a tf.Tensor")
             # check dimension
             x = self._add_dim_to_x(x=x)
-            x_shape = x.shape.as_list()[0]
+            x_shape = x.shape.as_list()[-1]
             if x_shape != self.n_obs:
-                raise ShapeIncompatibleError("The shape of x (={}) (in the first dim) does not"
+                raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_obs))
             x = Data.from_tensors(obs=self.obs, tensors=x)
             yield x
 
-    def _add_dim_to_x(self, x):
+    def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
         if self.n_obs == 1:
             if len(x.shape.as_list()) == 0:
-                x = tf.expand_dims(x, 0)
+                x = tf.expand_dims(x, -1)
             if len(x.shape.as_list()) == 1:
-                x = tf.expand_dims(x, 0)
+                x = tf.expand_dims(x, -1)
         return x
 
     def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,

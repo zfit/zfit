@@ -50,7 +50,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         Returns:
             tf.Tensor:  # TODO(Mayou36): or dataset?
         """
-        with self._convert_sort_x(x):
+        with self._convert_sort_x(x) as x:
             return self._single_hook_value(x=x, name=name)
 
     def _single_hook_value(self, x, name):
