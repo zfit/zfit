@@ -135,9 +135,8 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
         def uproot_loader():
             root_tree = uproot.open(path, **root_dir_options)[treepath]
-            byte_branches = [branch.encode('utf-8') for branch in branches]
-            data = root_tree.arrays(byte_branches)
-            data = np.array([data[branch] for branch in byte_branches])
+            data = root_tree.arrays(branches, namedecode="utf-8")
+            data = np.array([data[branch] for branch in branches])
             return data.transpose()
 
         data = uproot_loader()
