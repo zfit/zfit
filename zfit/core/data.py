@@ -103,6 +103,27 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         dataset.prefetch(2)
         return Data(dataset=dataset, name=name)
 
+    # @classmethod
+    # def from_root(cls, path, treepath, branches=None, branches_alias=None, name=None, root_dir_options=None):
+    #     if branches_alias is None:
+    #         branches_alias = {}
+    #
+    #     branches = convert_to_container(branches)
+    #     if root_dir_options is None:
+    #         root_dir_options = {}
+    #
+    #     def uproot_generator():
+    #         root_tree = uproot.open(path, **root_dir_options)[treepath]
+    #         data = root_tree.arrays(branches)
+    #         data = np.array([data[branch] for branch in branches])
+    #         yield data
+    #
+    #     dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
+    #
+    #     dataset = dataset.repeat()
+    #     obs = [branches_alias.get(branch, branch) for branch in branches]
+    #     return Data(dataset=dataset, obs=obs, name=name)
+
     @classmethod
     def from_root(cls, path, treepath, branches=None, branches_alias=None, name=None, root_dir_options=None):
         if branches_alias is None:
@@ -112,15 +133,18 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         if root_dir_options is None:
             root_dir_options = {}
 
-        def uproot_generator():
+        def uproot_loader():
             root_tree = uproot.open(path, **root_dir_options)[treepath]
-            data = root_tree.arrays(branches)
-            data = np.array([data[branch] for branch in branches])
-            yield data
+            byte_branches = [branch.encode('utf-8') for branch in branches]
+            data = root_tree.arrays(byte_branches)
+            data = np.array([data[branch] for branch in byte_branches])
+            return data.transpose()
 
-        dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
+        data = uproot_loader()
+        shape = data.shape
+        dataset = LightDataset.from_tensor(data)
 
-        dataset = dataset.repeat()
+        # dataset = dataset.repeat()
         obs = [branches_alias.get(branch, branch) for branch in branches]
         return Data(dataset=dataset, obs=obs, name=name)
 
@@ -165,7 +189,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
                 above_lower = tf.reduce_all(tf.less_equal(value, upper), axis=1)
                 below_upper = tf.reduce_all(tf.greater_equal(value, lower), axis=1)
                 inside_limits.append(tf.logical_and(above_lower, below_upper))
-            inside_any_limit = tf.reduce_any(inside_limits, axis=0)  # has to be inside one limits
+            inside_any_limit = tf.reduce_any(inside_limits, axis=0)  # has to be inside one limit
 
             value = tf.boolean_mask(tensor=value, mask=inside_any_limit)
             # value = tf.transpose(value)
@@ -359,13 +383,13 @@ if __name__ == '__main__':
     path_root += small_root
     # path_root = data_path("uproot-Zmumu.root")
 
-    branches = [b'pt1', b'pt2']  # b needed currently -> uproot
+    branches = ['B_PT', 'B_P']  # b needed currently -> uproot
 
-    data = Data.from_root(path=path_root, treepath='events', branches=branches)
+    data = zfit.data.Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
     import time
 
     with tf.Session() as sess:
-        data.initialize(sess=sess)
+        # data.initialize()
         x = data.value()
 
         for i in range(1):
