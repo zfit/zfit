@@ -6,10 +6,10 @@ import numpy as np
 
 import zfit
 from zfit import ztf
-from zfit.core.basepdf import BasePDF
-from zfit.core.limits import ANY_UPPER, ANY_LOWER
-from zfit.settings import ztypes
-from zfit.util import ztyping
+from ..core.basepdf import BasePDF
+from ..core.limits import ANY_UPPER, ANY_LOWER, Space
+from ..settings import ztypes
+from ..util import ztyping
 
 
 def _powerlaw(x, a, k):
@@ -218,7 +218,7 @@ class CrystalBallPDF(BasePDF):
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
-crystalball_integral_limits = zfit.Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
 if __name__ == '__main__':
