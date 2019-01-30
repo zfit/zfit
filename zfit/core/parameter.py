@@ -299,11 +299,13 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         if upper_limit is None:
             upper_limit = np.infty
         # no_limits = -lower_limit == upper_limit == np.infty
+        init_value = tf.cast(init_value, dtype=ztypes.float)
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
 
         def constraint(x):
-            return tf.clip_by_value(x, clip_value_min=self.lower_limit, clip_value_max=self.upper_limit)
+            return tf.clip_by_value(x, clip_value_min=self.lower_limit,
+                                    clip_value_max=self.upper_limit)
 
         # self.constraint = constraint
 
@@ -493,7 +495,13 @@ def convert_to_parameter(value) -> "Parameter":
         value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
 
     else:
-        value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
+        # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
+        independend_params = tf.get_collection("zfit_independent")
+        params = get_dependents(tensor=value, candidates=independend_params)
+        if params:
+            value = ComposedParameter("composite_autoparam_" + str(get_auto_number()), tensor=value)
+        else:
+            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
 
     value.floating = False
     return value

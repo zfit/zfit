@@ -71,6 +71,13 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         feed_dict = {param.placeholder: val for param, val in zip(params, values)}
         return self.sess.run(self._extract_update_op(params), feed_dict=feed_dict)
 
+    def _check_gradients(self, params, gradients):
+        non_dependents = [param for param, grad in zip(params, gradients) if grad is None]
+        if non_dependents:
+            raise ValueError("Invalid gradients for the following parameters: {}"
+                             "The function does not depend on them. Probably a Tensor"
+                             "instead of a `CompositeParameter` was created implicitly.".format(non_dependents))
+
     @property
     def tolerance(self):
         return self._tolerance

@@ -19,8 +19,13 @@ def get_dependents(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[tf.Te
         tensor ():
         candidates ():
     """
-
-    dependent_ops = all_parents(tensor.op)
+    try:
+        dependent_ops = all_parents(tensor.op)
+    except RuntimeError as error:
+        raise ValueError("Tensor too deeply nested, recursion limit exceeded. In the future,"
+                         "implementation will be different and any dependents can be found."
+                         "Currently, specify dependents explicitly if needed."
+                         "Orignal Error: {}".format(error))
     dependent_candidates = [cand for cand in candidates if cand.op in dependent_ops]
     return dependent_candidates
 
