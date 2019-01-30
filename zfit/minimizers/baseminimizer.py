@@ -40,6 +40,7 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             params = self._filter_floating_params(params)
         if params is None or isinstance(params[0], str):
             params = loss.get_dependents(only_floating=only_floating)
+            params = list(params)
         return params
 
     @staticmethod

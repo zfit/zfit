@@ -44,7 +44,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         return dependents.union(model_dependents)
 
     @property
-    def models(self) -> Dict[Union[float, int, str], ZfitModel]:
+    def models(self) -> List[ZfitModel]:
         """Return the models of this `Functor`. Can be `pdfs` or `funcs`."""
         return self._models
 
@@ -54,14 +54,15 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     @property
     @abc.abstractmethod
-    def _models(self) -> Dict[Union[float, int, str], ZfitModel]:
+    def _models(self) -> List[ZfitModel]:
         raise NotImplementedError
 
     def get_models(self, names=None) -> List[ZfitModel]:
         if names is None:
-            models = list(self.models.values())
+            models = list(self.models)
         else:
-            models = [self.models[name] for name in names]
+            raise ValueError("name not supported currently.")
+            # models = [self.models[name] for name in names]
         return models
 
     @property

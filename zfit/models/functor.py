@@ -5,6 +5,7 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
+from collections import OrderedDict
 import itertools
 from typing import Union, List, Optional
 
