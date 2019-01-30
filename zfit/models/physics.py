@@ -162,7 +162,7 @@ def crystalball_integral(limits, params):
         result_6 = tf.cond(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
         return result_6
 
-    if_false_4()
+    # if_false_4()
     result = tf.cond(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     return result
 
@@ -219,7 +219,7 @@ class CrystalBallPDF(BasePDF):
 
 
 crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
-CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
+# CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
 if __name__ == '__main__':
     mu = ztf.constant(0)
