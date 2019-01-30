@@ -369,10 +369,10 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
             # auto-infer from limits
             step_splits = 1e4
             # step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
-            step_size = 0.001
+            step_size = 0.0001
             if step_size == np.nan:
                 if self.lower_limit == -np.infty or self.upper_limit == np.infty:
-                    step_size = 0.0001
+                    step_size = 0.001
                 else:
                     raise ValueError("Could not set step size. Is NaN.")
             # TODO: how to deal with infinities?
@@ -404,15 +404,15 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # else:
         #     maxval = tf.cast(maxval, dtype=self.dtype)
 
-        value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype, seed=seed)
+        value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype)
         shape = self.shape.as_list()
         if shape == []:
             size = 1
         value = self.sess.run(value)
         # value = np.random.uniform(size=self.shape, low=minval, high=maxval)
         # value = np.random.uniform(size=size, low=minval, high=maxval)
-        if shape == []:
-            value = value[0]
+        # if shape == []:
+        #     value = value[0]
         self.load(value=value)
         return value
 

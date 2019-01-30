@@ -71,6 +71,7 @@ class MinuitMinimizer(BaseMinimizer):
             minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
                                        grad=grad_func,
                                        forced_parameters=params_name,
+                                       print_level=2,
                                        **error_limit_kwargs)
             minimizer.set_strategy(1)  # TODO(Mayou36): where to properly set strategy etc?
         self._minuit_minimizer = minimizer
