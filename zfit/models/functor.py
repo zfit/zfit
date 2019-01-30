@@ -13,11 +13,10 @@ import tensorflow as tf
 import numpy as np
 
 from zfit import ztf
-from ..core.data import Data
 from ..core.interfaces import ZfitPDF, ZfitModel
 from ..core.limits import no_norm_range, supports
 from ..core.basepdf import BasePDF
-from ..core.parameter import Parameter
+from ..core.parameter import Parameter, convert_to_parameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -142,13 +141,15 @@ class SumPDF(BaseFunctor):
             name (str):
         """
         # Check user input, improve TODO
-        super().__init__(pdfs=pdfs, obs=obs, name=name)
-        pdfs = self.pdfs
+        set_yield_at_end = False
+        pdfs = convert_to_container(pdfs)
+        # pdfs = self.pdfs
+        self.pdfs = pdfs
         if len(pdfs) < 2:
             raise ValueError("Cannot build a sum of a single pdf")
         if fracs is not None:
             fracs = convert_to_container(fracs)
-            fracs = [ztf.convert_to_tensor(frac) for frac in fracs]
+            fracs = [convert_to_parameter(frac) for frac in fracs]
 
         # check if all extended
         extended_pdfs = self.pdfs_extended
@@ -224,12 +225,20 @@ class SumPDF(BaseFunctor):
         if extended:
             # yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
             # self.fracs = yield_fracs
-            self._set_yield_inplace(tf.reduce_sum(yields))
+            set_yield_at_end = True
             self.fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
         else:
             self.fracs = fracs
 
         self.pdfs = pdfs
+
+        parameters = OrderedDict()
+        for i, frac in enumerate(self.fracs):
+            parameters['frac_{}'.format(i)] = frac
+
+        super().__init__(pdfs=pdfs, obs=obs, parameters=parameters, name=name)
+        if set_yield_at_end:
+            self._set_yield_inplace(tf.reduce_sum(yields))
 
     @property
     def _n_dims(self):

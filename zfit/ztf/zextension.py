@@ -1,6 +1,6 @@
 import math as _mt
 
-from typing import Any
+from typing import Any, Callable
 
 try:
     from math import inf as _inf
@@ -67,5 +67,33 @@ def stack_x(values, axis: int = -1, name: str = "stack_x"):
 
 def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
     return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
+
+
+def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values: tf.Tensor,
+               value_safer: Callable = tf.ones_like) -> tf.Tensor:
+    """Like `tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.
+
+    Args:
+        condition (`tf.Tensor`): Same argument as to `tf.where`, a boolean Tensor
+        func (Callable): Function taking `values` as argument and returning the tensor _in case
+            condition is True_. Equivalent `x` of `tf.where` but as function.
+        safe_func (Callable): Function taking `values` as argument and returning the tensor
+            _in case the condition is False_, Equivalent `y` of `tf.where` but as function.
+        values (`tf.Tensor`): Values to be evaluated either by `func` or `safe_func` depending on
+            `condition`.
+        value_safer (Callable): Function taking `values` as arguments and returns "safe" values
+            that won't cause troubles when given to`func` or by taking the gradient with respect
+            to `func(value_safer(values)`.
+
+    Returns:
+        `tf.Tensor`:
+
+
+
+    """
+    safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
+    result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
+    return result
+
 
 # reduce functions

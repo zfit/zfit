@@ -28,6 +28,8 @@ class MinuitMinimizer(BaseMinimizer):
 
             # feed_dict = {p: v for p, v in zip(placeholders, value)}
             # self.sess.run(updated_params, feed_dict=feed_dict)
+            # print("VALUES")
+            # print("==========")
             for param, value in zip(params, values):
                 param.load(value=value)
             # loss_new = tf.identity(loss)
@@ -40,6 +42,8 @@ class MinuitMinimizer(BaseMinimizer):
         def grad_func(values):
             # feed_dict = {p: v for p, v in zip(placeholders, value)}
             # self.sess.run(updated_params, feed_dict=feed_dict)
+            # print("GRADIENT")
+            # print("==========")
             for param, value in zip(params, values):
                 param.load(value=value)
             # gradients1 = tf.identity(gradients)

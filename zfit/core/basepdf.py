@@ -493,6 +493,7 @@ class BasePDF(ZfitPDF, BaseModel):
             parameters = dict(self.parameters)
         from zfit.models.functor import BaseFunctor
         if isinstance(self, BaseFunctor):
+            parameters = {}
             fracs = self.fracs
             if not self.is_extended:
                 fracs = fracs[:-1]

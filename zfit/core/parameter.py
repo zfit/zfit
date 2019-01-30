@@ -486,12 +486,14 @@ def convert_to_parameter(value) -> "Parameter":
     if not isinstance(value, tf.Tensor):
         if isinstance(value, complex):
             value = ztf.to_complex(value)
-            value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
         else:
             value = ztf.to_real(value)
-            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
 
-    # TODO: check if Tensor is complex
+    if value.dtype.is_complex:
+        value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
+
+    else:
+        value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
 
     value.floating = False
     return value

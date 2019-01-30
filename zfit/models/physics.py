@@ -13,16 +13,20 @@ from ..util import ztyping
 
 
 def _powerlaw(x, a, k):
-    return a * x ** k
+    return a * tf.pow(x, k)
 
 
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
-    a = (n / abs_alpha) ** n * tf.exp(-0.5 * tf.square(abs_alpha))
+    a = tf.pow((n / abs_alpha), n) * tf.exp(-0.5 * tf.square(alpha))
     b = (n / abs_alpha) - abs_alpha
-    cond = tf.greater_equal(t, -abs_alpha)
-    func = tf.where(cond, tf.exp(-0.5 * tf.square(t)), _powerlaw(b - t, a, -n))
+    cond = tf.less(t, -abs_alpha)
+    # func = tf.where(cond, tf.exp(-0.5 * tf.square(t)), _powerlaw(b - t, a, -n))
+    func = ztf.safe_where(cond,
+                          lambda t: _powerlaw(b - t, a, -n),
+                          lambda t: tf.exp(-0.5 * tf.square(t)),
+                          values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
 
     return func
 
