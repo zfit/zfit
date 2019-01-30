@@ -29,24 +29,26 @@ class MinuitMinimizer(BaseMinimizer):
 
             # feed_dict = {p: v for p, v in zip(placeholders, value)}
             # self.sess.run(updated_params, feed_dict=feed_dict)
-            # print("VALUES")
-            # print("==========")
+            print("VALUES")
+            print("==========")
             for param, value in zip(params, values):
                 param.load(value=value)
+                print(param.name, value)
             # loss_new = tf.identity(loss)
             loss_new = loss
             loss_evaluated = self.sess.run(loss_new)
-            # print("Current loss:", loss_evaluated)
+            print("Current loss:", loss_evaluated)
             # print("Current value:", value)
             return loss_evaluated
 
         def grad_func(values):
             # feed_dict = {p: v for p, v in zip(placeholders, value)}
             # self.sess.run(updated_params, feed_dict=feed_dict)
-            # print("GRADIENT")
-            # print("==========")
+            print("GRADIENT")
+            print("==========")
             for param, value in zip(params, values):
                 param.load(value=value)
+                print(param.name, value)
             # gradients1 = tf.identity(gradients)
             gradients1 = gradients
             gradients_values = self.sess.run(gradients1)
@@ -71,7 +73,7 @@ class MinuitMinimizer(BaseMinimizer):
             minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
                                        grad=grad_func,
                                        forced_parameters=params_name,
-                                       print_level=2,
+                                       print_level=3,
                                        **error_limit_kwargs)
             minimizer.set_strategy(1)  # TODO(Mayou36): where to properly set strategy etc?
         self._minuit_minimizer = minimizer
