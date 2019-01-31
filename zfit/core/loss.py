@@ -67,6 +67,20 @@ def _nll_constraints_tf(constraints):
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model, data, fit_range=None, constraints=None):
+        # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
+        """
+
+        A "simultaneous fit" can be performed by giving one or more `model`, `data`, `fit_range`
+        to the loss. The length of each has to match the length of the others.
+
+        Args:
+            model (Iterable[ZfitModel]): The model or models to evaluate the data on
+            data (Iterable[ZfitData]): Data to use
+            fit_range (ZfitSpace): The fitting range. It's the norm_range for the models (if they
+                have a norm_range) and the data_range for the data.
+            constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using
+                `zfit.constraint.*` allows for easy use of predefined constraints.
+        """
         super().__init__(name=type(self).__name__)
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
@@ -235,6 +249,8 @@ class CachedLoss(BaseLoss):
 
 
 class UnbinnedNLL(CachedLoss):
+    """The Unbinned Negative Log Likelihood."""
+
     _name = "UnbinnedNLL"
 
     def _loss_func(self, model, data, fit_range, constraints):
@@ -253,6 +269,7 @@ class UnbinnedNLL(CachedLoss):
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
+    """An Unbinned Negative Log Likelihood with an additional poisson term for the"""
 
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)

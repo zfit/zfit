@@ -3,7 +3,7 @@ Welcome to zfit's documentation!
 
 .. toctree::
    :titlesonly:
-   :maxdepth: 4
+   :maxdepth: 1
    :caption: Contents:
 
    readme
@@ -15,7 +15,6 @@ Welcome to zfit's documentation!
    zfit.loss
    zfit.constraint
    zfit.ztf
-   zfit
    usage
    modules
    contributing
