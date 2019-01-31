@@ -771,7 +771,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     def _call_sample(self, n, limits, name):
         with self._name_scope(name, values=[n, limits]):
-            n = ztf.convert_to_tensor(n, dtype=ztypes.int, name="n")
+            # n = ztf.convert_to_tensor(n, dtype=ztypes.int, name="n")
 
             with suppress(NotImplementedError):
                 return self._sample(n=n, limits=limits)

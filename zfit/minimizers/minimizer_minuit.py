@@ -48,10 +48,10 @@ class MinuitMinimizer(BaseMinimizer):
             print("==========")
             for param, value in zip(params, values):
                 param.load(value=value)
-                print(param.name, value)
             # gradients1 = tf.identity(gradients)
             gradients1 = gradients
             gradients_values = self.sess.run(gradients1)
+            print("Gradients:", [(p.name, grad) for p, grad in zip(params, gradients_values)])
             return gradients_values
 
         # create Minuit compatible names
