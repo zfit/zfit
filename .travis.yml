@@ -30,13 +30,25 @@ after_success:
     - coveralls
 
 deploy:
-    provider: pypi
-    distributions: sdist bdist_wheel
-    user: zfit
-    password:
-        secure: ZNNpI3RKnGZrkitcVZScG6EXO7elIJuxY5b8HvjBTz9wR4ufUSG2klFlgMcZKJAbCZ/upKLPnfje3cxmkfhnN8PBVViO39JHX4g35OvUxMRFp3XthAh6f0jfFceK41F1dk8RjL3nhz4EADmupeYsd13RmxM4OqZhfEbwM2I7jQF7+Wnc4vcG6iSeBnTbIt+B3r9v++l1y9On8rKgfac9t+G+dTKDs8HSDrHWa54re1XAa5cpFeArbBX3f4dQkjFI1nY3aZ1JbJVp4ew0avYjzfTLpdVrdKqHAyY5YIO97Uk4X7GKSZK2PZ8yTQGmtfE54rz6y/PdV4e7CRieP0FsOSVYZ7dFneGTu35wltZXr/hu9Tmn57/Qs+4XEcTrcw0jPExVTAkXnvGYQeew0ut9tmeV5J7Ghx2SLyjVEw3DSsulA8mRLP+d1XBSCg4yIsx17kqhCPJ76DvMFwpVwzpTUzLQbZAHw0+RY1pc7eQO0VwSmnStkxS8JnIuCZ7pQgPkMBtGPlqkEALSg06tOhbGafvye//w9c48N2Ns4+9MJT1PPmsDoXRRt1ffY8+69v8s3ykuIcx9N7Dze/BKQE5PPTiaR/RhRwpcTZsgNeizEpUt3Xh1SxO+QGQ1DWJKXKbAc+DkzATwCciRJS/plk224rG9Wk7c26p9FhGypSQgAZs=
-    on:
-        branch: master
-        tags: true
-        repo: zfit/zfit
-        python: 3.6
+    - provider: pypi
+      distributions: sdist bdist_wheel
+      user: zfit
+      password:
+          secure: ZNNpI3RKnGZrkitcVZScG6EXO7elIJuxY5b8HvjBTz9wR4ufUSG2klFlgMcZKJAbCZ/upKLPnfje3cxmkfhnN8PBVViO39JHX4g35OvUxMRFp3XthAh6f0jfFceK41F1dk8RjL3nhz4EADmupeYsd13RmxM4OqZhfEbwM2I7jQF7+Wnc4vcG6iSeBnTbIt+B3r9v++l1y9On8rKgfac9t+G+dTKDs8HSDrHWa54re1XAa5cpFeArbBX3f4dQkjFI1nY3aZ1JbJVp4ew0avYjzfTLpdVrdKqHAyY5YIO97Uk4X7GKSZK2PZ8yTQGmtfE54rz6y/PdV4e7CRieP0FsOSVYZ7dFneGTu35wltZXr/hu9Tmn57/Qs+4XEcTrcw0jPExVTAkXnvGYQeew0ut9tmeV5J7Ghx2SLyjVEw3DSsulA8mRLP+d1XBSCg4yIsx17kqhCPJ76DvMFwpVwzpTUzLQbZAHw0+RY1pc7eQO0VwSmnStkxS8JnIuCZ7pQgPkMBtGPlqkEALSg06tOhbGafvye//w9c48N2Ns4+9MJT1PPmsDoXRRt1ffY8+69v8s3ykuIcx9N7Dze/BKQE5PPTiaR/RhRwpcTZsgNeizEpUt3Xh1SxO+QGQ1DWJKXKbAc+DkzATwCciRJS/plk224rG9Wk7c26p9FhGypSQgAZs=
+      on:
+          branch: master
+          tags: true
+          repo: zfit/zfit
+          python: 3.6
+
+    - provider: pages
+      skip_cleanup: true
+      github_token:  # TODO: change token below
+          secure: "CqHGP/iah+GiUJVrScDTCbmSz+1CqQ7vdxS0o9PF7mfnGgnqfu38FKz6OA85vrI1XY0L6hE9SlPId4yH3EiG8y19XKMLd4EMAg3WlA0T9Z2hgafOSa0ZHkZi32yJfVzoPYspvRyXYZQ7ggRj6l3XGvsioY3023R5CPRPBGEVU38WHvl2Fskd+lDvwkBwVHSmy6kAxtPJe1z84oJhheHNtSuOtKlezdnndmU0wO2hX08wPegluuACe8ez08Qe8OB56X7sZCHoWvstZE6xdBkSjjnRb54Dm7Ll6313PHQHSXI0JBDDtKfRrqaI6J7ByieZA1SPNXtzsnq0/Hr47GvJ3Whcvc1tCaeEMt3q/JTCLcBOG0oRNZeJUiXObkX7PyHOCdUmLJ/brOeLHyTNnUFoHHr3IXFqLUqVnSjf/BoMeeW66Tfq/1BoyrInwpIoOJzN+aH0vjXXPFhUOUZq2dizMopSQ9IcG/etmrsF0LokqVaUS8nrJzS//n85UXa9U0EFpVd7VHzPwt9L8OZIAIe5SIBhkGyAMlcm059pmF7dPZL2rsfZ1JSZS6/lyXggI/cW+cYnJ8z7bDl2xqCkEAWlLJCyNTwJeoZe4NJxUM96yKyQSLilQxqDoIgvxYb9LN5qJ2WF4IFVVh0uRD9Wb+nEqVEc/pyXSRYR+jpjuj0T8I8="
+      local_dir: docs/api/_build/html
+      keep-history: true
+      on:
+          branch: master
+          condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
+
+
