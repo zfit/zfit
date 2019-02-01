@@ -57,6 +57,7 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pep487
 
+from .dimension import add_spaces, combine_spaces
 from .baseobject import BaseObject
 from .interfaces import ZfitSpace
 from ..util import ztyping
@@ -875,6 +876,38 @@ class Space(ZfitSpace, BaseObject):
             if not limit_is_le:  # for this `limit`, no other_limit matched
                 return False
         return True
+
+    def add(self, other: ztyping.SpaceOrSpacesTypeInput):
+        """Add the limits of the spaces. Only works for the same obs.
+
+        In case the observables are different, the order of the first space is taken.
+
+        Args:
+            other (`Space`):
+
+        Returns:
+            `zfit.Space`: """
+        other = convert_to_container(other, container=list)
+        new_space = add_spaces([self] + other)
+        return new_space
+
+    def combine(self, other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
+        """Combine spaces with different obs (but consistent limits).
+
+        Args:
+            other (zfit.Space):
+
+        Returns:
+            zfit.Space:
+        """
+        other = convert_to_container(other, container=list)
+        new_space = combine_spaces([self] + other)
+        return new_space
+
+    def __add__(self, other):
+        if not isinstance(other, ZfitSpace):
+            raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
+        return self.add(other)
 
     def __ge__(self, other):
         return other.__le__(self)
