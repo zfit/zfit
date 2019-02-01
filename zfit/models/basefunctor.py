@@ -1,12 +1,13 @@
 import abc
 from typing import List, Union, Dict, Tuple
 
+import zfit
 from ..core.limits import Space
 from ..core.basemodel import BaseModel
-from ..core.dimension import get_same_obs
+from ..core.dimension import get_same_obs, combine_spaces
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel
 from ..util.container import convert_to_container
-from ..util.exception import AxesNotUnambiguousError, NormRangeNotSpecifiedError
+from ..util.exception import AxesNotUnambiguousError, NormRangeNotSpecifiedError, LimitsIncompatibleError
 
 
 class FunctorMixin(ZfitFunctorMixin, BaseModel):
@@ -26,15 +27,22 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
             return False
 
     def _check_extract_input_obs(self, obs, models):
-        extracted_obs = _extract_common_obs(obs=tuple(model.obs for model in models))
+
+        # combine spaces and limits
+        try:
+            models_space = combine_spaces([model.space for model in models])
+        except LimitsIncompatibleError:  # then only add obs
+            extracted_obs = _extract_common_obs(obs=tuple(model.obs for model in models))
+            models_space = Space(obs=extracted_obs)
+
         if obs is None:
-            obs = extracted_obs
+            obs = models_space
         else:
             if isinstance(obs, Space):
                 obs_str = obs.obs
             else:
                 obs_str = convert_to_container(value=obs, container=tuple)
-            if not frozenset(obs_str) == frozenset(extracted_obs):
+            if not frozenset(obs_str) == frozenset(models_space.obs):
                 raise ValueError("The given obs do not coincide with the obs from the daughter models.")
         return obs
 
