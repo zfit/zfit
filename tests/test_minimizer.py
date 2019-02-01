@@ -103,7 +103,7 @@ def minimize_func(minimizer_class_and_kwargs):
         assert tuple(a_errors.keys()) == (a_param,)
         errors = result.error()
         a_error = a_errors[a_param]
-        assert a_error['lower'] == pytest.approx(-a_error['upper'], rel=0.03)
+        assert a_error['lower'] == pytest.approx(-a_error['upper'], rel=0.07)
         assert abs(a_error['lower']) == pytest.approx(0.0067, rel=0.07)
         assert abs(errors[b_param]['lower']) == pytest.approx(0.0067, rel=0.07)
         assert abs(errors[c_param]['lower']) == pytest.approx(0.074, rel=0.07)
