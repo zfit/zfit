@@ -43,12 +43,12 @@ deploy:
 
     - provider: pages
       skip_cleanup: true
-      github_token:  # TODO: change token below
-          secure: "CqHGP/iah+GiUJVrScDTCbmSz+1CqQ7vdxS0o9PF7mfnGgnqfu38FKz6OA85vrI1XY0L6hE9SlPId4yH3EiG8y19XKMLd4EMAg3WlA0T9Z2hgafOSa0ZHkZi32yJfVzoPYspvRyXYZQ7ggRj6l3XGvsioY3023R5CPRPBGEVU38WHvl2Fskd+lDvwkBwVHSmy6kAxtPJe1z84oJhheHNtSuOtKlezdnndmU0wO2hX08wPegluuACe8ez08Qe8OB56X7sZCHoWvstZE6xdBkSjjnRb54Dm7Ll6313PHQHSXI0JBDDtKfRrqaI6J7ByieZA1SPNXtzsnq0/Hr47GvJ3Whcvc1tCaeEMt3q/JTCLcBOG0oRNZeJUiXObkX7PyHOCdUmLJ/brOeLHyTNnUFoHHr3IXFqLUqVnSjf/BoMeeW66Tfq/1BoyrInwpIoOJzN+aH0vjXXPFhUOUZq2dizMopSQ9IcG/etmrsF0LokqVaUS8nrJzS//n85UXa9U0EFpVd7VHzPwt9L8OZIAIe5SIBhkGyAMlcm059pmF7dPZL2rsfZ1JSZS6/lyXggI/cW+cYnJ8z7bDl2xqCkEAWlLJCyNTwJeoZe4NJxUM96yKyQSLilQxqDoIgvxYb9LN5qJ2WF4IFVVh0uRD9Wb+nEqVEc/pyXSRYR+jpjuj0T8I8="
+      github_token:
+          secure: jrPIzI6e67nPuqIFXCwr0NfpAKxVrkZ5JSE9iW7GLVagLTiHcXCnzGDDPYo8Aq+jwJv69Hy+wXLCgq5G6AU/SCy9eLjYlAFVoEwyKh9SQzm404ay3B5Gxcuskj4nqJWWWH0ETAK4QIvhWtAzx48ElNwLOaidzPRFAgyzSVm337EpnEvuNr67I53M0IYaaAL21zWj8yCdKzOTOg/GI1Idn3a1cvW+Hqy0AWID7d/LxNWC1zwBIwTwUGaMUOw9tA2FTqrXXbfW00nBlulhYkkWG3JUursL8nrs/PLzwp5lJPQJ8DBG6I1PYexZ5Cfl6GMHY6+K2lSx+PdNeB9UkEucXNiB4utQMplCqVxHPi/m2wEM9tJSADMQ96HCKSprXmKfa1VW039Dxf8efWGosO7dI1QOmbsrs8LcloSLli/q+PmgNv7s+emEv6/X0UL7idB4T097KPsJCulE468VBwuNfnvIUcX2a2q7T+MDr6Q3uDFZ1NYAsTPpOLqDLM25ri5h0DHf0i3h3wCuMT27kDUlpEcSjaVeJvJStlS3nn+ioo/LGNUGvNiO9uUYB62Pegb8RmIEZ1QGjL6hhGPujv9WAdqYU2f8iSmpBr50G/jOUZhnOMOcvttaQDew20+TRvg20u43HggaeS9f32YbXEK7QbtdtGLsJiPculnxF3ZNBmM=
       local_dir: docs/api/_build/html
       keep-history: true
       on:
-          branch: master
+          #          branch: develop
           condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
 
 
