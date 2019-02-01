@@ -132,6 +132,10 @@ class FitResult(SessionHolderMixin, ZfitResult):
     def info(self):
         return self._info
 
+    @property
+    def converged(self):
+        return self._converged
+
     def _input_check_params(self, params):
         if params is not None:
             params = convert_to_container(params)
