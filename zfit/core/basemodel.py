@@ -74,8 +74,9 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     _inverse_analytic_integral = None
     _additional_repr = None
 
-    def __init__(self, obs: ztyping.ObsTypeInput, dtype: Type = None, name: str = "BaseModel",
-                 parameters: Union[Dict[str, ZfitParameter], None] = None, **kwargs):
+    def __init__(self, obs: ztyping.ObsTypeInput, parameters: Union[Dict[str, ZfitParameter], None] = None,
+                 name: str = "BaseModel", dtype=ztypes.float,
+                  **kwargs):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
