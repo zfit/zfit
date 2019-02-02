@@ -122,7 +122,7 @@ class ComposedResourceVariable(ResourceVariable):
 class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
-        super().__init__(initial_value=initial_value, **kwargs)
+        super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
         # self._name = name
 
@@ -320,7 +320,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
         # self.constraint = constraint
 
-        super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint, **kwargs)
+        super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint,
+                         **kwargs)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
         else:

@@ -124,7 +124,10 @@ def test_prod_gauss_nd_mixed():
 
     normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(40 ** 4, 4)))
     true_probs = true_unnormalized_probs / tf.reduce_mean(normalization_probs)
+    grad = tf.gradients(probs, list(prod_gauss_4d.get_dependents()))
     probs_np = zfit.run(probs)
+    grad_np = zfit.run(grad)
+    print("Gradients", grad_np)
     print(np.average(probs_np))
     true_probs_np = zfit.run(true_probs)
     assert np.average(probs_np * limits_4d.area()) == pytest.approx(1., rel=0.33)  # low n mc

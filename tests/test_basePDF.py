@@ -23,11 +23,17 @@ obs1 = 'obs1'
 
 gauss_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
 
+sigma_true_param = zfit.Parameter('sigma_true123', sigma_true)
+sigma_true_param = zfit.Parameter('mu_true123', mu_true)
+
 
 class TestGaussian(zfit.core.basepdf.BasePDF):
 
     def _unnormalized_pdf(self, x, norm_range=False):
-        return tf.exp((-(x - mu_true) ** 2) / (2 * sigma_true ** 2))  # non-normalized gaussian
+        x = ztf.unstack_x(x)
+
+        return tf.exp((-(x - sigma_true_param) ** 2) / (
+            2 * sigma_true_param ** 2))  # non-normalized gaussian
 
 
 def true_gaussian_unnorm_func(x):

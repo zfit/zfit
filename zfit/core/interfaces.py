@@ -58,6 +58,14 @@ class ZfitData(ZfitDimensional):
     def value(self, obs: List[str] = None) -> ztyping.XType:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def sort_by_obs(self, obs):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def sort_by_axes(self, axes):
+        raise NotImplementedError
+
 
 class ZfitSpace(ZfitObject):
 
@@ -136,6 +144,56 @@ class ZfitSpace(ZfitObject):
     @abc.abstractmethod
     def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
         """Return the areas of each limit."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_limits(self, limits, name):
+        """Return a copy of the space with the new `limits` (and the new `name`).
+
+        Args:
+            limits ():
+            name (str):
+
+        Returns:
+            Space
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_obs(self, obs):
+        """Sort by `obs` and return the new instance.
+
+        Args:
+            obs ():
+
+        Returns:
+            `Space`
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_axes(self, axes):
+        """Sort by `obs` and return the new instance.
+
+        Args:
+            axes ():
+
+        Returns:
+            `Space`
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_autofill_axes(self, overwrite: bool):
+        """Return a `Space` with filled axes corresponding to range(len(n_obs)).
+
+        Args:
+            overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.
+                If axes is already set, don't do anything if `overwrite` is False.
+
+        Returns:
+            `Space`
+        """
         raise NotImplementedError
 
 

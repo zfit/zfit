@@ -215,7 +215,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
             values = tf.expand_dims(values, -1)
         if len(values.shape.as_list()) == 1:
             values = tf.expand_dims(values, -1)
-        perm_indices = self.space.axes if self.space.axes != tuple(range(values.shape[1])) else False
+        perm_indices = self.space.axes if self.space.axes != tuple(range(values.shape[-1])) else False
 
         # permutate = perm_indices is not None
         if obs:
