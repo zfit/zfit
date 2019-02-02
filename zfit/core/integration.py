@@ -157,6 +157,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
                                                          dtype=dtype,
                                                          randomized=False)
         # halton_sample = tf.random_uniform(shape=(n_axes, batch_size), dtype=dtype)
+        samples_normed.set_shape((batch_size, n_axes))
         samples_normed = tf.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower
         func_vals = func(samples)
@@ -199,6 +200,8 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
                                      space=space, x=x, shape_after=shape_after)
 
         def grad_fn(dy, variables=None):
+            if variables is None:
+                return dy, None
             normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(func(x), variables)),
                                                n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
                                                dtype=dtype,
