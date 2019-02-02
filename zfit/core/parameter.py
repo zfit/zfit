@@ -33,9 +33,9 @@ class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
 
-    @property
-    def name(self):
-        return self.variable.name
+    # @property
+    # def name(self):
+    #     return self.variable.op.name
 
     @property
     def dtype(self):
@@ -124,11 +124,11 @@ class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         super().__init__(initial_value=initial_value, **kwargs)
         self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
-        self._name = name
+        # self._name = name
 
     @property
     def name(self):
-        return self._name
+        return self.op.name
 
     @property
     def dtype(self):
@@ -222,19 +222,30 @@ class BaseParameter(zbaseobject.BaseNumeric, zinterfaces.ZfitParameter, metaclas
 
 
 class ZfitParameterMixin:
+    _existing_names = set()
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
+        if name in self._existing_names:
+            raise NameAlreadyTakenError("Another parameter is already named {}. "
+                                        "Use a different, unique one.".format(name))
+        self._existing_names.update((name,))
+        self._name = name
         super().__init__(initial_value=initial_value, name=name, **kwargs)
         # try:
         #     new_name = self.op.name
         # except AttributeError:  # no `op` attribute -> take normal name
         #     new_name = self.name
-        new_name = self.name.rsplit(':', 1)[0]  # get rid of tf node
-        new_name = new_name.rsplit('/', 1)[-1]  # get rid of the scope preceding the name
-        if not new_name == name:  # name has been mangled because it already exists
-            raise NameAlreadyTakenError("Another parameter is already named {}. "
-                                        "Use a different, unique one.".format(name))
+        # new_name = self.name.rsplit(':', 1)[0]  # get rid of tf node
+        # new_name = self.name  # get rid of tf node
+        # new_name = new_name.rsplit('/', 1)[-1]  # get rid of the scope preceding the name
+        # if not new_name == name:  # name has been mangled because it already exists
+        #     raise NameAlreadyTakenError("Another parameter is already named {}. "
+        #                                 "Use a different, unique one.".format(name))
         self.floating = floating
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def floating(self):
@@ -321,6 +332,10 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
     def __init_subclass__(cls, **kwargs):
         cls._independent = True  # overwriting independent only for subclass/instance
+
+    # @property
+    # def name(self):
+    #     return self.op.name
 
     @property
     def lower_limit(self):
