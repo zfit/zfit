@@ -11,15 +11,15 @@ from .baseminimizer import BaseMinimizer
 
 class ScipyMinimizer(BaseMinimizer):
 
-    def __init__(self, minimizer='L-BFGS-B', tolerance=None, name=None, **kwargs):
+    def __init__(self, minimizer='L-BFGS-B', tolerance=None, verbosity=5, name=None, **minimize_options):
         if name is None:
             name = minimizer
-        super().__init__(tolerance=tolerance, name=name)
-        kwargs.update(method=minimizer)  # named method in ScipyOptimizerInterface
+        minimize_options.update(method=minimizer)  # named method in ScipyOptimizerInterface
+        super().__init__(tolerance=tolerance, name=name, verbosity=verbosity, minimize_options=minimize_options,
+                         minimizer_init=None, minimizer_setter=None)
         # kwargs.update(hess=SR1())
         # kwargs.update(hess=BFGS())
         # kwargs.update(options={'maxiter': 3000, 'xtol': 1e-12})
-        self._scipy_init_kwargs = kwargs
 
     def _minimize(self, loss, params):
         loss = loss.value()
@@ -34,9 +34,10 @@ class ScipyMinimizer(BaseMinimizer):
                 return obj
 
         var_to_bounds = {p.name: (try_run(p.lower_limit), try_run(p.upper_limit)) for p in var_list}
+        # TODO(Mayou36): inefficient for toys, rewrite ScipyOptimizerInterface?
         minimizer = ScipyOptimizerInterface(loss=loss, var_list=var_list,
                                             var_to_bounds=var_to_bounds,
-                                            **self._scipy_init_kwargs)
+                                            **self.minimize_options)
         # self._scipy_minimizer = minimizer
         result = minimizer.minimize(session=self.sess)
         result_values = result['x']
@@ -58,7 +59,5 @@ class ScipyMinimizer(BaseMinimizer):
                               converged=converged, status=status,
                               loss=loss, minimizer=self.copy())
 
-        # self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
 
         return fitresult
-        # return self.get_state()

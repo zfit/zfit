@@ -15,17 +15,22 @@ from .baseminimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, name=None, tolerance=None, verbosity=5, strategy=1, ncall=None, **minuit_options):
+    def __init__(self, strategy=1, tolerance=None, verbosity=5, name=None, ncall=10000, **minuit_options):
+
         minimize_options = {}
         minimize_options['precision'] = minuit_options.pop('precision', None)
         minimize_options['ncall'] = ncall
 
         minimizer_init = {}
-
-
+        minimizer_init['errordef'] = minuit_options.pop('errordef', None)
+        minimizer_init['pedantic'] = minuit_options.pop('pedantic', False)
+        if not strategy in range(3):
+            raise ValueError("Strategy has to be 0, 1 or 2.")
         minimizer_setter = {'strategy': strategy}
-        super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_init={}, minimize_options={},
-                         minimizer_setter=minimizer_setter)
+        if minuit_options:
+            raise ValueError("The following options are not (yet) supported: {}".format(minuit_options))
+        super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_init=minimizer_init,
+                         minimize_options=minimize_options, minimizer_setter=minimizer_setter)
         self._minuit_minimizer = None
 
     def _minimize(self, loss, params: List[Parameter]):
@@ -81,15 +86,26 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
             error_limit_kwargs.update(param_kwargs)
         params_name = [param.name for param in params]
 
-        if self._minuit_minimizer is None:
-            minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
-                                       grad=grad_func,
-                                       forced_parameters=params_name,
-                                       print_level=self.verbosity,
-                                       **error_limit_kwargs)
-            minimizer.set_strategy(1)  # TODO(Mayou36): where to properly set strategy etc?
-            self._minuit_minimizer = minimizer
-        result = minimizer.migrad()
+        minimizer_init = self.minimizer_init
+        overlapping_kwargs = frozenset(error_limit_kwargs.keys()).intersection(minimizer_init.keys())
+        if overlapping_kwargs:
+            raise ValueError("The following `minimizer_init` arguments are defined internally and are invalid: "
+                             "{}".format(overlapping_kwargs))
+        error_limit_kwargs.update(minimizer_init)
+
+        # if self._minuit_minimizer is None:
+        minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
+                                   grad=grad_func,
+                                   forced_parameters=params_name,
+                                   print_level=self.verbosity,
+                                   **error_limit_kwargs)
+        minimizer_setter = self.minimizer_setter.copy()
+        strategy = minimizer_setter.pop('strategy')
+        minimizer.set_strategy(strategy)  # TODO(Mayou36): where to properly set strategy etc?
+        assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter:".format(
+            minimizer_setter)
+
+        result = minimizer.migrad(**self.minimize_options)
         params_result = [p_dict for p_dict in result[1]]
         for load, p in zip(load_params, params_result):
             load(p['value'])
