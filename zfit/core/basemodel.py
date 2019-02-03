@@ -76,7 +76,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     def __init__(self, obs: ztyping.ObsTypeInput, parameters: Union[Dict[str, ZfitParameter], None] = None,
                  name: str = "BaseModel", dtype=ztypes.float,
-                  **kwargs):
+                 **kwargs):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
@@ -149,6 +149,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def _check_set_space(self, obs):
         if not isinstance(obs, Space):
             obs = Space(obs=obs)
+        self._check_n_obs(space=obs)
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager

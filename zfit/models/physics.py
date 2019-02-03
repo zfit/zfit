@@ -172,6 +172,7 @@ def crystalball_integral(limits, params):
 
 
 class CrystalBallPDF(BasePDF):
+    _N_OBS = 1
 
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
                  alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,

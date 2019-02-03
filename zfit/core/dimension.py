@@ -14,6 +14,18 @@ from ..util import ztyping
 
 class BaseDimensional(ZfitDimensional):
 
+    def _check_n_obs(self, space):
+        if self._N_OBS is not None:
+            if len(space.obs) != self._N_OBS:
+                raise SpaceIncompatibleError("Exactly {} obs are allowed, {} are given.".format(self._N_OBS, space.obs))
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        print("init subclass run on class {}".format(cls))
+        if not hasattr(cls, "_N_OBS"):
+            cls._N_OBS = None
+
     @property
     def obs(self) -> ztyping.ObsTypeReturn:
         return self.space.obs

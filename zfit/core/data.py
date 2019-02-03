@@ -49,7 +49,8 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
     def _set_space(self, obs: Space):
         obs = convert_to_space(obs)
-        obs = obs.with_autofill_axes()
+        self._check_n_obs(space=obs)
+        obs = obs.with_autofill_axes(overwrite=True)
         self._space = obs
 
     @property
