@@ -58,16 +58,6 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         return params
 
     @staticmethod
-    def _extract_update_op(params):
-        params_update = [param.update_op for param in params]
-        return params_update
-
-    @staticmethod
-    def _extract_assign_method(params):
-        params_assign = [param.assign for param in params]
-        return params_assign
-
-    @staticmethod
     def _extract_load_method(params):
         params_load = [param.load for param in params]
         return params_load
@@ -76,14 +66,6 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
     def _extract_parameter_names(params):
         names = [param.name for param in params]
         return names
-
-    def _assign_parameters(self, params, values):
-        params_assign_op = [param.assign(val) for param, val in zip(params, values)]
-        return self.sess.run(params_assign_op)
-
-    def _update_parameters(self, params, values):
-        feed_dict = {param.placeholder: val for param, val in zip(params, values)}
-        return self.sess.run(self._extract_update_op(params), feed_dict=feed_dict)
 
     def _check_gradients(self, params, gradients):
         non_dependents = [param for param, grad in zip(params, gradients) if grad is None]

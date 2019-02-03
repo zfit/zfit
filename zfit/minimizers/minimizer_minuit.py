@@ -104,7 +104,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         minimizer.set_strategy(strategy)  # TODO(Mayou36): where to properly set strategy etc?
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter:".format(
             minimizer_setter)
-
+        self._minuit_minimizer = minimizer
         result = minimizer.migrad(**self.minimize_options)
         params_result = [p_dict for p_dict in result[1]]
         for load, p in zip(load_params, params_result):

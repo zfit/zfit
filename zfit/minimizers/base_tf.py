@@ -4,12 +4,13 @@ from .baseminimizer import BaseMinimizer
 
 
 class WrapOptimizer(BaseMinimizer):
-    def __init__(self, optimizer, tolerance=None, *args, **kwargs):
+    def __init__(self, optimizer, tolerance=None, verbosity=None, name=None, *args, **kwargs):
         if tolerance is None:
             tolerance = 1e-8
         if not isinstance(optimizer, tf.train.Optimizer):
             raise TypeError("optimizer {} has to be from class Optimizer".format(str(optimizer)))
-        super().__init__(tolerance=tolerance, *args, **kwargs)
+        super().__init__(tolerance=tolerance, verbosity=verbosity, name=name,
+                         minimizer_init=None, minimizer_setter=None, minimize_options=None, *args, **kwargs)
         self._optimizer_tf = optimizer
 
     def _step_tf(self, loss, params):

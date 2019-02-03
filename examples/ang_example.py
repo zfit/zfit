@@ -17,17 +17,6 @@ matplotlib.use('TkAgg')
 # Hack End
 import matplotlib.pyplot as plt
 
-# from monitoring import Timer, memory_usage
-
-# !/usr/bin/env python
-# -*- coding: utf-8 -*-
-# =============================================================================
-# @file   monitoring.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   14.02.2017
-# =============================================================================
-"""Various code monitoring utilities."""
-
 import os
 
 from timeit import default_timer
@@ -171,15 +160,15 @@ def plot_nll_scan(nll, param: zfit.Parameter, n_points=1000):
 
 N_BINS = 20
 N_EVENTS = 150
-N_TOYS = 100
-DO_SIMUL = True
+N_TOYS = 1000
+DO_SIMUL = False
 
 if __name__ == "__main__":
     # Observables
     cos_gamma = zfit.Space("cos_gamma", limits=(-1, 1))
     cos_theta = zfit.Space("cos_theta", limits=(-1, 1))
     # Parameters
-    alpha_gamma = zfit.Parameter("alpha_gamma", 1, -1, 1.2)
+    alpha_gamma = zfit.Parameter("alpha_gamma", 1, -2, 2)
     lb_pol = zfit.Parameter("lb_pol", 0.06, 0, 1)
     alpha_p = zfit.Parameter("alpha_p", 0.642, 0, 1)
     # Constraints
@@ -212,7 +201,7 @@ if __name__ == "__main__":
     full_nll = cos_gamma_nll + cos_theta_nll
 
     # Load and instantiate the Minuit minimiser
-    minimizer = MinuitMinimizer(verbosity=1)
+    minimizer = MinuitMinimizer()
 
     # Minimize cos theta
     alpha_gamma.randomize()
@@ -222,15 +211,12 @@ if __name__ == "__main__":
     alpha_vals_full = []
     mems = []
     times = []
-
-    graph = tf.get_default_graph()
-    # data_tmp = cos_gamma_data.value()
-
     failed_fits = 0
     have_nan = 0
 
-    for toy_n in range(N_TOYS):
-        print("Starting run {}".format(toy_n))
+    graph = tf.get_default_graph()
+
+    while len(alpha_vals_costheta) <= N_TOYS:
         with Timer() as t:
             mems.append(memory_usage())
             # Reset variables
@@ -240,9 +226,6 @@ if __name__ == "__main__":
             # Let's generate some data
             # Hack
             zfit.run([cos_gamma_data.initializer, cos_theta_data.initializer])  # this actually runs the sampling
-
-            # data_tmp_np = zfit.run(data_tmp)
-            # print(np.std(data_tmp_np), np.mean(data_tmp_np))
             # Hack end
             # Randomize variables
             alpha_gamma.randomize()
@@ -255,9 +238,6 @@ if __name__ == "__main__":
             # And NLL profile
             # plt.figure()
             # plot_nll_scan(cos_theta_nll, param=alpha_gamma)
-            alpha_vals_costheta.append(minimum.params[alpha_gamma]['value'])
-            status_costheta.append(minimum.status)
-
             if minimum.converged and not np.isnan((minimum.params[alpha_gamma]['value'])):
                 alpha_vals_costheta.append(minimum.params[alpha_gamma]['value'])
                 status_costheta.append(minimum.status)
@@ -265,7 +245,6 @@ if __name__ == "__main__":
                 failed_fits += 1
                 if np.isnan((minimum.params[alpha_gamma]['value'])):
                     have_nan += 1
-
             if DO_SIMUL:
                 # Minimize simultaneously
                 alpha_gamma.randomize()
@@ -273,13 +252,9 @@ if __name__ == "__main__":
                 alpha_p.randomize()
                 minimum = minimizer.minimize(loss=full_nll, params=[alpha_gamma, alpha_p, lb_pol])
                 alpha_vals_full.append(minimum.params[alpha_gamma]['value'])
-
             graph.finalize()
 
-        if t.elapsed > 5:
-            print("BIGGER!")
-        time_elapsed = min(t.elapsed, 1)
-        times.append(time_elapsed * 1000.0)
+        times.append(t.elapsed * 1000.0)
 
     print("Failed fits: {}/{} ({} with NaN)".format(failed_fits,
                                                     failed_fits + N_TOYS,
@@ -287,16 +262,13 @@ if __name__ == "__main__":
     print("Single fit sensitivity: {}".format(np.array(alpha_vals_costheta).std()))
     if DO_SIMUL:
         print("Simultaneous fit sensitivity: {}".format(np.array(alpha_vals_full).std()))
-
-    print("Single fit sensitivity: {}".format(np.array(alpha_vals_costheta).std()))
-    if DO_SIMUL:
-        print("Simultaneous fit sensitivity: {}".format(np.array(alpha_vals_full).std()))
     print("Time per toy: {:.0f} ms".format(np.array(times).mean()))
-    print("Memory increase per toy: {} MB".format((mems[-1] - mems[1]) / (N_TOYS - 1)))  # don't use first run
-    # x = np.array(range(N_TOYS))
-    x = np.array(range(len(times)))
-    plt.plot(x, np.array(times), label="Time per plot")
+    print("Memory increase per toy: {} MB".format((mems[-1] - mems[0]) / N_TOYS))
+    plt.hist(np.array(alpha_vals_costheta), bins=10)
+    plt.savefig("costheta.png")
+    plt.clf()
+    plt.plot(np.array(range(times)), np.array(times), label="Time per plot")
     plt.savefig("time.png")
     plt.clf()
-    plt.plot(x[5:], np.array(mems[5:]), label="Memory evolution")
+    plt.plot(np.array(range(mems)), np.array(mems), label="Memory evolution")
     plt.savefig("mems.png")
