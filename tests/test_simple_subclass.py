@@ -36,3 +36,34 @@ def test_pdf_simple_subclass():
                 # sigma = self.params['sigma']  # TODO
                 x = ztf.unstack_x(x)
                 return ztf.exp(-ztf.square((x - mu) / sigma))
+
+
+def test_func_simple_subclass():
+    class SimpleGaussFunc(zfit.func.ZFunc):
+        _PARAMS = ['mu', 'sigma']
+
+        def _value(self, x):
+            mu = self.parameters['mu']
+            # mu = self.params['mu']  # TODO
+            sigma = self.parameters['sigma']
+            # sigma = self.params['sigma']  # TODO
+            x = ztf.unstack_x(x)
+            return ztf.exp(-ztf.square((x - mu) / sigma))
+
+    gauss1 = SimpleGaussFunc(obs='obs1', mu=3, sigma=5)
+
+    value = gauss1.value(np.random.random(size=(10, 1)))
+    zfit.run(value)
+
+    with pytest.raises(ValueError):
+        gauss2 = SimpleGaussFunc('obs1', 1., sigma=5.)
+    with pytest.raises(SubclassingError):
+        class SimpleGauss2(zfit.func.ZFunc):
+
+            def _value(self, x):
+                mu = self.parameters['mu']
+                # mu = self.params['mu']  # TODO
+                sigma = self.parameters['sigma']
+                # sigma = self.params['sigma']  # TODO
+                x = ztf.unstack_x(x)
+                return ztf.exp(-ztf.square((x - mu) / sigma))
