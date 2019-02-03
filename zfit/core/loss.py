@@ -64,7 +64,7 @@ def _nll_constraints_tf(constraints):
     return constraints_neg_log_prob
 
 
-class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss, Cachable):
+class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(name=type(self).__name__)

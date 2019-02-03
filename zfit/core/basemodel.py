@@ -162,7 +162,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
             else:
                 assert False, "Neither the `obs` nor the `axes` are specified in `Data`"
         else:
-            if not isinstance(x, tf.Tensor):
+            if not isinstance(x, (tf.Tensor, tf.Variable)):
                 try:
                     x = ztf.convert_to_tensor(value=x)
                 except TypeError:

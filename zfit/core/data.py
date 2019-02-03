@@ -362,7 +362,9 @@ Data._OverloadAllOperators()
 class LightDataset:
 
     def __init__(self, tensor):
-        self.tensor = ztf.convert_to_tensor(tensor)
+        if not isinstance(tensor, (tf.Tensor)):
+            tensor = ztf.convert_to_tensor(tensor)
+        self.tensor = tensor
 
     @classmethod
     def from_tensor(cls, tensor):

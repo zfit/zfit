@@ -19,11 +19,11 @@ class ZfitCachable(pep487.PEP487Object):
 
 class Cachable(ZfitCachable):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self._cache = {}
         self._cachers = {}
         self.reset_cache()
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def register_cacher(self, cacher: "ZfitCachable"):
         """Register a `cacher` that caches values produces by this instance; a dependent.
