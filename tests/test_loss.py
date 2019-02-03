@@ -12,7 +12,6 @@ from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 
-
 mu_true = 1.2
 sigma_true = 4.1
 mu_true2 = 1.01
@@ -139,3 +138,28 @@ def test_add():
     assert simult_nll.fit_range == ranges
 
     assert simult_nll.constraints == merged_contraints
+
+
+def test_gradients():
+    param1 = Parameter("param111", 1.)
+    param2 = Parameter("param222", 2.)
+
+    gauss1 = Gauss(param1, 4, obs=obs1)
+    gauss1.set_norm_range((-5, 5))
+    gauss2 = Gauss(param2, 5, obs=obs1)
+    gauss2.set_norm_range((-5, 5))
+
+    data1 = zfit.data.Data.from_tensors(obs=obs1, tensors=ztf.constant(1., shape=(100,)))
+    data1.set_data_range((-5, 5))
+    data2 = zfit.data.Data.from_tensors(obs=obs1, tensors=ztf.constant(1., shape=(100,)))
+    data2.set_data_range((-5, 5))
+
+    nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
+
+    gradient1 = nll.gradients(params=param1)
+    assert zfit.run(gradient1) == zfit.run(tf.gradients(nll.value(), param1))
+    gradient2 = nll.gradients(params=[param2, param1])
+    both_gradients_true = zfit.run(tf.gradients(nll.value(), [param2, param1]))
+    assert zfit.run(gradient2) == both_gradients_true
+    gradient3 = nll.gradients()
+    assert frozenset(zfit.run(gradient3)) == frozenset(both_gradients_true)

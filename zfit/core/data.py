@@ -160,7 +160,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, name=name, iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensors(cls, obs, tensors, name=None):
+    def from_tensors(cls, obs: ztyping.ObsTypeInput, tensors: tf.Tensor, name: str = None) -> "Data":
         # dataset = tf.data.Dataset.from_tensors(tensors=tensors)
         # dataset = dataset.repeat()
         dataset = LightDataset.from_tensor(tensor=tensors)
@@ -313,7 +313,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
-        return self.convert_sort_space(obs=data_range)
+        return self.convert_sort_space(limits=data_range)
 
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,

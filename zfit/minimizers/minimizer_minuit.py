@@ -6,11 +6,12 @@ import iminuit
 import tensorflow as tf
 
 from zfit.minimizers.fitresult import FitResult
+from zfit.util.cache import Cachable
 from ..core.parameter import Parameter
 from .baseminimizer import BaseMinimizer
 
 
-class MinuitMinimizer(BaseMinimizer):
+class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
     def __init__(self, name=None, tolerance=None):
