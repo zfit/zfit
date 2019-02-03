@@ -15,13 +15,20 @@ from .baseminimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, name=None, tolerance=None, verbosity=5):
+    def __init__(self, name=None, tolerance=None, verbosity=5, strategy=1, ncall=None, **minuit_options):
+        minimize_options = {}
+        minimize_options['precision'] = minuit_options.pop('precision', None)
+        minimize_options['ncall'] = ncall
 
-        super().__init__(name=name, tolerance=tolerance, verbosity=verbosity)
+        minimizer_init = {}
+
+
+        minimizer_setter = {'strategy': strategy}
+        super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_init={}, minimize_options={},
+                         minimizer_setter=minimizer_setter)
         self._minuit_minimizer = None
 
     def _minimize(self, loss, params: List[Parameter]):
-        # gradients = tf.gradients(loss.value(), params)
         gradients = loss.gradients(params)
         loss_val = loss.value()
         self._check_gradients(params=params, gradients=gradients)
@@ -55,9 +62,8 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                     table.add_row([param.name, value])
             if do_print:
                 print(table.draw())
-            # gradients1 = tf.identity(gradients)
-            gradients1 = gradients
-            gradients_values = self.sess.run(gradients1)
+
+            gradients_values = self.sess.run(gradients)
             return gradients_values
 
         # create Minuit compatible names
@@ -79,7 +85,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
             minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
                                        grad=grad_func,
                                        forced_parameters=params_name,
-                                       print_level=3,
+                                       print_level=self.verbosity,
                                        **error_limit_kwargs)
             minimizer.set_strategy(1)  # TODO(Mayou36): where to properly set strategy etc?
             self._minuit_minimizer = minimizer
