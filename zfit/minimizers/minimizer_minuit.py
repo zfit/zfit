@@ -5,8 +5,8 @@ from typing import List
 import iminuit
 import tensorflow as tf
 
-from zfit.minimizers.fitresult import FitResult
-from zfit.util.cache import Cachable
+from .fitresult import FitResult
+from ..util.cache import Cachable
 from ..core.parameter import Parameter
 from .baseminimizer import BaseMinimizer
 
@@ -78,10 +78,11 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                                        print_level=3,
                                        **error_limit_kwargs)
             minimizer.set_strategy(1)  # TODO(Mayou36): where to properly set strategy etc?
-        self._minuit_minimizer = minimizer
+            self._minuit_minimizer = minimizer
         result = minimizer.migrad()
         params_result = [p_dict for p_dict in result[1]]
-        self.sess.run([assign(p['value']) for assign, p in zip(load_params, params_result)])
+        for load, p in zip(load_params, params_result):
+            load(p['value'])
 
         info = {'n_eval': result[0]['nfcn'],
                 # 'n_iter': result['nit'],
