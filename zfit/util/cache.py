@@ -26,12 +26,23 @@ class Cachable(ZfitCachable):
         super().__init__()
 
     def register_cacher(self, cacher: "ZfitCachable"):
+        """Register a `cacher` that caches values produces by this instance; a dependent.
+
+        Args:
+            cacher ():
+        """
         if not isinstance(cacher, ZfitCachable):
             raise TypeError("`cacher` is not a `ZfitCachable` but {}".format(type(cacher)))
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
     def add_cache_dependents(self, cache_dependents, allow_non_cachable=True):
+        """Add dependents that render the cache invalid if they change.
+
+        Args:
+            cache_dependents ():
+            allow_non_cachable ():
+        """
         cache_dependents = convert_to_container(cache_dependents)
         for cache_dependent in cache_dependents:
             if isinstance(cache_dependent, ZfitCachable):
@@ -41,6 +52,7 @@ class Cachable(ZfitCachable):
                                                                                            type(cache_dependent)))
 
     def reset_cache(self):
+        """Clear the cache of self and all dependent cachers."""
         self._clean_cache()
         self._inform_cachers()
 
