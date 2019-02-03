@@ -2,7 +2,8 @@ import os
 
 import pytest
 
-from zfit.util.exception import LimitsIncompatibleError, LimitsNotSpecifiedError
+from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedError, ShapeIncompatibleError,
+                                 SpaceIncompatibleError, )
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -45,6 +46,11 @@ space1d_2 = zfit.Space(obs=obs[0], limits=(lower1d_2, upper1d_2))
 
 space2d_1 = zfit.Space(obs=obs[:2], limits=(lower2d_1, upper2d_1))
 space2d_2 = zfit.Space(obs=obs[:2], limits=(lower2d_2, upper2d_2))
+
+
+def test_check_n_obs():
+    with pytest.raises(SpaceIncompatibleError):
+        zfit.pdf.Gauss(1., 4., obs=space2d_1)
 
 
 def test_combine_spaces():

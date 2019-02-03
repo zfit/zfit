@@ -64,7 +64,7 @@ from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
-                              NormRangeNotSpecifiedError, )
+                              NormRangeNotSpecifiedError, ShapeIncompatibleError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
@@ -271,7 +271,13 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
-            return self._unnormalized_pdf(x)
+            try:
+                return self._unnormalized_pdf(x)
+            except ValueError as error:
+                raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
+                                             "does not coincide with the `n_obs` from the `space`/`obs`"
+                                             "it received on initialization."
+                                             "Original Error: {}".format(error))
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):

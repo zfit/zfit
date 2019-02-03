@@ -60,6 +60,8 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
 
 class Gauss(WrapDistribution):
+    _N_OBS = 1
+
     def __init__(self, mu, sigma, obs, name="Gauss"):
         mu, sigma = self._check_input_parameters(mu, sigma)
         parameters = OrderedDict((('mu', mu), ('sigma', sigma)))
@@ -68,6 +70,8 @@ class Gauss(WrapDistribution):
 
 
 class ExponentialTFP(WrapDistribution):
+    _N_OBS = 1
+
     def __init__(self, tau, obs, name="Exponential"):
         (tau,) = self._check_input_parameters(tau)
         parameters = OrderedDict((('tau', tau),))
@@ -76,6 +80,8 @@ class ExponentialTFP(WrapDistribution):
 
 
 class Uniform(WrapDistribution):
+    _N_OBS = 1
+
     def __init__(self, low, high, obs, name="Uniform"):
         low, high = self._check_input_parameters(low, high)
         parameters = OrderedDict((("low", low), ("high", high)))

@@ -77,6 +77,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         self._constraints = convert_to_container(constraints, list)
 
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
 
     def _input_check(self, pdf, data, fit_range):

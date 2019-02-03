@@ -43,6 +43,7 @@ CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
 
 
 class Exponential(BasePDF):
+    _N_OBS = 1
 
     def __init__(self, lambda_, obs: ztyping.ObsTypeInput, name: str = "Exponential",
                  **kwargs):

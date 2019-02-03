@@ -7,6 +7,7 @@ import typing
 
 import tensorflow as tf
 
+from zfit.util.exception import ShapeIncompatibleError
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
 from ..settings import ztypes
@@ -61,7 +62,13 @@ class BaseFunc(BaseModel, ZfitFunc):
 
     def _call_value(self, x, name):
         with self._name_scope(name, values=[x]):
-            return self._value(x=x)
+            try:
+                return self._value(x=x)
+            except ValueError as error:
+                raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
+                                             "does not coincide with the `n_obs` from the `space`/`obs`"
+                                             "it received on initialization."
+                                             "Original Error: {}".format(error))
 
     def as_pdf(self):
         from zfit.core.operations import convert_func_to_pdf

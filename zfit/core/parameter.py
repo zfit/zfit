@@ -331,6 +331,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         zfit.run.auto_initialize(self)
 
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
 
     # @property
