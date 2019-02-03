@@ -39,7 +39,7 @@ def test_norm_range():
 def test_combine_range():
     gauss1 = zfit.pdf.Gauss(1., 4., obs=space1)
     gauss4 = zfit.pdf.Gauss(1., 4., obs=space4)
-    gauss5 = zfit.pdf.Gauss(1., 4., obs=space5)
+    gauss5 = zfit.pdf.Gauss(1., 4., obs=space4)
 
     sum1 = zfit.pdf.SumPDF(pdfs=[gauss1, gauss4], fracs=0.4)
     assert sum1.obs == (obs1, obs2)
