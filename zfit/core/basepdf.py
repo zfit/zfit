@@ -50,10 +50,8 @@ also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tut
 """
 
 import abc
-from collections import OrderedDict
-import contextlib
 from contextlib import suppress
-from typing import Union, Iterable, Any, Type, Dict
+from typing import Union, Any, Type, Dict
 import warnings
 
 import tensorflow as tf
@@ -63,7 +61,7 @@ from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
+from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
                               NormRangeNotSpecifiedError, ShapeIncompatibleError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel

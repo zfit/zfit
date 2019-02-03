@@ -3,7 +3,7 @@ from .models.basic import Exponential
 from .models.physics import CrystalBall
 from .models.dist_tfp import Gauss, Uniform, WrapDistribution
 from .models.functor import ProductPDF, SumPDF
-# from .models.special import
+from .models.special import ZPDF, SimplePDF
 
 __all__ = ['BasePDF',
            'Exponential',

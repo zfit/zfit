@@ -3,6 +3,10 @@ from typing import Dict, Union, Callable, Iterable
 
 import tensorflow as tf
 
+from zfit.core.basefunc import BaseFunc
+from zfit.core.basemodel import SimpleModelSubclassMixin
+from zfit.util import ztyping
+
 from ..core.basefunc import BaseFunc
 from ..core.interfaces import ZfitModel, ZfitFunc
 from ..models.basefunctor import FunctorMixin
@@ -68,3 +72,12 @@ class ProdFunc(BaseFunctorFunc):
         for func in self.funcs[1:]:
             value *= func.value(x)
         return value
+
+
+class ZFunc(SimpleModelSubclassMixin, BaseFunc):
+    def __init__(self, obs: ztyping.ObsTypeInput, name: str = "ZFunc", **params):
+        super().__init__(obs=obs, name=name, **params)
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._check_simple_model_subclass()

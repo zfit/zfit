@@ -8,6 +8,10 @@ from types import MethodType
 
 import tensorflow as tf
 
+from zfit.core.basemodel import SimpleModelSubclassMixin
+from zfit.core.basepdf import BasePDF
+from zfit.util import ztyping
+
 from ..core.basepdf import BasePDF
 from ..core.limits import no_norm_range
 from ..util.exception import NormRangeNotImplementedError
@@ -38,3 +42,12 @@ def raise_error_if_norm_range(func):
             raise tf.errors.InvalidArgumentError("Norm_range given to Function: cannot be normalized.")
 
     return wrapped
+
+
+class ZPDF(SimpleModelSubclassMixin, BasePDF):
+    def __init__(self, obs: ztyping.ObsTypeInput, name: str = "ZPDF", **params):
+        super().__init__(obs=obs, name=name, **params)
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._check_simple_model_subclass()
