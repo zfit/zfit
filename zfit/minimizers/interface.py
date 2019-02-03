@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 import pep487
 
 
-class ZfitResult(pep487.PEP487Object):
+class ZfitResult(pep487.ABC):
     @abstractmethod
     def hesse(self, params, method):
         """Calculate for `params` the symmetric error using the Hessian matrix.
@@ -63,7 +63,7 @@ class ZfitResult(pep487.PEP487Object):
         raise NotImplementedError
 
 
-class ZfitMinimizer(pep487.PEP487Object):
+class ZfitMinimizer(pep487.ABC):
     """Define the minimizer interface."""
 
     @abc.abstractmethod

@@ -6,7 +6,7 @@ import pep487
 from zfit.util.container import convert_to_container
 
 
-class ZfitCachable(pep487.PEP487Object):
+class ZfitCachable(pep487.ABC):
 
     @abc.abstractmethod
     def register_cacher(self, cacher: "ZfitCachable"):
