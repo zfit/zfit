@@ -71,7 +71,7 @@ minimizer = ScipyMinimizer()
 minimum = minimizer.minimize(loss=nll, params=minimize_params)
 
 # Get the fitted values, again by run the variable graphs
-# params = minimum.get_parameters()
+# params = minimum.get_params()
 params = minimum.params
 
 # error = minimum.error()

@@ -14,7 +14,7 @@ class WrapOptimizer(BaseMinimizer):
 
     def _step_tf(self, loss, params):
         loss = loss.value()
-        # var_list = self.get_parameters()
+        # var_list = self.get_params()
         var_list = params
         minimization_step = self._optimizer_tf.minimize(loss=loss, var_list=var_list)
 

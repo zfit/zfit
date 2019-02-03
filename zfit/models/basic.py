@@ -24,11 +24,11 @@ except AttributeError:  # py34
 class CustomGaussOLD(BasePDF):
 
     def __init__(self, mu, sigma, obs, name="Gauss"):
-        super().__init__(name=name, obs=obs, parameters=dict(mu=mu, sigma=sigma))
+        super().__init__(name=name, obs=obs, params=dict(mu=mu, sigma=sigma))
 
     def _unnormalized_pdf(self, x):
-        mu = self.parameters['mu']
-        sigma = self.parameters['sigma']
+        mu = self.params['mu']
+        sigma = self.params['sigma']
         gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma))
 
         return gauss
@@ -57,11 +57,11 @@ class Exponential(BasePDF):
             name (str): Name of the pdf.
             dtype (DType):
         """
-        parameters = {'lambda': lambda_}
-        super().__init__(obs, name=name, parameters=parameters, **kwargs)
+        params = {'lambda': lambda_}
+        super().__init__(obs, name=name, params=params, **kwargs)
 
     def _unnormalized_pdf(self, x):
-        lambda_ = self.parameters['lambda']
+        lambda_ = self.params['lambda']
         x = ztf.unstack_x(x)
         return tf.exp(lambda_ * x)
 

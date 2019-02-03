@@ -232,11 +232,11 @@ class SumPDF(BaseFunctor):
 
         self.pdfs = pdfs
 
-        parameters = OrderedDict()
+        params = OrderedDict()
         for i, frac in enumerate(self.fracs):
-            parameters['frac_{}'.format(i)] = frac
+            params['frac_{}'.format(i)] = frac
 
-        super().__init__(pdfs=pdfs, obs=obs, parameters=parameters, name=name)
+        super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if set_yield_at_end:
             self._set_yield_inplace(tf.reduce_sum(yields))
 

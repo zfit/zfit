@@ -348,6 +348,14 @@ class Integral(object):  # TODO analytic integral
         return self.integrate(*args, **kwargs)
 
 
+# to be "the" future integral class
+class Integration:
+
+    def __init__(self, mc_sampler, draws_per_dim):
+        self.mc_sampler = mc_sampler
+        self.draws_per_dim = draws_per_dim
+
+
 if __name__ == '__main__':
     def my_fn1(x):
         if isinstance(x, tf.Tensor):

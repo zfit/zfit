@@ -14,8 +14,8 @@ from ..util.exception import NormRangeNotImplementedError
 
 
 class SimplePDF(BasePDF):
-    def __init__(self, func, name="SimplePDF", n_dims=1, **parameters):
-        super().__init__(name=name, **parameters)
+    def __init__(self, func, name="SimplePDF", n_dims=1, **params):
+        super().__init__(name=name, **params)
         self._unnormalized_prob_func = self._check_input_x_function(func)
         self._user_n_dims = n_dims
 

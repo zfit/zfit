@@ -22,10 +22,10 @@ class ScipyMinimizer(BaseMinimizer):
 
     def _minimize(self, loss, params):
         loss = loss.value()
-        # var_list = self.get_parameters()
+        # var_list = self.get_params()
         var_list = params
 
-        # params_name = self._extract_parameter_names(var_list)
+        # params_name = self._extract_param_names(var_list)
         def try_run(obj):
             if isinstance(obj, tf.Tensor):
                 return self.sess.run(obj)
