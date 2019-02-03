@@ -11,12 +11,11 @@ from .baseminimizer import BaseMinimizer
 
 class ScipyMinimizer(BaseMinimizer):
 
-    def __init__(self, minimizer='L-BFGS-B', tolerance=None, verbosity=5, name=None, **minimize_options):
+    def __init__(self, minimizer='L-BFGS-B', tolerance=None, verbosity=5, name=None, **minimizer_options):
         if name is None:
             name = minimizer
-        minimize_options.update(method=minimizer)  # named method in ScipyOptimizerInterface
-        super().__init__(tolerance=tolerance, name=name, verbosity=verbosity, minimize_options=minimize_options,
-                         minimizer_init=None, minimizer_setter=None)
+        minimizer_options.update(method=minimizer)  # named method in ScipyOptimizerInterface
+        super().__init__(tolerance=tolerance, name=name, verbosity=verbosity, minimizer_options=minimizer_options)
         # kwargs.update(hess=SR1())
         # kwargs.update(hess=BFGS())
         # kwargs.update(options={'maxiter': 3000, 'xtol': 1e-12})
@@ -37,7 +36,7 @@ class ScipyMinimizer(BaseMinimizer):
         # TODO(Mayou36): inefficient for toys, rewrite ScipyOptimizerInterface?
         minimizer = ScipyOptimizerInterface(loss=loss, var_list=var_list,
                                             var_to_bounds=var_to_bounds,
-                                            **self.minimize_options)
+                                            **self.minimizer_options)
         # self._scipy_minimizer = minimizer
         result = minimizer.minimize(session=self.sess)
         result_values = result['x']
@@ -58,6 +57,5 @@ class ScipyMinimizer(BaseMinimizer):
         fitresult = FitResult(params=params, edm=edm, fmin=fmin, info=info,
                               converged=converged, status=status,
                               loss=loss, minimizer=self.copy())
-
 
         return fitresult

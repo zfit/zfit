@@ -24,24 +24,24 @@ from ..util.temporary import TemporarilySet
 
 
 class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
+    """Minimizer for loss functions.
+
+    Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
+    attribute (dict) `minimizer.minimizer_options`
+
+    """
     _DEFAULT_name = "BaseMinimizer"
 
-    def __init__(self, name, tolerance, verbosity, minimizer_init, minimize_options, minimizer_setter):
-        super().__init__()
+    def __init__(self, name, tolerance, verbosity, minimizer_options, **kwargs):
+        super().__init__(**kwargs)
         if name is None:
             name = self._DEFAULT_name
         self.name = name
         self.tolerance = tolerance
         self.verbosity = verbosity
-        if minimizer_init is None:
-            minimizer_init = {}
-        self.minimizer_init = minimizer_init
-        if minimize_options is None:
-            minimize_options = {}
-        self.minimize_options = minimize_options
-        if minimizer_setter is None:
-            minimizer_setter = {}
-        self.minimizer_setter = minimizer_setter
+        if minimizer_options is None:
+            minimizer_options = {}
+        self.minimizer_options = minimizer_options
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
         if isinstance(params, (str, tf.Variable)) or (not hasattr(params, "__len__") and params is not None):
