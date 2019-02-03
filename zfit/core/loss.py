@@ -1,9 +1,12 @@
 import abc
+from collections import OrderedDict
 
 import tensorflow as tf
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from zfit import ztf
+from zfit.util import ztyping
+from zfit.util.cache import Cachable
 from .baseobject import BaseObject, BaseDependentsMixin
 from .interfaces import ZfitLoss
 from ..models.functions import SimpleFunc
@@ -61,7 +64,7 @@ def _nll_constraints_tf(constraints):
     return constraints_neg_log_prob
 
 
-class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
+class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(name=type(self).__name__)
@@ -123,6 +126,13 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
 
         return pdf, data, fit_range
 
+    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+        if params is None:
+            params = list(self.get_dependents())
+        else:
+            params = convert_to_container(params)
+        return self._gradients(params=params)
+
     def add_constraints(self, constraints):
         return self._add_constraints(constraints)
 
@@ -182,11 +192,14 @@ class BaseLoss(BaseObject, BaseDependentsMixin, ZfitLoss):
         loss.add_constraints(constraints=other.constraints)
         return loss
 
+    def _gradients(self, params):
+        return tf.gradients(self.value(), params)
+
 
 class CachedLoss(BaseLoss):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, model, data, fit_range=None, constraints=None):
+        super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._cached_loss = None
 
     @abc.abstractmethod
@@ -204,6 +217,21 @@ class CachedLoss(BaseLoss):
     def _add_constraints(self, constraints):
         super()._add_constraints(constraints=constraints)
         self._cache_add_constraints(constraints=constraints)
+
+    def _gradients(self, params):
+        params_cache = self._cache.get('gradients', {})
+        params_todo = []
+        for param in params:
+            if param not in params_cache:
+                params_todo.append(param)
+        if params_todo:
+            gradients = {(p, grad) for p, grad in zip(params_todo, super()._gradients(params_todo))}
+            params_cache.update(gradients)
+
+        self._cache['gradients'] = params_cache
+
+        param_gradients = [params_cache[param] for param in params]
+        return param_gradients
 
 
 class UnbinnedNLL(CachedLoss):

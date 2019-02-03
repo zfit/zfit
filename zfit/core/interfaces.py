@@ -188,6 +188,10 @@ class ZfitParameter(ZfitNumeric):
 class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @abc.abstractmethod
+    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def value(self) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 

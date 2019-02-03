@@ -59,6 +59,11 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         return params_assign
 
     @staticmethod
+    def _extract_load_method(params):
+        params_load = [param.load for param in params]
+        return params_load
+
+    @staticmethod
     def _extract_parameter_names(params):
         names = [param.name for param in params]
         return names

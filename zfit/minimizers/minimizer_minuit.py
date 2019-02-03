@@ -5,12 +5,13 @@ from typing import List
 import iminuit
 import tensorflow as tf
 
-from zfit.minimizers.fitresult import FitResult
+from .fitresult import FitResult
+from ..util.cache import Cachable
 from ..core.parameter import Parameter
 from .baseminimizer import BaseMinimizer
 
 
-class MinuitMinimizer(BaseMinimizer):
+class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
     def __init__(self, name=None, tolerance=None):
@@ -20,10 +21,11 @@ class MinuitMinimizer(BaseMinimizer):
         self._minuit_minimizer = None
 
     def _minimize(self, loss, params: List[Parameter]):
-        loss = loss.value()
-        gradients = tf.gradients(loss, params)
+        # gradients = tf.gradients(loss.value(), params)
+        gradients = loss.gradients(params)
+        loss_val = loss.value()
         self._check_gradients(params=params, gradients=gradients)
-        assign_params = self._extract_assign_method(params=params)
+        load_params = self._extract_load_method(params=params)
 
         def func(values):
 
@@ -35,7 +37,7 @@ class MinuitMinimizer(BaseMinimizer):
                 param.load(value=value)
                 print(param.name, value)
             # loss_new = tf.identity(loss)
-            loss_new = loss
+            loss_new = loss_val
             loss_evaluated = self.sess.run(loss_new)
             print("Current loss:", loss_evaluated)
             # print("Current value:", value)
@@ -76,10 +78,11 @@ class MinuitMinimizer(BaseMinimizer):
                                        print_level=3,
                                        **error_limit_kwargs)
             minimizer.set_strategy(1)  # TODO(Mayou36): where to properly set strategy etc?
-        self._minuit_minimizer = minimizer
+            self._minuit_minimizer = minimizer
         result = minimizer.migrad()
         params_result = [p_dict for p_dict in result[1]]
-        self.sess.run([assign(p['value']) for assign, p in zip(assign_params, params_result)])
+        for load, p in zip(load_params, params_result):
+            load(p['value'])
 
         info = {'n_eval': result[0]['nfcn'],
                 # 'n_iter': result['nit'],
@@ -91,7 +94,7 @@ class MinuitMinimizer(BaseMinimizer):
         status = -999  # TODO: set?
         converged = result[0]['is_valid']
         params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
-        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss_val,
                            status=status, converged=converged,
                            minimizer=self.copy())
         return result
