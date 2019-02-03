@@ -3,6 +3,7 @@ import copy
 from typing import List
 
 import iminuit
+import texttable as tt
 import tensorflow as tf
 
 from .fitresult import FitResult
@@ -14,10 +15,9 @@ from .baseminimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, name=None, tolerance=None):
-        if name is None:
-            name = self._DEFAULT_name
-        super().__init__(name=name, tolerance=tolerance)
+    def __init__(self, name=None, tolerance=None, verbosity=5):
+
+        super().__init__(name=name, tolerance=tolerance, verbosity=verbosity)
         self._minuit_minimizer = None
 
     def _minimize(self, loss, params: List[Parameter]):
@@ -28,32 +28,36 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         load_params = self._extract_load_method(params=params)
 
         def func(values):
-
-            # feed_dict = {p: v for p, v in zip(placeholders, value)}
-            # self.sess.run(updated_params, feed_dict=feed_dict)
-            print("VALUES")
-            print("==========")
+            do_print = self.verbosity > 5
+            if do_print:
+                table = tt.Texttable()
+                table.header(['Parameter', 'Value'])
             for param, value in zip(params, values):
                 param.load(value=value)
-                print(param.name, value)
-            # loss_new = tf.identity(loss)
-            loss_new = loss_val
-            loss_evaluated = self.sess.run(loss_new)
-            print("Current loss:", loss_evaluated)
+                if do_print:
+                    table.add_row([param.name, value])
+            if do_print:
+                print(table.draw())
+
+            loss_evaluated = self.sess.run(loss_val)
+            # print("Current loss:", loss_evaluated)
             # print("Current value:", value)
             return loss_evaluated
 
         def grad_func(values):
-            # feed_dict = {p: v for p, v in zip(placeholders, value)}
-            # self.sess.run(updated_params, feed_dict=feed_dict)
-            print("GRADIENT")
-            print("==========")
+            do_print = self.verbosity > 5
+            if do_print:
+                table = tt.Texttable()
+                table.header(['Parameter', 'Gradient'])
             for param, value in zip(params, values):
                 param.load(value=value)
+                if do_print:
+                    table.add_row([param.name, value])
+            if do_print:
+                print(table.draw())
             # gradients1 = tf.identity(gradients)
             gradients1 = gradients
             gradients_values = self.sess.run(gradients1)
-            print("Gradients:", [(p.name, grad) for p, grad in zip(params, gradients_values)])
             return gradients_values
 
         # create Minuit compatible names

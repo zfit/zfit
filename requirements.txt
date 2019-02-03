@@ -8,3 +8,4 @@ iminuit
 typing
 pep487
 colorlog
+texttable

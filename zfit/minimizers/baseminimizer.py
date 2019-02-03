@@ -26,12 +26,13 @@ from ..util.temporary import TemporarilySet
 class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
     _DEFAULT_name = "BaseMinimizer"
 
-    def __init__(self, name=None, tolerance=None):
+    def __init__(self, name=None, tolerance=None, verbosity=5, **minimizer_kwargs):
         super().__init__()
         if name is None:
             name = self._DEFAULT_name
         self.name = name
         self.tolerance = tolerance
+        self.verbosity = verbosity
         self._sess = None
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
