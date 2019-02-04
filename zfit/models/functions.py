@@ -12,16 +12,16 @@ from ..util.container import convert_to_container
 
 class SimpleFunc(BaseFunc):
 
-    def __init__(self, func: Callable, obs: ztyping.ObsTypeInput, name: str = "Function", **parameters):
+    def __init__(self, func: Callable, obs: ztyping.ObsTypeInput, name: str = "Function", **params):
         """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
 
         Args:
             func (function):
             obs (Union[str, Tuple[str]]):
             name (str):
-            **parameters (): The parameters as keyword arguments. E.g. `mu=Parameter(...)`
+            **params (): The parameters as keyword arguments. E.g. `mu=Parameter(...)`
         """
-        super().__init__(name=name, obs=obs, parameters=parameters)
+        super().__init__(name=name, obs=obs, params=params)
         self._value_func = self._check_input_x_function(func)
 
     def _value(self, x):
@@ -33,10 +33,10 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
         funcs = convert_to_container(funcs)
         params = {}
         for func in funcs:
-            params.update(func.parameters)
+            params.update(func.params)
 
         self.funcs = funcs
-        super().__init__(name=name, models=self.funcs, parameters=params, **kwargs)
+        super().__init__(name=name, models=self.funcs, params=params, **kwargs)
 
     def _get_dependents(self):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependents()  # get the own parameter dependents

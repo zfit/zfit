@@ -439,21 +439,21 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 
     def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
         super().__init__(initial_value=initial_value, name=name, **kwargs)
-        self.parameters = params
+        self.params = params
 
     def _get_dependents(self):
-        dependents = self._extract_dependents(list(self.parameters.values()))
+        dependents = self._extract_dependents(list(self.params.values()))
         return dependents
 
     @property
-    def parameters(self):
-        return self._parameters
+    def params(self):
+        return self._params
 
-    @parameters.setter
-    def parameters(self, value):
+    @params.setter
+    def params(self, value):
         if not isinstance(value, dict):
             raise TypeError("Parameters has to be a dict")
-        self._parameters = value
+        self._params = value
 
     @property
     def independent(self):

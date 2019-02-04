@@ -17,9 +17,9 @@ from ..util import ztyping
 class BaseFunc(BaseModel, ZfitFunc):
 
     def __init__(self, obs=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
-                 parameters: typing.Any = None):
+                 params: typing.Any = None):
         """TODO(docs): explain subclassing"""
-        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters)
+        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.value(x=x)
@@ -28,12 +28,12 @@ class BaseFunc(BaseModel, ZfitFunc):
         return self.value(x=x)
 
     # TODO(Mayou36): how to deal with copy properly?
-    def copy(self, **override_parameters):
-        new_params = self.parameters
-        new_params.update(override_parameters)
+    def copy(self, **override_params):
+        new_params = self.params
+        new_params.update(override_params)
         return type(self)(new_params)
 
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
+    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
         # TODO(Mayou36): well, really needed... this gradient?
         raise NotImplementedError("What do you need? Use tf.gradient...")
 

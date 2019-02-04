@@ -147,8 +147,8 @@ class ZfitDependentsMixin(pep487.ABC):
 
 class ZfitNumeric(ZfitObject, ZfitDependentsMixin):
     @abc.abstractmethod
-    def get_parameters(self, only_floating: bool = False,
-                       names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
+    def get_params(self, only_floating: bool = False,
+                   names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
         raise NotImplementedError
 
     @property
@@ -159,7 +159,7 @@ class ZfitNumeric(ZfitObject, ZfitDependentsMixin):
 
     @property
     @abc.abstractmethod
-    def parameters(self) -> ztyping.ParametersType:
+    def params(self) -> ztyping.ParametersType:
         raise NotImplementedError
 
 
@@ -222,8 +222,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 class ZfitModel(ZfitNumeric, ZfitDimensional):
 
     @abc.abstractmethod
-    def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
-                                general_options: dict = None, analytic_options: dict = None):
+    def set_integration_options(self, *args, **kwargs):  # TODO: handling integration properly
         raise NotImplementedError
 
     @abc.abstractmethod
