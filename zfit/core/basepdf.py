@@ -498,6 +498,9 @@ class BasePDF(ZfitPDF, BaseModel):
             # HACK END
 
             parameters = dict(self.params)
+            lambda_ = parameters.pop('lambda', None)
+            if lambda_ is not None:
+                parameters['lambda_'] = lambda_
         from zfit.models.functor import BaseFunctor
         if isinstance(self, BaseFunctor):
             parameters = {}
