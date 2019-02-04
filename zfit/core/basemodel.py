@@ -904,6 +904,27 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
 
 class SimpleModelSubclassMixin(pep487.ABC):
+    """Subclass a model: implement the corresponding function and specify _PARAMS.
+
+    In order to create a custom model, two things have to be implemented: the class attribute
+    _PARAMS has to be a list containing the names of the parameters and the corresponding
+    function (_unnormalized_pdf/_value) has to be overridden.
+
+    Example:
+
+    .. code:: python
+
+        class MyPDF(zfit.pdf.ZPDF):
+            _PARAMS = ['mu', 'sigma']
+
+            def _unnormalized_pdf(self, x):
+                mu = self.parameters['mu']
+                # mu = self.params['mu']  # TODO
+                sigma = self.parameters['sigma']
+                # sigma = self.params['sigma']  # TODO
+                x = ztf.unstack_x(x)
+                return ztf.exp(-ztf.square((x - mu) / sigma))
+        """
 
     def __init__(self, *args, **kwargs):
         try:
