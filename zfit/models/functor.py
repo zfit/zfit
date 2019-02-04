@@ -13,7 +13,7 @@ import tensorflow as tf
 import numpy as np
 
 from zfit import ztf
-from ..core.interfaces import ZfitPDF, ZfitModel
+from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
 from ..core.limits import no_norm_range, supports
 from ..core.basepdf import BasePDF
 from ..core.parameter import Parameter, convert_to_parameter
@@ -30,6 +30,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
     def __init__(self, pdfs, name="BaseFunctor", **kwargs):
         self.pdfs = convert_to_container(pdfs)
         super().__init__(models=self.pdfs, name=name, **kwargs)
+        self._set_norm_range_from_daugthers()
         self._component_norm_range_holder = None
 
     def _get_component_norm_range(self):
@@ -43,18 +44,30 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
         return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
 
-    @property
-    def norm_range(self):
+    # @property
+    # def norm_range(self):
+    #     norm_range = super().norm_range
+    #     if norm_range.limits is None:
+    #         norm_range_candidat = self._infer_norm_range_from_daughters()
+    #         if norm_range_candidat is False:
+    #             raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
+    #                                          "has been explicitly set.")
+    #         elif norm_range_candidat is not None:  # TODO(Mayou36, #77): different obs?
+    #             norm_range = norm_range_candidat
+    #
+    #     return norm_range
+
+    def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
         if norm_range.limits is None:
             norm_range_candidat = self._infer_norm_range_from_daughters()
-            if norm_range_candidat is False:
-                raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
-                                             "has been explicitly set.")
-            elif norm_range_candidat is not None:  # TODO(Mayou36, #77): different obs?
+            # if norm_range_candidat is False:
+            #     raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
+            #                                  "has been explicitly set.")
+            if isinstance(norm_range_candidat, ZfitSpace):  # TODO(Mayou36, #77): different obs?
                 norm_range = norm_range_candidat
 
-        return norm_range
+        self._norm_range = norm_range
 
     def _infer_norm_range_from_daughters(self):
         norm_ranges = set(model.norm_range for model in self.models)
