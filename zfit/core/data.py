@@ -61,6 +61,8 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         return data_range
 
     def set_data_range(self, data_range):
+        warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
+                      "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
         data_range = self._check_input_data_range(data_range=data_range)
 
         def setter(value):
@@ -200,7 +202,21 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
         return value
 
-    def value(self, obs: Tuple[str] = None):
+    def value(self, obs: ztyping.ObsTypeInput = None):
+        return self._value_internal(obs=obs)
+
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None):
+        """Return the unstacked data: a list of tensors.
+
+        Args:
+            obs (): which observables to return
+
+        Returns:
+            List(tf.Tensor)
+        """
+        return ztf.unstack_x(self._value_internal(obs=obs))
+
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
             obs = convert_to_obs_str(obs)
         value = self._value(obs=obs)
@@ -341,6 +357,12 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         if self_space is not None:
             space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
         return space
+
+
+class SampleData(Data):
+
+    def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
+        super().__init__(dataset, obs, name, iterator_feed_dict, dtype)
 
 
 def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):

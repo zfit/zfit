@@ -11,8 +11,8 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import ztf
-from zfit.util.exception import DueToLazynessNotImplementedError
-from zfit.util.temporary import TemporarilySet
+from ..util.exception import DueToLazynessNotImplementedError
+from ..util.temporary import TemporarilySet
 from ..settings import ztypes
 from ..util import ztyping
 from ..core.limits import Space, ANY_LOWER, ANY_UPPER
@@ -67,7 +67,7 @@ class Exponential(BasePDF):
 
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
-        x = ztf.unstack_x(x)
+        x = x.unstack_x()
         return self._numerics_shifted_exp(lambda_ * x)  # Don't use exp! will overflow.
 
     def _numerics_shifted_exp(self, x):  # needed due to overflow in exp otherwise, prevents by shift
