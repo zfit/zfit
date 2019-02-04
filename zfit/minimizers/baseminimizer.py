@@ -37,6 +37,8 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         if name is None:
             name = self._DEFAULT_name
         self.name = name
+        if tolerance is None:
+            tolerance = 1e-5
         self.tolerance = tolerance
         self.verbosity = verbosity
         if minimizer_options is None:

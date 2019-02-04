@@ -6,6 +6,7 @@ import iminuit
 import texttable as tt
 import tensorflow as tf
 
+from zfit.core.interfaces import ZfitLoss
 from .fitresult import FitResult
 from ..util.cache import Cachable
 from ..core.parameter import Parameter
@@ -25,7 +26,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options)
         self._minuit_minimizer = None
 
-    def _minimize(self, loss, params: List[Parameter]):
+    def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
         gradients = loss.gradients(params)
         loss_val = loss.value()
         self._check_gradients(params=params, gradients=gradients)
@@ -70,7 +71,12 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         minimize_options['ncall'] = minimizer_options.pop('ncall')
 
         minimizer_init = {}
-        minimizer_init['errordef'] = minimizer_options.pop('errordef', None)
+        if 'errordef' in minimizer_options:
+            raise ValueError("errordef cannot be specified for Minuit as this is already defined in the Loss.")
+        loss_errordef = loss.errordef
+        if not isinstance(loss_errordef, float):
+            loss_errordef = 1.0  # default of minuit
+        minimizer_init['errordef'] = loss_errordef
         minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
 
         minimizer_setter = {}

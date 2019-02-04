@@ -83,7 +83,7 @@ def minimize_func(minimizer_class_and_kwargs):
     def loss_to_call():
         return loss_func_tf
 
-    loss_func = SimpleLoss(loss_to_call)
+    loss_func = SimpleLoss(loss_to_call, errordef=1)
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)

@@ -195,8 +195,9 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
     def value(self) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
+    @property
     @abc.abstractmethod
-    def errordef(self, sigma: Union[float, int]) -> Union[float, int]:
+    def errordef(self) -> Union[float, int]:
         raise NotImplementedError
 
     @property
