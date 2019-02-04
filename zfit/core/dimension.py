@@ -22,7 +22,6 @@ class BaseDimensional(ZfitDimensional):
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        print("init subclass run on class {}".format(cls))
         if not hasattr(cls, "_N_OBS"):
             cls._N_OBS = None
 
