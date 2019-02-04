@@ -218,7 +218,7 @@ class CrystalBall(BasePDF):
         sigma = self.params['sigma']
         alpha = self.params['alpha']
         n = self.params['n']
-        x = ztf.unstack_x(x.value())
+        x = x.unstack_x()
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
