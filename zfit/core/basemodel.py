@@ -23,7 +23,7 @@ from .limits import Space, convert_to_space, no_multiple_limits, no_norm_range, 
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, )
+                              ShapeIncompatibleError, LimitsNotSpecifiedError, )
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -744,8 +744,10 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
+
+        If `limits` is not specified, `space` is used (if the space contains limits).
 
         Args:
             n (int): The number of samples to be generated
@@ -755,6 +757,10 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         Returns:
             Tensor(n_obs, n_samples)
         """
+        if limits is None:
+            limits = self.space
+            if limits.limits in (None, False):
+                raise LimitsNotSpecifiedError("Limits for `sample` not given")
         limits = self._check_input_limits(limits=limits, caller_name=name)
         return self._single_hook_sample(n=n, limits=limits, name=name)
 
