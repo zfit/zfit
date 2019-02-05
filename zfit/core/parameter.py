@@ -13,6 +13,7 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from zfit.util.temporary import TemporarilySet
 from ..util import ztyping
 from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
@@ -405,6 +406,16 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
     def load(self, value: ztyping.NumericalScalarType):
         return super().load(value=value, session=self.sess)
 
+    def set_value(self, value: ztyping.NumericalScalarType):
+
+        def getter():
+            return self.sess.run(self)
+
+        def setter(value):
+            super().load(value=value, session=self.sess)
+
+        return TemporarilySet(value=value, setter=setter, getter=getter)
+
     # TODO: make it a random variable? return tensor that evaluates new all the time?
     def randomize(self, minval=None, maxval=None):
         """Update the value with a randomised value between minval and maxval.
@@ -427,7 +438,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # if shape == []:
         #     size = 1
         # value = self.sess.run(value)
-        eps = 1e-7
+        eps = 1e-8
         value = np.random.uniform(size=self.shape, low=minval + eps, high=maxval - eps)
         # value = np.random.uniform(size=size, low=minval, high=maxval)
         # if shape == []:

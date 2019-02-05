@@ -15,7 +15,7 @@ from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
 from zfit.core.integration import Integration
-from .data import Data
+from .data import Data, SampleData
 from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
@@ -745,7 +745,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: int, limits: ztyping.LimitsType = None, fixed_params=True, name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -760,8 +760,18 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         """
         if limits is None:
             limits = self.space
+        if fixed_params is True:
+            fixed_params = list(self.get_dependents(only_floating=False))
+        if fixed_params is False:
+            fixed_params = []
+        if not isinstance(fixed_params, (list, tuple)):
+            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
+
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        return self._single_hook_sample(n=n, limits=limits, name=name)
+        sample = self._single_hook_sample(n=n, limits=limits, name=name)
+        sample_data = SampleData.from_sample(sample=sample, obs=self.obs, fixed_params=fixed_params,
+                                             name=name)
+        return sample_data
 
     def _single_hook_sample(self, n, limits, name):
         return self._hook_sample(n=n, limits=limits, name=name)
