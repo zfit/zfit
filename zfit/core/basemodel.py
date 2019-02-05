@@ -763,9 +763,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             limits = self.space
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
-        if fixed_params is False:
+        elif fixed_params is False:
             fixed_params = []
-        if not isinstance(fixed_params, (list, tuple)):
+        elif not isinstance(fixed_params, (list, tuple)):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
 
         limits = self._check_input_limits(limits=limits, caller_name=name)
