@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from typing import List, Tuple, Union
+from contextlib import ExitStack
+from typing import List, Tuple, Union, Dict
 import warnings
 
 import tensorflow as tf
@@ -365,9 +366,46 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
 
 class SampleData(Data):
+    _cache_counting = 0
 
-    def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
-        super().__init__(dataset, obs, name, iterator_feed_dict, dtype)
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+                 fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
+                 obs: ztyping.ObsTypeInput = None, name: str = None,
+                 dtype: tf.DType = ztypes.float):
+
+        super().__init__(dataset, obs, name, iterator_feed_dict=None, dtype=dtype)
+        if fixed_params is None:
+            fixed_params = OrderedDict()
+        if isinstance(fixed_params, (list, tuple)):
+            fixed_params = OrderedDict((param, self.sess.run(param)) for param in fixed_params)
+
+        self.sess.run(sample_holder.initializer)
+        self.fixed_params = fixed_params
+        self.sample_holder = sample_holder
+
+    @classmethod
+    def _get_cache_counting(cls):
+        counting = cls._cache_counting
+        cls._cache_counting += 1
+        return counting
+
+    @classmethod
+    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, fixed_params=None, name: str = None):
+
+        if fixed_params is None:
+            fixed_params = []
+
+        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
+                                    name="sample_data_holder_{}".format(cls._get_cache_counting()),
+                                    use_resource=True)
+        dataset = LightDataset.from_tensor(sample_holder)
+
+        return SampleData(dataset, fixed_params=fixed_params, sample_holder=sample_holder, obs=obs, name=name)
+
+    def resample(self):
+        with ExitStack() as stack:
+            [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
+            zfit.run(self.sample_holder.initializer)
 
 
 def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
@@ -394,7 +432,7 @@ Data._OverloadAllOperators()
 class LightDataset:
 
     def __init__(self, tensor):
-        if not isinstance(tensor, (tf.Tensor)):
+        if not isinstance(tensor, tf.Tensor):
             tensor = ztf.convert_to_tensor(tensor)
         self.tensor = tensor
 
