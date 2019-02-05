@@ -73,7 +73,11 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
     @property
     def space(self) -> "ZfitSpace":
-        return self._space
+        space = self._space
+        if space.limits is None:
+            if self._data_range is not None:
+                space = self._data_range
+        return space
 
     @property
     def iterator(self):

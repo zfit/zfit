@@ -118,6 +118,15 @@ class BasePDF(ZfitPDF, BaseModel):
         cls._subclass_check_support(methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BasePDF_register_check_support)
 
+    @property
+    def space(self) -> "ZfitSpace":
+        if self._norm_range is not None:
+            space = self._norm_range
+        else:
+            space = super().space
+
+        return space
+
     def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True):
         if norm_range is None:
             norm_range = self.norm_range
