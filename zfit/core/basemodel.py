@@ -759,8 +759,6 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         """
         if limits is None:
             limits = self.space
-            if limits.limits in (None, False):
-                raise LimitsNotSpecifiedError("Limits for `sample` not given")
         limits = self._check_input_limits(limits=limits, caller_name=name)
         return self._single_hook_sample(n=n, limits=limits, name=name)
 
