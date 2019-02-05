@@ -168,10 +168,10 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, name=name, iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensors(cls, obs: ztyping.ObsTypeInput, tensors: tf.Tensor, name: str = None) -> "Data":
+    def from_tensors(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None) -> "Data":
         # dataset = tf.data.Dataset.from_tensors(tensors=tensors)
         # dataset = dataset.repeat()
-        dataset = LightDataset.from_tensor(tensor=tensors)
+        dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name)
 
     def initialize(self):

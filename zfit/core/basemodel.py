@@ -179,7 +179,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
             if x_shape != self.n_obs:
                 raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_obs))
-            x = Data.from_tensors(obs=self.obs, tensors=x)
+            x = Data.from_tensors(obs=self.obs, tensor=x)
             yield x
 
     def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
