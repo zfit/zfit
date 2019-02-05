@@ -39,8 +39,8 @@ class BaseObject(ZfitObject):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._repr = DotDict()  # TODO: make repr more sophisticated
-        cls._repr.zfit_type = cls
-        cls.copy.__doc__ = _COPY_DOCSTRING.format(zfit_type=cls.__name__)
+        # cls._repr.zfit_type = cls
+        # cls.copy.__doc__ = _COPY_DOCSTRING.format(zfit_type=cls.__name__)
 
     @property
     def name(self) -> str:

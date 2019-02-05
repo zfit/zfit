@@ -1,6 +1,7 @@
 from zfit import ztf
 from .util.container import convert_to_container
 
+__all__ = ["nll_gaussian"]
 
 def nll_gaussian(params, mu, sigma):
     params = convert_to_container(params, container=tuple)

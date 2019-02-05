@@ -171,12 +171,11 @@ def crystalball_integral(limits, params):
     return result
 
 
-class CrystalBallPDF(BasePDF):
+class CrystalBall(BasePDF):
     _N_OBS = 1
-
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
                  alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
-                 obs: ztyping.ObsTypeInput, name: str = "CrystalBallPDF", dtype: Type = ztypes.float):
+                 obs: ztyping.ObsTypeInput, name: str = "CrystalBall", dtype: Type = ztypes.float):
         """`Crystal Ball shaped PDF`__. A combination of a Gaussian with an powerlaw tail.
 
         The function is defined as follows:
@@ -225,7 +224,7 @@ class CrystalBallPDF(BasePDF):
 
 crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
-# CrystalBallPDF.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
+# CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
 if __name__ == '__main__':
     mu = ztf.constant(0)
@@ -240,7 +239,7 @@ if __name__ == '__main__':
 
     new_code = autograph.to_code(crystalball_integral)
     obs = zfit.Space(obs='obs1', limits=(-3, 1))
-    cb1 = CrystalBallPDF(mu, sigma, alpha, n, obs=obs)
+    cb1 = CrystalBall(mu, sigma, alpha, n, obs=obs)
     res = cb1.pdf(np.random.random(size=100))
     int1 = cb1.integrate(limits=(-0.01, 2), norm_range=obs)
     # tf.add_check_numerics_ops()

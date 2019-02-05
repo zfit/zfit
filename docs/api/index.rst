@@ -2,11 +2,19 @@ Welcome to zfit's documentation!
 ======================================
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
+   :maxdepth: 1
    :caption: Contents:
 
    readme
    installation
+   zfit.pdf
+   zfit.func
+   zfit.data
+   zfit.minimize
+   zfit.loss
+   zfit.constraint
+   zfit.ztf
    usage
    modules
    contributing
