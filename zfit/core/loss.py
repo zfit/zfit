@@ -91,6 +91,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         self._constraints = convert_to_container(constraints, list)
 
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
 
     def _input_check(self, pdf, data, fit_range):
@@ -264,8 +265,9 @@ class UnbinnedNLL(CachedLoss):
         if self._cached_loss is not None:
             self._cached_loss += ztf.reduce_sum(constraints)
 
-    def errordef(self, sigma: Union[float, int]) -> Union[float, int]:
-        return sigma
+    @property
+    def errordef(self) -> Union[float, int]:
+        return 0.5
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
@@ -285,14 +287,20 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func):
+    def __init__(self, func, errordef=None):
         self._simple_func = func
+        self._simple_errordef = errordef
 
         model = SimpleFunc(func=func, obs='obs1')
         super().__init__(model=[model], data=['dummy'], fit_range=[False])
 
-    def errordef(self, func):
-        raise NotImplementedError("For this simple loss function, no error calculation is possible.")
+    @property
+    def errordef(self):
+        errordef = self._simple_errordef
+        if errordef is None:
+            raise RuntimeError("For this simple loss function, no error calculation is possible.")
+        else:
+            return errordef
 
     def _loss_func(self, model, data, fit_range, constraints=None):
         loss = self._simple_func

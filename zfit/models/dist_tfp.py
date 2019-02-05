@@ -25,15 +25,15 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     """
 
-    def __init__(self, distribution, obs, parameters=None, name=None, **kwargs):
+    def __init__(self, distribution, obs, params=None, name=None, **kwargs):
         # Check if subclass of distribution?
         name = name or distribution.name
-        if parameters is None:  # auto extract from distribution
-            parameters = OrderedDict((k, v) for k, v in distribution.parameters.items() if isinstance(v, ZfitParameter))
+        if params is None:  # auto extract from distribution
+            params = OrderedDict((k, v) for k, v in distribution.parameters.items() if isinstance(v, ZfitParameter))
         else:
-            parameters = OrderedDict((k, convert_to_parameter(p)) for k, p in parameters.items())
+            params = OrderedDict((k, convert_to_parameter(p)) for k, p in params.items())
 
-        super().__init__(obs=obs, dtype=distribution.dtype, name=name, parameters=parameters, **kwargs)
+        super().__init__(obs=obs, dtype=distribution.dtype, name=name, params=params, **kwargs)
         # self.tf_distribution = self.parameters['distribution']
         self.distribution = distribution
 
@@ -60,27 +60,33 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
 
 class Gauss(WrapDistribution):
+    _N_OBS = 1
+
     def __init__(self, mu, sigma, obs, name="Gauss"):
-        mu, sigma = self._check_input_parameters(mu, sigma)
-        parameters = OrderedDict((('mu', mu), ('sigma', sigma)))
+        mu, sigma = self._check_input_params(mu, sigma)
+        params = OrderedDict((('mu', mu), ('sigma', sigma)))
         distribution = tfp.distributions.Normal(loc=mu, scale=sigma, name=name + "_tfp")
-        super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
+        super().__init__(distribution=distribution, obs=obs, params=params, name=name)
 
 
 class ExponentialTFP(WrapDistribution):
+    _N_OBS = 1
+
     def __init__(self, tau, obs, name="Exponential"):
-        (tau,) = self._check_input_parameters(tau)
-        parameters = OrderedDict((('tau', tau),))
+        (tau,) = self._check_input_params(tau)
+        params = OrderedDict((('tau', tau),))
         distribution = tfp.distributions.Exponential(rate=tau, name=name + "_tfp")
-        super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
+        super().__init__(distribution=distribution, obs=obs, params=params, name=name)
 
 
 class Uniform(WrapDistribution):
+    _N_OBS = 1
+
     def __init__(self, low, high, obs, name="Uniform"):
-        low, high = self._check_input_parameters(low, high)
-        parameters = OrderedDict((("low", low), ("high", high)))
+        low, high = self._check_input_params(low, high)
+        params = OrderedDict((("low", low), ("high", high)))
         distribution = tfp.distributions.Uniform(low=low, high=high, name=name + "_tfp")
-        super().__init__(distribution=distribution, obs=obs, parameters=parameters, name=name)
+        super().__init__(distribution=distribution, obs=obs, params=params, name=name)
 
 
 if __name__ == '__main__':

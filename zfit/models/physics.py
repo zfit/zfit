@@ -172,7 +172,7 @@ def crystalball_integral(limits, params):
 
 
 class CrystalBall(BasePDF):
-
+    _N_OBS = 1
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
                  alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput, name: str = "CrystalBall", dtype: Type = ztypes.float):
@@ -207,17 +207,17 @@ class CrystalBall(BasePDF):
 
         __CBShape_
         """
-        parameters = {'mu': mu,
-                      'sigma': sigma,
-                      'alpha': alpha,
-                      'n': n}
-        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters)
+        params = {'mu': mu,
+                  'sigma': sigma,
+                  'alpha': alpha,
+                  'n': n}
+        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _unnormalized_pdf(self, x):
-        mu = self.parameters['mu']
-        sigma = self.parameters['sigma']
-        alpha = self.parameters['alpha']
-        n = self.parameters['n']
+        mu = self.params['mu']
+        sigma = self.params['sigma']
+        alpha = self.params['alpha']
+        n = self.params['n']
         x = ztf.unstack_x(x.value())
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 

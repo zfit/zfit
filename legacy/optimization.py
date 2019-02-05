@@ -10,21 +10,6 @@ from zfit.settings import ztypes
 cacheable_tensors = []
 
 
-def accept_reject_sample(density, sample):
-    """Return toy MC sample graph using accept-reject method
-
-    Args:
-        density : function to calculate density
-        sample  : input uniformly distributed sample
-    """
-    x = sample[:, 0:-1]
-    if density:
-        r = sample[:, -1]
-        return tf.boolean_mask(x, density(x) > r)
-    else:
-        return x
-
-
 # -- modified to (optionally) introduce vetoed-window -- #
 def create_accept_reject_sample(sess, density, x, sample, veto_min, veto_max):
     """Create toy MC sample using accept-reject method for a density defined as a graph
@@ -49,30 +34,6 @@ def create_accept_reject_sample(sess, density, x, sample, veto_min, veto_max):
         return p[np.all([pdf_data > r, np.any([q2 < veto_min, q2 > veto_max], axis=0)], axis=0)]
 
 
-def maximum_estimator(density, phsp, size):
-    """
-      Return the graph for the estimator of the maximum of density function
-        density : density function
-        phsp : phase space object (should have uniform_sample method implemented)
-        size : size of the random sample for maximum estimation
-    """
-    sample = phsp.uniform_sample(size)
-    return tf.reduce_max(density(sample))
-
-
-def estimate_maximum(sess, pdf, x, norm_sample):
-    """
-      Estimate the maximum of density function defined as a graph
-        sess : TF session
-        model  : density graph
-        x    : phase space placeholder used for the definition of the density function
-        size : size of the random sample for maximum estimation
-      Returns the estimated maximum of the density
-    """
-    pdf_data = sess.run(pdf, {x: norm_sample})
-    return np.nanmax(pdf_data)
-
-
 def integral(pdf, weight_func=None):
     """Return the graph for the (weighted) integral of the PDF.
         model : PDF
@@ -81,19 +42,6 @@ def integral(pdf, weight_func=None):
     if weight_func:
         pdf *= weight_func
     return tf.reduce_mean(pdf)
-
-
-def unbinned_NLL(pdf, integral, weight_func=None):
-    """Return unbinned negative log likelihood graph for a PDF
-       model      : PDF
-       integral : precalculated integral
-       weight_func : weight function
-
-    """
-    normed_log = tf.log(pdf / integral)
-    if weight_func:
-        normed_log *= weight_func
-    return -tf.reduce_sum(normed_log)
 
 
 def extended_unbinned_NLL(pdfs, integrals, n_obs, nsignals,
@@ -182,16 +130,6 @@ def extended_NLL_poiss(nsignals, n_obs, param_gauss, param_gauss_mean, param_gau
     return nll
 
 
-def switches(size):
-    """
-      Create the list of switches (flags that control the components of the PDF for use with e.g.
-      fit fractions)
-        size : number of components of the PDF
-    """
-    p = [tf.placeholder_with_default(ztf.constant(1.), shape=()) for _ in range(size)]
-    return p
-
-
 # -- modified to (optionally) introduce vetoed-window -- #
 def run_toy_MC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, seed=None,
                veto_min=0.0, veto_max=0.0):
@@ -249,39 +187,6 @@ def run_toy_MC(sess, pdf, x, phsp, size, majorant, chunk=200000, switches=None, 
     else:
         return data
 
-
-def load_data(sess, phsp, name, data):
-    """
-      Load data to TF machinery and return a TF variable corresponding to it
-      (to be further used for model fitting).
-        sess   : TF session
-        phsp   : phase space object for data
-        name   : name for the variable and placeholder
-        data   : 2D numpy array with data to be loaded
-        return value : TF variable containing data
-    """
-    placeholder = phsp.placeholder(name)
-    shape = data.shape
-    variable = tf.get_variable(name, shape=shape, dtype=ztypes.float,
-                               initializer=tf.constant_initializer(0.0), trainable=False)
-    initializer = variable.assign(placeholder)
-    sess.run(initializer, feed_dict={placeholder: data})
-    return variable
-
-
-def initial_values():
-    """
-      Return initial value of free parameters in the same structure
-      as for the fit result.
-    """
-    tfpars = tf.trainable_variables()  # Create TF variables
-    float_tfpars = [p for p in tfpars if p.floating()]  # List of floating parameters
-    results = {}
-    for n, p in enumerate(float_tfpars):
-        results[p.par_name] = (p.init_value, p.step_size)
-    results["loglh"] = 0.
-    results["status"] = 0
-    return results
 
 
 def write_fit_results(results, BR_names, BR_fit, BR_gen, filename):

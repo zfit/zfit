@@ -13,6 +13,7 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
+from zfit.core.integration import Integration
 from .data import Data
 from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
@@ -74,23 +75,25 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     _inverse_analytic_integral = None
     _additional_repr = None
 
-    def __init__(self, obs: ztyping.ObsTypeInput, parameters: Union[Dict[str, ZfitParameter], None] = None,
+    def __init__(self, obs: ztyping.ObsTypeInput, params: Union[Dict[str, ZfitParameter], None] = None,
                  name: str = "BaseModel", dtype=ztypes.float,
-                  **kwargs):
+                 **kwargs):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
             dtype (Type): the dtype of the model
             name (str): the name of the model
-            parameters (): the parameters the distribution depends on
+            params (): the parameters the distribution depends on
         """
-        super().__init__(name=name, dtype=dtype, parameters=parameters, **kwargs)
+        super().__init__(name=name, dtype=dtype, params=params, **kwargs)
         self._check_set_space(obs)
 
         self._integration = zcontainer.DotDict()
-        self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
-        self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
+        # self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
+        # self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
+        self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
+                                       draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -149,6 +152,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def _check_set_space(self, obs):
         if not isinstance(obs, Space):
             obs = Space(obs=obs)
+        self._check_n_obs(space=obs)
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
@@ -185,20 +189,20 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
                 x = tf.expand_dims(x, -1)
         return x
 
-    def set_integration_options(self, mc_options: dict = None, numeric_options: dict = None,
-                                general_options: dict = None, analytic_options: dict = None):
-        mc_options = {} if mc_options is None else mc_options
-        numeric_options = {} if numeric_options is None else numeric_options
-        general_options = {} if general_options is None else general_options
-        analytic_options = {} if analytic_options is None else analytic_options
-        if analytic_options:
-            raise NotImplementedError("analytic_options cannot be updated currently.")
-        self._integration.update(mc_options)
-        self._integration.update(numeric_options)
-        self._integration.update(general_options)
+    def set_integration_options(self, draws_per_dim=None, mc_sampler=None):
+        # mc_options = {} if mc_options is None else mc_options
+        # numeric_options = {} if numeric_options is None else numeric_options
+        # general_options = {} if general_options is None else general_options
+        # analytic_options = {} if analytic_options is None else analytic_options
+        # if analytic_options:
+        #     raise NotImplementedError("analytic_options cannot be updated currently.")
+        if draws_per_dim is not None:
+            self.integration.draws_per_dim = draws_per_dim
+        if mc_sampler is not None:
+            self.integration.mc_sampler = mc_sampler
 
     @abc.abstractmethod
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise NotImplementedError
 
     def _check_input_norm_range(self, norm_range, caller_name="",
@@ -430,7 +434,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     def _fallback_analytic_integrate(self, limits, norm_range):
         return self._analytic_integral.integrate(x=None, limits=limits, axes=limits.axes,
-                                                 norm_range=norm_range, params=self.parameters)
+                                                 norm_range=norm_range, params=self.params)
 
     @_BaseModel_register_check_support(True)
     def _numeric_integrate(self, limits, norm_range):
@@ -652,7 +656,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     def _fallback_partial_analytic_integrate(self, x, limits, norm_range):
         return self._analytic_integral.integrate(x=x, limits=limits, axes=limits.axes,
-                                                 norm_range=norm_range, params=self.parameters)
+                                                 norm_range=norm_range, params=self.params)
 
     @_BaseModel_register_check_support(True)
     def _partial_numeric_integrate(self, x, limits, norm_range):
@@ -723,9 +727,9 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x, norm_range=norm_range,
                                    # auto from self
                                    dtype=self.dtype,
-                                   mc_sampler=self._integration.mc_sampler,
+                                   mc_sampler=self.integration.mc_sampler,
                                    mc_options={
-                                       "draws_per_dim": self._integration.draws_per_dim},
+                                       "draws_per_dim": self.integration.draws_per_dim},
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 
@@ -734,7 +738,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         if not self._inverse_analytic_integral:
             raise NotImplementedError
         else:
-            return self._inverse_analytic_integral[0](x=x, params=self.parameters)
+            return self._inverse_analytic_integral[0](x=x, params=self.params)
 
     @_BaseModel_register_check_support(True)
     def _sample(self, n, limits):
@@ -862,7 +866,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         return ("<zfit.{type_name} "
                 " parameters=[{params}]"
                 " dtype={dtype}>".format(type_name=type(self).__name__,
-                                         params=", ".join(sorted(str(p.name) for p in self.parameters.values())),
+                                         params=", ".join(sorted(str(p.name) for p in self.params.values())),
                                          dtype=self.dtype.name) + str(sum(" {k}={v}".format(k=str(k), v=str(v))
                                                                           for k, v in
                                                                           self._get_additional_repr(
@@ -875,7 +879,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         return func
 
     def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_parameters())
+        return self._extract_dependents(self.get_params())
 
     def __add__(self, other):
         from . import operations

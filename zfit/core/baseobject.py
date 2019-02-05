@@ -37,6 +37,7 @@ class BaseObject(ZfitObject):
         self._name = name  # TODO: uniquify name?
 
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         cls._repr = DotDict()  # TODO: make repr more sophisticated
         # cls._repr.zfit_type = cls
         # cls.copy.__doc__ = _COPY_DOCSTRING.format(zfit_type=cls.__name__)
@@ -109,17 +110,17 @@ class BaseDependentsMixin(ZfitDependentsMixin):
 
 class BaseNumeric(BaseObject, BaseDependentsMixin, ZfitNumeric):
 
-    def __init__(self, name, dtype, parameters, **kwargs):
+    def __init__(self, name, dtype, params, **kwargs):
         super().__init__(name=name, **kwargs)
         from zfit.core.parameter import convert_to_parameter
 
         self._dtype = dtype
-        parameters = parameters or OrderedDict()
-        parameters = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in parameters.items()))
+        params = params or OrderedDict()
+        params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
-        self._parameters = parameters
-        self._repr.parameters = self.parameters
+        self._params = params
+        self._repr.params = self.params
 
     @property
     def dtype(self) -> tf.DType:
@@ -127,10 +128,10 @@ class BaseNumeric(BaseObject, BaseDependentsMixin, ZfitNumeric):
         return self._dtype
 
     @property
-    def parameters(self) -> ztyping.ParametersType:
-        return self._parameters
+    def params(self) -> ztyping.ParametersType:
+        return self._params
 
-    def get_parameters(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
+    def get_params(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
         """Return the parameters. If it is empty, automatically return all floating variables.
 
         Args:
@@ -143,12 +144,12 @@ class BaseNumeric(BaseObject, BaseDependentsMixin, ZfitNumeric):
         if isinstance(names, str):
             names = (names,)
         if names is not None:
-            missing_names = set(names).difference(self.parameters.keys())
+            missing_names = set(names).difference(self.params.keys())
             if missing_names:
                 raise KeyError("The following names are not valid parameter names")
-            params = [self.parameters[name] for name in names]
+            params = [self.params[name] for name in names]
         else:
-            params = list(self.parameters.values())
+            params = list(self.params.values())
 
         if only_floating:
             params = self._filter_floating_params(params=params)

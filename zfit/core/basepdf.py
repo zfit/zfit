@@ -39,7 +39,7 @@ We can create an extended PDF, which will result in anything using a `norm_range
 probability but the number probability (the function will be normalized to `yield` instead of 1 inside
 the `norm_range`)
 >>> yield1 = Parameter("yield1", 100, 0, 1000)
->>> gauss._set_yield_inplace(yield1)
+>>> gauss_extended = gauss.create_extended(yield1)
 >>> gauss.is_extended
 True
 
@@ -53,18 +53,18 @@ import abc
 from collections import OrderedDict
 import contextlib
 from contextlib import suppress
-from typing import Union, Iterable, Any, Type
+from typing import Union, Iterable, Any, Type, Dict
 import warnings
 
 import tensorflow as tf
 
 from zfit import ztf
-from .interfaces import ZfitPDF
+from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
-                              NormRangeNotSpecifiedError, )
+                              NormRangeNotSpecifiedError, ShapeIncompatibleError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
@@ -103,9 +103,10 @@ def _BasePDF_register_check_support(has_support: bool):
 
 class BasePDF(ZfitPDF, BaseModel):
 
-    def __init__(self, obs: ztyping.ObsTypeInput, dtype: Type = ztypes.float, name: str = "BasePDF",
-                 parameters: Any = None, **kwargs):
-        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters, **kwargs)
+    def __init__(self, obs: ztyping.ObsTypeInput, params: Dict[str, ZfitParameter] = None, dtype: Type = ztypes.float,
+                 name: str = "BasePDF",
+                 **kwargs):
+        super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
         self._yield = None
         self._temp_yield = None
@@ -123,8 +124,8 @@ class BasePDF(ZfitPDF, BaseModel):
         return super()._check_input_norm_range(norm_range=norm_range, caller_name=caller_name,
                                                none_is_error=none_is_error)
 
-    def _check_input_parameters(self, *parameters):
-        return tuple(convert_to_parameter(p) for p in parameters)
+    def _check_input_params(self, *params):
+        return tuple(convert_to_parameter(p) for p in params)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.unnormalized_pdf(x)
@@ -198,15 +199,15 @@ class BasePDF(ZfitPDF, BaseModel):
     @property
     def _yield(self):
         """For internal use, the yield or None"""
-        return self.parameters.get('yield')
+        return self.params.get('yield')
 
     @_yield.setter
     def _yield(self, value):
         if value is None:
             # unset
-            self._parameters.pop('yield', None)  # safely remove if still there
+            self._params.pop('yield', None)  # safely remove if still there
         else:
-            self._parameters['yield'] = value
+            self._params['yield'] = value
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
@@ -271,7 +272,13 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
-            return self._unnormalized_pdf(x)
+            try:
+                return self._unnormalized_pdf(x)
+            except ValueError as error:
+                raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
+                                             "does not coincide with the `n_obs` from the `space`/`obs`"
+                                             "it received on initialization."
+                                             "Original Error: {}".format(error))
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -362,13 +369,13 @@ class BasePDF(ZfitPDF, BaseModel):
     def _fallback_log_pdf(self, x, norm_range):
         return tf.log(self._hook_pdf(x=x, norm_range=norm_range))
 
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
                       "respect to the loss function.")
         if params is not None:
             params = convert_to_container(params)
         if params is None or isinstance(params[0], str):
-            params = self.get_parameters(only_floating=False, names=params)
+            params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
         # if probs.shape.as_list()[-1] > 1:
@@ -442,6 +449,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return new_pdf
 
     def _set_yield(self, value: Union[Parameter, None]):
+        value = convert_to_parameter(value)
         self._yield = value
 
     @property
@@ -490,7 +498,10 @@ class BasePDF(ZfitPDF, BaseModel):
         else:
             # HACK END
 
-            parameters = dict(self.parameters)
+            parameters = dict(self.params)
+            lambda_ = parameters.pop('lambda', None)
+            if lambda_ is not None:
+                parameters['lambda_'] = lambda_
         from zfit.models.functor import BaseFunctor
         if isinstance(self, BaseFunctor):
             parameters = {}

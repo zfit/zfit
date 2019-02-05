@@ -7,6 +7,7 @@ import typing
 
 import tensorflow as tf
 
+from zfit.util.exception import ShapeIncompatibleError
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
 from ..settings import ztypes
@@ -16,9 +17,9 @@ from ..util import ztyping
 class BaseFunc(BaseModel, ZfitFunc):
 
     def __init__(self, obs=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
-                 parameters: typing.Any = None):
+                 params: typing.Any = None):
         """TODO(docs): explain subclassing"""
-        super().__init__(obs=obs, dtype=dtype, name=name, parameters=parameters)
+        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.value(x=x)
@@ -27,12 +28,12 @@ class BaseFunc(BaseModel, ZfitFunc):
         return self.value(x=x)
 
     # TODO(Mayou36): how to deal with copy properly?
-    def copy(self, **override_parameters):
-        new_params = self.parameters
-        new_params.update(override_parameters)
+    def copy(self, **override_params):
+        new_params = self.params
+        new_params.update(override_params)
         return type(self)(new_params)
 
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
+    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
         # TODO(Mayou36): well, really needed... this gradient?
         raise NotImplementedError("What do you need? Use tf.gradient...")
 
@@ -61,7 +62,13 @@ class BaseFunc(BaseModel, ZfitFunc):
 
     def _call_value(self, x, name):
         with self._name_scope(name, values=[x]):
-            return self._value(x=x)
+            try:
+                return self._value(x=x)
+            except ValueError as error:
+                raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
+                                             "does not coincide with the `n_obs` from the `space`/`obs`"
+                                             "it received on initialization."
+                                             "Original Error: {}".format(error))
 
     def as_pdf(self):
         from zfit.core.operations import convert_func_to_pdf

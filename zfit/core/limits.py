@@ -82,6 +82,7 @@ class Any(pep487.PEP487Object):  # pep487 for _init_subclass backport
         return instance
 
     def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         cls._singleton_instance = None  # each subclass is a singleton of "itself"
 
     def __repr__(self):
