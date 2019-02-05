@@ -409,12 +409,13 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         return super().load(value=value, session=self.sess)
 
     def set_value(self, value: ztyping.NumericalScalarType):
+        super_load = super().load
 
         def getter():
             return self.sess.run(self)
 
         def setter(value):
-            super().load(value=value, session=self.sess)
+            super_load(value=value, session=self.sess)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 

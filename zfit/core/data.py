@@ -404,7 +404,7 @@ class SampleData(Data):
 
     def resample(self):
         with ExitStack() as stack:
-            [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
+            _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
             zfit.run(self.sample_holder.initializer)
 
 

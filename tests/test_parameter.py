@@ -108,3 +108,20 @@ def test_equal_naming():
     param_unique_name = zfit.Parameter('fafdsfds', 5.)
     with pytest.raises(NameAlreadyTakenError):
         param_unique_name2 = zfit.Parameter('fafdsfds', 3.)
+
+
+def test_set_value():
+    value1 = 1.
+    value2 = 2.
+    value3 = 3.
+    value4 = 4.
+    param1 = zfit.Parameter(name="test_set_value15", init_value=value1)
+    assert zfit.run(param1) == value1
+    with param1.set_value(value2):
+        assert zfit.run(param1) == value2
+        param1.set_value(value3)
+        assert zfit.run(param1) == value3
+        with param1.set_value(value4):
+            assert zfit.run(param1) == value4
+        assert zfit.run(param1) == value3
+    assert zfit.run(param1) == value1
