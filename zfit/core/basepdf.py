@@ -291,7 +291,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
-    def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, name: str = "model") -> ztyping.XType:
+    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsType = None, name: str = "model") -> ztyping.XType:
         """Probability density/mass function, normalized over `norm_range`.
 
         Args:

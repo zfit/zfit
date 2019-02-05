@@ -30,7 +30,7 @@ sigma_true_param = zfit.Parameter('mu_true123', mu_true)
 class TestGaussian(zfit.core.basepdf.BasePDF):
 
     def _unnormalized_pdf(self, x, norm_range=False):
-        x = ztf.unstack_x(x)
+        x = x.unstack_x()
 
         return tf.exp((-(x - sigma_true_param) ** 2) / (
             2 * sigma_true_param ** 2))  # non-normalized gaussian
@@ -105,16 +105,18 @@ def test_normalization():
             assert result_extended == pytest.approx(test_yield, rel=0.05)
 
 
-def test_sampling():
+@pytest.mark.parametrize('gauss', [gauss_params1, test_gauss1])
+def test_sampling_simple(gauss):
+
     n_draws = 1000
-    sample_tensor = gauss_params1.sample(n=n_draws, limits=(low, high))
+    sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
     sampled_from_gauss1 = zfit.run(sample_tensor)
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
-    sampled_gauss1_full = zfit.run(gauss_params1.sample(n=10000,
-                                                        limits=(mu_true - abs(sigma_true) * 5,
+    sampled_gauss1_full = zfit.run(gauss.sample(n=10000,
+                                                limits=(mu_true - abs(sigma_true) * 5,
                                                                 mu_true + abs(sigma_true) * 5)))
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
