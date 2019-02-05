@@ -292,7 +292,7 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def sample(self, n: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         Args:

@@ -744,7 +744,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n: int, limits: ztyping.LimitsType, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         Args:
@@ -755,6 +755,8 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         Returns:
             Tensor(n_obs, n_samples)
         """
+        if limits is None:
+            limits = self._space
         limits = self._check_input_limits(limits=limits, caller_name=name)
         return self._single_hook_sample(n=n, limits=limits, name=name)
 
