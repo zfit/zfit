@@ -918,8 +918,8 @@ class SimpleModelSubclassMixin(pep487.ABC):
             _PARAMS = ['mu', 'sigma']
 
             def _unnormalized_pdf(self, x):
-                # mu = self.params['mu']
-                # sigma = self.params['sigma']
+                mu = self.params['mu']
+                sigma = self.params['sigma']
                 x = ztf.unstack_x(x)
                 return ztf.exp(-ztf.square((x - mu) / sigma))
         """
