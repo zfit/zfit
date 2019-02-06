@@ -456,7 +456,8 @@ class BasePDF(ZfitPDF, BaseModel):
         return new_pdf
 
     def _set_yield(self, value: Union[Parameter, None]):
-        value = convert_to_parameter(value)
+        if value is not None:
+            value = convert_to_parameter(value)
         self._yield = value
 
     @property

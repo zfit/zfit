@@ -18,17 +18,12 @@ from ..util.exception import NormRangeNotImplementedError
 
 
 class SimplePDF(BasePDF):
-    def __init__(self, func, name="SimplePDF", n_dims=1, **params):
-        super().__init__(name=name, **params)
+    def __init__(self, obs, func, name="SimplePDF", **params):
+        super().__init__(name=name, params=params, obs=obs)
         self._unnormalized_prob_func = self._check_input_x_function(func)
-        self._user_n_dims = n_dims
 
     def _unnormalized_pdf(self, x):
         return self._unnormalized_prob_func(x)
-
-    @property
-    def _n_dims(self):
-        return self._user_n_dims
 
 
 def raise_error_if_norm_range(func):
