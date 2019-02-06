@@ -9,6 +9,7 @@ import typing
 from typing import Dict, Type, Union
 import warnings
 
+import pep487
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
@@ -23,7 +24,7 @@ from .limits import Space, convert_to_space, no_multiple_limits, no_norm_range, 
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, LimitsNotSpecifiedError, )
+                              ShapeIncompatibleError, SubclassingError, LimitsNotSpecifiedError, )
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -900,3 +901,47 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def __rmul__(self, other):
         from . import operations
         return operations.multiply(other, self)
+
+
+class SimpleModelSubclassMixin(pep487.ABC):
+    """Subclass a model: implement the corresponding function and specify _PARAMS.
+
+    In order to create a custom model, two things have to be implemented: the class attribute
+    _PARAMS has to be a list containing the names of the parameters and the corresponding
+    function (_unnormalized_pdf/_value) has to be overridden.
+
+    Example:
+
+    .. code:: python
+
+        class MyPDF(zfit.pdf.ZPDF):
+            _PARAMS = ['mu', 'sigma']
+
+            def _unnormalized_pdf(self, x):
+                mu = self.params['mu']
+                sigma = self.params['sigma']
+                x = ztf.unstack_x(x)
+                return ztf.exp(-ztf.square((x - mu) / sigma))
+        """
+
+    def __init__(self, *args, **kwargs):
+        try:
+            params = OrderedDict((name, kwargs.pop(name)) for name in self._PARAMS)
+        except KeyError:
+            raise ValueError("The following parameters are not given (as keyword arguments): "
+                             "".format([k for k in self._PARAMS if k not in kwargs]))
+        super().__init__(params=params, *args, **kwargs)
+        # super().__init__(params=params, *args, **kwargs)  # use if upper fails
+
+    @classmethod
+    def _check_simple_model_subclass(cls):
+        try:
+            params = cls._PARAMS
+        except AttributeError:
+            raise SubclassingError("Need to define `_PARAMS` in the definition of the subclass."
+                                   "Example:"
+                                   "class MyModel(ZPDF):"
+                                   "    _PARAMS = ['mu', 'sigma']")
+        not_str = [param for param in params if not isinstance(param, str)]
+        if not_str:
+            raise TypeError("The following parameters are not strings in `_PARAMS`: ".format(not_str))
