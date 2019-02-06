@@ -27,7 +27,7 @@ class RunManager:
 
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
-        self.chunking.max_n_points = 100000
+        self.chunking.max_n_points = 1000000
 
     def auto_initialize(self, variable: tf.Variable):
         self(variable.initializer)

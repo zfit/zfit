@@ -52,7 +52,10 @@ def nth_pow(x, n, name=None):
 def unstack_x(value: Any, num: Any = None, axis: int = -1, name: str = "unstack_x"):
     if isinstance(value, list):
         return value
-    unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
+    try:
+        unstacked_x = value.unstack_x()  # TODO: which name?
+    except AttributeError:
+        unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
     if len(unstacked_x) == 1:
         unstacked_x = unstacked_x[0]
     return unstacked_x
@@ -94,6 +97,5 @@ def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values
     safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
     result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
     return result
-
 
 # reduce functions

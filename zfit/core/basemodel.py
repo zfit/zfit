@@ -19,7 +19,7 @@ from .data import Data
 from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
-from .interfaces import ZfitModel, ZfitParameter
+from .interfaces import ZfitModel, ZfitParameter, ZfitData
 from .limits import Space, convert_to_space, no_multiple_limits, no_norm_range, supports
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
@@ -69,7 +69,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    _DEFAULTS_integration.draws_per_dim = 4000
+    _DEFAULTS_integration.draws_per_dim = 20000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None
@@ -158,7 +158,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     @contextlib.contextmanager
     def _convert_sort_x(self, x: ztyping.XTypeInput) -> Data:
-        if isinstance(x, Data):
+        if isinstance(x, ZfitData):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs):
                     yield x

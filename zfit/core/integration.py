@@ -7,10 +7,14 @@ import numpy as np
 
 import tensorflow as tf
 import tensorflow_probability as tfp
-from typing import Callable, Optional, Union, Type, Tuple
+from typing import Callable, Optional, Union, Type, Tuple, List
 
 import zfit
 from zfit import ztf
+from zfit.core.dimension import BaseDimensional
+from zfit.core.interfaces import ZfitData, ZfitSpace
+from zfit.util.container import convert_to_container
+from zfit.util.temporary import TemporarilySet
 from ..util import ztyping
 from ..util.exception import DueToLazynessNotImplementedError
 from .limits import convert_to_space, Space, supports
@@ -41,7 +45,7 @@ def numeric_integrate():
 
 
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
-                 x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 10000,
+                 x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
                  method: str = None,
                  dtype: Type = ztypes.float,
                  mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
@@ -84,24 +88,31 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     lower = ztf.convert_to_tensor(lower, dtype=dtype)  # TODO(Mayou36): why not lower[0]?
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
-    n_samples = draws_per_dim ** n_axes
+    # n_samples = int(draws_per_dim ** np.sqrt(n_axes))  # OLD?
+    n_samples = draws_per_dim
     if partial:
-        n_vals = x.get_shape()[0].value  # TODO(Mayou36): correctly get n_entries
-        n_samples *= n_vals  # each entry wants it's mc
+        n_vals = x.get_shape()[0].value  # TODO(Mayou36): correctly get n_entries OR remove? OLD?
+        # n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
 
-    if zfit.run.chunksize < n_samples:
+    chunked_normalization = zfit.run.chunksize < n_samples
+    # chunked_normalization = True
+    if chunked_normalization:
+        if partial:
+            raise DueToLazynessNotImplementedError("This feature is not yet implemented: needs new Datasets")
         n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
         chunksize = int(np.ceil(n_samples / n_chunks))
-        avg = chunked_average(func=func, x=x, num_batches=n_chunks, batch_size=chunksize, space=limits,
-                              mc_sampler=mc_sampler)
+        print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
+        avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
+                                    num_batches=n_chunks, batch_size=chunksize, space=limits)
 
     else:
         # TODO: deal with n_obs properly?
 
         samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
-        samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
+        # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
+        samples_normed = tf.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
         # samples = tf.transpose(samples, perm=[2, 0, 1])
 
@@ -130,6 +141,84 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
     integral = avg * limits.area()
     return ztf.to_real(integral, dtype=dtype)
+
+
+def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
+    upper, lower = space.limits
+    lower = ztf.convert_to_tensor(lower, dtype=dtype)  # TODO(Mayou36): why not lower[0]?
+    upper = ztf.convert_to_tensor(upper, dtype=dtype)
+
+    def body(batch_num, mean):
+        start_idx = batch_num * batch_size
+        end_idx = start_idx + batch_size
+        indices = tf.range(start_idx, end_idx, dtype=tf.int32)
+        samples_normed = tfp.mcmc.sample_halton_sequence(n_axes,
+                                                         # num_results=batch_size,
+                                                         sequence_indices=indices,
+                                                         dtype=dtype,
+                                                         randomized=False)
+        # halton_sample = tf.random_uniform(shape=(n_axes, batch_size), dtype=dtype)
+        samples_normed.set_shape((batch_size, n_axes))
+        samples_normed = tf.expand_dims(samples_normed, axis=0)
+        samples = samples_normed * (upper - lower) + lower
+        func_vals = func(samples)
+        if shape_after == ():
+            reduce_axis = None
+        else:
+            reduce_axis = 1
+            if len(func_vals.shape) == 1:
+                func_vals = tf.expand_dims(func_vals, -1)
+        batch_mean = tf.reduce_mean(func_vals, axis=reduce_axis)  # if there are gradients
+        # batch_mean = tf.reduce_mean(sample)
+        # batch_mean = tf.guarantee_const(batch_mean)
+        # with tf.control_dependencies([batch_mean]):
+        err_weight = 1 / tf.to_double(batch_num + 1)
+        # err_weight /= err_weight + 1
+        # print_op = tf.print(batch_mean)
+        print_op = tf.print(batch_num + 1)
+        with tf.control_dependencies([print_op]):
+            return batch_num + 1, mean + err_weight * (batch_mean - mean)
+
+    cond = lambda batch_num, _: batch_num < num_batches
+
+    initial_mean = tf.constant(0, shape=shape_after, dtype=dtype)
+    initial_body_args = (0, initial_mean)
+    _, final_mean = tf.while_loop(cond, body, initial_body_args, parallel_iterations=1,
+                                  swap_memory=False, back_prop=True)
+    # def normalization_grad(x):
+    return final_mean
+
+
+def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
+    x_is_none = x is None
+
+    @tf.custom_gradient
+    def normalization_func(x):
+        if x_is_none:
+            x = None
+        value = normalization_nograd(func=func, n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
+                                     dtype=dtype,
+                                     space=space, x=x, shape_after=shape_after)
+
+        def grad_fn(dy, variables=None):
+            if variables is None:
+                return dy, None
+            normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(func(x), variables)),
+                                               n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
+                                               dtype=dtype,
+                                               space=space,
+                                               x=x, shape_after=(len(variables),))
+
+            return dy, tf.unstack(normed_grad)
+
+        return value, grad_fn
+
+    fake_x = 1 if x_is_none else x
+    return normalization_func(fake_x)
+
+
+def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
+    avg = normalization_nograd()
 
 
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
@@ -203,6 +292,58 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
         return dummy_func(fake_x)
     except TypeError:
         return dummy_func(fake_x)
+
+
+class PartialIntegralSampleData(BaseDimensional, ZfitData):
+
+    def __init__(self, sample: List[tf.Tensor], space: ZfitSpace):
+        """Takes a list of tensors and "fakes" a dataset. Useful for tensors with non-matching shapes.
+
+        Args:
+            sample (List[tf.Tensor]):
+            space ():
+        """
+        if not isinstance(sample, list):
+            raise TypeError("Sample has to be a list of tf.Tensors")
+        super().__init__()
+        self._space = space
+        self._sample = sample
+        self._reorder_indices_list = list(range(len(sample)))
+
+    @property
+    def space(self) -> "ZfitSpace":
+        return self._space
+
+    def sort_by_axes(self, axes):
+        axes = convert_to_container(axes)
+        new_reorder_list = [self._reorder_indices_list[self.space.axes.index(ax)] for ax in axes]
+        value = self.space.with_axes(axes=axes), new_reorder_list
+
+        getter = lambda: (self.space, self._reorder_indices_list)
+
+        def setter(value):
+            self._space, self._reorder_indices_list = value
+
+        return TemporarilySet(value=value, getter=getter, setter=setter)
+
+    def sort_by_obs(self, obs):
+        obs = convert_to_container(obs)
+        new_reorder_list = [self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs]
+
+        value = self.space.with_obs(obs=obs), new_reorder_list
+
+        getter = lambda: (self.space, self._reorder_indices_list)
+
+        def setter(value):
+            self._space, self._reorder_indices_list = value
+
+        return TemporarilySet(value=value, getter=getter, setter=setter)
+
+    def value(self, obs: List[str] = None):
+        return self
+
+    def unstack_x(self):
+        return self._sample
 
 
 class AnalyticIntegral:

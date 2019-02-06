@@ -10,6 +10,11 @@ __all__ = ["ztf", "constraint", "pdf", "minimize", "loss", "core", "data", "func
            "run", "settings"]
 
 from . import ztf
+
+import tensorflow as tf
+
+tf.get_variable_scope().set_use_resource(True)
+
 from . import constraint, pdf, minimize, loss, core, data, func
 from .core.parameter import Parameter
 from .core.limits import Space, convert_to_space, supports
