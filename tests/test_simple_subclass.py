@@ -12,10 +12,8 @@ def test_pdf_simple_subclass():
         _PARAMS = ['mu', 'sigma']
 
         def _unnormalized_pdf(self, x):
-            mu = self.parameters['mu']
-            # mu = self.params['mu']  # TODO
-            sigma = self.parameters['sigma']
-            # sigma = self.params['sigma']  # TODO
+            mu = self.params['mu']
+            sigma = self.params['sigma']
             x = ztf.unstack_x(x)
             return ztf.exp(-ztf.square((x - mu) / sigma))
 
@@ -43,10 +41,8 @@ def test_func_simple_subclass():
         _PARAMS = ['mu', 'sigma']
 
         def _value(self, x):
-            mu = self.parameters['mu']
-            # mu = self.params['mu']  # TODO
-            sigma = self.parameters['sigma']
-            # sigma = self.params['sigma']  # TODO
+            mu = self.params['mu']
+            sigma = self.params['sigma']
             x = ztf.unstack_x(x)
             return ztf.exp(-ztf.square((x - mu) / sigma))
 
@@ -61,9 +57,7 @@ def test_func_simple_subclass():
         class SimpleGauss2(zfit.func.ZFunc):
 
             def _value(self, x):
-                mu = self.parameters['mu']
-                # mu = self.params['mu']  # TODO
-                sigma = self.parameters['sigma']
-                # sigma = self.params['sigma']  # TODO
+                mu = self.params['mu']
+                sigma = self.params['sigma']
                 x = ztf.unstack_x(x)
                 return ztf.exp(-ztf.square((x - mu) / sigma))
