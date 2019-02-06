@@ -173,7 +173,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return integral
 
     @property
-    def norm_range(self) -> Union[Space, None, "False"]:
+    def norm_range(self) -> Union[Space, None, bool]:
         """Return the current normalization range.
 
         Returns:
