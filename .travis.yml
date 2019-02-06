@@ -48,7 +48,7 @@ deploy:
       local_dir: docs/api/_build/html
       keep-history: true
       on:
-          #          branch: develop
+          branch: develop
           condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
 
 
