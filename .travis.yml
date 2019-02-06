@@ -24,6 +24,7 @@ matrix:
 install: pip install -U tox-travis
 script:
     - tox
+    - . utils/ci/
 
 after_success:
     - pip install coveralls
