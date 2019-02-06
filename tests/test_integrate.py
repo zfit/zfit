@@ -193,8 +193,7 @@ def test_mc_integration():
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
                                            limits=Space.from_axes(limits=limits_simple_5deps,
                                                                   axes=tuple(range(5))),
-                                           n_axes=5,
-                                           draws_per_dim=5)
+                                           n_axes=5)
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
                                             limits=Space.from_axes(limits=limits2,
                                                                    axes=tuple(range(1))),
@@ -202,8 +201,7 @@ def test_mc_integration():
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
                                             limits=Space.from_axes(limits=limits3,
                                                                    axes=tuple(range(2))),
-                                            n_axes=2,
-                                            draws_per_dim=70)
+                                            n_axes=2)
 
     integral = zfit.run(num_integral)
     integral2 = zfit.run(num_integral2)

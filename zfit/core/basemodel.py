@@ -69,7 +69,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    _DEFAULTS_integration.draws_per_dim = 4000
+    _DEFAULTS_integration.draws_per_dim = 20000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None

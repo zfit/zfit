@@ -45,7 +45,7 @@ def numeric_integrate():
 
 
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
-                 x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 4000,
+                 x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
                  method: str = None,
                  dtype: Type = ztypes.float,
                  mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
@@ -88,9 +88,10 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     lower = ztf.convert_to_tensor(lower, dtype=dtype)  # TODO(Mayou36): why not lower[0]?
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
-    n_samples = draws_per_dim ** n_axes
+    # n_samples = int(draws_per_dim ** np.sqrt(n_axes))  # OLD?
+    n_samples = draws_per_dim
     if partial:
-        n_vals = x.get_shape()[0].value  # TODO(Mayou36): correctly get n_entries
+        n_vals = x.get_shape()[0].value  # TODO(Mayou36): correctly get n_entries OR remove? OLD?
         # n_samples *= n_vals  # each entry wants it's mc
     else:
         n_vals = 1
