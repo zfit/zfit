@@ -918,10 +918,8 @@ class SimpleModelSubclassMixin(pep487.ABC):
             _PARAMS = ['mu', 'sigma']
 
             def _unnormalized_pdf(self, x):
-                mu = self.parameters['mu']
-                # mu = self.params['mu']  # TODO
-                sigma = self.parameters['sigma']
-                # sigma = self.params['sigma']  # TODO
+                # mu = self.params['mu']
+                # sigma = self.params['sigma']
                 x = ztf.unstack_x(x)
                 return ztf.exp(-ztf.square((x - mu) / sigma))
         """
@@ -932,11 +930,11 @@ class SimpleModelSubclassMixin(pep487.ABC):
         except KeyError:
             raise ValueError("The following parameters are not given (as keyword arguments): "
                              "".format([k for k in self._PARAMS if k not in kwargs]))
-        super().__init__(parameters=params, *args, **kwargs)
+        super().__init__(params=params, *args, **kwargs)
         # super().__init__(params=params, *args, **kwargs)  # use if upper fails
 
     @classmethod
-    def _check_simple_model_subclass(cls, **kwargs):
+    def _check_simple_model_subclass(cls):
         try:
             params = cls._PARAMS
         except AttributeError:
