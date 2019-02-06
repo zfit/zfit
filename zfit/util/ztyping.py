@@ -5,15 +5,15 @@ import tensorflow as tf
 
 # space
 LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, "False"]
+LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
 
 UpperTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, "False"]
+UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
 
-LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], "False"]
-LimitsTypeSimpleInput = Union[Tuple[float, float], "False"]
-LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], "False"]
-LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, "False"]
+LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
+LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
+LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool]
+LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
 
 _IterLimitsTypeReturn = Union[Tuple['Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
