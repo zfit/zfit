@@ -5,7 +5,8 @@ import tensorflow as tf
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter, ZfitData
 from .parameter import convert_to_parameter, ComposedParameter
 from ..util import ztyping
-from ..util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError, IntentionNotUnambiguousError
+from ..util.exception import (LogicalUndefinedOperationError, AlreadyExtendedPDFError, IntentionNotUnambiguousError,
+                              ModelIncompatibleError, )
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:
@@ -39,7 +40,8 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -
         elif isinstance(object2, ZfitFunc):
             new_object = multiply_func_func(func1=object1, func2=object2)
         elif isinstance(object2, ZfitPDF):
-            raise TypeError("Cannot multiply a function with a model. Use `func.as_pdf` or `model.as_func`.")
+            raise ModelIncompatibleError(
+                "Cannot multiply a function with a model. Use `func.as_pdf` or `model.as_func`.")
 
     # object 1 is PDF
     elif isinstance(object1, ZfitPDF):
@@ -47,7 +49,7 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -
             new_object = multiply_pdf_pdf(pdf1=object1, pdf2=object2)
 
     if new_object is None:
-        raise TypeError("Multiplication for {} and {} of type {} and {} is not"
+        raise ModelIncompatibleError("Multiplication for {} and {} of type {} and {} is not"
                         "properly defined. (may change the order)"
                         "".format(object1, object2, type(object1), type(object2)))
     return new_object

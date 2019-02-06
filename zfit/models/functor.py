@@ -20,7 +20,9 @@ from ..core.parameter import Parameter, convert_to_parameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError, LimitsOverdefinedError
+from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError,
+                              LimitsOverdefinedError,
+                              ModelIncompatibleError, )
 from ..util.temporary import TemporarilySet
 from ..settings import ztypes
 
@@ -190,10 +192,10 @@ class SumPDF(BaseFunctor):
         # catch if args don't fit known case
         value_error = implicit is None or extended is None
         if (implicit and fracs is not None) or value_error:
-            raise TypeError("Wrong arguments. Either"
-                            "\n a) `pdfs` are not extended and `fracs` is given with length pdfs "
-                            "(-> pdfs get extended) or pdfs - 1 (fractions)"
-                            "\n b) all or all except 1 `pdfs` are extended and fracs is None.")
+            raise ModelIncompatibleError("Wrong arguments. Either"
+                                         "\n a) `pdfs` are not extended and `fracs` is given with length pdfs "
+                                         "(-> pdfs get extended) or pdfs - 1 (fractions)"
+                                         "\n b) all or all except 1 `pdfs` are extended and fracs is None.")
 
         # create fracs if one is not extended
         if not extended and implicit:

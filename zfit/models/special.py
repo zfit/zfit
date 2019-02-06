@@ -25,6 +25,10 @@ class SimplePDF(BasePDF):
     def _unnormalized_pdf(self, x):
         return self._unnormalized_prob_func(x)
 
+    def copy(self, **override_parameters) -> 'BasePDF':
+        override_parameters.update(func=self._unnormalized_prob_func)
+        return super().copy(**override_parameters)
+
 
 def raise_error_if_norm_range(func):
     func = no_norm_range(func)

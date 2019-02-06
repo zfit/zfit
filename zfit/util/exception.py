@@ -99,6 +99,10 @@ class LimitsIncompatibleError(IncompatibleError):
     pass
 
 
+class ModelIncompatibleError(IncompatibleError):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):
