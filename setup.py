@@ -7,16 +7,16 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(here, 'requirements.txt')) as requirements_file:
+with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as requirements_file:
     requirements = requirements_file.read().splitlines()
 
-with open(os.path.join(here, 'requirements_dev.txt')) as requirements_dev_file:
+with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 
-with open(os.path.join(here, 'README.rst')) as readme_file:
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
-with open(os.path.join(here, 'HISTORY.rst')) as history_file:
+with open(os.path.join(here, 'HISTORY.rst', encoding='utf-8')) as history_file:
     history = history_file.read()
 
 # split the developer requirements into setup and test requirements
