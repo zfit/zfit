@@ -1,5 +1,5 @@
 ====
-zfit
+Zfit
 ====
 
 
@@ -16,7 +16,11 @@ zfit
 
 
 * Free software: BSD-3-Clause
-* Documentation: https://zfit.readthedocs.io.
+* `API (temporary) Documentation <https://zfit.github.io/zfit/>`_
+
+Zfit is around it's alpha stage: core parts are established, but some parts are also missing
+and bugs as well as changes may be encountered.
+If you already want to use it for a specific project, feel free contact us.
 
 Acknowledgements
 ----------------
