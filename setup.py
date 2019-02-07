@@ -16,7 +16,7 @@ with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requi
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
-with open(os.path.join(here, 'HISTORY.rst', encoding='utf-8')) as history_file:
+with open(os.path.join(here, 'HISTORY.rst'), encoding='utf-8') as history_file:
     history = history_file.read()
 
 # split the developer requirements into setup and test requirements
