@@ -1,0 +1,7 @@
+zfit.core.tfext
+===============
+
+.. automodule:: zfit.core.tfext
+    :members:
+    :undoc-members:
+    :show-inheritance:

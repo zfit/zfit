@@ -1,0 +1,556 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.models.functor &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.models.functor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for zfit.models.functor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.</span>
+
+<span class="sd">A FunctorBase class is provided to make handling the models easier.</span>
+
+<span class="sd">Their implementation is often non-trivial.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="k">import</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitSpace</span>
+<span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="k">import</span> <span class="n">BasePDF</span>
+<span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="k">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">convert_to_parameter</span>
+<span class="kn">from</span> <span class="nn">..models.basefunctor</span> <span class="k">import</span> <span class="n">FunctorMixin</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">,</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">,</span> <span class="n">AxesNotUnambiguousError</span><span class="p">,</span>
+                              <span class="n">LimitsOverdefinedError</span><span class="p">,</span>
+                              <span class="n">ModelIncompatibleError</span><span class="p">,</span> <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+
+
+<div class="viewcode-block" id="BaseFunctor"><a class="viewcode-back" href="../../../zfit.models.functor.html#zfit.models.functor.BaseFunctor">[docs]</a><span class="k">class</span> <span class="nc">BaseFunctor</span><span class="p">(</span><span class="n">FunctorMixin</span><span class="p">,</span> <span class="n">BasePDF</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdfs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseFunctor&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_norm_range_from_daugthers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component_norm_range_holder</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_get_component_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_norm_range_holder</span>
+
+    <span class="k">def</span> <span class="nf">_set_component_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">):</span>
+        <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>  <span class="c1"># TODO: only set if different?</span>
+
+        <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component_norm_range_holder</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_component_norm_range</span><span class="p">)</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def norm_range(self):</span>
+    <span class="c1">#     norm_range = super().norm_range</span>
+    <span class="c1">#     if norm_range.limits is None:</span>
+    <span class="c1">#         norm_range_candidat = self._infer_norm_range_from_daughters()</span>
+    <span class="c1">#         if norm_range_candidat is False:</span>
+    <span class="c1">#             raise LimitsOverdefinedError(&quot;Daughter pdfs do not agree on a `norm_range` and no `norm_range`&quot;</span>
+    <span class="c1">#                                          &quot;has been explicitly set.&quot;)</span>
+    <span class="c1">#         elif norm_range_candidat is not None:  # TODO(Mayou36, #77): different obs?</span>
+    <span class="c1">#             norm_range = norm_range_candidat</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return norm_range</span>
+
+    <span class="k">def</span> <span class="nf">_set_norm_range_from_daugthers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">norm_range</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">norm_range</span>
+        <span class="k">if</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">norm_range_candidat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_norm_range_from_daughters</span><span class="p">()</span>
+            <span class="c1"># if norm_range_candidat is False:</span>
+            <span class="c1">#     raise LimitsOverdefinedError(&quot;Daughter pdfs do not agree on a `norm_range` and no `norm_range`&quot;</span>
+            <span class="c1">#                                  &quot;has been explicitly set.&quot;)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">norm_range_candidat</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36, #77): different obs?</span>
+                <span class="n">norm_range</span> <span class="o">=</span> <span class="n">norm_range_candidat</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_norm_range</span> <span class="o">=</span> <span class="n">norm_range</span>
+
+    <span class="k">def</span> <span class="nf">_infer_norm_range_from_daughters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">norm_ranges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">norm_range</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">)</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">norm_range</span><span class="o">.</span><span class="n">obs</span> <span class="k">for</span> <span class="n">norm_range</span> <span class="ow">in</span> <span class="n">norm_ranges</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">norm_ranges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">norm_ranges</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># TODO(Mayou36, #77): different obs?</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">component_norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">component_norm_range</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_integrate&#39;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;_hook_analytic_integrate&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_numeric_integrate&#39;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_partial_integrate&#39;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_partial_analytic_integrate&#39;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_partial_numeric_integrate&#39;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;_hook_normalization&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_normalization</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;_hook_pdf&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_log_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_log_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_single_hook_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pdfs_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">is_extended</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitModel</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span></div>
+
+
+<div class="viewcode-block" id="SumPDF"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.models.functor.SumPDF">[docs]</a><span class="k">class</span> <span class="nc">SumPDF</span><span class="p">(</span><span class="n">BaseFunctor</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdfs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">],</span> <span class="n">fracs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SumPDF&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the sum of the `pdfs` with `fracs` as coefficients.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pdfs (pdf): The pdfs to add.</span>
+<span class="sd">            fracs (iterable): coefficients for the linear combination of the pdfs. If pdfs are</span>
+<span class="sd">                extended, this throws an error.</span>
+
+<span class="sd">                  - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.</span>
+<span class="sd">                    The last coefficient will equal to 1 - sum(frac)</span>
+<span class="sd">                  - len(frac) == len(pdf) each pdf in `pdfs` will become an extended pdf with the</span>
+<span class="sd">                    given yield.</span>
+<span class="sd">            name (str):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check user input, improve TODO</span>
+        <span class="n">set_yield_at_end</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
+        <span class="c1"># pdfs = self.pdfs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span> <span class="o">=</span> <span class="n">pdfs</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot build a sum of a single pdf&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fracs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fracs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span>
+            <span class="n">fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">frac</span><span class="p">)</span> <span class="k">for</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">fracs</span><span class="p">]</span>
+
+        <span class="c1"># check if all extended</span>
+        <span class="n">extended_pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span>
+        <span class="n">implicit</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">extended</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">extended_pdfs</span><span class="p">):</span>
+            <span class="n">implicit</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">extended</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># all extended except one -&gt; fraction</span>
+        <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">extended_pdfs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">extended_pdfs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">implicit</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">extended</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># no pdf is extended -&gt; using `fracs`</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">extended_pdfs</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fracs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># make extended</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">):</span>
+                <span class="n">implicit</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">extended</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">implicit</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">extended</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># catch if args don&#39;t fit known case</span>
+        <span class="n">value_error</span> <span class="o">=</span> <span class="n">implicit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">extended</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">implicit</span> <span class="ow">and</span> <span class="n">fracs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value_error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ModelIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Wrong arguments. Either&quot;</span>
+                                         <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> a) `pdfs` are not extended and `fracs` is given with length pdfs &quot;</span>
+                                         <span class="s2">&quot;(-&gt; pdfs get extended) or pdfs - 1 (fractions)&quot;</span>
+                                         <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> b) all or all except 1 `pdfs` are extended and fracs is None.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># create fracs if one is not extended</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">extended</span> <span class="ow">and</span> <span class="n">implicit</span><span class="p">:</span>
+            <span class="n">fracs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">not_extended_position</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">new_pdfs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pdfs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">pdf</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+                    <span class="n">fracs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">())</span>
+                    <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">pdf</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># make non-extended</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fracs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+                    <span class="n">not_extended_position</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">new_pdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+            <span class="n">pdfs</span> <span class="o">=</span> <span class="n">new_pdfs</span>
+            <span class="n">remaining_frac</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span>
+            <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
+                                  <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_op</span><span class="p">]):</span>
+                <span class="n">fracs</span><span class="p">[</span><span class="n">not_extended_position</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">)</span>
+            <span class="n">implicit</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># now it&#39;s explicit</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">extended</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">implicit</span><span class="p">:</span>
+            <span class="n">remaining_frac</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span>
+            <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
+                                  <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_op</span><span class="p">]):</span>
+                <span class="n">fracs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">))</span>
+
+        <span class="c1"># make extended</span>
+        <span class="k">elif</span> <span class="n">extended</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">implicit</span><span class="p">:</span>
+            <span class="n">yields</span> <span class="o">=</span> <span class="n">fracs</span>
+            <span class="n">pdfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">create_extended</span><span class="p">(</span><span class="n">yield_</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">yield_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">yields</span><span class="p">)]</span>
+
+            <span class="n">implicit</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">extended</span> <span class="ow">and</span> <span class="n">implicit</span><span class="p">:</span>
+            <span class="n">yields</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">extended</span><span class="p">:</span>
+            <span class="c1"># yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]</span>
+            <span class="c1"># self.fracs = yield_fracs</span>
+            <span class="n">set_yield_at_end</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="n">fracs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span> <span class="o">=</span> <span class="n">pdfs</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fracs</span><span class="p">):</span>
+            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;frac_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">frac</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">set_yield_at_end</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">yields</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_n_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span><span class="o">.</span><span class="n">n_obs</span>  <span class="c1"># TODO(mayou36): properly implement dimensions</span>
+
+    <span class="k">def</span> <span class="nf">_apply_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="c1"># TODO: deal with yields</span>
+        <span class="c1"># pdfs = self.pdfs</span>
+        <span class="c1"># fracs = self.fracs</span>
+        <span class="c1"># func = tf.accumulate_n(</span>
+        <span class="c1">#     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])</span>
+        <span class="c1"># return func</span>
+
+    <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
+        <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
+        <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">scale</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)])</span>
+        <span class="c1"># prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])</span>
+        <span class="k">return</span> <span class="n">prob</span>
+
+    <span class="k">def</span> <span class="nf">_set_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameter</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
+        <span class="c1"># TODO: what happens now with the daughters?</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># to be able to set the yield in the</span>
+            <span class="c1"># beginning</span>
+            <span class="k">raise</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">(</span><span class="s2">&quot;Cannot set the yield of a PDF with extended daughters.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># not extended anymore</span>
+            <span class="n">reciprocal_yield</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_yield</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">reciprocal_yield</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fracs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@supports</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>  <span class="c1"># TODO: deal with norm_range?</span>
+        <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">original_error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;analytic_integrate of pdf </span><span class="si">{name}</span><span class="s2"> is not implemented in this&quot;</span>
+                                      <span class="s2">&quot; SumPDF, as at least one sub-pdf does not implement it.&quot;</span>
+                                      <span class="s2">&quot;Original message:</span><span class="se">\n</span><span class="si">{error}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                          <span class="n">error</span><span class="o">=</span><span class="n">original_error</span><span class="p">))</span>
+
+        <span class="n">integral</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">integral</span> <span class="o">*</span> <span class="n">s</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">integral</span><span class="p">,</span> <span class="n">frac</span><span class="p">)])</span>
+        <span class="n">integral</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">integral</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">integral</span>
+
+    <span class="nd">@supports</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
+        <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">partial_integral</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">original_error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;partial_analytic_integrate of pdf </span><span class="si">{name}</span><span class="s2"> is not implemented in this&quot;</span>
+                                      <span class="s2">&quot; SumPDF, as at least one sub-pdf does not implement it.&quot;</span>
+                                      <span class="s2">&quot;Original message:</span><span class="se">\n</span><span class="si">{error}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                          <span class="n">error</span><span class="o">=</span><span class="n">original_error</span><span class="p">))</span>
+        <span class="n">partial_integral</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">partial_integral</span> <span class="o">*</span> <span class="n">s</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">partial_integral</span><span class="p">,</span> <span class="n">frac</span><span class="p">)])</span>
+        <span class="n">partial_integral</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">partial_integral</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">partial_integral</span></div>
+
+
+<div class="viewcode-block" id="ProductPDF"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.models.functor.ProductPDF">[docs]</a><span class="k">class</span> <span class="nc">ProductPDF</span><span class="p">(</span><span class="n">BaseFunctor</span><span class="p">):</span>  <span class="c1"># TODO: unfinished</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdfs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">],</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ProductPDF&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">):</span>
+
+        <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_component_norm_range</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="o">.</span><span class="n">get_subspace</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">obs</span><span class="p">))</span>
+                                <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">dep</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_same_obs</span><span class="p">):</span>
+
+            <span class="n">probs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="o">.</span><span class="n">get_subspace</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">obs</span><span class="p">))</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

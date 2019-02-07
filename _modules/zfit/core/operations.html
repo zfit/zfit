@@ -1,0 +1,434 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.core.operations &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.core.operations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for zfit.core.operations</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span>
+<span class="kn">from</span> <span class="nn">.parameter</span> <span class="k">import</span> <span class="n">convert_to_parameter</span><span class="p">,</span> <span class="n">ComposedParameter</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="p">(</span><span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">,</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">,</span>
+                              <span class="n">ModelIncompatibleError</span><span class="p">,</span> <span class="p">)</span>
+
+
+<div class="viewcode-block" id="multiply"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.multiply">[docs]</a><span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">object1</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">BaseObjectType</span><span class="p">,</span> <span class="n">object2</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">BaseObjectType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">BaseObjectType</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Multiply two objects and return a new object (may depending on the old).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        object1 (): A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object2</span>
+<span class="sd">        object2 (): A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object1</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: if one of the objects is neither a ZfitFunc, ZfitPDF or convertable to a ZfitParameter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># converting the objects to known types</span>
+    <span class="n">object1</span><span class="p">,</span> <span class="n">object2</span> <span class="o">=</span> <span class="n">_convert_to_known</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">)</span>
+    <span class="n">new_object</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># object 1 is ZfitParameter</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">multiply_param_param</span><span class="p">(</span><span class="n">param1</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">param2</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">multiply_param_func</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">multiply_param_pdf</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">pdf</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;This code should never be reached due to logical reasons. Mistakes happen...&quot;</span>
+
+    <span class="c1"># object 1 is Function</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">multiply_param_func</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">object2</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">object1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">multiply_func_func</span><span class="p">(</span><span class="n">func1</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">func2</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ModelIncompatibleError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot multiply a function with a model. Use `func.as_pdf` or `model.as_func`.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># object 1 is PDF</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">multiply_pdf_pdf</span><span class="p">(</span><span class="n">pdf1</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">pdf2</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">new_object</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ModelIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Multiplication for </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> of type </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> is not&quot;</span>
+                        <span class="s2">&quot;properly defined. (may change the order)&quot;</span>
+                        <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">object1</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">object2</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">new_object</span></div>
+
+
+<div class="viewcode-block" id="multiply_pdf_pdf"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.multiply_pdf_pdf">[docs]</a><span class="k">def</span> <span class="nf">multiply_pdf_pdf</span><span class="p">(</span><span class="n">pdf1</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">pdf2</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;multiply_pdf_pdf&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ProductPDF&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">pdf1</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdf2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`pdf1` and `pdf2` need to be `ZfitPDF` and not </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdf1</span><span class="p">,</span> <span class="n">pdf2</span><span class="p">))</span>
+    <span class="kn">from</span> <span class="nn">..models.functor</span> <span class="k">import</span> <span class="n">ProductPDF</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pdf1</span><span class="o">.</span><span class="n">is_extended</span> <span class="ow">and</span> <span class="n">pdf2</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">(</span><span class="s2">&quot;Cannot multiply this way a non-extendended PDF with an extended PDF.&quot;</span>
+                                           <span class="s2">&quot;Only vice-versa is allowed: to multiply an extended PDF with an &quot;</span>
+                                           <span class="s2">&quot;non-extended PDF.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ProductPDF</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="p">[</span><span class="n">pdf1</span><span class="p">,</span> <span class="n">pdf2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="multiply_func_func"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.multiply_func_func">[docs]</a><span class="k">def</span> <span class="nf">multiply_func_func</span><span class="p">(</span><span class="n">func1</span><span class="p">:</span> <span class="n">ZfitFunc</span><span class="p">,</span> <span class="n">func2</span><span class="p">:</span> <span class="n">ZfitFunc</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;multiply_func_func&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ProdFunc&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`func1` and `func2` need to be `ZfitFunc` and not </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">))</span>
+    <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">ProdFunc</span>
+
+    <span class="k">return</span> <span class="n">ProdFunc</span><span class="p">(</span><span class="n">funcs</span><span class="o">=</span><span class="p">[</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="multiply_param_pdf"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.multiply_param_pdf">[docs]</a><span class="k">def</span> <span class="nf">multiply_param_pdf</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitPDF</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`param` and `model` need to be `ZfitParameter` resp. `ZfitPDF` and not &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">pdf</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">pdf</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">()</span>
+    <span class="n">new_pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">create_extended</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">name_addition</span><span class="o">=</span><span class="s2">&quot;_autoextended&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_pdf</span></div>
+
+
+<div class="viewcode-block" id="multiply_param_func"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.multiply_param_func">[docs]</a><span class="k">def</span> <span class="nf">multiply_param_func</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">ZfitFunc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitFunc</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
+    <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SimpleFunc</span>
+
+    <span class="k">def</span> <span class="nf">combined_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">param</span> <span class="o">*</span> <span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">param</span><span class="p">}</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">new_func</span> <span class="o">=</span> <span class="n">SimpleFunc</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">combined_func</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>  <span class="c1"># TODO: implement with new parameters</span>
+    <span class="k">return</span> <span class="n">new_func</span></div>
+
+
+<div class="viewcode-block" id="multiply_param_param"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.multiply_param_param">[docs]</a><span class="k">def</span> <span class="nf">multiply_param_param</span><span class="p">(</span><span class="n">param1</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitParameter</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param2</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`param1` and `param2` need to be `ZfitParameter` and not </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">))</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">param</span></div>
+
+
+<span class="c1"># Addition logic</span>
+<div class="viewcode-block" id="add"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.add">[docs]</a><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">object1</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">BaseObjectType</span><span class="p">,</span> <span class="n">object2</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">BaseObjectType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">BaseObjectType</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add two objects and return a new object (may depending on the old).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        object1 (): A ZfitParameter, ZfitFunc or ZfitPDF to add with object2</span>
+<span class="sd">        object2 (): A ZfitParameter, ZfitFunc or ZfitPDF to add with object1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># converting the objects to known types</span>
+    <span class="n">object1</span><span class="p">,</span> <span class="n">object2</span> <span class="o">=</span> <span class="n">_convert_to_known</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">)</span>
+    <span class="n">new_object</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># object 1 is ZfitParameter</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">add_param_param</span><span class="p">(</span><span class="n">param1</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">param2</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">add_param_func</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+
+    <span class="c1"># object 1 is Function</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">add_param_func</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">object2</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">object1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">add_func_func</span><span class="p">(</span><span class="n">func1</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">func2</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot add a function with a model. Use `func.as_pdf` or `model.as_func`.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># object 1 is PDF</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot add a function with a model. Use `func.as_pdf` or `model.as_func`.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">):</span>
+            <span class="n">new_object</span> <span class="o">=</span> <span class="n">add_pdf_pdf</span><span class="p">(</span><span class="n">pdf1</span><span class="o">=</span><span class="n">object1</span><span class="p">,</span> <span class="n">pdf2</span><span class="o">=</span><span class="n">object2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">new_object</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Addition for </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> of type </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> is not&quot;</span>
+                        <span class="s2">&quot;properly defined. (may change the order)&quot;</span>
+                        <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">object1</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">object2</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">new_object</span></div>
+
+
+<span class="k">def</span> <span class="nf">_convert_to_known</span><span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">):</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="p">(</span><span class="n">object1</span><span class="p">,</span> <span class="n">object2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">ZfitModel</span><span class="p">,)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Object is neither an instance of ZfitModel nor convertible to a Parameter: &quot;</span>
+                                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+        <span class="n">objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="n">object1</span><span class="p">,</span> <span class="n">object2</span> <span class="o">=</span> <span class="n">objects</span>
+    <span class="k">return</span> <span class="n">object1</span><span class="p">,</span> <span class="n">object2</span>
+
+
+<div class="viewcode-block" id="add_pdf_pdf"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.add_pdf_pdf">[docs]</a><span class="k">def</span> <span class="nf">add_pdf_pdf</span><span class="p">(</span><span class="n">pdf1</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">pdf2</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;add_pdf_pdf&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SumPDF&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">pdf1</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdf2</span><span class="p">,</span> <span class="n">ZfitPDF</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`pdf1` and `pdf2` need to be `ZfitPDF` and not </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdf1</span><span class="p">,</span> <span class="n">pdf2</span><span class="p">))</span>
+    <span class="kn">from</span> <span class="nn">..models.functor</span> <span class="k">import</span> <span class="n">SumPDF</span>
+
+    <span class="k">return</span> <span class="n">SumPDF</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="p">[</span><span class="n">pdf1</span><span class="p">,</span> <span class="n">pdf2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_func_func"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.add_func_func">[docs]</a><span class="k">def</span> <span class="nf">add_func_func</span><span class="p">(</span><span class="n">func1</span><span class="p">:</span> <span class="n">ZfitFunc</span><span class="p">,</span> <span class="n">func2</span><span class="p">:</span> <span class="n">ZfitFunc</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;add_func_func&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SumFunc&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`func1` and `func2` need to be `ZfitFunc` and not </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">))</span>
+    <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SumFunc</span>
+
+    <span class="k">return</span> <span class="n">SumFunc</span><span class="p">(</span><span class="n">funcs</span><span class="o">=</span><span class="p">[</span><span class="n">func1</span><span class="p">,</span> <span class="n">func2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_param_func"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.add_param_func">[docs]</a><span class="k">def</span> <span class="nf">add_param_func</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">ZfitFunc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitFunc</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This is not supported. Probably in the future.&quot;</span><span class="p">)</span>  <span class="c1"># TODO: implement with new parameters</span></div>
+
+
+<div class="viewcode-block" id="add_param_param"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.add_param_param">[docs]</a><span class="k">def</span> <span class="nf">add_param_param</span><span class="p">(</span><span class="n">param1</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">param2</span><span class="p">:</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitParameter</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param2</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`param1` and `param2` need to be `ZfitParameter` and not </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>  <span class="c1"># use the default behavior of variables</span></div>
+    <span class="c1"># param = param1 + param2</span>
+    <span class="c1"># return ComposedParameter(name=param1.name + &quot;_add_&quot; + param2.name, tensor=param)</span>
+    <span class="c1"># return param</span>
+
+
+<span class="c1"># Conversions</span>
+
+<div class="viewcode-block" id="convert_pdf_to_func"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.convert_pdf_to_func">[docs]</a><span class="k">def</span> <span class="nf">convert_pdf_to_func</span><span class="p">(</span><span class="n">pdf</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitFunc</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">value_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SimpleFunc</span>
+
+    <span class="n">func</span> <span class="o">=</span> <span class="n">SimpleFunc</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">value_func</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_as_func&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">pdf</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">func</span></div>
+
+
+<div class="viewcode-block" id="convert_func_to_pdf"><a class="viewcode-back" href="../../../zfit.core.operations.html#zfit.core.operations.convert_func_to_pdf">[docs]</a><span class="k">def</span> <span class="nf">convert_func_to_pdf</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ZfitFunc</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span> <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitPDF</span><span class="p">:</span>
+    <span class="n">func_name</span> <span class="o">=</span> <span class="s1">&#39;autoconverted_func_to_pdf&#39;</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ZfitFunc</span><span class="p">)</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If `func` is a function, `obs` has to be specified.&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SimpleFunc</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">SimpleFunc</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">func_name</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">..models.special</span> <span class="k">import</span> <span class="n">SimplePDF</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">func_name</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">SimplePDF</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

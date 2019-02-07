@@ -1,0 +1,7 @@
+zfit.old\_ztf
+=============
+
+.. automodule:: zfit.old_ztf
+    :members:
+    :undoc-members:
+    :show-inheritance:

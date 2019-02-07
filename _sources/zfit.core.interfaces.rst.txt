@@ -1,0 +1,7 @@
+zfit.core.interfaces
+====================
+
+.. automodule:: zfit.core.interfaces
+    :members:
+    :undoc-members:
+    :show-inheritance:

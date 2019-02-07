@@ -1,0 +1,7 @@
+zfit.minimizers.interface
+=========================
+
+.. automodule:: zfit.minimizers.interface
+    :members:
+    :undoc-members:
+    :show-inheritance:

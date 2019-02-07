@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to zfit’s documentation! &mdash; zfit 0.0.0 documentation</title>
+  <title>zfit.util.logging &mdash; zfit 0.0.0 documentation</title>
   
 
   
@@ -27,8 +27,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="zfit" href="readme.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -47,7 +46,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> zfit
+            <a href="index.html" class="icon icon-home"> zfit
           
 
           
@@ -110,7 +109,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">zfit</a>
+          <a href="index.html">zfit</a>
         
       </nav>
 
@@ -139,15 +138,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Welcome to zfit’s documentation!</li>
+      <li>zfit.util.logging</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/zfit.util.logging.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,34 +159,62 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-zfit-s-documentation">
-<h1>Welcome to zfit’s documentation!<a class="headerlink" href="#welcome-to-zfit-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="readme.html">zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+  <div class="section" id="module-zfit.util.logging">
+<span id="zfit-util-logging"></span><h1>zfit.util.logging<a class="headerlink" href="#module-zfit.util.logging" title="Permalink to this headline">¶</a></h1>
+<p>This module controls the zfit logging.</p>
+<p>The base logger for zfit is called <cite>zfit</cite>, and all loggers created by this module
+have the form <cite>zfit.XX</cite>, where <cite>XX</cite> is their name.</p>
+<p>By default, time, name of the logger and message with the default
+colorlog color scheme are printed.</p>
+<dl class="function">
+<dt id="zfit.util.logging.get_logger">
+<code class="descclassname">zfit.util.logging.</code><code class="descname">get_logger</code><span class="sig-paren">(</span><em>name</em>, <em>stdout_level=None</em>, <em>file_level=None</em>, <em>file_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/util/logging.html#get_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.logging.get_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get and configure logger.</p>
+<dl class="docutils">
+<dt>This logger has two handlers:</dt>
+<dd><ul class="first simple">
+<li>A stdout handler is always configured with <cite>colorlog</cite>.</li>
+<li>A file handler is configured if <cite>file_name</cite> is given. Once it has been configure, it is not</li>
 </ul>
+<p class="last">necessary to give it to modify its properties.</p>
+</dd>
+</dl>
+<p>Once the logger has been created, <cite>get_logger</cite> can be called again to modify its log levels,
+independently for the stream and file handlers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the logger name doesn’t start with “zfit”, it is automatically added.</p>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Default logging level at first instantiation is WARNING.</p>
 </div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the logger.</li>
+<li><strong>stdout_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Logging level for the stream handler. Defaults to <cite>logging.WARNING</cite>.</li>
+<li><strong>file_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Logging level for the file handler. Defaults to <cite>logging.WARNING</cite>.</li>
+<li><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – File to log to. If not given, no file logging is performed.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The requested logger.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>logging.Logger</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Raise:</dt>
+<dd>ValueError if <cite>file_level</cite> has been specified without having configured the output file.</dd>
+</dl>
+</dd></dl>
+
 <p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
 upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
 Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
@@ -202,13 +229,6 @@ and from 2 to 5.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="readme.html" class="btn btn-neutral float-right" title="zfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

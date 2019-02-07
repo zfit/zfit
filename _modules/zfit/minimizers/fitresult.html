@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.minimizers.fitresult &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.minimizers.fitresult</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">zfit.util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
+<span class="kn">from</span> <span class="nn">.interface</span> <span class="k">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
+<span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="k">import</span> <span class="n">ParamsTypeOpt</span>
+<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="k">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
+<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
+
+
+<span class="k">def</span> <span class="nf">_hesse_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="s2">&quot;FitResult&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">sigma</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sigma other then 1 is not valid for minuit hesse.&quot;</span><span class="p">)</span>
+    <span class="n">fitresult</span> <span class="o">=</span> <span class="n">result</span>
+    <span class="n">minimizer</span> <span class="o">=</span> <span class="n">fitresult</span><span class="o">.</span><span class="n">minimizer</span>
+    <span class="kn">from</span> <span class="nn">zfit.minimizers.minimizer_minuit</span> <span class="k">import</span> <span class="n">MinuitMinimizer</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">MinuitMinimizer</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot perform hesse error calculation &#39;minuit&#39; with a different minimizer then&quot;</span>
+                        <span class="s2">&quot;`MinuitMinimizer`.&quot;</span><span class="p">)</span>
+    <span class="n">params_name</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">result_hesse</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span><span class="o">.</span><span class="n">hesse</span><span class="p">()</span>
+    <span class="n">result_hesse</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">res</span><span class="p">)</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">result_hesse</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">params_name</span><span class="p">[</span><span class="n">p_name</span><span class="p">],</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]})</span>
+                         <span class="k">for</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">result_hesse</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">p_name</span> <span class="ow">in</span> <span class="n">params_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_minos_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">fitresult</span> <span class="o">=</span> <span class="n">result</span>
+    <span class="n">minimizer</span> <span class="o">=</span> <span class="n">fitresult</span><span class="o">.</span><span class="n">minimizer</span>
+    <span class="kn">from</span> <span class="nn">zfit.minimizers.minimizer_minuit</span> <span class="k">import</span> <span class="n">MinuitMinimizer</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">MinuitMinimizer</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot perform error calculation &#39;minos_minuit&#39; with a different minimizer then&quot;</span>
+                        <span class="s2">&quot;`MinuitMinimizer`.&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span><span class="o">.</span><span class="n">minos</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+              <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># returns every var</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitResult</span><span class="p">):</span>
+    <span class="n">_default_hesse</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span>
+    <span class="n">_hesse_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;minuit_hesse&#39;</span><span class="p">:</span> <span class="n">_hesse_minuit</span><span class="p">}</span>
+    <span class="n">_default_error</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span>
+    <span class="n">_error_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;minuit_minos&quot;</span><span class="p">:</span> <span class="n">_minos_minuit</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">edm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">converged</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                 <span class="n">info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">:</span> <span class="s2">&quot;ZfitMinimizer&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.</span>
+
+<span class="sd">        Any errors calculated are saved under `self.params` dictionary with {parameter: {error_name1: {&#39;low&#39;: value</span>
+<span class="sd">        &#39;high&#39;: value or similar}}</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (OrderedDict[Parameter, float]): Result of the fit where each Parameter key has the value</span>
+<span class="sd">                from the minimum found by the minimizer.</span>
+<span class="sd">            edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)</span>
+<span class="sd">            fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer</span>
+<span class="sd">            status (int): A status code (if available)</span>
+<span class="sd">            converged (bool): Whether the fit has successfully converged or not.</span>
+<span class="sd">            info (Dict): Additional information (if available) like *number of function calls* and the</span>
+<span class="sd">                original minimizer return message.</span>
+<span class="sd">            loss (Union[ZfitLoss]): The loss function that was minimized. Contains also the pdf, data etc.</span>
+<span class="sd">            minimizer (ZfitMinimizer): Minimizer that was used to obtain this `FitResult` and will be used to</span>
+<span class="sd">                calculate certain errors. If the minimizer is state-based (like &quot;iminuit&quot;), then this is a copy</span>
+<span class="sd">                and the state of other `FitResults` or of the *actual* minimizer that performed the minimization</span>
+<span class="sd">                won&#39;t be altered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converged</span> <span class="o">=</span> <span class="n">converged</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_convert_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edm</span> <span class="o">=</span> <span class="n">edm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fmin</span> <span class="o">=</span> <span class="n">fmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
+        <span class="c1"># self.param_error = OrderedDict((p, {}) for p in params)</span>
+        <span class="c1"># self.param_hesse = OrderedDict((p, {}) for p in params)</span>
+
+    <span class="k">def</span> <span class="nf">_input_convert_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="nf">_get_uncached_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
+        <span class="n">params_uncached</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">params_uncached</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The estimated distance to the minimum.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numeric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edm</span>
+        <span class="k">return</span> <span class="n">edm</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimizer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fmin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function value at the minimum.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numeric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmin</span>
+        <span class="k">return</span> <span class="n">fmin</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">converged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converged</span>
+
+    <span class="k">def</span> <span class="nf">_input_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span><span class="p">,</span>
+              <span class="n">error_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Calculate for `params` the symmetric error using the Hessian matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (list(`zfit.FitParameters`)): The parameters  to calculate the</span>
+<span class="sd">                Hessian symmetric error. If None, use all parameters.</span>
+<span class="sd">            method (str): the method to calculate the hessian. Can be {&#39;minuit&#39;} or a callable.</span>
+<span class="sd">            error_name (str): The name for the error in the dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding</span>
+<span class="sd">                the error dict {&#39;error&#39;: sym_error}.</span>
+
+<span class="sd">                So given param_a (from zfit.Parameter(.))</span>
+<span class="sd">                `error_a = result.hesse(params=param_a)[param_a][&#39;error&#39;]`</span>
+<span class="sd">                error_a is the hessian error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">error_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to specify `error_name` or use a string as `method`&quot;</span><span class="p">)</span>
+            <span class="n">error_name</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>
+            <span class="n">error_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hesse</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
+        <span class="n">all_errors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">error_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_errors</span></div>
+
+    <span class="k">def</span> <span class="nf">_cache_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">errors</span> <span class="ow">in</span> <span class="n">errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="n">error_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">errors</span>
+
+    <span class="k">def</span> <span class="nf">_hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hesse_methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+              <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
+
+        <span class="sd">&quot;&quot;&quot;Calculate and set for `params` the asymmetric error using the set error method.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the</span>
+<span class="sd">                     errors. If `params` is `None`, use all *floating* parameters.</span>
+<span class="sd">                method (str or Callable): The method to use to calculate the errors. Valid choices are</span>
+<span class="sd">                    {&#39;minuit_minos&#39;} or a Callable.</span>
+<span class="sd">                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition</span>
+<span class="sd">                    of 1 sigma depends on the loss function and is defined there.</span>
+
+<span class="sd">                    For example, the negative log-likelihood (without the factor of 2) has a correspondents</span>
+<span class="sd">                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.</span>
+<span class="sd">                error_name (str): The name for the error in the dictionary.</span>
+
+
+<span class="sd">            Returns:</span>
+<span class="sd">                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which</span>
+<span class="sd">                    contains (next to probably more things) two keys &#39;lower&#39; and &#39;upper&#39;,</span>
+<span class="sd">                    holding the calculated errors.</span>
+<span class="sd">                    Example: result[&#39;par1&#39;][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">error_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to specify `error_name` or use a string as `method`&quot;</span><span class="p">)</span>
+            <span class="n">error_name</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>
+            <span class="n">error_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
+        <span class="n">all_errors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">error_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_errors</span></div>
+
+    <span class="k">def</span> <span class="nf">_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span></div>
+
+<span class="c1"># def set_error_method(self, method):</span>
+<span class="c1">#     if isinstance(method, str):</span>
+<span class="c1">#         try:</span>
+<span class="c1">#             method = self._error_methods[method]</span>
+<span class="c1">#         except AttributeError:</span>
+<span class="c1">#             raise AttributeError(&quot;The error method &#39;{}&#39; is not registered with the minimizer.&quot;.format(method))</span>
+<span class="c1">#     elif callable(method):</span>
+<span class="c1">#         self._current_error_method = method</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         raise ValueError(&quot;Method {} is neither a valid method name nor a callable function.&quot;.format(method))</span>
+<span class="c1">#</span>
+<span class="c1"># def set_error_options(self, replace: bool = False, **options):</span>
+<span class="c1">#     &quot;&quot;&quot;Specify the options for the `error` calculation.</span>
+<span class="c1">#</span>
+<span class="c1">#     Args:</span>
+<span class="c1">#         replace (bool): If True, replace the current options. If False, only update</span>
+<span class="c1">#             (add/overwrite existing).</span>
+<span class="c1">#         **options (keyword arguments): The keyword arguments that will be given to `error`.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#         self._current_error_options = {}</span>
+<span class="c1">#     self._current_error_options.update(options)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

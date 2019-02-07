@@ -1,0 +1,7 @@
+zfit.core.math
+==============
+
+.. automodule:: zfit.core.math
+    :members:
+    :undoc-members:
+    :show-inheritance:

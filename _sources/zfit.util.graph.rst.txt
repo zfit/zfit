@@ -1,0 +1,7 @@
+zfit.util.graph
+===============
+
+.. automodule:: zfit.util.graph
+    :members:
+    :undoc-members:
+    :show-inheritance:

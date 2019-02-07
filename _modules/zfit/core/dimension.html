@@ -1,0 +1,499 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.core.dimension &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.core.dimension</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for zfit.core.dimension</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">ExitStack</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="p">(</span><span class="n">SpaceIncompatibleError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span><span class="p">,</span> <span class="n">LimitsIncompatibleError</span><span class="p">,</span>
+                                 <span class="n">LimitsNotSpecifiedError</span><span class="p">,</span> <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitDimensional</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
+
+
+<div class="viewcode-block" id="BaseDimensional"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.BaseDimensional">[docs]</a><span class="k">class</span> <span class="nc">BaseDimensional</span><span class="p">(</span><span class="n">ZfitDimensional</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">_check_n_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_N_OBS</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_N_OBS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SpaceIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Exactly </span><span class="si">{}</span><span class="s2"> obs are allowed, </span><span class="si">{}</span><span class="s2"> are given.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_N_OBS</span><span class="p">,</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">))</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;_N_OBS&quot;</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_N_OBS</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeReturn</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">axes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeReturn</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">n_obs</span></div>
+
+
+<div class="viewcode-block" id="get_same_obs"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.get_same_obs">[docs]</a><span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_same_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other_ob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">ob</span><span class="p">)</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="n">other_ob</span><span class="p">):</span>
+                <span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">deps</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="n">deps</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">deps</span></div>
+
+
+<div class="viewcode-block" id="is_combinable"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.is_combinable">[docs]</a><span class="k">def</span> <span class="nf">is_combinable</span><span class="p">(</span><span class="n">spaces</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="add_spaces"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.add_spaces">[docs]</a><span class="k">def</span> <span class="nf">add_spaces</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Add two spaces and merge their limits if possible or return False.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spaces (Iterable[`zfit.Space`]):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Union[None, zfit.core.limits.Space, bool]:</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need at least two spaces to be added.&quot;</span><span class="p">)</span>  <span class="c1"># TODO: allow? usecase?</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">obs1</span> <span class="o">=</span> <span class="n">spaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">obs</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span> <span class="o">==</span> <span class="n">obs1</span> <span class="k">else</span> <span class="n">space</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">limits_overlap</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span> <span class="n">allow_exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LimitsIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Limits of spaces overlap, cannot merge spaces.&quot;</span><span class="p">)</span>
+
+    <span class="n">lowers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uppers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">other_lower</span><span class="p">,</span> <span class="n">other_upper</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span><span class="p">):</span>
+                <span class="n">lower_same</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">other_lower</span><span class="p">)</span>
+                <span class="n">upper_same</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">other_upper</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="n">lower_same</span> <span class="o">^</span> <span class="n">upper_same</span><span class="p">,</span> <span class="s2">&quot;Bug, please report as issue. limits_overlap did not catch right.&quot;</span>
+                <span class="k">if</span> <span class="n">lower_same</span> <span class="ow">and</span> <span class="n">upper_same</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lowers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
+                <span class="n">uppers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
+    <span class="n">lowers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lowers</span><span class="p">)</span>
+    <span class="n">uppers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">uppers</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lowers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span>
+    <span class="n">new_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">spaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_space</span></div>
+
+
+<div class="viewcode-block" id="limits_overlap"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.limits_overlap">[docs]</a><span class="k">def</span> <span class="nf">limits_overlap</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">,</span> <span class="n">allow_exact_match</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.</span>
+
+<span class="sd">    This also checks multiple limits within one space. If `allow_exact_match` is set to true, then</span>
+<span class="sd">    an *exact* overlap of limits is allowed.</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        spaces (Iterable[zfit.Space]):</span>
+<span class="sd">        allow_exact_match (bool): An exact overlap of two limits is counted as &quot;not overlapping&quot;.</span>
+<span class="sd">            Example: limits from -1 to 3 and 4 to 5 to *NOT* overlap with the limits 4 to 5 *iff*</span>
+<span class="sd">            `allow_exact_match` is True.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: if there are overlapping limits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO(Mayou36): add approx comparison global in zfit</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-8</span>  <span class="c1"># epsilon for float comparisons</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">all_obs</span> <span class="o">=</span> <span class="n">common_obs</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">all_obs</span><span class="p">:</span>
+        <span class="n">lowers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">uppers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">or</span> <span class="n">obs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">low</span> <span class="o">=</span> <span class="n">lower</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">up</span> <span class="o">=</span> <span class="n">upper</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">other_lower</span><span class="p">,</span> <span class="n">other_upper</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">allow_exact_match</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">other_lower</span><span class="p">,</span> <span class="n">low</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">other_upper</span><span class="p">,</span> <span class="n">up</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="c1"># TODO(Mayou36): tolerance? add global flags?</span>
+                    <span class="n">low_overlaps</span> <span class="o">=</span> <span class="n">other_lower</span> <span class="o">-</span> <span class="n">eps</span> <span class="o">&lt;</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">other_upper</span> <span class="o">+</span> <span class="n">eps</span>
+                    <span class="n">up_overlaps</span> <span class="o">=</span> <span class="n">other_lower</span> <span class="o">-</span> <span class="n">eps</span> <span class="o">&lt;</span> <span class="n">up</span> <span class="o">&lt;</span> <span class="n">other_upper</span> <span class="o">+</span> <span class="n">eps</span>
+                    <span class="n">overlap</span> <span class="o">=</span> <span class="n">low_overlaps</span> <span class="ow">or</span> <span class="n">up_overlaps</span>
+                    <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+                <span class="n">lowers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">low</span><span class="p">)</span>
+                <span class="n">uppers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">up</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="common_obs"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.common_obs">[docs]</a><span class="k">def</span> <span class="nf">common_obs</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Extract the union of `obs` from `spaces` in the order of `spaces`.</span>
+
+<span class="sd">    For example:</span>
+<span class="sd">        | space1.obs: [&#39;obs1&#39;, &#39;obs3&#39;]</span>
+<span class="sd">        | space2.obs: [&#39;obs2&#39;, &#39;obs3&#39;, &#39;obs1&#39;]</span>
+<span class="sd">        | space3.obs: [&#39;obs2&#39;]</span>
+
+<span class="sd">        returns [&#39;obs1&#39;, &#39;obs3&#39;, &#39;obs2&#39;]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spaces (): Spaces to extract the obs from</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[str]: The observables as `str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">all_obs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ob</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_obs</span><span class="p">:</span>
+                <span class="n">all_obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_obs</span></div>
+
+
+<div class="viewcode-block" id="limits_consistent"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.limits_consistent">[docs]</a><span class="k">def</span> <span class="nf">limits_consistent</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.</span>
+
+<span class="sd">    In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),</span>
+<span class="sd">    to be consistent with this limits, other limits have to have (in this obs) also the limits</span>
+<span class="sd">    from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.</span>
+
+<span class="sd">    This function is useful to check if several spaces with *different* observables can be _combined_.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spaces (List[zfit.Space]):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">new_space</span> <span class="o">=</span> <span class="n">combine_spaces</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">LimitsIncompatibleError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">new_space</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="combine_spaces"><a class="viewcode-back" href="../../../zfit.core.dimension.html#zfit.core.dimension.combine_spaces">[docs]</a><span class="k">def</span> <span class="nf">combine_spaces</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Combine spaces with different `obs` and `limits` to one `space`.</span>
+
+<span class="sd">    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination</span>
+<span class="sd">    is not unambiguous and `False` is returned</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spaces (List[zfit.Space]):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        `zfit.Space` or False: Returns False if the limits don&#39;t coincide in one or more obs. Otherwise</span>
+<span class="sd">            return the Space with all obs from `spaces` sorted by the order of `spaces` and with the</span>
+<span class="sd">            combined limits.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if only one space is given</span>
+<span class="sd">        LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap</span>
+<span class="sd">        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need at least two spaces to test limit consistency.&quot;</span><span class="p">)</span>  <span class="c1"># TODO: allow? usecase?</span>
+
+    <span class="n">all_obs</span> <span class="o">=</span> <span class="n">common_obs</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">)</span>
+    <span class="n">all_lower</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_upper</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">spaces</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">all_obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">)</span>
+
+    <span class="c1"># create the lower and upper limits with all obs replacing missing dims with None</span>
+    <span class="c1"># With this, all limits have the same length</span>
+    <span class="k">if</span> <span class="n">limits_overlap</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span> <span class="n">allow_exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LimitsIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Limits overlap&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">low</span><span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">low</span> <span class="ow">in</span> <span class="n">lowers</span><span class="p">)</span> <span class="k">if</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">all_obs</span><span class="p">]</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">up</span><span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">up</span> <span class="ow">in</span> <span class="n">uppers</span><span class="p">)</span> <span class="k">if</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">all_obs</span><span class="p">]</span>
+        <span class="n">all_lower</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
+        <span class="n">all_upper</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">check_extract_limits</span><span class="p">(</span><span class="n">limits_spaces</span><span class="p">):</span>
+        <span class="n">new_limits</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">limits_spaces</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_obs</span><span class="p">):</span>
+            <span class="n">current_limit</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">limits_spaces</span><span class="p">:</span>
+                <span class="n">lim</span> <span class="o">=</span> <span class="n">limit</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">current_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">current_limit</span> <span class="o">=</span> <span class="n">lim</span>
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">current_limit</span><span class="p">,</span> <span class="n">lim</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">current_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">LimitsNotSpecifiedError</span><span class="p">(</span><span class="s2">&quot;Limits in obs </span><span class="si">{}</span><span class="s2"> are not specified&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obs</span><span class="p">))</span>
+                <span class="n">new_limits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_limit</span><span class="p">)</span>
+
+        <span class="n">n_limits</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">new_limits</span><span class="p">)))</span>
+        <span class="n">new_limits_comb</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_limits</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">new_limits</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">limit</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_limits</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">limit</span><span class="p">))):</span>
+                    <span class="n">new_limits_comb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span>
+
+        <span class="n">new_limits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">new_limits_comb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_limits</span>
+
+    <span class="n">new_lower</span> <span class="o">=</span> <span class="n">check_extract_limits</span><span class="p">(</span><span class="n">all_lower</span><span class="p">)</span>
+    <span class="n">new_upper</span> <span class="o">=</span> <span class="n">check_extract_limits</span><span class="p">(</span><span class="n">all_upper</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">new_lower</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">new_upper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;Bug, please report issue. either both are defined or None.&quot;</span>
+    <span class="k">if</span> <span class="n">new_lower</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">new_lower</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_lower</span><span class="p">,</span> <span class="n">new_upper</span><span class="p">)</span>
+    <span class="n">new_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">all_obs</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_space</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

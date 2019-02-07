@@ -1,0 +1,659 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.minimizers.tf_external_optimizer &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.minimizers.tf_external_optimizer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for zfit.minimizers.tf_external_optimizer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2016 The TensorFlow Authors. All Rights Reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1"># ==============================================================================</span>
+<span class="sd">&quot;&quot;&quot;TensorFlow interface for third-party optimizers.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gradients</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">variables</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="k">import</span> <span class="n">tf_logging</span> <span class="k">as</span> <span class="n">logging</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ExternalOptimizerInterface&#39;</span><span class="p">,</span> <span class="s1">&#39;ScipyOptimizerInterface&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ExternalOptimizerInterface"><a class="viewcode-back" href="../../../zfit.minimizers.tf_external_optimizer.html#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface">[docs]</a><span class="k">class</span> <span class="nc">ExternalOptimizerInterface</span><span class="p">:</span>  <span class="c1"># COPYRIGHT: remove explicit `object` inheritance (py3+ only)</span>
+    <span class="sd">&quot;&quot;&quot;Base class for interfaces with external optimization algorithms.</span>
+
+<span class="sd">    Subclass this and implement `_minimize` in order to wrap a new optimization</span>
+<span class="sd">    algorithm.</span>
+
+<span class="sd">    `ExternalOptimizerInterface` should not be instantiated directly; instead use</span>
+<span class="sd">    e.g. `ScipyOptimizerInterface`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">loss</span><span class="p">,</span>
+                 <span class="n">var_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">equalities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">inequalities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">var_to_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">optimizer_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new interface instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          loss: A scalar `Tensor` to be minimized.</span>
+<span class="sd">          var_list: Optional `list` of `Variable` objects to update to minimize</span>
+<span class="sd">            `loss`.  Defaults to the list of variables collected in the graph</span>
+<span class="sd">            under the key `GraphKeys.TRAINABLE_VARIABLES`.</span>
+<span class="sd">          equalities: Optional `list` of equality constraint scalar `Tensor`s to be</span>
+<span class="sd">            held equal to zero.</span>
+<span class="sd">          inequalities: Optional `list` of inequality constraint scalar `Tensor`s</span>
+<span class="sd">            to be held nonnegative.</span>
+<span class="sd">          var_to_bounds: Optional `dict` where each key is an optimization</span>
+<span class="sd">            `Variable` and each corresponding value is a length-2 tuple of</span>
+<span class="sd">            `(low, high)` bounds. Although enforcing this kind of simple constraint</span>
+<span class="sd">            could be accomplished with the `inequalities` arg, not all optimization</span>
+<span class="sd">            algorithms support general inequality constraints, e.g. L-BFGS-B. Both</span>
+<span class="sd">            `low` and `high` can either be numbers or anything convertible to a</span>
+<span class="sd">            NumPy array that can be broadcast to the shape of `var` (using</span>
+<span class="sd">            `np.broadcast_to`). To indicate that there is no bound, use `None` (or</span>
+<span class="sd">            `+/- np.infty`). For example, if `var` is a 2x3 matrix, then any of</span>
+<span class="sd">            the following corresponding `bounds` could be supplied:</span>
+<span class="sd">            * `(0, np.infty)`: Each element of `var` held positive.</span>
+<span class="sd">            * `(-np.infty, [1, 2])`: First column less than 1, second column less</span>
+<span class="sd">              than 2.</span>
+<span class="sd">            * `(-np.infty, [[1], [2], [3]])`: First row less than 1, second row less</span>
+<span class="sd">              than 2, etc.</span>
+<span class="sd">            * `(-np.infty, [[1, 2, 3], [4, 5, 6]])`: Entry `var[0, 0]` less than 1,</span>
+<span class="sd">              `var[0, 1]` less than 2, etc.</span>
+<span class="sd">          **optimizer_kwargs: Other subclass-specific keyword arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_equalities</span> <span class="o">=</span> <span class="n">equalities</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inequalities</span> <span class="o">=</span> <span class="n">inequalities</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">var_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">var_list</span><span class="p">)</span>
+
+        <span class="n">packed_bounds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">var_to_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">left_packed_bounds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">right_packed_bounds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">:</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+                <span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_to_bounds</span><span class="p">:</span>
+                    <span class="n">bounds</span> <span class="o">=</span> <span class="n">var_to_bounds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+                <span class="n">left_packed_bounds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">flat</span><span class="p">))</span>
+                <span class="n">right_packed_bounds</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">flat</span><span class="p">))</span>
+            <span class="n">packed_bounds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">left_packed_bounds</span><span class="p">,</span> <span class="n">right_packed_bounds</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_packed_bounds</span> <span class="o">=</span> <span class="n">packed_bounds</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_placeholders</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">array_ops</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span>
+            <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_var_updates</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">array_ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">placeholder</span><span class="p">,</span> <span class="n">_get_shape_tuple</span><span class="p">(</span><span class="n">var</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">placeholder</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_placeholders</span><span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="n">loss_grads</span> <span class="o">=</span> <span class="n">_compute_gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">)</span>
+        <span class="n">equalities_grads</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_compute_gradients</span><span class="p">(</span><span class="n">equality</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">equality</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equalities</span>
+            <span class="p">]</span>
+        <span class="n">inequalities_grads</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_compute_gradients</span><span class="p">(</span><span class="n">inequality</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">inequality</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inequalities</span>
+            <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="n">optimizer_kwargs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_packed_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_packed_loss_grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pack</span><span class="p">(</span><span class="n">loss_grads</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_packed_equality_grads</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pack</span><span class="p">(</span><span class="n">equality_grads</span><span class="p">)</span> <span class="k">for</span> <span class="n">equality_grads</span> <span class="ow">in</span> <span class="n">equalities_grads</span>
+            <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_packed_inequality_grads</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pack</span><span class="p">(</span><span class="n">inequality_grads</span><span class="p">)</span> <span class="k">for</span> <span class="n">inequality_grads</span> <span class="ow">in</span> <span class="n">inequalities_grads</span>
+            <span class="p">]</span>
+
+        <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">_prod</span><span class="p">(</span><span class="n">_get_shape_tuple</span><span class="p">(</span><span class="n">var</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">]</span>
+        <span class="n">accumulated_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_accumulate</span><span class="p">(</span><span class="n">dims</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_packing_slices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">accumulated_dims</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">accumulated_dims</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="p">]</span>
+
+<div class="viewcode-block" id="ExternalOptimizerInterface.minimize"><a class="viewcode-back" href="../../../zfit.minimizers.tf_external_optimizer.html#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface.minimize">[docs]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">feed_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fetches</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">step_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">loss_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">run_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Minimize a scalar `Tensor`.</span>
+
+<span class="sd">        Variables subject to optimization are updated in-place at the end of</span>
+<span class="sd">        optimization.</span>
+
+<span class="sd">        Note that this method does *not* just return a minimization `Op`, unlike</span>
+<span class="sd">        `Optimizer.minimize()`; instead it actually performs minimization by</span>
+<span class="sd">        executing commands to control a `Session`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          session: A `Session` instance.</span>
+<span class="sd">          feed_dict: A feed dict to be passed to calls to `session.run`.</span>
+<span class="sd">          fetches: A list of `Tensor`s to fetch and supply to `loss_callback`</span>
+<span class="sd">            as positional arguments.</span>
+<span class="sd">          step_callback: A function to be called at each optimization step;</span>
+<span class="sd">            arguments are the current values of all optimization variables</span>
+<span class="sd">            flattened into a single vector.</span>
+<span class="sd">          loss_callback: A function to be called every time the loss and gradients</span>
+<span class="sd">            are computed, with evaluated fetches supplied as positional arguments.</span>
+<span class="sd">          **run_kwargs: kwargs to pass to `session.run`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_default_session</span><span class="p">()</span>
+        <span class="n">feed_dict</span> <span class="o">=</span> <span class="n">feed_dict</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">fetches</span> <span class="o">=</span> <span class="n">fetches</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="n">loss_callback</span> <span class="o">=</span> <span class="n">loss_callback</span> <span class="ow">or</span> <span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">fetches</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">step_callback</span> <span class="o">=</span> <span class="n">step_callback</span> <span class="ow">or</span> <span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">xk</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Construct loss function and associated gradient.</span>
+        <span class="n">loss_grad_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_func</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">_packed_loss_grad</span><span class="p">],</span> <span class="n">session</span><span class="p">,</span>
+                                              <span class="n">feed_dict</span><span class="p">,</span> <span class="n">fetches</span><span class="p">,</span> <span class="n">loss_callback</span><span class="p">)</span>
+
+        <span class="c1"># Construct equality constraint functions and associated gradients.</span>
+        <span class="n">equality_funcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_funcs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_equalities</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">feed_dict</span><span class="p">,</span>
+                                               <span class="n">fetches</span><span class="p">)</span>
+        <span class="n">equality_grad_funcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_funcs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_packed_equality_grads</span><span class="p">,</span>
+                                                    <span class="n">session</span><span class="p">,</span> <span class="n">feed_dict</span><span class="p">,</span> <span class="n">fetches</span><span class="p">)</span>
+
+        <span class="c1"># Construct inequality constraint functions and associated gradients.</span>
+        <span class="n">inequality_funcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_funcs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inequalities</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span>
+                                                 <span class="n">feed_dict</span><span class="p">,</span> <span class="n">fetches</span><span class="p">)</span>
+        <span class="n">inequality_grad_funcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_funcs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_packed_inequality_grads</span><span class="p">,</span>
+                                                      <span class="n">session</span><span class="p">,</span> <span class="n">feed_dict</span><span class="p">,</span> <span class="n">fetches</span><span class="p">)</span>
+
+        <span class="c1"># Get initial value from TF session.</span>
+        <span class="n">initial_packed_var_val</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_packed_var</span><span class="p">)</span>
+
+        <span class="c1"># Perform minimization.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimize</span><span class="p">(</span>
+            <span class="n">initial_val</span><span class="o">=</span><span class="n">initial_packed_var_val</span><span class="p">,</span>
+            <span class="n">loss_grad_func</span><span class="o">=</span><span class="n">loss_grad_func</span><span class="p">,</span>
+            <span class="n">equality_funcs</span><span class="o">=</span><span class="n">equality_funcs</span><span class="p">,</span>
+            <span class="n">equality_grad_funcs</span><span class="o">=</span><span class="n">equality_grad_funcs</span><span class="p">,</span>
+            <span class="n">inequality_funcs</span><span class="o">=</span><span class="n">inequality_funcs</span><span class="p">,</span>
+            <span class="n">inequality_grad_funcs</span><span class="o">=</span><span class="n">inequality_grad_funcs</span><span class="p">,</span>
+            <span class="n">packed_bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_packed_bounds</span><span class="p">,</span>
+            <span class="n">step_callback</span><span class="o">=</span><span class="n">step_callback</span><span class="p">,</span>
+            <span class="n">optimizer_kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_kwargs</span><span class="p">)</span>
+        <span class="n">packed_var_val</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>  <span class="c1"># LICENSE: get result (above) and extract &#39;x&#39; here to keep the result</span>
+        <span class="n">var_vals</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">packed_var_val</span><span class="p">[</span><span class="n">packing_slice</span><span class="p">]</span> <span class="k">for</span> <span class="n">packing_slice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_packing_slices</span>
+            <span class="p">]</span>
+        <span class="c1"># LICENSE: changed lines below on updating the parameters</span>
+        <span class="c1"># Set optimization variables to their new values.</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">,</span> <span class="n">var_vals</span><span class="p">):</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">run_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># LICENSE: return fit result from scipy</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="k">def</span> <span class="nf">_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_val</span><span class="p">,</span> <span class="n">loss_grad_func</span><span class="p">,</span> <span class="n">equality_funcs</span><span class="p">,</span>
+                  <span class="n">equality_grad_funcs</span><span class="p">,</span> <span class="n">inequality_funcs</span><span class="p">,</span> <span class="n">inequality_grad_funcs</span><span class="p">,</span>
+                  <span class="n">packed_bounds</span><span class="p">,</span> <span class="n">step_callback</span><span class="p">,</span> <span class="n">optimizer_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper for a particular optimization algorithm implementation.</span>
+
+<span class="sd">        It would be appropriate for a subclass implementation of this method to</span>
+<span class="sd">        raise `NotImplementedError` if unsupported arguments are passed: e.g. if an</span>
+<span class="sd">        algorithm does not support constraints but `len(equality_funcs) &gt; 0`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          initial_val: A NumPy vector of initial values.</span>
+<span class="sd">          loss_grad_func: A function accepting a NumPy packed variable vector and</span>
+<span class="sd">            returning two outputs, a loss value and the gradient of that loss with</span>
+<span class="sd">            respect to the packed variable vector.</span>
+<span class="sd">          equality_funcs: A list of functions each of which specifies a scalar</span>
+<span class="sd">            quantity that an optimizer should hold exactly zero.</span>
+<span class="sd">          equality_grad_funcs: A list of gradients of equality_funcs.</span>
+<span class="sd">          inequality_funcs: A list of functions each of which specifies a scalar</span>
+<span class="sd">            quantity that an optimizer should hold &gt;= 0.</span>
+<span class="sd">          inequality_grad_funcs: A list of gradients of inequality_funcs.</span>
+<span class="sd">          packed_bounds: A list of bounds for each index, or `None`.</span>
+<span class="sd">          step_callback: A callback function to execute at each optimization step,</span>
+<span class="sd">            supplied with the current value of the packed variable vector.</span>
+<span class="sd">          optimizer_kwargs: Other key-value arguments available to the optimizer.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          The optimal variable vector as a NumPy vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s1">&#39;To use ExternalOptimizerInterface, subclass from it and implement &#39;</span>
+            <span class="s1">&#39;the _minimize() method.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_pack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tensors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pack a list of `Tensor`s into a single, flattened, rank-1 `Tensor`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tensors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flattened</span> <span class="o">=</span> <span class="p">[</span><span class="n">array_ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">flattened</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_eval_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensors</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">feed_dict</span><span class="p">,</span> <span class="n">fetches</span><span class="p">,</span>
+                        <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a function that evaluates a `Tensor` or list of `Tensor`s.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">tensors</span><span class="p">]</span>
+        <span class="n">num_tensors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">eval_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Function to evaluate a `Tensor`.&quot;&quot;&quot;</span>
+            <span class="n">augmented_feed_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">var</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">packing_slice</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_get_shape_tuple</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">packing_slice</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_packing_slices</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="n">augmented_feed_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">feed_dict</span><span class="p">)</span>
+            <span class="c1"># LICENSE: added loop below, as feed_dict cannot (anymore) replace `Variables` value</span>
+            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">augmented_feed_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">augmented_fetches</span> <span class="o">=</span> <span class="n">tensors</span> <span class="o">+</span> <span class="n">fetches</span>
+
+            <span class="n">augmented_fetch_vals</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">augmented_fetches</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="n">feed_dict</span><span class="p">)</span>  <span class="c1"># LICENSE: changed to feed_dict only, not augmented_feed_dict</span>
+
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+                <span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">augmented_fetch_vals</span><span class="p">[</span><span class="n">num_tensors</span><span class="p">:])</span>
+
+            <span class="k">return</span> <span class="n">augmented_fetch_vals</span><span class="p">[:</span><span class="n">num_tensors</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">eval_func</span>
+
+    <span class="k">def</span> <span class="nf">_make_eval_funcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">tensors</span><span class="p">,</span>
+                         <span class="n">session</span><span class="p">,</span>
+                         <span class="n">feed_dict</span><span class="p">,</span>
+                         <span class="n">fetches</span><span class="p">,</span>
+                         <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_eval_func</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">feed_dict</span><span class="p">,</span> <span class="n">fetches</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span>
+            <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ScipyOptimizerInterface"><a class="viewcode-back" href="../../../zfit.minimizers.tf_external_optimizer.html#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface">[docs]</a><span class="k">class</span> <span class="nc">ScipyOptimizerInterface</span><span class="p">(</span><span class="n">ExternalOptimizerInterface</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper allowing `scipy.optimize.minimize` to operate a `tf.Session`.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    vector = tf.Variable([7., 7.], &#39;vector&#39;)</span>
+
+<span class="sd">    # Make vector norm as small as possible.</span>
+<span class="sd">    loss = tf.reduce_sum(tf.square(vector))</span>
+
+<span class="sd">    optimizer = ScipyOptimizerInterface(loss, options={&#39;maxiter&#39;: 100})</span>
+
+<span class="sd">    with tf.Session() as session:</span>
+<span class="sd">      optimizer.minimize(session)</span>
+
+<span class="sd">    # The value of vector should now be [0., 0.].</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Example with simple bound constraints:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    vector = tf.Variable([7., 7.], &#39;vector&#39;)</span>
+
+<span class="sd">    # Make vector norm as small as possible.</span>
+<span class="sd">    loss = tf.reduce_sum(tf.square(vector))</span>
+
+<span class="sd">    optimizer = ScipyOptimizerInterface(</span>
+<span class="sd">        loss, var_to_bounds={vector: ([1, 2], np.infty)})</span>
+
+<span class="sd">    with tf.Session() as session:</span>
+<span class="sd">      optimizer.minimize(session)</span>
+
+<span class="sd">    # The value of vector should now be [1., 2.].</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Example with more complicated constraints:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    vector = tf.Variable([7., 7.], &#39;vector&#39;)</span>
+
+<span class="sd">    # Make vector norm as small as possible.</span>
+<span class="sd">    loss = tf.reduce_sum(tf.square(vector))</span>
+<span class="sd">    # Ensure the vector&#39;s y component is = 1.</span>
+<span class="sd">    equalities = [vector[1] - 1.]</span>
+<span class="sd">    # Ensure the vector&#39;s x component is &gt;= 1.</span>
+<span class="sd">    inequalities = [vector[0] - 1.]</span>
+
+<span class="sd">    # Our default SciPy optimization algorithm, L-BFGS-B, does not support</span>
+<span class="sd">    # general constraints. Thus we use SLSQP instead.</span>
+<span class="sd">    optimizer = ScipyOptimizerInterface(</span>
+<span class="sd">        loss, equalities=equalities, inequalities=inequalities, method=&#39;SLSQP&#39;)</span>
+
+<span class="sd">    with tf.Session() as session:</span>
+<span class="sd">      optimizer.minimize(session)</span>
+
+<span class="sd">    # The value of vector should now be [1., 1.].</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_DEFAULT_METHOD</span> <span class="o">=</span> <span class="s1">&#39;L-BFGS-B&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_val</span><span class="p">,</span> <span class="n">loss_grad_func</span><span class="p">,</span> <span class="n">equality_funcs</span><span class="p">,</span>
+                  <span class="n">equality_grad_funcs</span><span class="p">,</span> <span class="n">inequality_funcs</span><span class="p">,</span> <span class="n">inequality_grad_funcs</span><span class="p">,</span>
+                  <span class="n">packed_bounds</span><span class="p">,</span> <span class="n">step_callback</span><span class="p">,</span> <span class="n">optimizer_kwargs</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">loss_grad_func_wrapper</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="c1"># SciPy&#39;s L-BFGS-B Fortran implementation requires gradients as doubles.</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="n">gradient</span> <span class="o">=</span> <span class="n">loss_grad_func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">gradient</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+
+        <span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_METHOD</span><span class="p">)</span>
+
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">grad_func</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">equality_funcs</span><span class="p">,</span> <span class="n">equality_grad_funcs</span><span class="p">):</span>
+            <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span><span class="p">:</span> <span class="n">func</span><span class="p">,</span> <span class="s1">&#39;jac&#39;</span><span class="p">:</span> <span class="n">grad_func</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">grad_func</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inequality_funcs</span><span class="p">,</span> <span class="n">inequality_grad_funcs</span><span class="p">):</span>
+            <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;ineq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span><span class="p">:</span> <span class="n">func</span><span class="p">,</span> <span class="s1">&#39;jac&#39;</span><span class="p">:</span> <span class="n">grad_func</span><span class="p">})</span>
+
+        <span class="n">minimize_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">loss_grad_func_wrapper</span><span class="p">,</span> <span class="n">initial_val</span><span class="p">]</span>
+        <span class="n">minimize_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;jac&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;callback&#39;</span><span class="p">:</span> <span class="n">step_callback</span><span class="p">,</span>
+            <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+            <span class="s1">&#39;constraints&#39;</span><span class="p">:</span> <span class="n">constraints</span><span class="p">,</span>
+            <span class="s1">&#39;bounds&#39;</span><span class="p">:</span> <span class="n">packed_bounds</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">kwarg</span> <span class="ow">in</span> <span class="n">minimize_kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kwarg</span> <span class="ow">in</span> <span class="n">optimizer_kwargs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwarg</span> <span class="o">==</span> <span class="s1">&#39;bounds&#39;</span><span class="p">:</span>
+                    <span class="c1"># Special handling for &#39;bounds&#39; kwarg since ability to specify bounds</span>
+                    <span class="c1"># was added after this module was already publicly released.</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;Bounds must be set using the var_to_bounds argument&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Optimizer keyword arg </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1"> is set &#39;</span>
+                    <span class="s1">&#39;automatically and cannot be injected manually&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kwarg</span><span class="p">))</span>
+
+        <span class="n">minimize_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">optimizer_kwargs</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">scipy.optimize</span>  <span class="c1"># pylint: disable=g-import-not-at-top</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="o">*</span><span class="n">minimize_args</span><span class="p">,</span> <span class="o">**</span><span class="n">minimize_kwargs</span><span class="p">)</span>
+
+        <span class="n">message_lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;Optimization terminated with:&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;  Message: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;  Objective function value: </span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="n">message_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;nit&#39;</span><span class="p">):</span>
+            <span class="c1"># Some optimization methods might not provide information such as nit and</span>
+            <span class="c1"># nfev in the return. Logs only available information.</span>
+            <span class="n">message_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Number of iterations: </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">message_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;nfev&#39;</span><span class="p">):</span>
+            <span class="n">message_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Number of functions evaluations: </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">message_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">nfev</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">message_lines</span><span class="p">),</span> <span class="o">*</span><span class="n">message_args</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="k">def</span> <span class="nf">_accumulate</span><span class="p">(</span><span class="n">list_</span><span class="p">):</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">yield</span> <span class="n">total</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">list_</span><span class="p">:</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">x</span>
+        <span class="k">yield</span> <span class="n">total</span>
+
+
+<span class="k">def</span> <span class="nf">_get_shape_tuple</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">tensor</span><span class="o">.</span><span class="n">get_shape</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">_prod</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="n">prod</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">array</span><span class="p">:</span>
+        <span class="n">prod</span> <span class="o">*=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">prod</span>
+
+
+<span class="k">def</span> <span class="nf">_compute_gradients</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">var_list</span><span class="p">):</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">gradients</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">var_list</span><span class="p">)</span>
+    <span class="c1"># tf.gradients sometimes returns `None` when it should return 0.</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">grad</span> <span class="k">if</span> <span class="n">grad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">var_list</span><span class="p">,</span> <span class="n">grads</span><span class="p">)</span>
+        <span class="p">]</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

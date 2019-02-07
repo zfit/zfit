@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.util.exception &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.util.exception</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for zfit.util.exception</h1><div class="highlight"><pre>
+<span></span><span class="c1"># TODO: improve errors of models. Generate more general error, inherit and use more specific?</span>
+
+
+<div class="viewcode-block" id="PDFCompatibilityError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.PDFCompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">PDFCompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LogicalUndefinedOperationError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.LogicalUndefinedOperationError">[docs]</a><span class="k">class</span> <span class="nc">LogicalUndefinedOperationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ExtendedPDFError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.ExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">ExtendedPDFError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AlreadyExtendedPDFError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.AlreadyExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">AlreadyExtendedPDFError</span><span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NotExtendedPDFError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">NotExtendedPDFError</span><span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ConversionError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.ConversionError">[docs]</a><span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="SubclassingError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.SubclassingError">[docs]</a><span class="k">class</span> <span class="nc">SubclassingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BasePDFSubclassingError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.BasePDFSubclassingError">[docs]</a><span class="k">class</span> <span class="nc">BasePDFSubclassingError</span><span class="p">(</span><span class="n">SubclassingError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="IntentionNotUnambiguousError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.IntentionNotUnambiguousError">[docs]</a><span class="k">class</span> <span class="nc">IntentionNotUnambiguousError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="UnderdefinedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.UnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">UnderdefinedError</span><span class="p">(</span><span class="n">IntentionNotUnambiguousError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LimitsUnderdefinedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.LimitsUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OverdefinedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.OverdefinedError">[docs]</a><span class="k">class</span> <span class="nc">OverdefinedError</span><span class="p">(</span><span class="n">IntentionNotUnambiguousError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LimitsOverdefinedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.LimitsOverdefinedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsOverdefinedError</span><span class="p">(</span><span class="n">OverdefinedError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AxesNotUnambiguousError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.AxesNotUnambiguousError">[docs]</a><span class="k">class</span> <span class="nc">AxesNotUnambiguousError</span><span class="p">(</span><span class="n">IntentionNotUnambiguousError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NotSpecifiedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NotSpecifiedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LimitsNotSpecifiedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NormRangeNotSpecifiedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NormRangeNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AxesNotSpecifiedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.AxesNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">AxesNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ObsNotSpecifiedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.ObsNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">ObsNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># Parameter Errors</span>
+<div class="viewcode-block" id="NameAlreadyTakenError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NameAlreadyTakenError">[docs]</a><span class="k">class</span> <span class="nc">NameAlreadyTakenError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># Operation errors</span>
+<div class="viewcode-block" id="IncompatibleError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.IncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">IncompatibleError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ShapeIncompatibleError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ShapeIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="SpaceIncompatibleError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.SpaceIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">SpaceIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LimitsIncompatibleError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.LimitsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">LimitsIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ModelIncompatibleError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.ModelIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ModelIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># Minimizer errors</span>
+
+<div class="viewcode-block" id="NotMinimizedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NotMinimizedError">[docs]</a><span class="k">class</span> <span class="nc">NotMinimizedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># Runtime Errors</span>
+
+<div class="viewcode-block" id="NoSessionSpecifiedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NoSessionSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NoSessionSpecifiedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># PDF class internal handling errors</span>
+<div class="viewcode-block" id="NormRangeNotImplementedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that a function does not support the normalization range argument `norm_range`.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="MultipleLimitsNotImplementedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.MultipleLimitsNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">MultipleLimitsNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that a function does not support several limits in a `Space`.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># Developer verbose messages</span>
+
+<div class="viewcode-block" id="DueToLazynessNotImplementedError"><a class="viewcode-back" href="../../../zfit.util.exception.html#zfit.util.exception.DueToLazynessNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">DueToLazynessNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Only for developing purpose! Does not serve as a &#39;real&#39; Exception.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

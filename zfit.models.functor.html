@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to zfit’s documentation! &mdash; zfit 0.0.0 documentation</title>
+  <title>zfit.models.functor &mdash; zfit 0.0.0 documentation</title>
   
 
   
@@ -27,8 +27,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="zfit" href="readme.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -47,7 +46,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> zfit
+            <a href="index.html" class="icon icon-home"> zfit
           
 
           
@@ -110,7 +109,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">zfit</a>
+          <a href="index.html">zfit</a>
         
       </nav>
 
@@ -139,15 +138,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Welcome to zfit’s documentation!</li>
+      <li>zfit.models.functor</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/zfit.models.functor.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,34 +159,58 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-zfit-s-documentation">
-<h1>Welcome to zfit’s documentation!<a class="headerlink" href="#welcome-to-zfit-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="readme.html">zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+  <div class="section" id="module-zfit.models.functor">
+<span id="zfit-models-functor"></span><h1>zfit.models.functor<a class="headerlink" href="#module-zfit.models.functor" title="Permalink to this headline">¶</a></h1>
+<p>Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.</p>
+<p>A FunctorBase class is provided to make handling the models easier.</p>
+<p>Their implementation is often non-trivial.</p>
+<dl class="class">
+<dt id="zfit.models.functor.BaseFunctor">
+<em class="property">class </em><code class="descclassname">zfit.models.functor.</code><code class="descname">BaseFunctor</code><span class="sig-paren">(</span><em>pdfs</em>, <em>name='BaseFunctor'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/models/functor.html#BaseFunctor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.functor.BaseFunctor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.models.basefunctor.html#zfit.models.basefunctor.FunctorMixin" title="zfit.models.basefunctor.FunctorMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.basefunctor.FunctorMixin</span></code></a>, <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.models.functor.BaseFunctor.pdfs_extended">
+<code class="descname">pdfs_extended</code><a class="headerlink" href="#zfit.models.functor.BaseFunctor.pdfs_extended" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.models.functor.ProductPDF">
+<em class="property">class </em><code class="descclassname">zfit.models.functor.</code><code class="descname">ProductPDF</code><span class="sig-paren">(</span><em>pdfs: List[zfit.core.interfaces.ZfitPDF], obs: Union[str, Iterable[str], Space] = None, name='ProductPDF'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/models/functor.html#ProductPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.functor.ProductPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.models.functor.BaseFunctor" title="zfit.models.functor.BaseFunctor"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.functor.BaseFunctor</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.models.functor.SumPDF">
+<em class="property">class </em><code class="descclassname">zfit.models.functor.</code><code class="descname">SumPDF</code><span class="sig-paren">(</span><em>pdfs: List[zfit.core.interfaces.ZfitPDF], fracs: Union[ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor, None] = None, obs: Union[str, Iterable[str], Space] = None, name: str = 'SumPDF'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/models/functor.html#SumPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.functor.SumPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.models.functor.BaseFunctor" title="zfit.models.functor.BaseFunctor"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.functor.BaseFunctor</span></code></a></p>
+<p>Create the sum of the <cite>pdfs</cite> with <cite>fracs</cite> as coefficients.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pdfs</strong> (<em>pdf</em>) – The pdfs to add.</li>
+<li><strong>fracs</strong> (<em>iterable</em>) – <p>coefficients for the linear combination of the pdfs. If pdfs are
+extended, this throws an error.</p>
+<blockquote>
+<div><ul>
+<li>len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
+The last coefficient will equal to 1 - sum(frac)</li>
+<li>len(frac) == len(pdf) each pdf in <cite>pdfs</cite> will become an extended pdf with the
+given yield.</li>
 </ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</div></blockquote>
+</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
 upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
 Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
@@ -202,13 +225,6 @@ and from 2 to 5.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="readme.html" class="btn btn-neutral float-right" title="zfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

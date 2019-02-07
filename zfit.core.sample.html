@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to zfit’s documentation! &mdash; zfit 0.0.0 documentation</title>
+  <title>zfit.core.sample &mdash; zfit 0.0.0 documentation</title>
   
 
   
@@ -27,8 +27,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="zfit" href="readme.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -47,7 +46,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> zfit
+            <a href="index.html" class="icon icon-home"> zfit
           
 
           
@@ -110,7 +109,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">zfit</a>
+          <a href="index.html">zfit</a>
         
       </nav>
 
@@ -139,15 +138,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Welcome to zfit’s documentation!</li>
+      <li>zfit.core.sample</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/zfit.core.sample.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -160,34 +159,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-zfit-s-documentation">
-<h1>Welcome to zfit’s documentation!<a class="headerlink" href="#welcome-to-zfit-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="readme.html">zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+  <div class="section" id="module-zfit.core.sample">
+<span id="zfit-core-sample"></span><h1>zfit.core.sample<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="zfit.core.sample.accept_reject_sample">
+<code class="descclassname">zfit.core.sample.</code><code class="descname">accept_reject_sample</code><span class="sig-paren">(</span><em>prob: Callable</em>, <em>n: int</em>, <em>limits: zfit.core.limits.Space</em>, <em>sampler: Callable = &lt;function random_uniform&gt;</em>, <em>dtype=tf.float64</em>, <em>prob_max: Union[None</em>, <em>int] = None</em>, <em>efficiency_estimation: float = 1.5</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accept reject sample from a probability distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prob</strong> (<em>function</em>) – A function taking x a Tensor as an argument and returning the probability
+(or anything that is proportional to the probability).</li>
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of samples to produce</li>
+<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>Space</em></a>) – The limits to sample from</li>
+<li><strong>sampler</strong> (<em>function</em>) – A function taking n as an argument and returning value between
+0 and 1</li>
+<li><strong>(</strong><strong>)</strong> (<em>dtype</em>) – </li>
+<li><strong>prob_max</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The maximum of the model function for the given limits. If None
+is given, it will be automatically, safely estimated (by a 10% increase in computation time
+(constant weak scaling)).</li>
+<li><strong>efficiency_estimation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – estimation of the initial sampling efficiency.</li>
 </ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tf.Tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
 upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
 Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
@@ -202,13 +208,6 @@ and from 2 to 5.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="readme.html" class="btn btn-neutral float-right" title="zfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

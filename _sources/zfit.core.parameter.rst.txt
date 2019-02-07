@@ -1,0 +1,7 @@
+zfit.core.parameter
+===================
+
+.. automodule:: zfit.core.parameter
+    :members:
+    :undoc-members:
+    :show-inheritance:

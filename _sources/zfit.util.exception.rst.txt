@@ -1,0 +1,7 @@
+zfit.util.exception
+===================
+
+.. automodule:: zfit.util.exception
+    :members:
+    :undoc-members:
+    :show-inheritance:

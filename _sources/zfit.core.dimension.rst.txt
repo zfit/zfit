@@ -1,0 +1,7 @@
+zfit.core.dimension
+===================
+
+.. automodule:: zfit.core.dimension
+    :members:
+    :undoc-members:
+    :show-inheritance:
