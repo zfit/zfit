@@ -24,6 +24,7 @@ matrix:
 install: pip install -U tox-travis
 script:
     - tox
+    - pip install -U .
     - . utils/ci/testbuild_docs.sh
 
 after_success:
