@@ -34,6 +34,7 @@ gaussian_dists = [test_gauss1, gauss_params1]
 def test_sampling_fixed(gauss):
     n_draws = 1000
     sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high))
+    sample_tensor.resample()
     sampled_from_gauss1 = zfit.run(sample_tensor)
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
@@ -41,6 +42,7 @@ def test_sampling_fixed(gauss):
 
     gauss_full_sample = gauss.create_sampler(n=10000,
                                              limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5))
+    gauss_full_sample.resample()
     sampled_gauss1_full = zfit.run(gauss_full_sample)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
@@ -64,8 +66,9 @@ def test_sampling_fixed(gauss):
 @pytest.mark.parametrize('gauss', gaussian_dists)
 def test_sampling_floating(gauss):
     n_draws = 1000
-    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
-    sampled_from_gauss1 = zfit.run(sample_tensor)
+    sampler = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
+    sampler.resample()
+    sampled_from_gauss1 = zfit.run(sampler)
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
@@ -73,6 +76,7 @@ def test_sampling_floating(gauss):
     gauss_full_sample = gauss.create_sampler(n=10000,
                                              limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5),
                                              fixed_params=False)
+    gauss_full_sample.resample()
     sampled_gauss1_full = zfit.run(gauss_full_sample)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
@@ -82,8 +86,8 @@ def test_sampling_floating(gauss):
     with mu.set_value(mu_true - 1), mu2.set_value(mu_true - 1):
         assert zfit.run(mu) == mu_true - 1
         assert zfit.run(mu2) == mu_true - 1
-        sample_tensor.resample()
-        sampled_from_gauss1 = zfit.run(sample_tensor)
+        sampler.resample()
+        sampled_from_gauss1 = zfit.run(sampler)
         assert max(sampled_from_gauss1[:, 0]) <= high
         assert min(sampled_from_gauss1[:, 0]) >= low
         assert n_draws == len(sampled_from_gauss1[:, 0])

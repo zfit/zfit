@@ -399,9 +399,18 @@ class Sampler(Data):
         if isinstance(fixed_params, (list, tuple)):
             fixed_params = OrderedDict((param, self.sess.run(param)) for param in fixed_params)
 
-        self.sess.run(sample_holder.initializer)
+        self._initial_resampled = False
+
+        # self.sess.run(sample_holder.initializer)
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
+
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
+        if not self._initial_resampled:
+            raise RuntimeError(
+                "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
+                "for single-time sampling.")
+        return super()._value_internal(obs)
 
     @classmethod
     def get_cache_counting(cls):
@@ -430,6 +439,7 @@ class Sampler(Data):
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
             zfit.run(self.sample_holder.initializer)
+            self._initial_resampled = True
 
 
 def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):

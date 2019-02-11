@@ -23,16 +23,16 @@ obs1 = 'obs1'
 
 gauss_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
 
+mu_true_param = zfit.Parameter('mu_true123', mu_true)
 sigma_true_param = zfit.Parameter('sigma_true123', sigma_true)
-sigma_true_param = zfit.Parameter('mu_true123', mu_true)
 
 
-class TestGaussian(zfit.core.basepdf.BasePDF):
+class TestGaussian(zfit.pdf.BasePDF):
 
     def _unnormalized_pdf(self, x, norm_range=False):
         x = x.unstack_x()
 
-        return tf.exp((-(x - sigma_true_param) ** 2) / (
+        return tf.exp((-(x - mu_true_param) ** 2) / (
             2 * sigma_true_param ** 2))  # non-normalized gaussian
 
 
@@ -114,14 +114,19 @@ def test_sampling_simple(gauss):
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
-
-    sampled_gauss1_full = zfit.run(gauss.sample(n=10000,
-                                                limits=(mu_true - abs(sigma_true) * 5,
-                                                                mu_true + abs(sigma_true) * 5)))
+    if gauss.params:
+        mu_true1 = zfit.run(gauss.params['mu'])
+        sigma_true1 = zfit.run(gauss.params['sigma'])
+    else:
+        mu_true1 = mu_true
+        sigma_true1 = sigma_true
+    sampled_gauss1_full = gauss.sample(n=10000,
+                                       limits=(mu_true1 - abs(sigma_true1) * 5, mu_true1 + abs(sigma_true1) * 5))
+    sampled_gauss1_full = zfit.run(sampled_gauss1_full)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
-    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+    assert mu_sampled == pytest.approx(mu_true1, rel=0.07)
+    assert sigma_sampled == pytest.approx(sigma_true1, rel=0.07)
 
 
 def test_analytic_sampling():
