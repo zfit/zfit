@@ -171,8 +171,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, name=name, iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensors(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None) -> "Data":
-        # dataset = tf.data.Dataset.from_tensors(tensors=tensors)
+    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None) -> "Data":
+        # dataset = tf.data.Dataset.from_tensor(tensors=tensors)
         # dataset = dataset.repeat()
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name)
@@ -369,6 +369,31 @@ class SampleData(Data):
     _cache_counting = 0
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+                 obs: ztyping.ObsTypeInput = None, name: str = None,
+                 dtype: tf.DType = ztypes.float):
+        super().__init__(dataset, obs, name, iterator_feed_dict=None, dtype=dtype)
+        self.sess.run(sample_holder.initializer)
+
+    @classmethod
+    def get_cache_counting(cls):
+        counting = cls._cache_counting
+        cls._cache_counting += 1
+        return counting
+
+    @classmethod
+    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None):
+        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
+                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
+                                    use_resource=True)
+        dataset = LightDataset.from_tensor(sample_holder)
+
+        return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name)
+
+
+class Sampler(Data):
+    _cache_counting = 0
+
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
                  fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
                  obs: ztyping.ObsTypeInput = None, name: str = None,
                  dtype: tf.DType = ztypes.float):
@@ -384,7 +409,7 @@ class SampleData(Data):
         self.sample_holder = sample_holder
 
     @classmethod
-    def _get_cache_counting(cls):
+    def get_cache_counting(cls):
         counting = cls._cache_counting
         cls._cache_counting += 1
         return counting
@@ -396,13 +421,17 @@ class SampleData(Data):
             fixed_params = []
 
         sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
-                                    name="sample_data_holder_{}".format(cls._get_cache_counting()),
+                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
                                     use_resource=True)
         dataset = LightDataset.from_tensor(sample_holder)
 
-        return SampleData(dataset, fixed_params=fixed_params, sample_holder=sample_holder, obs=obs, name=name)
+        return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder, obs=obs, name=name)
 
-    def resample(self):
+    def resample(self, param_values: OrderedDict = None):
+
+        temp_param_values = self.fixed_params.copy()
+        if param_values is not None:
+            temp_param_values.update(param_values)
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
             zfit.run(self.sample_holder.initializer)

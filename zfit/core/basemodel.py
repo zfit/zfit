@@ -14,9 +14,9 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
-from zfit.core.integration import Integration
-from zfit.util.cache import Cachable
-from .data import Data, SampleData
+from ..core.integration import Integration
+from ..util.cache import Cachable
+from .data import Data, Sampler, SampleData
 from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
@@ -180,7 +180,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             if x_shape != self.n_obs:
                 raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_obs))
-            x = Data.from_tensors(obs=self.obs, tensor=x)
+            x = Data.from_tensor(obs=self.obs, tensor=x)
             yield x
 
     def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
@@ -735,18 +735,37 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 
-    @no_norm_range
+    @supports()
     def _inverse_analytic_integrate(self, x):
         if not self._inverse_analytic_integral:
             raise NotImplementedError
         else:
             return self._inverse_analytic_integral[0](x=x, params=self.params)
 
+    def create_sampler(self, n: int, limits: ztyping.LimitsType, fixed_params=True,
+                       name: str = "sample") -> ztyping.XType:
+        if limits is None:
+            limits = self.space
+        if fixed_params is True:
+            fixed_params = list(self.get_dependents(only_floating=False))
+        elif fixed_params is False:
+            fixed_params = []
+        elif not isinstance(fixed_params, (list, tuple)):
+            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
+
+        limits = self._check_input_limits(limits=limits, caller_name=name)
+        sample = self._single_hook_sample(n=n, limits=limits, name=name)
+
+        sample_data = Sampler.from_sample(sample=sample, obs=self.obs, fixed_params=fixed_params,
+                                          name=name)
+
+        return sample_data
+
     @_BaseModel_register_check_support(True)
     def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n: int, limits: ztyping.LimitsType = None, fixed_params=True, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -761,17 +780,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         if limits is None:
             limits = self.space
-        if fixed_params is True:
-            fixed_params = list(self.get_dependents(only_floating=False))
-        elif fixed_params is False:
-            fixed_params = []
-        elif not isinstance(fixed_params, (list, tuple)):
-            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
-
         limits = self._check_input_limits(limits=limits, caller_name=name)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
-        sample_data = SampleData.from_sample(sample=sample, obs=self.obs, fixed_params=fixed_params,
-                                             name=name)
+        sample_data = SampleData.from_sample(sample=sample, obs=self.space)
+
         return sample_data
 
     def _single_hook_sample(self, n, limits, name):
