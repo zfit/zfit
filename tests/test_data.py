@@ -53,7 +53,7 @@ def test_from_numpy():
 
 
 def test_from_tensors():
-    data = zfit.data.Data.from_tensors(obs='obs1', tensor=tf.random_normal(shape=(100,), dtype=tf.float64))
+    data = zfit.data.Data.from_tensor(obs='obs1', tensor=tf.random_normal(shape=(100,), dtype=tf.float64))
     # data.initialize(sess=zfit.sess)
 
     x = data.value()
@@ -129,7 +129,7 @@ def test_data_range():
     data_range = zfit.Space(obs=obs, limits=(lower, upper))
     cut_data1 = data1[np.array((0, 2)), :]
 
-    dataset = zfit.data.Data.from_tensors(obs=obs, tensor=data1)
+    dataset = zfit.data.Data.from_tensor(obs=obs, tensor=data1)
     value_uncut = dataset.value()
     np.testing.assert_equal(data1, zfit.run(value_uncut))
     with dataset.set_data_range(data_range):

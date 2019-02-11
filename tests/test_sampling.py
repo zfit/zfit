@@ -33,13 +33,14 @@ gaussian_dists = [test_gauss1, gauss_params1]
 @pytest.mark.parametrize('gauss', gaussian_dists)
 def test_sampling_fixed(gauss):
     n_draws = 1000
-    sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
+    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high))
     sampled_from_gauss1 = zfit.run(sample_tensor)
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
-    gauss_full_sample = gauss.sample(n=10000, limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5))
+    gauss_full_sample = gauss.create_sampler(n=10000,
+                                             limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5))
     sampled_gauss1_full = zfit.run(gauss_full_sample)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
@@ -63,14 +64,15 @@ def test_sampling_fixed(gauss):
 @pytest.mark.parametrize('gauss', gaussian_dists)
 def test_sampling_floating(gauss):
     n_draws = 1000
-    sample_tensor = gauss.sample(n=n_draws, limits=(low, high), fixed_params=False)
+    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
     sampled_from_gauss1 = zfit.run(sample_tensor)
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
-    gauss_full_sample = gauss.sample(n=10000, limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5),
-                                     fixed_params=False)
+    gauss_full_sample = gauss.create_sampler(n=10000,
+                                             limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5),
+                                             fixed_params=False)
     sampled_gauss1_full = zfit.run(gauss_full_sample)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
