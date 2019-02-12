@@ -39,12 +39,20 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         self._permutation_indices_data = None
         self._next_batch = None
         self._dtype = dtype
+        self._nevents = None
 
         self._set_space(obs)
         self.dataset = dataset
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
         self.iterator = None
+
+    @property
+    def nevents(self):
+        nevents = self._nevents
+        if nevents is None:
+            nevents = self._get_nevents()
+        return nevents
 
     @property
     def dtype(self):
@@ -65,8 +73,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @invalidates_cache
     def set_data_range(self, data_range):
-        warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
-                      "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
+        # warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
+        #               "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
         data_range = self._check_input_data_range(data_range=data_range)
 
         def setter(value):
@@ -363,6 +371,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if self_space is not None:
             space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
         return space
+
+    def _get_nevents(self):
+        nevents = tf.shape(self.value())[0]
+        return nevents
 
 
 class SampleData(Data):

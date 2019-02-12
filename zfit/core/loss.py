@@ -280,7 +280,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
-            poisson_terms.append(-mod.get_yield() + tf.size(dat, out_type=ztypes.float) * tf.log(mod.get_yield()))
+            poisson_terms.append(-mod.get_yield() + ztf.to_real(dat.nevents) * tf.log(mod.get_yield()))
         nll -= tf.reduce_sum(poisson_terms)
         return nll
 
@@ -293,7 +293,7 @@ class SimpleLoss(BaseLoss):
         self._simple_errordef = errordef
 
         model = SimpleFunc(func=func, obs='obs1')
-        super().__init__(model=model, data='dummy', fit_range=None)
+        super().__init__(model=[model], data=['dummy'], fit_range=[None])
 
     @property
     def errordef(self):

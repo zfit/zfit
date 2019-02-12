@@ -135,7 +135,6 @@ def test_prod_gauss_nd_mixed():
 
 
 def test_func_sum():
-    zfit.run(tf.global_variables_initializer())
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm_range=(-10, 10))
     vals = sum_gauss_as_func.func(x=test_values)
