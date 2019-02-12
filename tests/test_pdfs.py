@@ -162,8 +162,14 @@ def test_exp():
     lambda_true = 3.1
     lambda_ = zfit.Parameter('lambda1', lambda_true)
     exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
-    exp1.sample(n=10, limits=(-10, 10))
-    exp1.pdf(x=np.random.normal(size=100), norm_range=(-5, 5))
+    sample = exp1.sample(n=1000, limits=(-10, 10))
+    sample_np = zfit.run(sample)
+    assert not any(np.isnan(sample_np))
+    probs1 = exp1.pdf(x=np.random.normal(size=842), norm_range=(-5, 5))
+    probs2 = exp1.pdf(x=np.linspace(-5, 5, num=11), norm_range=(-5, 5))
+    probs1_np, probs2_np = zfit.run([probs1, probs2])
+    assert not any(np.isnan(probs1_np))
+    assert not any(np.isnan(probs2_np))
     normalization_testing(exp1, 1)
 
 
