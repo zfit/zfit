@@ -53,7 +53,7 @@ def unstack_x(value: Any, num: Any = None, axis: int = -1, name: str = "unstack_
     if isinstance(value, list):
         return value
     try:
-        unstacked_x = value.unstack_x()  # TODO: which name?
+        return value.unstack_x()  # TODO: which name?
     except AttributeError:
         unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
     if len(unstacked_x) == 1:
