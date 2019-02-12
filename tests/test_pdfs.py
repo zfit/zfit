@@ -183,7 +183,7 @@ def normalization_testing(pdf, normalization_value=1.):
         probs = pdf.pdf(samples)
         result = zfit.run(probs)
         result = np.average(result) * (high - low)
-        assert normalization_value == pytest.approx(result, rel=0.07)
+        assert pytest.approx(result, rel=0.07) == normalization_value
 
 
 def test_extended_gauss():

@@ -10,6 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import ztf
+from zfit.util.exception import DueToLazynessNotImplementedError
 from ..settings import ztypes
 from ..util import ztyping
 from ..core.limits import Space, ANY_LOWER, ANY_UPPER
@@ -65,6 +66,27 @@ class Exponential(BasePDF):
         lambda_ = self.params['lambda']
         x = ztf.unstack_x(x)
         return tf.exp(lambda_ * x)
+
+    def _log_pdf(self, x, norm_range: Space):
+        lambda_ = self.params['lambda']
+        x = ztf.unstack_x(x)
+        func = x * lambda_
+        if norm_range.n_limits > 1:
+            raise DueToLazynessNotImplementedError(
+                "Not implemented, it's more of a hack. I Should implement log_pdf and "
+                "norm probarly")
+        (lower,), (upper,) = norm_range.limits
+        lower = lower[0]
+        upper = upper[0]
+
+        assert False, "WIP, fix log integral"
+
+        def raw_integral(x):
+            return 0.5 * x ** 2 * lambda_
+
+        integral = raw_integral(upper) - raw_integral(lower)
+        pdf = func - integral
+        return pdf
 
 
 def _exp_integral_from_any_to_any(limits, params):
