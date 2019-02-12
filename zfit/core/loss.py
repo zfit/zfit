@@ -293,7 +293,7 @@ class SimpleLoss(BaseLoss):
         self._simple_errordef = errordef
 
         model = SimpleFunc(func=func, obs='obs1')
-        super().__init__(model=[model], data=['dummy'], fit_range=[False])
+        super().__init__(model=model, data='dummy', fit_range=None)
 
     @property
     def errordef(self):
