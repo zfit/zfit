@@ -22,10 +22,10 @@ class BaseFunc(BaseModel, ZfitFunc):
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _func_to_integrate(self, x: ztyping.XType):
-        return self.value(x=x)
+        return self.func(x=x)
 
     def _func_to_sample_from(self, x):
-        return self.value(x=x)
+        return self.func(x=x)
 
     # TODO(Mayou36): how to deal with copy properly?
     def copy(self, **override_params):
@@ -41,7 +41,7 @@ class BaseFunc(BaseModel, ZfitFunc):
     def _value(self, x):
         raise NotImplementedError
 
-    def value(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:  # TODO(naming): rename to `func`?
+    def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:  # TODO(naming): rename to `func`?
         """The function evaluated at `x`.
 
         Args:
