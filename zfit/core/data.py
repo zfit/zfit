@@ -406,6 +406,7 @@ class Sampler(Data):
     _cache_counting = 0
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+                 n_holder: tf.Variable,
                  fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
                  obs: ztyping.ObsTypeInput = None, name: str = None,
                  dtype: tf.DType = ztypes.float):
@@ -421,6 +422,7 @@ class Sampler(Data):
         # self.sess.run(sample_holder.initializer)
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
+        self.n_holder = n_holder
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if not self._initial_resampled:
@@ -436,7 +438,8 @@ class Sampler(Data):
         return counting
 
     @classmethod
-    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, fixed_params=None, name: str = None):
+    def from_sample(cls, sample: tf.Tensor, n_holder: tf.Variable, obs: ztyping.ObsTypeInput, fixed_params=None,
+                    name: str = None):
 
         if fixed_params is None:
             fixed_params = []
@@ -446,7 +449,8 @@ class Sampler(Data):
                                     use_resource=True)
         dataset = LightDataset.from_tensor(sample_holder)
 
-        return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder, obs=obs, name=name)
+        return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
+                       n_holder=n_holder, obs=obs, name=name)
 
     def resample(self, param_values: OrderedDict = None):
 
@@ -455,7 +459,7 @@ class Sampler(Data):
             temp_param_values.update(param_values)
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
-            zfit.run(self.sample_holder.initializer)
+            zfit.run([self.sample_holder.initializer, self.n_holder.initializer])
             self._initial_resampled = True
 
 

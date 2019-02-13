@@ -1,3 +1,4 @@
+from contextlib import suppress
 import typing
 
 import tensorflow as tf
@@ -107,7 +108,11 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     if multiple_limits:
         sample = tf.random.shuffle(sample)  # to make sure, randomly remove and not biased.
     new_sample = sample[:n, :]  # cutting away to many produced
-    new_sample.set_shape((n_samples_int, n_dims))
+
+    # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
+    # if no failure, uncomment both for improvement of shape inference
+    # with suppress(AttributeError):  # if n_samples_int is not a numpy object
+    #     new_sample.set_shape((n_samples_int, n_dims))
     return new_sample
 
 

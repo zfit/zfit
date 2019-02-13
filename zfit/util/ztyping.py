@@ -36,6 +36,9 @@ NumericalTypeReturn = Union[tf.Tensor, np.array]
 
 NumericalScalarType = Union[int, float, complex, tf.Tensor]
 
+# Integer sampling
+nSamplingTypeIn = Union[int, tf.Tensor]
+
 # Parameter
 ParamsTypeOpt = Optional[Iterable['ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]
@@ -57,3 +60,4 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
+
