@@ -36,7 +36,7 @@ class CustomGaussOLD(BasePDF):
         return gauss
 
 
-def _gauss_integral_from_inf_to_inf(limits, params):
+def _gauss_integral_from_inf_to_inf(limits, params, model):
     return tf.sqrt(2 * ztf.pi) * params['sigma']
 
 

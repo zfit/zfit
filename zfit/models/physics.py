@@ -87,7 +87,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
 #     return result
 
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
-def crystalball_integral(limits, params):
+def crystalball_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
     alpha = params['alpha']
