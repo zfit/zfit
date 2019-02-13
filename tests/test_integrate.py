@@ -131,7 +131,7 @@ def func3_2deps(x):
     return a ** 2 + b ** 2
 
 
-def func3_2deps_fully_integrated(limits, params=None):
+def func3_2deps_fully_integrated(limits, params=None, model=None):
     lower, upper = limits.limits
     with suppress(TypeError):
         lower, upper = lower[0], upper[0]
@@ -284,7 +284,7 @@ def test_analytic_integral_selection():
         def _unnormalized_pdf(self, x, norm_range=False):
             return x ** 2
 
-    int1 = lambda x: 1
+    int1 = lambda x: 1  # on purpose wrong signature but irrelevant (not called, only test bookkeeping)
     int2 = lambda x: 2
     int22 = lambda x: 22
     int3 = lambda x: 3

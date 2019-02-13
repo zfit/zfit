@@ -10,6 +10,8 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import ztf
+from zfit.util.exception import DueToLazynessNotImplementedError
+from zfit.util.temporary import TemporarilySet
 from ..settings import ztypes
 from ..util import ztyping
 from ..core.limits import Space, ANY_LOWER, ANY_UPPER
@@ -34,7 +36,7 @@ class CustomGaussOLD(BasePDF):
         return gauss
 
 
-def _gauss_integral_from_inf_to_inf(limits, params):
+def _gauss_integral_from_inf_to_inf(limits, params, model):
     return tf.sqrt(2 * ztf.pi) * params['sigma']
 
 
@@ -60,18 +62,101 @@ class Exponential(BasePDF):
         """
         params = {'lambda': lambda_}
         super().__init__(obs, name=name, params=params, **kwargs)
+        self._numerics_data_shift = None
 
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
         x = ztf.unstack_x(x)
-        return tf.exp(lambda_ * x)
+        return self._numerics_shifted_exp(lambda_ * x)  # Don't use exp! will overflow.
+
+    def _numerics_shifted_exp(self, x):  # needed due to overflow in exp otherwise, prevents by shift
+        return ztf.exp(x - self._numerics_data_shift)
+
+    def _set_numerics_data_shift(self, limits):
+        lower, upper = limits.limits
+        lower_val = min([lim[0] for lim in lower])
+        upper_val = max([lim[0] for lim in upper])
+
+        value = upper_val - lower_val
+
+        def setter(value):
+            self._numerics_data_shift = value
+
+        def getter():
+            return self._numerics_data_shift
+
+        return TemporarilySet(value=value, getter=getter, setter=setter)
+
+    # All hooks are needed to set the right shift when "entering" the pdf. The norm range is taken where both are
+    # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
+    # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
+    def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_integrate(limits, norm_range, name)
+
+    def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_analytic_integrate(limits, norm_range, name)
+
+    def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_numeric_integrate(limits, norm_range, name)
+
+    def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_partial_integrate(x, limits, norm_range, name)
+
+    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)
+
+    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)
+
+    def _single_hook_normalization(self, limits, name):
+        with self._set_numerics_data_shift(limits=limits):
+            return super()._single_hook_normalization(limits, name)
+
+    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
+        if component_norm_range.limits is not None:
+            with self._set_numerics_data_shift(limits=component_norm_range):
+                return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
+        else:
+            return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
+
+    def _single_hook_pdf(self, x, norm_range, name):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_pdf(x, norm_range, name)
+
+    def _single_hook_log_pdf(self, x, norm_range, name):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_log_pdf(x, norm_range, name)
+
+    def _single_hook_sample(self, n, limits, name):
+        with self._set_numerics_data_shift(limits=limits):
+            return super()._single_hook_sample(n, limits, name)
+
+    # def _log_pdf(self, x, norm_range: Space):
+    #     lambda_ = self.params['lambda']
+    #     x = ztf.unstack_x(x)
+    #     func = x * lambda_
+    #     if norm_range.n_limits > 1:
+    #         raise DueToLazynessNotImplementedError(
+    #             "Not implemented, it's more of a hack. I Should implement log_pdf and "
+    #             "norm probarly")
+    #     (lower,), (upper,) = norm_range.limits
+    #     lower = lower[0]
+    #     upper = upper[0]
+    #
+    #     assert False, "WIP, add log integral"
 
 
-def _exp_integral_from_any_to_any(limits, params):
+def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
 
     def raw_integral(x):
-        return tf.exp(lambda_ * x) / lambda_
+        return model._numerics_shifted_exp(lambda_ * x) / lambda_  # needed due to overflow in exp otherwise
 
     (lower,), (upper,) = limits.limits
     if lower[0] == - upper[0] == np.inf:

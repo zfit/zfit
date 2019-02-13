@@ -12,7 +12,7 @@ from typing import Callable, Optional, Union, Type, Tuple, List
 import zfit
 from zfit import ztf
 from zfit.core.dimension import BaseDimensional
-from zfit.core.interfaces import ZfitData, ZfitSpace
+from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
 from ..util import ztyping
@@ -439,7 +439,7 @@ class AnalyticIntegral:
         # database-like access
 
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
-                  norm_range: ztyping.LimitsType = None, params: dict = None) -> ztyping.XType:
+                  norm_range: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
 
@@ -471,9 +471,9 @@ class AnalyticIntegral:
                 "Integral is available for axes {}, but not for limits {}".format(axes, limits))
 
         if x is None:
-            integral = integral_fn(limits=limits, norm_range=norm_range, params=params)
+            integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
         else:
-            integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params)
+            integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
         return integral
 
 

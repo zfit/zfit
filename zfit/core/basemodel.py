@@ -435,7 +435,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     def _fallback_analytic_integrate(self, limits, norm_range):
         return self._analytic_integral.integrate(x=None, limits=limits, axes=limits.axes,
-                                                 norm_range=norm_range, params=self.params)
+                                                 norm_range=norm_range, model=self, params=self.params)
 
     @_BaseModel_register_check_support(True)
     def _numeric_integrate(self, limits, norm_range):
@@ -657,7 +657,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
     def _fallback_partial_analytic_integrate(self, x, limits, norm_range):
         return self._analytic_integral.integrate(x=x, limits=limits, axes=limits.axes,
-                                                 norm_range=norm_range, params=self.params)
+                                                 norm_range=norm_range, model=self, params=self.params)
 
     @_BaseModel_register_check_support(True)
     def _partial_numeric_integrate(self, x, limits, norm_range):

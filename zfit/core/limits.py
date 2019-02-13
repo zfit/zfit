@@ -1091,3 +1091,9 @@ def convert_to_obs_str(obs):
     obs = convert_to_container(value=obs, container=tuple)
     obs = tuple(ob.obs if isinstance(obs, Space) else obs for ob in obs)
     return obs
+
+
+def shift_space(space: Space, shift):
+    shift = convert_to_container(shift)
+    if not len(shift) == space.n_obs:
+        raise ValueError("`Shift` has to have the same number of observables as `space`.")
