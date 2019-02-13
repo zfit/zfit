@@ -422,7 +422,11 @@ class Sampler(Data):
         # self.sess.run(sample_holder.initializer)
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
-        self.n_holder = n_holder
+        self._n_holder = n_holder
+
+    @property
+    def n_samples(self):
+        return self._n_holder
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if not self._initial_resampled:
@@ -452,14 +456,17 @@ class Sampler(Data):
         return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
                        n_holder=n_holder, obs=obs, name=name)
 
-    def resample(self, param_values: OrderedDict = None):
+    def resample(self, param_values: OrderedDict = None, n=None):
 
         temp_param_values = self.fixed_params.copy()
         if param_values is not None:
             temp_param_values.update(param_values)
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
-            self.sess.run(self.n_holder.initializer)
+            if not (n and self._initial_resampled):  # we want to load and make sure that it's initialzed
+                self.sess.run(self.n_samples.initializer)
+            if n:
+                self.n_samples.load(value=n, session=self.sess)
             self.sess.run(self.sample_holder.initializer)
             self._initial_resampled = True
 
