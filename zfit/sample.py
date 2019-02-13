@@ -8,7 +8,7 @@ from .util.container import convert_to_container
 
 def poisson(n=None, pdfs: Iterable[ZfitPDF] = None):
     if n and pdfs:
-        raise ValueError("Cannot specify both, `n`, and `model`, at the same time.")
+        raise ValueError("Cannot specify both, `n`, and `pdfs`, at the same time.")
 
     if pdfs:
         pdfs = convert_to_container(pdfs)
