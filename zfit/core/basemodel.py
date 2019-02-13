@@ -5,8 +5,7 @@ import builtins
 from collections import OrderedDict
 import contextlib
 from contextlib import suppress
-import typing
-from typing import Dict, Type, Union
+from typing import Dict, Type, Union, Callable, List, Tuple
 import warnings
 
 import pep487
@@ -208,7 +207,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         raise NotImplementedError
 
     def _check_input_norm_range(self, norm_range, caller_name="",
-                                none_is_error=False) -> typing.Union[Space, bool]:
+                                none_is_error=False) -> Union[Space, bool]:
         """Convert to :py:class:`Space`.
 
         Args:
@@ -338,7 +337,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     @classmethod
-    def register_analytic_integral(cls, func: typing.Callable, limits: ztyping.LimitsType = None,
+    def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
                                    priority: Union[int, float] = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False) -> None:
@@ -356,7 +355,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
 
     @classmethod
-    def register_inverse_analytic_integral(cls, func: typing.Callable) -> None:
+    def register_inverse_analytic_integral(cls, func: Callable) -> None:
         """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
@@ -742,8 +741,26 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         else:
             return self._inverse_analytic_integral[0](x=x, params=self.params)
 
-    def create_sampler(self, n: ztyping.nSamplingTypeIn, limits: ztyping.LimitsType, fixed_params=True,
-                       name: str = "sample") -> ztyping.XType:
+    def create_sampler(self, n: ztyping.nSamplingTypeIn, limits: ztyping.LimitsType,
+                       fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True,
+                       name: str = "sampler") -> "Sampler":
+        """Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameter, n.
+
+
+
+        Args:
+            n (): Number of events to be drawn. Can be a fixed number or a Tensor that changes it's value.
+            limits (): From which space to sample.
+            fixed_params (): A list of `Parameters` that will be fixed during several `resample` calls.
+                If True, all are fixed, if False, all are floating. If a `Parameter` is not fixed and its
+                value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
+                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                been created with when it resamples.
+            name ():
+
+        Returns:
+            :py:class:~`zfit.core.data.Sampler`
+        """
         if limits is None:
             limits = self.space
         if fixed_params is True:
