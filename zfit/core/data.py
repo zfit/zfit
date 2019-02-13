@@ -459,7 +459,8 @@ class Sampler(Data):
             temp_param_values.update(param_values)
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
-            zfit.run([self.sample_holder.initializer, self.n_holder.initializer])
+            self.sess.run(self.n_holder.initializer)
+            self.sess.run(self.sample_holder.initializer)
             self._initial_resampled = True
 
 

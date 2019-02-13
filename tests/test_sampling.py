@@ -32,13 +32,25 @@ gaussian_dists = [test_gauss1, gauss_params1]
 
 @pytest.mark.parametrize('gauss', gaussian_dists)
 def test_sampling_fixed(gauss):
+    import tensorflow as tf
     n_draws = 1000
-    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high))
+    n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
+                                name='n_draws',
+                                use_resource=True)  # just variable to have something changeable, predictable
+    zfit.run(n_draws_param.initializer)
+    sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
     sample_tensor.resample()
     sampled_from_gauss1 = zfit.run(sample_tensor)
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
+
+    new_n_draws = 867
+    n_draws_param.load(new_n_draws, session=zfit.run.sess)
+    sample_tensor.resample()
+    sampled_from_gauss1_small = zfit.run(sample_tensor)
+    assert new_n_draws == len(sampled_from_gauss1_small[:, 0])
+    n_draws_param.load(n_draws, session=zfit.run.sess)
 
     gauss_full_sample = gauss.create_sampler(n=10000,
                                              limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5))
