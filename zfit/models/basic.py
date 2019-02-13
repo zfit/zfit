@@ -5,6 +5,7 @@ build larger models.
 
 import math as mt
 from typing import Type, Any
+import warnings
 
 import numpy as np
 import tensorflow as tf
@@ -78,6 +79,10 @@ class Exponential(BasePDF):
         upper_val = max([lim[0] for lim in upper])
 
         value = upper_val - lower_val
+
+        if max(abs(lower_val), abs(upper_val)) > 710:
+            warnings.warn("Boundaries to wide for exponential, expect `inf` in exp(x) and `NaN`s.",
+                          category=RuntimeWarning)
 
         def setter(value):
             self._numerics_data_shift = value
