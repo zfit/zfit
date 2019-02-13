@@ -67,7 +67,10 @@ class Exponential(BasePDF):
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
         x = ztf.unstack_x(x)
-        return tf.exp(lambda_ * (x - self._numerics_data_shift))
+        return self._numerics_shifted_exp(lambda_ * x)
+
+    def _numerics_shifted_exp(self, x):
+        return ztf.exp(x - self._numerics_data_shift)
 
     def _set_numerics_data_shift(self, limits):
         lower, upper = limits.limits
@@ -113,7 +116,10 @@ class Exponential(BasePDF):
             return super()._single_hook_normalization(limits, name)
 
     def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
-        with self._set_numerics_data_shift(limits=component_norm_range):
+        if component_norm_range.limits is not None:
+            with self._set_numerics_data_shift(limits=component_norm_range):
+                return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
+        else:
             return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
 
     def _single_hook_pdf(self, x, norm_range, name):
@@ -150,11 +156,11 @@ class Exponential(BasePDF):
     #     return pdf
 
 
-def _exp_integral_from_any_to_any(limits, params):
+def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
 
     def raw_integral(x):
-        return tf.exp(lambda_ * x) / lambda_
+        return model._numerics_shifted_exp(lambda_ * x) / lambda_
 
     (lower,), (upper,) = limits.limits
     if lower[0] == - upper[0] == np.inf:
