@@ -168,6 +168,7 @@
 
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -241,6 +242,10 @@
         <span class="n">upper_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">upper</span><span class="p">])</span>
 
         <span class="n">value</span> <span class="o">=</span> <span class="n">upper_val</span> <span class="o">-</span> <span class="n">lower_val</span>
+
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lower_val</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">upper_val</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">710</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Boundaries to wide for exponential, expect `inf` in exp(x) and `NaN`s.&quot;</span><span class="p">,</span>
+                          <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span> <span class="o">=</span> <span class="n">value</span>
