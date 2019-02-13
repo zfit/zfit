@@ -67,9 +67,9 @@ class Exponential(BasePDF):
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
         x = ztf.unstack_x(x)
-        return self._numerics_shifted_exp(lambda_ * x)
+        return self._numerics_shifted_exp(lambda_ * x)  # Don't use exp! will overflow.
 
-    def _numerics_shifted_exp(self, x):
+    def _numerics_shifted_exp(self, x):  # needed due to overflow in exp otherwise, prevents by shift
         return ztf.exp(x - self._numerics_data_shift)
 
     def _set_numerics_data_shift(self, limits):
@@ -87,6 +87,9 @@ class Exponential(BasePDF):
 
         return TemporarilySet(value=value, getter=getter, setter=setter)
 
+    # All hooks are needed to set the right shift when "entering" the pdf. The norm range is taken where both are
+    # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
+    # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
     def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_integrate(limits, norm_range, name)
@@ -160,7 +163,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
 
     def raw_integral(x):
-        return model._numerics_shifted_exp(lambda_ * x) / lambda_
+        return model._numerics_shifted_exp(lambda_ * x) / lambda_  # needed due to overflow in exp otherwise
 
     (lower,), (upper,) = limits.limits
     if lower[0] == - upper[0] == np.inf:
