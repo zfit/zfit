@@ -149,14 +149,7 @@ class Exponential(BasePDF):
     #     lower = lower[0]
     #     upper = upper[0]
     #
-    #     assert False, "WIP, fix log integral"
-    #
-    #     def raw_integral(x):
-    #         return 0.5 * x ** 2 * lambda_
-    #
-    #     integral = raw_integral(upper) - raw_integral(lower)
-    #     pdf = func - integral
-    #     return pdf
+    #     assert False, "WIP, add log integral"
 
 
 def _exp_integral_from_any_to_any(limits, params, model):
