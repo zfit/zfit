@@ -73,13 +73,6 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
             # models = [self.models[name] for name in names]
         return models
 
-    @property
-    def _n_dims(self):
-        if self.axes is None:
-            return None
-        else:
-            return len(self.axes)
-
     def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):
         if norm_range is None:
             try:

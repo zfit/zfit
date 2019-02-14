@@ -39,25 +39,12 @@ class BaseFunctor(FunctorMixin, BasePDF):
         return self._component_norm_range_holder
 
     def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
-        norm_range = self._check_input_norm_range(norm_range=norm_range)  # TODO: only set if different?
+        norm_range = self._check_input_norm_range(norm_range=norm_range)
 
         def setter(value):
             self._component_norm_range_holder = value
 
         return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
-
-    # @property
-    # def norm_range(self):
-    #     norm_range = super().norm_range
-    #     if norm_range.limits is None:
-    #         norm_range_candidat = self._infer_norm_range_from_daughters()
-    #         if norm_range_candidat is False:
-    #             raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
-    #                                          "has been explicitly set.")
-    #         elif norm_range_candidat is not None:  # TODO(Mayou36, #77): different obs?
-    #             norm_range = norm_range_candidat
-    #
-    #     return norm_range
 
     def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
@@ -254,10 +241,6 @@ class SumPDF(BaseFunctor):
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if set_yield_at_end:
             self._set_yield_inplace(tf.reduce_sum(yields))
-
-    @property
-    def _n_dims(self):
-        return self._space.n_obs  # TODO(mayou36): properly implement dimensions
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):

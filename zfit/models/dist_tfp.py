@@ -37,11 +37,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         # self.tf_distribution = self.parameters['distribution']
         self.distribution = distribution
 
-    @property
-    def _n_dims(self):
-        n_dims = self.distribution.event_shape.as_list()
-        n_dims = (n_dims or [1])[0]  # n_obs is a list
-        return n_dims
 
     def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
         value = ztf.unstack_x(x.value())

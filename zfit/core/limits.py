@@ -265,7 +265,6 @@ class Space(ZfitSpace, BaseObject):
             return None
         if limit == ():
             raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
-        # TODO(Mayou36): allow automatically correct shape? Up to which extend?
         if np.shape(limit) == ():
             limit = ((limit,),)
         if np.shape(limit[0]) == ():
@@ -903,7 +902,7 @@ class Space(ZfitSpace, BaseObject):
         new_space = Space._from_any(**kwargs)
         return new_space
 
-    def __le__(self, other):  # TODO: refactor for boundaries
+    def __le__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
         axes_not_none = self.axes is not None and other.axes is not None
@@ -1017,7 +1016,6 @@ class Space(ZfitSpace, BaseObject):
         return hash((lower, upper))
 
 
-# TODO(Mayou36): extend this function and set what is allowed and what not, allow for simple limits?
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
                      limits: Optional[ztyping.LimitsTypeInput] = None,
                      *, overwrite_limits: bool = False, one_dim_limits_only: bool = True,

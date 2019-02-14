@@ -41,7 +41,7 @@ class BaseFunc(BaseModel, ZfitFunc):
     def _value(self, x):
         raise NotImplementedError
 
-    def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:  # TODO(naming): rename to `func`?
+    def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         """The function evaluated at `x`.
 
         Args:
@@ -49,7 +49,7 @@ class BaseFunc(BaseModel, ZfitFunc):
             name (str):
 
         Returns:
-            tf.Tensor:  # TODO(Mayou36): or dataset?
+            tf.Tensor:  # TODO(Mayou36): or dataset? Update: rather not, what would obs be?
         """
         with self._convert_sort_x(x) as x:
             return self._single_hook_value(x=x, name=name)

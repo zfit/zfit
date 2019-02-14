@@ -39,7 +39,6 @@ def _unbinned_nll_tf(model, data, fit_range) -> tf.Tensor:
         fit_range = model.convert_sort_space(fit_range)
         limits = fit_range.limits
         assert len(limits[0]) == 1, "multiple limits not (yet) supported in nll."
-        (lower,), (upper,) = limits
 
         # TODO(Mayou36): implement properly data cutting
         # in_limits = tf.logical_and(lower <= data, data <= upper)

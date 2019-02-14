@@ -139,11 +139,11 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
                                           "OR has been wrapped but it should not be".format(method_name))
 
     @abc.abstractmethod
-    def _func_to_integrate(self, x: ztyping.XType) -> tf.Tensor:  # TODO(Mayou36): return `Data`?
+    def _func_to_integrate(self, x: ztyping.XType) -> tf.Tensor:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _func_to_sample_from(self, x: ztyping.XType) -> tf.Tensor:  # TODO(Mayou36): return `Data`?
+    def _func_to_sample_from(self, x: ztyping.XType) -> Data:
         raise NotImplementedError
 
     @property

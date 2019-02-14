@@ -180,10 +180,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         norm_range = self._norm_range
         if norm_range is None:
-            # raise IntentionNotUnambiguousError("Should now the space from the observable be taken?")  # TODO
             norm_range = self.space
-            # if norm_range.limits is None:
-            #     raise NormRangeNotSpecifiedError("Normalization Range not spedified.")
         return norm_range
 
     def set_norm_range(self, norm_range: Union[Space, None]):

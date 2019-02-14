@@ -210,7 +210,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
     def _value(self, obs: Tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
         values = self.get_iteration()
-        # TODO(Mayou36): add conversion to right dimension? (n_obs, n_events)? # check if 1-D?
+        # TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?
         if len(values.shape.as_list()) == 0:
             values = tf.expand_dims(values, -1)
         if len(values.shape.as_list()) == 1:

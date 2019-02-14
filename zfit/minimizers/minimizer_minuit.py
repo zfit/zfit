@@ -113,7 +113,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                                    **error_limit_kwargs)
 
         strategy = minimizer_setter.pop('strategy')
-        minimizer.set_strategy(strategy)  # TODO(Mayou36): where to properly set strategy etc?
+        minimizer.set_strategy(strategy)
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter:".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer
@@ -129,7 +129,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                 'original': result[0]}
         edm = result[0]['edm']
         fmin = result[0]['fval']
-        status = -999  # TODO: set?
+        status = -999
         converged = result[0]['is_valid']
         params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
         result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss_val,

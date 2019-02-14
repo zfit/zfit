@@ -462,7 +462,6 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 
 
 class ComposedParameter(BaseComposedParameter):
-    # TODO: raise error if eager is on (because it's very errorprone)
     def __init__(self, name, tensor, **kwargs):
         tensor = ztf.convert_to_tensor(tensor)
         independend_params = tf.get_collection("zfit_independent")

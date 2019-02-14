@@ -85,16 +85,10 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
                          "\nlower: {}, upper: {}".format(lower, upper))
 
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)  # TODO(Mayou36): why not lower[0]?
+    lower = ztf.convert_to_tensor(lower, dtype=dtype)
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
-    # n_samples = int(draws_per_dim ** np.sqrt(n_axes))  # OLD?
     n_samples = draws_per_dim
-    if partial:
-        n_vals = x.get_shape()[0].value  # TODO(Mayou36): correctly get n_entries OR remove? OLD?
-        # n_samples *= n_vals  # each entry wants it's mc
-    else:
-        n_vals = 1
 
     chunked_normalization = zfit.run.chunksize < n_samples
     # chunked_normalization = True
@@ -116,7 +110,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
         # samples = tf.transpose(samples, perm=[2, 0, 1])
 
-        if partial:  # TODO(Mayou36): shape of partial integral?
+        if partial:
             value_list = []
             index_samples = 0
             index_values = 0
@@ -145,7 +139,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)  # TODO(Mayou36): why not lower[0]?
+    lower = ztf.convert_to_tensor(lower, dtype=dtype)
     upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
     def body(batch_num, mean):
