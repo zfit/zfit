@@ -537,10 +537,78 @@ for lower, upper in space.iter_limits(as_tuple=True):</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="zfit.Space.limit1d">
+<code class="descname">limit1d</code><a class="headerlink" href="#zfit.Space.limit1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the tuple(lower, upper).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">so <cite>lower, upper = space.limit1d</cite> for a simple, 1 obs limit.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> – if the conditions (n_obs or n_limits) are not satisfied.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body">Simplified limits getter for 1 obs, 1 limit only</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.Space.limit2d">
+<code class="descname">limit2d</code><a class="headerlink" href="#zfit.Space.limit2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>so <cite>low_x, low_y, up_x, up_y = space.limit2d</cite> for a single, 2 obs limit.</dt>
+<dd>low_x is the lower limit in x, up_x is the upper limit in x etc.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> – if the conditions (n_obs or n_limits) are not satisfied.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body">Simplified <cite>.limits</cite> for exactly 2 obs, 1 limit</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="zfit.Space.limits">
 <code class="descname">limits</code><a class="headerlink" href="#zfit.Space.limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the limits.</p>
 <p>Returns:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.Space.limits1d">
+<code class="descname">limits1d</code><a class="headerlink" href="#zfit.Space.limits1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>so <cite>low_1, low_2, up_1, up_2 = space.limits1d</cite> for several, 1 obs limits.</dt>
+<dd>low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, ..)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> – if the conditions (n_obs or n_limits) are not satisfied.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body">Simplified <cite>.limits</cite> for exactly 1 obs, n limits</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">

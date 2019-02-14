@@ -495,6 +495,82 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limit1d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(float, float): so `lower, upper = space.limit1d` for a simple, 1 obs limit.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot call `limit1d, as `Space` has more than one observables: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot call `limit1d, as `Space` has several limits: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_limits</span><span class="p">))</span>
+
+        <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span>
+        <span class="k">if</span> <span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">limits</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">limit</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limit2d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Simplified `.limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.</span>
+<span class="sd">                low_x is the lower limit in x, up_x is the upper limit in x etc.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot call `limit2d, as `Space` has not two observables: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot call `limit2d, as `Space` has several limits: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_limits</span><span class="p">))</span>
+
+        <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span>
+        <span class="k">if</span> <span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">limits</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="o">*</span><span class="n">lower</span><span class="p">,</span> <span class="o">*</span><span class="n">upper</span>
+        <span class="k">return</span> <span class="n">limit</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limits1d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(float, float, ...): so `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.</span>
+<span class="sd">                low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot call `limits1d, as `Space` has more than one observable: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+        <span class="c1"># if self.n_limits &gt; 1:</span>
+        <span class="c1">#     raise RuntimeError(&quot;Cannot call `limit1d, as `Space` has several limits: {}&quot;.format(self.n_limits))</span>
+
+        <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span>
+        <span class="k">if</span> <span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="n">limits</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_lower</span><span class="p">,</span> <span class="n">new_upper</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">new_lower</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">new_upper</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">new_lower</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_lower</span><span class="p">)</span>
+            <span class="n">new_upper</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_upper</span><span class="p">)</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="o">*</span><span class="n">new_lower</span><span class="p">,</span> <span class="o">*</span><span class="n">new_upper</span>
+        <span class="k">return</span> <span class="n">limit</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LowerTypeReturn</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the lower limits.</span>
 
@@ -1073,6 +1149,11 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot add a </span><span class="si">{}</span><span class="s2"> and a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot combine a </span><span class="si">{}</span><span class="s2"> and a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1254,12 +1335,6 @@
     <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
     <span class="n">obs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ob</span><span class="o">.</span><span class="n">obs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">Space</span><span class="p">)</span> <span class="k">else</span> <span class="n">obs</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">obs</span></div>
-
-
-<div class="viewcode-block" id="shift_space"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.shift_space">[docs]</a><span class="k">def</span> <span class="nf">shift_space</span><span class="p">(</span><span class="n">space</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span> <span class="n">shift</span><span class="p">):</span>
-    <span class="n">shift</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span> <span class="o">==</span> <span class="n">space</span><span class="o">.</span><span class="n">n_obs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`Shift` has to have the same number of observables as `space`.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
