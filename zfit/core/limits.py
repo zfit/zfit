@@ -332,6 +332,82 @@ class Space(ZfitSpace, BaseObject):
         return self._limits
 
     @property
+    def limit1d(self) -> Tuple[float, float]:
+        """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
+
+        Returns:
+            tuple(float, float): so `lower, upper = space.limit1d` for a simple, 1 obs limit.
+
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
+        if self.n_obs > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
+        if self.n_limits > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+
+        limits = self.limits
+        if limits in (None, False):
+            limit = limits
+        else:
+            (lower,), (upper,) = limits
+            limit = lower[0], upper[0]
+        return limit
+
+    @property
+    def limit2d(self) -> Tuple[float, float, float, float]:
+        """Simplified `.limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
+
+        Returns:
+            tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
+                low_x is the lower limit in x, up_x is the upper limit in x etc.
+
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
+        if self.n_obs != 2:
+            raise RuntimeError("Cannot call `limit2d, as `Space` has not two observables: {}".format(self.n_obs))
+        if self.n_limits > 1:
+            raise RuntimeError("Cannot call `limit2d, as `Space` has several limits: {}".format(self.n_limits))
+
+        limits = self.limits
+        if limits in (None, False):
+            limit = limits
+        else:
+            (lower,), (upper,) = limits
+            limit = *lower, *upper
+        return limit
+
+    @property
+    def limits1d(self) -> Tuple[float]:
+        """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
+
+        Returns:
+            tuple(float, float, ...): so `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
+                low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.
+
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
+        if self.n_obs > 1:
+            raise RuntimeError("Cannot call `limits1d, as `Space` has more than one observable: {}".format(self.n_obs))
+        # if self.n_limits > 1:
+        #     raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+
+        limits = self.limits
+        if limits in (None, False):
+            limit = limits
+        else:
+            new_lower, new_upper = [], []
+            for lower, upper in self.iter_limits(as_tuple=True):
+                new_lower.append(lower[0])
+                new_upper.append(upper[0])
+            new_lower = tuple(new_lower)
+            new_upper = tuple(new_upper)
+            limit = *new_lower, *new_upper
+        return limit
+
+    @property
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
@@ -1091,9 +1167,3 @@ def convert_to_obs_str(obs):
     obs = convert_to_container(value=obs, container=tuple)
     obs = tuple(ob.obs if isinstance(obs, Space) else obs for ob in obs)
     return obs
-
-
-def shift_space(space: Space, shift):
-    shift = convert_to_container(shift)
-    if not len(shift) == space.n_obs:
-        raise ValueError("`Shift` has to have the same number of observables as `space`.")
