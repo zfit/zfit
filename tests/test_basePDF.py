@@ -7,6 +7,7 @@ from zfit.core.limits import Space, ANY_UPPER
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
+from zfit.models.functor import ProductPDF
 import zfit.settings
 from zfit import ztf
 
@@ -190,6 +191,15 @@ def test_multiple_limits():
     assert integral_simp == pytest.approx(integral_mult, rel=1e-2)  # big tolerance as mc is used
     assert integral_simp == pytest.approx(integral_simp_num, rel=1e-2)  # big tolerance as mc is used
     assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-2)  # big tolerance as mc is used
+
+
+def test_projection_pdf():
+    x = zfit.Space("x", limits=(-5, 5))
+    y = zfit.Space("y", limits=(-5, 5))
+    gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
+    gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
+    gauss_xy = ProductPDF([gauss_x, gauss_y])
+    assert gauss_xy.create_projection_pdf(x, limits_to_integrate=y).obs == x
 
 
 def test_copy():
