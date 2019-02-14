@@ -48,7 +48,7 @@ def test_func_simple_subclass():
 
     gauss1 = SimpleGaussFunc(obs='obs1', mu=3, sigma=5)
 
-    value = gauss1.value(np.random.random(size=(10, 1)))
+    value = gauss1.func(np.random.random(size=(10, 1)))
     zfit.run(value)
 
     with pytest.raises(ValueError):

@@ -76,7 +76,7 @@ def test_func():
     test_values_tf = ztf.convert_to_tensor(test_values, dtype=zfit.settings.ztypes.float)
 
     gauss_func = gauss_params1.as_func(norm_range=(-5, 5))
-    vals = gauss_func.value(test_values)
+    vals = gauss_func.func(test_values)
     vals = zfit.run(vals)
     assert True  # better assertion?
 

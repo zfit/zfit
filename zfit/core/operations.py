@@ -92,7 +92,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     from ..models.functions import SimpleFunc
 
     def combined_func(x):
-        return param * func.value(x=x)
+        return param * func.func(x=x)
 
     params = {param.name: param}
     params.update(func.params)
@@ -217,5 +217,5 @@ def convert_func_to_pdf(func: Union[ZfitFunc, Callable], obs=None, name=None) ->
     from ..models.special import SimplePDF
 
     name = func.name if name is None else func_name
-    pdf = SimplePDF(func=func.value, obs=func.obs, name=name, **func.params)
+    pdf = SimplePDF(func=func.func, obs=func.obs, name=name, **func.params)
     return pdf

@@ -366,7 +366,7 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
 
 class ZfitFunc(ZfitModel):
     @abc.abstractmethod
-    def value(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
+    def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         raise NotImplementedError
 
     @abc.abstractmethod
