@@ -81,8 +81,10 @@ class Exponential(BasePDF):
         value = upper_val - lower_val
 
         if max(abs(lower_val), abs(upper_val)) > 710:
-            warnings.warn("Boundaries to wide for exponential, expect `inf` in exp(x) and `NaN`s.",
-                          category=RuntimeWarning)
+            warnings.warn(
+                "Boundaries can be too wide for exponential (assuming lambda ~ 1), expect `inf` in exp(x) and `NaN`s."
+                "limits * lambda should be smaller than 700 roughly",
+                category=RuntimeWarning)
 
         def setter(value):
             self._numerics_data_shift = value
