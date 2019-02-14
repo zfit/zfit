@@ -347,6 +347,21 @@ class Space(ZfitSpace, BaseObject):
         return limit
 
     @property
+    def limit2d(self):
+        if self.n_obs != 2:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has more then one observables: {}".format(self.n_obs))
+        if self.n_limits > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+
+        limits = self.limits
+        if limits in (None, False):
+            limit = limits
+        else:
+            (lower,), (upper,) = limits
+            limit = *lower, *upper
+        return limit
+
+    @property
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 

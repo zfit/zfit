@@ -158,19 +158,31 @@ def test_exception():
 
 
 def test_dimensions():
-    space = Space(obs=['obs1', 'obs2'], limits=(((1, 2),), ((2, 3),)))
+    lower1, lower2 = 1, 2
+    upper1, upper2 = 2, 3
+    space = Space(obs=['obs1', 'obs2'], limits=(((lower1, lower2),), ((upper1, upper2),)))
     assert space.n_obs == 2
     assert space.n_limits == 1
+    low1, low2, up1, up2 = space.limit2d
+    assert low1 == lower1
+    assert low2 == lower2
+    assert up1 == upper1
+    assert up2 == upper2
+
     with pytest.raises(RuntimeError):
         space.limit1d
 
     space = Space(obs='obs1', limits=(((1,), (2,)), ((2,), (3,))))
     assert space.n_obs == 1
     assert space.n_limits == 2
+    with pytest.raises(RuntimeError):
+        space.limit2d
 
     space = Space(obs=['obs1', 'obs2'], limits=(((1, 5), (2, 4)), ((2, 3), (3, 2))))
     assert space.n_obs == 2
     assert space.n_limits == 2
+    with pytest.raises(RuntimeError):
+        space.limit2d
 
     space = Space(obs='obs1', limits=(((1,),), ((2,),)))
     assert space.n_obs == 1
