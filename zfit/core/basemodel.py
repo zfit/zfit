@@ -774,6 +774,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
         return self._limits_sample(n=n, limits=limits, name=name)
 
     def _limits_sample(self, n, limits, name):
+        return self._call_sample(n=n, limits=limits, name=name)
         try:
             return self._call_sample(n=n, limits=limits, name=name)
         except MultipleLimitsNotImplementedError:
@@ -789,9 +790,9 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
                 return self._analytic_sample(n=n, limits=limits)
             return self._fallback_sample(n=n, limits=limits)
 
-    @no_multiple_limits
-    def _analytic_sample(self, n, limits: Space):
-
+    def _analytic_sample(self, n, limits: Space):  # TODO(Mayou36) implement multiple limits sampling
+        if limits.n_limits > 1:
+            raise NotImplementedError
         (lower_bound,), (upper_bound,) = limits.limits
         neg_infinities = (tuple((-float("inf"),) * limits.n_obs),)  # py34 change float("inf") to math.inf
         # to the cdf to get the limits for the inverse analytic integral

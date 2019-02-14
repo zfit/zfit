@@ -10,7 +10,6 @@ from .limits import Space, no_multiple_limits
 from ..settings import ztypes
 
 
-@no_multiple_limits
 def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                          sampler: typing.Callable = tf.random_uniform,
                          dtype=ztypes.float, prob_max: typing.Union[None, int] = None,
@@ -46,10 +45,10 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
         rnd_samples = []
         thresholds_unscaled_list = []
         for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
-            n_to_produce = tf.to_int64(n_to_produce * area)
+            n_partial_to_produce = tf.to_int64(ztf.to_real(n_to_produce) * ztf.to_real(area))
             lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
             upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
-            sample_drawn = sampler(shape=(n_to_produce, n_dims + 1),  # + 1 dim for the function value
+            sample_drawn = sampler(shape=(n_partial_to_produce, n_dims + 1),  # + 1 dim for the function value
                                    dtype=ztypes.float)
             rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
             thresholds_unscaled = sample_drawn[:, -1]
@@ -59,10 +58,8 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
             thresholds_unscaled_list.append(thresholds_unscaled)
 
         rnd_sample = tf.concat(rnd_samples, axis=0)
-        thresholds_unscaled = tf.concat(thresholds_unscaled, axis=0)
+        thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
         return rnd_sample, thresholds_unscaled
-
-
 
     n_samples_int = n
     n = tf.to_int64(n)
@@ -108,6 +105,8 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                            swap_memory=True,
                            parallel_iterations=4,
                            back_prop=False)[1]  # backprop not needed here
+    if multiple_limits:
+        sample = tf.random.shuffle(sample)  # to make sure, randomly remove and not biased.
     new_sample = sample[:n, :]  # cutting away to many produced
     new_sample.set_shape((n_samples_int, n_dims))
     return new_sample
