@@ -32,7 +32,6 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
-    # TODO(Mayou36): add multiple limits support: sample from both region prop. to area. Max is overall max
     n_dims = limits.n_obs
     multiple_limits = limits.n_limits > 1
 
