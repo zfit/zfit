@@ -202,25 +202,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_norm_range_holder</span>
 
     <span class="k">def</span> <span class="nf">_set_component_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">):</span>
-        <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>  <span class="c1"># TODO: only set if different?</span>
+        <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_component_norm_range_holder</span> <span class="o">=</span> <span class="n">value</span>
 
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_component_norm_range</span><span class="p">)</span>
-
-    <span class="c1"># @property</span>
-    <span class="c1"># def norm_range(self):</span>
-    <span class="c1">#     norm_range = super().norm_range</span>
-    <span class="c1">#     if norm_range.limits is None:</span>
-    <span class="c1">#         norm_range_candidat = self._infer_norm_range_from_daughters()</span>
-    <span class="c1">#         if norm_range_candidat is False:</span>
-    <span class="c1">#             raise LimitsOverdefinedError(&quot;Daughter pdfs do not agree on a `norm_range` and no `norm_range`&quot;</span>
-    <span class="c1">#                                          &quot;has been explicitly set.&quot;)</span>
-    <span class="c1">#         elif norm_range_candidat is not None:  # TODO(Mayou36, #77): different obs?</span>
-    <span class="c1">#             norm_range = norm_range_candidat</span>
-    <span class="c1">#</span>
-    <span class="c1">#     return norm_range</span>
 
     <span class="k">def</span> <span class="nf">_set_norm_range_from_daugthers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">norm_range</span>
@@ -417,10 +404,6 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">set_yield_at_end</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">yields</span><span class="p">))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_n_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span><span class="o">.</span><span class="n">n_obs</span>  <span class="c1"># TODO(mayou36): properly implement dimensions</span>
 
     <span class="k">def</span> <span class="nf">_apply_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">):</span>

@@ -173,8 +173,7 @@
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
 
 
-<div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="nd">@no_multiple_limits</span>
-<span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
+<div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
                          <span class="n">sampler</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">,</span>
                          <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">prob_max</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                          <span class="n">efficiency_estimation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -196,11 +195,34 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tf.Tensor:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO(Mayou36): add multiple limits support: sample from both region prop. to area. Max is overall max</span>
     <span class="n">n_dims</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span>
-    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
-    <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">multiple_limits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+    <span class="c1"># if limits.n_limits == 1:</span>
+    <span class="c1">#     lower, upper = limits.limits</span>
+    <span class="c1">#     lower = ztf.convert_to_tensor(lower[0], dtype=dtype)</span>
+    <span class="c1">#     upper = ztf.convert_to_tensor(upper[0], dtype=dtype)</span>
+
+    <span class="k">def</span> <span class="nf">random_sampling</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">):</span>
+        <span class="n">rnd_samples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">thresholds_unscaled_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="n">area</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_areas</span><span class="p">(</span><span class="n">rel</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+            <span class="n">n_partial_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">*</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">area</span><span class="p">))</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">sample_drawn</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_partial_to_produce</span><span class="p">,</span> <span class="n">n_dims</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># + 1 dim for the function value</span>
+                                   <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">+</span> <span class="n">lower</span>  <span class="c1"># -1: all except func value</span>
+            <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">multiple_limits</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span>
+            <span class="n">rnd_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
+            <span class="n">thresholds_unscaled_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thresholds_unscaled</span><span class="p">)</span>
+
+        <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rnd_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thresholds_unscaled_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span>
+
     <span class="n">n_samples_int</span> <span class="o">=</span> <span class="n">n</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
@@ -218,17 +240,13 @@
         <span class="n">n_total_drawn</span> <span class="o">+=</span> <span class="n">n_to_produce</span>
         <span class="n">n_total_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">n_total_drawn</span><span class="p">)</span>
 
-        <span class="n">sample_drawn</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">,</span> <span class="n">n_dims</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># + 1 dim for the function value</span>
-                               <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-
-        <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">+</span> <span class="n">lower</span>  <span class="c1"># -1: all except func value</span>
-
+        <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">random_sampling</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span>
         <span class="n">probabilities</span> <span class="o">=</span> <span class="n">prob</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prob_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO(performance): estimate prob_max, after enough estimations -&gt; fix it?</span>
             <span class="n">prob_max_inferred</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">prob_max_inferred</span> <span class="o">=</span> <span class="n">prob_max</span>
-        <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">prob_max_inferred</span>
+        <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="n">prob_max_inferred</span>
         <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">random_thresholds</span>
         <span class="c1"># rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample</span>
         <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">take_or_not</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">take_or_not</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">take_or_not</span>
@@ -249,6 +267,8 @@
                            <span class="n">swap_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                            <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                            <span class="n">back_prop</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># backprop not needed here</span>
+    <span class="k">if</span> <span class="n">multiple_limits</span><span class="p">:</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>  <span class="c1"># to make sure, randomly remove and not biased.</span>
     <span class="n">new_sample</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[:</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># cutting away to many produced</span>
     <span class="n">new_sample</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="n">n_samples_int</span><span class="p">,</span> <span class="n">n_dims</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">new_sample</span></div>
