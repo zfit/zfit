@@ -244,8 +244,10 @@
         <span class="n">value</span> <span class="o">=</span> <span class="n">upper_val</span> <span class="o">-</span> <span class="n">lower_val</span>
 
         <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lower_val</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">upper_val</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">710</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Boundaries to wide for exponential, expect `inf` in exp(x) and `NaN`s.&quot;</span><span class="p">,</span>
-                          <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Boundaries can be too wide for exponential (assuming lambda ~ 1), expect `inf` in exp(x) and `NaN`s.&quot;</span>
+                <span class="s2">&quot;limits * lambda should be smaller than 700 roughly&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span> <span class="o">=</span> <span class="n">value</span>

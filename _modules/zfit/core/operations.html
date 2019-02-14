@@ -255,7 +255,7 @@
     <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SimpleFunc</span>
 
     <span class="k">def</span> <span class="nf">combined_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">param</span> <span class="o">*</span> <span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">param</span> <span class="o">*</span> <span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
 
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">param</span><span class="p">}</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
@@ -380,7 +380,7 @@
     <span class="kn">from</span> <span class="nn">..models.special</span> <span class="k">import</span> <span class="n">SimplePDF</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">func_name</span>
-    <span class="n">pdf</span> <span class="o">=</span> <span class="n">SimplePDF</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">SimplePDF</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pdf</span></div>
 </pre></div>
 

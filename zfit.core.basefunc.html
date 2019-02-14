@@ -182,13 +182,8 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.core.basefunc.BaseFunc.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, params: Optional[Iterable[ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/basefunc.html#BaseFunc.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basefunc.BaseFunc.gradients" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.basefunc.BaseFunc.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], name: str = 'value'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basefunc.html#BaseFunc.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basefunc.BaseFunc.value" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.core.basefunc.BaseFunc.func">
+<code class="descname">func</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], name: str = 'value'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basefunc.html#BaseFunc.func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basefunc.BaseFunc.func" title="Permalink to this definition">¶</a></dt>
 <dd><p>The function evaluated at <cite>x</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -209,6 +204,11 @@
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basefunc.BaseFunc.gradients">
+<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, params: Optional[Iterable[ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/basefunc.html#BaseFunc.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basefunc.BaseFunc.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

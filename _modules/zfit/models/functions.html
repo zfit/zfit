@@ -221,7 +221,7 @@
 
     <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="c1"># sum_funcs = tf.add_n([func.value(x) for func in self.funcs])</span>
-        <span class="n">funcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">]</span>
+        <span class="n">funcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">]</span>
         <span class="n">sum_funcs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">accumulate_n</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sum_funcs</span></div>
 
@@ -231,9 +231,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">funcs</span><span class="o">=</span><span class="n">funcs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="n">value</span> <span class="o">*=</span> <span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">*=</span> <span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
 
