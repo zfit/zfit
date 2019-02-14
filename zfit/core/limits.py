@@ -332,6 +332,21 @@ class Space(ZfitSpace, BaseObject):
         return self._limits
 
     @property
+    def limit1d(self):
+        if self.n_obs > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has more then one observables: {}".format(self.n_obs))
+        if self.n_limits > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+
+        limits = self.limits
+        if limits in (None, False):
+            limit = limits
+        else:
+            (lower,), (upper,) = limits
+            limit = lower[0], upper[0]
+        return limit
+
+    @property
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
@@ -1091,9 +1106,3 @@ def convert_to_obs_str(obs):
     obs = convert_to_container(value=obs, container=tuple)
     obs = tuple(ob.obs if isinstance(obs, Space) else obs for ob in obs)
     return obs
-
-
-def shift_space(space: Space, shift):
-    shift = convert_to_container(shift)
-    if not len(shift) == space.n_obs:
-        raise ValueError("`Shift` has to have the same number of observables as `space`.")
