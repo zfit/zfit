@@ -986,6 +986,11 @@ class Space(ZfitSpace, BaseObject):
             raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
         return self.add(other)
 
+    def __mul__(self, other):
+        if not isinstance(other, ZfitSpace):
+            raise TypeError("Cannot combine a {} and a {}".format(type(self), type(other)))
+        return self.combine(other)
+
     def __ge__(self, other):
         return other.__le__(self)
 
