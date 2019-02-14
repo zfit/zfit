@@ -166,7 +166,7 @@ def test_exp():
     sample_np = zfit.run(sample)
     assert not any(np.isnan(sample_np))
     probs1 = exp1.pdf(x=np.random.normal(size=842), norm_range=(-5, 5))
-    probs2 = exp1.pdf(x=np.linspace(-5300, 5700, num=11), norm_range=(-5, 5))
+    probs2 = exp1.pdf(x=np.linspace(5300, 5700, num=1100), norm_range=(5250, 5750))
     probs1_np, probs2_np = zfit.run([probs1, probs2])
     assert not any(np.isnan(probs1_np))
     assert not any(np.isnan(probs2_np))

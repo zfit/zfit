@@ -68,22 +68,22 @@ class Exponential(BasePDF):
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
         x = ztf.unstack_x(x)
-        return self._numerics_shifted_exp(lambda_ * x)  # Don't use exp! will overflow.
+        return self._numerics_shifted_exp(x=x, lambda_=lambda_)  # Don't use exp! will overflow.
 
-    def _numerics_shifted_exp(self, x):  # needed due to overflow in exp otherwise, prevents by shift
-        return ztf.exp(x - self._numerics_data_shift)
+    def _numerics_shifted_exp(self, x, lambda_):  # needed due to overflow in exp otherwise, prevents by shift
+        return ztf.exp(lambda_ * (x - self._numerics_data_shift))
 
     def _set_numerics_data_shift(self, limits):
         lower, upper = limits.limits
         lower_val = min([lim[0] for lim in lower])
         upper_val = max([lim[0] for lim in upper])
 
-        value = upper_val - lower_val
+        value = (upper_val + lower_val) / 2
 
-        if max(abs(lower_val), abs(upper_val)) > 710:
+        if max(abs(lower_val - value), abs(upper_val - value)) > 710:
             warnings.warn(
                 "Boundaries can be too wide for exponential (assuming lambda ~ 1), expect `inf` in exp(x) and `NaN`s."
-                "limits * lambda should be smaller than 700 roughly",
+                "(upper - lower) * lambda should be smaller than 1400 roughly",
                 category=RuntimeWarning)
 
         def setter(value):
@@ -177,4 +177,4 @@ def _exp_integral_from_any_to_any(limits, params, model):
 
 
 limits = Space.from_axes(axes=0, limits=(ANY_LOWER, ANY_UPPER))
-Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
+# Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
