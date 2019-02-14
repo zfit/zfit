@@ -58,9 +58,9 @@ def test_param_func():
     new_func_equivalent = func * param4
 
     zfit.run(tf.global_variables_initializer())
-    result1 = zfit.run(new_func.value(x=rnd_test_values))
-    result1_equivalent = zfit.run(new_func_equivalent.value(x=rnd_test_values))
-    result2 = zfit.run(func.value(x=rnd_test_values) * param4)
+    result1 = zfit.run(new_func.func(x=rnd_test_values))
+    result1_equivalent = zfit.run(new_func_equivalent.func(x=rnd_test_values))
+    result2 = zfit.run(func.func(x=rnd_test_values) * param4)
     np.testing.assert_array_equal(result1, result2)
     np.testing.assert_array_equal(result1_equivalent, result2)
 
@@ -85,9 +85,9 @@ def test_func_func():
     added_func = func1 + func2
     prod_func = func1 * func2
 
-    added_values = added_func.value(rnd_test_values)
+    added_values = added_func.func(rnd_test_values)
     true_added_values = func1_pure(rnd_test_values) + func2_pure(rnd_test_values)
-    prod_values = prod_func.value(rnd_test_values)
+    prod_values = prod_func.func(rnd_test_values)
     true_prod_values = func1_pure(rnd_test_values) * func2_pure(rnd_test_values)
 
     zfit.run(tf.global_variables_initializer())

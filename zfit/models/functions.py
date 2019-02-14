@@ -58,7 +58,7 @@ class SumFunc(BaseFunctorFunc):
 
     def _value(self, x):
         # sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
-        funcs = [func.value(x) for func in self.funcs]
+        funcs = [func.func(x) for func in self.funcs]
         sum_funcs = tf.accumulate_n(funcs)
         return sum_funcs
 
@@ -68,9 +68,9 @@ class ProdFunc(BaseFunctorFunc):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _value(self, x):
-        value = self.funcs[0].value(x)
+        value = self.funcs[0].func(x)
         for func in self.funcs[1:]:
-            value *= func.value(x)
+            value *= func.func(x)
         return value
 
 

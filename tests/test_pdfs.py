@@ -138,7 +138,7 @@ def test_func_sum():
     zfit.run(tf.global_variables_initializer())
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm_range=False)
-    vals = sum_gauss_as_func.value(x=test_values)
+    vals = sum_gauss_as_func.func(x=test_values)
     vals = zfit.run(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])
     np.testing.assert_allclose(vals, true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
