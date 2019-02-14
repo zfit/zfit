@@ -55,7 +55,9 @@ def test_check_n_obs():
 
 def test_combine_spaces():
     combined_space = combine_spaces(spaces=[space1d_1, space1d_12])
+    combined_space2 = space1d_1 * space1d_12
     assert combined_space == space2d_2
+    assert combined_space2 == space2d_2
     assert combine_spaces(spaces=[space2d_2, space2d_2, space2d_2]) == space2d_2
     none_limits_space = combine_spaces(spaces=[space1, space1, space1])
     assert none_limits_space == space1  # with None limits
