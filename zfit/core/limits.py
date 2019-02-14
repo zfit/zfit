@@ -810,7 +810,9 @@ class Space(ZfitSpace, BaseObject):
         """
         areas = self._calculate_areas(limits=self.limits)
         if rel:
-            areas = tuple(np.linalg.norm(areas, ord=1))
+            areas = np.array(areas)
+            areas /= areas.sum()
+            areas = tuple(areas)
         return areas
 
     @staticmethod
