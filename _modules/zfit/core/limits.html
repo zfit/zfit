@@ -428,6 +428,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">==</span> <span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Currently, () is not supported as limits. Should this be default for None?&quot;</span><span class="p">)</span>
+        <span class="c1"># TODO(Mayou36): allow automatically correct shape? Up to which extend?</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="o">==</span> <span class="p">():</span>
             <span class="n">limit</span> <span class="o">=</span> <span class="p">((</span><span class="n">limit</span><span class="p">,),)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">limit</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="p">():</span>
@@ -1065,7 +1066,7 @@
         <span class="n">new_space</span> <span class="o">=</span> <span class="n">Space</span><span class="o">.</span><span class="n">_from_any</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>  <span class="c1"># TODO: refactor for boundaries</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="n">axes_not_none</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -1179,6 +1180,7 @@
         <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span></div>
 
 
+<span class="c1"># TODO(Mayou36): extend this function and set what is allowed and what not, allow for simple limits?</span>
 <div class="viewcode-block" id="convert_to_space"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.convert_to_space">[docs]</a><span class="k">def</span> <span class="nf">convert_to_space</span><span class="p">(</span><span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="o">*</span><span class="p">,</span> <span class="n">overwrite_limits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">one_dim_limits_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>

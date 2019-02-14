@@ -202,6 +202,7 @@
         <span class="n">fit_range</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">fit_range</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="n">fit_range</span><span class="o">.</span><span class="n">limits</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;multiple limits not (yet) supported in nll.&quot;</span>
+        <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span>
 
         <span class="c1"># TODO(Mayou36): implement properly data cutting</span>
         <span class="c1"># in_limits = tf.logical_and(lower &lt;= data, data &lt;= upper)</span>

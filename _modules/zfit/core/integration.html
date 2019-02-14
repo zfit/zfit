@@ -248,10 +248,16 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MC integration does (currently) not support unbound limits (np.infty) as given here:&quot;</span>
                          <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">lower: </span><span class="si">{}</span><span class="s2">, upper: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
 
-    <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># TODO(Mayou36): why not lower[0]?</span>
     <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
+    <span class="c1"># n_samples = int(draws_per_dim ** np.sqrt(n_axes))  # OLD?</span>
     <span class="n">n_samples</span> <span class="o">=</span> <span class="n">draws_per_dim</span>
+    <span class="k">if</span> <span class="n">partial</span><span class="p">:</span>
+        <span class="n">n_vals</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># TODO(Mayou36): correctly get n_entries OR remove? OLD?</span>
+        <span class="c1"># n_samples *= n_vals  # each entry wants it&#39;s mc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_vals</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="n">chunked_normalization</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">chunksize</span> <span class="o">&lt;</span> <span class="n">n_samples</span>
     <span class="c1"># chunked_normalization = True</span>
@@ -273,7 +279,7 @@
         <span class="n">samples</span> <span class="o">=</span> <span class="n">samples_normed</span> <span class="o">*</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">+</span> <span class="n">lower</span>  <span class="c1"># samples is [0, 1], stretch it</span>
         <span class="c1"># samples = tf.transpose(samples, perm=[2, 0, 1])</span>
 
-        <span class="k">if</span> <span class="n">partial</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">partial</span><span class="p">:</span>  <span class="c1"># TODO(Mayou36): shape of partial integral?</span>
             <span class="n">value_list</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">index_samples</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">index_values</span> <span class="o">=</span> <span class="mi">0</span>
@@ -302,7 +308,7 @@
 
 <div class="viewcode-block" id="normalization_nograd"><a class="viewcode-back" href="../../../zfit.core.integration.html#zfit.core.integration.normalization_nograd">[docs]</a><span class="k">def</span> <span class="nf">normalization_nograd</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape_after</span><span class="o">=</span><span class="p">()):</span>
     <span class="n">upper</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span>
-    <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># TODO(Mayou36): why not lower[0]?</span>
     <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="n">batch_num</span><span class="p">,</span> <span class="n">mean</span><span class="p">):</span>
