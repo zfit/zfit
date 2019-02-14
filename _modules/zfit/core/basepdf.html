@@ -343,10 +343,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm_range</span>
         <span class="k">if</span> <span class="n">norm_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># raise IntentionNotUnambiguousError(&quot;Should now the space from the observable be taken?&quot;)  # TODO</span>
             <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
-            <span class="c1"># if norm_range.limits is None:</span>
-            <span class="c1">#     raise NormRangeNotSpecifiedError(&quot;Normalization Range not spedified.&quot;)</span>
         <span class="k">return</span> <span class="n">norm_range</span>
 
 <div class="viewcode-block" id="BasePDF.set_norm_range"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.core.basepdf.BasePDF.set_norm_range">[docs]</a>    <span class="k">def</span> <span class="nf">set_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>

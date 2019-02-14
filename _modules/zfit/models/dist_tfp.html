@@ -200,11 +200,6 @@
         <span class="c1"># self.tf_distribution = self.parameters[&#39;distribution&#39;]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="n">distribution</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_n_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">n_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">event_shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
-        <span class="n">n_dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_dims</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># n_obs is a list</span>
-        <span class="k">return</span> <span class="n">n_dims</span>
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;zfit.data.Data&quot;</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
