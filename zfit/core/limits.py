@@ -334,7 +334,7 @@ class Space(ZfitSpace, BaseObject):
     @property
     def limit1d(self):
         if self.n_obs > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has more then one observables: {}".format(self.n_obs))
+            raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
         if self.n_limits > 1:
             raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
 
@@ -349,9 +349,9 @@ class Space(ZfitSpace, BaseObject):
     @property
     def limit2d(self):
         if self.n_obs != 2:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has more then one observables: {}".format(self.n_obs))
+            raise RuntimeError("Cannot call `limit2d, as `Space` has not two observables: {}".format(self.n_obs))
         if self.n_limits > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+            raise RuntimeError("Cannot call `limit2d, as `Space` has several limits: {}".format(self.n_limits))
 
         limits = self.limits
         if limits in (None, False):
@@ -359,6 +359,26 @@ class Space(ZfitSpace, BaseObject):
         else:
             (lower,), (upper,) = limits
             limit = *lower, *upper
+        return limit
+
+    @property
+    def limits1d(self):
+        if self.n_obs > 1:
+            raise RuntimeError("Cannot call `limits1d, as `Space` has more than one observable: {}".format(self.n_obs))
+        # if self.n_limits > 1:
+        #     raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+
+        limits = self.limits
+        if limits in (None, False):
+            limit = limits
+        else:
+            new_lower, new_upper = [], []
+            for lower, upper in self.iter_limits(as_tuple=True):
+                new_lower.append(lower[0])
+                new_upper.append(upper[0])
+            new_lower = tuple(new_lower)
+            new_upper = tuple(new_upper)
+            limit = *new_lower, *new_upper
         return limit
 
     @property

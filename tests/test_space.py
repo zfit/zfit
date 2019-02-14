@@ -183,6 +183,7 @@ def test_dimensions():
     assert space.n_limits == 2
     with pytest.raises(RuntimeError):
         space.limit2d
+        space.limits1d
 
     space = Space(obs='obs1', limits=(((1,),), ((2,),)))
     assert space.n_obs == 1
@@ -198,9 +199,11 @@ def test_dimensions():
     assert space.n_obs == 4
     assert space.n_limits == 2
 
-    space = Space.from_axes(axes=(1,), limits=(((1,), (2,)), ((2,), (3,))))
+    lower1, lower2, upper1, upper2 = 1, 2, 2, 3
+    space = Space.from_axes(axes=(1,), limits=(((lower1,), (lower2,)), ((upper1,), (upper2,))))
     assert space.n_obs == 1
     assert space.n_limits == 2
+    low1, low2, up1, up2 = space.limits1d
     with pytest.raises(RuntimeError):
         space.limit1d
 
