@@ -332,7 +332,15 @@ class Space(ZfitSpace, BaseObject):
         return self._limits
 
     @property
-    def limit1d(self):
+    def limit1d(self) -> Tuple[float, float]:
+        """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
+
+        Returns:
+            tuple(float, float): so `lower, upper = space.limit1d` for a simple, 1 obs limit.
+
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
         if self.n_obs > 1:
             raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
         if self.n_limits > 1:
@@ -347,7 +355,16 @@ class Space(ZfitSpace, BaseObject):
         return limit
 
     @property
-    def limit2d(self):
+    def limit2d(self) -> Tuple[float, float, float, float]:
+        """Simplified `.limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
+
+        Returns:
+            tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
+                low_x is the lower limit in x, up_x is the upper limit in x etc.
+
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
         if self.n_obs != 2:
             raise RuntimeError("Cannot call `limit2d, as `Space` has not two observables: {}".format(self.n_obs))
         if self.n_limits > 1:
@@ -362,7 +379,16 @@ class Space(ZfitSpace, BaseObject):
         return limit
 
     @property
-    def limits1d(self):
+    def limits1d(self) -> Tuple[float]:
+        """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
+
+        Returns:
+            tuple(float, float, ...): so `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
+                low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.
+
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
         if self.n_obs > 1:
             raise RuntimeError("Cannot call `limits1d, as `Space` has more than one observable: {}".format(self.n_obs))
         # if self.n_limits > 1:
