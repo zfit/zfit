@@ -163,7 +163,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
 
     def raw_integral(x):
-        return model._numerics_shifted_exp(lambda_ * x) / lambda_  # needed due to overflow in exp otherwise
+        return model._numerics_shifted_exp(x=x, lambda_=lambda_) / lambda_  # needed due to overflow in exp otherwise
 
     (lower,), (upper,) = limits.limits
     if lower[0] == - upper[0] == np.inf:
@@ -177,4 +177,4 @@ def _exp_integral_from_any_to_any(limits, params, model):
 
 
 limits = Space.from_axes(axes=0, limits=(ANY_LOWER, ANY_UPPER))
-# Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
+Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
