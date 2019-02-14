@@ -98,27 +98,27 @@ class Exponential(BasePDF):
     # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
     def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
-        with self._set_numerics_data_shift(limits=norm_range):
+        with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_integrate(limits, norm_range, name)
 
     def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
-        with self._set_numerics_data_shift(limits=norm_range):
+        with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_analytic_integrate(limits, norm_range, name)
 
     def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
-        with self._set_numerics_data_shift(limits=norm_range):
+        with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_numeric_integrate(limits, norm_range, name)
 
     def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
-        with self._set_numerics_data_shift(limits=norm_range):
+        with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_partial_integrate(x, limits, norm_range, name)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
-        with self._set_numerics_data_shift(limits=norm_range):
+        with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
-        with self._set_numerics_data_shift(limits=norm_range):
+        with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)
 
     def _single_hook_normalization(self, limits, name):
