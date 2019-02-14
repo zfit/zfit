@@ -122,6 +122,39 @@ def test_sampling():
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
 
+def test_sampling_multiple_limits():
+    n_draws = 1000
+    low1, up1 = -1, 0
+    lower_interval = zfit.Space(obs=obs1, limits=(low1, up1))
+    low2, up2 = 1, 2
+    upper_interval = zfit.Space(obs=obs1, limits=(low2, up2))
+    sample_tensor = gauss_params1.sample(n=n_draws, limits=lower_interval + upper_interval)
+    sampled_from_gauss1 = zfit.run(sample_tensor)
+    between_samples = np.logical_and(sampled_from_gauss1 < up1, sampled_from_gauss1 > low2)
+    assert not any(between_samples)
+    assert max(sampled_from_gauss1[:, 0]) <= up2
+    assert min(sampled_from_gauss1[:, 0]) >= low1
+    assert n_draws == len(sampled_from_gauss1[:, 0])
+
+    mu_true = zfit.run(gauss_params1.params['mu'])
+    sigma_true = zfit.run(gauss_params1.params['sigma'])
+    low1, up1 = mu_true - abs(sigma_true) * 4, mu_true
+    lower_interval = zfit.Space(obs=obs1, limits=(low1, up1))
+    low2, up2 = mu_true, mu_true + abs(sigma_true) * 4
+    upper_interval = zfit.Space(obs=obs1, limits=(low2, up2))
+    one_interval = zfit.Space(obs=obs1, limits=(low1, up2))
+
+    sample_tensor5 = gauss_params1.sample(n=10000, limits=lower_interval + upper_interval)
+    sampled_gauss1_full = zfit.run(sample_tensor5)
+    # HACK
+    # sample_tensor5 = gauss_params1.sample(n=10000, limits=one_interval)
+    # sampled_gauss1_full = zfit.run(sample_tensor5)
+    mu_sampled = np.mean(sampled_gauss1_full)
+    sigma_sampled = np.std(sampled_gauss1_full)
+    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
+    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+
 def test_analytic_sampling():
     class SampleGauss(TestGaussian):
         pass

@@ -10,7 +10,6 @@ from .limits import Space, no_multiple_limits
 from ..settings import ztypes
 
 
-@no_multiple_limits
 def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                          sampler: typing.Callable = tf.random_uniform,
                          dtype=ztypes.float, prob_max: typing.Union[None, int] = None,
@@ -33,11 +32,34 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
-    # TODO(Mayou36): add multiple limits support: sample from both region prop. to area. Max is overall max
     n_dims = limits.n_obs
-    lower, upper = limits.limits
-    lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
-    upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
+    multiple_limits = limits.n_limits > 1
+
+    # if limits.n_limits == 1:
+    #     lower, upper = limits.limits
+    #     lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
+    #     upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
+
+    def random_sampling(n_to_produce):
+        rnd_samples = []
+        thresholds_unscaled_list = []
+        for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
+            n_partial_to_produce = tf.to_int64(ztf.to_real(n_to_produce) * ztf.to_real(area))
+            lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
+            upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
+            sample_drawn = sampler(shape=(n_partial_to_produce, n_dims + 1),  # + 1 dim for the function value
+                                   dtype=ztypes.float)
+            rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
+            thresholds_unscaled = sample_drawn[:, -1]
+            if not multiple_limits:
+                return rnd_sample, thresholds_unscaled
+            rnd_samples.append(rnd_sample)
+            thresholds_unscaled_list.append(thresholds_unscaled)
+
+        rnd_sample = tf.concat(rnd_samples, axis=0)
+        thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
+        return rnd_sample, thresholds_unscaled
+
     n_samples_int = n
     n = tf.to_int64(n)
 
@@ -55,17 +77,13 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
         n_total_drawn += n_to_produce
         n_total_drawn = tf.to_int64(n_total_drawn)
 
-        sample_drawn = sampler(shape=(n_to_produce, n_dims + 1),  # + 1 dim for the function value
-                               dtype=ztypes.float)
-
-        rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
-
+        rnd_sample, thresholds_unscaled = random_sampling(n_to_produce)
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             prob_max_inferred = tf.reduce_max(probabilities)
         else:
             prob_max_inferred = prob_max
-        random_thresholds = sample_drawn[:, -1] * prob_max_inferred
+        random_thresholds = thresholds_unscaled * prob_max_inferred
         take_or_not = probabilities > random_thresholds
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
@@ -86,6 +104,8 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                            swap_memory=True,
                            parallel_iterations=4,
                            back_prop=False)[1]  # backprop not needed here
+    if multiple_limits:
+        sample = tf.random.shuffle(sample)  # to make sure, randomly remove and not biased.
     new_sample = sample[:n, :]  # cutting away to many produced
     new_sample.set_shape((n_samples_int, n_dims))
     return new_sample
