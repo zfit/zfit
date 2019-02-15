@@ -160,7 +160,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
     def _convert_sort_x(self, x: ztyping.XTypeInput) -> Data:
         if isinstance(x, ZfitData):
             if x.obs is not None:
-                with x.sort_by_obs(obs=self.obs):
+                with x.sort_by_obs(obs=self.obs, allow_superset=True):
                     yield x
             elif x.axes is not None:
                 with x.sort_by_axes(axes=self.axes):
@@ -259,7 +259,7 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
             obs = self.obs
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
-        self_space = self._space
+        self_space = self.space
         if self_space is not None:
             space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
         return space
@@ -559,22 +559,22 @@ class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
 
             return self._fallback_partial_integrate(x=x, limits=limits, norm_range=norm_range)
 
-    def _fallback_partial_integrate(self, x, limits, norm_range):
+    def _fallback_partial_integrate(self, x, limits: Space, norm_range: Space):
         max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=limits.axes)
         if max_axes:
-            sublimits = limits.subspace(max_axes)
+            sublimits = limits.get_subspace(axes=max_axes)
 
             def part_int(x):  # change to partial integrate max axes?
                 """Temporary partial integration function."""
                 return self._hook_partial_analytic_integrate(x=x, limits=sublimits, norm_range=norm_range)
 
             axes = list(set(limits.axes) - set(max_axes))
+            limits = limits.get_subspace(axes=axes)
         else:
             part_int = self._func_to_integrate
-            axes = limits.axes
 
         if norm_range.limits is False:
-            integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, axes=axes, x=x)
+            integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, x=x)
         else:
             raise NormRangeNotImplementedError
         return integral_vals

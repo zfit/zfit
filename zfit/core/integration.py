@@ -110,7 +110,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
         # samples = tf.transpose(samples, perm=[2, 0, 1])
 
-        if partial:
+        if partial:  # TODO(Mayou36): shape of partial integral?
+            x = x.value()
             value_list = []
             index_samples = 0
             index_values = 0

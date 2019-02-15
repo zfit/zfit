@@ -711,8 +711,8 @@ class Space(ZfitSpace, BaseObject):
         self_axes_set = frozenset(tmp_axes)
         if ordered:
             if self.obs is not None:
-                if not frozenset(obs_axes.keys()) <= self_obs_set:
-                    raise ValueError("TODO observables not contained")
+                # if not frozenset(obs_axes.keys()) <= self_obs_set:
+                #     raise ValueError("TODO observables not contained")
                 if not allow_subset and frozenset(obs_axes.keys()) < self_obs_set:
                     raise ValueError("subset not allowed but `obs` is only a subset of `self.obs`")
                 permutation_index = tuple(

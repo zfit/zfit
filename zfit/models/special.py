@@ -23,7 +23,7 @@ class SimplePDF(BasePDF):
         self._unnormalized_prob_func = self._check_input_x_function(func)
 
     def _unnormalized_pdf(self, x):
-        return self._unnormalized_prob_func(x)
+        return self._unnormalized_prob_func(self, x)
 
     def copy(self, **override_parameters) -> 'BasePDF':
         override_parameters.update(func=self._unnormalized_prob_func)

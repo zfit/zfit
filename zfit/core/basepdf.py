@@ -61,7 +61,8 @@ from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
+from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError,
+                              AlreadyExtendedPDFError,
                               NormRangeNotSpecifiedError, ShapeIncompatibleError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
@@ -276,6 +277,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
+            # HACK
+            return self._unnormalized_pdf(x)
+            # HACK END
             try:
                 return self._unnormalized_pdf(x)
             except ValueError as error:
@@ -476,12 +480,18 @@ class BasePDF(ZfitPDF, BaseModel):
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
-    def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsType, norm_range: ztyping.LimitsType = False) -> 'BasePDF':
+    def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsType) -> 'BasePDF':
         """Create a PDF projecting out some of the dimensions."""
         from ..models.special import SimplePDF
-        return SimplePDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
-                                                          if obs not in limits_to_integrate.obs]),
-                         func=lambda x: self.partial_integrate(x, limits=limits_to_integrate, norm_range=norm_range))
+
+        def partial_integrate_wrapped(self_simple, x):
+            # norm_range = self._get_component_norm_range()
+            return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
+
+        new_pdf = SimplePDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
+                                                             if obs not in limits_to_integrate.obs]),
+                            func=partial_integrate_wrapped)
+        return new_pdf
 
     def copy(self, **override_parameters) -> 'BasePDF':
         """Creates a copy of the model.
