@@ -462,8 +462,8 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 
 
 class ComposedParameter(BaseComposedParameter):
-    def __init__(self, name, tensor, **kwargs):
-        tensor = ztf.convert_to_tensor(tensor)
+    def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
+        tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
         independent_params = tf.get_collection("zfit_independent")
         params = get_dependents(tensor=tensor, candidates=independent_params)
         # params_init_op = [param.initializer for param in params]
@@ -474,7 +474,7 @@ class ComposedParameter(BaseComposedParameter):
 
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, initial_value, dtype=ztypes.complex, **kwargs):
-        super().__init__(name, ztf.convert_to_tensor(initial_value, dtype=dtype), **kwargs)
+        super().__init__(name, initial_value, dtype, **kwargs)
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
