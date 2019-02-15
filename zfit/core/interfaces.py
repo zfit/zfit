@@ -12,16 +12,16 @@ from ..util import ztyping
 class ZfitObject(pep487.ABC):  # __init_subclass__ backport
 
     @property
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def name(self) -> str:
         """Name prepended to all ops created by this `model`."""
         raise NotImplementedError
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
         raise NotImplementedError
 
@@ -59,11 +59,11 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def sort_by_obs(self, obs):
+    def sort_by_obs(self, obs, allow_superset: bool = False):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def sort_by_axes(self, axes):
+    def sort_by_axes(self, axes, allow_superset: bool = False):
         raise NotImplementedError
 
 

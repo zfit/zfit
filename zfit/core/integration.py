@@ -111,6 +111,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         # samples = tf.transpose(samples, perm=[2, 0, 1])
 
         if partial:  # TODO(Mayou36): shape of partial integral?
+            data_obs = x.obs
+            new_obs = []
             x = x.value()
             value_list = []
             index_samples = 0
@@ -119,13 +121,17 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 x = tf.expand_dims(x, axis=1)
             for i in range(n_axes + x.shape[1].value):
                 if i in axes:
+                    new_obs.append(limits.obs[index_samples])
                     value_list.append(samples[:, :, index_samples])
                     index_samples += 1
                 else:
+                    new_obs.append(data_obs[index_values])
                     value_list.append(tf.expand_dims(x[:, index_values], axis=1))
                     index_values += 1
             value_list = [tf.cast(val, dtype=dtype) for val in value_list]
             x = value_list
+            x = PartialIntegralSampleData(sample=value_list,
+                                          space=Space(obs=new_obs))
         else:
             x = samples
 
@@ -309,7 +315,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
     def space(self) -> "ZfitSpace":
         return self._space
 
-    def sort_by_axes(self, axes):
+    def sort_by_axes(self, axes, allow_superset: bool = False):
         axes = convert_to_container(axes)
         new_reorder_list = [self._reorder_indices_list[self.space.axes.index(ax)] for ax in axes]
         value = self.space.with_axes(axes=axes), new_reorder_list
@@ -321,7 +327,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
 
         return TemporarilySet(value=value, getter=getter, setter=setter)
 
-    def sort_by_obs(self, obs):
+    def sort_by_obs(self, obs, allow_superset: bool = False):
         obs = convert_to_container(obs)
         new_reorder_list = [self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs]
 
