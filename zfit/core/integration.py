@@ -344,7 +344,10 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
         return self
 
     def unstack_x(self):
-        return self._sample
+        unstacked_x = [self._sample[i] for i in self._reorder_indices_list]
+        if len(unstacked_x) == 1:
+            unstacked_x = unstacked_x[0]
+        return unstacked_x
 
 
 class AnalyticIntegral:

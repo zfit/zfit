@@ -277,9 +277,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
-            # HACK
-            return self._unnormalized_pdf(x)
-            # HACK END
             try:
                 return self._unnormalized_pdf(x)
             except ValueError as error:
