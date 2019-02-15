@@ -472,39 +472,35 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
 
-class ComplexParameter(BaseComposedParameter):
+class ComplexParameter(ComposedParameter):
     def __init__(self, name, initial_value, dtype=ztypes.complex, **kwargs):
-        tensor = ztf.convert_to_tensor(initial_value, dtype=dtype)
-        independent_params = tf.get_collection("zfit_independent")
-        params = get_dependents(tensor=tensor, candidates=independent_params)
-        params = {p.name: p for p in params}
-        super().__init__(name=name, params=params, initial_value=tensor, **kwargs)
+        super().__init__(name, ztf.convert_to_tensor(initial_value, dtype=dtype), **kwargs)
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
         return ComplexParameter(name, tf.cast(tf.complex(real, imag), dtype=dtype))
 
     @staticmethod
-    def from_polar(name, abs, arg, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name, tf.cast(tf.complex(abs*tf.math.cos(arg),
-                                                         abs*tf.math.sin(arg)),
+    def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
+        return ComplexParameter(name, tf.cast(tf.complex(mod*tf.math.cos(arg),
+                                                         mod*tf.math.sin(arg)),
                                               dtype=dtype))
 
     def conj(self):
-        return ComposedParameter('{}_conj'.format(self.name),
-                                 tf.math.conj(self))
+        return ComplexParameter('{}_conj'.format(self.name), tf.math.conj(self),
+                                floating=self.floating, dtype=self.dtype)
 
     @property
     def real(self):
-        return tf.real(self.value())
+        return tf.real(self)
 
     @property
     def imag(self):
-        return tf.imag(self.value())
+        return tf.imag(self)
 
     @property
     def mod(self):
-        return tf.math.abs(self.value())
+        return tf.math.abs(self)
 
     @property
     def arg(self):

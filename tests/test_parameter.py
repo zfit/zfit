@@ -35,23 +35,23 @@ def test_complex_param():
     else:
         assert False, "one of the if or elif should be the case"
     # Polar complex
-    abs_val = 1.0
+    mod_val = 1.0
     arg_val = pi/4.0
-    abs_part_param = Parameter("abs_part_param", abs_val)
+    mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
-    param3 = ComplexParameter.from_polar("param3_compl", abs_part_param, arg_part_param)
+    param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
     part1, part2 = param3.get_dependents()
     part1_val, part2_val = zfit.run([part1.value(), part2.value()])
-    if part1_val == pytest.approx(abs_val):
+    if part1_val == pytest.approx(mod_val):
         assert part2_val == pytest.approx(arg_val)
     elif part1_val == pytest.approx(arg_val):
-        assert part2_val == pytest.approx(abs_val)
+        assert part2_val == pytest.approx(mod_val)
     else:
         assert False, "one of the if or elif should be the case"
     # Test properties (1e-8 is too precise)
     assert real_part == pytest.approx(zfit.run(param1.real), rel=1e-6)
     assert imag_part == pytest.approx(zfit.run(param2.imag), rel=1e-6)
-    assert abs_val == pytest.approx(zfit.run(param3.mod), rel=1e-6)
+    assert mod_val == pytest.approx(zfit.run(param3.mod), rel=1e-6)
     assert arg_val == pytest.approx(zfit.run(param3.arg), rel=1e-6)
     assert cos(arg_val) == pytest.approx(zfit.run(param3.real), rel=1e-6)
 
