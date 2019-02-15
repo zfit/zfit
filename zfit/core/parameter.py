@@ -482,6 +482,22 @@ class ComplexParameter(BaseComposedParameter):
         params = {'real': real_part, 'imag': imag_part}
         super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
 
+    def conj(self):
+        raise NotImplementedError("Conjugation is still not implemented")
+
+
+class ComplexPolarParameter(BaseComposedParameter):
+    def __init__(self, name, abs_value, arg_value, floating=True, dtype=ztypes.complex, **kwargs):
+        from math import sin, cos
+        abs_part = Parameter(name=name + "_abs", init_value=abs_value, floating=floating, dtype=ztypes.float)
+        arg_part = Parameter(name=name + "_arg", init_value=arg_value, floating=floating, dtype=ztypes.float)
+        params = {'abs': abs_part, 'arg': arg_part}
+        initial_value = tf.cast(complex(abs_value*cos(arg_value), abs_value*sin(arg_value)), dtype=dtype)
+        super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
+
+    def conj(self):
+        raise NotImplementedError("Conjugation is still not implemented")
+
 
 _auto_number = 0
 
