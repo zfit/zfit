@@ -473,12 +473,6 @@ class ComposedParameter(BaseComposedParameter):
 
 
 class BaseComplexParameter(BaseComposedParameter):
-    def conj(self):
-        return ComposedParameter('{}_conj'.format(self.name),
-                                 tf.math.conj(self))
-
-
-class ComplexParameter(BaseComplexParameter):
     def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):
         initial_value = tf.cast(initial_value, dtype=dtype)
         real_value = tf.real(initial_value)
@@ -487,6 +481,14 @@ class ComplexParameter(BaseComplexParameter):
         imag_part = Parameter(name=name + "_imag", init_value=imag_value, floating=floating, dtype=imag_value.dtype)
         params = {'real': real_part, 'imag': imag_part}
         super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
+
+    def conj(self):
+        return ComposedParameter('{}_conj'.format(self.name),
+                                 tf.math.conj(self))
+
+
+class ComplexParameter(BaseComplexParameter):
+    pass
 
 
 class ComplexPolarParameter(BaseComplexParameter):
