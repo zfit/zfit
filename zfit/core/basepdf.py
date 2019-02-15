@@ -479,9 +479,9 @@ class BasePDF(ZfitPDF, BaseModel):
     def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsType, norm_range: ztyping.LimitsType = False) -> 'BasePDF':
         """Create a PDF projecting out some of the dimensions."""
         from ..models.special import SimplePDF
-        SimplePDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
-                                                   if obs not in limits_to_integrate.obs]),
-                  func=lambda x: self.partial_integrate(x, limits=limits_to_integrate, norm_range=norm_range))
+        return SimplePDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
+                                                          if obs not in limits_to_integrate.obs]),
+                         func=lambda x: self.partial_integrate(x, limits=limits_to_integrate, norm_range=norm_range))
 
     def copy(self, **override_parameters) -> 'BasePDF':
         """Creates a copy of the model.

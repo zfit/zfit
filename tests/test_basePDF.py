@@ -199,7 +199,7 @@ def test_projection_pdf():
     gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
     gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
     gauss_xy = ProductPDF([gauss_x, gauss_y])
-    assert gauss_xy.create_projection_pdf(x, limits_to_integrate=y).obs == x
+    assert gauss_xy.create_projection_pdf(limits_to_integrate=y).norm_range == x
 
 
 def test_copy():
