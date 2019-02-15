@@ -222,9 +222,7 @@ def test_mc_partial_integration():
     data1 = zfit.data.Data.from_tensors(obs='obs2', tensors=tf.expand_dims(values, axis=-1))
     num_integral = zintegrate.mc_integrate(x=data1,
                                            func=func4_3deps,
-                                           limits=Space.from_axes(limits=limits4_2dim,
-                                                                  axes=(0, 2)),
-                                           draws_per_dim=70)
+                                           limits=Space(limits=limits4_2dim, obs=['obs1', 'obs3']))
     vals_tensor = ztf.convert_to_tensor(func4_2values)
 
     vals_reshaped = tf.transpose(vals_tensor)
@@ -232,7 +230,7 @@ def test_mc_partial_integration():
 
     num_integral2 = zintegrate.mc_integrate(x=data2,
                                             func=func4_3deps,
-                                            limits=Space.from_axes(limits=limits4_1dim, axes=(1,)),
+                                            limits=Space(limits=limits4_1dim, obs=['obs2']),
                                             draws_per_dim=100)
 
     integral = zfit.run(num_integral)

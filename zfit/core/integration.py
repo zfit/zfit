@@ -119,7 +119,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             index_values = 0
             if len(x.shape) == 1:
                 x = tf.expand_dims(x, axis=1)
-            for i in range(n_axes + x.shape[1].value):
+            for i in range(n_axes + x.shape[-1].value):
                 if i in axes:
                     new_obs.append(limits.obs[index_samples])
                     value_list.append(samples[:, :, index_samples])
