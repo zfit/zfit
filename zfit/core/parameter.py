@@ -472,7 +472,13 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
 
-class ComplexParameter(BaseComposedParameter):
+class BaseComplexParameter(BaseComposedParameter):
+    def conj(self):
+        return ComposedParameter('{}_conj'.format(self.name),
+                                 tf.math.conj(self))
+
+
+class ComplexParameter(BaseComplexParameter):
     def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):
         initial_value = tf.cast(initial_value, dtype=dtype)
         real_value = tf.real(initial_value)
@@ -482,21 +488,16 @@ class ComplexParameter(BaseComposedParameter):
         params = {'real': real_part, 'imag': imag_part}
         super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
 
-    def conj(self):
-        raise NotImplementedError("Conjugation is still not implemented")
 
-
-class ComplexPolarParameter(BaseComposedParameter):
+class ComplexPolarParameter(BaseComplexParameter):
     def __init__(self, name, abs_value, arg_value, floating=True, dtype=ztypes.complex, **kwargs):
-        from math import sin, cos
         abs_part = Parameter(name=name + "_abs", init_value=abs_value, floating=floating, dtype=ztypes.float)
         arg_part = Parameter(name=name + "_arg", init_value=arg_value, floating=floating, dtype=ztypes.float)
         params = {'abs': abs_part, 'arg': arg_part}
-        initial_value = tf.cast(complex(abs_value*cos(arg_value), abs_value*sin(arg_value)), dtype=dtype)
+        initial_value = tf.cast(tf.complex(abs_value*tf.math.cos(arg_value),
+                                           abs_value*tf.math.sin(arg_value)),
+                                dtype=dtype)
         super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
-
-    def conj(self):
-        raise NotImplementedError("Conjugation is still not implemented")
 
 
 _auto_number = 0
