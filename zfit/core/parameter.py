@@ -462,25 +462,50 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 
 
 class ComposedParameter(BaseComposedParameter):
-    def __init__(self, name, tensor, **kwargs):
-        tensor = ztf.convert_to_tensor(tensor)
-        independend_params = tf.get_collection("zfit_independent")
-        params = get_dependents(tensor=tensor, candidates=independend_params)
+    def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
+        tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
+        independent_params = tf.get_collection("zfit_independent")
+        params = get_dependents(tensor=tensor, candidates=independent_params)
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
         super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
 
 
-class ComplexParameter(BaseComposedParameter):
-    def __init__(self, name, initial_value, floating=True, dtype=ztypes.complex, **kwargs):
-        initial_value = tf.cast(initial_value, dtype=dtype)
-        real_value = tf.real(initial_value)
-        real_part = Parameter(name=name + "_real", init_value=real_value, floating=floating, dtype=real_value.dtype)
-        imag_value = tf.imag(initial_value)
-        imag_part = Parameter(name=name + "_imag", init_value=imag_value, floating=floating, dtype=imag_value.dtype)
-        params = {'real': real_part, 'imag': imag_part}
-        super().__init__(params=params, initial_value=initial_value, name=name, **kwargs)
+class ComplexParameter(ComposedParameter):
+    def __init__(self, name, initial_value, dtype=ztypes.complex, **kwargs):
+        super().__init__(name, initial_value, dtype, **kwargs)
+
+    @staticmethod
+    def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
+        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(real, imag), dtype=dtype),
+                                **kwargs)
+
+    @staticmethod
+    def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
+        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(mod * tf.math.cos(arg),
+                                                                            mod * tf.math.sin(arg)),
+                                                                 dtype=dtype), **kwargs)
+
+    def conj(self):
+        return ComplexParameter(name='{}_conj'.format(self.name), initial_value=tf.math.conj(self),
+                                floating=self.floating, dtype=self.dtype)
+
+    @property
+    def real(self):
+        return tf.real(self)
+
+    @property
+    def imag(self):
+        return tf.imag(self)
+
+    @property
+    def mod(self):
+        return tf.math.abs(self)
+
+    @property
+    def arg(self):
+        return tf.math.atan(self.imag / self.real)
 
 
 _auto_number = 0

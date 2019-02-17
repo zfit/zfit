@@ -1,3 +1,5 @@
+from math import pi, cos
+
 import numpy as np
 import pytest
 
@@ -12,13 +14,19 @@ from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTaken
 def test_complex_param():
     real_part = 1.3
     imag_part = 0.3
+    # Constant complex
     complex_value = real_part + imag_part * 1.j
     param1 = ComplexParameter("param1_compl", complex_value)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value ** 2 - 1.2j
     zfit.run(tf.global_variables_initializer())
     assert true_value == pytest.approx(zfit.run(some_value), rel=1e-8)
-    part1, part2 = param1.get_dependents()
+    assert not param1.get_dependents()
+    # Cartesian complex
+    real_part_param = Parameter("real_part_param", real_part)
+    imag_part_param = Parameter("imag_part_param", imag_part)
+    param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
+    part1, part2 = param2.get_dependents()
     part1_val, part2_val = zfit.run([part1.value(), part2.value()])
     if part1_val == pytest.approx(real_part):
         assert part2_val == pytest.approx(imag_part)
@@ -26,7 +34,26 @@ def test_complex_param():
         assert part1_val == pytest.approx(imag_part)
     else:
         assert False, "one of the if or elif should be the case"
-
+    # Polar complex
+    mod_val = 1.0
+    arg_val = pi/4.0
+    mod_part_param = Parameter("mod_part_param", mod_val)
+    arg_part_param = Parameter("arg_part_param", arg_val)
+    param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
+    part1, part2 = param3.get_dependents()
+    part1_val, part2_val = zfit.run([part1.value(), part2.value()])
+    if part1_val == pytest.approx(mod_val):
+        assert part2_val == pytest.approx(arg_val)
+    elif part1_val == pytest.approx(arg_val):
+        assert part2_val == pytest.approx(mod_val)
+    else:
+        assert False, "one of the if or elif should be the case"
+    # Test properties (1e-8 is too precise)
+    assert real_part == pytest.approx(zfit.run(param1.real), rel=1e-6)
+    assert imag_part == pytest.approx(zfit.run(param2.imag), rel=1e-6)
+    assert mod_val == pytest.approx(zfit.run(param3.mod), rel=1e-6)
+    assert arg_val == pytest.approx(zfit.run(param3.arg), rel=1e-6)
+    assert cos(arg_val) == pytest.approx(zfit.run(param3.real), rel=1e-6)
 
 def test_composed_param():
     param1 = Parameter('param1s', 1.)
