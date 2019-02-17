@@ -221,8 +221,9 @@ def combine_spaces(spaces: Iterable["zfit.Space"]):
         LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
     """
     spaces = convert_to_container(spaces, container=tuple)
-    if len(spaces) <= 1:
-        raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
+    # if len(spaces) <= 1:
+    #     return spaces
+    # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
 
     all_obs = common_obs(spaces=spaces)
     all_lower = []

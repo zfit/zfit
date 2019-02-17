@@ -8,6 +8,7 @@ import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
 from zfit.models.functor import ProductPDF
+from zfit.models.special import SimplePDF
 import zfit.settings
 from zfit import ztf
 
@@ -194,12 +195,38 @@ def test_multiple_limits():
 
 
 def test_projection_pdf():
-    x = zfit.Space("x", limits=(-5, 5))
-    y = zfit.Space("y", limits=(-5, 5))
+    # x = zfit.Space("x", limits=(-5, 5))
+    # y = zfit.Space("y", limits=(-5, 5))
+    # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
+    # gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
+    # gauss_xy = ProductPDF([gauss_x, gauss_y])
+
+    x = zfit.Space("x", limits=(-1, 1))
+    y = zfit.Space("y", limits=(-0.1, 1))
     gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
     gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
-    gauss_xy = ProductPDF([gauss_x, gauss_y])
+    # gauss_xy = ProductPDF([gauss_x, gauss_y])
+    import tensorflow as tf
+
+    def correlated_func(self, x):
+        x, y = x.unstack_x()
+        value = 1 / (tf.abs(x - y) + 0.1) ** 2
+        return value
+
+    gauss_xy = SimplePDF(func=correlated_func, obs=x * y)
     assert gauss_xy.create_projection_pdf(limits_to_integrate=y).norm_range == x
+    proj_pdf = gauss_xy.create_projection_pdf(limits_to_integrate=y)
+    test_values = np.array([-0.95603563, -0.84636306, -0.83895759, 2.62608006, 1.02336499,
+                            -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
+                            1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,
+                            0.31566277, -1.55696965, 0.36304538, 0.77765786, 3.92630088])
+    true_probs = np.array([0.0198562, 0.02369336, 0.02399382, 0.00799939, 0.2583654, 0.01868723,
+                           0.01375734, 0.53971816, 0.00697152, 0.00438797, 0.03473656, 0.55963737,
+                           0.58296759, 0.00447878, 0.01517764, 0.59553535, 0.00943439, 0.59838703,
+                           0.56315399, 0.00312496])
+    probs = proj_pdf.pdf(x=test_values)
+    probs = zfit.run(probs)
+    np.testing.assert_allclose(probs, true_probs, rtol=1e-5)  # MC normalization
 
 
 def test_copy():

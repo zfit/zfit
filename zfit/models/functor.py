@@ -40,6 +40,10 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
     def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
+        if norm_range.limits in (False, None):
+            if self._get_component_norm_range() is None:
+                raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
+                                   "`component_norm_range`.")
 
         def setter(value):
             self._component_norm_range_holder = value

@@ -8,9 +8,10 @@ from types import MethodType
 
 import tensorflow as tf
 
-from zfit.core.basemodel import SimpleModelSubclassMixin
-from zfit.core.basepdf import BasePDF
-from zfit.util import ztyping
+from ..core.basemodel import SimpleModelSubclassMixin
+from ..core.basepdf import BasePDF
+from .functor import BaseFunctor
+from ..util import ztyping
 
 from ..core.basepdf import BasePDF
 from ..core.limits import no_norm_range
@@ -28,6 +29,12 @@ class SimplePDF(BasePDF):
     def copy(self, **override_parameters) -> 'BasePDF':
         override_parameters.update(func=self._unnormalized_prob_func)
         return super().copy(**override_parameters)
+
+
+class SimpleFunctorPDF(BaseFunctor, SimplePDF):
+
+    def __init__(self, obs, pdfs, func, name="SimpleFunctorPDF", **params):
+        super().__init__(obs=obs, pdfs=pdfs, func=func, name=name, **params)
 
 
 def raise_error_if_norm_range(func):
