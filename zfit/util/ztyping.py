@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 # space
+
 LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
 LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
 
@@ -48,6 +49,9 @@ SessionType = Optional[tf.Session]
 # Zfit Structure
 BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
 DependentsType = Set['Parameter']
+
+# Caching
+CacherOrCachersType = Union['ZfitCachable', Iterable['ZfitCachable']]
 
 try:
     from typing import OrderedDict

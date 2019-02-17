@@ -15,6 +15,7 @@ from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
 from zfit.core.integration import Integration
+from zfit.util.cache import Cachable
 from .data import Data
 from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
@@ -57,7 +58,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumeric, BaseDimensional, ZfitModel):
+class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use

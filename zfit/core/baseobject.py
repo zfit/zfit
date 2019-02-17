@@ -7,6 +7,7 @@ from typing import List, Set
 import tensorflow as tf
 
 import zfit
+from ..util.cache import Cachable
 from ..util import ztyping
 from .interfaces import ZfitObject, ZfitNumeric, ZfitDependentsMixin
 from ..util.container import convert_to_container, DotDict
@@ -108,7 +109,7 @@ class BaseDependentsMixin(ZfitDependentsMixin):
         return dependents_set
 
 
-class BaseNumeric(BaseObject, BaseDependentsMixin, ZfitNumeric):
+class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumeric, BaseObject):
 
     def __init__(self, name, dtype, params, **kwargs):
         super().__init__(name=name, **kwargs)
@@ -117,6 +118,7 @@ class BaseNumeric(BaseObject, BaseDependentsMixin, ZfitNumeric):
         self._dtype = dtype
         params = params or OrderedDict()
         params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
+        self.add_cache_dependents(params.values())
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params

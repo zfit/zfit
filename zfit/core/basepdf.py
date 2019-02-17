@@ -57,6 +57,7 @@ import warnings
 import tensorflow as tf
 
 from zfit import ztf
+from zfit.util.cache import invalidates_cache
 from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
 from ..util import ztyping
@@ -184,6 +185,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm_range = self.space
         return norm_range
 
+    @invalidates_cache
     def set_norm_range(self, norm_range: Union[Space, None]):
         """Set the normalization range (temporarily if used with contextmanager).
 
@@ -411,6 +413,7 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
+    @invalidates_cache
     def _set_yield_inplace(self, value: Union[Parameter, float, None]):
         """Make the model extended by (temporarily) setting a yield.
 
