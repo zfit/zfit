@@ -478,16 +478,17 @@ class ComplexParameter(ComposedParameter):
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name, tf.cast(tf.complex(real, imag), dtype=dtype))
+        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(real, imag), dtype=dtype),
+                                **kwargs)
 
     @staticmethod
     def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name, tf.cast(tf.complex(mod*tf.math.cos(arg),
-                                                         mod*tf.math.sin(arg)),
-                                              dtype=dtype))
+        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(mod * tf.math.cos(arg),
+                                                                            mod * tf.math.sin(arg)),
+                                                                 dtype=dtype), **kwargs)
 
     def conj(self):
-        return ComplexParameter('{}_conj'.format(self.name), tf.math.conj(self),
+        return ComplexParameter(name='{}_conj'.format(self.name), initial_value=tf.math.conj(self),
                                 floating=self.floating, dtype=self.dtype)
 
     @property
@@ -504,7 +505,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def arg(self):
-        return tf.math.atan(self.imag/self.real)
+        return tf.math.atan(self.imag / self.real)
 
 
 _auto_number = 0
