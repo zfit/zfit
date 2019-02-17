@@ -175,17 +175,17 @@
 <div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>  <span class="c1"># __init_subclass__ backport</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="c1"># @abc.abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Name prepended to all ops created by this `model`.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="c1"># @abc.abstractmethod</span>
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="ZfitObject.copy"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject.copy">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitObject&quot;</span><span class="p">:</span>
+    <span class="c1"># @abc.abstractmethod</span>
+<div class="viewcode-block" id="ZfitObject.copy"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitObject&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
@@ -222,11 +222,11 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="ZfitData.sort_by_obs"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitData.sort_by_obs">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">sort_by_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sort_by_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="ZfitData.sort_by_axes"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitData.sort_by_axes">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 

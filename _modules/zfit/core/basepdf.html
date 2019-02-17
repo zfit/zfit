@@ -224,7 +224,8 @@
 <span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="p">(</span><span class="n">AlreadyExtendedPDFError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span><span class="p">,</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">,</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="p">(</span><span class="n">AlreadyExtendedPDFError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span><span class="p">,</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">,</span>
+                              <span class="n">AlreadyExtendedPDFError</span><span class="p">,</span>
                               <span class="n">NormRangeNotSpecifiedError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
 <span class="kn">from</span> <span class="nn">.basemodel</span> <span class="k">import</span> <span class="n">BaseModel</span>
@@ -638,6 +639,34 @@
         <span class="c1"># if not self.is_extended:</span>
         <span class="c1">#     raise zexception.ExtendedPDFError(&quot;PDF is not extended, cannot get yield.&quot;)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yield</span></div>
+
+<div class="viewcode-block" id="BasePDF.create_projection_pdf"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.core.basepdf.BasePDF.create_projection_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">create_projection_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ZfitPDF&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a PDF projection by integrating out some of the dimensions.</span>
+
+<span class="sd">        The new projection pdf is still fully dependent on the pdf it was created with.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            limits_to_integrate (`zfit.Space`):</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ZfitPDF: a pdf without the dimensions from `limits_to_integrate`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..models.special</span> <span class="k">import</span> <span class="n">SimpleFunctorPDF</span>
+
+        <span class="k">def</span> <span class="nf">partial_integrate_wrapped</span><span class="p">(</span><span class="n">self_simple</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="n">norm_range</span> <span class="o">=</span> <span class="n">self_simple</span><span class="o">.</span><span class="n">_get_component_norm_range</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">norm_range</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="kn">from</span> <span class="nn">zfit.models.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BaseFunctor</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_set_component_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits_to_integrate</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">new_pdf</span> <span class="o">=</span> <span class="n">SimpleFunctorPDF</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">get_subspace</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="p">[</span><span class="n">obs</span> <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span>
+                                                                    <span class="k">if</span> <span class="n">obs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">limits_to_integrate</span><span class="o">.</span><span class="n">obs</span><span class="p">]),</span>
+                                   <span class="n">pdfs</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="p">,),</span>
+                                   <span class="n">func</span><span class="o">=</span><span class="n">partial_integrate_wrapped</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_pdf</span></div>
 
 <div class="viewcode-block" id="BasePDF.copy"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.core.basepdf.BasePDF.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">override_parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BasePDF&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Creates a copy of the model.</span>

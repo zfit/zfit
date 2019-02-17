@@ -254,6 +254,25 @@ arguments to override with new value.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.pdf.BasePDF.create_projection_pdf">
+<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.create_projection_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
+<p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limits_to_integrate</strong> (<cite>zfit.Space</cite>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a pdf without the dimensions from <cite>limits_to_integrate</cite>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.pdf.BasePDF.get_yield">
 <code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.get_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.get_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the yield (only for extended models).</p>
@@ -539,6 +558,50 @@ given yield.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.pdf.ZPDF">
+<em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">ZPDF</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], name: str = 'ZPDF', **params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/models/special.html#ZPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.ZPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.basemodel.html#zfit.core.basemodel.SimpleModelSubclassMixin" title="zfit.core.basemodel.SimpleModelSubclassMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basemodel.SimpleModelSubclassMixin</span></code></a>, <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.pdf.SimplePDF">
+<em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">SimplePDF</code><span class="sig-paren">(</span><em>obs</em>, <em>func</em>, <em>name='SimplePDF'</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/models/special.html#SimplePDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.SimplePDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+<dl class="method">
+<dt id="zfit.pdf.SimplePDF.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>**override_parameters</em><span class="sig-paren">)</span> &#x2192; zfit.core.basepdf.BasePDF<a class="reference internal" href="_modules/zfit/models/special.html#SimplePDF.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.SimplePDF.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of the model.</p>
+<p>Note: the copy model may continue to depend on the original
+initialization arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**override_parameters</strong> – String/value dictionary of initialization
+arguments to override with new value.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt>
+<dd>of self.parameters and override_parameters, i.e.,
+<cite>dict(self.parameters, **override_parameters)</cite>.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">model</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.pdf.SimpleFunctorPDF">
+<em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">SimpleFunctorPDF</code><span class="sig-paren">(</span><em>obs</em>, <em>pdfs</em>, <em>func</em>, <em>name='SimpleFunctorPDF'</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/models/special.html#SimpleFunctorPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.SimpleFunctorPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.models.functor.html#zfit.models.functor.BaseFunctor" title="zfit.models.functor.BaseFunctor"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.functor.BaseFunctor</span></code></a>, <a class="reference internal" href="zfit.models.special.html#zfit.models.special.SimplePDF" title="zfit.models.special.SimplePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.special.SimplePDF</span></code></a></p>
 </dd></dl>
 
 <p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 

@@ -294,6 +294,25 @@ arguments to override with new value.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.basepdf.BasePDF.create_projection_pdf">
+<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.create_projection_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
+<p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limits_to_integrate</strong> (<cite>zfit.Space</cite>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a pdf without the dimensions from <cite>limits_to_integrate</cite>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.basepdf.BasePDF.get_yield">
 <code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.get_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.get_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the yield (only for extended models).</p>

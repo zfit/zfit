@@ -171,26 +171,33 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">zfit.core.basemodel</span> <span class="k">import</span> <span class="n">SimpleModelSubclassMixin</span>
-<span class="kn">from</span> <span class="nn">zfit.core.basepdf</span> <span class="k">import</span> <span class="n">BasePDF</span>
-<span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..core.basemodel</span> <span class="k">import</span> <span class="n">SimpleModelSubclassMixin</span>
+<span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="k">import</span> <span class="n">BasePDF</span>
+<span class="kn">from</span> <span class="nn">.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 
 <span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="k">import</span> <span class="n">BasePDF</span>
 <span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">no_norm_range</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">NormRangeNotImplementedError</span>
 
 
-<div class="viewcode-block" id="SimplePDF"><a class="viewcode-back" href="../../../zfit.models.special.html#zfit.models.special.SimplePDF">[docs]</a><span class="k">class</span> <span class="nc">SimplePDF</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
+<div class="viewcode-block" id="SimplePDF"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.models.special.SimplePDF">[docs]</a><span class="k">class</span> <span class="nc">SimplePDF</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SimplePDF&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_x_function</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SimplePDF.copy"><a class="viewcode-back" href="../../../zfit.models.special.html#zfit.models.special.SimplePDF.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">override_parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BasePDF&#39;</span><span class="p">:</span>
+<div class="viewcode-block" id="SimplePDF.copy"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.models.special.SimplePDF.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">override_parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BasePDF&#39;</span><span class="p">:</span>
         <span class="n">override_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="o">**</span><span class="n">override_parameters</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SimpleFunctorPDF"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.models.special.SimpleFunctorPDF">[docs]</a><span class="k">class</span> <span class="nc">SimpleFunctorPDF</span><span class="p">(</span><span class="n">BaseFunctor</span><span class="p">,</span> <span class="n">SimplePDF</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">pdfs</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SimpleFunctorPDF&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="raise_error_if_norm_range"><a class="viewcode-back" href="../../../zfit.models.special.html#zfit.models.special.raise_error_if_norm_range">[docs]</a><span class="k">def</span> <span class="nf">raise_error_if_norm_range</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
@@ -206,7 +213,7 @@
     <span class="k">return</span> <span class="n">wrapped</span></div>
 
 
-<div class="viewcode-block" id="ZPDF"><a class="viewcode-back" href="../../../zfit.models.special.html#zfit.models.special.ZPDF">[docs]</a><span class="k">class</span> <span class="nc">ZPDF</span><span class="p">(</span><span class="n">SimpleModelSubclassMixin</span><span class="p">,</span> <span class="n">BasePDF</span><span class="p">):</span>
+<div class="viewcode-block" id="ZPDF"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.models.special.ZPDF">[docs]</a><span class="k">class</span> <span class="nc">ZPDF</span><span class="p">(</span><span class="n">SimpleModelSubclassMixin</span><span class="p">,</span> <span class="n">BasePDF</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ZPDF&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 
