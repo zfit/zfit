@@ -61,7 +61,8 @@ from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError, AlreadyExtendedPDFError,
+from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError,
+                              AlreadyExtendedPDFError,
                               NormRangeNotSpecifiedError, ShapeIncompatibleError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
@@ -475,6 +476,34 @@ class BasePDF(ZfitPDF, BaseModel):
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
+
+    def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'ZfitPDF':
+        """Create a PDF projection by integrating out some of the dimensions.
+
+        The new projection pdf is still fully dependent on the pdf it was created with.
+
+        Args:
+            limits_to_integrate (`zfit.Space`):
+
+        Returns:
+            ZfitPDF: a pdf without the dimensions from `limits_to_integrate`.
+        """
+        from ..models.special import SimpleFunctorPDF
+
+        def partial_integrate_wrapped(self_simple, x):
+            norm_range = self_simple._get_component_norm_range()
+            if norm_range not in (None, False) and norm_range.limits not in (None, False):
+                from zfit.models.functor import BaseFunctor
+
+                if isinstance(self, BaseFunctor):
+                    self._set_component_norm_range(norm_range)
+            return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
+
+        new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
+                                                                    if obs not in limits_to_integrate.obs]),
+                                   pdfs=(self,),
+                                   func=partial_integrate_wrapped)
+        return new_pdf
 
     def copy(self, **override_parameters) -> 'BasePDF':
         """Creates a copy of the model.

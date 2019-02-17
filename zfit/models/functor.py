@@ -40,6 +40,10 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
     def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
+        if norm_range.limits in (False, None):
+            if self._get_component_norm_range() is None:
+                raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
+                                   "`component_norm_range`.")
 
         def setter(value):
             self._component_norm_range_holder = value
@@ -314,8 +318,8 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def _unnormalized_pdf(self, x: ztyping.XType):
 
         norm_range = self._get_component_norm_range()
-        return ztf.reduce_prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
-                                for pdf in self.pdfs], axis=0)
+        return np.prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
+                        for pdf in self.pdfs])
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_obs):

@@ -219,24 +219,30 @@ def test_mc_integration():
 
 def test_mc_partial_integration():
     values = ztf.convert_to_tensor(func4_values)
-    num_integral = zintegrate.mc_integrate(x=tf.expand_dims(values, axis=-1),
+    data1 = zfit.data.Data.from_tensors(obs='obs2', tensors=tf.expand_dims(values, axis=-1))
+    limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'])
+    limits1._set_obs_axes({'obs1': 0, 'obs3': 2})
+    num_integral = zintegrate.mc_integrate(x=data1,
                                            func=func4_3deps,
-                                           limits=Space.from_axes(limits=limits4_2dim,
-                                                                  axes=(0, 2)),
-                                           draws_per_dim=70)
+                                           limits=limits1)
+
     vals_tensor = ztf.convert_to_tensor(func4_2values)
 
     vals_reshaped = tf.transpose(vals_tensor)
-    num_integral2 = zintegrate.mc_integrate(x=vals_reshaped,
+    data2 = zfit.data.Data.from_tensors(obs=['obs1', 'obs3'], tensors=vals_reshaped)
+
+    limits2 = Space(limits=limits4_1dim, obs=['obs2'])
+    limits2._set_obs_axes({'obs2': 1})
+    num_integral2 = zintegrate.mc_integrate(x=data2,
                                             func=func4_3deps,
-                                            limits=Space.from_axes(limits=limits4_1dim, axes=(1,)),
+                                            limits=limits2,
                                             draws_per_dim=100)
 
     integral = zfit.run(num_integral)
     integral2 = zfit.run(num_integral2)
     # print("DEBUG", value:", zfit.run(vals_reshaped))
     assert len(integral) == len(func4_values)
-    assert len(integral2) == len(func4_2values[1])
+    assert len(integral2) == len(func4_2values[0])
     assert func4_3deps_0and2_integrated(x=func4_values,
                                         limits=limits4_2dim) == pytest.approx(integral,
                                                                               rel=0.03)

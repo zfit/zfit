@@ -711,12 +711,13 @@ class Space(ZfitSpace, BaseObject):
         self_axes_set = frozenset(tmp_axes)
         if ordered:
             if self.obs is not None:
-                if not frozenset(obs_axes.keys()) <= self_obs_set:
-                    raise ValueError("TODO observables not contained")
+                # if not frozenset(obs_axes.keys()) <= self_obs_set:
+                #     raise ValueError("TODO observables not contained")
                 if not allow_subset and frozenset(obs_axes.keys()) < self_obs_set:
                     raise ValueError("subset not allowed but `obs` is only a subset of `self.obs`")
                 permutation_index = tuple(
                     self.obs.index(o) for o in obs_axes if o in self_obs_set)  # the future index of the space
+                self_axes_set = set(obs_axes[o] for o in self.obs)
             elif self.axes is not None:
                 if not frozenset(obs_axes.values()) <= self_axes_set:
                     raise ValueError("TODO axes not contained")
@@ -725,6 +726,7 @@ class Space(ZfitSpace, BaseObject):
                 permutation_index = tuple(
                     self.axes.index(ax) for ax in obs_axes.values() if
                     ax in self_axes_set)  # the future index of the space
+                self_obs_set = set(o for o, ax in obs_axes.items() if ax in self.axes)
             else:
                 assert False, "This should never be reached."
             limits = self._reorder_limits(indices=permutation_index, inplace=False)

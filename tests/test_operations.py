@@ -21,17 +21,17 @@ def test_not_allowed():
     param3 = Parameter('param31sda', 3., floating=False)
     param4 = Parameter('param41sda', 4.)
 
-    def func1_pure(x):
+    def func1_pure(self, x):
         return param1 * x
 
-    def func2_pure(x):
+    def func2_pure(self, x):
         return param2 * x + param3
 
     func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
     func2 = SimpleFunc(func=func2_pure, obs=obs1, p2=param2, p3=param3)
 
-    pdf1 = SimplePDF(func=lambda x: x * param1, obs=obs1)
-    pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
+    pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
+    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
 
     with pytest.raises(ModelIncompatibleError):
         pdf1 + pdf2
@@ -51,7 +51,7 @@ def test_param_func():
     param3 = Parameter('param31s', 3., floating=False)
     param4 = Parameter('param41s', 4.)
     a = ztf.log(3. * param1) * tf.square(param2) - param3
-    func = SimpleFunc(func=lambda x: a * x, obs=obs1)
+    func = SimpleFunc(func=lambda self, x: a * x, obs=obs1)
 
     new_func = param4 * func
 
@@ -71,11 +71,11 @@ def test_func_func():
     param3 = Parameter('param31sd', 3., floating=False)
     param4 = Parameter('param41sd', 4.)
 
-    def func1_pure(x):
+    def func1_pure(self, x):
         x = ztf.unstack_x(x)
         return param1 * x
 
-    def func2_pure(x):
+    def func2_pure(self, x):
         x = ztf.unstack_x(x)
         return param2 * x + param3
 
@@ -86,9 +86,9 @@ def test_func_func():
     prod_func = func1 * func2
 
     added_values = added_func.func(rnd_test_values)
-    true_added_values = func1_pure(rnd_test_values) + func2_pure(rnd_test_values)
+    true_added_values = func1_pure(None, rnd_test_values) + func2_pure(None, rnd_test_values)
     prod_values = prod_func.func(rnd_test_values)
-    true_prod_values = func1_pure(rnd_test_values) * func2_pure(rnd_test_values)
+    true_prod_values = func1_pure(None, rnd_test_values) * func2_pure(None, rnd_test_values)
 
     zfit.run(tf.global_variables_initializer())
     added_values = zfit.run(added_values)
@@ -105,8 +105,8 @@ def test_param_pdf():
     param2 = Parameter('param22sa', 22.)
     yield1 = Parameter('yield12sa', 21.)
     yield2 = Parameter('yield22sa', 22.)
-    pdf1 = SimplePDF(func=lambda x: x * param1, obs=obs1)
-    pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
+    pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
+    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
     assert not pdf1.is_extended
     extended_pdf = yield1 * pdf1
     assert extended_pdf.is_extended
@@ -125,8 +125,8 @@ def test_implicit_extended():
     yield2 = Parameter('yield22s', 31., floating=False)
     # with tf.Session() as sess:
     #     sess.run(tf.global_variables_initializer())
-    pdf1 = SimplePDF(func=lambda x: x * param1, obs=obs1)
-    pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
+    pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
+    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
     extended_pdf = yield1 * pdf1 + yield2 * pdf2
     with pytest.raises(ModelIncompatibleError):
         true_extended_pdf = SumPDF(pdfs=[pdf1, pdf2], obs=obs1)
@@ -149,9 +149,9 @@ def test_implicit_sumpdf():
     param3 = Parameter('param33s', 0.4, floating=False)
     # with tf.Session() as sess:
     #     sess.run(tf.global_variables_initializer())
-    pdf1 = SimplePDF(func=lambda x: x * param1 ** 2, obs=obs1)
-    pdf2 = SimplePDF(func=lambda x: x * param2, obs=obs1)
-    pdf3 = SimplePDF(func=lambda x: x * 2 + param3, obs=obs1)
+    pdf1 = SimplePDF(func=lambda self, x: x * param1 ** 2, obs=obs1)
+    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
+    pdf3 = SimplePDF(func=lambda self, x: x * 2 + param3, obs=obs1)
 
     # sugar 1
     # sum_pdf = frac1_param * pdf1 + frac2_param * pdf2 + pdf3  # TODO(Mayou36): deps, correct copy

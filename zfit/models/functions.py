@@ -29,7 +29,7 @@ class SimpleFunc(BaseFunc):
         self._value_func = self._check_input_x_function(func)
 
     def _value(self, x):
-        return self._value_func(x)
+        return self._value_func(self, x)
 
 
 class BaseFunctorFunc(FunctorMixin, BaseFunc):
