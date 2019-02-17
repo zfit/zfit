@@ -290,7 +290,7 @@ class ZfitParameterMixin(BaseNumeric):
         return super().__rmul__(other)
 
 
-class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter, BaseObject):
+class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True

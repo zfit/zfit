@@ -1,3 +1,53 @@
+"""Module for caching.
+
+
+The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
+is dependent of "cache_dependents". By implementing `ZfitCachable`, an object will be able to play both
+roles. And most importantly, it has a `_cache` dict, that contains all the cache.
+
+Basic principle
+===============
+
+A "cacher" adds any dependents that it may comes across with `add_cache_dependents`. For example,
+for a loss this would be all pdfs and data. Since `Space` is immutable, there is no need to add this
+as a dependent. This leads to the "cache_dependent" to register the "cacher" and to remember it.
+
+In case, any "cache_dependent" changes in a way the cache of itself (and any "cacher") is invalid,
+which is done in the simplest case by decorating a method with `@invalidates_cache`, the "cache_dependent":
+
+ * clears it's own cache with `reset_cache_self` and
+ * "clears" any "cacher"s cache with `reset_cache(reseter=self)`, telling the "cacher" that it should
+   reset the cache. This is also where more fine-grained control (depending on which "cache_dependent"
+   calls `reset_cache`) can be brought into play.
+
+Example with a pdf that caches the normalization:
+
+```
+    class Parameter(Cachable):
+        def load(new_value):  # does not require to build a new graph
+            ...
+
+        @invalidates_cache
+        def change_limits(new_limits):  # requires to build a new graph (as an example)
+            ...
+
+    # create param1, param2 from `Parameter`
+
+    class MyPDF(Cachable):
+        def __init__(self, param1, param2):
+            self.add_cache_dependents([param1, param2])
+
+        def cached_func(...):
+            if self._cache.get('my_name') is None:
+                result = ...  # calculations here
+                self._cache['my_name']
+            else:
+                result = self._cache['my_name']
+            return result
+```
+
+"""
+
 import abc
 from abc import abstractmethod
 import functools
