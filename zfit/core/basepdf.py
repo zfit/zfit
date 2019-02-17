@@ -477,13 +477,22 @@ class BasePDF(ZfitPDF, BaseModel):
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
-    def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'BasePDF':
-        """Create a PDF projecting out some of the dimensions."""
+    def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'ZfitPDF':
+        """Create a PDF projection by integrating out some of the dimensions.
+
+        The new projection pdf is still fully dependent on the pdf it was created with.
+
+        Args:
+            limits_to_integrate (`zfit.Space`):
+
+        Returns:
+            ZfitPDF: a pdf without the dimensions from `limits_to_integrate`.
+        """
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
             norm_range = self_simple._get_component_norm_range()
-            if norm_range not in (None, False):
+            if norm_range not in (None, False) and norm_range.limits not in (None, False):
                 from zfit.models.functor import BaseFunctor
 
                 if isinstance(self, BaseFunctor):
