@@ -189,13 +189,48 @@
 
 <dl class="class">
 <dt id="zfit.core.parameter.ComplexParameter">
-<em class="property">class </em><code class="descclassname">zfit.core.parameter.</code><code class="descname">ComplexParameter</code><span class="sig-paren">(</span><em>name</em>, <em>initial_value</em>, <em>floating=True</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
+<em class="property">class </em><code class="descclassname">zfit.core.parameter.</code><code class="descname">ComplexParameter</code><span class="sig-paren">(</span><em>name</em>, <em>initial_value</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.ComposedParameter" title="zfit.core.parameter.ComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ComposedParameter</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.core.parameter.ComplexParameter.arg">
+<code class="descname">arg</code><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.arg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ComplexParameter.conj">
+<code class="descname">conj</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComplexParameter.conj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.conj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="zfit.core.parameter.ComplexParameter.from_cartesian">
+<em class="property">static </em><code class="descname">from_cartesian</code><span class="sig-paren">(</span><em>name</em>, <em>real</em>, <em>imag</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComplexParameter.from_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.from_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="zfit.core.parameter.ComplexParameter.from_polar">
+<em class="property">static </em><code class="descname">from_polar</code><span class="sig-paren">(</span><em>name</em>, <em>mod</em>, <em>arg</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComplexParameter.from_polar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.from_polar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.parameter.ComplexParameter.imag">
+<code class="descname">imag</code><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.imag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.parameter.ComplexParameter.mod">
+<code class="descname">mod</code><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.mod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.parameter.ComplexParameter.real">
+<code class="descname">real</code><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.parameter.ComposedParameter">
-<em class="property">class </em><code class="descclassname">zfit.core.parameter.</code><code class="descname">ComposedParameter</code><span class="sig-paren">(</span><em>name</em>, <em>tensor</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.core.parameter.</code><code class="descname">ComposedParameter</code><span class="sig-paren">(</span><em>name</em>, <em>tensor</em>, <em>dtype=tf.float64</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
 </dd></dl>
 
