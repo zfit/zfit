@@ -832,6 +832,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             return self._fallback_sample(n=n, limits=limits)
 
     def _analytic_sample(self, n, limits: Space):  # TODO(Mayou36) implement multiple limits sampling
+        raise NotImplementedError  # TODO(Mayou36): create proper analytic sampling
         if limits.n_limits > 1:
             raise NotImplementedError
         (lower_bound,), (upper_bound,) = limits.limits

@@ -470,6 +470,9 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         return self._yield is not None
 
+    def _hook_sample(self, limits, n, name='_hook_sample'):
+        return super()._hook_sample(limits=limits, n=n, name=name)
+
     def get_yield(self) -> Union[Parameter, None]:
         """Return the yield (only for extended models).
 

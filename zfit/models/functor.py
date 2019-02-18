@@ -253,7 +253,9 @@ class SumPDF(BaseFunctor):
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def _unnormalized_pdf(self, x):
-        raise NotImplementedError
+        norm_range = self._get_component_norm_range()
+        return self._pdf(x=x, norm_range=norm_range)
+        # raise NotImplementedError
         # TODO: deal with yields
         # pdfs = self.pdfs
         # fracs = self.fracs
