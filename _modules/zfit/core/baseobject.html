@@ -170,6 +170,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitObject</span><span class="p">,</span> <span class="n">ZfitNumeric</span><span class="p">,</span> <span class="n">ZfitDependentsMixin</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span><span class="p">,</span> <span class="n">DotDict</span>
@@ -271,7 +272,7 @@
         <span class="k">return</span> <span class="n">dependents_set</span></div>
 
 
-<div class="viewcode-block" id="BaseNumeric"><a class="viewcode-back" href="../../../zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric">[docs]</a><span class="k">class</span> <span class="nc">BaseNumeric</span><span class="p">(</span><span class="n">BaseObject</span><span class="p">,</span> <span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitNumeric</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseNumeric"><a class="viewcode-back" href="../../../zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric">[docs]</a><span class="k">class</span> <span class="nc">BaseNumeric</span><span class="p">(</span><span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitNumeric</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -280,6 +281,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_dependents</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
         <span class="c1"># parameters = OrderedDict(sorted(parameters))  # to always have a consistent order</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="n">params</span>

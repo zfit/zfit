@@ -161,23 +161,95 @@
            <div itemprop="articleBody">
             
   <h1>Source code for zfit.util.cache</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">abc</span>
+<span></span><span class="sd">&quot;&quot;&quot;Module for caching.</span>
+
+
+<span class="sd">The basic concept of caching in Zfit builds on a &quot;cacher&quot;, that caches a certain value and that</span>
+<span class="sd">is dependent of &quot;cache_dependents&quot;. By implementing `ZfitCachable`, an object will be able to play both</span>
+<span class="sd">roles. And most importantly, it has a `_cache` dict, that contains all the cache.</span>
+
+<span class="sd">Basic principle</span>
+<span class="sd">===============</span>
+
+<span class="sd">A &quot;cacher&quot; adds any dependents that it may comes across with `add_cache_dependents`. For example,</span>
+<span class="sd">for a loss this would be all pdfs and data. Since `Space` is immutable, there is no need to add this</span>
+<span class="sd">as a dependent. This leads to the &quot;cache_dependent&quot; to register the &quot;cacher&quot; and to remember it.</span>
+
+<span class="sd">In case, any &quot;cache_dependent&quot; changes in a way the cache of itself (and any &quot;cacher&quot;) is invalid,</span>
+<span class="sd">which is done in the simplest case by decorating a method with `@invalidates_cache`, the &quot;cache_dependent&quot;:</span>
+
+<span class="sd"> * clears it&#39;s own cache with `reset_cache_self` and</span>
+<span class="sd"> * &quot;clears&quot; any &quot;cacher&quot;s cache with `reset_cache(reseter=self)`, telling the &quot;cacher&quot; that it should</span>
+<span class="sd">   reset the cache. This is also where more fine-grained control (depending on which &quot;cache_dependent&quot;</span>
+<span class="sd">   calls `reset_cache`) can be brought into play.</span>
+
+<span class="sd">Example with a pdf that caches the normalization:</span>
+
+<span class="sd">```</span>
+<span class="sd">    class Parameter(Cachable):</span>
+<span class="sd">        def load(new_value):  # does not require to build a new graph</span>
+<span class="sd">            ...</span>
+
+<span class="sd">        @invalidates_cache</span>
+<span class="sd">        def change_limits(new_limits):  # requires to build a new graph (as an example)</span>
+<span class="sd">            ...</span>
+
+<span class="sd">    # create param1, param2 from `Parameter`</span>
+
+<span class="sd">    class MyPDF(Cachable):</span>
+<span class="sd">        def __init__(self, param1, param2):</span>
+<span class="sd">            self.add_cache_dependents([param1, param2])</span>
+
+<span class="sd">        def cached_func(...):</span>
+<span class="sd">            if self._cache.get(&#39;my_name&#39;) is None:</span>
+<span class="sd">                result = ...  # calculations here</span>
+<span class="sd">                self._cache[&#39;my_name&#39;]</span>
+<span class="sd">            else:</span>
+<span class="sd">                result = self._cache[&#39;my_name&#39;]</span>
+<span class="sd">            return result</span>
+<span class="sd">```</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 
 <span class="kn">import</span> <span class="nn">pep487</span>
 
+<span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">zfit.util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
 
 
-<div class="viewcode-block" id="ZfitCachable"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable">[docs]</a><span class="k">class</span> <span class="nc">ZfitCachable</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="ZfitCachable"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable">[docs]</a><span class="k">class</span> <span class="nc">ZfitCachable</span><span class="p">:</span>
 
-<div class="viewcode-block" id="ZfitCachable.register_cacher"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable.register_cacher">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<div class="viewcode-block" id="ZfitCachable.register_cacher"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable.register_cacher">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">register_cacher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cacher</span><span class="p">:</span> <span class="s2">&quot;ZfitCachable&quot;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="ZfitCachable.reset_cache"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable.reset_cache">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+<div class="viewcode-block" id="ZfitCachable.add_cache_dependents"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable.add_cache_dependents">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_cache_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dependents</span><span class="p">,</span> <span class="n">allow_non_cachable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add dependents that render the cache invalid if they change.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cache_dependents (ZfitCachable):</span>
+<span class="sd">            allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.</span>
+<span class="sd">                If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`</span>
+<span class="sd">                if `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ZfitCachable.reset_cache_self"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable.reset_cache_self">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the cache of self and all dependent cachers.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ZfitCachable.reset_cache"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.ZfitCachable.reset_cache">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reseter</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
 
 
 <div class="viewcode-block" id="Cachable"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable">[docs]</a><span class="k">class</span> <span class="nc">Cachable</span><span class="p">(</span><span class="n">ZfitCachable</span><span class="p">):</span>
@@ -185,10 +257,10 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cachers</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_cache_self</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Cachable.register_cacher"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.register_cacher">[docs]</a>    <span class="k">def</span> <span class="nf">register_cacher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cacher</span><span class="p">:</span> <span class="s2">&quot;ZfitCachable&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Cachable.register_cacher"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.register_cacher">[docs]</a>    <span class="k">def</span> <span class="nf">register_cacher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cacher</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">CacherOrCachersType</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Register a `cacher` that caches values produces by this instance; a dependent.</span>
 
 <span class="sd">        Args:</span>
@@ -199,12 +271,18 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cacher</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachers</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cachers</span><span class="p">[</span><span class="n">cacher</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># could we have a more useful value?</span></div>
 
-<div class="viewcode-block" id="Cachable.add_cache_dependents"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.add_cache_dependents">[docs]</a>    <span class="k">def</span> <span class="nf">add_cache_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dependents</span><span class="p">,</span> <span class="n">allow_non_cachable</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Cachable.add_cache_dependents"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.add_cache_dependents">[docs]</a>    <span class="k">def</span> <span class="nf">add_cache_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dependents</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">CacherOrCachersType</span><span class="p">,</span>
+                             <span class="n">allow_non_cachable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add dependents that render the cache invalid if they change.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            cache_dependents ():</span>
-<span class="sd">            allow_non_cachable ():</span>
+<span class="sd">            cache_dependents (ZfitCachable):</span>
+<span class="sd">            allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.</span>
+<span class="sd">                If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`</span>
+<span class="sd">                if `False`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cache_dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">cache_dependents</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">cache_dependent</span> <span class="ow">in</span> <span class="n">cache_dependents</span><span class="p">:</span>
@@ -214,17 +292,20 @@
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;cache_dependent </span><span class="si">{}</span><span class="s2"> is not a `ZfitCachable` but </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cache_dependent</span><span class="p">,</span>
                                                                                            <span class="nb">type</span><span class="p">(</span><span class="n">cache_dependent</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="Cachable.reset_cache"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.reset_cache">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Cachable.reset_cache_self"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.reset_cache_self">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clear the cache of self and all dependent cachers.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_clean_cache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inform_cachers</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Cachable.reset_cache"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.Cachable.reset_cache">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reseter</span><span class="p">:</span> <span class="s1">&#39;ZfitCachable&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_cache_self</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_clean_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">_inform_cachers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">cacher</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachers</span><span class="p">:</span>
-            <span class="n">cacher</span><span class="o">.</span><span class="n">reset_cache</span><span class="p">()</span></div>
+            <span class="n">cacher</span><span class="o">.</span><span class="n">reset_cache</span><span class="p">(</span><span class="n">reseter</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="invalidates_cache"><a class="viewcode-back" href="../../../zfit.util.cache.html#zfit.util.cache.invalidates_cache">[docs]</a><span class="k">def</span> <span class="nf">invalidates_cache</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
@@ -233,7 +314,7 @@
         <span class="bp">self</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ZfitCachable</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Decorator can only be used in a subclass of `ZfitCachable`&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_cache</span><span class="p">(</span><span class="n">reseter</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 

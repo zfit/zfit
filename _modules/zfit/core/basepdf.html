@@ -220,6 +220,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="k">import</span> <span class="n">invalidates_cache</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
@@ -347,7 +348,8 @@
             <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
         <span class="k">return</span> <span class="n">norm_range</span>
 
-<div class="viewcode-block" id="BasePDF.set_norm_range"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.core.basepdf.BasePDF.set_norm_range">[docs]</a>    <span class="k">def</span> <span class="nf">set_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
+<div class="viewcode-block" id="BasePDF.set_norm_range"><a class="viewcode-back" href="../../../zfit.pdf.html#zfit.core.basepdf.BasePDF.set_norm_range">[docs]</a>    <span class="nd">@invalidates_cache</span>
+    <span class="k">def</span> <span class="nf">set_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Set the normalization range (temporarily if used with contextmanager).</span>
 
 <span class="sd">        Args:</span>
@@ -574,6 +576,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span></div>
 
+    <span class="nd">@invalidates_cache</span>
     <span class="k">def</span> <span class="nf">_set_yield_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameter</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Make the model extended by (temporarily) setting a yield.</span>
 

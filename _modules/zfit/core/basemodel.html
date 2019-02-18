@@ -178,6 +178,7 @@
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">zfit.core.integration</span> <span class="k">import</span> <span class="n">Integration</span>
+<span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">Data</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="k">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">integration</span> <span class="k">as</span> <span class="n">zintegrate</span><span class="p">,</span> <span class="n">sample</span> <span class="k">as</span> <span class="n">zsample</span>
@@ -220,7 +221,7 @@
     <span class="k">return</span> <span class="n">register</span>
 
 
-<div class="viewcode-block" id="BaseModel"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel">[docs]</a><span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseModel"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel">[docs]</a><span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for any generic model.</span>
 
 <span class="sd">    # TODO instructions on how to use</span>

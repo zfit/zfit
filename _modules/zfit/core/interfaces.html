@@ -172,7 +172,7 @@
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 
 
-<div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>  <span class="c1"># __init_subclass__ backport</span>
+<div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">PEP487Object</span><span class="p">):</span>  <span class="c1"># __init_subclass__ backport</span>
 
     <span class="nd">@property</span>
     <span class="c1"># @abc.abstractmethod</span>
@@ -360,13 +360,13 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="ZfitDependentsMixin"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitDependentsMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitDependentsMixin</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="ZfitDependentsMixin"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitDependentsMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitDependentsMixin</span><span class="p">:</span>
 <div class="viewcode-block" id="ZfitDependentsMixin.get_dependents"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitDependentsMixin.get_dependents">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_floating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="ZfitNumeric"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumeric">[docs]</a><span class="k">class</span> <span class="nc">ZfitNumeric</span><span class="p">(</span><span class="n">ZfitObject</span><span class="p">,</span> <span class="n">ZfitDependentsMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="ZfitNumeric"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumeric">[docs]</a><span class="k">class</span> <span class="nc">ZfitNumeric</span><span class="p">(</span><span class="n">ZfitDependentsMixin</span><span class="p">):</span>
 <div class="viewcode-block" id="ZfitNumeric.get_params"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumeric.get_params">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_floating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                    <span class="n">names</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsNameOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>

@@ -174,7 +174,9 @@
 <span class="c1"># from ..settings import types as ztypes</span>
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
+<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="k">import</span> <span class="n">ZfitSpace</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">invalidates_cache</span>
+<span class="kn">from</span> <span class="nn">..util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="k">import</span> <span class="n">BaseObject</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="k">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitData</span>
@@ -186,7 +188,7 @@
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
 
 
-<div class="viewcode-block" id="Data"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data">[docs]</a><span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
+<div class="viewcode-block" id="Data"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data">[docs]</a><span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iterator_feed_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
 
@@ -223,7 +225,8 @@
             <span class="n">data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
         <span class="k">return</span> <span class="n">data_range</span>
 
-<div class="viewcode-block" id="Data.set_data_range"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.set_data_range">[docs]</a>    <span class="k">def</span> <span class="nf">set_data_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_range</span><span class="p">):</span>
+<div class="viewcode-block" id="Data.set_data_range"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.set_data_range">[docs]</a>    <span class="nd">@invalidates_cache</span>
+    <span class="k">def</span> <span class="nf">set_data_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_range</span><span class="p">):</span>
         <span class="n">data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_data_range</span><span class="p">(</span><span class="n">data_range</span><span class="o">=</span><span class="n">data_range</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
@@ -399,7 +402,8 @@
 
     <span class="c1"># TODO(Mayou36): use Space to permute data?</span>
     <span class="c1"># TODO(Mayou36): raise error is not obs &lt;= self.obs?</span>
-<div class="viewcode-block" id="Data.sort_by_axes"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.sort_by_axes">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Data.sort_by_axes"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.sort_by_axes">[docs]</a>    <span class="nd">@invalidates_cache</span>
+    <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_superset</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The observable(s) </span><span class="si">{}</span><span class="s2"> are not contained in the dataset. &quot;</span>
@@ -415,7 +419,8 @@
 
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">space</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Data.sort_by_obs"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.sort_by_obs">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Data.sort_by_obs"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.sort_by_obs">[docs]</a>    <span class="nd">@invalidates_cache</span>
+    <span class="k">def</span> <span class="nf">sort_by_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_superset</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The observable(s) </span><span class="si">{}</span><span class="s2"> are not contained in the dataset. &quot;</span>

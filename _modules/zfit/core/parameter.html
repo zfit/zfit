@@ -176,6 +176,8 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="k">import</span> <span class="n">ResourceVariable</span> <span class="k">as</span> <span class="n">TFBaseVariable</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="k">import</span> <span class="n">ResourceVariable</span>
 
+<span class="kn">from</span> <span class="nn">zfit.core.baseobject</span> <span class="k">import</span> <span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">BaseObject</span>
+<span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="k">import</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">invalidates_cache</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span>
@@ -380,11 +382,11 @@
 <span class="n">ComposedVariable</span><span class="o">.</span><span class="n">_OverloadAllOperators</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="BaseParameter"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.BaseParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseParameter</span><span class="p">(</span><span class="n">zbaseobject</span><span class="o">.</span><span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">zinterfaces</span><span class="o">.</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseParameter"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.BaseParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseParameter</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ZfitParameterMixin"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.ZfitParameterMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitParameterMixin</span><span class="p">:</span>
+<div class="viewcode-block" id="ZfitParameterMixin"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.ZfitParameterMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitParameterMixin</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">):</span>
     <span class="n">_existing_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -474,8 +476,6 @@
             <span class="n">upper_limit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span>
         <span class="c1"># no_limits = -lower_limit == upper_limit == np.infty</span>
         <span class="n">init_value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">init_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">upper_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">constraint</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">clip_value_min</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">,</span>
@@ -484,7 +484,9 @@
         <span class="c1"># self.constraint = constraint</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">init_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
-                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                         <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">upper_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent</span><span class="p">:</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -498,15 +500,12 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_independent</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># overwriting independent only for subclass/instance</span>
 
-    <span class="c1"># @property</span>
-    <span class="c1"># def name(self):</span>
-    <span class="c1">#     return self.op.name</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">lower_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit</span>
 
     <span class="nd">@lower_limit</span><span class="o">.</span><span class="n">setter</span>
+    <span class="nd">@invalidates_cache</span>
     <span class="k">def</span> <span class="nf">lower_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -515,6 +514,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit</span>
 
     <span class="nd">@upper_limit</span><span class="o">.</span><span class="n">setter</span>
+    <span class="nd">@invalidates_cache</span>
     <span class="k">def</span> <span class="nf">upper_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -602,8 +602,8 @@
 <div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">ComposedVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseComposedParameter&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># self.params = params</span>
 
     <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
@@ -632,7 +632,7 @@
         <span class="c1"># params_init_op = [param.initializer for param in params]</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">}</span>
         <span class="c1"># with tf.control_dependencies(params_init_op):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
