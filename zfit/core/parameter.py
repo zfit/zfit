@@ -438,8 +438,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
 class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
-    def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
-        super().__init__(initial_value=initial_value, name=name, params=params, **kwargs)
+    def __init__(self, params, init_value, name="BaseComposedParameter", **kwargs):
+        super().__init__(initial_value=init_value, name=name, params=params, **kwargs)
         # self.params = params
 
     def _get_dependents(self):
@@ -469,26 +469,26 @@ class ComposedParameter(BaseComposedParameter):
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
-        super().__init__(params=params, initial_value=tensor, name=name, dtype=dtype, **kwargs)
+        super().__init__(params=params, init_value=tensor, name=name, dtype=dtype, **kwargs)
 
 
 class ComplexParameter(ComposedParameter):
-    def __init__(self, name, initial_value, dtype=ztypes.complex, **kwargs):
-        super().__init__(name, initial_value, dtype, **kwargs)
+    def __init__(self, name, init_value, dtype=ztypes.complex, **kwargs):
+        super().__init__(name, init_value, dtype, **kwargs)
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(real, imag), dtype=dtype),
+        return ComplexParameter(name=name, init_value=tf.cast(tf.complex(real, imag), dtype=dtype),
                                 **kwargs)
 
     @staticmethod
     def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(mod * tf.math.cos(arg),
+        return ComplexParameter(name=name, init_value=tf.cast(tf.complex(mod * tf.math.cos(arg),
                                                                             mod * tf.math.sin(arg)),
                                                                  dtype=dtype), **kwargs)
 
     def conj(self):
-        return ComplexParameter(name='{}_conj'.format(self.name), initial_value=tf.math.conj(self),
+        return ComplexParameter(name='{}_conj'.format(self.name), init_value=tf.math.conj(self),
                                 floating=self.floating, dtype=self.dtype)
 
     @property
