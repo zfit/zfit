@@ -557,12 +557,14 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not set step size. Is NaN.&quot;</span><span class="p">)</span>
             <span class="c1"># TODO: how to deal with infinities?</span>
             <span class="n">step_size</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">step_size</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span> <span class="o">=</span> <span class="n">step_size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size</span>
 
         <span class="k">return</span> <span class="n">step_size</span>
 
     <span class="nd">@step_size</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">step_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="Parameter.load"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.Parameter.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
