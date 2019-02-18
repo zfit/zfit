@@ -57,6 +57,7 @@ import warnings
 import tensorflow as tf
 
 from zfit import ztf
+from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
 from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
@@ -471,7 +472,11 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._yield is not None
 
     def _hook_sample(self, limits, n, name='_hook_sample'):
-        return super()._hook_sample(limits=limits, n=n, name=name)
+        if n == 'extended':
+            samples = extended_sampling(pdfs=self, sampling_func=super()._hook_sample, limits=limits)
+        else:
+            samples = super()._hook_sample(limits=limits, n=n, name=name)
+        return samples
 
     def get_yield(self) -> Union[Parameter, None]:
         """Return the yield (only for extended models).

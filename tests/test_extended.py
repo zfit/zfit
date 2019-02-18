@@ -17,7 +17,7 @@ def test_extract_extended_pdfs():
     gauss5 = zfit.pdf.Gauss(obs=obs1, mu=1.3, sigma=5.4)
     gauss6 = zfit.pdf.Gauss(obs=obs1, mu=1.3, sigma=5.4)
 
-    yield1 = zfit.Parameter('yield1', 200.)
+    yield1 = zfit.Parameter('yield123' + str(np.random.random()), 200.)
 
     # sum1 = 0.3 * gauss1 + gauss2
     gauss3_ext = 45. * gauss3
@@ -36,4 +36,7 @@ def test_extract_extended_pdfs():
     limits = limits.with_autofill_axes()
     extended_sample = extended_sampling(pdfs=sum_all, sampling_func=sum_all._hook_sample, limits=limits)
     extended_sample_np = zfit.run(extended_sample)
-    assert np.shape(extended_sample_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.2)
+    assert np.shape(extended_sample_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)
+    samples_from_pdf = sum_all.sample(n='extended', limits=limits)
+    samples_from_pdf_np = zfit.run(samples_from_pdf)
+    assert np.shape(samples_from_pdf_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)
