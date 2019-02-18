@@ -37,7 +37,7 @@ NumericalTypeReturn = Union[tf.Tensor, np.array]
 NumericalScalarType = Union[int, float, complex, tf.Tensor]
 
 # Integer sampling
-nSamplingTypeIn = Union[int, tf.Tensor]
+nSamplingTypeIn = Union[int, tf.Tensor, str]
 
 # Parameter
 ParamsTypeOpt = Optional[Iterable['ZfitParameter']]

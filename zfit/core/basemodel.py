@@ -743,13 +743,19 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
     def create_sampler(self, n: ztyping.nSamplingTypeIn, limits: ztyping.LimitsType,
                        fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True,
-                       name: str = "sampler") -> "Sampler":
-        """Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameter, n.
+                       name: str = "create_sampler") -> "Sampler":
+        """Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
 
+            If `limits` is not specified, `space` is used (if the space contains limits).
+            If `n` is None and the model is an extended pdf, 'extended' is used by default.
 
 
         Args:
-            n (): Number of events to be drawn. Can be a fixed number or a Tensor that changes it's value.
+            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
+
             limits (): From which space to sample.
             fixed_params (): A list of `Parameters` that will be fixed during several `resample` calls.
                 If True, all are fixed, if False, all are floating. If a `Parameter` is not fixed and its
@@ -760,6 +766,12 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         Returns:
             :py:class:~`zfit.core.data.Sampler`
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
         """
         if limits is None:
             limits = self.space
@@ -783,21 +795,29 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
+               name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
+        If `n` is None and the model is an extended pdf, 'extended' is used by default.
 
         Args:
-            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor or a
-                valid string. Currently implemented:
+            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
 
                     - 'extended': samples `poisson(yield)` from each pdf that is extended.
             limits (tuple, Space): In which region to sample in
             name (str):
 
         Returns:
-            Tensor(n_obs, n_samples)
+            SampleData(n_obs, n_samples)
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
         """
         if limits is None:
             limits = self.space

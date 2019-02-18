@@ -65,7 +65,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError,
                               AlreadyExtendedPDFError,
-                              NormRangeNotSpecifiedError, ShapeIncompatibleError, )
+                              NormRangeNotSpecifiedError, ShapeIncompatibleError, NotExtendedPDFError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
@@ -475,9 +475,13 @@ class BasePDF(ZfitPDF, BaseModel):
         if n is None and self.is_extended:
             n = 'extended'
         if n == 'extended':
+            if not self.is_extended:
+                raise NotExtendedPDFError("Cannot use 'extended' as value for `n` on a non-extended pdf.")
             samples = extended_sampling(pdfs=self, sampling_func=super()._hook_sample, limits=limits)
         elif isinstance(n, str):
             raise ValueError("`n` is a string and not 'extended'. Other options are currently not implemented.")
+        elif n is None:
+            raise tf.errors.InvalidArgumentError("`n` cannot be `None` if pdf is not extended.")
         else:
             samples = super()._hook_sample(limits=limits, n=n, name=name)
         return samples

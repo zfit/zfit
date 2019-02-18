@@ -8,7 +8,7 @@ from zfit.core.sample import extract_extended_pdfs, extended_sampling
 obs1 = 'obs1'
 
 
-@pytest.mark.flaky(reruns=5)
+@pytest.mark.flaky(reruns=3)  # poissonian sampling
 def test_extract_extended_pdfs():
     gauss1 = zfit.pdf.Gauss(obs=obs1, mu=1.3, sigma=5.4)
     gauss2 = zfit.pdf.Gauss(obs=obs1, mu=1.3, sigma=5.4)
