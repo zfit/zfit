@@ -167,13 +167,13 @@
 <p>Top-level package for zfit.</p>
 <dl class="class">
 <dt id="zfit.Parameter">
-<em class="property">class </em><code class="descclassname">zfit.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>init_value</em>, <em>lower_limit=None</em>, <em>upper_limit=None</em>, <em>step_size=None</em>, <em>floating=True</em>, <em>dtype=tf.float64</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.Parameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>lower_limit=None</em>, <em>upper_limit=None</em>, <em>step_size=None</em>, <em>floating=True</em>, <em>dtype=tf.float64</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.Parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.util.execution.html#zfit.util.execution.SessionHolderMixin" title="zfit.util.execution.SessionHolderMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.execution.SessionHolderMixin</span></code></a>, <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.resource_variable_ops.ResourceVariable</span></code>, <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a></p>
 <p>Class for fit parameters, derived from TF Variable class.</p>
 <dl class="docutils">
 <dt>Constructor.</dt>
 <dd>name : name of the parameter,
-init_value : starting value
+value : starting value
 lower_limit : lower limit
 upper_limit : upper limit
 step_size : step size (set to 0 for fixed parameters)</dd>
