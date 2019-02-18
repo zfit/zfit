@@ -416,7 +416,9 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_component_norm_range</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="c1"># raise NotImplementedError</span>
         <span class="c1"># TODO: deal with yields</span>
         <span class="c1"># pdfs = self.pdfs</span>
         <span class="c1"># fracs = self.fracs</span>

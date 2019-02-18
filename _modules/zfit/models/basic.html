@@ -174,8 +174,8 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">DueToLazynessNotImplementedError</span>
-<span class="kn">from</span> <span class="nn">zfit.util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">DueToLazynessNotImplementedError</span>
+<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span>
@@ -230,7 +230,7 @@
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">lambda_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;lambda&#39;</span><span class="p">]</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_shifted_exp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span>  <span class="c1"># Don&#39;t use exp! will overflow.</span>
 
     <span class="k">def</span> <span class="nf">_numerics_shifted_exp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">):</span>  <span class="c1"># needed due to overflow in exp otherwise, prevents by shift</span>

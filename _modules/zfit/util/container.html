@@ -189,6 +189,7 @@
 <span class="sd">    Returns:</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="k">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitModel</span>  <span class="c1"># here due to dependency</span>
     <span class="k">if</span> <span class="n">non_containers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">non_containers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">non_containers</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -197,7 +198,7 @@
         <span class="k">return</span> <span class="n">value</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">non_containers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">])</span>
+            <span class="n">non_containers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">])</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">non_containers</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">container</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>

@@ -176,8 +176,9 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="k">import</span> <span class="n">ResourceVariable</span> <span class="k">as</span> <span class="n">TFBaseVariable</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="k">import</span> <span class="n">ResourceVariable</span>
 
-<span class="kn">from</span> <span class="nn">zfit.core.baseobject</span> <span class="k">import</span> <span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">BaseObject</span>
-<span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="k">import</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">invalidates_cache</span>
+<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">..core.baseobject</span> <span class="k">import</span> <span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">BaseObject</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">invalidates_cache</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span>
@@ -570,6 +571,17 @@
 <div class="viewcode-block" id="Parameter.load"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.Parameter.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Parameter.set_value"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.Parameter.set_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
+        <span class="n">super_load</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span>
+
+        <span class="k">def</span> <span class="nf">getter</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">super_load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">)</span></div>
+
     <span class="c1"># TODO: make it a random variable? return tensor that evaluates new all the time?</span>
 <div class="viewcode-block" id="Parameter.randomize"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.Parameter.randomize">[docs]</a>    <span class="k">def</span> <span class="nf">randomize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update the value with a randomised value between minval and maxval.</span>
@@ -592,7 +604,7 @@
         <span class="c1"># if shape == []:</span>
         <span class="c1">#     size = 1</span>
         <span class="c1"># value = self.sess.run(value)</span>
-        <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-7</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-8</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">minval</span> <span class="o">+</span> <span class="n">eps</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">maxval</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span>
         <span class="c1"># value = np.random.uniform(size=size, low=minval, high=maxval)</span>
         <span class="c1"># if shape == []:</span>

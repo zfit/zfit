@@ -511,6 +511,8 @@
         <li><a href="zfit.pdf.html#zfit.pdf.BasePDF.create_projection_pdf">(zfit.pdf.BasePDF method)</a>
 </li>
       </ul></li>
+      <li><a href="zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler">create_sampler() (zfit.core.basemodel.BaseModel method)</a>
+</li>
       <li><a href="zfit.util.execution.html#zfit.util.execution.RunManager.create_session">create_session() (zfit.util.execution.RunManager method)</a>
 </li>
       <li><a href="zfit.models.physics.html#zfit.models.physics.CrystalBall">CrystalBall (class in zfit.models.physics)</a>
@@ -599,14 +601,14 @@
         <li><a href="zfit.loss.html#zfit.loss.UnbinnedNLL.errordef">(zfit.loss.UnbinnedNLL attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.old_ztf.html#zfit.old_ztf.exp">exp() (in module zfit.old_ztf)</a>
 
       <ul>
         <li><a href="zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.exp">(in module zfit.ztf.wrapping_tf)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.models.basic.html#zfit.models.basic.Exponential">Exponential (class in zfit.models.basic)</a>
 
       <ul>
@@ -614,6 +616,8 @@
 </li>
       </ul></li>
       <li><a href="zfit.models.dist_tfp.html#zfit.models.dist_tfp.ExponentialTFP">ExponentialTFP (class in zfit.models.dist_tfp)</a>
+</li>
+      <li><a href="zfit.core.sample.html#zfit.core.sample.extended_sampling">extended_sampling() (in module zfit.core.sample)</a>
 </li>
       <li><a href="zfit.util.exception.html#zfit.util.exception.ExtendedPDFError">ExtendedPDFError</a>
 </li>
@@ -624,6 +628,8 @@
 </li>
       </ul></li>
       <li><a href="zfit.minimizers.tf_external_optimizer.html#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface">ExternalOptimizerInterface (class in zfit.minimizers.tf_external_optimizer)</a>
+</li>
+      <li><a href="zfit.core.sample.html#zfit.core.sample.extract_extended_pdfs">extract_extended_pdfs() (in module zfit.core.sample)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -701,12 +707,18 @@
         <li><a href="zfit.data.html#zfit.data.Data.from_root_iter">(zfit.data.Data class method)</a>
 </li>
       </ul></li>
-      <li><a href="zfit.core.data.html#zfit.core.data.LightDataset.from_tensor">from_tensor() (zfit.core.data.LightDataset class method)</a>
-</li>
-      <li><a href="zfit.core.data.html#zfit.core.data.Data.from_tensors">from_tensors() (zfit.core.data.Data class method)</a>
+      <li><a href="zfit.core.data.html#zfit.core.data.SampleData.from_sample">from_sample() (zfit.core.data.SampleData class method)</a>
 
       <ul>
-        <li><a href="zfit.data.html#zfit.data.Data.from_tensors">(zfit.data.Data class method)</a>
+        <li><a href="zfit.core.data.html#zfit.core.data.Sampler.from_sample">(zfit.core.data.Sampler class method)</a>
+</li>
+      </ul></li>
+      <li><a href="zfit.core.data.html#zfit.core.data.Data.from_tensor">from_tensor() (zfit.core.data.Data class method)</a>
+
+      <ul>
+        <li><a href="zfit.core.data.html#zfit.core.data.LightDataset.from_tensor">(zfit.core.data.LightDataset class method)</a>
+</li>
+        <li><a href="zfit.data.html#zfit.data.Data.from_tensor">(zfit.data.Data class method)</a>
 </li>
       </ul></li>
       <li><a href="zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.func">func() (zfit.core.basefunc.BaseFunc method)</a>
@@ -747,6 +759,12 @@
         <li><a href="zfit.html#zfit.Space.get_axes">(zfit.Space method)</a>
 </li>
         <li><a href="zfit.core.limits.html#zfit.core.limits.Space.get_axes">(zfit.core.limits.Space method)</a>
+</li>
+      </ul></li>
+      <li><a href="zfit.core.data.html#zfit.core.data.SampleData.get_cache_counting">get_cache_counting() (zfit.core.data.SampleData class method)</a>
+
+      <ul>
+        <li><a href="zfit.core.data.html#zfit.core.data.Sampler.get_cache_counting">(zfit.core.data.Sampler class method)</a>
 </li>
       </ul></li>
       <li><a href="zfit.util.graph.html#zfit.util.graph.get_dependents">get_dependents() (in module zfit.util.graph)</a>
@@ -1127,6 +1145,8 @@
         <li><a href="zfit.core.limits.html#zfit.core.limits.Space.n_obs">(zfit.core.limits.Space attribute)</a>
 </li>
       </ul></li>
+      <li><a href="zfit.core.data.html#zfit.core.data.Sampler.n_samples">n_samples (zfit.core.data.Sampler attribute)</a>
+</li>
       <li><a href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject.name">name (zfit.core.baseobject.BaseObject attribute)</a>
 
       <ul>
@@ -1143,12 +1163,18 @@
       </ul></li>
       <li><a href="zfit.util.exception.html#zfit.util.exception.NameAlreadyTakenError">NameAlreadyTakenError</a>
 </li>
-      <li><a href="zfit.constraint.html#zfit.constraint.nll_gaussian">nll_gaussian() (in module zfit.constraint)</a>
+      <li><a href="zfit.core.data.html#zfit.core.data.Data.nevents">nevents (zfit.core.data.Data attribute)</a>
+
+      <ul>
+        <li><a href="zfit.data.html#zfit.data.Data.nevents">(zfit.data.Data attribute)</a>
 </li>
-      <li><a href="zfit.core.limits.html#zfit.core.limits.no_multiple_limits">no_multiple_limits() (in module zfit.core.limits)</a>
+      </ul></li>
+      <li><a href="zfit.constraint.html#zfit.constraint.nll_gaussian">nll_gaussian() (in module zfit.constraint)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="zfit.core.limits.html#zfit.core.limits.no_multiple_limits">no_multiple_limits() (in module zfit.core.limits)</a>
+</li>
       <li><a href="zfit.core.limits.html#zfit.core.limits.no_norm_range">no_norm_range() (in module zfit.core.limits)</a>
 </li>
       <li><a href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.norm_range">norm_range (zfit.core.basepdf.BasePDF attribute)</a>
@@ -1259,10 +1285,10 @@
       </ul></li>
       <li><a href="zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.partial_numeric_integrate">partial_numeric_integrate() (zfit.core.basemodel.BaseModel method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData">PartialIntegralSampleData (class in zfit.core.integration)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.pdf">pdf() (zfit.core.basepdf.BasePDF method)</a>
 
       <ul>
@@ -1274,6 +1300,8 @@
       <li><a href="zfit.util.exception.html#zfit.util.exception.PDFCompatibilityError">PDFCompatibilityError</a>
 </li>
       <li><a href="zfit.models.functor.html#zfit.models.functor.BaseFunctor.pdfs_extended">pdfs_extended (zfit.models.functor.BaseFunctor attribute)</a>
+</li>
+      <li><a href="zfit.sample.html#zfit.sample.poisson">poisson() (in module zfit.sample)</a>
 </li>
       <li><a href="zfit.core.tfext.html#zfit.core.tfext.polar">polar() (in module zfit.core.tfext)</a>
 </li>
@@ -1300,6 +1328,8 @@
       <li><a href="zfit.models.special.html#zfit.models.special.raise_error_if_norm_range">raise_error_if_norm_range() (in module zfit.models.special)</a>
 </li>
       <li><a href="zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.random_normal">random_normal() (in module zfit.ztf.wrapping_tf)</a>
+</li>
+      <li><a href="zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.random_poisson">random_poisson() (in module zfit.ztf.wrapping_tf)</a>
 </li>
       <li><a href="zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.random_uniform">random_uniform() (in module zfit.ztf.wrapping_tf)</a>
 </li>
@@ -1351,6 +1381,8 @@
         <li><a href="zfit.html#zfit.Space.reorder_by_indices">(zfit.Space method)</a>
 </li>
       </ul></li>
+      <li><a href="zfit.core.data.html#zfit.core.data.Sampler.resample">resample() (zfit.core.data.Sampler method)</a>
+</li>
       <li><a href="zfit.util.cache.html#zfit.util.cache.Cachable.reset_cache">reset_cache() (zfit.util.cache.Cachable method)</a>
 
       <ul>
@@ -1379,6 +1411,10 @@
         <li><a href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel.sample">(zfit.core.interfaces.ZfitModel method)</a>
 </li>
       </ul></li>
+      <li><a href="zfit.core.data.html#zfit.core.data.SampleData">SampleData (class in zfit.core.data)</a>
+</li>
+      <li><a href="zfit.core.data.html#zfit.core.data.Sampler">Sampler (class in zfit.core.data)</a>
+</li>
       <li><a href="zfit.minimize.html#zfit.minimize.ScipyMinimizer">ScipyMinimizer (class in zfit.minimize)</a>
 
       <ul>
@@ -1419,6 +1455,12 @@
 </li>
       <li><a href="zfit.util.execution.html#zfit.util.execution.SessionHolderMixin.set_sess">set_sess() (zfit.util.execution.SessionHolderMixin method)</a>
 </li>
+      <li><a href="zfit.core.parameter.html#zfit.core.parameter.Parameter.set_value">set_value() (zfit.core.parameter.Parameter method)</a>
+
+      <ul>
+        <li><a href="zfit.html#zfit.Parameter.set_value">(zfit.Parameter method)</a>
+</li>
+      </ul></li>
       <li><a href="zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError">ShapeIncompatibleError</a>
 </li>
       <li><a href="zfit.func.html#zfit.func.SimpleFunc">SimpleFunc (class in zfit.func)</a>
@@ -1447,6 +1489,8 @@
         <li><a href="zfit.pdf.html#zfit.pdf.SimplePDF">(class in zfit.pdf)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.core.data.html#zfit.core.data.Data.sort_by_axes">sort_by_axes() (zfit.core.data.Data method)</a>
 
       <ul>
@@ -1457,8 +1501,6 @@
         <li><a href="zfit.data.html#zfit.data.Data.sort_by_axes">(zfit.data.Data method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.core.data.html#zfit.core.data.Data.sort_by_obs">sort_by_obs() (zfit.core.data.Data method)</a>
 
       <ul>
@@ -1585,16 +1627,20 @@
         <li><a href="zfit.pdf.html#zfit.pdf.BasePDF.unnormalized_pdf">(zfit.pdf.BasePDF method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.old_ztf.html#zfit.old_ztf.unstack_x">unstack_x() (in module zfit.old_ztf)</a>
 
       <ul>
         <li><a href="zfit.ztf.zextension.html#zfit.ztf.zextension.unstack_x">(in module zfit.ztf.zextension)</a>
 </li>
+        <li><a href="zfit.core.data.html#zfit.core.data.Data.unstack_x">(zfit.core.data.Data method)</a>
+</li>
         <li><a href="zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.unstack_x">(zfit.core.integration.PartialIntegralSampleData method)</a>
 </li>
+        <li><a href="zfit.data.html#zfit.data.Data.unstack_x">(zfit.data.Data method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace.upper">upper (zfit.core.interfaces.ZfitSpace attribute)</a>
 
       <ul>
@@ -1785,15 +1831,17 @@
 </li>
       <li><a href="zfit.models.functor.html#module-zfit.models.functor">zfit.models.functor (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.models.physics.html#module-zfit.models.physics">zfit.models.physics (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="zfit.models.special.html#module-zfit.models.special">zfit.models.special (module)</a>
 </li>
       <li><a href="zfit.old_ztf.html#module-zfit.old_ztf">zfit.old_ztf (module)</a>
 </li>
       <li><a href="zfit.pdf.html#module-zfit.pdf">zfit.pdf (module)</a>
+</li>
+      <li><a href="zfit.sample.html#module-zfit.sample">zfit.sample (module)</a>
 </li>
       <li><a href="zfit.settings.html#module-zfit.settings">zfit.settings (module)</a>
 </li>

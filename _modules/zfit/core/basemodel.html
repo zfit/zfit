@@ -168,8 +168,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
-<span class="kn">import</span> <span class="nn">typing</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">pep487</span>
@@ -177,9 +176,9 @@
 <span class="kn">from</span> <span class="nn">tensorflow_probability.python</span> <span class="k">import</span> <span class="n">mcmc</span> <span class="k">as</span> <span class="n">mc</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.core.integration</span> <span class="k">import</span> <span class="n">Integration</span>
-<span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
-<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">Data</span>
+<span class="kn">from</span> <span class="nn">..core.integration</span> <span class="k">import</span> <span class="n">Integration</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="k">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">integration</span> <span class="k">as</span> <span class="n">zintegrate</span><span class="p">,</span> <span class="n">sample</span> <span class="k">as</span> <span class="n">zsample</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="k">import</span> <span class="n">BaseNumeric</span>
@@ -343,7 +342,7 @@
             <span class="k">if</span> <span class="n">x_shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;The shape of x (=</span><span class="si">{}</span><span class="s2">) (in the last dim) does not&quot;</span>
                                              <span class="s2">&quot;match the shape (=</span><span class="si">{}</span><span class="s2">)of the model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">from_tensors</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">tensors</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">tensor</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
             <span class="k">yield</span> <span class="n">x</span>
 
     <span class="k">def</span> <span class="nf">_add_dim_to_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?</span>
@@ -371,7 +370,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="k">def</span> <span class="nf">_check_input_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-                                <span class="n">none_is_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+                                <span class="n">none_is_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Convert to :py:class:`Space`.</span>
 
 <span class="sd">        Args:</span>
@@ -501,7 +500,7 @@
         <span class="k">return</span> <span class="n">integral</span>
 
 <div class="viewcode-block" id="BaseModel.register_analytic_integral"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.register_analytic_integral">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">register_analytic_integral</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">register_analytic_integral</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                    <span class="n">priority</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
                                    <span class="n">supports_norm_range</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                                    <span class="n">supports_multiple_limits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -519,7 +518,7 @@
                                         <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span> <span class="n">supports_multiple_limits</span><span class="o">=</span><span class="n">supports_multiple_limits</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseModel.register_inverse_analytic_integral"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.register_inverse_analytic_integral">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">register_inverse_analytic_integral</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">register_inverse_analytic_integral</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Register an inverse analytical integral, the inverse (unnormalized) cdf.</span>
 
 <span class="sd">        Args:</span>
@@ -898,34 +897,98 @@
                                    <span class="o">**</span><span class="n">overwrite_options</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_integration</span><span class="o">.</span><span class="n">auto_numeric_integrator</span><span class="p">(</span><span class="o">**</span><span class="n">integration_options</span><span class="p">)</span>
 
-    <span class="nd">@no_norm_range</span>
+    <span class="nd">@supports</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">_inverse_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
 
+<div class="viewcode-block" id="BaseModel.create_sampler"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">create_sampler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">nSamplingTypeIn</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+                       <span class="n">fixed_params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                       <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;create_sampler&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Sampler&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.</span>
+
+<span class="sd">            If `limits` is not specified, `space` is used (if the space contains limits).</span>
+<span class="sd">            If `n` is None and the model is an extended pdf, &#39;extended&#39; is used by default.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be</span>
+<span class="sd">                or a valid string. Currently implemented:</span>
+
+<span class="sd">                    - &#39;extended&#39;: samples `poisson(yield)` from each pdf that is extended.</span>
+
+<span class="sd">            limits (): From which space to sample.</span>
+<span class="sd">            fixed_params (): A list of `Parameters` that will be fixed during several `resample` calls.</span>
+<span class="sd">                If True, all are fixed, if False, all are floating. If a `Parameter` is not fixed and its</span>
+<span class="sd">                value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in</span>
+<span class="sd">                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has</span>
+<span class="sd">                been created with when it resamples.</span>
+<span class="sd">            name ():</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:class:~`zfit.core.data.Sampler`</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotExtendedPDFError: if &#39;extended&#39; is (implicitly by default or explicitly) chosen as an</span>
+<span class="sd">                option for `n` but the pdf itself is not extended.</span>
+<span class="sd">            ValueError: if n is an invalid string option.</span>
+<span class="sd">            InvalidArgumentError: if n is not specified and pdf is not extended.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
+        <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fixed_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fixed_params</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`Fixed_params` has to be a list, tuple or a boolean.&quot;</span><span class="p">)</span>
+
+        <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">use_resource</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">n_holder</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
+                                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample_data</span></div>
+
     <span class="nd">@_BaseModel_register_check_support</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="BaseModel.sample"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseModel.sample"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">nSamplingTypeIn</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Sample `n` points within `limits` from the model.</span>
 
 <span class="sd">        If `limits` is not specified, `space` is used (if the space contains limits).</span>
+<span class="sd">        If `n` is None and the model is an extended pdf, &#39;extended&#39; is used by default.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            n (int): The number of samples to be generated</span>
+<span class="sd">            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be</span>
+<span class="sd">                or a valid string. Currently implemented:</span>
+
+<span class="sd">                    - &#39;extended&#39;: samples `poisson(yield)` from each pdf that is extended.</span>
 <span class="sd">            limits (tuple, Space): In which region to sample in</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor(n_obs, n_samples)</span>
+<span class="sd">            SampleData(n_obs, n_samples)</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotExtendedPDFError: if &#39;extended&#39; is (implicitly by default or explicitly) chosen as an</span>
+<span class="sd">                option for `n` but the pdf itself is not extended.</span>
+<span class="sd">            ValueError: if n is an invalid string option.</span>
+<span class="sd">            InvalidArgumentError: if n is not specified and pdf is not extended.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">SampleData</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample_data</span></div>
 
     <span class="k">def</span> <span class="nf">_single_hook_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -955,6 +1018,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_analytic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36) implement multiple limits sampling</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO(Mayou36): create proper analytic sampling</span>
         <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
         <span class="p">(</span><span class="n">lower_bound</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper_bound</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>

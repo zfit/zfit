@@ -29,5 +29,6 @@ Submodules
    zfit.minimize
    zfit.old_ztf
    zfit.pdf
+   zfit.sample
    zfit.settings
 

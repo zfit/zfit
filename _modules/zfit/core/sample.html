@@ -161,7 +161,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for zfit.core.sample</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">typing</span>
+<span></span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
+<span class="kn">import</span> <span class="nn">typing</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
@@ -169,7 +170,8 @@
 
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">no_multiple_limits</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
 
 
@@ -270,8 +272,49 @@
     <span class="k">if</span> <span class="n">multiple_limits</span><span class="p">:</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>  <span class="c1"># to make sure, randomly remove and not biased.</span>
     <span class="n">new_sample</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[:</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># cutting away to many produced</span>
-    <span class="n">new_sample</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="n">n_samples_int</span><span class="p">,</span> <span class="n">n_dims</span><span class="p">))</span>
+
+    <span class="c1"># TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time</span>
+    <span class="c1"># if no failure, uncomment both for improvement of shape inference</span>
+    <span class="c1"># with suppress(AttributeError):  # if n_samples_int is not a numpy object</span>
+    <span class="c1">#     new_sample.set_shape((n_samples_int, n_dims))</span>
     <span class="k">return</span> <span class="n">new_sample</span></div>
+
+
+<div class="viewcode-block" id="extract_extended_pdfs"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extract_extended_pdfs">[docs]</a><span class="k">def</span> <span class="nf">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">..models.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span>
+
+    <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
+    <span class="n">indep_pdfs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pdf</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">BaseFunctor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">):</span>
+                <span class="n">indep_pdfs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdfs</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">):</span>
+                <span class="n">indep_pdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Should not reach this point, wrong assumptions. Please report bug.&quot;</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># extended, but not a functor</span>
+            <span class="n">indep_pdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">indep_pdfs</span></div>
+
+
+<div class="viewcode-block" id="extended_sampling"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extended_sampling">[docs]</a><span class="k">def</span> <span class="nf">extended_sampling</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">sampling_func</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
+    <span class="n">pdfs</span> <span class="o">=</span> <span class="n">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">(),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">sampling_func</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="c1"># sample.set_shape((n, limits.n_obs))</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">samples</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

@@ -214,8 +214,8 @@
 <dd></dd></dl>
 
 <dl class="classmethod">
-<dt id="zfit.core.data.Data.from_tensors">
-<em class="property">classmethod </em><code class="descname">from_tensors</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], tensors: tensorflow.python.framework.ops.Tensor, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="_modules/zfit/core/data.html#Data.from_tensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_tensors" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.core.data.Data.from_tensor">
+<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], tensor: tensorflow.python.framework.ops.Tensor, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="_modules/zfit/core/data.html#Data.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_tensor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -231,6 +231,11 @@
 <dl class="attribute">
 <dt id="zfit.core.data.Data.iterator">
 <code class="descname">iterator</code><a class="headerlink" href="#zfit.core.data.Data.iterator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Data.nevents">
+<code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.Data.nevents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -255,8 +260,24 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.data.Data.unstack_x">
+<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.unstack_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the unstacked data: a list of tensors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>obs</em>) – which observables to return</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List(tf.Tensor)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.data.Data.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Tuple[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.value" title="Permalink to this definition">¶</a></dt>
+<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -273,6 +294,48 @@
 <dl class="method">
 <dt id="zfit.core.data.LightDataset.value">
 <code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#LightDataset.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.core.data.SampleData">
+<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">SampleData</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.Dataset, LightDataset], sample_holder: tensorflow.python.ops.variables.VariableV1, obs: Union[str, Iterable[str], Space] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#SampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.data.Data</span></code></a></p>
+<dl class="classmethod">
+<dt id="zfit.core.data.SampleData.from_sample">
+<em class="property">classmethod </em><code class="descname">from_sample</code><span class="sig-paren">(</span><em>sample: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], Space], name: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#SampleData.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.from_sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.SampleData.get_cache_counting">
+<em class="property">classmethod </em><code class="descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#SampleData.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.get_cache_counting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.core.data.Sampler">
+<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">Sampler</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.Dataset, LightDataset], sample_holder: tensorflow.python.ops.variables.VariableV1, n_holder: tensorflow.python.ops.variables.VariableV1, fixed_params: Dict[zfit.Parameter, Union[int, float, complex, tensorflow.python.framework.ops.Tensor]] = None, obs: Union[str, Iterable[str], Space] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.data.Data</span></code></a></p>
+<dl class="classmethod">
+<dt id="zfit.core.data.Sampler.from_sample">
+<em class="property">classmethod </em><code class="descname">from_sample</code><span class="sig-paren">(</span><em>sample: tensorflow.python.framework.ops.Tensor, n_holder: tensorflow.python.ops.variables.VariableV1, obs: Union[str, Iterable[str], Space], fixed_params=None, name: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Sampler.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.from_sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.Sampler.get_cache_counting">
+<em class="property">classmethod </em><code class="descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Sampler.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.get_cache_counting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.n_samples">
+<code class="descname">n_samples</code><a class="headerlink" href="#zfit.core.data.Sampler.n_samples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.resample">
+<code class="descname">resample</code><span class="sig-paren">(</span><em>param_values: collections.OrderedDict = None</em>, <em>n=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Sampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.resample" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

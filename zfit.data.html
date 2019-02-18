@@ -216,8 +216,8 @@
 <dd></dd></dl>
 
 <dl class="classmethod">
-<dt id="zfit.data.Data.from_tensors">
-<em class="property">classmethod </em><code class="descname">from_tensors</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], tensors: tensorflow.python.framework.ops.Tensor, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="_modules/zfit/core/data.html#Data.from_tensors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.data.Data.from_tensors" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.data.Data.from_tensor">
+<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], tensor: tensorflow.python.framework.ops.Tensor, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="_modules/zfit/core/data.html#Data.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.data.Data.from_tensor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -233,6 +233,11 @@
 <dl class="attribute">
 <dt id="zfit.data.Data.iterator">
 <code class="descname">iterator</code><a class="headerlink" href="#zfit.data.Data.iterator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.data.Data.nevents">
+<code class="descname">nevents</code><a class="headerlink" href="#zfit.data.Data.nevents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -257,8 +262,24 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.data.Data.unstack_x">
+<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.data.Data.unstack_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the unstacked data: a list of tensors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>obs</em>) – which observables to return</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List(tf.Tensor)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.data.Data.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Tuple[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.data.Data.value" title="Permalink to this definition">¶</a></dt>
+<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.data.Data.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

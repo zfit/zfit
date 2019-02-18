@@ -162,7 +162,8 @@
             
   <h1>Source code for zfit.core.data</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">ExitStack</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -201,12 +202,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_permutation_indices_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_next_batch</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nevents</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_space</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iterator_feed_dict</span> <span class="o">=</span> <span class="n">iterator_feed_dict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nevents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nevents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nevents</span>
+        <span class="k">if</span> <span class="n">nevents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nevents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_nevents</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">nevents</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -227,6 +236,8 @@
 
 <div class="viewcode-block" id="Data.set_data_range"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.set_data_range">[docs]</a>    <span class="nd">@invalidates_cache</span>
     <span class="k">def</span> <span class="nf">set_data_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_range</span><span class="p">):</span>
+        <span class="c1"># warnings.warn(&quot;Setting the data_range may currently has an unexpected behavior and does not affect the range.&quot;</span>
+        <span class="c1">#               &quot;If you set it once in the beginning, it&#39;s ok. Otherwise, it&#39;s currently unsafe.&quot;)</span>
         <span class="n">data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_data_range</span><span class="p">(</span><span class="n">data_range</span><span class="o">=</span><span class="n">data_range</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
@@ -330,11 +341,11 @@
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">iterator_feed_dict</span><span class="o">=</span><span class="n">iterator_feed_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Data.from_tensors"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.from_tensors">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_tensors</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">tensors</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Data&quot;</span><span class="p">:</span>
-        <span class="c1"># dataset = tf.data.Dataset.from_tensors(tensors=tensors)</span>
+<div class="viewcode-block" id="Data.from_tensor"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.from_tensor">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_tensor</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Data&quot;</span><span class="p">:</span>
+        <span class="c1"># dataset = tf.data.Dataset.from_tensor(tensors=tensors)</span>
         <span class="c1"># dataset = dataset.repeat()</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tensors</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tensor</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Data.initialize"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -366,12 +377,26 @@
 
         <span class="k">return</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="Data.value"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Data.value"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Data.unstack_x"><a class="viewcode-back" href="../../../zfit.data.html#zfit.core.data.Data.unstack_x">[docs]</a>    <span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the unstacked data: a list of tensors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obs (): which observables to return</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List(tf.Tensor)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_value_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cut_data</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span></div>
+        <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
@@ -508,7 +533,105 @@
         <span class="n">self_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
         <span class="k">if</span> <span class="n">self_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_obs_axes</span><span class="p">(</span><span class="n">self_space</span><span class="o">.</span><span class="n">get_obs_axes</span><span class="p">(),</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">space</span></div></div>
+        <span class="k">return</span> <span class="n">space</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_nevents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nevents</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">nevents</span></div>
+
+
+<div class="viewcode-block" id="SampleData"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.SampleData">[docs]</a><span class="k">class</span> <span class="nc">SampleData</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
+    <span class="n">_cache_counting</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="s2">&quot;LightDataset&quot;</span><span class="p">],</span> <span class="n">sample_holder</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dtype</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">DType</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">iterator_feed_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sample_holder</span><span class="o">.</span><span class="n">initializer</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SampleData.get_cache_counting"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.SampleData.get_cache_counting">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_cache_counting</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">counting</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_cache_counting</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_cache_counting</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">counting</span></div>
+
+<div class="viewcode-block" id="SampleData.from_sample"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.SampleData.from_sample">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sample</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">sample_holder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;zfit_sample_cache&quot;</span><span class="p">,),</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sample_data_holder_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_cache_counting</span><span class="p">()),</span>
+                                    <span class="n">use_resource</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">sample_holder</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">SampleData</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">sample_holder</span><span class="o">=</span><span class="n">sample_holder</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Sampler"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.Sampler">[docs]</a><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
+    <span class="n">_cache_counting</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="s2">&quot;LightDataset&quot;</span><span class="p">],</span> <span class="n">sample_holder</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span>
+                 <span class="n">n_holder</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span>
+                 <span class="n">fixed_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">,</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dtype</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">DType</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">iterator_feed_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fixed_params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fixed_params</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">fixed_params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param</span><span class="p">))</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">fixed_params</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># self.sess.run(sample_holder.initializer)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span> <span class="o">=</span> <span class="n">fixed_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_holder</span> <span class="o">=</span> <span class="n">sample_holder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_holder</span> <span class="o">=</span> <span class="n">n_holder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_holder</span>
+
+    <span class="k">def</span> <span class="nf">_value_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`&quot;</span>
+                <span class="s2">&quot;for single-time sampling.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Sampler.get_cache_counting"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.Sampler.get_cache_counting">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_cache_counting</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">counting</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_cache_counting</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_cache_counting</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">counting</span></div>
+
+<div class="viewcode-block" id="Sampler.from_sample"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.Sampler.from_sample">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sample</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">n_holder</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">sample_holder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;zfit_sample_cache&quot;</span><span class="p">,),</span>
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sample_data_holder_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_cache_counting</span><span class="p">()),</span>
+                                    <span class="n">use_resource</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">sample_holder</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Sampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span> <span class="n">sample_holder</span><span class="o">=</span><span class="n">sample_holder</span><span class="p">,</span>
+                       <span class="n">n_holder</span><span class="o">=</span><span class="n">n_holder</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sampler.resample"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.Sampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_values</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">temp_param_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">param_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">temp_param_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param_values</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="p">[</span><span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">n</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span><span class="p">):</span>  <span class="c1"># we want to load and make sure that it&#39;s initialzed</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="o">.</span><span class="n">initializer</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_holder</span><span class="o">.</span><span class="n">initializer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span> <span class="o">=</span> <span class="kc">True</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_dense_var_to_tensor</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_ref</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -535,7 +658,7 @@
 <div class="viewcode-block" id="LightDataset"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.LightDataset">[docs]</a><span class="k">class</span> <span class="nc">LightDataset</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
             <span class="n">tensor</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span> <span class="o">=</span> <span class="n">tensor</span>
 

@@ -239,6 +239,51 @@ integral over the limits = norm_range is not available.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.create_sampler">
+<code class="descname">create_sampler</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="reference internal" href="_modules/zfit/core/basemodel.html#BaseModel.create_sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.create_sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Sampler</cite> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
+<blockquote>
+<div>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</li>
+<li><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
+If True, all are fixed, if False, all are floating. If a <cite>Parameter</cite> is not fixed and its
+value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
+<cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
+been created with when it resamples.</li>
+<li><strong>(</strong><strong>)</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">py:class:~`zfit.core.data.Sampler`</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotExtendedPDFError</span></code> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+option for <cite>n</cite> but the pdf itself is not extended.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – if n is an invalid string option.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">InvalidArgumentError</span></code> – if n is not specified and pdf is not extended.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.gradients">
 <code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/basemodel.html#BaseModel.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -441,21 +486,37 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.sample">
-<code class="descname">sample</code><span class="sig-paren">(</span><em>n: int, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basemodel.html#BaseModel.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.sample" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basemodel.html#BaseModel.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
-<p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).</p>
+<p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</li>
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</li>
+</ul>
+</div></blockquote>
+</li>
 <li><strong>limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a><em>, </em><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>Space</em></a>) – In which region to sample in</li>
 <li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Tensor(n_obs, n_samples)</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">SampleData(n_obs, n_samples)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotExtendedPDFError</span></code> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+option for <cite>n</cite> but the pdf itself is not extended.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – if n is an invalid string option.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">InvalidArgumentError</span></code> – if n is not specified and pdf is not extended.</li>
+</ul>
 </td>
 </tr>
 </tbody>
