@@ -137,7 +137,9 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         # sanitize fit_range
         fit_range = [p.convert_sort_space(limits=range_) for p, range_ in zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
-
+        self.add_cache_dependents(cache_dependents=pdf)
+        self.add_cache_dependents(cache_dependents=data)
+        self.add_cache_dependents(cache_dependents=fit_range)
         return pdf, data, fit_range
 
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
@@ -214,18 +216,17 @@ class CachedLoss(BaseLoss):
 
     def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
-        self._cached_loss = None
 
     @abc.abstractmethod
     def _cache_add_constraints(self, constraints):
         raise NotImplementedError
 
     def _value(self):
-        if self._cached_loss is None:
+        if self._cache.get('loss') is None:
             loss = super()._value()
-            self._cached_loss = loss
+            self._cache['loss'] = loss
         else:
-            loss = self._cached_loss
+            loss = self._cache['loss']
         return loss
 
     def _add_constraints(self, constraints):
@@ -261,8 +262,8 @@ class UnbinnedNLL(CachedLoss):
         return nll
 
     def _cache_add_constraints(self, constraints):
-        if self._cached_loss is not None:
-            self._cached_loss += ztf.reduce_sum(constraints)
+        if self._cache.get('loss') is not None:
+            self._cache['loss'] += ztf.reduce_sum(constraints)
 
     @property
     def errordef(self) -> Union[float, int]:

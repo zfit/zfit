@@ -13,6 +13,8 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from zfit.core.baseobject import BaseNumeric, BaseObject
+from zfit.util.cache import Cachable, invalidates_cache
 from ..util import ztyping
 from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
@@ -217,11 +219,11 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 ComposedVariable._OverloadAllOperators()
 
 
-class BaseParameter(zbaseobject.BaseNumeric, zinterfaces.ZfitParameter, metaclass=MetaBaseParameter):
+class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
     pass
 
 
-class ZfitParameterMixin:
+class ZfitParameterMixin(BaseNumeric):
     _existing_names = set()
 
     def __init__(self, name, initial_value, floating=True, **kwargs):
@@ -311,8 +313,6 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
             upper_limit = np.infty
         # no_limits = -lower_limit == upper_limit == np.infty
         init_value = tf.cast(init_value, dtype=ztypes.float)
-        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
-        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
 
         def constraint(x):
             return tf.clip_by_value(x, clip_value_min=self.lower_limit,
@@ -321,7 +321,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # self.constraint = constraint
 
         super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint,
-                         **kwargs)
+                         params={}, **kwargs)
+        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
+        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
         if self.independent:
             tf.add_to_collection("zfit_independent", self)
         else:
@@ -335,15 +337,12 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
 
-    # @property
-    # def name(self):
-    #     return self.op.name
-
     @property
     def lower_limit(self):
         return self._lower_limit
 
     @lower_limit.setter
+    @invalidates_cache
     def lower_limit(self, value):
         self._lower_limit = value
 
@@ -352,6 +351,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         return self._upper_limit
 
     @upper_limit.setter
+    @invalidates_cache
     def upper_limit(self, value):
         self._upper_limit = value
 
@@ -439,8 +439,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
     def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
-        super().__init__(initial_value=initial_value, name=name, **kwargs)
-        self.params = params
+        super().__init__(initial_value=initial_value, name=name, params=params, **kwargs)
+        # self.params = params
 
     def _get_dependents(self):
         dependents = self._extract_dependents(list(self.params.values()))
@@ -469,7 +469,7 @@ class ComposedParameter(BaseComposedParameter):
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
-        super().__init__(params=params, initial_value=tensor, name=name, **kwargs)
+        super().__init__(params=params, initial_value=tensor, name=name, dtype=dtype, **kwargs)
 
 
 class ComplexParameter(ComposedParameter):

@@ -9,7 +9,7 @@ import zfit
 from ..util import ztyping
 
 
-class ZfitObject(pep487.ABC):  # __init_subclass__ backport
+class ZfitObject(pep487.PEP487Object):  # __init_subclass__ backport
 
     @property
     # @abc.abstractmethod
@@ -197,13 +197,13 @@ class ZfitSpace(ZfitObject):
         raise NotImplementedError
 
 
-class ZfitDependentsMixin(pep487.ABC):
+class ZfitDependentsMixin:
     @abc.abstractmethod
     def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
         raise NotImplementedError
 
 
-class ZfitNumeric(ZfitObject, ZfitDependentsMixin):
+class ZfitNumeric(ZfitDependentsMixin):
     @abc.abstractmethod
     def get_params(self, only_floating: bool = False,
                    names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:

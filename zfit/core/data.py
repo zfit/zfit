@@ -11,7 +11,9 @@ import numpy as np
 # from ..settings import types as ztypes
 import zfit
 from zfit import ztf
-from zfit.util.execution import SessionHolderMixin
+from zfit.core.interfaces import ZfitSpace
+from ..util.cache import Cachable, invalidates_cache
+from ..util.execution import SessionHolderMixin
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
@@ -23,7 +25,7 @@ from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedE
 from ..util.temporary import TemporarilySet
 
 
-class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
+class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
 
@@ -60,6 +62,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
             data_range = self.space
         return data_range
 
+    @invalidates_cache
     def set_data_range(self, data_range):
         data_range = self._check_input_data_range(data_range=data_range)
 
@@ -236,6 +239,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
+    @invalidates_cache
     def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = False):
         if not allow_superset:
             if not frozenset(axes) <= frozenset(self.axes):
@@ -252,6 +256,7 @@ class Data(SessionHolderMixin, ZfitData, BaseDimensional, BaseObject):
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
 
+    @invalidates_cache
     def sort_by_obs(self, obs: ztyping.ObsTypeInput, allow_superset: bool = False):
         if not allow_superset:
             if not frozenset(obs) <= frozenset(self.obs):
