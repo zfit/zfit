@@ -115,7 +115,7 @@ def test_set_value():
     value2 = 2.
     value3 = 3.
     value4 = 4.
-    param1 = zfit.Parameter(name="test_set_value15", init_value=value1)
+    param1 = zfit.Parameter(name="test_set_value15", value=value1)
     assert zfit.run(param1) == value1
     with param1.set_value(value2):
         assert zfit.run(param1) == value2
