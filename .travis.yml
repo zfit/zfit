@@ -8,9 +8,8 @@ python:
 #    - 3.4
 matrix:
     allow_failures:
-        - python:
-              - 3.7
-              - 3.5
+        - python: 3.7
+        - python: 3.5
     include:
         - python: 3.7
           dist: xenial
