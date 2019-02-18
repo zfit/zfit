@@ -472,8 +472,12 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._yield is not None
 
     def _hook_sample(self, limits, n, name='_hook_sample'):
+        if n is None and self.is_extended:
+            n = 'extended'
         if n == 'extended':
             samples = extended_sampling(pdfs=self, sampling_func=super()._hook_sample, limits=limits)
+        elif isinstance(n, str):
+            raise ValueError("`n` is a string and not 'extended'. Other options are currently not implemented.")
         else:
             samples = super()._hook_sample(limits=limits, n=n, name=name)
         return samples

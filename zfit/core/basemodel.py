@@ -789,7 +789,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         If `limits` is not specified, `space` is used (if the space contains limits).
 
         Args:
-            n (int): The number of samples to be generated
+            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor or a
+                valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
             limits (tuple, Space): In which region to sample in
             name (str):
 
