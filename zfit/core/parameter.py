@@ -295,12 +295,12 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
     """
     _independent = True
 
-    def __init__(self, name, init_value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
+    def __init__(self, name, value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
                  dtype=ztypes.float, **kwargs):
         """
           Constructor.
             name : name of the parameter,
-            init_value : starting value
+            value : starting value
             lower_limit : lower limit
             upper_limit : upper limit
             step_size : step size (set to 0 for fixed parameters)
@@ -312,7 +312,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         if upper_limit is None:
             upper_limit = np.infty
         # no_limits = -lower_limit == upper_limit == np.infty
-        init_value = tf.cast(init_value, dtype=ztypes.float)
+        value = tf.cast(value, dtype=ztypes.float)
 
         def constraint(x):
             return tf.clip_by_value(x, clip_value_min=self.lower_limit,
@@ -320,7 +320,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
         # self.constraint = constraint
 
-        super().__init__(initial_value=init_value, dtype=dtype, name=name, constraint=constraint,
+        super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
@@ -328,7 +328,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
             tf.add_to_collection("zfit_independent", self)
         else:
             tf.add_to_collection("zfit_dependent", self)
-        # init_value = tf.cast(init_value, dtype=ztypes.float)  # TODO: init value mandatory?
+        # value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.step_size = step_size
         zfit.run.auto_initialize(self)
@@ -438,8 +438,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
 class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
-    def __init__(self, params, initial_value, name="BaseComposedParameter", **kwargs):
-        super().__init__(initial_value=initial_value, name=name, params=params, **kwargs)
+    def __init__(self, params, value, name="BaseComposedParameter", **kwargs):
+        super().__init__(initial_value=value, name=name, params=params, **kwargs)
         # self.params = params
 
     def _get_dependents(self):
@@ -469,26 +469,26 @@ class ComposedParameter(BaseComposedParameter):
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
-        super().__init__(params=params, initial_value=tensor, name=name, dtype=dtype, **kwargs)
+        super().__init__(params=params, value=tensor, name=name, dtype=dtype, **kwargs)
 
 
 class ComplexParameter(ComposedParameter):
-    def __init__(self, name, initial_value, dtype=ztypes.complex, **kwargs):
-        super().__init__(name, initial_value, dtype, **kwargs)
+    def __init__(self, name, value, dtype=ztypes.complex, **kwargs):
+        super().__init__(name, value, dtype, **kwargs)
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(real, imag), dtype=dtype),
+        return ComplexParameter(name=name, value=tf.cast(tf.complex(real, imag), dtype=dtype),
                                 **kwargs)
 
     @staticmethod
     def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name=name, initial_value=tf.cast(tf.complex(mod * tf.math.cos(arg),
+        return ComplexParameter(name=name, value=tf.cast(tf.complex(mod * tf.math.cos(arg),
                                                                             mod * tf.math.sin(arg)),
                                                                  dtype=dtype), **kwargs)
 
     def conj(self):
-        return ComplexParameter(name='{}_conj'.format(self.name), initial_value=tf.math.conj(self),
+        return ComplexParameter(name='{}_conj'.format(self.name), value=tf.math.conj(self),
                                 floating=self.floating, dtype=self.dtype)
 
     @property
@@ -535,16 +535,16 @@ def convert_to_parameter(value) -> "Parameter":
             value = ztf.to_real(value)
 
     if value.dtype.is_complex:
-        value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
+        value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
 
     else:
-        # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
+        # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
         independend_params = tf.get_collection("zfit_independent")
         params = get_dependents(tensor=value, candidates=independend_params)
         if params:
             value = ComposedParameter("composite_autoparam_" + str(get_auto_number()), tensor=value)
         else:
-            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), init_value=value, floating=False)
+            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
 
     value.floating = False
     return value
