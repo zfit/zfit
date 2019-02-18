@@ -394,12 +394,14 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
                     raise ValueError("Could not set step size. Is NaN.")
             # TODO: how to deal with infinities?
             step_size = ztf.to_real(step_size)
-            self._step_size = step_size
+            self.step_size = step_size
 
         return step_size
 
     @step_size.setter
     def step_size(self, value):
+        if value is not None:
+            value = ztf.convert_to_tensor(value)
         self._step_size = value
 
     def load(self, value: ztyping.NumericalScalarType):

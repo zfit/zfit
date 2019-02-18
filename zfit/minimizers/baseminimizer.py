@@ -125,7 +125,7 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         Returns:
             `FitResult`: The fit result.
         """
-        params = self._check_input_params(loss=loss, params=params)
+        params = self._check_input_params(loss=loss, params=params, only_floating=True)
         with ExitStack() as stack:
             tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
             return self._hook_minimize(loss=loss, params=params)
