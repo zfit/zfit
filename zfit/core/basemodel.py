@@ -741,7 +741,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         else:
             return self._inverse_analytic_integral[0](x=x, params=self.params)
 
-    def create_sampler(self, n: ztyping.nSamplingTypeIn, limits: ztyping.LimitsType,
+    def create_sampler(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
                        fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True,
                        name: str = "create_sampler") -> "Sampler":
         """Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
@@ -775,6 +775,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         if limits is None:
             limits = self.space
+            if limits.limits in (None, False):
+                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
         elif fixed_params is False:
@@ -782,7 +784,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         elif not isinstance(fixed_params, (list, tuple)):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
 
-        limits = self._check_input_limits(limits=limits, caller_name=name)
+        limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
 
@@ -821,7 +823,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         if limits is None:
             limits = self.space
-        limits = self._check_input_limits(limits=limits, caller_name=name)
+            if limits.limits in (None, False):
+                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+        limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
         sample_data = SampleData.from_sample(sample=sample, obs=self.space)
 
