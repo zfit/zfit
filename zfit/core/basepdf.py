@@ -57,6 +57,7 @@ import warnings
 import tensorflow as tf
 
 from zfit import ztf
+from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
 from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
@@ -64,7 +65,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError,
                               AlreadyExtendedPDFError,
-                              NormRangeNotSpecifiedError, ShapeIncompatibleError, )
+                              NormRangeNotSpecifiedError, ShapeIncompatibleError, NotExtendedPDFError, )
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
@@ -291,7 +292,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
-    def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, name: str = "model") -> ztyping.XType:
+    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsType = None, name: str = "model") -> ztyping.XType:
         """Probability density/mass function, normalized over `norm_range`.
 
         Args:
@@ -469,6 +470,21 @@ class BasePDF(ZfitPDF, BaseModel):
             bool:
         """
         return self._yield is not None
+
+    def _hook_sample(self, limits, n, name='_hook_sample'):
+        if n is None and self.is_extended:
+            n = 'extended'
+        if n == 'extended':
+            if not self.is_extended:
+                raise NotExtendedPDFError("Cannot use 'extended' as value for `n` on a non-extended pdf.")
+            samples = extended_sampling(pdfs=self, sampling_func=super()._hook_sample, limits=limits)
+        elif isinstance(n, str):
+            raise ValueError("`n` is a string and not 'extended'. Other options are currently not implemented.")
+        elif n is None:
+            raise tf.errors.InvalidArgumentError("`n` cannot be `None` if pdf is not extended.")
+        else:
+            samples = super()._hook_sample(limits=limits, n=n, name=name)
+        return samples
 
     def get_yield(self) -> Union[Parameter, None]:
         """Return the yield (only for extended models).

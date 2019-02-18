@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from typing import List, Tuple, Union
+from contextlib import ExitStack
+from typing import List, Tuple, Union, Dict
 import warnings
 
 import tensorflow as tf
@@ -38,12 +39,20 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         self._permutation_indices_data = None
         self._next_batch = None
         self._dtype = dtype
+        self._nevents = None
 
         self._set_space(obs)
         self.dataset = dataset
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
         self.iterator = None
+
+    @property
+    def nevents(self):
+        nevents = self._nevents
+        if nevents is None:
+            nevents = self._get_nevents()
+        return nevents
 
     @property
     def dtype(self):
@@ -64,6 +73,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @invalidates_cache
     def set_data_range(self, data_range):
+        # warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
+        #               "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
         data_range = self._check_input_data_range(data_range=data_range)
 
         def setter(value):
@@ -168,10 +179,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, name=name, iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensors(cls, obs: ztyping.ObsTypeInput, tensors: tf.Tensor, name: str = None) -> "Data":
-        # dataset = tf.data.Dataset.from_tensors(tensors=tensors)
+    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None) -> "Data":
+        # dataset = tf.data.Dataset.from_tensor(tensors=tensors)
         # dataset = dataset.repeat()
-        dataset = LightDataset.from_tensor(tensor=tensors)
+        dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name)
 
     def initialize(self):
@@ -203,7 +214,21 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         return value
 
-    def value(self, obs: Tuple[str] = None):
+    def value(self, obs: ztyping.ObsTypeInput = None):
+        return self._value_internal(obs=obs)
+
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None):
+        """Return the unstacked data: a list of tensors.
+
+        Args:
+            obs (): which observables to return
+
+        Returns:
+            List(tf.Tensor)
+        """
+        return ztf.unstack_x(self._value_internal(obs=obs))
+
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
             obs = convert_to_obs_str(obs)
         value = self._value(obs=obs)
@@ -347,6 +372,104 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
         return space
 
+    def _get_nevents(self):
+        nevents = tf.shape(self.value())[0]
+        return nevents
+
+
+class SampleData(Data):
+    _cache_counting = 0
+
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+                 obs: ztyping.ObsTypeInput = None, name: str = None,
+                 dtype: tf.DType = ztypes.float):
+        super().__init__(dataset, obs, name, iterator_feed_dict=None, dtype=dtype)
+        self.sess.run(sample_holder.initializer)
+
+    @classmethod
+    def get_cache_counting(cls):
+        counting = cls._cache_counting
+        cls._cache_counting += 1
+        return counting
+
+    @classmethod
+    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None):
+        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
+                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
+                                    use_resource=True)
+        dataset = LightDataset.from_tensor(sample_holder)
+
+        return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name)
+
+
+class Sampler(Data):
+    _cache_counting = 0
+
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+                 n_holder: tf.Variable,
+                 fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
+                 obs: ztyping.ObsTypeInput = None, name: str = None,
+                 dtype: tf.DType = ztypes.float):
+
+        super().__init__(dataset, obs, name, iterator_feed_dict=None, dtype=dtype)
+        if fixed_params is None:
+            fixed_params = OrderedDict()
+        if isinstance(fixed_params, (list, tuple)):
+            fixed_params = OrderedDict((param, self.sess.run(param)) for param in fixed_params)
+
+        self._initial_resampled = False
+
+        # self.sess.run(sample_holder.initializer)
+        self.fixed_params = fixed_params
+        self.sample_holder = sample_holder
+        self._n_holder = n_holder
+
+    @property
+    def n_samples(self):
+        return self._n_holder
+
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
+        if not self._initial_resampled:
+            raise RuntimeError(
+                "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
+                "for single-time sampling.")
+        return super()._value_internal(obs)
+
+    @classmethod
+    def get_cache_counting(cls):
+        counting = cls._cache_counting
+        cls._cache_counting += 1
+        return counting
+
+    @classmethod
+    def from_sample(cls, sample: tf.Tensor, n_holder: tf.Variable, obs: ztyping.ObsTypeInput, fixed_params=None,
+                    name: str = None):
+
+        if fixed_params is None:
+            fixed_params = []
+
+        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
+                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
+                                    use_resource=True)
+        dataset = LightDataset.from_tensor(sample_holder)
+
+        return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
+                       n_holder=n_holder, obs=obs, name=name)
+
+    def resample(self, param_values: OrderedDict = None, n=None):
+
+        temp_param_values = self.fixed_params.copy()
+        if param_values is not None:
+            temp_param_values.update(param_values)
+        with ExitStack() as stack:
+            _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
+            if not (n and self._initial_resampled):  # we want to load and make sure that it's initialzed
+                self.sess.run(self.n_samples.initializer)
+            if n:
+                self.n_samples.load(value=n, session=self.sess)
+            self.sess.run(self.sample_holder.initializer)
+            self._initial_resampled = True
+
 
 def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
@@ -372,7 +495,7 @@ Data._OverloadAllOperators()
 class LightDataset:
 
     def __init__(self, tensor):
-        if not isinstance(tensor, (tf.Tensor)):
+        if not isinstance(tensor, tf.Tensor):
             tensor = ztf.convert_to_tensor(tensor)
         self.tensor = tensor
 

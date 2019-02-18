@@ -1,3 +1,4 @@
+from contextlib import suppress
 import typing
 
 import tensorflow as tf
@@ -6,7 +7,8 @@ import numpy as np
 
 import zfit
 from zfit import ztf
-from .limits import Space, no_multiple_limits
+from ..util.container import convert_to_container
+from .limits import Space
 from ..settings import ztypes
 
 
@@ -107,8 +109,49 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     if multiple_limits:
         sample = tf.random.shuffle(sample)  # to make sure, randomly remove and not biased.
     new_sample = sample[:n, :]  # cutting away to many produced
-    new_sample.set_shape((n_samples_int, n_dims))
+
+    # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
+    # if no failure, uncomment both for improvement of shape inference
+    # with suppress(AttributeError):  # if n_samples_int is not a numpy object
+    #     new_sample.set_shape((n_samples_int, n_dims))
     return new_sample
+
+
+def extract_extended_pdfs(pdfs):
+    from ..models.functor import BaseFunctor
+
+    pdfs = convert_to_container(pdfs)
+    indep_pdfs = []
+
+    for pdf in pdfs:
+        if not pdf.is_extended:
+            continue
+        elif isinstance(pdf, BaseFunctor):
+            if all(pdf.pdfs_extended):
+                indep_pdfs.extend(extract_extended_pdfs(pdfs=pdf.pdfs))
+            elif not any(pdf.pdfs_extended):
+                indep_pdfs.append(pdf)
+            else:
+                assert False, "Should not reach this point, wrong assumptions. Please report bug."
+        else:  # extended, but not a functor
+            indep_pdfs.append(pdf)
+
+    return indep_pdfs
+
+
+def extended_sampling(pdfs, sampling_func, limits):
+    samples = []
+    pdfs = convert_to_container(pdfs)
+    pdfs = extract_extended_pdfs(pdfs)
+
+    for pdf in pdfs:
+        n = tf.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
+        sample = sampling_func(limits=limits, n=n)
+        # sample.set_shape((n, limits.n_obs))
+        samples.append(sample)
+
+    samples = tf.concat(samples, axis=0)
+    return samples
 
 
 if __name__ == '__main__':

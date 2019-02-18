@@ -1,5 +1,7 @@
 import functools
+from typing import Any
 
+from tensorflow import DType
 import tensorflow as tf
 
 from ..settings import ztypes
@@ -24,6 +26,10 @@ def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, na
 
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random_uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+
+
+def random_poisson(lam: Any, shape: Any, dtype: DType = ztypes.float, seed: Any = None, name: Any = None):
+    return tf.random_poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
 
 
 def square(x, name=None):

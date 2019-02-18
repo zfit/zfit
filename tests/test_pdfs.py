@@ -88,7 +88,7 @@ def test_prod_gauss_nd():
     upper = ((4, 4, 4),)
     obs1 = ['a', 'b', 'c']
     norm_range_3d = Space(obs=obs1, limits=(lower, upper))
-    test_values_data = Data.from_tensors(obs=obs1, tensors=test_values)
+    test_values_data = Data.from_tensor(obs=obs1, tensor=test_values)
     probs = prod_gauss_3d.pdf(x=test_values_data, norm_range=norm_range_3d)
     zfit.run(tf.global_variables_initializer())
     true_probs = np.prod([gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
@@ -103,7 +103,7 @@ def test_prod_gauss_nd_mixed():
     test_values = np.random.uniform(low=low, high=high, size=(1000, 4))
 
     obs4d = ['a', 'b', 'c', 'd']
-    test_values_data = Data.from_tensors(obs=obs4d, tensors=test_values)
+    test_values_data = Data.from_tensor(obs=obs4d, tensor=test_values)
     # prod_gauss_4d.set_integration_options(draws_per_dim=10)
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     probs = prod_gauss_4d.pdf(x=test_values_data,
@@ -135,7 +135,6 @@ def test_prod_gauss_nd_mixed():
 
 
 def test_func_sum():
-    zfit.run(tf.global_variables_initializer())
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm_range=(-10, 10))
     vals = sum_gauss_as_func.func(x=test_values)
@@ -177,7 +176,7 @@ def normalization_testing(pdf, normalization_value=1.):
     with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
-        samples = zfit.data.Data.from_tensors(obs=pdf.obs, tensors=samples)
+        samples = zfit.data.Data.from_tensor(obs=pdf.obs, tensor=samples)
         probs = pdf.pdf(samples)
         result = zfit.run(probs)
         result = np.average(result) * (high - low)

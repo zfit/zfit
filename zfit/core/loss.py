@@ -8,14 +8,14 @@ from zfit import ztf
 from zfit.util import ztyping
 from zfit.util.cache import Cachable
 from .baseobject import BaseObject, BaseDependentsMixin
-from .interfaces import ZfitLoss
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..models.functions import SimpleFunc
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError
 from zfit.settings import ztypes
 
 
-def _unbinned_nll_tf(model, data, fit_range) -> tf.Tensor:
+def _unbinned_nll_tf(model: ZfitPDF, data: ZfitData, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
@@ -43,9 +43,10 @@ def _unbinned_nll_tf(model, data, fit_range) -> tf.Tensor:
         # TODO(Mayou36): implement properly data cutting
         # in_limits = tf.logical_and(lower <= data, data <= upper)
         # data = tf.boolean_mask(tensor=data, mask=in_limits)
-        probs = model.pdf(data, norm_range=fit_range)
-        if model.is_extended:
-            probs /= model.get_yield()
+        with data.set_data_range(fit_range):
+            probs = model.pdf(data, norm_range=fit_range)
+            if model.is_extended:
+                probs /= model.get_yield()
         log_probs = tf.log(probs)
         nll = -tf.reduce_sum(log_probs)
         nll_finished = nll
@@ -279,7 +280,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
-            poisson_terms.append(-mod.get_yield() + tf.size(dat, out_type=ztypes.float) * tf.log(mod.get_yield()))
+            poisson_terms.append(-mod.get_yield() + ztf.to_real(dat.nevents) * tf.log(mod.get_yield()))
         nll -= tf.reduce_sum(poisson_terms)
         return nll
 
@@ -292,7 +293,7 @@ class SimpleLoss(BaseLoss):
         self._simple_errordef = errordef
 
         model = SimpleFunc(func=func, obs='obs1')
-        super().__init__(model=[model], data=['dummy'], fit_range=[False])
+        super().__init__(model=[model], data=['dummy'], fit_range=[None])
 
     @property
     def errordef(self):

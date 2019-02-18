@@ -5,8 +5,7 @@ import builtins
 from collections import OrderedDict
 import contextlib
 from contextlib import suppress
-import typing
-from typing import Dict, Type, Union
+from typing import Dict, Type, Union, Callable, List, Tuple
 import warnings
 
 import pep487
@@ -14,9 +13,9 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
-from zfit.core.integration import Integration
-from zfit.util.cache import Cachable
-from .data import Data
+from ..core.integration import Integration
+from ..util.cache import Cachable
+from .data import Data, Sampler, SampleData
 from .dimension import BaseDimensional
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
@@ -180,7 +179,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             if x_shape != self.n_obs:
                 raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_obs))
-            x = Data.from_tensors(obs=self.obs, tensors=x)
+            x = Data.from_tensor(obs=self.obs, tensor=x)
             yield x
 
     def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
@@ -208,7 +207,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         raise NotImplementedError
 
     def _check_input_norm_range(self, norm_range, caller_name="",
-                                none_is_error=False) -> typing.Union[Space, bool]:
+                                none_is_error=False) -> Union[Space, bool]:
         """Convert to :py:class:`Space`.
 
         Args:
@@ -338,7 +337,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     @classmethod
-    def register_analytic_integral(cls, func: typing.Callable, limits: ztyping.LimitsType = None,
+    def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
                                    priority: Union[int, float] = 50, *,
                                    supports_norm_range: bool = False,
                                    supports_multiple_limits: bool = False) -> None:
@@ -356,7 +355,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
 
     @classmethod
-    def register_inverse_analytic_integral(cls, func: typing.Callable) -> None:
+    def register_inverse_analytic_integral(cls, func: Callable) -> None:
         """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
@@ -735,34 +734,98 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 
-    @no_norm_range
+    @supports()
     def _inverse_analytic_integrate(self, x):
         if not self._inverse_analytic_integral:
             raise NotImplementedError
         else:
             return self._inverse_analytic_integral[0](x=x, params=self.params)
 
+    def create_sampler(self, n: ztyping.nSamplingTypeIn, limits: ztyping.LimitsType,
+                       fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True,
+                       name: str = "create_sampler") -> "Sampler":
+        """Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+
+            If `limits` is not specified, `space` is used (if the space contains limits).
+            If `n` is None and the model is an extended pdf, 'extended' is used by default.
+
+
+        Args:
+            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
+
+            limits (): From which space to sample.
+            fixed_params (): A list of `Parameters` that will be fixed during several `resample` calls.
+                If True, all are fixed, if False, all are floating. If a `Parameter` is not fixed and its
+                value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
+                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                been created with when it resamples.
+            name ():
+
+        Returns:
+            :py:class:~`zfit.core.data.Sampler`
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
+        """
+        if limits is None:
+            limits = self.space
+        if fixed_params is True:
+            fixed_params = list(self.get_dependents(only_floating=False))
+        elif fixed_params is False:
+            fixed_params = []
+        elif not isinstance(fixed_params, (list, tuple)):
+            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
+
+        limits = self._check_input_limits(limits=limits, caller_name=name)
+        n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+        sample = self._single_hook_sample(n=n, limits=limits, name=name)
+
+        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=self.obs, fixed_params=fixed_params,
+                                          name=name)
+
+        return sample_data
+
     @_BaseModel_register_check_support(True)
     def _sample(self, n, limits):
         raise NotImplementedError
 
-    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
+               name: str = "sample") -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
+        If `n` is None and the model is an extended pdf, 'extended' is used by default.
 
         Args:
-            n (int): The number of samples to be generated
+            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
             limits (tuple, Space): In which region to sample in
             name (str):
 
         Returns:
-            Tensor(n_obs, n_samples)
+            SampleData(n_obs, n_samples)
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
         """
         if limits is None:
             limits = self.space
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        return self._single_hook_sample(n=n, limits=limits, name=name)
+        sample = self._single_hook_sample(n=n, limits=limits, name=name)
+        sample_data = SampleData.from_sample(sample=sample, obs=self.space)
+
+        return sample_data
 
     def _single_hook_sample(self, n, limits, name):
         return self._hook_sample(n=n, limits=limits, name=name)
@@ -792,6 +855,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             return self._fallback_sample(n=n, limits=limits)
 
     def _analytic_sample(self, n, limits: Space):  # TODO(Mayou36) implement multiple limits sampling
+        if not self._inverse_analytic_integral:
+            raise NotImplementedError  # TODO(Mayou36): create proper analytic sampling
         if limits.n_limits > 1:
             raise NotImplementedError
         (lower_bound,), (upper_bound,) = limits.limits
