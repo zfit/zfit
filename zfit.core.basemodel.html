@@ -543,7 +543,7 @@ option for <cite>n</cite> but the pdf itself is not extended.</li>
 <p>Subclass a model: implement the corresponding function and specify _PARAMS.</p>
 <p>In order to create a custom model, two things have to be implemented: the class attribute
 _PARAMS has to be a list containing the names of the parameters and the corresponding
-function (_unnormalized_pdf/_value) has to be overridden.</p>
+function (_unnormalized_pdf/_func) has to be overridden.</p>
 <p>Example:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyPDF</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ZPDF</span><span class="p">):</span>
     <span class="n">_PARAMS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
