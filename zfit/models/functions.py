@@ -20,7 +20,7 @@ from ..util.container import convert_to_container
 
 class SimpleFunc(BaseFunc):
 
-    def __init__(self, func: Callable, obs: ztyping.ObsTypeInput, name: str = "Function", **params):
+    def __init__(self, obs: ztyping.ObsTypeInput, func: Callable, name: str = "Function", **params):
         """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
 
         Args:
@@ -37,11 +37,12 @@ class SimpleFunc(BaseFunc):
 
 
 class BaseFunctorFunc(FunctorMixin, BaseFunc):
-    def __init__(self, funcs, name="BaseFunctorFunc", **kwargs):
+    def __init__(self, funcs, name="BaseFunctorFunc", params=None, **kwargs):
         funcs = convert_to_container(funcs)
-        params = {}
-        for func in funcs:
-            params.update(func.params)
+        if params is None:
+            params = {}
+        # for func in funcs:
+        #     params.update(func.params)
 
         self.funcs = funcs
         super().__init__(name=name, models=self.funcs, params=params, **kwargs)
@@ -65,6 +66,11 @@ class SumFunc(BaseFunctorFunc):
         funcs = [func.func(x) for func in self.funcs]
         sum_funcs = tf.math.accumulate_n(funcs)
         return sum_funcs
+
+    def _analytic_integrate(self, limits, norm_range):
+        # below may raises NotImplementedError, that's fine. We don't wanna catch that.
+        integrals = [func.analytic_integrate(limits=limits, norm_range=norm_range) for func in self.funcs]
+        return tf.accumulate_n(integrals)
 
 
 class ProdFunc(BaseFunctorFunc):
