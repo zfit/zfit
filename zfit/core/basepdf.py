@@ -477,7 +477,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if n == 'extended':
             if not self.is_extended:
                 raise NotExtendedPDFError("Cannot use 'extended' as value for `n` on a non-extended pdf.")
-            samples = extended_sampling(pdfs=self, sampling_func=super()._hook_sample, limits=limits)
+            samples = extended_sampling(pdfs=self, limits=limits)
         elif isinstance(n, str):
             raise ValueError("`n` is a string and not 'extended'. Other options are currently not implemented.")
         elif n is None:

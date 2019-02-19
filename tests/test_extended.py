@@ -34,7 +34,7 @@ def test_extract_extended_pdfs():
 
     limits = zfit.Space(obs=obs1, limits=(-4, 5))
     limits = limits.with_autofill_axes()
-    extended_sample = extended_sampling(pdfs=sum_all, sampling_func=sum_all._hook_sample, limits=limits)
+    extended_sample = extended_sampling(pdfs=sum_all, limits=limits)
     extended_sample_np = zfit.run(extended_sample)
     assert np.shape(extended_sample_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)
     samples_from_pdf = sum_all.sample(n='extended', limits=limits)

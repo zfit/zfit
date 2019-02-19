@@ -139,14 +139,14 @@ def extract_extended_pdfs(pdfs):
     return indep_pdfs
 
 
-def extended_sampling(pdfs, sampling_func, limits):
+def extended_sampling(pdfs, limits):
     samples = []
     pdfs = convert_to_container(pdfs)
     pdfs = extract_extended_pdfs(pdfs)
 
     for pdf in pdfs:
         n = tf.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
-        sample = sampling_func(limits=limits, n=n)
+        sample = pdf._single_hook_sample(limits=limits, n=n, name="extended_sampling")
         # sample.set_shape((n, limits.n_obs))
         samples.append(sample)
 
