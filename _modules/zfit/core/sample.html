@@ -302,14 +302,14 @@
     <span class="k">return</span> <span class="n">indep_pdfs</span></div>
 
 
-<div class="viewcode-block" id="extended_sampling"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extended_sampling">[docs]</a><span class="k">def</span> <span class="nf">extended_sampling</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">sampling_func</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+<div class="viewcode-block" id="extended_sampling"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extended_sampling">[docs]</a><span class="k">def</span> <span class="nf">extended_sampling</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
     <span class="n">pdfs</span> <span class="o">=</span> <span class="n">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">(),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">sampling_func</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;extended_sampling&quot;</span><span class="p">)</span>
         <span class="c1"># sample.set_shape((n, limits.n_obs))</span>
         <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
 
