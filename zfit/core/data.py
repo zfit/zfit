@@ -23,14 +23,14 @@ from .limits import Space, convert_to_space, convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError
+from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError
 from ..util.temporary import TemporarilySet
 
 
 class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
-                 name: str = None, iterator_feed_dict: Dict = None,
+                 name: str = None, weights=None, iterator_feed_dict: Dict = None,
                  dtype: tf.DType = ztypes.float):
         """Create a data holder from a `dataset` used to feed into `models`.
 
@@ -51,12 +51,14 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         self._next_batch = None
         self._dtype = dtype
         self._nevents = None
+        self._weights = None
 
         self._set_space(obs)
         self.dataset = dataset
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
         self.iterator = None
+        self.set_weights(weights=weights)
 
     @property
     def nevents(self):
@@ -95,6 +97,25 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             return self._data_range
 
         return TemporarilySet(value=data_range, setter=setter, getter=getter)
+
+    @property
+    def weights(self):
+        return self._weights
+
+    @invalidates_cache
+    def set_weights(self, weights):
+        if weights is not None:
+            weights = ztf.convert_to_tensor(weights)
+            if not len(weights.shape) == 1:
+                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+
+        def setter(value):
+            self._weights = value
+
+        def getter():
+            return self.weights
+
+        return TemporarilySet(value=weights, getter=getter, setter=setter)
 
     @property
     def space(self) -> "ZfitSpace":
@@ -156,7 +177,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
-                  name: str = None, root_dir_options=None) -> "Data":
+                  name: str = None, weights=None,
+                  root_dir_options=None) -> "Data":
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
         Args:
@@ -174,23 +196,33 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if branches_alias is None:
             branches_alias = {}
 
+        weights_are_branch = isinstance(weights, str)
+
         branches = convert_to_container(branches)
         if root_dir_options is None:
             root_dir_options = {}
 
         def uproot_loader():
             root_tree = uproot.open(path, **root_dir_options)[treepath]
-            data = root_tree.arrays(branches, namedecode="utf-8")
+            if weights_are_branch:
+                branches_with_weights = branches + [weights]
+            else:
+                branches_with_weights = branches
+            data = root_tree.arrays(branches_with_weights, namedecode="utf-8")
             data = np.array([data[branch] for branch in branches])
-            return data.transpose()
+            if weights_are_branch:
+                weights_np = data[weights]
+            else:
+                weights_np = None
+            return data.transpose(), weights_np
 
-        data = uproot_loader()
+        data, weights_np = uproot_loader()
         shape = data.shape
         dataset = LightDataset.from_tensor(data)
 
         # dataset = dataset.repeat()
         obs = [branches_alias.get(branch, branch) for branch in branches]
-        return Data(dataset=dataset, obs=obs, name=name)
+        return Data(dataset=dataset, obs=obs, weights=weights, name=name)
 
     @classmethod
     def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, name: str = None):
@@ -207,7 +239,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return cls.from_numpy(obs=obs, array=array, name=name)
 
     @classmethod
-    def from_numpy(cls, obs: ztyping.ObsTypeInput, array: np.ndarray, name: str = None):
+    def from_numpy(cls, obs: ztyping.ObsTypeInput, array: np.ndarray, name: str = None, weights=None):
         """Create `Data` from a `np.array`.
 
         Args:
@@ -226,10 +258,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         # dataset = dataset.batch(len(array))
         dataset = dataset.repeat()
-        return Data(dataset=dataset, obs=obs, name=name, iterator_feed_dict=iterator_feed_dict)
+        return Data(dataset=dataset, obs=obs, name=name, weights=weights, iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None) -> "Data":
+    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None, weights=None) -> "Data":
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
         Args:
@@ -243,7 +275,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         # dataset = tf.data.Dataset.from_tensor(tensors=tensors)
         # dataset = dataset.repeat()
         dataset = LightDataset.from_tensor(tensor=tensor)
-        return Data(dataset=dataset, obs=obs, name=name)
+        return Data(dataset=dataset, obs=obs, name=name, weights=weights)
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
         """Create a `pd.DataFrame` from `obs` as columns and return it.
@@ -459,9 +491,9 @@ class SampleData(Data):
     _cache_counting = 0
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
-                 obs: ztyping.ObsTypeInput = None, name: str = None,
+                 obs: ztyping.ObsTypeInput = None, weights=None, name: str = None,
                  dtype: tf.DType = ztypes.float):
-        super().__init__(dataset, obs, name, iterator_feed_dict=None, dtype=dtype)
+        super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
         self.sess.run(sample_holder.initializer)
 
     @classmethod
@@ -471,7 +503,7 @@ class SampleData(Data):
         return counting
 
     @classmethod
-    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None):
+    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None, weights=None):
         import zfit
         sample = zfit.run(sample)
         sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
@@ -480,19 +512,19 @@ class SampleData(Data):
                                     )
         dataset = LightDataset.from_tensor(sample_holder)
 
-        return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name)
+        return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name, weights=weights)
 
 
 class Sampler(Data):
     _cache_counting = 0
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
-                 n_holder: tf.Variable,
+                 n_holder: tf.Variable, weights=None,
                  fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
                  obs: ztyping.ObsTypeInput = None, name: str = None,
                  dtype: tf.DType = ztypes.float):
 
-        super().__init__(dataset, obs, name, iterator_feed_dict=None, dtype=dtype)
+        super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
         if fixed_params is None:
             fixed_params = OrderedDict()
         if isinstance(fixed_params, (list, tuple)):
@@ -524,7 +556,7 @@ class Sampler(Data):
 
     @classmethod
     def from_sample(cls, sample: tf.Tensor, n_holder: tf.Variable, obs: ztyping.ObsTypeInput, fixed_params=None,
-                    name: str = None):
+                    name: str = None, weights=None):
 
         if fixed_params is None:
             fixed_params = []
@@ -535,7 +567,7 @@ class Sampler(Data):
         dataset = LightDataset.from_tensor(sample_holder)
 
         return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
-                       n_holder=n_holder, obs=obs, name=name)
+                       n_holder=n_holder, obs=obs, name=name, weights=weights)
 
     def resample(self, param_values: Mapping = None, n: Union[int, tf.Tensor] = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
