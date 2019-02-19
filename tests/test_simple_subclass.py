@@ -38,7 +38,7 @@ def test_func_simple_subclass():
     class SimpleGaussFunc(zfit.func.ZFunc):
         _PARAMS = ['mu', 'sigma']
 
-        def _value(self, x):
+        def _func(self, x):
             mu = self.params['mu']
             sigma = self.params['sigma']
             x = ztf.unstack_x(x)
@@ -54,7 +54,7 @@ def test_func_simple_subclass():
     with pytest.raises(SubclassingError):
         class SimpleGauss2(zfit.func.ZFunc):
 
-            def _value(self, x):
+            def _func(self, x):
                 mu = self.params['mu']
                 sigma = self.params['sigma']
                 x = ztf.unstack_x(x)

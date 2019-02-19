@@ -979,7 +979,7 @@ class SimpleModelSubclassMixin(pep487.ABC):
 
     In order to create a custom model, two things have to be implemented: the class attribute
     _PARAMS has to be a list containing the names of the parameters and the corresponding
-    function (_unnormalized_pdf/_value) has to be overridden.
+    function (_unnormalized_pdf/_func) has to be overridden.
 
     Example:
 

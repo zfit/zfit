@@ -28,7 +28,7 @@ class SimpleFunc(BaseFunc):
         super().__init__(name=name, obs=obs, params=params)
         self._value_func = self._check_input_x_function(func)
 
-    def _value(self, x):
+    def _func(self, x):
         return self._value_func(self, x)
 
 
@@ -56,7 +56,7 @@ class SumFunc(BaseFunctorFunc):
     def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
-    def _value(self, x):
+    def _func(self, x):
         # sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
         funcs = [func.func(x) for func in self.funcs]
         sum_funcs = tf.accumulate_n(funcs)
@@ -67,7 +67,7 @@ class ProdFunc(BaseFunctorFunc):
     def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
-    def _value(self, x):
+    def _func(self, x):
         value = self.funcs[0].func(x)
         for func in self.funcs[1:]:
             value *= func.func(x)

@@ -38,7 +38,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         raise NotImplementedError("What do you need? Use tf.gradient...")
 
     @abc.abstractmethod
-    def _value(self, x):
+    def _func(self, x):
         raise NotImplementedError
 
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
@@ -63,7 +63,7 @@ class BaseFunc(BaseModel, ZfitFunc):
     def _call_value(self, x, name):
         with self._name_scope(name, values=[x]):
             try:
-                return self._value(x=x)
+                return self._func(x=x)
             except ValueError as error:
                 raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
                                              "does not coincide with the `n_obs` from the `space`/`obs`"
