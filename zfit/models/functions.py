@@ -7,9 +7,10 @@ import tensorflow as tf
 
 
 
-from zfit.core.basefunc import BaseFunc
-from zfit.core.basemodel import SimpleModelSubclassMixin
-from zfit.util import ztyping
+from ..core.limits import supports
+from ..core.basefunc import BaseFunc
+from ..core.basemodel import SimpleModelSubclassMixin
+from ..util import ztyping
 
 from ..core.basefunc import BaseFunc
 from ..core.interfaces import ZfitModel, ZfitFunc
@@ -67,6 +68,7 @@ class SumFunc(BaseFunctorFunc):
         sum_funcs = tf.math.accumulate_n(funcs)
         return sum_funcs
 
+    @supports()
     def _analytic_integrate(self, limits, norm_range):
         # below may raises NotImplementedError, that's fine. We don't wanna catch that.
         integrals = [func.analytic_integrate(limits=limits, norm_range=norm_range) for func in self.funcs]
