@@ -200,6 +200,16 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name)
 
+    def to_pandas(self, obs: ztyping.ObsTypeInput = None):
+
+        values = self.value(obs=obs)
+        if obs is None:
+            obs = self.obs
+        obs_str = convert_to_obs_str(obs)
+        values = self.sess.run(values)
+        df = pd.DataFrame(data=values, columns=obs_str)
+        return df
+
     def initialize(self):
         iterator = self.dataset.make_initializable_iterator()
 

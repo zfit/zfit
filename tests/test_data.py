@@ -69,6 +69,12 @@ def test_from_pandas():
     x_np2 = zfit.run(x2)
     np.testing.assert_array_equal(example_data_np, x_np2)
 
+    df = data2.to_pandas()
+    assert df == example_data
+
+
+def test_to_pandas():
+    pass
 
 def test_from_tensors():
     data = zfit.data.Data.from_tensor(obs='obs1', tensor=tf.random_normal(shape=(100,), dtype=tf.float64))
