@@ -8,6 +8,7 @@ from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 import uproot
 import numpy as np
+import pandas as pd
 
 # from ..settings import types as ztypes
 import zfit
@@ -165,6 +166,20 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         # dataset = dataset.repeat()
         obs = [branches_alias.get(branch, branch) for branch in branches]
         return Data(dataset=dataset, obs=obs, name=name)
+
+    @classmethod
+    def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, name: str = None):
+        """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
+
+        Args:
+            df (`pandas.DataFrame`):
+            obs (`zfit.Space`):
+            name (str):
+        """
+        if obs is None:
+            obs = list(df.columns)
+        array = df.values
+        return cls.from_numpy(obs=obs, array=array, name=name)
 
     @classmethod
     def from_numpy(cls, obs, array, name=None):
