@@ -46,6 +46,12 @@ def sqrt(x, name=None):
     return tf.square(x, name=name)
 
 
+def complex(real, imag, name):
+    real = _auto_upcast(real)
+    imag = _auto_upcast(imag)
+    return tf.complex(real=real, imag=imag, name=name)
+
+
 #
 # @functools.wraps(tf.reduce_sum)
 # def reduce_sum(*args, **kwargs):
