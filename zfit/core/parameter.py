@@ -491,6 +491,7 @@ class ComposedParameter(BaseComposedParameter):
 
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, value, dtype=ztypes.complex, **kwargs):
+        self._conj = None
         super().__init__(name, value, dtype, **kwargs)
 
     @staticmethod
@@ -504,9 +505,12 @@ class ComplexParameter(ComposedParameter):
                                                                     mod * tf.math.sin(arg)),
                                                          dtype=dtype), **kwargs)
 
+    @property
     def conj(self):
-        return ComplexParameter(name='{}_conj'.format(self.name), value=tf.math.conj(self),
-                                dtype=self.dtype)
+        if not self._conj:
+            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value=tf.math.conj(self),
+                                          dtype=self.dtype)
+        return self._conj
 
     @property
     def real(self):
