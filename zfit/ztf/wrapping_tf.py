@@ -42,14 +42,14 @@ def square(x, name=None):
 
 
 def sqrt(x, name=None):
-    x = _auto_upcast(x)
-    return tf.square(x, name=name)
+    # x = _auto_upcast(x)
+    return _auto_upcast(tf.square(x, name=name))
 
 
 def complex(real, imag, name=None):
     real = _auto_upcast(real)
     imag = _auto_upcast(imag)
-    return tf.complex(real=real, imag=imag, name=name)
+    return _auto_upcast(tf.complex(real=real, imag=imag, name=name))
 
 
 #
