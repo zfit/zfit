@@ -407,7 +407,6 @@
         <span class="c1"># if not new_name == name:  # name has been mangled because it already exists</span>
         <span class="c1">#     raise NameAlreadyTakenError(&quot;Another parameter is already named {}. &quot;</span>
         <span class="c1">#                                 &quot;Use a different, unique one.&quot;.format(name))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="n">floating</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -624,6 +623,10 @@
         <span class="k">return</span> <span class="n">dependents</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">floating</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">(</span><span class="s2">&quot;Cannot be floating or not. Look at the dependents.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
 
@@ -661,12 +664,12 @@
 <div class="viewcode-block" id="ComplexParameter.from_polar"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.ComplexParameter.from_polar">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_polar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span>
-                                                                            <span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg</span><span class="p">)),</span>
-                                                                 <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+                                                                    <span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg</span><span class="p">)),</span>
+                                                         <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ComplexParameter.conj"><a class="viewcode-back" href="../../../zfit.core.parameter.html#zfit.ComplexParameter.conj">[docs]</a>    <span class="k">def</span> <span class="nf">conj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_conj&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-                                <span class="n">floating</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
+                                <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -712,7 +715,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">is_complex</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="s2">&quot;FIXED_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">()),</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="s2">&quot;FIXED_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">()),</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># value = Parameter(&quot;FIXED_autoparam_&quot; + str(get_auto_number()), value=value, floating=False)</span>
@@ -723,7 +726,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;FIXED_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">()),</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">value</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># value.floating = False</span>
     <span class="k">return</span> <span class="n">value</span></div>
 </pre></div>
 
