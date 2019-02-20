@@ -209,6 +209,12 @@
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="complex"><a class="viewcode-back" href="../../../zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.complex">[docs]</a><span class="k">def</span> <span class="nf">complex</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">real</span> <span class="o">=</span> <span class="n">_auto_upcast</span><span class="p">(</span><span class="n">real</span><span class="p">)</span>
+    <span class="n">imag</span> <span class="o">=</span> <span class="n">_auto_upcast</span><span class="p">(</span><span class="n">imag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="o">=</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
 <span class="c1">#</span>
 <span class="c1"># @functools.wraps(tf.reduce_sum)</span>
 <span class="c1"># def reduce_sum(*args, **kwargs):</span>
