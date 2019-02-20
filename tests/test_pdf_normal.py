@@ -31,7 +31,6 @@ def create_gauss():
     normal2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3a")
     normal3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
-    zfit.run(tf.global_variables_initializer())
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 
 

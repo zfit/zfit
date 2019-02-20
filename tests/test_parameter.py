@@ -19,7 +19,6 @@ def test_complex_param():
     param1 = ComplexParameter("param1_compl", complex_value)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value ** 2 - 1.2j
-    zfit.run(tf.global_variables_initializer())
     assert true_value == pytest.approx(zfit.run(some_value), rel=1e-8)
     assert not param1.get_dependents()
     # Cartesian complex
@@ -65,7 +64,6 @@ def test_composed_param():
     assert isinstance(param_a.get_dependents(only_floating=True), set)
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
-    zfit.run(tf.global_variables_initializer())
     a_unchanged = zfit.run(a)
     assert a_unchanged == zfit.run(param_a)
     assert zfit.run(param2.assign(3.5))
@@ -84,7 +82,6 @@ def test_param_limits():
     param1 = Parameter('param1lim', 1., lower_limit=lower, upper_limit=upper)
     param2 = Parameter('param2lim', 2.)
 
-    zfit.run(tf.global_variables_initializer())
     param1.load(upper + 0.5)
     assert upper == zfit.run(param1.value())
     param1.load(lower - 1.1)

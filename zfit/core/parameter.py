@@ -244,7 +244,6 @@ class ZfitParameterMixin(BaseNumeric):
         # if not new_name == name:  # name has been mangled because it already exists
         #     raise NameAlreadyTakenError("Another parameter is already named {}. "
         #                                 "Use a different, unique one.".format(name))
-        self.floating = floating
 
     @property
     def name(self):
@@ -461,6 +460,10 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
         return dependents
 
     @property
+    def floating(self):
+        raise LogicalUndefinedOperationError("Cannot be floating or not. Look at the dependents.")
+
+    @property
     def params(self):
         return self._params
 
@@ -498,12 +501,12 @@ class ComplexParameter(ComposedParameter):
     @staticmethod
     def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
         return ComplexParameter(name=name, value=tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                            mod * tf.math.sin(arg)),
-                                                                 dtype=dtype), **kwargs)
+                                                                    mod * tf.math.sin(arg)),
+                                                         dtype=dtype), **kwargs)
 
     def conj(self):
         return ComplexParameter(name='{}_conj'.format(self.name), value=tf.math.conj(self),
-                                floating=self.floating, dtype=self.dtype)
+                                dtype=self.dtype)
 
     @property
     def real(self):
@@ -549,7 +552,7 @@ def convert_to_parameter(value) -> "Parameter":
             value = ztf.to_real(value)
 
     if value.dtype.is_complex:
-        value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
+        value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), value=value)
 
     else:
         # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
@@ -560,5 +563,5 @@ def convert_to_parameter(value) -> "Parameter":
         else:
             value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
 
-    value.floating = False
+    # value.floating = False
     return value

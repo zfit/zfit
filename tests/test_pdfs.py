@@ -51,7 +51,6 @@ def sum_prod_gauss():
     gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3asum")
     gauss_dists = [gauss1, gauss2, gauss3]
 
-    zfit.run(tf.global_variables_initializer())
     sum_gauss = SumPDF(pdfs=gauss_dists, fracs=fracs, obs=obs1)
     prod_gauss = ProductPDF(pdfs=gauss_dists, obs=obs1)
 
@@ -75,12 +74,6 @@ def sum_prod_gauss():
 sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2, gauss_dists = sum_prod_gauss()
 
 
-# with tf.Session() as sess:
-
-
-# init = tf.global_variables_initializer()
-# sess.run(init)
-
 def test_prod_gauss_nd():
     # return
     test_values = np.random.random(size=(10, 3))
@@ -90,7 +83,6 @@ def test_prod_gauss_nd():
     norm_range_3d = Space(obs=obs1, limits=(lower, upper))
     test_values_data = Data.from_tensor(obs=obs1, tensor=test_values)
     probs = prod_gauss_3d.pdf(x=test_values_data, norm_range=norm_range_3d)
-    zfit.run(tf.global_variables_initializer())
     true_probs = np.prod([gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(gauss_dists)])
     probs_np = zfit.run(probs)
     np.testing.assert_allclose(zfit.run(true_probs), probs_np, rtol=1e-2)
@@ -108,7 +100,6 @@ def test_prod_gauss_nd_mixed():
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=limits_4d)
-    zfit.run(tf.global_variables_initializer())
     gauss1, gauss2, gauss3 = gauss_dists2
 
     def probs_4d(values):
@@ -207,7 +198,6 @@ def test_extended_gauss():
 
         sum_gauss = SumPDF(pdfs=gauss_dists, obs=obs1, )
 
-    zfit.run(tf.global_variables_initializer())
     normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)
 
 

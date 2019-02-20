@@ -57,7 +57,6 @@ def test_param_func():
 
     new_func_equivalent = func * param4
 
-    zfit.run(tf.global_variables_initializer())
     result1 = zfit.run(new_func.func(x=rnd_test_values))
     result1_equivalent = zfit.run(new_func_equivalent.func(x=rnd_test_values))
     result2 = zfit.run(func.func(x=rnd_test_values) * param4)
@@ -90,7 +89,6 @@ def test_func_func():
     prod_values = prod_func.func(rnd_test_values)
     true_prod_values = func1_pure(None, rnd_test_values) * func2_pure(None, rnd_test_values)
 
-    zfit.run(tf.global_variables_initializer())
     added_values = zfit.run(added_values)
     true_added_values = zfit.run(true_added_values)
     prod_values = zfit.run(prod_values)
@@ -123,8 +121,6 @@ def test_implicit_extended():
     yield1 = Parameter('yield12s', 21.)
     param2 = Parameter('param22s', 13., floating=False)
     yield2 = Parameter('yield22s', 31., floating=False)
-    # with tf.Session() as sess:
-    #     sess.run(tf.global_variables_initializer())
     pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
     extended_pdf = yield1 * pdf1 + yield2 * pdf2
@@ -147,8 +143,6 @@ def test_implicit_sumpdf():
 
     param2 = Parameter('param23s', 1.5, floating=False)
     param3 = Parameter('param33s', 0.4, floating=False)
-    # with tf.Session() as sess:
-    #     sess.run(tf.global_variables_initializer())
     pdf1 = SimplePDF(func=lambda self, x: x * param1 ** 2, obs=obs1)
     pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
     pdf3 = SimplePDF(func=lambda self, x: x * 2 + param3, obs=obs1)

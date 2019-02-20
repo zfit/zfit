@@ -170,8 +170,6 @@ if __name__ == '__main__':
                                                         current_state=0.3, kernel=hmc,
                                                         parallel_iterations=80)
 
-        init = tf.global_variables_initializer()
-        sess.run(init)
         result = sess.run(samples)
         print(np.average(result), np.std(result))
         # maximum = 1.1 * tf.reduce_max(dist.model(tf.random_uniform((10000,), -100, 100)))

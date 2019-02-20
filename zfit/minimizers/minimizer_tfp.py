@@ -14,8 +14,6 @@ class BFGSMinimizer(BaseMinimizer):
         with tf.name_scope("inside_minimization") as scope:
             # var_a = tf.get_variable
             sess = sess or self.sess
-            init = tf.global_variables_initializer()
-            sess.run(init)
             minimizer_fn = tfp.optimizer.bfgs_minimize
 
             def to_minimize_func(values):
