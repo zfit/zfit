@@ -46,7 +46,7 @@ def sqrt(x, name=None):
     return tf.square(x, name=name)
 
 
-def complex(real, imag, name):
+def complex(real, imag, name=None):
     real = _auto_upcast(real)
     imag = _auto_upcast(imag)
     return tf.complex(real=real, imag=imag, name=name)
