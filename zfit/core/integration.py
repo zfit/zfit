@@ -106,7 +106,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
         samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
         # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
-        samples_normed = tf.expand_dims(samples_normed, axis=0)
+        # samples_normed = tf.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
         # samples = tf.transpose(samples, perm=[2, 0, 1])
 
@@ -122,7 +122,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             for i in range(n_axes + x.shape[-1].value):
                 if i in axes:
                     new_obs.append(limits.obs[index_samples])
-                    value_list.append(samples[:, :, index_samples])
+                    value_list.append(samples[:, index_samples])
                     index_samples += 1
                 else:
                     new_obs.append(data_obs[index_values])
