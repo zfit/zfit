@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>zfit.ztf &mdash; zfit 0.0.0 documentation</title>
+  <title>zfit.ztf.tools &mdash; zfit 0.0.0 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="zfit.ztf.tools" href="zfit.ztf.tools.html" />
-    <link rel="prev" title="zfit.constraint" href="zfit.constraint.html" /> 
+    <link rel="next" title="zfit.ztf.wrapping_tf" href="zfit.ztf.wrapping_tf.html" />
+    <link rel="prev" title="zfit.ztf" href="zfit.ztf.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,8 +95,8 @@
 <li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">zfit.ztf</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="zfit.ztf.tools.html">zfit.ztf.tools</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">zfit.ztf.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zfit.ztf.wrapping_tf.html">zfit.ztf.wrapping_tf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zfit.ztf.zextension.html">zfit.ztf.zextension</a></li>
 </ul>
@@ -150,13 +150,15 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>zfit.ztf</li>
+          <li><a href="zfit.ztf.html">zfit.ztf</a> &raquo;</li>
+        
+      <li>zfit.ztf.tools</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/zfit.ztf.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/zfit.ztf.tools.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -169,17 +171,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-zfit.ztf">
-<span id="zfit-ztf"></span><h1>zfit.ztf<a class="headerlink" href="#module-zfit.ztf" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.tools.html">zfit.ztf.tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.wrapping_tf.html">zfit.ztf.wrapping_tf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.zextension.html">zfit.ztf.zextension</a></li>
-</ul>
-</div>
+  <div class="section" id="module-zfit.ztf.tools">
+<span id="zfit-ztf-tools"></span><h1>zfit.ztf.tools<a class="headerlink" href="#module-zfit.ztf.tools" title="Permalink to this headline">¶</a></h1>
 <p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
 upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
 Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
@@ -187,7 +180,6 @@ and from 2 to 5.</p>
 <p>Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|</p>
 <p>intervall is the differenz to the upper bounds. Example: ((-1, 4), (1, 6), (3, 10),…)  # 2-d function</p>
 <p>intervall is the differenz to the lower bounds. Example: ((-0.1, 5), (2, 8), (7, 14),…)  # 2-d function</p>
-</div>
 </div>
 
 
@@ -198,10 +190,10 @@ and from 2 to 5.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="zfit.ztf.tools.html" class="btn btn-neutral float-right" title="zfit.ztf.tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="zfit.ztf.wrapping_tf.html" class="btn btn-neutral float-right" title="zfit.ztf.wrapping_tf" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="zfit.constraint.html" class="btn btn-neutral float-left" title="zfit.constraint" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="zfit.ztf.html" class="btn btn-neutral float-left" title="zfit.ztf" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
