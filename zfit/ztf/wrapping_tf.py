@@ -4,14 +4,18 @@ from typing import Any
 from tensorflow import DType
 import tensorflow as tf
 
+from .tools import _auto_upcast
+from . import zextension
 from ..settings import ztypes
 
 
 def log(x, name=None):
+    x = _auto_upcast(x)
     return tf.log(x=x, name=name)
 
 
 def exp(x, name=None):
+    x = _auto_upcast(x)
     return tf.exp(x=x, name=name)
 
 
@@ -33,7 +37,13 @@ def random_poisson(lam: Any, shape: Any, dtype: DType = ztypes.float, seed: Any 
 
 
 def square(x, name=None):
+    x = _auto_upcast(x)
     return tf.square(x, name)
+
+
+def sqrt(x, name=None):
+    x = _auto_upcast(x)
+    return tf.square(x, name=name)
 
 
 #

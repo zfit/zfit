@@ -1,4 +1,5 @@
 # deactivating CUDA capable gpus
+from zfit.ztf.tools import _auto_upcast
 
 suppress_gpu = False
 if suppress_gpu:
@@ -29,3 +30,19 @@ def test_polynomial():
     result = zfit.run(polynom_tf, feed_dict=feed_dict)
     assert result == pytest.approx(polynom_np, rel=prec)
 
+
+def test_auto_upcast():
+    tensor_from_f32 = _auto_upcast(tf.constant(5, dtype=tf.float32))
+    tensor_from_f64 = _auto_upcast(tf.constant(5, dtype=tf.float64))
+    assert tensor_from_f32.dtype == tf.float64
+    assert tensor_from_f64.dtype == tf.float64
+
+    tensor_from_i32 = _auto_upcast(tf.constant(5, dtype=tf.int32))
+    tensor_from_i64 = _auto_upcast(tf.constant(5, dtype=tf.int64))
+    assert tensor_from_i32.dtype == tf.int64
+    assert tensor_from_i64.dtype == tf.int64
+
+    tensor_from_c64 = _auto_upcast(tf.constant(5., dtype=tf.complex64))
+    tensor_from_c128 = _auto_upcast(tf.constant(5., dtype=tf.complex128))
+    assert tensor_from_c64.dtype == tf.complex128
+    assert tensor_from_c128.dtype == tf.complex128
