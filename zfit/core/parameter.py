@@ -122,10 +122,12 @@ class ComposedResourceVariable(ResourceVariable):
         return self._value_tensor
 
 
-class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
+# class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
+class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
-        super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
+        # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
+        super().__init__(initial_value=initial_value, **kwargs)
         self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
         # self._name = name
 
@@ -507,7 +509,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def conj(self):
-        if not self._conj:
+        if self._conj is None:
             self._conj = ComplexParameter(name='{}_conj'.format(self.name), value=tf.math.conj(self),
                                           dtype=self.dtype)
         return self._conj
