@@ -8,6 +8,7 @@ from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 import uproot
 import numpy as np
+import pandas as pd
 
 # from ..settings import types as ztypes
 import zfit
@@ -28,8 +29,18 @@ from ..util.temporary import TemporarilySet
 
 class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
-    def __init__(self, dataset, obs=None, name=None, iterator_feed_dict=None, dtype=ztypes.float):
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
+                 name: str = None, iterator_feed_dict: Dict = None,
+                 dtype: tf.DType = ztypes.float):
+        """Create a data holder from a `dataset` used to feed into `models`.
 
+        Args:
+            dataset (): A dataset storing the actual values
+            obs (): Observables where the data is defined in
+            name (): Name of the `Data`
+            iterator_feed_dict ():
+            dtype ():
+        """
         if name is None:
             name = "Data"
         super().__init__(name=name)
@@ -144,7 +155,22 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     #     return Data(dataset=dataset, obs=obs, name=name)
 
     @classmethod
-    def from_root(cls, path, treepath, branches=None, branches_alias=None, name=None, root_dir_options=None):
+    def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
+                  name: str = None, root_dir_options=None) -> "Data":
+        """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
+
+        Args:
+            path (str):
+            treepath (str):
+            branches (List[str]]):
+            branches_alias (dict): A mapping from the `branches` (as keys) to the actual `observables` (as values).
+                This allows to have different `observable` names, independent of the branch name in the file.
+            name (str):
+            root_dir_options ():
+
+        Returns:
+            `zfit.data.Data`:
+        """
         if branches_alias is None:
             branches_alias = {}
 
@@ -167,7 +193,31 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, name=name)
 
     @classmethod
-    def from_numpy(cls, obs, array, name=None):
+    def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, name: str = None):
+        """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
+
+        Args:
+            df (`pandas.DataFrame`):
+            obs (`zfit.Space`):
+            name (str):
+        """
+        if obs is None:
+            obs = list(df.columns)
+        array = df.values
+        return cls.from_numpy(obs=obs, array=array, name=name)
+
+    @classmethod
+    def from_numpy(cls, obs: ztyping.ObsTypeInput, array: np.ndarray, name: str = None):
+        """Create `Data` from a `np.array`.
+
+        Args:
+            obs ():
+            array (numpy.ndarray):
+            name (str):
+
+        Returns:
+            zfit.core.data.Data:
+        """
         if not isinstance(array, np.ndarray):
             raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
         np_placeholder = tf.placeholder(dtype=array.dtype, shape=array.shape)
@@ -180,10 +230,37 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @classmethod
     def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None) -> "Data":
+        """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
+
+        Args:
+            obs (Union[str, List[str]):
+            tensor (`tf.Tensor`):
+            name (str):
+
+        Returns:
+            zfit.core.data.Data:
+        """
         # dataset = tf.data.Dataset.from_tensor(tensors=tensors)
         # dataset = dataset.repeat()
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name)
+
+    def to_pandas(self, obs: ztyping.ObsTypeInput = None):
+        """Create a `pd.DataFrame` from `obs` as columns and return it.
+
+        Args:
+            obs (): The observables to use as columns. If `None`, all observables are used.
+
+        Returns:
+
+        """
+        values = self.value(obs=obs)
+        if obs is None:
+            obs = self.obs
+        obs_str = convert_to_obs_str(obs)
+        values = self.sess.run(values)
+        df = pd.DataFrame(data=values, columns=obs_str)
+        return df
 
     def initialize(self):
         iterator = self.dataset.make_initializable_iterator()

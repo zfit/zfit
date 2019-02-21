@@ -1172,5 +1172,5 @@ def convert_to_obs_str(obs):
 
     """
     obs = convert_to_container(value=obs, container=tuple)
-    obs = tuple(ob.obs if isinstance(obs, Space) else obs for ob in obs)
+    obs = tuple(ob.obs if isinstance(obs, Space) else ob for ob in obs)
     return obs

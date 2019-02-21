@@ -3,6 +3,7 @@ import copy
 import pytest
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
 import zfit
@@ -25,7 +26,7 @@ def test_from_root_iter():
 
     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
 
-    data.initialize(sess=zfit.run.sess)
+    data.initialize()
     x = data.value()
 
 
@@ -40,7 +41,7 @@ def test_from_root():
     branches = [b'pt1', b'pt2']  # b needed currently -> uproot
 
     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
-    data.initialize(sess=zfit.run.sess)
+    data.initialize()
     x = data.value()
 
 
@@ -50,6 +51,26 @@ def test_from_numpy():
     x = data.value()
     x_np = zfit.run(x)
     np.testing.assert_array_equal(example_data, x_np)
+
+
+def test_from_to_pandas():
+    example_data_np = np.random.random(size=(1000, len(obs1)))
+    example_data = pd.DataFrame(data=example_data_np, columns=obs1)
+    data = zfit.data.Data.from_pandas(obs=obs1, df=example_data)
+    x = data.value()
+    x_np = zfit.run(x)
+    np.testing.assert_array_equal(example_data_np, x_np)
+
+    # test auto obs retreavel
+    example_data2 = pd.DataFrame(data=example_data_np, columns=obs1)
+    data2 = zfit.data.Data.from_pandas(df=example_data2)
+    assert data2.obs == obs1
+    x2 = data2.value()
+    x_np2 = zfit.run(x2)
+    np.testing.assert_array_equal(example_data_np, x_np2)
+
+    df = data2.to_pandas()
+    assert all(df == example_data)
 
 
 def test_from_tensors():
