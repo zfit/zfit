@@ -1335,7 +1335,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ob</span><span class="o">.</span><span class="n">obs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">Space</span><span class="p">)</span> <span class="k">else</span> <span class="n">obs</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ob</span><span class="o">.</span><span class="n">obs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">Space</span><span class="p">)</span> <span class="k">else</span> <span class="n">ob</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">obs</span></div>
 </pre></div>
 

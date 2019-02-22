@@ -166,8 +166,24 @@
 <span id="zfit-core-data"></span><h1>zfit.core.data<a class="headerlink" href="#module-zfit.core.data" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.data.Data">
-<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>dataset</em>, <em>obs=None</em>, <em>name=None</em>, <em>iterator_feed_dict=None</em>, <em>dtype=tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.Dataset, LightDataset], obs: Union[str, Iterable[str], Space] = None, name: str = None, iterator_feed_dict: Dict = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.util.execution.html#zfit.util.execution.SessionHolderMixin" title="zfit.util.execution.SessionHolderMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.execution.SessionHolderMixin</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitData</span></code></a>, <a class="reference internal" href="zfit.core.dimension.html#zfit.core.dimension.BaseDimensional" title="zfit.core.dimension.BaseDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dimension.BaseDimensional</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
+<p>Create a data holder from a <cite>dataset</cite> used to feed into <cite>models</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>(</strong><strong>)</strong> (<em>dtype</em>) – A dataset storing the actual values</li>
+<li><strong>(</strong><strong>)</strong> – Observables where the data is defined in</li>
+<li><strong>(</strong><strong>)</strong> – Name of the <cite>Data</cite></li>
+<li><strong>(</strong><strong>)</strong> – </li>
+<li><strong>(</strong><strong>)</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="zfit.core.data.Data.convert_sort_space">
 <code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="_modules/zfit/core/data.html#Data.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.convert_sort_space" title="Permalink to this definition">¶</a></dt>
@@ -200,13 +216,76 @@
 
 <dl class="classmethod">
 <dt id="zfit.core.data.Data.from_numpy">
-<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs</em>, <em>array</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.from_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_numpy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], array: numpy.ndarray, name: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.from_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <cite>Data</cite> from a <cite>np.array</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>(</strong><strong>)</strong> (<em>obs</em>) – </li>
+<li><strong>array</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data">zfit.core.data.Data</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.Data.from_pandas">
+<em class="property">classmethod </em><code class="descname">from_pandas</code><span class="sig-paren">(</span><em>df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], Space] = None, name: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.from_pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a pandas DataFrame. If <cite>obs</cite> is <cite>None</cite>, columns are used as obs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<cite>pandas.DataFrame</cite>) – </li>
+<li><strong>obs</strong> (<cite>zfit.Space</cite>) – </li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="zfit.core.data.Data.from_root">
-<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path</em>, <em>treepath</em>, <em>branches=None</em>, <em>branches_alias=None</em>, <em>name=None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.from_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_root" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path: str</em>, <em>treepath: str</em>, <em>branches: List[str] = None</em>, <em>branches_alias: Dict = None</em>, <em>name: str = None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="_modules/zfit/core/data.html#Data.from_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a ROOT file. Arguments are passed to <cite>uproot</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<li><strong>treepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<li><strong>branches</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em>]</em>) – </li>
+<li><strong>branches_alias</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – A mapping from the <cite>branches</cite> (as keys) to the actual <cite>observables</cite> (as values).
+This allows to have different <cite>observable</cite> names, independent of the branch name in the file.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<li><strong>(</strong><strong>)</strong> (<em>root_dir_options</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>zfit.data.Data</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="zfit.core.data.Data.from_root_iter">
@@ -216,7 +295,27 @@
 <dl class="classmethod">
 <dt id="zfit.core.data.Data.from_tensor">
 <em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], tensor: tensorflow.python.framework.ops.Tensor, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="_modules/zfit/core/data.html#Data.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_tensor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create a <cite>Data</cite> from a <cite>tf.Tensor</cite>. <cite>Value</cite> simply returns the tensor (in the right order).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obs</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – </li>
+<li><strong>tensor</strong> (<cite>tf.Tensor</cite>) – </li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data">zfit.core.data.Data</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.get_iteration">
@@ -257,6 +356,21 @@
 <dt id="zfit.core.data.Data.space">
 <code class="descname">space</code><a class="headerlink" href="#zfit.core.data.Data.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <cite>Space</cite> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Data.to_pandas">
+<code class="descname">to_pandas</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Data.to_pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.to_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>pd.DataFrame</cite> from <cite>obs</cite> as columns and return it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>obs</em>) – The observables to use as columns. If <cite>None</cite>, all observables are used.</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="method">

@@ -270,12 +270,11 @@ read the value only after some condition is true.</p>
 <dl class="class">
 <dt id="zfit.core.parameter.ComposedVariable">
 <em class="property">class </em><code class="descclassname">zfit.core.parameter.</code><code class="descname">ComposedVariable</code><span class="sig-paren">(</span><em>name: str</em>, <em>initial_value: tensorflow.python.framework.ops.Tensor</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComposedVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.variables.VariableV1</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.resource_variable_ops.ResourceVariable</span></code></p>
 <dl class="method">
 <dt id="zfit.core.parameter.ComposedVariable.assign">
 <code class="descname">assign</code><span class="sig-paren">(</span><em>value</em>, <em>use_locking=False</em>, <em>name=None</em>, <em>read_value=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComposedVariable.assign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.assign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns a new value to the variable.</p>
-<p>This is essentially a shortcut for <cite>assign(self, value)</cite>.</p>
+<dd><p>Assigns a new value to this variable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -283,14 +282,16 @@ read the value only after some condition is true.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>value</strong> – A <cite>Tensor</cite>. The new value for this variable.</li>
 <li><strong>use_locking</strong> – If <cite>True</cite>, use locking during the assignment.</li>
-<li><strong>name</strong> – The name of the operation to be created</li>
-<li><strong>read_value</strong> – if True, will return something which evaluates to the
-new value of the variable; if False will return the assign op.</li>
+<li><strong>name</strong> – The name to use for the assignment.</li>
+<li><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
+variable or not.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <cite>Tensor</cite> that will hold the new value of this variable after
-the assignment has completed.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
+variable after the assignment has completed. Otherwise, when in graph mode
+it will return the <cite>Operation</cite> that does the assignment, and when in eager
+mode it will return <cite>None</cite>.</p>
 </td>
 </tr>
 </tbody>
@@ -300,7 +301,7 @@ the assignment has completed.</p>
 <dl class="attribute">
 <dt id="zfit.core.parameter.ComposedVariable.dtype">
 <code class="descname">dtype</code><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.dtype" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <cite>DType</cite> of this variable.</p>
+<dd><p>The dtype of this variable.</p>
 </dd></dl>
 
 <dl class="method">
@@ -348,20 +349,20 @@ none, the default session is used.</li>
 <dl class="attribute">
 <dt id="zfit.core.parameter.ComposedVariable.name">
 <code class="descname">name</code><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of this variable.</p>
+<dd><p>The name of the handle for this variable.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.ComposedVariable.read_value">
 <code class="descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComposedVariable.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.read_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of this variable, read in the current context.</p>
-<p>Can be different from value() if it’s on another device, with control
-dependencies, etc.</p>
+<dd><p>Constructs an op which reads the value of this variable.</p>
+<p>Should be used when there are multiple reads, or when it is desirable to
+read the value only after some condition is true.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A <cite>Tensor</cite> containing the value of the variable.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the read operation.</td>
 </tr>
 </tbody>
 </table>
@@ -370,23 +371,7 @@ dependencies, etc.</p>
 <dl class="method">
 <dt id="zfit.core.parameter.ComposedVariable.value">
 <code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/parameter.html#ComposedVariable.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the last snapshot of this variable.</p>
-<p>You usually do not need to call this method as all ops that need the value
-of the variable call it automatically through a <cite>convert_to_tensor()</cite> call.</p>
-<p>Returns a <cite>Tensor</cite> which holds the value of the variable.  You can not
-assign a new value to this tensor as it is not a reference to the variable.</p>
-<p>To avoid copies, if the consumer of the returned value is on the same device
-as the variable, this actually returns the live value of the variable, not
-a copy.  Updates to the variable are seen by the consumer.  If the consumer
-is on a different device it will get a copy of the variable.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A <cite>Tensor</cite> containing the value of the variable.</td>
-</tr>
-</tbody>
-</table>
+<dd><p>A cached operation which reads the value of this variable.</p>
 </dd></dl>
 
 </dd></dl>
