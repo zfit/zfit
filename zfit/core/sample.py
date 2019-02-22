@@ -16,7 +16,7 @@ from ..settings import ztypes
 def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
                          sampler: typing.Callable = tf.random_uniform,
                          dtype=ztypes.float, prob_max: typing.Union[None, int] = None,
-                         efficiency_estimation: float = 1.5) -> tf.Tensor:
+                         efficiency_estimation: float = 1.0) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
     Args:
