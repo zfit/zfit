@@ -69,7 +69,7 @@ from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplement
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
-from ..settings import ztypes
+from ..settings import ztypes, run
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -292,7 +292,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
-    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsType = None, name: str = "model") -> ztyping.XType:
+    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None, name: str = "model") -> ztyping.XType:
         """Probability density/mass function, normalized over `norm_range`.
 
         Args:
@@ -305,7 +305,15 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name, none_is_error=True)
         with self._convert_sort_x(x) as x:
-            return self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
+            value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
+            if run.numeric_checks:
+                assert_op = ztf.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
+                assert_op = [assert_op]
+            else:
+                assert_op = []
+            with tf.control_dependencies(assert_op):
+                return ztf.to_real(value)
+
 
     def _single_hook_pdf(self, x, norm_range, name):
         probability = self._hook_pdf(x=x, norm_range=norm_range, name=name)

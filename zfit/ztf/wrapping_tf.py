@@ -50,6 +50,16 @@ def complex(real, imag, name=None):
     return _auto_upcast(tf.complex(real=real, imag=imag, name=name))
 
 
+def check_numerics(tensor: Any, message: Any, name: Any = None):
+    if tensor.dtype in (tf.complex64, tf.complex128):
+        real_check = tf.check_numerics(tensor=tf.real(tensor), message=message, name=name)
+        imag_check = tf.check_numerics(tensor=tf.imag(tensor), message=message, name=name)
+        check_op = tf.group(real_check, imag_check)
+    else:
+        check_op = tf.check_numerics(tensor=tensor, message=message, name=name)
+    return check_op
+
+
 #
 # @functools.wraps(tf.reduce_sum)
 # def reduce_sum(*args, **kwargs):
