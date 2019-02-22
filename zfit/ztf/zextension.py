@@ -98,4 +98,20 @@ def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values
     result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
     return result
 
+
+def run_no_nan(func, x):
+    from zfit.core.data import Data
+
+    value_with_nans = func(x=x)
+    if value_with_nans.dtype in (tf.complex128, tf.complex64):
+        value_with_nans = tf.real(value_with_nans) + tf.imag(value_with_nans)  # we care only about NaN or not
+    finite_bools = tf.debugging.is_finite(tf.cast(value_with_nans, dtype=tf.float64))
+    finite_indices = tf.where(finite_bools)
+    new_x = tf.gather_nd(params=x, indices=finite_indices)
+    new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
+    vals_no_nan = func(x=new_x)
+    result = tf.scatter_nd(indices=finite_indices, updates=vals_no_nan,
+                           shape=tf.shape(value_with_nans, out_type=finite_indices.dtype))
+    return result
+
 # reduce functions
