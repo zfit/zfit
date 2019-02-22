@@ -12,6 +12,16 @@ def set_seed(seed):
       Set random seed for numpy
     """
     np.random.seed(seed)
+    tf.random.set_random_seed(seed)
+
+_verbosity = 5
+
+def set_verbosity(verbosity):
+    global _verbosity
+    _verbosity = verbosity
+
+def get_verbosity():
+    return _verbosity
 
 
 ztypes = DotDict({'float': tf.float64,

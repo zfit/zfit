@@ -7,6 +7,7 @@ import numpy as np
 
 import zfit
 from zfit import ztf
+from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
 from ..settings import ztypes
@@ -72,7 +73,9 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
             n_to_produce = n
         else:
             n_to_produce = n - tf.shape(sample, out_type=tf.int64)[0]
-        n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
+        print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
+        with tf.control_dependencies([print_op] if settings.get_verbosity() > 5 else []):
+            n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
         # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
         n_to_produce = tf.minimum(n_to_produce, tf.to_int64(5e5))  # introduce a cap to force serial
         n_total_drawn += n_to_produce
