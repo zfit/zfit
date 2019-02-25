@@ -282,22 +282,28 @@ class SumPDF(BaseFunctor):
             super()._set_yield(value=value)
 
     @supports(norm_range=True, multiple_limits=True)
-    def _integrate(self, limits, norm_range):  # TODO: deal with norm_range?
-        # assert norm_range in (None, False), "Bug in here, should be catched by 'supports'"  # supports catches
-        # norm_range
+    def _integrate(self, limits, norm_range):
         pdfs = self.pdfs
         fracs = self.fracs
         assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
-        # norm_range = self._component_norm_range_holder  # to use the right component norm_range
-        # try:
         integrals = [pdf.integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
-        # except NotImplementedError as original_error:
-        #     raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
-        #                               " SumPDF, as at least one sub-pdf does not implement it."
-        #                               "Original message:\n{error}".format(name=self.name,
-        #                                                                   error=original_error))
+        integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
+        integral = tf.reduce_sum(integrals)
+        return integral
 
-        # integrals = tf.stack([integral * frac for integral, frac in zip(integrals, fracs)])
+    @supports(norm_range=True, multiple_limits=True)
+    def _analytic_integrate(self, limits, norm_range):
+        pdfs = self.pdfs
+        fracs = self.fracs
+        assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        try:
+            integrals = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
+        except NotImplementedError as original_error:
+            raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
+                                      " SumPDF, as at least one sub-pdf does not implement it."
+                                      "Original message:\n{error}".format(name=self.name,
+                                                                          error=original_error))
+
         integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
         integral = tf.reduce_sum(integrals)
         return integral
