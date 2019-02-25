@@ -225,7 +225,6 @@
         <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thresholds_unscaled_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span>
 
-    <span class="n">n_samples_int</span> <span class="o">=</span> <span class="n">n</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">enough_produced</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="p">,</span> <span class="n">eff</span><span class="p">):</span>
