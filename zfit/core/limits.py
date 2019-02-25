@@ -263,7 +263,7 @@ class Space(ZfitSpace, BaseObject):
         replace = {} if replace is None else replace
         if limit is NOT_SPECIFIED or limit is None:
             return None
-        if limit == ():
+        if isinstance(limit, tuple) and limit == ():
             raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
         if np.shape(limit) == ():
             limit = ((limit,),)
