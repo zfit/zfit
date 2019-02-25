@@ -281,21 +281,30 @@ class SumPDF(BaseFunctor):
         else:
             super()._set_yield(value=value)
 
-    @supports()
-    def _analytic_integrate(self, limits, norm_range):  # TODO: deal with norm_range?
+    @supports(norm_range=True, multiple_limits=True)
+    def _integrate(self, limits, norm_range):  # TODO: deal with norm_range?
+        # assert norm_range in (None, False), "Bug in here, should be catched by 'supports'"  # supports catches
+        # norm_range
         pdfs = self.pdfs
-        frac = self.fracs
-        try:
-            integral = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
-        except NotImplementedError as original_error:
-            raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
-                                      " SumPDF, as at least one sub-pdf does not implement it."
-                                      "Original message:\n{error}".format(name=self.name,
-                                                                          error=original_error))
+        fracs = self.fracs
+        assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        # norm_range = self._component_norm_range_holder  # to use the right component norm_range
+        # try:
+        integrals = [pdf.integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
+        # except NotImplementedError as original_error:
+        #     raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
+        #                               " SumPDF, as at least one sub-pdf does not implement it."
+        #                               "Original message:\n{error}".format(name=self.name,
+        #                                                                   error=original_error))
 
-        integral = tf.stack([integral * s for pdf, s in zip(integral, frac)])
-        integral = tf.reduce_sum(integral)
+        # integrals = tf.stack([integral * frac for integral, frac in zip(integrals, fracs)])
+        integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
+        integral = tf.reduce_sum(integrals)
         return integral
+
+    @supports(norm_range=True, multiple_limits=True)
+    def _partial_integrate(self, x, limits, norm_range):
+        raise RuntimeError("Currently not available, cleanup with yields expected.")
 
     # @supports()
     # def _partial_analytic_integrate(self, x, limits, norm_range):

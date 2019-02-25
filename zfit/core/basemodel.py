@@ -298,7 +298,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
             unnormalized_integral = self._limits_integrate(limits=limits, norm_range=False, name=name)
-            normalization = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
+            normalization = self._limits_integrate(limits=norm_range, norm_range=False, name=name)
             integral = unnormalized_integral / normalization
         return integral
 
@@ -402,7 +402,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._limits_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
 
-            unnormalized_integral = self._limits_analytic_integrate(limits, norm_range=None, name=name)
+            unnormalized_integral = self._limits_analytic_integrate(limits, norm_range=False, name=name)
             try:
                 normalization = self._limits_analytic_integrate(limits=norm_range, norm_range=False, name=name)
             except NotImplementedError:

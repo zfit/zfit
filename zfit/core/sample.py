@@ -62,7 +62,6 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
         thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
         return rnd_sample, thresholds_unscaled
 
-    n_samples_int = n
     n = tf.to_int64(n)
 
     def enough_produced(n, sample, n_total_drawn, eff):
