@@ -275,12 +275,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             self._next_batch = self.iterator.get_next()
         return self._next_batch
 
-    def _cut_data(self, value):
-        if self.data_range.limits is not None:
+    def _cut_data(self, value, obs=None):
+        if self.space.limits is not None:
+            data_range = self.space.with_obs(obs=obs)
 
             inside_limits = []
             # value = tf.transpose(value)
-            for lower, upper in self.data_range.iter_limits():
+            for lower, upper in data_range.iter_limits():
                 above_lower = tf.reduce_all(tf.less_equal(value, upper), axis=1)
                 below_upper = tf.reduce_all(tf.greater_equal(value, lower), axis=1)
                 inside_limits.append(tf.logical_and(above_lower, below_upper))
@@ -309,7 +310,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if obs is not None:
             obs = convert_to_obs_str(obs)
         value = self._value(obs=obs)
-        value = self._cut_data(value)
+        value = self._cut_data(value, obs=obs)
         return value
 
     def _value(self, obs: Tuple[str]):
@@ -471,9 +472,12 @@ class SampleData(Data):
 
     @classmethod
     def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None):
+        import zfit
+        sample = zfit.run(sample)
         sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
                                     name="sample_data_holder_{}".format(cls.get_cache_counting()),
-                                    use_resource=True)
+                                    use_resource=True
+                                    )
         dataset = LightDataset.from_tensor(sample_holder)
 
         return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name)

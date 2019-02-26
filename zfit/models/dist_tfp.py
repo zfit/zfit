@@ -51,7 +51,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         lower = ztf.to_real(lower[0], dtype=self.dtype)
         upper = ztf.to_real(upper[0], dtype=self.dtype)
         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
-        return integral
+        return integral[0]
 
 
 class Gauss(WrapDistribution):

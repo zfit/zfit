@@ -263,7 +263,7 @@ class Space(ZfitSpace, BaseObject):
         replace = {} if replace is None else replace
         if limit is NOT_SPECIFIED or limit is None:
             return None
-        if limit == ():
+        if (isinstance(limit, tuple) and limit == ()) or (isinstance(limit, np.ndarray) and limit.size == 0):
             raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
         if np.shape(limit) == ():
             limit = ((limit,),)
@@ -572,6 +572,8 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             `Space`
         """
+        if obs is None or obs == self.obs:
+            return self
         obs = self._convert_obs_to_str(obs)
         new_indices = self.get_reorder_indices(obs=obs)
         new_space = self.reorder_by_indices(indices=new_indices)
@@ -587,6 +589,8 @@ class Space(ZfitSpace, BaseObject):
             `Space`
         """
         # TODO: what if self.axes is None? Just add them?
+        if axes is None or axes == self.axes:
+            return self
         axes = self._convert_axes_to_int(axes)
         new_indices = self.get_reorder_indices(axes=axes)
         new_space = self.copy()

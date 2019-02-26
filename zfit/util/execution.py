@@ -22,6 +22,7 @@ class RunManager:
         self._sess_kwargs = {}
         self.chunking = DotDict()
         self._cpu = []
+        self.numeric_checks = True
 
         self.set_n_cpu(n_cpu=n_cpu)
 

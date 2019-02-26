@@ -137,11 +137,13 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
         # convert rnd samples with value to feedable vector
         reduce_axis = 1 if partial else None
-        avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
+        avg = tf.reduce_mean(func(x), axis=reduce_axis)
+        # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
         # TODO: importance sampling?
         # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    integral = avg * limits.area()
-    return ztf.to_real(integral, dtype=dtype)
+    integral = avg * tf.cast(ztf.convert_to_tensor(limits.area()), dtype=avg.dtype)
+    return integral
+    # return ztf.to_real(integral, dtype=dtype)
 
 
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):

@@ -170,7 +170,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
         raise NotImplementedError
     lower_int = raw_integral(x=ztf.constant(lower))
     upper_int = raw_integral(x=ztf.constant(upper))
-    return upper_int - lower_int
+    return (upper_int - lower_int)[0]
 
 
 # Exponential.register_inverse_analytic_integral()

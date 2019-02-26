@@ -285,7 +285,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits)
-        return self._single_hook_integrate(limits=limits, norm_range=norm_range, name=name)
+        integral = self._single_hook_integrate(limits=limits, norm_range=norm_range, name=name)
+        if isinstance(integral, tf.Tensor):
+            assert integral.shape.as_list() == [], "Error in integral creation, should return with shape ()"
+        return integral
 
     def _single_hook_integrate(self, limits, norm_range, name):
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
