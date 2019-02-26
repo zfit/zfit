@@ -73,8 +73,10 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
             n_to_produce = n
         else:
             n_to_produce = n - tf.shape(sample, out_type=tf.int64)[0]
-        print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
-        with tf.control_dependencies([print_op] if settings.get_verbosity() > 5 else []):
+        do_print = settings.get_verbosity() > 5
+        if do_print:
+            print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
+        with tf.control_dependencies([print_op] if do_print else []):
             n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
         # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
         n_to_produce = tf.minimum(n_to_produce, tf.to_int64(5e5))  # introduce a cap to force serial
