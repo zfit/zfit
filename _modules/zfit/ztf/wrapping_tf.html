@@ -203,7 +203,6 @@
 
 
 <div class="viewcode-block" id="sqrt"><a class="viewcode-back" href="../../../zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.sqrt">[docs]</a><span class="k">def</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="c1"># x = _auto_upcast(x)</span>
     <span class="k">return</span> <span class="n">_auto_upcast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span></div>
 
 
@@ -211,6 +210,26 @@
     <span class="n">real</span> <span class="o">=</span> <span class="n">_auto_upcast</span><span class="p">(</span><span class="n">real</span><span class="p">)</span>
     <span class="n">imag</span> <span class="o">=</span> <span class="n">_auto_upcast</span><span class="p">(</span><span class="n">imag</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_auto_upcast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="o">=</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="check_numerics"><a class="viewcode-back" href="../../../zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.check_numerics">[docs]</a><span class="k">def</span> <span class="nf">check_numerics</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check whether a tensor is finite and not NaN. Extends TF by accepting complex types as well.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tensor (:py:class:~`tensorflow.python.framework.ops.Tensor`):</span>
+<span class="sd">        message (str):</span>
+<span class="sd">        name (Union[None, None, None]):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tensorflow.python.framework.ops.Tensor:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex64</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">complex128</span><span class="p">):</span>
+        <span class="n">real_check</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">tensor</span><span class="p">),</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">imag_check</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">tensor</span><span class="p">),</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">check_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">real_check</span><span class="p">,</span> <span class="n">imag_check</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">check_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">check_op</span></div>
 
 
 <span class="c1">#</span>

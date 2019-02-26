@@ -333,7 +333,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
     <span class="n">lower_int</span> <span class="o">=</span> <span class="n">raw_integral</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">lower</span><span class="p">))</span>
     <span class="n">upper_int</span> <span class="o">=</span> <span class="n">raw_integral</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">upper</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">upper_int</span> <span class="o">-</span> <span class="n">lower_int</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">upper_int</span> <span class="o">-</span> <span class="n">lower_int</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
 
 <span class="c1"># Exponential.register_inverse_analytic_integral()</span>

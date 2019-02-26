@@ -426,7 +426,7 @@
         <span class="n">replace</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">replace</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">replace</span>
         <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="n">NOT_SPECIFIED</span> <span class="ow">or</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">limit</span> <span class="o">==</span> <span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="n">limit</span> <span class="o">==</span> <span class="p">())</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">limit</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Currently, () is not supported as limits. Should this be default for None?&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="o">==</span> <span class="p">():</span>
             <span class="n">limit</span> <span class="o">=</span> <span class="p">((</span><span class="n">limit</span><span class="p">,),)</span>
@@ -735,6 +735,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            `Space`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">obs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_obs_to_str</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
         <span class="n">new_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reorder_indices</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reorder_by_indices</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
@@ -750,6 +752,8 @@
 <span class="sd">            `Space`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: what if self.axes is None? Just add them?</span>
+        <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">axes</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_axes_to_int</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
         <span class="n">new_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reorder_indices</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>

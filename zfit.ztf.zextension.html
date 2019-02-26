@@ -208,6 +208,11 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="zfit.ztf.zextension.run_no_nan">
+<code class="descclassname">zfit.ztf.zextension.</code><code class="descname">run_no_nan</code><span class="sig-paren">(</span><em>func</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/ztf/zextension.html#run_no_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ztf.zextension.run_no_nan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="zfit.ztf.zextension.safe_where">
 <code class="descclassname">zfit.ztf.zextension.</code><code class="descname">safe_where</code><span class="sig-paren">(</span><em>condition: tensorflow.python.framework.ops.Tensor</em>, <em>func: Callable</em>, <em>safe_func: Callable</em>, <em>values: tensorflow.python.framework.ops.Tensor</em>, <em>value_safer: Callable = &lt;function ones_like&gt;</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="_modules/zfit/ztf/zextension.html#safe_where"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ztf.zextension.safe_where" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like <cite>tf.where</cite> but fixes gradient <cite>NaN</cite> if func produces <cite>NaN</cite> with certain <cite>values</cite>.</p>
