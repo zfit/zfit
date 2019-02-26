@@ -40,7 +40,6 @@ def square(x, name=None):
 
 
 def sqrt(x, name=None):
-    # x = _auto_upcast(x)
     return _auto_upcast(tf.square(x, name=name))
 
 
@@ -51,6 +50,16 @@ def complex(real, imag, name=None):
 
 
 def check_numerics(tensor: Any, message: Any, name: Any = None):
+    """Check whether a tensor is finite and not NaN. Extends TF by accepting complex types as well.
+
+    Args:
+        tensor (:py:class:~`tensorflow.python.framework.ops.Tensor`):
+        message (str):
+        name (Union[None, None, None]):
+
+    Returns:
+        tensorflow.python.framework.ops.Tensor:
+    """
     if tensor.dtype in (tf.complex64, tf.complex128):
         real_check = tf.check_numerics(tensor=tf.real(tensor), message=message, name=name)
         imag_check = tf.check_numerics(tensor=tf.imag(tensor), message=message, name=name)
