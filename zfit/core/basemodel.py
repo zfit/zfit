@@ -789,7 +789,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         # needed to be able to change the resampling
-        with suppress(ValueError):
+        with suppress(ValueError, TypeError):
             n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
 
