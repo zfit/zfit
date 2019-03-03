@@ -788,7 +788,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
 
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
-        n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+        # needed to be able to change the resampling
+        with suppress(ValueError):
+            n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
 
         sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=self.obs, fixed_params=fixed_params,
