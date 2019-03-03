@@ -547,6 +547,8 @@ class Sampler(Data):
             if not (n and self._initial_resampled):  # we want to load and make sure that it's initialzed
                 self.sess.run(self.n_samples.initializer)
             if n:
+                if not isinstance(self.n_samples, tf.Variable):
+                    raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
                 self.n_samples.load(value=n, session=self.sess)
             self.sess.run(self.sample_holder.initializer)
             self._initial_resampled = True
