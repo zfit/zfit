@@ -35,13 +35,12 @@ def uniform_sample_and_weights(n_to_produce: Union[int, tf.Tensor], limits: Spac
     rnd_sample = tf.concat(rnd_samples, axis=0)
     thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
 
-    return rnd_sample, thresholds_unscaled, weights
+    return rnd_sample, thresholds_unscaled, weights, weights
 
 
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights: Callable = uniform_sample_and_weights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
-                         weights_max: Union[None, int] = None,
                          efficiency_estimation: float = 1.0) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
@@ -50,8 +49,26 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
         limits (Space): The limits to sample from
-        sampler (function): A function taking n as an argument and returning value between
-            0 and 1
+        sample_and_weights (Callable): A function that returns the sample to insert into `prob` and the weights
+            (prob) of each sample together with the random thresholds. The API looks as follows:
+
+            - Parameters:
+
+                - n_to_produce (int, tf.Tensor): The number of events to produce.
+                - limits (Space): the limits in which the samples will be.
+                - dtype (dtype): DType of the output.
+
+            - Return:
+                A tuple of length 4:
+                - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample
+                    whose values are inside `limits`.
+                - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed
+                    random values **between 0 and 1**.
+                - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability
+                    for each sample of the distribution it was drawn from.
+                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). Otherwise
+                    return None.
+
         dtype ():
         prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
             is given, it will be automatically, safely estimated (by a 10% increase in computation time
@@ -89,8 +106,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         n_total_drawn += n_to_produce
         n_total_drawn = tf.to_int64(n_total_drawn)
 
-        rnd_sample, thresholds_unscaled, weights = sample_and_weights(n_to_produce=n_to_produce, limits=limits,
-                                                                      dtype=dtype)
+        rnd_sample, thresholds_unscaled, weights, weights_max = sample_and_weights(n_to_produce=n_to_produce,
+                                                                                   limits=limits,
+                                                                                   dtype=dtype)
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             prob_max_inferred = tf.reduce_max(probabilities)
@@ -98,11 +116,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             prob_max_inferred = prob_max
 
         if weights_max is None:
-            weights_max_inferred = tf.reduce_max(weights)
-        else:
-            weights_max_inferred = weights_max
+            weights_max = tf.reduce_max(weights)
 
-        random_thresholds = thresholds_unscaled * prob_max_inferred / weights_max_inferred * weights
+        random_thresholds = thresholds_unscaled * prob_max_inferred / weights_max * weights
         take_or_not = probabilities > random_thresholds
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not

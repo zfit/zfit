@@ -110,3 +110,7 @@ def test_sampling_floating(gauss):
         sigma_sampled = np.std(sampled_gauss1_full)
         assert mu_sampled == pytest.approx(mu_true - 1, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+
+def test_importance_sampling():
+    pass
