@@ -11,7 +11,7 @@ from zfit.core.interfaces import ZfitPDF
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
-from ..settings import ztypes
+from ..settings import ztypes, run
 
 
 def uniform_sample_and_weights(n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
@@ -67,8 +67,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                     random values **between 0 and 1**.
                 - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability
                     for each sample of the distribution it was drawn from.
-                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). Otherwise
-                    return None.
+                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is
+                    what the probability maximum will be scaled with, so it should be rather lower than the maximum
+                    if the peaks do not exactly coincide. Otherwise return None (which will **assume**
+                    that the peaks coincide).
 
         dtype ():
         prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
@@ -111,15 +113,31 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                                                                    dtype=dtype)
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
-            prob_max_inferred = tf.reduce_max(probabilities)
+            # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
+            # correctly. A bug report on will be filled (WIP).
+            # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
+            # a value smaller by a factor of 1e-14
+            with tf.control_dependencies([probabilities]):
+                prob_max_inferred = tf.reduce_max(probabilities)
         else:
             prob_max_inferred = prob_max
 
         if weights_max is None:
-            weights_max = tf.reduce_max(weights)
+            weights_max = tf.reduce_max(weights) * 0.99  # safety margin, also taking numericals into account
 
-        random_thresholds = thresholds_unscaled * prob_max_inferred / weights_max * weights
-        take_or_not = probabilities > random_thresholds
+        weights_scaled = prob_max_inferred / weights_max * weights
+        random_thresholds = thresholds_unscaled * weights_scaled
+        if run.numeric_checks:
+            assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
+                                                 message="Not all weights are >= probs so the sampling "
+                                                         "will be biased. If a custom `sample_and_weights` "
+                                                         "was used, make sure that either the shape of the "
+                                                         "custom sampler (resp. it's weights) overlap better "
+                                                         "or decrease the `max_weight`")]
+        else:
+            assert_op = []
+        with tf.control_dependencies(assert_op):
+            take_or_not = probabilities > random_thresholds
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=0)
@@ -151,7 +169,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
 
 def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitPDF]:
-    """Return all extended pdfs that are daugthers.
+    """Return all extended pdfs that are daughters.
 
     Args:
         pdfs (Iterable[pdfs]):
