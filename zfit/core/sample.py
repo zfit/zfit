@@ -1,5 +1,5 @@
 from contextlib import suppress
-from typing import Callable, Union
+from typing import Callable, Union, Iterable, List
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -7,6 +7,7 @@ import numpy as np
 
 import zfit
 from zfit import ztf
+from zfit.core.interfaces import ZfitPDF
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
@@ -149,7 +150,15 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     return new_sample
 
 
-def extract_extended_pdfs(pdfs):
+def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitPDF]:
+    """Return all extended pdfs that are daugthers.
+
+    Args:
+        pdfs (Iterable[pdfs]):
+
+    Returns:
+        List[pdfs]:
+    """
     from ..models.functor import BaseFunctor
 
     pdfs = convert_to_container(pdfs)
@@ -171,7 +180,16 @@ def extract_extended_pdfs(pdfs):
     return indep_pdfs
 
 
-def extended_sampling(pdfs, limits):
+def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) -> tf.Tensor:
+    """Create a sample from extended pdfs by sampling poissonian using the yield.
+
+    Args:
+        pdfs (iterable[ZfitPDF]):
+        limits (zfit.Space):
+
+    Returns:
+        Union[tf.Tensor]:
+    """
     samples = []
     pdfs = convert_to_container(pdfs)
     pdfs = extract_extended_pdfs(pdfs)

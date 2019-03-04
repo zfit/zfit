@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import List, Tuple, Union, Dict
+from typing import List, Tuple, Union, Dict, Mapping
 import warnings
 
 import tensorflow as tf
@@ -537,8 +537,19 @@ class Sampler(Data):
         return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
                        n_holder=n_holder, obs=obs, name=name)
 
-    def resample(self, param_values: OrderedDict = None, n=None):
+    def resample(self, param_values: Mapping = None, n: Union[int, tf.Tensor] = None):
+        """Update the sample by newly sampling. This affects any object that used this data already.
 
+        All params that are not in the attribute `fixed_params` will use their current value for
+        the creation of the new sample. The value can also be overwritten for one sampling by providing
+        a mapping with `param_values` from `Parameter` to the temporary `value`.
+
+        Args:
+            param_values (Dict): a mapping from `Parameter` to a `value`. For the current sampling,
+                `Parameter` will use the `value`.
+            n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with
+                anything else then a numerical or tf.Tensor, this can't be used.
+        """
         temp_param_values = self.fixed_params.copy()
         if param_values is not None:
             temp_param_values.update(param_values)
