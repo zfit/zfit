@@ -147,7 +147,3 @@ def test_importance_sampling():
     assert mean2 == pytest.approx(mu_pdf, rel=0.01)
     assert std == pytest.approx(sigma_pdf, rel=0.01)
     assert std2 == pytest.approx(sigma_pdf, rel=0.01)
-
-    import matplotlib.pyplot as plt
-    plt.hist(zfit.run(sample))
-    plt.show()
