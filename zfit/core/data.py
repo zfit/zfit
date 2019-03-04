@@ -545,7 +545,9 @@ class Sampler(Data):
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
             if not (n and self._initial_resampled):  # we want to load and make sure that it's initialzed
-                self.sess.run(self.n_samples.initializer)
+                # means it's handled inside the function
+                if not isinstance(self.n_samples, str) or self.n_samples is None:
+                    self.sess.run(self.n_samples.initializer)
             if n:
                 if not isinstance(self.n_samples, tf.Variable):
                     raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
