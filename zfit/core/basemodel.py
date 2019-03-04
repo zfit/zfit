@@ -13,6 +13,7 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
+from zfit.core.sample import uniform_sample_and_weights
 from ..core.integration import Integration
 from ..util.cache import Cachable
 from .data import Data, Sampler, SampleData
@@ -95,6 +96,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
                                        draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
+
+        self._sample_and_weights = uniform_sample_and_weights
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
