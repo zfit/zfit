@@ -5,6 +5,7 @@ import pytest
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import uproot
 
 import zfit
 
@@ -15,34 +16,32 @@ data1 = zfit.data.Data.from_numpy(obs=obs1, array=example_data1)
 
 
 def test_from_root_iter():
-    try:
-        from skhep_testdata import data_path
-    except ImportError:
-        return  # TODO: install skhep_testdata for tests
+    from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
 
-    branches = [b'pt1', b'pt2']  # b needed currently -> uproot
+    branches = ['pt1', 'pt2']
 
     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
 
-    data.initialize()
     x = data.value()
 
 
 def test_from_root():
-    try:
-        from skhep_testdata import data_path
-    except ImportError:
-        return  # TODO: install skhep_testdata for tests
+    from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
 
-    branches = [b'pt1', b'pt2']  # b needed currently -> uproot
+    branches = ['pt1', 'pt2']
+    f = uproot.open(path_root)
+    tree = f['events']
+
+    true_data = tree.pandas.df()
 
     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
-    data.initialize()
     x = data.value()
+    x_np = zfit.run(x)
+    np.testing.assert_allclose(x_np, true_data[branches].as_matrix())
 
 
 def test_from_numpy():

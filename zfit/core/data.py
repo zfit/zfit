@@ -216,7 +216,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             name (str):
 
         Returns:
-            zfit.core.data.Data:
+            zfit.Data:
         """
         if not isinstance(array, np.ndarray):
             raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
