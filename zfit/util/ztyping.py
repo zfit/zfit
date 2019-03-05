@@ -13,7 +13,7 @@ UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
 
 LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
 LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
-LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool]
+LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
 
 _IterLimitsTypeReturn = Union[Tuple['Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
@@ -60,4 +60,3 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
-

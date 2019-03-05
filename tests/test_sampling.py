@@ -3,6 +3,7 @@ import pytest
 
 import zfit
 from zfit import ztf
+from zfit.core.sample import accept_reject_sample
 
 mu_true = 1.5
 sigma_true = 1.2
@@ -110,3 +111,39 @@ def test_sampling_floating(gauss):
         sigma_sampled = np.std(sampled_gauss1_full)
         assert mu_sampled == pytest.approx(mu_true - 1, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+
+@pytest.mark.flaky(3)  # statistical
+def test_importance_sampling():
+    import tensorflow as tf
+
+    mu_sampler = 5.
+    sigma_sampler = 4.
+    mu_pdf = 4.
+    sigma_pdf = 1.
+
+    obs_sampler = zfit.Space(obs='obs1', limits=(4.5, 5.5))  # smaller, so pdf is bigger
+    obs_pdf = zfit.Space(obs='obs1', limits=(1, 9))
+    gauss_sampler = zfit.pdf.Gauss(mu=mu_sampler, sigma=sigma_sampler, obs=obs_sampler)
+    gauss_pdf = zfit.pdf.Gauss(mu=mu_pdf, sigma=sigma_pdf, obs=obs_pdf)
+
+    def gaussian_sample_and_weights(n_to_produce, limits, dtype):
+        gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits)
+        weights = gauss_sampler.pdf(gaussian_sample)
+        weights_max = tf.reduce_max(weights) * 0.7
+        thresholds = tf.random_uniform(shape=(n_to_produce,))
+        return gaussian_sample, thresholds, weights, weights_max
+
+    sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
+    gauss_pdf._sample_and_weights = gaussian_sample_and_weights
+    sample2 = gauss_pdf.sample(n=30000, limits=obs_pdf)
+    sample_np, sample_np2 = zfit.run([sample, sample2])
+
+    mean = np.mean(sample_np)
+    mean2 = np.mean(sample_np2)
+    std = np.std(sample_np)
+    std2 = np.std(sample_np2)
+    assert mean == pytest.approx(mu_pdf, rel=0.01)
+    assert mean2 == pytest.approx(mu_pdf, rel=0.01)
+    assert std == pytest.approx(sigma_pdf, rel=0.01)
+    assert std2 == pytest.approx(sigma_pdf, rel=0.01)

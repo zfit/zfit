@@ -1,5 +1,5 @@
 from contextlib import suppress
-import typing
+from typing import Callable, Union, Iterable, List
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -7,15 +7,41 @@ import numpy as np
 
 import zfit
 from zfit import ztf
+from zfit.core.interfaces import ZfitPDF
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
-from ..settings import ztypes
+from ..settings import ztypes, run
 
 
-def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
-                         sampler: typing.Callable = tf.random_uniform,
-                         dtype=ztypes.float, prob_max: typing.Union[None, int] = None,
+def uniform_sample_and_weights(n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
+    rnd_samples = []
+    thresholds_unscaled_list = []
+    weights = ztf.constant(1., shape=(1,))
+
+    for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
+        n_partial_to_produce = tf.to_int64(ztf.to_real(n_to_produce) * ztf.to_real(area))
+        lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
+        upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
+        sample_drawn = tf.random_uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
+                                         # + 1 dim for the function value
+                                         dtype=ztypes.float)
+        rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
+        thresholds_unscaled = sample_drawn[:, -1]
+        # if not multiple_limits:
+        #     return rnd_sample, thresholds_unscaled
+        rnd_samples.append(rnd_sample)
+        thresholds_unscaled_list.append(thresholds_unscaled)
+
+    rnd_sample = tf.concat(rnd_samples, axis=0)
+    thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
+
+    return rnd_sample, thresholds_unscaled, weights, weights
+
+
+def accept_reject_sample(prob: Callable, n: int, limits: Space,
+                         sample_and_weights: Callable = uniform_sample_and_weights,
+                         dtype=ztypes.float, prob_max: Union[None, int] = None,
                          efficiency_estimation: float = 1.0) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
@@ -24,8 +50,28 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
         limits (Space): The limits to sample from
-        sampler (function): A function taking n as an argument and returning value between
-            0 and 1
+        sample_and_weights (Callable): A function that returns the sample to insert into `prob` and the weights
+            (prob) of each sample together with the random thresholds. The API looks as follows:
+
+            - Parameters:
+
+                - n_to_produce (int, tf.Tensor): The number of events to produce.
+                - limits (Space): the limits in which the samples will be.
+                - dtype (dtype): DType of the output.
+
+            - Return:
+                A tuple of length 4:
+                - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample
+                    whose values are inside `limits`.
+                - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed
+                    random values **between 0 and 1**.
+                - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability
+                    for each sample of the distribution it was drawn from.
+                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is
+                    what the probability maximum will be scaled with, so it should be rather lower than the maximum
+                    if the peaks do not exactly coincide. Otherwise return None (which will **assume**
+                    that the peaks coincide).
+
         dtype ():
         prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
             is given, it will be automatically, safely estimated (by a 10% increase in computation time
@@ -35,33 +81,12 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
-    n_dims = limits.n_obs
     multiple_limits = limits.n_limits > 1
 
     # if limits.n_limits == 1:
     #     lower, upper = limits.limits
     #     lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
     #     upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
-
-    def random_sampling(n_to_produce):
-        rnd_samples = []
-        thresholds_unscaled_list = []
-        for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
-            n_partial_to_produce = tf.to_int64(ztf.to_real(n_to_produce) * ztf.to_real(area))
-            lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
-            upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
-            sample_drawn = sampler(shape=(n_partial_to_produce, n_dims + 1),  # + 1 dim for the function value
-                                   dtype=ztypes.float)
-            rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
-            thresholds_unscaled = sample_drawn[:, -1]
-            if not multiple_limits:
-                return rnd_sample, thresholds_unscaled
-            rnd_samples.append(rnd_sample)
-            thresholds_unscaled_list.append(thresholds_unscaled)
-
-        rnd_sample = tf.concat(rnd_samples, axis=0)
-        thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
-        return rnd_sample, thresholds_unscaled
 
     n = tf.to_int64(n)
 
@@ -83,14 +108,36 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
         n_total_drawn += n_to_produce
         n_total_drawn = tf.to_int64(n_total_drawn)
 
-        rnd_sample, thresholds_unscaled = random_sampling(n_to_produce)
+        rnd_sample, thresholds_unscaled, weights, weights_max = sample_and_weights(n_to_produce=n_to_produce,
+                                                                                   limits=limits,
+                                                                                   dtype=dtype)
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
-            prob_max_inferred = tf.reduce_max(probabilities)
+            # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
+            # correctly. A bug report on will be filled (WIP).
+            # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
+            # a value smaller by a factor of 1e-14
+            with tf.control_dependencies([probabilities]):
+                prob_max_inferred = tf.reduce_max(probabilities)
         else:
             prob_max_inferred = prob_max
-        random_thresholds = thresholds_unscaled * prob_max_inferred
-        take_or_not = probabilities > random_thresholds
+
+        if weights_max is None:
+            weights_max = tf.reduce_max(weights) * 0.99  # safety margin, also taking numericals into account
+
+        weights_scaled = prob_max_inferred / weights_max * weights
+        random_thresholds = thresholds_unscaled * weights_scaled
+        if run.numeric_checks:
+            assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
+                                                 message="Not all weights are >= probs so the sampling "
+                                                         "will be biased. If a custom `sample_and_weights` "
+                                                         "was used, make sure that either the shape of the "
+                                                         "custom sampler (resp. it's weights) overlap better "
+                                                         "or decrease the `max_weight`")]
+        else:
+            assert_op = []
+        with tf.control_dependencies(assert_op):
+            take_or_not = probabilities > random_thresholds
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=0)
@@ -121,7 +168,15 @@ def accept_reject_sample(prob: typing.Callable, n: int, limits: Space,
     return new_sample
 
 
-def extract_extended_pdfs(pdfs):
+def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitPDF]:
+    """Return all extended pdfs that are daughters.
+
+    Args:
+        pdfs (Iterable[pdfs]):
+
+    Returns:
+        List[pdfs]:
+    """
     from ..models.functor import BaseFunctor
 
     pdfs = convert_to_container(pdfs)
@@ -143,7 +198,16 @@ def extract_extended_pdfs(pdfs):
     return indep_pdfs
 
 
-def extended_sampling(pdfs, limits):
+def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) -> tf.Tensor:
+    """Create a sample from extended pdfs by sampling poissonian using the yield.
+
+    Args:
+        pdfs (iterable[ZfitPDF]):
+        limits (zfit.Space):
+
+    Returns:
+        Union[tf.Tensor]:
+    """
     samples = []
     pdfs = convert_to_container(pdfs)
     pdfs = extract_extended_pdfs(pdfs)
