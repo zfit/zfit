@@ -162,7 +162,7 @@
             
   <h1>Source code for zfit.core.sample</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
-<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
@@ -170,15 +170,41 @@
 
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="k">import</span> <span class="n">ZfitPDF</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 
 
-<div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
-                         <span class="n">sampler</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">,</span>
-                         <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">prob_max</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="uniform_sample_and_weights"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.uniform_sample_and_weights">[docs]</a><span class="k">def</span> <span class="nf">uniform_sample_and_weights</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+    <span class="n">rnd_samples</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">thresholds_unscaled_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="n">area</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_areas</span><span class="p">(</span><span class="n">rel</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+        <span class="n">n_partial_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">*</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">area</span><span class="p">))</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">sample_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_partial_to_produce</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                                         <span class="c1"># + 1 dim for the function value</span>
+                                         <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">+</span> <span class="n">lower</span>  <span class="c1"># -1: all except func value</span>
+        <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># if not multiple_limits:</span>
+        <span class="c1">#     return rnd_sample, thresholds_unscaled</span>
+        <span class="n">rnd_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
+        <span class="n">thresholds_unscaled_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thresholds_unscaled</span><span class="p">)</span>
+
+    <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rnd_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thresholds_unscaled_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights</span></div>
+
+
+<div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
+                         <span class="n">sample_and_weights</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">uniform_sample_and_weights</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">prob_max</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                          <span class="n">efficiency_estimation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Accept reject sample from a probability distribution.</span>
 
@@ -187,8 +213,28 @@
 <span class="sd">            (or anything that is proportional to the probability).</span>
 <span class="sd">        n (int): Number of samples to produce</span>
 <span class="sd">        limits (Space): The limits to sample from</span>
-<span class="sd">        sampler (function): A function taking n as an argument and returning value between</span>
-<span class="sd">            0 and 1</span>
+<span class="sd">        sample_and_weights (Callable): A function that returns the sample to insert into `prob` and the weights</span>
+<span class="sd">            (prob) of each sample together with the random thresholds. The API looks as follows:</span>
+
+<span class="sd">            - Parameters:</span>
+
+<span class="sd">                - n_to_produce (int, tf.Tensor): The number of events to produce.</span>
+<span class="sd">                - limits (Space): the limits in which the samples will be.</span>
+<span class="sd">                - dtype (dtype): DType of the output.</span>
+
+<span class="sd">            - Return:</span>
+<span class="sd">                A tuple of length 4:</span>
+<span class="sd">                - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample</span>
+<span class="sd">                    whose values are inside `limits`.</span>
+<span class="sd">                - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed</span>
+<span class="sd">                    random values **between 0 and 1**.</span>
+<span class="sd">                - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability</span>
+<span class="sd">                    for each sample of the distribution it was drawn from.</span>
+<span class="sd">                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</span>
+<span class="sd">                    what the probability maximum will be scaled with, so it should be rather lower than the maximum</span>
+<span class="sd">                    if the peaks do not exactly coincide. Otherwise return None (which will **assume**</span>
+<span class="sd">                    that the peaks coincide).</span>
+
 <span class="sd">        dtype ():</span>
 <span class="sd">        prob_max (Union[None, int]): The maximum of the model function for the given limits. If None</span>
 <span class="sd">            is given, it will be automatically, safely estimated (by a 10% increase in computation time</span>
@@ -198,33 +244,12 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tf.Tensor:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">n_dims</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span>
     <span class="n">multiple_limits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span>
 
     <span class="c1"># if limits.n_limits == 1:</span>
     <span class="c1">#     lower, upper = limits.limits</span>
     <span class="c1">#     lower = ztf.convert_to_tensor(lower[0], dtype=dtype)</span>
     <span class="c1">#     upper = ztf.convert_to_tensor(upper[0], dtype=dtype)</span>
-
-    <span class="k">def</span> <span class="nf">random_sampling</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">):</span>
-        <span class="n">rnd_samples</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">thresholds_unscaled_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="n">area</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_areas</span><span class="p">(</span><span class="n">rel</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
-            <span class="n">n_partial_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">*</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">area</span><span class="p">))</span>
-            <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-            <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-            <span class="n">sample_drawn</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_partial_to_produce</span><span class="p">,</span> <span class="n">n_dims</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># + 1 dim for the function value</span>
-                                   <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-            <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">+</span> <span class="n">lower</span>  <span class="c1"># -1: all except func value</span>
-            <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">sample_drawn</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">multiple_limits</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span>
-            <span class="n">rnd_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
-            <span class="n">thresholds_unscaled_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thresholds_unscaled</span><span class="p">)</span>
-
-        <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rnd_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thresholds_unscaled_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span>
 
     <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
@@ -246,14 +271,36 @@
         <span class="n">n_total_drawn</span> <span class="o">+=</span> <span class="n">n_to_produce</span>
         <span class="n">n_total_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">n_total_drawn</span><span class="p">)</span>
 
-        <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">random_sampling</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span>
+        <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span> <span class="o">=</span> <span class="n">sample_and_weights</span><span class="p">(</span><span class="n">n_to_produce</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">,</span>
+                                                                                   <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
+                                                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">probabilities</span> <span class="o">=</span> <span class="n">prob</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prob_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO(performance): estimate prob_max, after enough estimations -&gt; fix it?</span>
-            <span class="n">prob_max_inferred</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
+            <span class="c1"># TODO(Mayou36): This control dependency is needed because otherwise the max won&#39;t be determined</span>
+            <span class="c1"># correctly. A bug report on will be filled (WIP).</span>
+            <span class="c1"># The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns</span>
+            <span class="c1"># a value smaller by a factor of 1e-14</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">probabilities</span><span class="p">]):</span>
+                <span class="n">prob_max_inferred</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">prob_max_inferred</span> <span class="o">=</span> <span class="n">prob_max</span>
-        <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="n">prob_max_inferred</span>
-        <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">random_thresholds</span>
+
+        <span class="k">if</span> <span class="n">weights_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weights_max</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.99</span>  <span class="c1"># safety margin, also taking numericals into account</span>
+
+        <span class="n">weights_scaled</span> <span class="o">=</span> <span class="n">prob_max_inferred</span> <span class="o">/</span> <span class="n">weights_max</span> <span class="o">*</span> <span class="n">weights</span>
+        <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="n">weights_scaled</span>
+        <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
+            <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">assert_greater_equal</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
+                                                 <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Not all weights are &gt;= probs so the sampling &quot;</span>
+                                                         <span class="s2">&quot;will be biased. If a custom `sample_and_weights` &quot;</span>
+                                                         <span class="s2">&quot;was used, make sure that either the shape of the &quot;</span>
+                                                         <span class="s2">&quot;custom sampler (resp. it&#39;s weights) overlap better &quot;</span>
+                                                         <span class="s2">&quot;or decrease the `max_weight`&quot;</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">assert_op</span><span class="p">):</span>
+            <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">random_thresholds</span>
         <span class="c1"># rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample</span>
         <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">take_or_not</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">take_or_not</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">take_or_not</span>
         <span class="n">filtered_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">take_or_not</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -284,7 +331,15 @@
     <span class="k">return</span> <span class="n">new_sample</span></div>
 
 
-<div class="viewcode-block" id="extract_extended_pdfs"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extract_extended_pdfs">[docs]</a><span class="k">def</span> <span class="nf">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_extended_pdfs"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extract_extended_pdfs">[docs]</a><span class="k">def</span> <span class="nf">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">],</span> <span class="n">ZfitPDF</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Return all extended pdfs that are daughters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pdfs (Iterable[pdfs]):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[pdfs]:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">..models.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span>
 
     <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
@@ -306,7 +361,16 @@
     <span class="k">return</span> <span class="n">indep_pdfs</span></div>
 
 
-<div class="viewcode-block" id="extended_sampling"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extended_sampling">[docs]</a><span class="k">def</span> <span class="nf">extended_sampling</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+<div class="viewcode-block" id="extended_sampling"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.extended_sampling">[docs]</a><span class="k">def</span> <span class="nf">extended_sampling</span><span class="p">(</span><span class="n">pdfs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">],</span> <span class="n">ZfitPDF</span><span class="p">],</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create a sample from extended pdfs by sampling poissonian using the yield.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pdfs (iterable[ZfitPDF]):</span>
+<span class="sd">        limits (zfit.Space):</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Union[tf.Tensor]:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
     <span class="n">pdfs</span> <span class="o">=</span> <span class="n">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>

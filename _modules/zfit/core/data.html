@@ -163,7 +163,7 @@
   <h1>Source code for zfit.core.data</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">ExitStack</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -700,8 +700,19 @@
         <span class="k">return</span> <span class="n">Sampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span> <span class="n">sample_holder</span><span class="o">=</span><span class="n">sample_holder</span><span class="p">,</span>
                        <span class="n">n_holder</span><span class="o">=</span><span class="n">n_holder</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Sampler.resample"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.Sampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_values</span><span class="p">:</span> <span class="n">OrderedDict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Sampler.resample"><a class="viewcode-back" href="../../../zfit.core.data.html#zfit.core.data.Sampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the sample by newly sampling. This affects any object that used this data already.</span>
 
+<span class="sd">        All params that are not in the attribute `fixed_params` will use their current value for</span>
+<span class="sd">        the creation of the new sample. The value can also be overwritten for one sampling by providing</span>
+<span class="sd">        a mapping with `param_values` from `Parameter` to the temporary `value`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param_values (Dict): a mapping from `Parameter` to a `value`. For the current sampling,</span>
+<span class="sd">                `Parameter` will use the `value`.</span>
+<span class="sd">            n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with</span>
+<span class="sd">                anything else then a numerical or tf.Tensor, this can&#39;t be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">temp_param_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">param_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">temp_param_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param_values</span><span class="p">)</span>

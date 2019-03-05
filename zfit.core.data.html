@@ -186,7 +186,7 @@
 </table>
 <dl class="method">
 <dt id="zfit.core.data.Data.convert_sort_space">
-<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="_modules/zfit/core/data.html#Data.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="_modules/zfit/core/data.html#Data.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <cite>Space</cite> and sort them according to own <cite>obs</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -449,8 +449,26 @@ This allows to have different <cite>observable</cite> names, independent of the 
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.resample">
-<code class="descname">resample</code><span class="sig-paren">(</span><em>param_values: collections.OrderedDict = None</em>, <em>n=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Sampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.resample" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">resample</code><span class="sig-paren">(</span><em>param_values: Mapping = None</em>, <em>n: Union[int</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/data.html#Sampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the sample by newly sampling. This affects any object that used this data already.</p>
+<p>All params that are not in the attribute <cite>fixed_params</cite> will use their current value for
+the creation of the new sample. The value can also be overwritten for one sampling by providing
+a mapping with <cite>param_values</cite> from <cite>Parameter</cite> to the temporary <cite>value</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param_values</strong> (<em>Dict</em>) – a mapping from <cite>Parameter</cite> to a <cite>value</cite>. For the current sampling,
+<cite>Parameter</cite> will use the <cite>value</cite>.</li>
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em>) – the number of samples to produce. If the <cite>Sampler</cite> was created with
+anything else then a numerical or tf.Tensor, this can’t be used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 

@@ -212,7 +212,7 @@ also the advanced tutorials in <a class="reference external" href="https://githu
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitPDF</span></code></a>, <a class="reference internal" href="zfit.core.basemodel.html#zfit.core.basemodel.BaseModel" title="zfit.core.basemodel.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basemodel.BaseModel</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.basepdf.BasePDF.apply_yield">
-<code class="descname">apply_yield</code><span class="sig-paren">(</span><em>value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.apply_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_yield</code><span class="sig-paren">(</span><em>value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.apply_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -295,7 +295,7 @@ arguments to override with new value.</td>
 
 <dl class="method">
 <dt id="zfit.core.basepdf.BasePDF.create_projection_pdf">
-<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.create_projection_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.create_projection_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -416,7 +416,7 @@ arguments to override with new value.</td>
 
 <dl class="method">
 <dt id="zfit.core.basepdf.BasePDF.pdf">
-<code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.pdf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability density/mass function, normalized over <cite>norm_range</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -461,7 +461,7 @@ arguments to override with new value.</td>
 
 <dl class="method">
 <dt id="zfit.core.basepdf.BasePDF.unnormalized_pdf">
-<code class="descname">unnormalized_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.unnormalized_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unnormalized_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="_modules/zfit/core/basepdf.html#BasePDF.unnormalized_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basepdf.BasePDF.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

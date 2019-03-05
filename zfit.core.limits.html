@@ -217,7 +217,7 @@ the total area of your intervals. You can retrieve the total area or (if multipl
 
 <dl class="class">
 <dt id="zfit.core.limits.Space">
-<em class="property">class </em><code class="descclassname">zfit.core.limits.</code><code class="descname">Space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool, None] = None, name: Optional[str] = 'Space'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/limits.html#Space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Space" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.core.limits.</code><code class="descname">Space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space], limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool, None] = None, name: Optional[str] = 'Space'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/limits.html#Space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitSpace</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>Define a space with the name (<cite>obs</cite>) of the axes (and it’s number) and possibly it’s limits.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -327,7 +327,7 @@ current one.</li>
 
 <dl class="classmethod">
 <dt id="zfit.core.limits.Space.from_axes">
-<em class="property">classmethod </em><code class="descname">from_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool, None] = None, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.limits.Space<a class="reference internal" href="_modules/zfit/core/limits.html#Space.from_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Space.from_axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool, None] = None, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.limits.Space<a class="reference internal" href="_modules/zfit/core/limits.html#Space.from_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Space.from_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a space from <cite>axes</cite> instead of from <cite>obs</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -642,7 +642,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="method">
 <dt id="zfit.core.limits.Space.with_limits">
-<code class="descname">with_limits</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool], name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.limits.Space<a class="reference internal" href="_modules/zfit/core/limits.html#Space.with_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Space.with_limits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">with_limits</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool], name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.limits.Space<a class="reference internal" href="_modules/zfit/core/limits.html#Space.with_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Space.with_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of the space with the new <cite>limits</cite> (and the new <cite>name</cite>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -712,7 +712,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="function">
 <dt id="zfit.core.limits.convert_to_space">
-<code class="descclassname">zfit.core.limits.</code><code class="descname">convert_to_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space, None] = None, axes: Union[int, Iterable[int], None] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], bool, None] = None, *, overwrite_limits: bool = False, one_dim_limits_only: bool = True, simple_limits_only: bool = True</em><span class="sig-paren">)</span> &#x2192; Union[None, zfit.core.limits.Space, bool]<a class="reference internal" href="_modules/zfit/core/limits.html#convert_to_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.convert_to_space" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zfit.core.limits.</code><code class="descname">convert_to_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], Space, None] = None, axes: Union[int, Iterable[int], None] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool, None] = None, *, overwrite_limits: bool = False, one_dim_limits_only: bool = True, simple_limits_only: bool = True</em><span class="sig-paren">)</span> &#x2192; Union[None, zfit.core.limits.Space, bool]<a class="reference internal" href="_modules/zfit/core/limits.html#convert_to_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.convert_to_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert <em>limits</em> to a Space object if not already None or False.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
