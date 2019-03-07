@@ -132,7 +132,7 @@ def test_importance_sampling():
         weights = gauss_sampler.pdf(gaussian_sample)
         weights_max = tf.reduce_max(weights) * 0.7
         thresholds = tf.random_uniform(shape=(n_to_produce,))
-        return gaussian_sample, thresholds, weights, weights_max
+        return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
     gauss_pdf._sample_and_weights = gaussian_sample_and_weights

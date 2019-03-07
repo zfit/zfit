@@ -8,6 +8,7 @@ import numpy as np
 import zfit
 from zfit import ztf
 from zfit.core.interfaces import ZfitPDF
+from zfit.util.exception import ShapeIncompatibleError
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
@@ -36,7 +37,8 @@ def uniform_sample_and_weights(n_to_produce: Union[int, tf.Tensor], limits: Spac
     rnd_sample = tf.concat(rnd_samples, axis=0)
     thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
 
-    return rnd_sample, thresholds_unscaled, weights, weights
+    n_drawn = n_to_produce
+    return rnd_sample, thresholds_unscaled, weights, weights, n_drawn
 
 
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
@@ -55,22 +57,23 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
             - Parameters:
 
-                - n_to_produce (int, tf.Tensor): The number of events to produce.
+                - n_to_produce (int, tf.Tensor): The number of events to produce (not exactly).
                 - limits (Space): the limits in which the samples will be.
                 - dtype (dtype): DType of the output.
 
             - Return:
-                A tuple of length 4:
+                A tuple of length 5:
                 - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample
                     whose values are inside `limits`.
                 - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed
                     random values **between 0 and 1**.
                 - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability
                     for each sample of the distribution it was drawn from.
-                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is
+                - weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is
                     what the probability maximum will be scaled with, so it should be rather lower than the maximum
                     if the peaks do not exactly coincide. Otherwise return None (which will **assume**
                     that the peaks coincide).
+                - n_produced: the number of events produced. Can deviate from the requested number.
 
         dtype ():
         prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
@@ -105,12 +108,18 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
         # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
         n_to_produce = tf.minimum(n_to_produce, tf.to_int64(5e5))  # introduce a cap to force serial
-        n_total_drawn += n_to_produce
+
+        rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(n_to_produce=n_to_produce,
+                                                                                            limits=limits,
+                                                                                            dtype=dtype)
+
+        # if n_produced is None:
+        #     raise ShapeIncompatibleError("`sample_and_weights` has to return thresholds with a defined shape."
+        #                                  "Use `Tensor.set_shape()` if the automatic propagation of the shape "
+        #                                  "is not available.")
+        n_total_drawn += n_drawn
         n_total_drawn = tf.to_int64(n_total_drawn)
 
-        rnd_sample, thresholds_unscaled, weights, weights_max = sample_and_weights(n_to_produce=n_to_produce,
-                                                                                   limits=limits,
-                                                                                   dtype=dtype)
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
