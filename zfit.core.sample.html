@@ -182,7 +182,7 @@
 <ul>
 <li>Parameters:<blockquote>
 <div><ul>
-<li>n_to_produce (int, tf.Tensor): The number of events to produce.</li>
+<li>n_to_produce (int, tf.Tensor): The number of events to produce (not exactly).</li>
 <li>limits (Space): the limits in which the samples will be.</li>
 <li>dtype (dtype): DType of the output.</li>
 </ul>
@@ -190,10 +190,10 @@
 </li>
 <li><dl class="first docutils">
 <dt>Return:</dt>
-<dd>A tuple of length 4:
+<dd>A tuple of length 5:
 - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample<blockquote>
 <div>whose values are inside <cite>limits</cite>.</div></blockquote>
-<ul>
+<ul class="last">
 <li><dl class="first docutils">
 <dt>thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed</dt>
 <dd>random values <strong>between 0 and 1</strong>.</dd>
@@ -204,15 +204,15 @@
 <dd>for each sample of the distribution it was drawn from.</dd>
 </dl>
 </li>
-</ul>
-<blockquote class="last">
-<div><dl class="docutils">
+<li><dl class="first docutils">
 <dt>weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</dt>
 <dd>what the probability maximum will be scaled with, so it should be rather lower than the maximum
 if the peaks do not exactly coincide. Otherwise return None (which will <strong>assume</strong>
 that the peaks coincide).</dd>
 </dl>
-</div></blockquote>
+</li>
+<li>n_produced: the number of events produced. Can deviate from the requested number.</li>
+</ul>
 </dd>
 </dl>
 </li>

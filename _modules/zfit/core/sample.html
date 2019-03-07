@@ -171,6 +171,7 @@
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="k">import</span> <span class="n">ZfitPDF</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">ShapeIncompatibleError</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span>
@@ -199,7 +200,8 @@
     <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rnd_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thresholds_unscaled_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights</span></div>
+    <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">n_to_produce</span>
+    <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">n_drawn</span></div>
 
 
 <div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
@@ -218,22 +220,23 @@
 
 <span class="sd">            - Parameters:</span>
 
-<span class="sd">                - n_to_produce (int, tf.Tensor): The number of events to produce.</span>
+<span class="sd">                - n_to_produce (int, tf.Tensor): The number of events to produce (not exactly).</span>
 <span class="sd">                - limits (Space): the limits in which the samples will be.</span>
 <span class="sd">                - dtype (dtype): DType of the output.</span>
 
 <span class="sd">            - Return:</span>
-<span class="sd">                A tuple of length 4:</span>
+<span class="sd">                A tuple of length 5:</span>
 <span class="sd">                - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample</span>
 <span class="sd">                    whose values are inside `limits`.</span>
 <span class="sd">                - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed</span>
 <span class="sd">                    random values **between 0 and 1**.</span>
 <span class="sd">                - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability</span>
 <span class="sd">                    for each sample of the distribution it was drawn from.</span>
-<span class="sd">                 weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</span>
+<span class="sd">                - weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</span>
 <span class="sd">                    what the probability maximum will be scaled with, so it should be rather lower than the maximum</span>
 <span class="sd">                    if the peaks do not exactly coincide. Otherwise return None (which will **assume**</span>
 <span class="sd">                    that the peaks coincide).</span>
+<span class="sd">                - n_produced: the number of events produced. Can deviate from the requested number.</span>
 
 <span class="sd">        dtype ():</span>
 <span class="sd">        prob_max (Union[None, int]): The maximum of the model function for the given limits. If None</span>
@@ -268,12 +271,18 @@
             <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">/</span> <span class="n">eff</span> <span class="o">*</span> <span class="mf">1.01</span><span class="p">)</span> <span class="o">+</span> <span class="mi">100</span>  <span class="c1"># just to make sure</span>
         <span class="c1"># TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)</span>
         <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="mf">5e5</span><span class="p">))</span>  <span class="c1"># introduce a cap to force serial</span>
-        <span class="n">n_total_drawn</span> <span class="o">+=</span> <span class="n">n_to_produce</span>
+
+        <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span><span class="p">,</span> <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">sample_and_weights</span><span class="p">(</span><span class="n">n_to_produce</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">,</span>
+                                                                                            <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
+                                                                                            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="c1"># if n_produced is None:</span>
+        <span class="c1">#     raise ShapeIncompatibleError(&quot;`sample_and_weights` has to return thresholds with a defined shape.&quot;</span>
+        <span class="c1">#                                  &quot;Use `Tensor.set_shape()` if the automatic propagation of the shape &quot;</span>
+        <span class="c1">#                                  &quot;is not available.&quot;)</span>
+        <span class="n">n_total_drawn</span> <span class="o">+=</span> <span class="n">n_drawn</span>
         <span class="n">n_total_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int64</span><span class="p">(</span><span class="n">n_total_drawn</span><span class="p">)</span>
 
-        <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span> <span class="o">=</span> <span class="n">sample_and_weights</span><span class="p">(</span><span class="n">n_to_produce</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">,</span>
-                                                                                   <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
-                                                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">probabilities</span> <span class="o">=</span> <span class="n">prob</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prob_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO(performance): estimate prob_max, after enough estimations -&gt; fix it?</span>
             <span class="c1"># TODO(Mayou36): This control dependency is needed because otherwise the max won&#39;t be determined</span>
