@@ -126,7 +126,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # correctly. A bug report on will be filled (WIP).
             # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
             # a value smaller by a factor of 1e-14
-            with tf.control_dependencies([probabilities]):
+            # with tf.control_dependencies([probabilities]):
+            # UPDATE: this works now? Was it just a one-time bug?
                 prob_max_inferred = tf.reduce_max(probabilities)
         else:
             prob_max_inferred = prob_max
