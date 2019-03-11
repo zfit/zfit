@@ -15,7 +15,7 @@ from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError
 from zfit.settings import ztypes
 
 
-def _unbinned_nll_tf(model: ZfitPDF, data: ZfitData, fit_range: ZfitSpace):
+def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
@@ -48,6 +48,8 @@ def _unbinned_nll_tf(model: ZfitPDF, data: ZfitData, fit_range: ZfitSpace):
             if model.is_extended:
                 probs /= model.get_yield()
         log_probs = tf.log(probs)
+        if data.weights is not None:
+            log_probs *= data.weights
         nll = -tf.reduce_sum(log_probs)
         nll_finished = nll
     return nll_finished

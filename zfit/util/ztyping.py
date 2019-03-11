@@ -30,9 +30,18 @@ SpaceTypeReturn = "zfit.Space"
 
 # Data
 XType = Union[float, tf.Tensor]
-XTypeInput = Union[np.ndarray, tf.Tensor, "Data"]
-XTypeReturn = Union[tf.Tensor, "Data"]
+XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.Data"]
+XTypeReturn = Union[tf.Tensor, "zfit.Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
+
+DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]
+
+# Models
+ModelsInputType = Union['ZfitModel', Iterable['ZfitModel']]
+
+PDFInputType = Union['ZfitPDF', Iterable['ZfitPDF']]
+
+FuncInputType = Union['ZfitFunc', Iterable['ZfitFunc']]
 
 NumericalScalarType = Union[int, float, complex, tf.Tensor]
 
