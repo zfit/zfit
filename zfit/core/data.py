@@ -209,20 +209,22 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             else:
                 branches_with_weights = branches
             data = root_tree.arrays(branches_with_weights, namedecode="utf-8")
-            data = np.array([data[branch] for branch in branches])
+            data_np = np.array([data[branch] for branch in branches])
             if weights_are_branch:
                 weights_np = data[weights]
             else:
                 weights_np = None
-            return data.transpose(), weights_np
+            return data_np.transpose(), weights_np
 
         data, weights_np = uproot_loader()
+        if not weights_are_branch:
+            weights_np = weights
         shape = data.shape
         dataset = LightDataset.from_tensor(data)
 
         # dataset = dataset.repeat()
         obs = [branches_alias.get(branch, branch) for branch in branches]
-        return Data(dataset=dataset, obs=obs, weights=weights, name=name)
+        return Data(dataset=dataset, obs=obs, weights=weights_np, name=name)
 
     @classmethod
     def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, name: str = None):

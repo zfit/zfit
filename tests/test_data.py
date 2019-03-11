@@ -27,29 +27,53 @@ def test_from_root_iter():
     x = data.value()
 
 
-def test_from_root():
+@pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),
+                                     np.random.normal(size=1000), 'eta1'])
+def test_from_root(weights):
     from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
 
-    branches = ['pt1', 'pt2']
+    branches = ['pt1', 'pt2', "phi2"]
     f = uproot.open(path_root)
     tree = f['events']
 
     true_data = tree.pandas.df()
 
-    data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
+    data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches, weights=weights)
     x = data.value()
     x_np = zfit.run(x)
+    if weights is not None:
+        weights_np = zfit.run(data.weights)
+    else:
+        weights_np = weights
     np.testing.assert_allclose(x_np, true_data[branches].as_matrix())
+    if weights is not None:
+        true_weights = weights if not isinstance(weights, str) else true_data[weights].as_matrix()
+        if isinstance(true_weights, tf.Tensor):
+            true_weights = zfit.run(true_weights)
+        np.testing.assert_allclose(weights_np, true_weights)
+    else:
+        assert weights_np is None
 
 
-def test_from_numpy():
+@pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),
+                                     np.random.normal(size=1000)])
+def test_from_numpy(weights):
     example_data = np.random.random(size=(1000, len(obs1)))
-    data = zfit.data.Data.from_numpy(obs=obs1, array=example_data)
+    data = zfit.data.Data.from_numpy(obs=obs1, array=example_data, weights=weights)
     x = data.value()
+    weights_from_data = data.weights
+    if weights_from_data is not None:
+        weights_from_data = zfit.run(weights_from_data)
     x_np = zfit.run(x)
     np.testing.assert_array_equal(example_data, x_np)
+    if isinstance(weights, tf.Tensor):
+        weights = zfit.run(weights)
+    if weights is not None:
+        np.testing.assert_allclose(weights_from_data, weights)
+    else:
+        assert weights_from_data is None
 
 
 def test_from_to_pandas():
@@ -72,12 +96,25 @@ def test_from_to_pandas():
     assert all(df == example_data)
 
 
-def test_from_tensors():
-    data = zfit.data.Data.from_tensor(obs='obs1', tensor=tf.random_normal(shape=(100,), dtype=tf.float64))
-    # data.initialize(sess=zfit.sess)
+@pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),
+                                     np.random.normal(size=1000)])
+def test_from_tensors(weights):
+    true_tensor = 42. * tf.ones(shape=(1000, 1), dtype=tf.float64)
+    data = zfit.data.Data.from_tensor(obs='obs1', tensor=true_tensor,
+                                      weights=weights)
 
+    weights_data = data.weights
     x = data.value()
-    zfit.run(x)
+    x_np = zfit.run(x)
+    if isinstance(weights, tf.Tensor):
+        weights = zfit.run(weights)
+
+    np.testing.assert_allclose(x_np, zfit.run(true_tensor))
+    if weights is not None:
+        weights_data = zfit.run(weights_data)
+        np.testing.assert_allclose(weights_data, weights)
+    else:
+        assert weights is None
 
 
 # def test_values():
