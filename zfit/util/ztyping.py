@@ -36,6 +36,9 @@ NumericalTypeReturn = Union[tf.Tensor, np.array]
 
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]
 
+WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]
+WeightsInputType = Union[tf.Tensor, None, np.ndarray]
+
 # Models
 ModelsInputType = Union['ZfitModel', Iterable['ZfitModel']]
 
@@ -69,3 +72,4 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
+

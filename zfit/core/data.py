@@ -103,10 +103,18 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return self._weights
 
     @invalidates_cache
-    def set_weights(self, weights):
+    def set_weights(self, weights: ztyping.WeightsInputType):
+        """Set (temporarily) the weights of the dataset.
+
+        Args:
+            weights (`tf.Tensor`, np.ndarray, None):
+
+
+        """
         if weights is not None:
             weights = ztf.convert_to_tensor(weights)
-            if not len(weights.shape) == 1:
+            weights = ztf.to_real(weights)
+            if weights.shape.ndims != 1:
                 raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
 
         def setter(value):
@@ -177,7 +185,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
-                  name: str = None, weights=None,
+                  name: str = None,
+                  weights: ztyping.WeightsStrInputType = None,
                   root_dir_options=None) -> "Data":
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
@@ -187,6 +196,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             branches (List[str]]):
             branches_alias (dict): A mapping from the `branches` (as keys) to the actual `observables` (as values).
                 This allows to have different `observable` names, independent of the branch name in the file.
+            weights (tf.Tensor, None, np.ndarray, str]): Weights of the data. Has to be 1-D and match the shape
+                of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
+                column.
             name (str):
             root_dir_options ():
 
@@ -227,21 +239,25 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, weights=weights_np, name=name)
 
     @classmethod
-    def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, name: str = None):
+    def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, weights: ztyping.WeightsInputType = None,
+                    name: str = None):
         """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
 
         Args:
             df (`pandas.DataFrame`):
+            weights (tf.Tensor, None, np.ndarray, str]): Weights of the data. Has to be 1-D and match the shape
+                of the data (nevents).
             obs (`zfit.Space`):
             name (str):
         """
         if obs is None:
             obs = list(df.columns)
         array = df.values
-        return cls.from_numpy(obs=obs, array=array, name=name)
+        return cls.from_numpy(obs=obs, array=array, weights=weights, name=name)
 
     @classmethod
-    def from_numpy(cls, obs: ztyping.ObsTypeInput, array: np.ndarray, name: str = None, weights=None):
+    def from_numpy(cls, obs: ztyping.ObsTypeInput, array: np.ndarray, weights: ztyping.WeightsInputType = None,
+                   name: str = None):
         """Create `Data` from a `np.array`.
 
         Args:
@@ -263,7 +279,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None, weights=None) -> "Data":
+    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None,
+                    weights: ztyping.WeightsInputType = None) -> "Data":
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
         Args:
