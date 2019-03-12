@@ -65,7 +65,6 @@ def test_unbinned_simultaneous_nll():
                                        data=[test_values, test_values2],
                                        fit_range=[(-np.infty, np.infty), (-np.infty, np.infty)]
                                        )
-    # nll_eval = zfit.run(nll)
     minimizer = MinuitMinimizer()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
     params = status.params

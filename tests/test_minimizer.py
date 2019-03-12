@@ -50,7 +50,7 @@ def minimize_func(minimizer_class_and_kwargs):
     true_minimum = zfit.run(loss.value())
 
     parameter_tolerance = 0.25  # percent
-    max_distance_to_min = 5.
+    max_distance_to_min = 10.
 
     for param in [a_param, b_param, c_param]:
         zfit.run(param.initializer)  # reset the value
