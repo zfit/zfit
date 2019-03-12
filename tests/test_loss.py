@@ -75,8 +75,8 @@ def test_unbinned_simultaneous_nll():
     assert params[sigma2]['value'] == pytest.approx(np.std(test_values_np2), rel=0.005)
 
 
-@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.5, size=test_values_np.shape[0])])
 @pytest.mark.flaky(3)
+@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.5, size=test_values_np.shape[0])])
 def test_unbinned_nll(weights):
     test_values = tf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
