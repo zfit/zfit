@@ -217,6 +217,7 @@
 
 
 <div class="viewcode-block" id="ZfitData"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitData">[docs]</a><span class="k">class</span> <span class="nc">ZfitData</span><span class="p">(</span><span class="n">ZfitDimensional</span><span class="p">):</span>
+
 <div class="viewcode-block" id="ZfitData.value"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitData.value">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
@@ -227,7 +228,12 @@
 
 <div class="viewcode-block" id="ZfitData.sort_by_axes"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitData.sort_by_axes">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="ZfitSpace"><a class="viewcode-back" href="../../../zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace">[docs]</a><span class="k">class</span> <span class="nc">ZfitSpace</span><span class="p">(</span><span class="n">ZfitObject</span><span class="p">):</span>

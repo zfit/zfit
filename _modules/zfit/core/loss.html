@@ -178,14 +178,13 @@
 <span class="kn">from</span> <span class="nn">zfit.settings</span> <span class="k">import</span> <span class="n">ztypes</span>
 
 
-<span class="k">def</span> <span class="nf">_unbinned_nll_tf</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_unbinned_nll_tf</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">PDFInputType</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DataInputType</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return unbinned negative log likelihood graph for a PDF</span>
 
 <span class="sd">    Args:</span>
+<span class="sd">        model (ZfitModel): PDFs with a `.pdf` method. Has to be as many models as data</span>
+<span class="sd">        data (ZfitData):</span>
 <span class="sd">        fit_range ():</span>
-<span class="sd">        model (Tensor): The probabilities</span>
-<span class="sd">        constraints (dict): A dictionary containing the constraints for certain parameters. The key</span>
-<span class="sd">            is the parameter while the value is a pdf with at least a `pdf(x)` method.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        graph: the unbinned nll</span>
@@ -198,19 +197,16 @@
         <span class="n">nlls</span> <span class="o">=</span> <span class="p">[</span><span class="n">_unbinned_nll_tf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">)]</span>
         <span class="n">nll_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">nlls</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># TODO: complicated limits?</span>
+    <span class="k">else</span><span class="p">:</span>
         <span class="n">fit_range</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">fit_range</span><span class="p">)</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="n">fit_range</span><span class="o">.</span><span class="n">limits</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;multiple limits not (yet) supported in nll.&quot;</span>
 
-        <span class="c1"># TODO(Mayou36): implement properly data cutting</span>
-        <span class="c1"># in_limits = tf.logical_and(lower &lt;= data, data &lt;= upper)</span>
-        <span class="c1"># data = tf.boolean_mask(tensor=data, mask=in_limits)</span>
         <span class="k">with</span> <span class="n">data</span><span class="o">.</span><span class="n">set_data_range</span><span class="p">(</span><span class="n">fit_range</span><span class="p">):</span>
             <span class="n">probs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
                 <span class="n">probs</span> <span class="o">/=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span>
         <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log_probs</span> <span class="o">*=</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span>  <span class="c1"># because it&#39;s prob ** weights</span>
         <span class="n">nll</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">log_probs</span><span class="p">)</span>
         <span class="n">nll_finished</span> <span class="o">=</span> <span class="n">nll</span>
     <span class="k">return</span> <span class="n">nll_finished</span>

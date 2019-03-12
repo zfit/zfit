@@ -163,10 +163,12 @@
   <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">WeightsNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">zfit.util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="k">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="k">import</span> <span class="n">ParamsTypeOpt</span>
@@ -179,6 +181,11 @@
     <span class="k">if</span> <span class="n">sigma</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sigma other then 1 is not valid for minuit hesse.&quot;</span><span class="p">)</span>
     <span class="n">fitresult</span> <span class="o">=</span> <span class="n">result</span>
+
+    <span class="c1"># check if no weights in data</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="n">WeightsNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Weights are not supported with minuit hesse.&quot;</span><span class="p">)</span>
+
     <span class="n">minimizer</span> <span class="o">=</span> <span class="n">fitresult</span><span class="o">.</span><span class="n">minimizer</span>
     <span class="kn">from</span> <span class="nn">zfit.minimizers.minimizer_minuit</span> <span class="k">import</span> <span class="n">MinuitMinimizer</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">MinuitMinimizer</span><span class="p">):</span>
@@ -274,6 +281,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO(Mayou36): this is currently a reference, should be a copy of the loss?</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span>
 
     <span class="nd">@property</span>

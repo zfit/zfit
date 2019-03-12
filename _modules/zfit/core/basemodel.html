@@ -969,7 +969,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="BaseModel.sample"><a class="viewcode-back" href="../../../zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">nSamplingTypeIn</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-               <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+               <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SampleData</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Sample `n` points within `limits` from the model.</span>
 
 <span class="sd">        If `limits` is not specified, `space` is used (if the space contains limits).</span>
