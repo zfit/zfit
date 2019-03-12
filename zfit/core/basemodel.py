@@ -806,7 +806,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         raise NotImplementedError
 
     def sample(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
-               name: str = "sample") -> ztyping.XType:
+               name: str = "sample") -> SampleData:
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
