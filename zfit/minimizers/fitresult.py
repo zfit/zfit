@@ -1,9 +1,11 @@
 from collections import OrderedDict, defaultdict
 from typing import Dict, Union, Callable, Optional
+import warnings
 
 import tensorflow as tf
 
 import zfit
+from zfit.util.exception import WeightsNotImplementedError
 from zfit.util.execution import SessionHolderMixin
 from .interface import ZfitMinimizer, ZfitResult
 from ..util.ztyping import ParamsTypeOpt
@@ -16,6 +18,11 @@ def _hesse_minuit(result: "FitResult", params, sigma=1.0):
     if sigma != 1.0:
         raise ValueError("sigma other then 1 is not valid for minuit hesse.")
     fitresult = result
+
+    # check if no weights in data
+    if any([data.weights is not None for data in result.loss.data]):
+        raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
+
     minimizer = fitresult.minimizer
     from zfit.minimizers.minimizer_minuit import MinuitMinimizer
     if not isinstance(minimizer, MinuitMinimizer):
@@ -111,6 +118,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
 
     @property
     def loss(self):
+        # TODO(Mayou36): this is currently a reference, should be a copy of the loss?
         return self._loss
 
     @property

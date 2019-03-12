@@ -103,6 +103,11 @@ class ModelIncompatibleError(IncompatibleError):
     pass
 
 
+# Data errors
+class WeightsNotImplementedError(Exception):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):

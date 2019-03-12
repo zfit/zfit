@@ -54,6 +54,7 @@ class ZfitDimensional(ZfitObject):
 
 
 class ZfitData(ZfitDimensional):
+
     @abc.abstractmethod
     def value(self, obs: List[str] = None) -> ztyping.XType:
         raise NotImplementedError
@@ -64,6 +65,11 @@ class ZfitData(ZfitDimensional):
 
     @abc.abstractmethod
     def sort_by_axes(self, axes, allow_superset: bool = False):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def weights(self):
         raise NotImplementedError
 
 

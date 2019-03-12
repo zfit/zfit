@@ -13,7 +13,7 @@ UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
 
 LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
 LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
-LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[float, float]], bool]
+LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
 
 _IterLimitsTypeReturn = Union[Tuple['Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
@@ -30,9 +30,18 @@ SpaceTypeReturn = "zfit.Space"
 
 # Data
 XType = Union[float, tf.Tensor]
-XTypeInput = Union[np.ndarray, tf.Tensor, "Data"]
-XTypeReturn = Union[tf.Tensor, "Data"]
+XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.Data"]
+XTypeReturn = Union[tf.Tensor, "zfit.Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
+
+DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]
+
+# Models
+ModelsInputType = Union['ZfitModel', Iterable['ZfitModel']]
+
+PDFInputType = Union['ZfitPDF', Iterable['ZfitPDF']]
+
+FuncInputType = Union['ZfitFunc', Iterable['ZfitFunc']]
 
 NumericalScalarType = Union[int, float, complex, tf.Tensor]
 

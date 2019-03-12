@@ -15,14 +15,13 @@ from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError
 from zfit.settings import ztypes
 
 
-def _unbinned_nll_tf(model: ZfitPDF, data: ZfitData, fit_range: ZfitSpace):
+def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
+        model (ZfitModel): PDFs with a `.pdf` method. Has to be as many models as data
+        data (ZfitData):
         fit_range ():
-        model (Tensor): The probabilities
-        constraints (dict): A dictionary containing the constraints for certain parameters. The key
-            is the parameter while the value is a pdf with at least a `pdf(x)` method.
 
     Returns:
         graph: the unbinned nll
@@ -35,19 +34,16 @@ def _unbinned_nll_tf(model: ZfitPDF, data: ZfitData, fit_range: ZfitSpace):
         nlls = [_unbinned_nll_tf(model=p, data=d, fit_range=r)
                 for p, d, r in zip(model, data, fit_range)]
         nll_finished = tf.reduce_sum(nlls)
-    else:  # TODO: complicated limits?
+    else:
         fit_range = model.convert_sort_space(fit_range)
-        limits = fit_range.limits
-        assert len(limits[0]) == 1, "multiple limits not (yet) supported in nll."
 
-        # TODO(Mayou36): implement properly data cutting
-        # in_limits = tf.logical_and(lower <= data, data <= upper)
-        # data = tf.boolean_mask(tensor=data, mask=in_limits)
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
             if model.is_extended:
                 probs /= model.get_yield()
         log_probs = tf.log(probs)
+        if data.weights is not None:
+            log_probs *= data.weights  # because it's prob ** weights
         nll = -tf.reduce_sum(log_probs)
         nll_finished = nll
     return nll_finished

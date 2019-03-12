@@ -132,7 +132,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         status = -999
         converged = result[0]['is_valid']
         params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
-        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss_val,
+        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
                            status=status, converged=converged,
                            minimizer=self.copy())
         return result
