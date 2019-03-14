@@ -4,7 +4,7 @@ from zfit import ztf
 
 
 class CustomPDF2D(zfit.pdf.BasePDF):
-    """My custom, 2 dimensional pdf. The order of data is as follows: Energy, Momentum.
+    """My custom, 2 dimensional pdf. The axes are: Energy, Momentum.
 
     """
 
