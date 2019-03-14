@@ -15,4 +15,5 @@ exponential = zfit.pdf.Exponential(lambd, obs=obs)
 
 # two equivalent ways to create a sum with a fraction
 sum_pdf = frac * gauss + exponential
-sum_class = zfit.pdf.SumPDF([gauss, exponential], fracs=frac, obs=obs)
+# OR
+sum_class = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)

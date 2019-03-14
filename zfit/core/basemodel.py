@@ -350,7 +350,17 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """Register an analytic integral with the class.
 
         Args:
-            func (callable):
+            func (callable): A function that calculates the (partial) integral over the axes `limits`.
+                The signature has to be the following:
+
+                    x (ZfitData, None): the data for the remaining axes in a partial integral. If it
+                        is not a partial integral, this will be None.
+                    limits (Space): the limits to integrate over.
+                    norm_range (Space, None): Normalization range of the integral.
+                        If not `supports_supports_norm_range`, this will be None
+                    params (Dict[param_name, `zfit.Parameters`]): The parameters of the model.
+                    model (`ZfitModel`):The model that is being integrated
+
             limits (): |limits_arg_descr|
             priority (int):
             supports_multiple_limits (bool):

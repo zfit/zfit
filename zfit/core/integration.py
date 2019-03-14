@@ -477,13 +477,16 @@ class AnalyticIntegral:
                 "Integral is available for axes {}, but not for limits {}".format(axes, limits))
 
         if x is None:
-            integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
+            try:
+                integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
+            except TypeError:
+                integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
         else:
             integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
         return integral
 
 
-class Integral(object):  # TODO analytic integral
+class Integral:  # TODO analytic integral
     def __init__(self, func: Callable, limits: "Space", priority: Union[int, float]):
         """A lightweight holder for the integral function."""
         self.limits = limits
@@ -501,23 +504,3 @@ class Integration:
     def __init__(self, mc_sampler, draws_per_dim):
         self.mc_sampler = mc_sampler
         self.draws_per_dim = draws_per_dim
-
-
-if __name__ == '__main__':
-    def my_fn1(x):
-        if isinstance(x, tf.Tensor):
-            x = ztf.unstack_x(x)
-        w, x, y, z, l = x
-        # return x ** 2 + 0.1 * y ** 2 + 0.01 * z ** 2 + 0.001 * w ** 2 + 0.0001 * l ** 2
-        return w + x
-
-
-    import tensorflow_probability as tfp
-
-    res = mc_integrate(func=my_fn1, limits=(0., 5.), axes=(1, 3), draws_per_dim=1000,
-                       x=tf.constant([[i, i, i] for i in range(1, 6)]),
-                       mc_sampler=tfp.mcmc.sample_halton_sequence)
-
-    with tf.Session() as sess:
-        res = sess.run(res)
-        print(res)

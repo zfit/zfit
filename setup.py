@@ -50,7 +50,7 @@ setup(
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='zfit',
-    name='Zfit',
+    name='zfit',
     python_requires=">=3.5",
     packages=find_packages(include=['zfit', 'zfit.ztf',
                                     'zfit.util', 'zfit.core', "zfit.minimizers", 'zfit.models']),

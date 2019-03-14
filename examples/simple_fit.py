@@ -8,11 +8,12 @@ obs = zfit.Space("x", limits=(-10, 10))
 mu = zfit.Parameter("mu", 1., -4, 6)
 sigma = zfit.Parameter("sigma", 1., 0.1, 10)
 
-# pdf creation
+# model building, pdf creation
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 
 # data
-data = zfit.data.Data.from_numpy(obs=obs, array=np.random.normal(loc=2., scale=3., size=10000))
+normal_np = np.random.normal(loc=2., scale=3., size=10000)
+data = zfit.data.Data.from_numpy(obs=obs, array=normal_np)
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
