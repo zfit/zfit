@@ -20,9 +20,3 @@ Welcome to zfit's documentation!
    contributing
    authors
    history
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
