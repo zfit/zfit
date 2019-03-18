@@ -26,7 +26,6 @@ import sphinx_bootstrap_theme
 sys.path.insert(0, os.path.abspath('..'))
 
 import zfit
-import sphinx_rtd_theme
 
 here = os.path.abspath(os.path.dirname(__file__))
 
