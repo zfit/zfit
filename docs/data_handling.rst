@@ -13,7 +13,7 @@ With the proliferation of the ROOT framework in the context of particle physics,
 
 .. code-block:: python
     data = zfit.data.Data.from_root(root_file, root_tree, branches)
-
+    
 where `root_file` is the path to the ROOT file, `root_tree` is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.
 
 From the default conversion of the dataset there are two optional funcionalities for the user, i.e. the use of weights and the rename of the specified branches. The nominal structure follows: 
