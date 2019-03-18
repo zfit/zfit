@@ -128,7 +128,8 @@ html_theme_options = {
     'navbar_title': "zfit",
 
     # Tab name for entire site. (Default: "Site")
-    'navbar_site_name': "Docs",
+    # 'navbar_site_name': "Docs",
+    # 'navbar_site_name': "Overview",
 
     # A list of tuples containing pages or urls to link to.
     # Valid tuples should be in the following forms:
@@ -150,7 +151,7 @@ html_theme_options = {
         ],
 
     # Render the next and previous page links in navbar. (Default: true)
-    'navbar_sidebarrel': True,
+    'navbar_sidebarrel': False,
 
     # Render the current pages TOC in the navbar. (Default: true)
     'navbar_pagenav': False,
