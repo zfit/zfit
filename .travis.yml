@@ -29,6 +29,7 @@ script:
     - . utils/ci/testbuild_docs.sh
 
 after_success:
+    - pip install -r requirements_dev.txt
     - pip install coveralls
     - coveralls
 
@@ -51,7 +52,8 @@ deploy:
       local_dir: docs/api/_build/html
       keep-history: true
       on:
-          branch: develop
+          #          TODO: change branch below to develop
+          branch: docs
           condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
 
 
