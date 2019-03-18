@@ -106,4 +106,3 @@ with gauss.set_norm_range((-1e6, 1e6)):  # play around with different norm range
     print(zfit.run(gauss.integrate((-3, 3))))
     print(zfit.run(gauss.integrate((-100, 100))))
     
-    
