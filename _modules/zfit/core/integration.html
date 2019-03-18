@@ -640,13 +640,16 @@
                 <span class="s2">&quot;Integral is available for axes </span><span class="si">{}</span><span class="s2">, but not for limits </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">limits</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">integral_fn</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">integral</span> <span class="o">=</span> <span class="n">integral_fn</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">integral</span> <span class="o">=</span> <span class="n">integral_fn</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">integral_fn</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span></div></div>
 
 
-<div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../zfit.core.integration.html#zfit.core.integration.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>  <span class="c1"># TODO analytic integral</span>
+<div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../zfit.core.integration.html#zfit.core.integration.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">:</span>  <span class="c1"># TODO analytic integral</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="s2">&quot;Space&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;A lightweight holder for the integral function.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span>
@@ -664,26 +667,6 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mc_sampler</span> <span class="o">=</span> <span class="n">mc_sampler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draws_per_dim</span> <span class="o">=</span> <span class="n">draws_per_dim</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">my_fn1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">x</span>
-        <span class="c1"># return x ** 2 + 0.1 * y ** 2 + 0.01 * z ** 2 + 0.001 * w ** 2 + 0.0001 * l ** 2</span>
-        <span class="k">return</span> <span class="n">w</span> <span class="o">+</span> <span class="n">x</span>
-
-
-    <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
-
-    <span class="n">res</span> <span class="o">=</span> <span class="n">mc_integrate</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">my_fn1</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">draws_per_dim</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-                       <span class="n">x</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]),</span>
-                       <span class="n">mc_sampler</span><span class="o">=</span><span class="n">tfp</span><span class="o">.</span><span class="n">mcmc</span><span class="o">.</span><span class="n">sample_halton_sequence</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
 </pre></div>
 
            </div>

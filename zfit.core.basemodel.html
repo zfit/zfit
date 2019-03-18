@@ -458,7 +458,21 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>func</strong> (<em>callable</em>) – </li>
+<li><strong>func</strong> (<em>callable</em>) – <p>A function that calculates the (partial) integral over the axes <cite>limits</cite>.
+The signature has to be the following:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>x (ZfitData, None): the data for the remaining axes in a partial integral. If it</dt>
+<dd>is not a partial integral, this will be None.</dd>
+</dl>
+<p>limits (Space): the limits to integrate over.
+norm_range (Space, None): Normalization range of the integral.</p>
+<blockquote>
+<div>If not <cite>supports_supports_norm_range</cite>, this will be None</div></blockquote>
+<p>params (Dict[param_name, <cite>zfit.Parameters</cite>]): The parameters of the model.
+model (<cite>ZfitModel</cite>):The model that is being integrated</p>
+</div></blockquote>
+</li>
 <li><strong>(</strong><strong>)</strong> (<em>limits</em>) – If a :py:class:~`zfit.core.base.limits.Range` is given, it is used as limits.</li>
 <li><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </li>
 <li><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </li>

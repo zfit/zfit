@@ -513,7 +513,17 @@
         <span class="sd">&quot;&quot;&quot;Register an analytic integral with the class.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            func (callable):</span>
+<span class="sd">            func (callable): A function that calculates the (partial) integral over the axes `limits`.</span>
+<span class="sd">                The signature has to be the following:</span>
+
+<span class="sd">                    x (ZfitData, None): the data for the remaining axes in a partial integral. If it</span>
+<span class="sd">                        is not a partial integral, this will be None.</span>
+<span class="sd">                    limits (Space): the limits to integrate over.</span>
+<span class="sd">                    norm_range (Space, None): Normalization range of the integral.</span>
+<span class="sd">                        If not `supports_supports_norm_range`, this will be None</span>
+<span class="sd">                    params (Dict[param_name, `zfit.Parameters`]): The parameters of the model.</span>
+<span class="sd">                    model (`ZfitModel`):The model that is being integrated</span>
+
 <span class="sd">            limits (): |limits_arg_descr|</span>
 <span class="sd">            priority (int):</span>
 <span class="sd">            supports_multiple_limits (bool):</span>
