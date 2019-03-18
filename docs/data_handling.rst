@@ -21,6 +21,7 @@ NB: the implementation of the `from_root` method makes uses of the uproot packag
 From the default conversion of the dataset there are two optional funcionalities for the user, i.e. the use of weights and the rename of the specified branches. The nominal structure follows: 
 
 .. code-block:: python
+
     data = zfit.data.Data.from_root(root_file, root_tree, branches, branches_alias = None, weights = None)
 
 The `branches_alias` can be seen as a list of strings that renames the original `branches`. The `weights` has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/Pandas or similar.
@@ -31,11 +32,11 @@ Import dataset from a pandas DataFrame or Numpy ndarray
 A very simple manipulation of the dataset is provided via the pandas DataFrame. Naturally this is simplified since the ``zfit.Space`` (observable) is not mandatory, and can be obtained directly from the columns:
 
 .. code-block:: python
+
     data = zfit.data.Data.from_pandas(pandas_DataFrame, obs = None, weights = None)
 
 In the case of Numpy, the only difference is that as input is required a numpy ndarray:
 
 .. code-block:: python
+
     data = zfit.data.Data.from_numpy(numpy_ndarray, obs = None, weights = None)
-
-
