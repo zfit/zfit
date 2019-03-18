@@ -30,9 +30,7 @@ script:
 
 after_success:
     - pip install -r requirements_dev.txt
-    - cd docs
-    - . make_docs.sh
-    - cd ..
+    - cd zfit/docs && . make_docs.sh && cd ../..
 
     - pip install coveralls
     - coveralls
