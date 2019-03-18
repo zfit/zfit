@@ -16,8 +16,6 @@ With the proliferation of the ROOT framework in the context of particle physics,
 
 where `root_file` is the path to the ROOT file, `root_tree` is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.
 
-NB: the implementation of the `from_root` method makes uses of the uproot packages, which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner. 
-
 From the default conversion of the dataset there are two optional funcionalities for the user, i.e. the use of weights and the rename of the specified branches. The nominal structure follows: 
 
 .. code-block:: python
@@ -25,6 +23,8 @@ From the default conversion of the dataset there are two optional funcionalities
     data = zfit.data.Data.from_root(root_file, root_tree, branches, branches_alias = None, weights = None)
 
 The `branches_alias` can be seen as a list of strings that renames the original `branches`. The `weights` has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/Pandas or similar.
+
+NB: the implementation of the `from_root` method makes uses of the uproot packages, which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner. This also means that the *goodies* from uproot can also be used by specifying the root_dir_options, such as cuts in the dataset. However, this can be applied later when examining the produced dataset and it is the advised implementation of this. 
 
 Import dataset from a pandas DataFrame or Numpy ndarray
 =======================================================
