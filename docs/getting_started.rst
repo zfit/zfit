@@ -3,7 +3,7 @@ A simple introduction to ``zfit``
 =================================
 
 The ``zfit`` package is a negative likelihood minimisation library based on TensorFlow and optimised to a simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and user friendly experience (no cython, no C++ needed to extend) framework. The basic idea is to provide a pythonic oriented alternative to 
-the very successful RooFit libray from the ROOT (or even pyROOT) data analysis package. 
+the very successful ``RooFit`` libray from the ROOT (or even pyROOT) data analysis package. While ``RooFit`` has been 
 
 In this quick tutorial, we'll show the basic ideas on what you can do with `zfit`, without going into much detail or performing advanced tasks.
 
@@ -105,4 +105,3 @@ with gauss.set_norm_range((-1e6, 1e6)):  # play around with different norm range
     print(zfit.run(gauss.integrate((-0.6, 0.6))))
     print(zfit.run(gauss.integrate((-3, 3))))
     print(zfit.run(gauss.integrate((-100, 100))))
-    
