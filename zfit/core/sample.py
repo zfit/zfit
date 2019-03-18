@@ -22,8 +22,8 @@ def uniform_sample_and_weights(n_to_produce: Union[int, tf.Tensor], limits: Spac
 
     for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
         n_partial_to_produce = tf.to_int64(ztf.to_real(n_to_produce) * ztf.to_real(area))
-        lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
-        upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
+        lower = ztf.convert_to_tensor(lower, dtype=dtype)
+        upper = ztf.convert_to_tensor(upper, dtype=dtype)
         sample_drawn = tf.random_uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                          # + 1 dim for the function value
                                          dtype=ztypes.float)

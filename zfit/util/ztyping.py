@@ -63,7 +63,7 @@ SessionType = Optional[tf.Session]
 
 # Zfit Structure
 BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
-DependentsType = Set['Parameter']
+DependentsType = Set['zfit.Parameter']
 
 # Caching
 CacherOrCachersType = Union['ZfitCachable', Iterable['ZfitCachable']]
