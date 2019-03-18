@@ -12,7 +12,11 @@ Zfit
 .. image:: https://readthedocs.org/projects/zfit/badge/?version=latest
         :target: https://zfit.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
-
+.. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
+        :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
+.. image:: https://www.codefactor.io/repository/github/zfit/zfit/badge
+   :target: https://www.codefactor.io/repository/github/zfit/zfit
+   :alt: CodeFactor
 
 
 * Free software: BSD-3-Clause
