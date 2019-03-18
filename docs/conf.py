@@ -138,19 +138,26 @@ html_theme_options = {
     #    (name, "http://example.com", True) # arbitrary absolute url
     # Note the "1" or "True" value above as the third argument to indicate
     # an arbitrary url.
-    # 'navbar_links': [
-    #     ("Examples", "examples"),
-    #     ("Link", "http://example.com", True),
-    #     ],
+    'navbar_links': [
+        ("Getting started", "getting_started"),
+        ("Space", "space"),
+        ("Parameter", "parameter"),
+        ("Model", "model"),
+        ("Data", "data"),
+        ("Loss", "loss"),
+        ("Minimize", "minimize"),
+        ("API", "API"),
+        # ("Link", "http://example.com", True),
+        ],
 
     # Render the next and previous page links in navbar. (Default: true)
     'navbar_sidebarrel': True,
 
     # Render the current pages TOC in the navbar. (Default: true)
-    'navbar_pagenav': True,
+    'navbar_pagenav': False,
 
     # Tab name for the current pages TOC. (Default: "Page")
-    'navbar_pagenav_name': "Page",
+    # 'navbar_pagenav_name': "Page",
 
     # Global TOC depth for "site" navbar tab. (Default: 1)
     # Switching to -1 shows all levels.
@@ -176,7 +183,8 @@ html_theme_options = {
 
     # Location of link to source.
     # Options are "nav" (default), "footer" or anything else to exclude.
-    'source_link_position': "nav",
+    # 'source_link_position': "nav",
+    'source_link_position': False,
 
     # Bootswatch (http://bootswatch.com/) theme.
     #

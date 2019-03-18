@@ -49,7 +49,7 @@ deploy:
       skip_cleanup: true
       github_token:
           secure: jrPIzI6e67nPuqIFXCwr0NfpAKxVrkZ5JSE9iW7GLVagLTiHcXCnzGDDPYo8Aq+jwJv69Hy+wXLCgq5G6AU/SCy9eLjYlAFVoEwyKh9SQzm404ay3B5Gxcuskj4nqJWWWH0ETAK4QIvhWtAzx48ElNwLOaidzPRFAgyzSVm337EpnEvuNr67I53M0IYaaAL21zWj8yCdKzOTOg/GI1Idn3a1cvW+Hqy0AWID7d/LxNWC1zwBIwTwUGaMUOw9tA2FTqrXXbfW00nBlulhYkkWG3JUursL8nrs/PLzwp5lJPQJ8DBG6I1PYexZ5Cfl6GMHY6+K2lSx+PdNeB9UkEucXNiB4utQMplCqVxHPi/m2wEM9tJSADMQ96HCKSprXmKfa1VW039Dxf8efWGosO7dI1QOmbsrs8LcloSLli/q+PmgNv7s+emEv6/X0UL7idB4T097KPsJCulE468VBwuNfnvIUcX2a2q7T+MDr6Q3uDFZ1NYAsTPpOLqDLM25ri5h0DHf0i3h3wCuMT27kDUlpEcSjaVeJvJStlS3nn+ioo/LGNUGvNiO9uUYB62Pegb8RmIEZ1QGjL6hhGPujv9WAdqYU2f8iSmpBr50G/jOUZhnOMOcvttaQDew20+TRvg20u43HggaeS9f32YbXEK7QbtdtGLsJiPculnxF3ZNBmM=
-      local_dir: docs/api/_build/html
+      local_dir: docs/_build/html
       keep-history: true
       on:
           #          TODO: change branch below to develop
