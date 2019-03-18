@@ -12,6 +12,7 @@ Import dataset from a ROOT file
 With the proliferation of the ROOT framework in the context of particle physics, it is often the case that the user will have access to a ROOT file in their analysis. A simple method has been used to handle this conversion:
 
 .. code-block:: python
+
     data = zfit.data.Data.from_root(root_file, root_tree, branches)
     
 where `root_file` is the path to the ROOT file, `root_tree` is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.
