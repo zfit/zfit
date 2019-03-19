@@ -31,7 +31,13 @@ From the default conversion of the dataset there are two optional funcionalities
 
 The ``branches_alias`` can be seen as a list of strings that renames the original ``branches``. The ``weights`` has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/pandas or similar.
 
-NB: the implementation of the ``from_root`` method makes uses of the uproot packages, which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner. This also means that the *goodies* from uproot can also be used by specifying the root_dir_options, such as cuts in the dataset. However, this can be applied later when examining the produced dataset and it is the advised implementation of this. 
+.. note::
+
+    NB: the implementation of the ``from_root`` method makes uses of the uproot packages, 
+    which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner. 
+    This also means that the *goodies* from uproot can also be used by specifying the root_dir_options, 
+    such as cuts in the dataset. However, this can be applied later when examining the produced dataset 
+    and it is the advised implementation of this. 
 
 Import dataset from a pandas DataFrame or Numpy ndarray
 =======================================================
