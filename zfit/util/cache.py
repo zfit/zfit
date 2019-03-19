@@ -23,6 +23,7 @@ which is done in the simplest case by decorating a method with `@invalidates_cac
 Example with a pdf that caches the normalization:
 
 .. code:: python
+
     class Parameter(Cachable):
         def load(new_value):  # does not require to build a new graph
             # do something

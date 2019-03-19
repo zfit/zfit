@@ -267,7 +267,7 @@ class BasePDF(ZfitPDF, BaseModel):
             name (str):
 
         Returns:
-            graph: A runnable graph
+            :py:class:`tf.Tensor`: 1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
         """
         # if component_norm_range is None:
         #     component_norm_range = self._get

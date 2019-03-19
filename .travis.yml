@@ -29,7 +29,7 @@ script:
 
     - pip install -r requirements_dev.txt
     - ls
-    - bash make_docs.sh
+    - bash docs/make_docs.sh
 
 after_success:
     - pip install coveralls

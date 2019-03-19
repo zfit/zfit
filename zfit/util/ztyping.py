@@ -30,21 +30,24 @@ SpaceTypeReturn = "zfit.Space"
 
 # Data
 XType = Union[float, tf.Tensor]
-XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.Data"]
-XTypeReturn = Union[tf.Tensor, "zfit.Data"]
+XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.data.Data"]
+XTypeReturn = Union[tf.Tensor, "zfit.data.Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
 
-DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]
+DataInputType = Union["zfit.data.Data", Iterable["zfit.data.Data"]]
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]
 
 # Models
-ModelsInputType = Union['ZfitModel', Iterable['ZfitModel']]
+ModelsInputType = Union['zfit.core.interfaces.ZfitModel',
+                        Iterable['zfit.core.interfaces.ZfitModel']]
 
-PDFInputType = Union['ZfitPDF', Iterable['ZfitPDF']]
+PDFInputType = Union['zfit.core.interfaces.ZfitPDF',
+                     Iterable['zfit.core.interfaces.ZfitPDF']]
 
-FuncInputType = Union['ZfitFunc', Iterable['ZfitFunc']]
+FuncInputType = Union['zfit.core.interfaces.ZfitFunc',
+                      Iterable['zfit.core.interfaces.ZfitFunc']]
 
 NumericalScalarType = Union[int, float, complex, tf.Tensor]
 
@@ -52,21 +55,24 @@ NumericalScalarType = Union[int, float, complex, tf.Tensor]
 nSamplingTypeIn = Union[int, tf.Tensor, str]
 
 # Parameter
-ParamsTypeOpt = Optional[Iterable['ZfitParameter']]
+ParamsTypeOpt = Optional[Iterable['zfit.core.interfaces.ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]
 ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]
-ParametersType = Dict[str, "ZfitParameter"]
-ParamTypeInput = Union['ZfitParameter', NumericalScalarType]
+ParametersType = Dict[str, "zfit.core.interfaces.ZfitParameter"]
+ParamTypeInput = Union['zfit.core.interfaces.ZfitParameter', NumericalScalarType]
 
 # TensorFlow specific
 SessionType = Optional[tf.Session]
 
 # Zfit Structure
-BaseObjectType = Union['ZfitParameter', 'ZfitFunction', 'ZfitPDF']
+BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',
+                       'zfit.core.interfaces.ZfitFunction',
+                       'zfit.core.interfaces.ZfitPDF']
 DependentsType = Set['zfit.Parameter']
 
 # Caching
-CacherOrCachersType = Union['ZfitCachable', Iterable['ZfitCachable']]
+CacherOrCachersType = Union['zfit.core.interfaces.ZfitCachable',
+                            Iterable['zfit.core.interfaces.ZfitCachable']]
 
 try:
     from typing import OrderedDict
