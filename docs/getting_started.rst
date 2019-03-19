@@ -25,8 +25,8 @@ Using this domain, we can now create a simple Gaussian PDF. There are already pr
 
 .. code-block:: python
 
-    mu    = zfit.Parameter("mu"   , 2.4, -1.0, 5.)
-    sigma = zfit.Parameter("sigma", 1.3,  0.0, 5.)
+    mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
+    sigma = zfit.Parameter("sigma", 1.3,  0, 5)
 
 With these parameters we can instantiate the Gaussian PDF from the library
 
@@ -40,8 +40,8 @@ The next stage is to create a dataset to be fitted. There are several ways of pr
 
 .. code-block:: python
 
-    mu_true = 0.
-    sigma_true = 1.
+    mu_true = 0
+    sigma_true = 1
     data_np = np.random.normal(mu_true, sigma_true, size=10000)
     data = zfit.data.Data.from_numpy(obs=obs, array=data_np)
     print(data)
@@ -49,6 +49,7 @@ The next stage is to create a dataset to be fitted. There are several ways of pr
 Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps: (1) create a negative likelihood (i.e. $\log\mathcal{L}$); (2) instantiate a given minimiser; (3) and minimise the likelihood. 
 
 .. code-block:: python
+
     # Stage 1: create an unbinned likelihood with the given PDF and dataset 
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
@@ -58,27 +59,57 @@ Now we have all the ingredients in order to perform a maximum likelihood fit. Co
     # Stage 3: minimise the given negative likelihood
     result = minimizer.minimize(nll)
 
-This corresponds to the most basic example where the negative likelihood is defined within the pre-determined observable range and all the parameters in the PDF are floated in the fit. 
+This corresponds to the most basic example where the negative likelihood is defined within the pre-determined observable range and all the parameters in the PDF are floated in the fit. It is often the case that we want to only vary a given set of parameters. In this case it is necessary to specify which are the parameters to be floated (and all the remaining ones are fixed to their initial values). 
+
+.. code-block:: python
+
+    # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
+    result = minimizer.minimize(nll, params=[mu])
+
+It is important to highlight that conceptually ``zfit`` separates the minimisation of the loss function with respect to the error calculation. The idea here is that basic error calculation is provided but at the same time external it can be also feed to any external error calculation package. As an example, one can calculate the error using ``minos``
+
+.. code-block:: python
+
+    param_errors = result.error()
+    print(param_errors)
+
+Given that we performed the fit and the corresponding uncertainties, it is now important to examine the fit results. The object ``result`` has all the relevant information, e.g. 
+
+.. code-block:: python
+
+    print("Function minimum:", result.fmin)
+    print("Converged:", result.converged)
+    print("Full minimizer information:", result.info)
+
+Similarly one can obtain information on the fitted parameters, e.g.
+
+.. code-block:: python
+
+    # Information on all the parameters in the fit
+    params = result.params
+    print(params)
+
+    # Printing information on specific parameters, e.g. mu
+    print("mu={}".format(params[mu]['value']))
+
+Finally, there is no dedicate plotting feature within ``zfit``. In this case we refer to external libraries, such as ``matplotlib``, for instance
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+    n_bins = 50
+    limits = (-5,5)
+    _ = plt.hist(data_np, bins=n_bins, range=range_)
+    x = np.linspace(*range_, num=1000) 
+    probs = gauss.pdf(x, norm_range=(-10, 10))
+
+    # Evaluate the PDF by executing the TensorFlow graph
+    pdf = zfit.run(probs)
+
+In the example above there is a clear distinction with respect to all the previous exercises, which is the specific call to ``zfit.run``. The key difference is that the object ``probs`` is actually a TensorFlow graph. Since we want to evaluate the pdf for a given value, we need to execute the graph by running zfit. In previous example the same feature was invoked, however, this was hidden for the user. Additional information on this feature and how this is performed behind the scene is given below. 
 
 
-
-# Get the fitted values, again by run the variable graphs
-params = minimum.params
-
-print(params)
-
-%matplotlib inline  
-
-import matplotlib.pyplot as plt
-n_bins = 50
-range_ = (-5,5)
-_ = plt.hist(data_np, bins=n_bins, range=range_)
-x = np.linspace(*range_, num=1000)
-pdf = zfit.run(gauss.pdf(x, norm_range=(-10, 10)))
-#_ = plt.plot(x, data_np.shape[0]/n_bins*10.*pdf[0,:])
-
-
-The high level interface of zfit within TensorFlow
+The high level interface of TensorFlow within zfit 
 =============================
 
 This object object contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. An example is if we want to get the probability for This can be visualised by 
