@@ -27,11 +27,10 @@ script:
     - tox
     - pip install -U .
 
+    - pip install -r requirements_dev.txt
+    - . docs/make_docs.sh
 
 after_success:
-    - pip install -r requirements_dev.txt
-    - cd zfit/docs && . make_docs.sh && cd ../..
-
     - pip install coveralls
     - coveralls
 
