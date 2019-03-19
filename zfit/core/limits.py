@@ -335,7 +335,7 @@ class Space(ZfitSpace, BaseObject):
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
         Returns:
-            tuple(float, float): so `lower, upper = space.limit1d` for a simple, 1 obs limit.
+            tuple(float, float): so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
 
         Raises:
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
@@ -355,7 +355,7 @@ class Space(ZfitSpace, BaseObject):
 
     @property
     def limit2d(self) -> Tuple[float, float, float, float]:
-        """Simplified `.limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
+        """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
         Returns:
             tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
@@ -491,7 +491,7 @@ class Space(ZfitSpace, BaseObject):
 
         Raises:
             ValueError: if the requested `obs` do not match with the one defined in the range
-            AxesNotSpecifiedError: If the axes in this `Space` have not been specified.
+            AxesNotSpecifiedError: If the axes in this :py:class:`~zfit.Space` have not been specified.
         """
         # check input
         obs = self._check_convert_input_obs(obs=obs, allow_none=True)
@@ -626,7 +626,7 @@ class Space(ZfitSpace, BaseObject):
         return new_indices
 
     def reorder_by_indices(self, indices: Tuple[int]):
-        """Return a `Space` reordered by the indices.
+        """Return a :py:class:`~zfit.Space` reordered by the indices.
 
         Args:
             indices ():
@@ -785,7 +785,7 @@ class Space(ZfitSpace, BaseObject):
             return copy.deepcopy(self)
 
     def with_autofill_axes(self, overwrite: bool = False) -> "Space":
-        """Return a `Space` with filled axes corresponding to range(len(n_obs)).
+        """Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).
 
         Args:
             overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.
@@ -829,7 +829,7 @@ class Space(ZfitSpace, BaseObject):
 
     def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                      name: Optional[str] = None) -> "Space":
-        """Create a `Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
+        """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
             obs (str, Tuple[str]):
@@ -968,7 +968,7 @@ class Space(ZfitSpace, BaseObject):
         In case the observables are different, the order of the first space is taken.
 
         Args:
-            other (`Space`):
+            other (:py:class:`~zfit.Space`):
 
         Returns:
             `zfit.Space`: """
@@ -1034,7 +1034,8 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
         limits ():
         axes ():
         overwrite_limits (bool): If `obs` or `axes` is a `Space` _and_ `limits` are given, return an instance
-            of `Space` with the new limits. If the flag is `False`, the `limits` argument will be ignored if
+            of :py:class:`~zfit.Space` with the new limits. If the flag is `False`, the `limits` argument will be
+            ignored if
         one_dim_limits_only (bool):
         simple_limits_only (bool):
 
@@ -1173,7 +1174,7 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
 
 
 def convert_to_obs_str(obs):
-    """Convert `obs` to the list of obs, also if it is a `Space`.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~zfit.Space`.
 
     """
     obs = convert_to_container(value=obs, container=tuple)

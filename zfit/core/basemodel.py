@@ -248,7 +248,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to `Space` and sort them according to own `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to
+        own `obs`.
 
         Args:
             obs ():
@@ -778,7 +779,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
             limits (): From which space to sample.
             fixed_params (): A list of `Parameters` that will be fixed during several `resample` calls.
-                If True, all are fixed, if False, all are floating. If a `Parameter` is not fixed and its
+                If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
+                its
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
                 `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
                 been created with when it resamples.

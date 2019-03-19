@@ -28,7 +28,7 @@ script:
     - pip install -U .
 
     - pip install -r requirements_dev.txt
-    - . docs/make_docs.sh
+    - bash make_docs.sh
 
 after_success:
     - pip install coveralls

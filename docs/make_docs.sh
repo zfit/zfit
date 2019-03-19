@@ -1,5 +1,5 @@
 #!/bin/bash
-# script has to be executed inside folder `API`
+# script has to be executed inside folder `docs`
 # get current directory name
 pushd `dirname $0` > /dev/null
 MAKE_DOCS_PATH="$( cd "$(dirname "$0")" ; pwd -P )"

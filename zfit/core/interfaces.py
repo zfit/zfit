@@ -31,7 +31,7 @@ class ZfitDimensional(ZfitObject):
     @property
     @abc.abstractmethod
     def space(self) -> "ZfitSpace":
-        """Return the `Space` object that defines the dimensionality of the object."""
+        """Return the :py:class:`~zfit.Space` object that defines the dimensionality of the object."""
         raise NotImplementedError
 
     @property
@@ -185,7 +185,7 @@ class ZfitSpace(ZfitObject):
             axes ():
 
         Returns:
-            `Space`
+            :py:class:`~zfit.Space`
         """
         raise NotImplementedError
 
@@ -198,7 +198,7 @@ class ZfitSpace(ZfitObject):
                 If axes is already set, don't do anything if `overwrite` is False.
 
         Returns:
-            `Space`
+            :py:class:`~zfit.Space`
         """
         raise NotImplementedError
 
