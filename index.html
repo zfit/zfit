@@ -19,7 +19,7 @@
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="A simple introduction to zfit" href="getting_started.html" />
+    <link rel="next" title="Getting started with zfit" href="getting_started.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -65,7 +65,7 @@
       role="menu"
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">A simple introduction to <code class="docutils literal notranslate"><span class="pre">zfit</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
@@ -113,10 +113,11 @@ the very successful <code class="docutils literal notranslate"><span class="pre"
 <li>Another paramount aspect of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is its design for optimal parallelisation and scalability. Despite that the choice of <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> as backend introduces a software dependence to the library, its use provides several features with interesting outcomes in the context of model fitting. The key concept is that <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> is built under the dataflow programming model, specifically for parallel computations. In a simple way, <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> creates a computational graph with the operations as the nodes of the graph and tensors to its edges. Hence, the computation only happens when the graph is executed in a session, which simplifies the parallelisation by identifying the dependencies between the edges and operations or even the partition across multiple devices (CPUs, GPUs). The architecture of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is built upon this idea and it aims to provide a high level interface to these features, i.e. most of the operations of graphs and evaluations are hidden for the user and it is designed to provide a natural and friendly model fitting and sampling experience.</li>
 </ul>
 </div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">zfit</span></code> package is Free software, using an Open Source license. The software and this document are works in progress.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">A simple introduction to <code class="docutils literal notranslate"><span class="pre">zfit</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
