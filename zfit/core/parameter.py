@@ -407,9 +407,19 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         self._step_size = value
 
     def load(self, value: ztyping.NumericalScalarType):
+        """:py:class:`Parameter` takes on the `value`. Is not part of the graph, does a session run.
+
+        Args:
+            value (numerical):
+        """
         return super().load(value=value, session=self.sess)
 
     def set_value(self, value: ztyping.NumericalScalarType):
+        """Set the :py:class:`Parameter` to `value` (temporarily if used in a context manager).
+
+        Args:
+            value (float): The value the parameter will take on.
+        """
         super_load = super().load
 
         def getter():

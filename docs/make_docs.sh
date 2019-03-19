@@ -8,6 +8,8 @@ popd > /dev/null
 # generate the ReST files
 echo "debug"
 echo ${MAKE_DOCS_PATH}/../zfit
+ls ${MAKE_DOCS_PATH}
+ls .
 sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT && \
 python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.* && \
 make -C ${MAKE_DOCS_PATH} clean && make -C ${MAKE_DOCS_PATH} html -j4 && \

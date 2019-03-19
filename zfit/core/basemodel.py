@@ -353,18 +353,22 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             func (callable): A function that calculates the (partial) integral over the axes `limits`.
                 The signature has to be the following:
 
-                    x (ZfitData, None): the data for the remaining axes in a partial integral. If it
-                        is not a partial integral, this will be None.
-                    limits (Space): the limits to integrate over.
-                    norm_range (Space, None): Normalization range of the integral.
-                        If not `supports_supports_norm_range`, this will be None
-                    params (Dict[param_name, `zfit.Parameters`]): The parameters of the model.
-                    model (`ZfitModel`):The model that is being integrated
+                    * x (:py:class:`~zfit.core.interfaces.ZfitData`, None): the data for the remaining axes in a partial
+                        integral. If it is not a partial integral, this will be None.
+                    * limits (:py:class:`~zfit.Space`): the limits to integrate over.
+                    * norm_range (:py:class:`~zfit.Space`, None): Normalization range of the integral.
+                        If not `supports_supports_norm_range`, this will be None.
+                    * params (Dict[param_name, :py:class:``zfit.Parameters`]): The parameters of the model.
+                    * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
 
             limits (): |limits_arg_descr|
-            priority (int):
-            supports_multiple_limits (bool):
-            supports_norm_range (bool):
+            priority (int): Priority of the function. If multiple functions cover the same space, the one with the
+                highest priority will be tanke.
+            supports_multiple_limits (bool): If `True`, the `limits` given to the integration function can have
+                multiple limits. If `False`, only simple limits will pass through and multiple limits will be
+                auto-handled.
+            supports_norm_range (bool): If `True`, `norm_range` argument to the function may not be `None`.
+                If `False`, `norm_range` will always be `None` and care is taken of the normalization automatically.
 
         """
         cls._analytic_integral.register(func=func, limits=limits, supports_norm_range=supports_norm_range,

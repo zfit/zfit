@@ -517,21 +517,22 @@ class Space(ZfitSpace, BaseObject):
         return axes
 
     def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
-        """Return the limits, either as `Space` objects or as pure limits-tuple.
+        """Return the limits, either as :py:class:`Space` objects or as pure limits-tuple.
 
         This makes iterating over limits easier: `for limit in space.iter_limits()`
         allows to, for example, pass `limit` to a function that can deal with simple limits
         only or if `as_tuple` is True the `limit` can be directly used to calculate something.
 
         Example:
-            ```python
-            for lower, upper in space.iter_limits(as_tuple=True):
-                integrals = integrate(lower, upper)  # calculate integral
-            integral = sum(integrals)
-            ```
+            .. code:: python
+
+                for lower, upper in space.iter_limits(as_tuple=True):
+                    integrals = integrate(lower, upper)  # calculate integral
+                integral = sum(integrals)
+
 
         Returns:
-            List[Space] or List[limit,...]:
+            List[:py:class:`~zfit.Space`] or List[limit,...]:
         """
         if not self.limits:
             raise LimitsNotSpecifiedError("Space does not have limits, cannot iterate over them.")
@@ -570,7 +571,7 @@ class Space(ZfitSpace, BaseObject):
             obs ():
 
         Returns:
-            `Space`
+            :py:class:`~zfit.Space`
         """
         if obs is None or obs == self.obs:
             return self
@@ -586,7 +587,7 @@ class Space(ZfitSpace, BaseObject):
             axes ():
 
         Returns:
-            `Space`
+            :py:class:`~zfit.Space`
         """
         # TODO: what if self.axes is None? Just add them?
         if axes is None or axes == self.axes:
