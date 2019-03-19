@@ -65,7 +65,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">A simple introduction to <code class="docutils literal notranslate"><span class="pre">zfit</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="../space.html">Space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../parameter.html">Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Building a model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data.html">Data</a></li>
@@ -211,6 +211,67 @@ read the value only after some condition is true.</p>
 <dd><p>A cached operation which reads the value of this variable.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.ComposedParameter">
+<em class="property">class </em><code class="descclassname">zfit.</code><code class="descname">ComposedParameter</code><span class="sig-paren">(</span><em>name</em>, <em>tensor</em>, <em>dtype=tf.float64</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComposedParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.ComplexParameter">
+<em class="property">class </em><code class="descclassname">zfit.</code><code class="descname">ComplexParameter</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.ComposedParameter" title="zfit.core.parameter.ComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ComposedParameter</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.ComplexParameter.arg">
+<code class="descname">arg</code><a class="headerlink" href="#zfit.ComplexParameter.arg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.ComplexParameter.conj">
+<code class="descname">conj</code><a class="headerlink" href="#zfit.ComplexParameter.conj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="zfit.ComplexParameter.from_cartesian">
+<em class="property">static </em><code class="descname">from_cartesian</code><span class="sig-paren">(</span><em>name</em>, <em>real</em>, <em>imag</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter.from_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="zfit.ComplexParameter.from_polar">
+<em class="property">static </em><code class="descname">from_polar</code><span class="sig-paren">(</span><em>name</em>, <em>mod</em>, <em>arg</em>, <em>dtype=tf.complex128</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_polar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter.from_polar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.ComplexParameter.imag">
+<code class="descname">imag</code><a class="headerlink" href="#zfit.ComplexParameter.imag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.ComplexParameter.mod">
+<code class="descname">mod</code><a class="headerlink" href="#zfit.ComplexParameter.mod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.ComplexParameter.real">
+<code class="descname">real</code><a class="headerlink" href="#zfit.ComplexParameter.real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.convert_to_parameter">
+<code class="descclassname">zfit.</code><code class="descname">convert_to_parameter</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span> &#x2192; zfit.core.parameter.Parameter<a class="reference internal" href="../_modules/zfit/core/parameter.html#convert_to_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.convert_to_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <em>numerical</em> to a fixed parameter or return if already a parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>value</em>) – </td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
