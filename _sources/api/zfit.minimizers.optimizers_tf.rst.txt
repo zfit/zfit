@@ -1,0 +1,7 @@
+optimizers\_tf
+==============
+
+.. automodule:: zfit.minimizers.optimizers_tf
+    :members:
+    :undoc-members:
+    :show-inheritance:

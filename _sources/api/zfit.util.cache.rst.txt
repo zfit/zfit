@@ -1,0 +1,7 @@
+cache
+=====
+
+.. automodule:: zfit.util.cache
+    :members:
+    :undoc-members:
+    :show-inheritance:

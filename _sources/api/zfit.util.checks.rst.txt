@@ -1,0 +1,7 @@
+checks
+======
+
+.. automodule:: zfit.util.checks
+    :members:
+    :undoc-members:
+    :show-inheritance:

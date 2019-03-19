@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>basemodel &#8212; zfit 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../index.html">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="../getting_started.html">Getting started</a></li>
+                <li><a href="../space.html">Space</a></li>
+                <li><a href="../parameter.html">Parameter</a></li>
+                <li><a href="../model.html">Model</a></li>
+                <li><a href="../data.html">Data</a></li>
+                <li><a href="../loss.html">Loss</a></li>
+                <li><a href="../minimize.html">Minimize</a></li>
+                <li><a href="../API.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../space.html">Space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parameter.html">Parameter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Building a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Data manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../loss.html">Loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../minimize.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API.html">zfit API documentation</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="span12 content">
+      
+  <div class="section" id="module-zfit.core.basemodel">
+<span id="basemodel"></span><h1>basemodel<a class="headerlink" href="#module-zfit.core.basemodel" title="Permalink to this headline">¶</a></h1>
+<p>Baseclass for a Model. Handle integration and sampling</p>
+<dl class="class">
+<dt id="zfit.core.basemodel.BaseModel">
+<em class="property">class </em><code class="descclassname">zfit.core.basemodel.</code><code class="descname">BaseModel</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], params: Optional[Dict[str, zfit.core.interfaces.ZfitParameter]] = None, name: str = 'BaseModel', dtype=tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric" title="zfit.core.baseobject.BaseNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseNumeric</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.dimension.html#zfit.core.dimension.BaseDimensional" title="zfit.core.dimension.BaseDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dimension.BaseDimensional</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitModel</span></code></a></p>
+<p>Base class for any generic model.</p>
+<p># TODO instructions on how to use</p>
+<p>The base model to inherit from and overwrite <cite>_unnormalized_pdf</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dtype</strong> (<em>Type</em>) – the dtype of the model</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the name of the model</li>
+<li><strong>(</strong><strong>)</strong> (<em>params</em>) – the parameters the distribution depends on</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.analytic_integrate">
+<code class="descname">analytic_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do analytical integration over function and raise Error if not possible.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</li>
+<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <cite>False</cite>) – the limits to normalize over</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the integral value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Tensor</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> – If no analytical integral is available (for this limits).</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NormRangeNotImplementedError</span></code> – if the <em>norm_range</em> argument is not supported. This
+means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+integral over the limits = norm_range is not available.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.convert_sort_space">
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+own <cite>obs</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>(</strong><strong>)</strong> (<em>limits</em>) – </li>
+<li><strong>(</strong><strong>)</strong> – </li>
+<li><strong>(</strong><strong>)</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.create_sampler">
+<code class="descname">create_sampler</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.create_sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.create_sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Sampler</cite> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
+<blockquote>
+<div>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</li>
+<li><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
+If True, all are fixed, if False, all are floating. If a <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> is not fixed and
+its
+value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
+<cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
+been created with when it resamples.</li>
+<li><strong>(</strong><strong>)</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">py:class:~`zfit.core.data.Sampler`</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotExtendedPDFError</span></code> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+option for <cite>n</cite> but the pdf itself is not extended.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – if n is an invalid string option.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">InvalidArgumentError</span></code> – if n is not specified and pdf is not extended.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.gradients">
+<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</li>
+<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the integral value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.numeric_integrate">
+<code class="descname">numeric_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numerical integration over the model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</li>
+<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the integral value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.partial_analytic_integrate">
+<code class="descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</li>
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</li>
+<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Tensor</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> – if the <em>analytic</em> integral (over this limits) is not implemented</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NormRangeNotImplementedError</span></code> – if the <em>norm_range</em> argument is not supported. This
+means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+integral over the limits = norm_range is not available.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.partial_integrate">
+<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</li>
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</li>
+<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.partial_numeric_integrate">
+<code class="descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</li>
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</li>
+<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.basemodel.BaseModel.register_additional_repr">
+<em class="property">classmethod </em><code class="descname">register_additional_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_additional_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an additional attribute to add to the repr.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>keyword argument. The value has to be gettable from the instance</strong><strong> (</strong><strong>has to be an</strong> (<em>any</em>) – </li>
+<li><strong>or callable method of self.</strong> (<em>attribute</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.basemodel.BaseModel.register_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an analytic integral with the class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>func</strong> (<em>callable</em>) – <p>A function that calculates the (partial) integral over the axes <cite>limits</cite>.
+The signature has to be the following:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>x (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitData</span></code></a>, None): the data for the remaining axes in a partial</dt>
+<dd>integral. If it is not a partial integral, this will be None.</dd>
+</dl>
+</li>
+<li>limits (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>): the limits to integrate over.</li>
+<li><dl class="first docutils">
+<dt>norm_range (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, None): Normalization range of the integral.</dt>
+<dd>If not <cite>supports_supports_norm_range</cite>, this will be None.</dd>
+</dl>
+</li>
+<li>params (Dict[param_name, :py:class:<a href="#id1"><span class="problematic" id="id2">``</span></a>zfit.Parameters`]): The parameters of the model.</li>
+<li>model (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitModel</span></code></a>):The model that is being integrated.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>(</strong><strong>)</strong> (<em>limits</em>) – <a href="#id3"><span class="problematic" id="id4">|limits_arg_descr|</span></a></li>
+<li><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Priority of the function. If multiple functions cover the same space, the one with the
+highest priority will be tanke.</li>
+<li><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, the <cite>limits</cite> given to the integration function can have
+multiple limits. If <cite>False</cite>, only simple limits will pass through and multiple limits will be
+auto-handled.</li>
+<li><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, <cite>norm_range</cite> argument to the function may not be <cite>None</cite>.
+If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> and care is taken of the normalization automatically.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.basemodel.BaseModel.register_inverse_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_inverse_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>func</em>) – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
+<p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">SampleData(n_obs, n_samples)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotExtendedPDFError</span></code> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+option for <cite>n</cite> but the pdf itself is not extended.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – if n is an invalid string option.</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">InvalidArgumentError</span></code> – if n is not specified and pdf is not extended.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.set_integration_options">
+<code class="descname">set_integration_options</code><span class="sig-paren">(</span><em>draws_per_dim=None</em>, <em>mc_sampler=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.set_integration_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.set_integration_options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.core.basemodel.SimpleModelSubclassMixin">
+<em class="property">class </em><code class="descclassname">zfit.core.basemodel.</code><code class="descname">SimpleModelSubclassMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#SimpleModelSubclassMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.SimpleModelSubclassMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Subclass a model: implement the corresponding function and specify _PARAMS.</p>
+<p>In order to create a custom model, two things have to be implemented: the class attribute
+_PARAMS has to be a list containing the names of the parameters and the corresponding
+function (_unnormalized_pdf/_func) has to be overridden.</p>
+<p>Example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyPDF</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ZPDF</span><span class="p">):</span>
+    <span class="n">_PARAMS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">ztf</span><span class="o">.</span><span class="n">square</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,7 +1,0 @@
-zfit.minimizers.tf\_external\_optimizer
-=======================================
-
-.. automodule:: zfit.minimizers.tf_external_optimizer
-    :members:
-    :undoc-members:
-    :show-inheritance:

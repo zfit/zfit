@@ -1,7 +1,0 @@
-zfit.models.physics
-===================
-
-.. automodule:: zfit.models.physics
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-zfit.constraint
-===============
-
-.. automodule:: zfit.constraint
-    :members:
-    :undoc-members:
-    :show-inheritance:

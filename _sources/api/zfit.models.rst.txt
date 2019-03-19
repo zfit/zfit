@@ -1,0 +1,21 @@
+models
+======
+
+.. automodule:: zfit.models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   zfit.models.basefunctor
+   zfit.models.basic
+   zfit.models.dist_tfp
+   zfit.models.functions
+   zfit.models.functor
+   zfit.models.physics
+   zfit.models.special
+

@@ -1,0 +1,7 @@
+basepdf
+=======
+
+.. automodule:: zfit.core.basepdf
+    :members:
+    :undoc-members:
+    :show-inheritance:

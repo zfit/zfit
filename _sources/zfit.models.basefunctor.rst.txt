@@ -1,7 +1,0 @@
-zfit.models.basefunctor
-=======================
-
-.. automodule:: zfit.models.basefunctor
-    :members:
-    :undoc-members:
-    :show-inheritance:
