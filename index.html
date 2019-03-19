@@ -19,7 +19,7 @@
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting started" href="getting_started.html" />
+    <link rel="next" title="A simple introduction to zfit" href="getting_started.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -65,11 +65,11 @@
       role="menu"
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">A simple introduction to <code class="docutils literal notranslate"><span class="pre">zfit</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
@@ -105,14 +105,22 @@
       
   <div class="section" id="welcome-to-zfit-s-documentation">
 <h1>Welcome to zfit’s documentation!<a class="headerlink" href="#welcome-to-zfit-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">zfit</span></code> package is a model fitting library based on TensorFlow and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to provide a pythonic oriented alternative to
+the very successful <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> libray from the ROOT (or even pyROOT) data analysis package. While <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> has provided the a stable plattform for most of the needs of the High Energy Physics (HEP) community in the last few years, there are several developments in the machine learning (ML) community that have not been followed by this library. In this sense, the core of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is designed to provide this interface between the solid structure of <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> with the state-of-art tools of ML. This challenge task can only be achieved with two paramount ansatz:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The skeleton and extension of the code is minimalist/simple and finite. This is conceptually different from <code class="docutils literal notranslate"><span class="pre">ROOT/RooFit</span></code> philosophies, <em>i.e.</em> the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library is exclusively designed for the purpose of model fitting and sampling - opposite to the self-contained <code class="docutils literal notranslate"><span class="pre">ROOT</span></code>. In other words, there is not attempt to extend its funcionalities to features such as statistical methods (e.g. Upper limits/confidence intervals) or plotting libraries. A simple comparison can be driven by examining maximum likelihood fits. While <code class="docutils literal notranslate"><span class="pre">zfit</span></code> works as a backend for likelihood fits and can be integrated to packages such as <code class="docutils literal notranslate"><span class="pre">lauztat</span></code> and <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> performs the fit, the statistical treament and plotting within. However, this also implies a limit scope of <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> with respect to new minimisers, statistic methods and, broadly speaking, any new tool that might come. In summary, <code class="docutils literal notranslate"><span class="pre">zfit</span></code> aims to have a well stablished backend package in the context of an open source library.</li>
+<li>Another paramount aspect of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is the</li>
+</ul>
+</div></blockquote>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">A simple introduction to <code class="docutils literal notranslate"><span class="pre">zfit</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
