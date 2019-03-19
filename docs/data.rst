@@ -33,7 +33,7 @@ The ``branches_alias`` can be seen as a list of strings that renames the origina
 
 .. note::
 
-    NB: the implementation of the ``from_root`` method makes uses of the uproot packages, 
+    The implementation of the ``from_root`` method makes uses of the uproot packages, 
     which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner. 
     This also means that the *goodies* from uproot can also be used by specifying the root_dir_options, 
     such as cuts in the dataset. However, this can be applied later when examining the produced dataset 
