@@ -22,13 +22,13 @@ The normalization is handled with another method depending on the normalization 
 there are other, more convenient ways to add improvements like providing an analytical integrals.)
 
 Before we create an instance, we need to create the variables to initialize it
->>> mean = zfit.FitParameter("mean1", 2., 0.1, 4.2)  # signature as in RooFit: *name, initial, lower, upper*
->>> stddev = zfit.FitParameter("stddev1", 5., 0.3, 10.)
+>>> mean = zfit.Parameter("mean1", 2., 0.1, 4.2)  # signature as in RooFit: *name, initial, lower, upper*
+>>> stddev = zfit.Parameter("stddev1", 5., 0.3, 10.)
 Let's create an instance and some example data
 >>> gauss = MyGauss(mean=mean, stddev=stddev)
 >>> example_data = np.random.random(10)
 Now we can get the probability
->>> probs = gauss.model(x=example_data, norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
+>>> probs = gauss.pdf(x=example_data, norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
 Or the integral
 >>> integral = gauss.integrate(limits=(-5, 3.1), norm_range=False)  # norm_range is False -> return unnormalized
 integral
@@ -120,7 +120,7 @@ class BasePDF(ZfitPDF, BaseModel):
                                     wrapper_not_overwritten=_BasePDF_register_check_support)
 
     @property
-    def space(self) -> "ZfitSpace":
+    def space(self) -> "zfit.Space":
         if self._norm_range is not None:
             space = self._norm_range
         else:
@@ -178,7 +178,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the current normalization range.
 
         Returns:
-            Space or None: The current normalization range
+            :py:class:`~zfit.Space` or None: The current normalization range
 
         """
         norm_range = self._norm_range
@@ -225,7 +225,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits (tuple, Space): The limits on where to normalize over
+            limits (tuple, :py:class:`~zfit.Space`): The limits on where to normalize over
             name (str):
 
         Returns:
@@ -261,7 +261,8 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
             x (numerical): The value, have to be convertible to a Tensor
-            component_norm_range (`Space`): The normalization range for the components. Needed for certain composition
+            component_norm_range (:py:class:`~zfit.Space`): The normalization range for the components. Needed for
+            certain composition
                 pdfs.
             name (str):
 
@@ -297,7 +298,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, Space): Space to normalize over
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:
@@ -349,7 +350,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, Space): Space to normalize over
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
           name (str): Prepended to names of ops created by this function.
 
         Returns:
@@ -447,7 +448,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
 
         Args:
-            yield_ (numeric, Parameter):
+            yield_ (numeric, :py:class:`~zfit.Parameter`):
             name_addition (str):
 
         Returns:
@@ -498,7 +499,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the yield (only for extended models).
 
         Returns:
-            Parameter: the yield of the current model or None
+            :py:class:`~zfit.Parameter`: the yield of the current model or None
         """
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
@@ -510,7 +511,7 @@ class BasePDF(ZfitPDF, BaseModel):
         The new projection pdf is still fully dependent on the pdf it was created with.
 
         Args:
-            limits_to_integrate (`zfit.Space`):
+            limits_to_integrate (:py:class:`~zfit.Space`):
 
         Returns:
             ZfitPDF: a pdf without the dimensions from `limits_to_integrate`.

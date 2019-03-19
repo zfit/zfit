@@ -16,12 +16,12 @@ LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
 
-_IterLimitsTypeReturn = Union[Tuple['Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
+_IterLimitsTypeReturn = Union[Tuple['zfit.Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
 AxesTypeInput = Union[int, Iterable[int]]
 AxesTypeReturn = Union[Tuple[int], None]
 
-ObsTypeInput = Union[str, Iterable[str], "Space"]
+ObsTypeInput = Union[str, Iterable[str], "zfit.Space"]
 ObsTypeReturn = Union[Tuple[str, ...], None]
 
 # Space

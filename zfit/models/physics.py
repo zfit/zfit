@@ -199,7 +199,7 @@ class CrystalBall(BasePDF):
             sigma (`zfit.Parameter`): Standard deviation of the gaussian
             alpha (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail
             n (`zfit.Parameter`): Exponent of the powertail
-            obs (`zfit.Space`):
+            obs (:py:class:`~zfit.Space`):
             name (str):
             dtype (tf.DType):
 

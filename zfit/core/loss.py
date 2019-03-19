@@ -72,7 +72,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         Args:
             model (Iterable[ZfitModel]): The model or models to evaluate the data on
             data (Iterable[ZfitData]): Data to use
-            fit_range (ZfitSpace): The fitting range. It's the norm_range for the models (if they
+            fit_range (:py:class:`~zfit.Space`): The fitting range. It's the norm_range for the models (if they
                 have a norm_range) and the data_range for the data.
             constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using
                 `zfit.constraint.*` allows for easy use of predefined constraints.

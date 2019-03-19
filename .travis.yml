@@ -28,6 +28,7 @@ script:
     - pip install -U .
 
     - pip install -r requirements_dev.txt
+    - ls
     - bash make_docs.sh
 
 after_success:

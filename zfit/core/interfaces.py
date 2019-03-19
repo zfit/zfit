@@ -30,7 +30,7 @@ class ZfitDimensional(ZfitObject):
 
     @property
     @abc.abstractmethod
-    def space(self) -> "ZfitSpace":
+    def space(self) -> "zfit.Space":
         """Return the :py:class:`~zfit.Space` object that defines the dimensionality of the object."""
         raise NotImplementedError
 
@@ -139,7 +139,7 @@ class ZfitSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "ZfitSpace":
+    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "zfit.Space":
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -161,7 +161,7 @@ class ZfitSpace(ZfitObject):
             name (str):
 
         Returns:
-            Space
+            :py:class:`~zfit.Space`
         """
         raise NotImplementedError
 
@@ -191,7 +191,7 @@ class ZfitSpace(ZfitObject):
 
     @abc.abstractmethod
     def with_autofill_axes(self, overwrite: bool):
-        """Return a `Space` with filled axes corresponding to range(len(n_obs)).
+        """Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).
 
         Args:
             overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.
@@ -276,7 +276,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
     @property
     @abc.abstractmethod
-    def fit_range(self) -> List["zfit.Space"]:
+    def fit_range(self) -> List["ZfitSpace"]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -296,8 +296,8 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, Space): the limits to integrate over
-            norm_range (tuple, Space): the limits to normalize over or False to integrate the
+            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the
                 unnormalized probability
             name (str):
 
@@ -336,8 +336,8 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, Space): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, Space, False): the limits to normalize over. Has to have all axes
+            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -361,7 +361,7 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
 
         Args:
             n (int): The number of samples to be generated
-            limits (tuple, Space): In which region to sample in
+            limits (tuple, :py:class:`~zfit.Space`): In which region to sample in
             name (str):
 
         Returns:
