@@ -192,16 +192,16 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">TensorFlow_object</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>One example is the Gauss PDF defined above. The object <code class="docutils literal notranslate"><span class="pre">gauss</span></code> contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As example, let’s calculate the probability for given values
-.. code-block:: python</p>
-<blockquote>
-<div><p>zfit.run(TensorFlow_object)
-consts = [-1, 0, 1]
-probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))</p>
-<p># And now execute the tensorflow graph
-result = zfit.run(probs)
-print(“x values: {}nresult:   {}”.format(consts, result))</p>
-</div></blockquote>
+<p>One example is the Gauss PDF defined above. The object <code class="docutils literal notranslate"><span class="pre">gauss</span></code> contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As example, let’s calculate the probability for given values</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">TensorFlow_object</span><span class="p">)</span>
+<span class="n">consts</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">probs</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">consts</span><span class="p">),</span> <span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">))</span>
+
+<span class="c1"># And now execute the tensorflow graph</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;x values: {}</span><span class="se">\n</span><span class="s2">result:   {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">consts</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
+</pre></div>
+</div>
 <p>Similar feature can be done if we want to evaluate the integral of a given PDF for a given normalisation range:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">gauss</span><span class="o">.</span><span class="n">set_norm_range</span><span class="p">((</span><span class="o">-</span><span class="mf">1e6</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)):</span>
     <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">))))</span>

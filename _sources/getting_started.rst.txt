@@ -119,6 +119,7 @@ The core idea of TensorFlow is to use dataflow ``graphs``, in which ``sessions``
     zfit.run(TensorFlow_object)
 
 One example is the Gauss PDF defined above. The object ``gauss`` contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As example, let's calculate the probability for given values
+
 .. code-block:: python
 
     zfit.run(TensorFlow_object)
