@@ -118,5 +118,5 @@ and the area from
 and more...
 
 
-A working code example of :py:class:`~zfit.Space` handling is provided in
-:download:`spaces.py <../examples/spaces.py>`.
+A working code example of :py:class:`~zfit.Space` handling is provided in `spaces.py` in
+:download:`spaces.py <../examples>`.
