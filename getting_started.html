@@ -188,25 +188,27 @@
 <p>In the example above there is a clear distinction with respect to all the previous exercises, which is the specific call to <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>. The key difference is that the object <code class="docutils literal notranslate"><span class="pre">probs</span></code> is actually a TensorFlow graph. Since we want to evaluate the pdf for a given value, we need to execute the graph by running zfit. In previous example the same feature was invoked, however, this was hidden for the user. Additional information on this feature and how this is performed behind the scene is given below.</p>
 <div class="section" id="the-high-level-interface-of-tensorflow-within-zfit">
 <h2>The high level interface of TensorFlow within zfit<a class="headerlink" href="#the-high-level-interface-of-tensorflow-within-zfit" title="Permalink to this headline">¶</a></h2>
-<p>This object object contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. An example is if we want to get the probability for This can be visualised by</p>
-<p># Now, get some probability values
-# The probs object is not executed yet
+<p>The core idea of TensorFlow is to use dataflow <code class="docutils literal notranslate"><span class="pre">graphs</span></code>, in which <code class="docutils literal notranslate"><span class="pre">sessions</span></code> run part of the <code class="docutils literal notranslate"><span class="pre">graphs</span></code> that are required. In this sense, <code class="docutils literal notranslate"><span class="pre">zfit</span></code> also preserve this feature but introduce a set of wrapped functions to perform this two-stage procedure hidden from the user. However, to some extend most of the objects that are built are intrinsically <code class="docutils literal notranslate"><span class="pre">graphs</span></code> and this can be explicitly executed by running the session:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">TensorFlow_object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One example is the Gauss PDF defined above. The object <code class="docutils literal notranslate"><span class="pre">gauss</span></code> contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As example, let’s calculate the probability for given values
+.. code-block:: python</p>
+<blockquote>
+<div><p>zfit.run(TensorFlow_object)
 consts = [-1, 0, 1]
-probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
-# And now execute the tensorflow graph
+probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))</p>
+<p># And now execute the tensorflow graph
 result = zfit.run(probs)
 print(“x values: {}nresult:   {}”.format(consts, result))</p>
-<p><strong>NB</strong>: Currently, one important caveat is that all <cite>zfit</cite> objects are based on <cite>tensorflow</cite>, and therefore they are graphs that are not executed immediately, but need to be run on a session:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">zfit.run(TensorFlow_object)</span>
-<span class="pre">`</span></code></p>
-<p>Here, we can see the power of the context managers used to change the normalisation range.</p>
-<p>with gauss.set_norm_range((-1e6, 1e6)):  # play around with different norm ranges
-# with gauss.set_norm_range((-100, 100)):</p>
-<blockquote>
-<div>print(zfit.run(gauss.integrate((-0.6, 0.6))))
-print(zfit.run(gauss.integrate((-3, 3))))
-print(zfit.run(gauss.integrate((-100, 100))))</div></blockquote>
+</div></blockquote>
+<p>Similar feature can be done if we want to evaluate the integral of a given PDF for a given normalisation range:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">gauss</span><span class="o">.</span><span class="n">set_norm_range</span><span class="p">((</span><span class="o">-</span><span class="mf">1e6</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">))))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">))))</span>
+</pre></div>
+</div>
 </div>
 </div>
 

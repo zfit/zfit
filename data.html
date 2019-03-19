@@ -128,7 +128,7 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">branches_alias</span></code> can be seen as a list of strings that renames the original <code class="docutils literal notranslate"><span class="pre">branches</span></code>. The <code class="docutils literal notranslate"><span class="pre">weights</span></code> has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/pandas or similar.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">NB: the implementation of the <code class="docutils literal notranslate"><span class="pre">from_root</span></code> method makes uses of the uproot packages,
+<p class="last">The implementation of the <code class="docutils literal notranslate"><span class="pre">from_root</span></code> method makes uses of the uproot packages,
 which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner.
 This also means that the <em>goodies</em> from uproot can also be used by specifying the root_dir_options,
 such as cuts in the dataset. However, this can be applied later when examining the produced dataset

@@ -112,28 +112,30 @@ In the example above there is a clear distinction with respect to all the previo
 The high level interface of TensorFlow within zfit 
 =============================
 
-This object object contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. An example is if we want to get the probability for This can be visualised by 
+The core idea of TensorFlow is to use dataflow ``graphs``, in which ``sessions`` run part of the ``graphs`` that are required. In this sense, ``zfit`` also preserve this feature but introduce a set of wrapped functions to perform this two-stage procedure hidden from the user. However, to some extend most of the objects that are built are intrinsically ``graphs`` and this can be explicitly executed by running the session:
 
-# Now, get some probability values
-# The probs object is not executed yet
-consts = [-1, 0, 1]
-probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
-# And now execute the tensorflow graph
-result = zfit.run(probs)
-print("x values: {}\nresult:   {}".format(consts, result))
+.. code-block:: python
 
-**NB**: Currently, one important caveat is that all `zfit` objects are based on `tensorflow`, and therefore they are graphs that are not executed immediately, but need to be run on a session:
+    zfit.run(TensorFlow_object)
 
-```python
-zfit.run(TensorFlow_object)
-```
+One example is the Gauss PDF defined above. The object ``gauss`` contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As example, let's calculate the probability for given values
+.. code-block:: python
 
-Here, we can see the power of the context managers used to change the normalisation range.
+    zfit.run(TensorFlow_object)
+    consts = [-1, 0, 1]
+    probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
 
-with gauss.set_norm_range((-1e6, 1e6)):  # play around with different norm ranges
-# with gauss.set_norm_range((-100, 100)):
-    print(zfit.run(gauss.integrate((-0.6, 0.6))))
-    print(zfit.run(gauss.integrate((-3, 3))))
-    print(zfit.run(gauss.integrate((-100, 100))))
+    # And now execute the tensorflow graph
+    result = zfit.run(probs)
+    print("x values: {}\nresult:   {}".format(consts, result))
+
+Similar feature can be done if we want to evaluate the integral of a given PDF for a given normalisation range:
+
+.. code-block:: python
+
+    with gauss.set_norm_range((-1e6, 1e6)): 
+        print(zfit.run(gauss.integrate((-0.6, 0.6))))
+        print(zfit.run(gauss.integrate((-3, 3))))
+        print(zfit.run(gauss.integrate((-100, 100))))
 
 
