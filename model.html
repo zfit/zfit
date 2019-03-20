@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Building a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#predefined-pdfs-basic-operations">Predefined PDFs basic operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#extended-pdf">Extended PDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#composite-pdf">Composite PDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#custom-pdf">Custom PDF</a></li>
@@ -111,11 +112,31 @@
   <div class="section" id="building-a-model">
 <h1>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline">¶</a></h1>
 <p>In order to build a generic model the concept of function and distributed density functions (PDFs) need to be clarified.
-The PDF, or density of a continuous random variable, of X is a function f(x) that describes the relative likelihood for this random variable to take on a given value. In this sense, for any two numbers a and b with $$a leq b $$,</p>
-<p>$$P(a leq X leq b) = int^{b}_{a}f(X)dx$$</p>
+The PDF, or density of a continuous random variable, of X is a function f(x) that describes the relative likelihood for this random variable to take on a given value. In this sense, for any two numbers a and b with <span class="math notranslate nohighlight">\(a \leq b\)</span>,</p>
+<p><span class="math notranslate nohighlight">\(P(a \leq X \leq b) = \int^{b}_{a}f(X)dx\)</span></p>
 <p>That is, the probability that X takes on a value in the interval [a, b] is the area above this interval and under the graph of the density function.
-In other words, in order to a function to be a PDF it must satisfy two criteria: (1) $$f(x) neq 0$$ for all x; (2) $$int^{infty}_{-infty}f(x)dx = $$ are under the entire graph of $$f(x)=1$$.
-In <code class="docutils literal notranslate"><span class="pre">zfit</span></code> these distinctions are respect, i.e.  conditions in whcih</p>
+In other words, in order to a function to be a PDF it must satisfy two criteria: (1) <span class="math notranslate nohighlight">\(f(x) \neq 0\)</span> for all x; (2) <span class="math notranslate nohighlight">\(int^{\infty}_{-\infty}f(x)dx =\)</span> are under the entire graph of <span class="math notranslate nohighlight">\(f(x)=1\)</span>.
+In <code class="docutils literal notranslate"><span class="pre">zfit</span></code> these distinctions are respect, i.e. a function can be converted into a PDF by imposing the basic two criteria above.</p>
+</div>
+<div class="section" id="predefined-pdfs-basic-operations">
+<h1>Predefined PDFs basic operations<a class="headerlink" href="#predefined-pdfs-basic-operations" title="Permalink to this headline">¶</a></h1>
+<p>A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
+<span class="p">[</span><span class="s1">&#39;BasePDF&#39;</span><span class="p">,</span> <span class="s1">&#39;Exponential&#39;</span><span class="p">,</span> <span class="s1">&#39;CrystalBall&#39;</span><span class="p">,</span> <span class="s1">&#39;Gauss&#39;</span><span class="p">,</span> <span class="s1">&#39;Uniform&#39;</span><span class="p">,</span> <span class="s1">&#39;WrapDistribution&#39;</span><span class="p">,</span> <span class="s1">&#39;ProductPDF&#39;</span><span class="p">,</span> <span class="s1">&#39;SumPDF&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>These include the basic function but also some operations discussed below. Let’s consider the simple example of a <code class="docutils literal notranslate"><span class="pre">CrystalBall</span></code>.
+PDF objects must also be initialised giving their named parameters. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Creating the parameters for the crystal ball</span>
+<span class="n">mu</span>    <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span>   <span class="p">,</span> <span class="mi">5279</span><span class="p">,</span> <span class="mi">5100</span><span class="p">,</span> <span class="mi">5300</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span>   <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">a</span>     <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;a&quot;</span>    <span class="p">,</span>    <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">n</span>     <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;n&quot;</span>    <span class="p">,</span>    <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Single crystal Ball</span>
+<span class="n">CB</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">CrystalBall</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="extended-pdf">
 <h1>Extended PDF<a class="headerlink" href="#extended-pdf" title="Permalink to this headline">¶</a></h1>
