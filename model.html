@@ -204,6 +204,23 @@ The order of the observables follows the order of the PDFs given.</p>
 </div>
 <div class="section" id="extended-pdf">
 <h2>Extended PDF<a class="headerlink" href="#extended-pdf" title="Permalink to this headline">¶</a></h2>
+<p>In the event there are different <em>species</em> of distributions in a given observable,
+the simple sum of PDFs does not a priori provides the absolute number of events for each specie but rather the fraction as seen above.
+An example is a Gaussian mass distribution with an exponential background, e.g.</p>
+<p><span class="math notranslate nohighlight">\(P = f_{S}\frac{1}_{\sqrt{2\pi}\sigma} e^{-{(x-\mu)^{2}}_{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}\)</span></p>
+<p>Since we are interested to express a measurement of the number of events,
+the expression <span class="math notranslate nohighlight">\(M(x) = N_{S}S(x) + N_{B}B(x)\)</span> respect that M(x) is normalised to $$N_{S} + N_{B} = N$$ instead of one.
+This means that $$M(x)$$ is not a true PDF but rayher an expression for two quantities, the shape and the number of events in the distributions.</p>
+<p>An extended PDF can be easily implemented in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> in two ways:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a parameter for the number of events</span>
+<span class="n">yieldGauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;yieldGauss&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="c1"># Extended PDF using a predefined method</span>
+<span class="n">extended_gauss_method</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">create_extended</span><span class="p">(</span><span class="n">yieldGauss</span><span class="p">)</span>
+<span class="c1"># Or simply with a Python syntax of multiplying a PDF with the parameter</span>
+<span class="n">extended_gauss_python</span> <span class="o">=</span> <span class="n">yieldGauss</span> <span class="o">*</span> <span class="n">gauss</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="custom-pdf">
 <h2>Custom PDF<a class="headerlink" href="#custom-pdf" title="Permalink to this headline">¶</a></h2>
