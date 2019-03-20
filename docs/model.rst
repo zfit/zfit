@@ -9,7 +9,7 @@ In this sense, for any two numbers a and b with :math:`a \leq b`,
 
 That is, the probability that X takes on a value in the interval :math:`[a, b]` is the area above this interval and under the graph of the density function.
 In other words, in order to a function to be a PDF it must satisfy two criteria: 
-(1) :math:`f(x) \neq 0` for all x; (2) :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`. 
+(1) :math:`f(x) \geq 0` for all x; (2) :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`. 
 In ``zfit`` these distinctions are respect, i.e. a function can be converted into a PDF by imposing the basic two criteria above. 
 
 Predefined PDFs and basic properties 
@@ -68,13 +68,55 @@ Let's consider a second crystal ball with the same mean position and width, but 
 .. code-block:: python
 
     # New tail parameters for the second CB
-    a2     = zfit.Parameter("a2", -1, 0, -10)
-    n2     = zfit.Parameter("n2",  1, 0,  10)
+    a2 = zfit.Parameter("a2", -1, 0, -10)
+    n2 = zfit.Parameter("n2",  1, 0,  10)
 
     # New crystal Ball function defined in the same observable range
     CB2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
 
+We can now combine these two PDFs to create a double Crystal Ball with a single mean and width: 
 
+.. code-block:: python
+
+    # First needs to define a parameters that represent 
+    # the relative fraction between the two PDFs
+    frac = zfit.Parameter("frac", 0.5, 0, 1)
+
+    # Two different ways to combine 
+    doubleCB = frac * CB + CB2
+    # or via the class API
+    doubleCB_class = zfit.pdf.SumPDF(pdfs=[CB, CB2], fracs=frac)
+
+Notice that the new PDF has the same observables as the original ones, as they coincide. 
+Alternatively one could consider having PDFs for different axis, which would then create a totalPDF with higher dimension.
+
+A simple extension of these operations is if we want to instead of a sum of PDFs, to model a two-dimensional Gaussian (e.g.): 
+
+.. code-block:: python
+
+    # Defining two Gaussians in two different axis (obs)
+    mu1    = zfit.Parameter("mu1", 1.)
+    sigma1 = zfit.Parameter("sigma1", 1.)
+    gauss1 = zfit.pdf.Gauss(obs="obs1", mu=mu1, sigma=sigma1)
+
+    mu2    = zfit.Parameter("mu2", 1.)
+    sigma2 = zfit.Parameter("sigma2", 1.)
+    gauss2 = zfit.pdf.Gauss(obs="obs2", mu=mu2, sigma=sigma2)
+
+    # Producing the product of two PDFs 
+    prod_gauss = gauss1 * gauss2
+    # Or alternatively 
+    prod_gauss_class = zfit.pdf.ProductPDF(pdfs=[gauss2, gauss1])  # notice the different order or the pdf
+
+The new PDF is now in two dimensions. 
+The order of the observables follows the order of the PDFs given.
+
+.. code-block:: python
+
+    print("python syntax product obs", prod_gauss.obs)
+    [python syntax product obs ('obs1', 'obs2')]
+    print("class API product obs", prod_gauss_class.obs)
+    [class API product obs ('obs2', 'obs1')]
 
 
 Extended PDF
@@ -82,6 +124,52 @@ Extended PDF
 
 Custom PDF
 ''''''''''
+A fundamental design choice of ``zfit`` is the ability to create custom PDFs and functions in an easy way.
+Let's consider a simplified implementation
+
+
+.. code-block:: python
+
+    class MyGauss(zfit.pdf.ZPDF):
+        """Simple implementation of a Gaussian similar to :py:class`~zfit.pdf.Gauss` class"""
+        _N_OBS = 1  # dimension, can be omitted
+        _PARAMS = ['mean', 'std']  # the name of the parameters
+    
+    def _unnormalized_pdf(self, x):
+        x = ztf.unstack_x()
+        mean = self.params['mean']
+        std  = self.params['std']
+        return ztf.exp(- ((x - mean)/std)**2)
+
+This is the basic information required for this custom PDF. 
+With this new PDF one can access the same feature of the predefined PDFs, e.g.
+
+.. code-block:: python
+
+    obs = zfit.Space("obs1", limits=(-4, 4))
+
+    mean = zfit.Parameter("mean", 1.)
+    std  = zfit.Parameter("std", 1.)
+    my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
+
+    # For instance integral probabilities
+    integral = my_gauss.integrate(limits=(-1, 2))
+    probs    = my_gauss.pdf(data, norm_range=(-3, 4))
+
+Finally, we could also improve the description of the PDF by providing a analytical integral for the ``MyGauss`` PDF:
+
+.. code-block:: python
+
+    def gauss_integral_from_any_to_any(limits, params, model):
+        (lower,), (upper,) = limits.limits
+        mean = params['mean']
+        std = params['std']
+        # Write you integral
+        return 42. # Dummy value
+
+    # Register the integral
+    limits = zfit.Space.from_axes(axes=0, limits=(zfit.Space.ANY_LOWER, zfit.Space.ANY_UPPER))
+    MyGauss.register_analytic_integral(func=gauss_integral_from_any_to_any, limits=limits)
 
 
 Sampling from a PDF
