@@ -2,10 +2,10 @@
 Space, Observable and Range
 ============================
 
-Inside zfit, :py:class:`~zfit.Space` defines the domain of objects by specifying the observables/axes and *may* also
+Inside ``zfit``, :py:class:`~zfit.Space` defines the domain of objects by specifying the observables/axes and *maybe* also
 the limits. Any model and data needs to be specified in a certain domain, which is usually done using the
-`obs` argument. It is crucial that the observable of the data and the model coincide in the axis they
-will be used. So :py:class:`~zfit.Space` manages all the axes matching.
+``obs`` argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
+handle by the :py:class:`~zfit.Space` class.
 
 .. code:: python
 
@@ -15,25 +15,24 @@ will be used. So :py:class:`~zfit.Space` manages all the axes matching.
 
 Definitions
 '''''''''''
-**Space**: an n-dimensional definiton of a domain (either by using one or more observables or axes),
-either with or without limits.
+**Space**: an *n*-dimensional definition of a domain (either by using one or more observables or axes),
+with or without limits.
 
 .. note::
 
     *compared to `RooFit`, a space is **not** the equivalent of an observable but rather corresponds
-    to an object combining **several** observables. Furthermore, there is a **strong** distinction
-    in ``zfit`` between a :py:class:`~zfit.Space` (or observables) and a :py:class:`~zfit.Parameter`,
-    both in terms of the concepts and in terms of implementation and usage.*
+    to an object combining **a set** of observables (which of course can be of size 1). Furthermore,
+    there is a **strong** distinction in ``zfit`` between a :py:class:`~zfit.Space` (or observables)
+    and a :py:class:`~zfit.Parameter`, both conceptually and in terms of implementation and usage.*
 
-**Observables**: a string defining the axes; a named axes.
+**Observable**: a string defining the axes; a named axes.
 
 *(for advanced usage only, can be skipped on first read)*
-**Axes**: integers defining the axes *internally* of a model. There is always a mapping of observables <-> axes *once inside a model*.
+**Axis**: integer defining the axes *internally* of a model. There is always a mapping of observables <-> axes *once inside a model*.
 
-**Limits** The range on a certain axis. Typically defines an interval.
+**Limit** The range on a certain axis. Typically defines an interval.
 
-
-Since every object has a well defined domain, this allows to do the following things
+Since every object has a well defined domain, it is possible to combine them in an unambiguous way 
 
 .. code:: python
 
@@ -48,8 +47,8 @@ Since every object has a well defined domain, this allows to do the following th
     # OR, equivalently
     product = zfit.pdf.ProductPDF([model1, model2])
 
-The `product` is now defined in the space with `observables` `['x', 'y', 'z']`. Any Data has to be specified
-in the same space.
+The ``product`` is now defined in the space with observables `['x', 'y', 'z']`. Any :py:class:`~zfit.data.Data` object 
+to be combined with ``product`` has to be specified in the same space.
 
 .. code:: python
 
@@ -58,17 +57,16 @@ in the same space.
 
     data = zfit.Data.from_numpy(obs=combined_obs, ...)
 
-Now we have a :py:class:`~zfit.Data` that is defined in the same domain as `product` and can be used
-for anything.
+Now we have a :py:class:`~zfit.data.Data` object that is defined in the same domain as `product` and can be used to build a loss function.
 
 Limits
 """"""
 
-In many places, just defining the observables is not enough and an interval, specified by limits, is required.
+In many places, just defining the observables is not enough and an interval, specified by its limits, is required.
 Examples are a normalization range, the limits of an integration or sampling in a certain region.
 
 Simple, 1-dimensional limits can be specified as follows. Operations like addition (creating a space with
-two intervals) or combination (increase the dimensionality) is possible.
+two intervals) or combination (increase the dimensionality) are also possible.
 
 .. code:: python
 
@@ -77,8 +75,10 @@ two intervals) or combination (increase the dimensionality) is possible.
 
     added_limits = simple_limit1 + simple_limit2
 
-`added_limits` is now a :py:class:`~zfit.Space` with observable `'obs1'` defined in the intervals
-(-5, 1) and (3, 7.5). This can be useful e.g. when fitting in two regions.
+In this case, `added_limits` is now a :py:class:`~zfit.Space` with observable `'obs1'` defined in the intervals
+(-5, 1) and (3, 7.5). This can be useful, *e.g.*, when fitting in two regions.
+An example of the product of different :py:class:`~zfit.Space` instances has been shown before as ``combined_obs``.
+
 
 Defining limits
 ---------------
@@ -103,19 +103,19 @@ the definition works as follows:
 
     space1 = zfit.Space(obs=['obs1', 'obs2', ...], limits=limits)
 
-This defined the area from...
+This defines the area from
 
-* `low_1_obs1` to `up_1_obs1` in the first observable `'obs1'`
-* `low_1_obs2` to `up_1_obs2` in the second observable `'obs2'`
+* `low_1_obs1` to `up_1_obs1` in the first observable `'obs1'`;
+* `low_1_obs2` to `up_1_obs2` in the second observable `'obs2'`;
 * ...
 
-and the area from
+the area from
 
-* `low_2_obs1` to `up_2_obs1` in the first observable `'obs1'`
-* `low_2_obs2` to `up_2_obs2` in the second observable `'obs2'`
+* `low_2_obs1` to `up_2_obs1` in the first observable `'obs1'`;
+* `low_2_obs2` to `up_2_obs2` in the second observable `'obs2'`;
 * ...
 
-and more...
+and so on.
 
 
 A working code example of :py:class:`~zfit.Space` handling is provided in `spaces.py` in

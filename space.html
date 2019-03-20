@@ -106,10 +106,10 @@
       
   <div class="section" id="space-observable-and-range">
 <h1>Space, Observable and Range<a class="headerlink" href="#space-observable-and-range" title="Permalink to this headline">¶</a></h1>
-<p>Inside zfit, <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> defines the domain of objects by specifying the observables/axes and <em>may</em> also
+<p>Inside <code class="docutils literal notranslate"><span class="pre">zfit</span></code>, <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> defines the domain of objects by specifying the observables/axes and <em>maybe</em> also
 the limits. Any model and data needs to be specified in a certain domain, which is usually done using the
-<cite>obs</cite> argument. It is crucial that the observable of the data and the model coincide in the axis they
-will be used. So <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> manages all the axes matching.</p>
+<code class="docutils literal notranslate"><span class="pre">obs</span></code> argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
+handle by the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> class.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
@@ -117,20 +117,20 @@ will be used. So <a class="reference internal" href="api/zfit.html#zfit.Space" t
 </div>
 <div class="section" id="definitions">
 <h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h2>
-<p><strong>Space</strong>: an n-dimensional definiton of a domain (either by using one or more observables or axes),
-either with or without limits.</p>
+<p><strong>Space</strong>: an <em>n</em>-dimensional definition of a domain (either by using one or more observables or axes),
+with or without limits.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><em>compared to `RooFit`, a space is **not*</em> the equivalent of an observable but rather corresponds
-to an object combining <strong>several</strong> observables. Furthermore, there is a <strong>strong</strong> distinction
-in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> between a <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (or observables) and a <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>,
-both in terms of the concepts and in terms of implementation and usage.*</p>
+to an object combining <strong>a set</strong> of observables (which of course can be of size 1). Furthermore,
+there is a <strong>strong</strong> distinction in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> between a <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (or observables)
+and a <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>, both conceptually and in terms of implementation and usage.*</p>
 </div>
-<p><strong>Observables</strong>: a string defining the axes; a named axes.</p>
+<p><strong>Observable</strong>: a string defining the axes; a named axes.</p>
 <p><em>(for advanced usage only, can be skipped on first read)</em>
-<strong>Axes</strong>: integers defining the axes <em>internally</em> of a model. There is always a mapping of observables &lt;-&gt; axes <em>once inside a model</em>.</p>
-<p><strong>Limits</strong> The range on a certain axis. Typically defines an interval.</p>
-<p>Since every object has a well defined domain, this allows to do the following things</p>
+<strong>Axis</strong>: integer defining the axes <em>internally</em> of a model. There is always a mapping of observables &lt;-&gt; axes <em>once inside a model</em>.</p>
+<p><strong>Limit</strong> The range on a certain axis. Typically defines an interval.</p>
+<p>Since every object has a well defined domain, it is possible to combine them in an unambiguous way</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">obs1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])</span>
 <span class="n">obs2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">([</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])</span>
 
@@ -143,30 +143,30 @@ both in terms of the concepts and in terms of implementation and usage.*</p>
 <span class="n">product</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ProductPDF</span><span class="p">([</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>The <cite>product</cite> is now defined in the space with <cite>observables</cite> <cite>[‘x’, ‘y’, ‘z’]</cite>. Any Data has to be specified
-in the same space.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">product</span></code> is now defined in the space with observables <cite>[‘x’, ‘y’, ‘z’]</cite>. Any <a class="reference internal" href="api/zfit.data.html#zfit.data.Data" title="zfit.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a> object
+to be combined with <code class="docutils literal notranslate"><span class="pre">product</span></code> has to be specified in the same space.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># create the space</span>
 <span class="n">combined_obs</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">*</span> <span class="n">obs2</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">combined_obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Now we have a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> that is defined in the same domain as <cite>product</cite> and can be used
-for anything.</p>
+<p>Now we have a <a class="reference internal" href="api/zfit.data.html#zfit.data.Data" title="zfit.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a> object that is defined in the same domain as <cite>product</cite> and can be used to build a loss function.</p>
 <div class="section" id="limits">
 <h3>Limits<a class="headerlink" href="#limits" title="Permalink to this headline">¶</a></h3>
-<p>In many places, just defining the observables is not enough and an interval, specified by limits, is required.
+<p>In many places, just defining the observables is not enough and an interval, specified by its limits, is required.
 Examples are a normalization range, the limits of an integration or sampling in a certain region.</p>
 <p>Simple, 1-dimensional limits can be specified as follows. Operations like addition (creating a space with
-two intervals) or combination (increase the dimensionality) is possible.</p>
+two intervals) or combination (increase the dimensionality) are also possible.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simple_limit1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="n">simple_limit2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">))</span>
 
 <span class="n">added_limits</span> <span class="o">=</span> <span class="n">simple_limit1</span> <span class="o">+</span> <span class="n">simple_limit2</span>
 </pre></div>
 </div>
-<p><cite>added_limits</cite> is now a <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with observable <cite>‘obs1’</cite> defined in the intervals
-(-5, 1) and (3, 7.5). This can be useful e.g. when fitting in two regions.</p>
+<p>In this case, <cite>added_limits</cite> is now a <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with observable <cite>‘obs1’</cite> defined in the intervals
+(-5, 1) and (3, 7.5). This can be useful, <em>e.g.</em>, when fitting in two regions.
+An example of the product of different <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> instances has been shown before as <code class="docutils literal notranslate"><span class="pre">combined_obs</span></code>.</p>
 <div class="section" id="defining-limits">
 <h4>Defining limits<a class="headerlink" href="#defining-limits" title="Permalink to this headline">¶</a></h4>
 <p>To define simple, 1-dimensional limits, a tuple with two numbers is enough. For anything more complicated,
@@ -187,19 +187,19 @@ the definition works as follows:</p>
 <span class="n">space1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="s1">&#39;obs2&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This defined the area from…</p>
+<p>This defines the area from</p>
 <ul class="simple">
-<li><cite>low_1_obs1</cite> to <cite>up_1_obs1</cite> in the first observable <cite>‘obs1’</cite></li>
-<li><cite>low_1_obs2</cite> to <cite>up_1_obs2</cite> in the second observable <cite>‘obs2’</cite></li>
+<li><cite>low_1_obs1</cite> to <cite>up_1_obs1</cite> in the first observable <cite>‘obs1’</cite>;</li>
+<li><cite>low_1_obs2</cite> to <cite>up_1_obs2</cite> in the second observable <cite>‘obs2’</cite>;</li>
 <li>…</li>
 </ul>
-<p>and the area from</p>
+<p>the area from</p>
 <ul class="simple">
-<li><cite>low_2_obs1</cite> to <cite>up_2_obs1</cite> in the first observable <cite>‘obs1’</cite></li>
-<li><cite>low_2_obs2</cite> to <cite>up_2_obs2</cite> in the second observable <cite>‘obs2’</cite></li>
+<li><cite>low_2_obs1</cite> to <cite>up_2_obs1</cite> in the first observable <cite>‘obs1’</cite>;</li>
+<li><cite>low_2_obs2</cite> to <cite>up_2_obs2</cite> in the second observable <cite>‘obs2’</cite>;</li>
 <li>…</li>
 </ul>
-<p>and more…</p>
+<p>and so on.</p>
 <p>A working code example of <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> handling is provided in <cite>spaces.py</cite> in
 <span class="xref std std-doc">examples</span>.</p>
 </div>
