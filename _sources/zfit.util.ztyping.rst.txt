@@ -1,0 +1,7 @@
+zfit.util.ztyping
+=================
+
+.. automodule:: zfit.util.ztyping
+    :members:
+    :undoc-members:
+    :show-inheritance:

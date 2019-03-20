@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.core.operations &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>zfit.core.operations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/zfit.core.operations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-zfit.core.operations">
+<span id="zfit-core-operations"></span><h1>zfit.core.operations<a class="headerlink" href="#module-zfit.core.operations" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="zfit.core.operations.add">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">add</code><span class="sig-paren">(</span><em>object1: Union[ZfitParameter, ZfitFunction, ZfitPDF], object2: Union[ZfitParameter, ZfitFunction, ZfitPDF]</em><span class="sig-paren">)</span> &#x2192; Union[ZfitParameter, ZfitFunction, ZfitPDF]<a class="reference internal" href="_modules/zfit/core/operations.html#add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add two objects and return a new object (may depending on the old).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>(</strong><strong>)</strong> (<em>object2</em>) – A ZfitParameter, ZfitFunc or ZfitPDF to add with object2</li>
+<li><strong>(</strong><strong>)</strong> – A ZfitParameter, ZfitFunc or ZfitPDF to add with object1</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.add_func_func">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">add_func_func</code><span class="sig-paren">(</span><em>func1: zfit.core.interfaces.ZfitFunc</em>, <em>func2: zfit.core.interfaces.ZfitFunc</em>, <em>name: str = 'add_func_func'</em><span class="sig-paren">)</span> &#x2192; SumFunc<a class="reference internal" href="_modules/zfit/core/operations.html#add_func_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.add_func_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.add_param_func">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">add_param_func</code><span class="sig-paren">(</span><em>param: zfit.core.interfaces.ZfitParameter</em>, <em>func: zfit.core.interfaces.ZfitFunc</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitFunc<a class="reference internal" href="_modules/zfit/core/operations.html#add_param_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.add_param_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.add_param_param">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">add_param_param</code><span class="sig-paren">(</span><em>param1: zfit.core.interfaces.ZfitParameter</em>, <em>param2: zfit.core.interfaces.ZfitParameter</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitParameter<a class="reference internal" href="_modules/zfit/core/operations.html#add_param_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.add_param_param" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.add_pdf_pdf">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">add_pdf_pdf</code><span class="sig-paren">(</span><em>pdf1: zfit.core.interfaces.ZfitPDF</em>, <em>pdf2: zfit.core.interfaces.ZfitPDF</em>, <em>name: str = 'add_pdf_pdf'</em><span class="sig-paren">)</span> &#x2192; SumPDF<a class="reference internal" href="_modules/zfit/core/operations.html#add_pdf_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.add_pdf_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.convert_func_to_pdf">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">convert_func_to_pdf</code><span class="sig-paren">(</span><em>func: Union[zfit.core.interfaces.ZfitFunc, Callable], obs=None, name=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="_modules/zfit/core/operations.html#convert_func_to_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.convert_func_to_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.convert_pdf_to_func">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">convert_pdf_to_func</code><span class="sig-paren">(</span><em>pdf: zfit.core.interfaces.ZfitPDF, norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitFunc<a class="reference internal" href="_modules/zfit/core/operations.html#convert_pdf_to_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.convert_pdf_to_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.multiply">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">multiply</code><span class="sig-paren">(</span><em>object1: Union[ZfitParameter, ZfitFunction, ZfitPDF], object2: Union[ZfitParameter, ZfitFunction, ZfitPDF]</em><span class="sig-paren">)</span> &#x2192; Union[ZfitParameter, ZfitFunction, ZfitPDF]<a class="reference internal" href="_modules/zfit/core/operations.html#multiply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.multiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiply two objects and return a new object (may depending on the old).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>(</strong><strong>)</strong> (<em>object2</em>) – A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object2</li>
+<li><strong>(</strong><strong>)</strong> – A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object1</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – if one of the objects is neither a ZfitFunc, ZfitPDF or convertable to a ZfitParameter</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.multiply_func_func">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">multiply_func_func</code><span class="sig-paren">(</span><em>func1: zfit.core.interfaces.ZfitFunc</em>, <em>func2: zfit.core.interfaces.ZfitFunc</em>, <em>name: str = 'multiply_func_func'</em><span class="sig-paren">)</span> &#x2192; ProdFunc<a class="reference internal" href="_modules/zfit/core/operations.html#multiply_func_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.multiply_func_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.multiply_param_func">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">multiply_param_func</code><span class="sig-paren">(</span><em>param: zfit.core.interfaces.ZfitParameter</em>, <em>func: zfit.core.interfaces.ZfitFunc</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitFunc<a class="reference internal" href="_modules/zfit/core/operations.html#multiply_param_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.multiply_param_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.multiply_param_param">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">multiply_param_param</code><span class="sig-paren">(</span><em>param1: zfit.core.interfaces.ZfitParameter</em>, <em>param2: zfit.core.interfaces.ZfitParameter</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitParameter<a class="reference internal" href="_modules/zfit/core/operations.html#multiply_param_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.multiply_param_param" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.multiply_param_pdf">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">multiply_param_pdf</code><span class="sig-paren">(</span><em>param: zfit.core.interfaces.ZfitParameter</em>, <em>pdf: zfit.core.interfaces.ZfitPDF</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="_modules/zfit/core/operations.html#multiply_param_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.multiply_param_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.operations.multiply_pdf_pdf">
+<code class="descclassname">zfit.core.operations.</code><code class="descname">multiply_pdf_pdf</code><span class="sig-paren">(</span><em>pdf1: zfit.core.interfaces.ZfitPDF</em>, <em>pdf2: zfit.core.interfaces.ZfitPDF</em>, <em>name: str = 'multiply_pdf_pdf'</em><span class="sig-paren">)</span> &#x2192; ProductPDF<a class="reference internal" href="_modules/zfit/core/operations.html#multiply_pdf_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.operations.multiply_pdf_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
+upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
+Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
+and from 2 to 5.</p>
+<p>Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|</p>
+<p>intervall is the differenz to the upper bounds. Example: ((-1, 4), (1, 6), (3, 10),…)  # 2-d function</p>
+<p>intervall is the differenz to the lower bounds. Example: ((-0.1, 5), (2, 8), (7, 14),…)  # 2-d function</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

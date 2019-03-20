@@ -1,0 +1,7 @@
+zfit.minimizers.minimizers\_scipy
+=================================
+
+.. automodule:: zfit.minimizers.minimizers_scipy
+    :members:
+    :undoc-members:
+    :show-inheritance:

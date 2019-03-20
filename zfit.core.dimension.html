@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.core.dimension &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>zfit.core.dimension</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/zfit.core.dimension.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-zfit.core.dimension">
+<span id="zfit-core-dimension"></span><h1>zfit.core.dimension<a class="headerlink" href="#module-zfit.core.dimension" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="zfit.core.dimension.BaseDimensional">
+<em class="property">class </em><code class="descclassname">zfit.core.dimension.</code><code class="descname">BaseDimensional</code><a class="reference internal" href="_modules/zfit/core/dimension.html#BaseDimensional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.BaseDimensional" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitDimensional" title="zfit.core.interfaces.ZfitDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitDimensional</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.core.dimension.BaseDimensional.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.dimension.BaseDimensional.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.dimension.BaseDimensional.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.dimension.add_spaces">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">add_spaces</code><span class="sig-paren">(</span><em>spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/dimension.html#add_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.add_spaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add two spaces and merge their limits if possible or return False.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spaces</strong> (Iterable[<cite>zfit.Space</cite>]) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference internal" href="zfit.core.limits.html#zfit.core.limits.Space" title="zfit.core.limits.Space">zfit.core.limits.Space</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a>]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">LimitsIncompatibleError</span></code> – if limits of the <cite>spaces</cite> cannot be merged because they overlap</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.dimension.combine_spaces">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">combine_spaces</code><span class="sig-paren">(</span><em>spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/dimension.html#combine_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.combine_spaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine spaces with different <cite>obs</cite> and <cite>limits</cite> to one <cite>space</cite>.</p>
+<p>Checks if the limits in each obs coincide <em>exactly</em>. If this is not the case, the combination
+is not unambiguous and <cite>False</cite> is returned</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>spaces</strong> (<em>List</em><em>[</em><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>zfit.Space</em></a><em>]</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>Returns False if the limits don’t coincide in one or more obs. Otherwise</dt>
+<dd><p class="first last">return the Space with all obs from <cite>spaces</cite> sorted by the order of <cite>spaces</cite> and with the
+combined limits.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><cite>zfit.Space</cite> or False</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – if only one space is given</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">LimitsIncompatibleError</span></code> – If the limits of one or more spaces (or within a space) overlap</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">LimitsNotSpecifiedError</span></code> – If the limits for one or more obs but not all are None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.dimension.common_obs">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">common_obs</code><span class="sig-paren">(</span><em>spaces: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="_modules/zfit/core/dimension.html#common_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.common_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the union of <cite>obs</cite> from <cite>spaces</cite> in the order of <cite>spaces</cite>.</p>
+<dl class="docutils">
+<dt>For example:</dt>
+<dd><div class="first line-block">
+<div class="line">space1.obs: [‘obs1’, ‘obs3’]</div>
+<div class="line">space2.obs: [‘obs2’, ‘obs3’, ‘obs1’]</div>
+<div class="line">space3.obs: [‘obs2’]</div>
+</div>
+<p class="last">returns [‘obs1’, ‘obs3’, ‘obs2’]</p>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>spaces</em>) – Spaces to extract the obs from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The observables as <cite>str</cite></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.dimension.get_same_obs">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">get_same_obs</code><a class="reference internal" href="_modules/zfit/core/dimension.html#get_same_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.get_same_obs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.dimension.is_combinable">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">is_combinable</code><span class="sig-paren">(</span><em>spaces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/dimension.html#is_combinable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.is_combinable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.dimension.limits_consistent">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">limits_consistent</code><span class="sig-paren">(</span><em>spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/dimension.html#limits_consistent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.limits_consistent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if space limits are the <em>exact</em> same in each obs they are defined and therefore are compatible.</p>
+<p>In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
+to be consistent with this limits, other limits have to have (in this obs) also the limits
+from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.</p>
+<p>This function is useful to check if several spaces with <em>different</em> observables can be _combined_.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spaces</strong> (<em>List</em><em>[</em><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>zfit.Space</em></a><em>]</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.dimension.limits_overlap">
+<code class="descclassname">zfit.core.dimension.</code><code class="descname">limits_overlap</code><span class="sig-paren">(</span><em>spaces: Union[zfit.Space, Iterable[zfit.Space]], allow_exact_match: bool = False</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/zfit/core/dimension.html#limits_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.limits_overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if _any_ of the limits of <cite>spaces</cite> overlaps with _any_ other of <cite>spaces</cite>.</p>
+<p>This also checks multiple limits within one space. If <cite>allow_exact_match</cite> is set to true, then
+an <em>exact</em> overlap of limits is allowed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spaces</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>zfit.Space</em></a><em>]</em>) – </li>
+<li><strong>allow_exact_match</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – An exact overlap of two limits is counted as “not overlapping”.
+Example: limits from -1 to 3 and 4 to 5 to <em>NOT</em> overlap with the limits 4 to 5 <em>iff</em>
+<cite>allow_exact_match</cite> is True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">if there are overlapping limits.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
+upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
+Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
+and from 2 to 5.</p>
+<p>Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|</p>
+<p>intervall is the differenz to the upper bounds. Example: ((-1, 4), (1, 6), (3, 10),…)  # 2-d function</p>
+<p>intervall is the differenz to the lower bounds. Example: ((-0.1, 5), (2, 8), (7, 14),…)  # 2-d function</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

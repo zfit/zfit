@@ -1,107 +1,165 @@
+
+
 <!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.minimizers.fitresult &mdash; zfit 0.0.0 documentation</title>
+  
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.0.0 documentation</title>
-    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
 
-  </head><body>
+<body class="wy-body-for-nav">
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
 
-        <a class="brand" href="../../../index.html">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="../../../getting_started.html">Getting started</a></li>
-                <li><a href="../../../space.html">Space</a></li>
-                <li><a href="../../../parameter.html">Parameter</a></li>
-                <li><a href="../../../model.html">Model</a></li>
-                <li><a href="../../../data.html">Data</a></li>
-                <li><a href="../../../loss.html">Loss</a></li>
-                <li><a href="../../../minimize.html">Minimize</a></li>
-                <li><a href="../../../API.html">API</a></li>
+          
+          </a>
+
+          
             
             
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../../../index.html">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../minimize.html">Minimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a></li>
-</ul>
-</ul>
-</li>
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
               
             
             
-            
-            
-            
-          </ul>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
 
-          
             
-<form class="navbar-form navbar-right" action="../../../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
           
         </div>
       </div>
-    </div>
-  </div>
+    </nav>
 
-<div class="container">
-  <div class="row">
-    <div class="span12 content">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
       
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.minimizers.fitresult</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
   <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
@@ -155,7 +213,7 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitResult</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitResult</span><span class="p">):</span>
     <span class="n">_default_hesse</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span>
     <span class="n">_hesse_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;minuit_hesse&#39;</span><span class="p">:</span> <span class="n">_hesse_minuit</span><span class="p">}</span>
     <span class="n">_default_error</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span>
@@ -169,8 +227,7 @@
 <span class="sd">        &#39;high&#39;: value or similar}}</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            params (OrderedDict[:py:class:`~zfit.Parameter`, float]): Result of the fit where each</span>
-<span class="sd">            :py:class:`~zfit.Parameter` key has the value</span>
+<span class="sd">            params (OrderedDict[Parameter, float]): Result of the fit where each Parameter key has the value</span>
 <span class="sd">                from the minimum found by the minimizer.</span>
 <span class="sd">            edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)</span>
 <span class="sd">            fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer</span>
@@ -257,12 +314,12 @@
             <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">params</span>
 
-<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span><span class="p">,</span>
               <span class="n">error_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Calculate for `params` the symmetric error using the Hessian matrix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            params (list(:py:class:`~zfit.Parameter`)): The parameters  to calculate the</span>
+<span class="sd">            params (list(`zfit.FitParameters`)): The parameters  to calculate the</span>
 <span class="sd">                Hessian symmetric error. If None, use all parameters.</span>
 <span class="sd">            method (str): the method to calculate the hessian. Can be {&#39;minuit&#39;} or a callable.</span>
 <span class="sd">            error_name (str): The name for the error in the dictionary.</span>
@@ -299,13 +356,13 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
 
         <span class="sd">&quot;&quot;&quot;Calculate and set for `params` the asymmetric error using the set error method.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the</span>
+<span class="sd">                params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the</span>
 <span class="sd">                     errors. If `params` is `None`, use all *floating* parameters.</span>
 <span class="sd">                method (str or Callable): The method to use to calculate the errors. Valid choices are</span>
 <span class="sd">                    {&#39;minuit_minos&#39;} or a Callable.</span>
@@ -367,21 +424,43 @@
 <span class="c1">#     self._current_error_options.update(options)</span>
 </pre></div>
 
-    </div>
-      
-  </div>
-</div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-    </p>
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+        &copy; Copyright 2018, zfit
+
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
 </footer>
-  </body>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

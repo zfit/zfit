@@ -1,7 +1,0 @@
-sample
-======
-
-.. automodule:: zfit.core.sample
-    :members:
-    :undoc-members:
-    :show-inheritance:

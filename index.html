@@ -1,156 +1,250 @@
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>zfit: scalable pythonic fitting &#8212; zfit 0.0.0 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to zfit’s documentation! &mdash; zfit 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting started with zfit" href="getting_started.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="next" title="Zfit" href="readme.html" /> 
+</head>
 
-  </head><body>
+<body class="wy-body-for-nav">
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
 
-        <a class="brand" href="#">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+          
+            <a href="#" class="icon icon-home"> zfit
+          
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="getting_started.html">Getting started</a></li>
-                <li><a href="space.html">Space</a></li>
-                <li><a href="parameter.html">Parameter</a></li>
-                <li><a href="model.html">Model</a></li>
-                <li><a href="data.html">Data</a></li>
-                <li><a href="loss.html">Loss</a></li>
-                <li><a href="minimize.html">Minimize</a></li>
-                <li><a href="API.html">API</a></li>
+          
+          </a>
+
+          
             
             
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
-</ul>
-</ul>
-</li>
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
               
             
             
-            
-            
-            
-          </ul>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
 
-          
             
-<form class="navbar-form navbar-right" action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
           
         </div>
       </div>
-    </div>
-  </div>
+    </nav>
 
-<div class="container">
-  <div class="row">
-    <div class="span12 content">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
       
-  <div class="section" id="zfit-scalable-pythonic-fitting">
-<h1>zfit: scalable pythonic fitting<a class="headerlink" href="#zfit-scalable-pythonic-fitting" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">zfit</span></code> package is a model fitting library based on <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to
-the very successful <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> library from the ROOT (or even <code class="docutils literal notranslate"><span class="pre">PyROOT</span></code>) data analysis package. While <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> has provided a stable platform for most of the needs of the High Energy Physics (HEP) community in the last few years, it has become increasingly difficult to integrate all the developments in the scientific Python ecosystem into <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> due to its monolithic nature. Conversely, the core of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> aims at becoming a solid ground for model fitting while providing enough flexibility to incorporate state-of-art tools and to allow scalability going to larger datasets.
-This challenging task is tackled by following two basic design pillars:</p>
-<ul class="simple">
-<li>The skeleton and extension of the code is minimalist, simple and finite:
-the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library is exclusively designed for the purpose of model fitting and sampling—opposite to the self-contained <code class="docutils literal notranslate"><span class="pre">RooFit/ROOT</span></code> frameworks—with no attempt to extend its functionalities to features such as statistical methods or plotting.
-This design philosophy is well exemplified by examining maximum likelihood fits: while <code class="docutils literal notranslate"><span class="pre">zfit</span></code> works as a backend for likelihood fits and can be integrated to packages such as <code class="docutils literal notranslate"><span class="pre">lauztat</span></code> and <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> performs the fit, the statistical treatment and plotting within.
-This wider scope of <code class="docutils literal notranslate"><span class="pre">RooFit</span></code> results in a lack of flexibility with respect to new minimisers, statistic methods and, broadly speaking, any new tool that might come.
-.. In summary, <code class="docutils literal notranslate"><span class="pre">zfit</span></code> aims to have a well established backend package in the context of an open source library.</li>
-<li>Another paramount aspect of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is its design for optimal parallelisation and scalability. Even though the choice of <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> as backend introduces a strong software dependency, its use provides several interesting features in the context of model fitting.
-The key concept is that <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> is built under the <a class="reference external" href="https://en.wikipedia.org/wiki/Dataflow_programming">dataflow programming model</a>, specifically for parallel computations.
-In a simple way, <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> creates a computational graph with the operations as the nodes of the graph and tensors to its edges. Hence, the computation only happens when the graph is executed in a session, which simplifies the parallelisation by identifying the dependencies between the edges and operations or even the partition across multiple devices (CPUs, GPUs).
-The architecture of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is built upon this idea and it aims to provide a high level interface to these features, <em>i.e.</em>, most of the operations of graphs and evaluations are hidden for the user, leaving a natural and friendly model fitting and sampling experience.</li>
-</ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">zfit</span></code> package is Free software, using an Open Source license. The software and this document are works in progress.</p>
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to zfit’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-zfit-s-documentation">
+<h1>Welcome to zfit’s documentation!<a class="headerlink" href="#welcome-to-zfit-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 </div>
 </div>
-
-
-    </div>
-      
-  </div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+<p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
+upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
+Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
+and from 2 to 5.</p>
+<p>Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|</p>
+<p>intervall is the differenz to the upper bounds. Example: ((-1, 4), (1, 6), (3, 10),…)  # 2-d function</p>
+<p>intervall is the differenz to the lower bounds. Example: ((-0.1, 5), (2, 8), (7, 14),…)  # 2-d function</p>
 </div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-    </p>
+        <a href="readme.html" class="btn btn-neutral float-right" title="Zfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+        &copy; Copyright 2018, zfit
+
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
 </footer>
-  </body>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

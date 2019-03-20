@@ -1,7 +1,0 @@
-settings
-========
-
-.. automodule:: zfit.settings
-    :members:
-    :undoc-members:
-    :show-inheritance:

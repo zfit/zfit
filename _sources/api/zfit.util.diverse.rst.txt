@@ -1,7 +1,0 @@
-diverse
-=======
-
-.. automodule:: zfit.util.diverse
-    :members:
-    :undoc-members:
-    :show-inheritance:

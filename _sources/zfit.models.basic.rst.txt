@@ -1,0 +1,7 @@
+zfit.models.basic
+=================
+
+.. automodule:: zfit.models.basic
+    :members:
+    :undoc-members:
+    :show-inheritance:
