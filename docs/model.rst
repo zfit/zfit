@@ -126,7 +126,7 @@ In the event there are different *species* of distributions in a given observabl
 the simple sum of PDFs does not a priori provides the absolute number of events for each specie but rather the fraction as seen above. 
 An example is a Gaussian mass distribution with an exponential background, e.g.
 
-:math:`P = f_{S}\frac{1}_{\sqrt{2\pi}\sigma} e^{-{(x-\mu)^{2}}_{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}`
+:math:`P = f_{S}\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}`
 
 Since we are interested to express a measurement of the number of events, 
 the expression :math:`M(x) = N_{S}S(x) + N_{B}B(x)` respect that M(x) is normalised to :math:`N_{S} + N_{B} = N` instead of one. 
