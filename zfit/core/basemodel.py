@@ -292,8 +292,11 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         if isinstance(integral, tf.Tensor):
             if not integral.shape.as_list() == []:
                 raise ShapeIncompatibleError("Error in integral creation, should return an integral "
-                                             "with shape ()(resp. [] as list), current shape "
-                                             "{}".format(integral.shape.as_list()))
+                                             "with shape () (resp. [] as list), current shape "
+                                             "{}. If you registered an analytic integral which is used"
+                                             "now, make sure to return a scalar and not a tensor "
+                                             "(typically: shape is (1,) insead of () -> return tensor[0] "
+                                             "instead of tensor)".format(integral.shape.as_list()))
         return integral
 
     def _single_hook_integrate(self, limits, norm_range, name):
