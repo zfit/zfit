@@ -455,8 +455,11 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">integral</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span> <span class="o">==</span> <span class="p">[]:</span>
                 <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Error in integral creation, should return an integral &quot;</span>
-                                             <span class="s2">&quot;with shape ()(resp. [] as list), current shape &quot;</span>
-                                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()))</span>
+                                             <span class="s2">&quot;with shape () (resp. [] as list), current shape &quot;</span>
+                                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">. If you registered an analytic integral which is used&quot;</span>
+                                             <span class="s2">&quot;now, make sure to return a scalar and not a tensor &quot;</span>
+                                             <span class="s2">&quot;(typically: shape is (1,) insead of () -&gt; return tensor[0] &quot;</span>
+                                             <span class="s2">&quot;instead of tensor)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()))</span>
         <span class="k">return</span> <span class="n">integral</span></div>
 
     <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
