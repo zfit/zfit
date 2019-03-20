@@ -70,6 +70,10 @@
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Building a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#custom-pdf">Custom PDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#sampling-from-a-pdf">Sampling from a PDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
 <li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
@@ -106,6 +110,24 @@
       
   <div class="section" id="building-a-model">
 <h1>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline">¶</a></h1>
+<p>In order to build a generic model the concept of function and distributed density functions (PDFs) need to be clarified.
+The PDF, or density of a continuous random variable, of X is a function f(x) that describes the relative likelihood for this random variable to take on a given value. In this sense, for any two numbers a and b with $$a leq b $$,</p>
+<p>$$P(a leq X leq b) = int^{b}_{a}f(X)dx$$</p>
+<p>That is, the probability that X takes on a value in the interval [a, b] is the area above this interval and under the graph of the density function.
+In other words, in order to a function to be a PDF it must satisfy two criteria: (1) $$f(x) neq 0$$ for all x; (2) $$int^{infty}_{-infty}f(x)dx = $$ are under the entire graph of $$f(x)=1$$.
+In <code class="docutils literal notranslate"><span class="pre">zfit</span></code> these distinctions are respect, i.e.  conditions in whcih</p>
+</div>
+<div class="section" id="extended-pdf">
+<h1>Extended PDF<a class="headerlink" href="#extended-pdf" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="composite-pdf">
+<h1>Composite PDF<a class="headerlink" href="#composite-pdf" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="custom-pdf">
+<h1>Custom PDF<a class="headerlink" href="#custom-pdf" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="sampling-from-a-pdf">
+<h1>Sampling from a PDF<a class="headerlink" href="#sampling-from-a-pdf" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
