@@ -139,7 +139,7 @@
 </div>
 <p>Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:</p>
 <ol class="arabic simple">
-<li>create a loss function, in out case a negative log-likelihood (i.e. <span class="math notranslate nohighlight">\(\log\mathcal{L}\)</span>);</li>
+<li>create a loss function, in our case a negative log-likelihood <span class="math notranslate nohighlight">\(\log\mathcal{L}\)</span>;</li>
 <li>instantiate our choice of minimiser; and</li>
 <li>and minimise the log-likelihood.</li>
 </ol>
@@ -194,8 +194,8 @@ As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calcul
 <p>The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>, a specialised wrapper around <code class="docutils literal notranslate"><span class="pre">tf.Session().run</span></code>.
 While <em>actions</em> in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> return <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays or scalars, functions like <code class="docutils literal notranslate"><span class="pre">pdf</span></code> return <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> graph, which are lazy-evaluated.
 To obtain the value of these PDFs, we need to execute the graph by using <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>.</p>
-<div class="section" id="that-did-just-happen">
-<h2>That did just happen?<a class="headerlink" href="#that-did-just-happen" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="what-did-just-happen">
+<h2>What did just happen?<a class="headerlink" href="#what-did-just-happen" title="Permalink to this headline">¶</a></h2>
 <p>The core idea of <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> is to use dataflow <em>graphs</em>, in which <em>sessions</em> run part of the graphs that are required. Since <code class="docutils literal notranslate"><span class="pre">zfit</span></code> has <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as <code class="docutils literal notranslate"><span class="pre">minimize</span></code>. However, it is worth noting that most of the internal objects that are built by <code class="docutils literal notranslate"><span class="pre">zfit</span></code> are intrinsically <code class="docutils literal notranslate"><span class="pre">graphs</span></code> that are executed by running the session:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">TensorFlow_object</span><span class="p">)</span>
 </pre></div>
