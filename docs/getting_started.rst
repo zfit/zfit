@@ -48,7 +48,7 @@ The next stage is to create a dataset to be fitted. There are several ways of pr
 
 Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:
 
-1. create a loss function, in out case a negative log-likelihood (i.e. :math:`\log\mathcal{L}`);
+1. create a loss function, in our case a negative log-likelihood :math:`\log\mathcal{L}`;
 2. instantiate our choice of minimiser; and
 3. and minimise the log-likelihood. 
 
@@ -116,7 +116,7 @@ While *actions* in ``zfit`` return ``numpy`` arrays or scalars, functions like `
 To obtain the value of these PDFs, we need to execute the graph by using ``zfit.run``.
 
 
-That did just happen? 
+What did just happen? 
 =====================
 
 The core idea of ``TensorFlow`` is to use dataflow *graphs*, in which *sessions* run part of the graphs that are required. Since ``zfit`` has ``TensorFlow`` at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as ``minimize``. However, it is worth noting that most of the internal objects that are built by ``zfit`` are intrinsically ``graphs`` that are executed by running the session:
