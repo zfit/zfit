@@ -122,6 +122,29 @@ The order of the observables follows the order of the PDFs given.
 Extended PDF
 ''''''''''''
 
+In the event there are different *species* of distributions in a given observable, 
+the simple sum of PDFs does not a priori provides the absolute number of events for each specie but rather the fraction as seen above. 
+An example is a Gaussian mass distribution with an exponential background, e.g.
+
+:math:`P = f_{S}\frac{1}_{\sqrt{2\pi}\sigma} e^{-{(x-\mu)^{2}}_{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}`
+
+Since we are interested to express a measurement of the number of events, 
+the expression :math:`M(x) = N_{S}S(x) + N_{B}B(x)` respect that M(x) is normalised to :math:`N_{S} + N_{B} = N` instead of one. 
+This means that :math:`M(x)` is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions. 
+
+An extended PDF can be easily implemented in ``zfit`` in two ways:
+
+.. code-block:: python
+
+    # Create a parameter for the number of events
+    yieldGauss = zfit.Parameter("yieldGauss", 100, 0, 1000)
+
+    # Extended PDF using a predefined method
+    extended_gauss_method = gauss.create_extended(yieldGauss)
+    # Or simply with a Python syntax of multiplying a PDF with the parameter
+    extended_gauss_python = yieldGauss * gauss
+
+
 Custom PDF
 ''''''''''
 A fundamental design choice of ``zfit`` is the ability to create custom PDFs and functions in an easy way.
