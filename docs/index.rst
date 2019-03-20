@@ -24,6 +24,8 @@ The ``zfit`` package is Free software, using an Open Source license. The softwar
 
 
     getting_started
+    downloading
+    contributing
     space
     parameter
     model
