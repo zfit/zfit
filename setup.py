@@ -29,10 +29,10 @@ setup_requirements = requirements_dev[:requirements_dev_split]
 test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip empty line
 
 setup(
-    author="zfit",
-    author_email='zfit@physik.uzh.ch',
+    author="Jonas Eschle",
+    # author_email='zfit@physik.uzh.ch',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
@@ -44,12 +44,15 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering :: Physics',
         ],
-    description="Pythonic, scalable, fitting library for high energy physics",
+
+    maintainer="zfit",
+    maintainer_email='zfit@physik.uzh.ch',
+    description="Scalable, pythonic fitting for high energy physics",
     install_requires=requirements,
     license="BSD 3-Clause",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='zfit',
+    keywords='TensorFlow, model, fitting, scalable, HEP',
     name='zfit',
     python_requires=">=3.5",
     packages=find_packages(include=['zfit', 'zfit.ztf',
@@ -58,6 +61,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/zfit/zfit',
-    version='0.0.0',
+    version='0.3.0',
     zip_safe=False,
     )
