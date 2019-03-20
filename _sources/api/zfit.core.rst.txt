@@ -1,0 +1,29 @@
+core
+====
+
+.. automodule:: zfit.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   zfit.core.basefunc
+   zfit.core.basemodel
+   zfit.core.baseobject
+   zfit.core.basepdf
+   zfit.core.data
+   zfit.core.dimension
+   zfit.core.integration
+   zfit.core.interfaces
+   zfit.core.limits
+   zfit.core.loss
+   zfit.core.math
+   zfit.core.operations
+   zfit.core.parameter
+   zfit.core.sample
+   zfit.core.tfext
+

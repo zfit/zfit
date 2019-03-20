@@ -1,0 +1,7 @@
+base\_tf
+========
+
+.. automodule:: zfit.minimizers.base_tf
+    :members:
+    :undoc-members:
+    :show-inheritance:

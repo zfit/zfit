@@ -1,7 +1,0 @@
-zfit.minimize
-=============
-
-.. automodule:: zfit.minimize
-    :members:
-    :undoc-members:
-    :show-inheritance:

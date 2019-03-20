@@ -1,0 +1,7 @@
+basemodel
+=========
+
+.. automodule:: zfit.core.basemodel
+    :members:
+    :undoc-members:
+    :show-inheritance:

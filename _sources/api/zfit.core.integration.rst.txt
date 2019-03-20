@@ -1,0 +1,7 @@
+integration
+===========
+
+.. automodule:: zfit.core.integration
+    :members:
+    :undoc-members:
+    :show-inheritance:
