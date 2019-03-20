@@ -129,8 +129,8 @@ An example is a Gaussian mass distribution with an exponential background, e.g.
 :math:`P = f_{S}\frac{1}_{\sqrt{2\pi}\sigma} e^{-{(x-\mu)^{2}}_{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}`
 
 Since we are interested to express a measurement of the number of events, 
-the expression :math:`M(x) = N_{S}S(x) + N_{B}B(x)` respect that M(x) is normalised to $$N_{S} + N_{B} = N$$ instead of one. 
-This means that $$M(x)$$ is not a true PDF but rayher an expression for two quantities, the shape and the number of events in the distributions. 
+the expression :math:`M(x) = N_{S}S(x) + N_{B}B(x)` respect that M(x) is normalised to :math:`N_{S} + N_{B} = N` instead of one. 
+This means that :math:`M(x)` is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions. 
 
 An extended PDF can be easily implemented in ``zfit`` in two ways:
 
