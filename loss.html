@@ -67,6 +67,8 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
@@ -106,6 +108,11 @@
       
   <div class="section" id="loss">
 <h1>Loss<a class="headerlink" href="#loss" title="Permalink to this headline">¶</a></h1>
+<p>A <em>loss function</em> can be defined as a measurement of the discrepancy between the observed data and the predicted data by the fitted function.
+To some extend it can be visualised as a metric of the goodness of a given prediction as you change the settings of your algorithm.
+For example, in a general linear model the loss function is essentially the sum of squared deviations from the fitted line or plane.</p>
+<p>A more useful application in the context of High Energy Physics is the Maximum Likelihood Estimator (MLE).
+The MLE is a specific type of probability model estimation, where the loss function is the negative (log)-likelihood.</p>
 </div>
 
 
