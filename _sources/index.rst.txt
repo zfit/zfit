@@ -9,7 +9,6 @@ This challenging task is tackled by following two basic design pillars:
   the ``zfit`` library is exclusively designed for the purpose of model fitting and sampling---opposite to the self-contained ``RooFit/ROOT`` frameworks---with no attempt to extend its functionalities to features such as statistical methods or plotting.
   This design philosophy is well exemplified by examining maximum likelihood fits: while ``zfit`` works as a backend for likelihood fits and can be integrated to packages such as ``lauztat`` and ``matplotlib``, ``RooFit`` performs the fit, the statistical treatment and plotting within.
   This wider scope of ``RooFit`` results in a lack of flexibility with respect to new minimisers, statistic methods and, broadly speaking, any new tool that might come.
-  .. In summary, ``zfit`` aims to have a well established backend package in the context of an open source library. 
 
 - Another paramount aspect of ``zfit`` is its design for optimal parallelisation and scalability. Even though the choice of ``TensorFlow`` as backend introduces a strong software dependency, its use provides several interesting features in the context of model fitting.
   The key concept is that ``TensorFlow`` is built under the `dataflow programming model <https://en.wikipedia.org/wiki/Dataflow_programming>`_, specifically for parallel computations.
