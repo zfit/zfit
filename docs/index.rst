@@ -1,4 +1,4 @@
-Welcome to zfit's documentation!
+zfit: scalable pythonic fitting
 ======================================
 
 The ``zfit`` package is a model fitting library based on ``TensorFlow`` and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to 
