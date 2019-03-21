@@ -19,8 +19,7 @@ This challenging task is tackled by following two basic design pillars:
 The zfit package is Free software, using an Open Source license. Both the software and this document are works in progress.
 
 .. toctree::
-    :titlesonly:
-    :maxdepth: 1
+    :maxdepth: 2
 
     getting_started
     downloading
@@ -31,6 +30,10 @@ The zfit package is Free software, using an Open Source license. Both the softwa
     data
     loss
     minimize
+
+.. toctree::
+    :maxdepth: 1
+
     API
 
 
