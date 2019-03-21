@@ -4,47 +4,51 @@ Getting started with zfit
 
 The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.  
 
-The first step is to naturally import ``zfit`` and verify if the installation has been done successfully (plus some additional imports of helpful libraries): 
+The first step is to naturally import ``zfit`` and verify if the installation has been done successfully:  
 
-.. code-block:: python
+.. code-block:: pycon
 
-    import tensorflow as tf
-    import zfit
-    from zfit import ztf
-    print("TensorFlow version:", tf.__version__)
+    >>> import tensorflow as tf
+    >>> import zfit
+    >>> print("TensorFlow version:", tf.__version__)
+    TensorFlow version: 1.12.0
 
 Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
 
-.. code-block:: python
+.. code-block:: pycon
 
-    obs = zfit.Space('x', limits=(-10, 10))
+    >>> obs = zfit.Space('x', limits=(-10, 10))
 
 The best interpretation of the observable at this stage is that it defines the name and range of the observable axis. 
 
-Using this domain, we can now create a simple Gaussian PDF. The most common PDFs are already pre-defined within the :py:mod`~zfit.pdf` module, including a simple Gaussian. First, we have to define the parameters of the PDF and their limits using the :py:class:`~zfit.Parameter` class:
+Using this domain, we can now create a simple Gaussian PDF. 
+The most common PDFs are already pre-defined within the :py:mod:`~zfit.pdf` module, including a simple Gaussian. 
+First, we have to define the parameters of the PDF and their limits using the :py:class:`~zfit.Parameter` class:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
-    sigma = zfit.Parameter("sigma", 1.3,  0, 5)
+    >>> mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
+    >>> sigma = zfit.Parameter("sigma", 1.3,  0, 5)
 
 With these parameters we can instantiate the Gaussian PDF from the library
 
-.. code-block:: python
+.. code-block:: pycon
 
-    gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
+    >>> gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
 
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
 The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.data.Data.from_numpy>` method:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    mu_true = 0
-    sigma_true = 1
-    data_np = np.random.normal(mu_true, sigma_true, size=10000)
-    data = zfit.data.Data.from_numpy(obs=obs, array=data_np)
-    print(data)
+    >>> import numpy as np
+    >>> mu_true = 0
+    >>> sigma_true = 1
+    >>> data_np = np.random.normal(mu_true, sigma_true, size=10000)
+    >>> data = zfit.data.Data.from_numpy(obs=obs, array=data_np)
+    >>> print(data)
+    <zfit.core.data.Data object at 0x7f90537f4748>
 
 Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:
 
@@ -52,51 +56,59 @@ Now we have all the ingredients in order to perform a maximum likelihood fit. Co
 2. instantiate our choice of minimiser; and
 3. and minimise the log-likelihood. 
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Stage 1: create an unbinned likelihood with the given PDF and dataset 
-    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+    >>> # Stage 1: create an unbinned likelihood with the given PDF and dataset 
+    >>> nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-    # Stage 2: instantiate a minimiser (in this case a basic minuit
-    minimizer = zfit.minimize.MinuitMinimizer()
+    >>> # Stage 2: instantiate a minimiser (in this case a basic minuit
+    >>> minimizer = zfit.minimize.MinuitMinimizer()
 
-    # Stage 3: minimise the given negative likelihood
-    result = minimizer.minimize(nll)
+    >>> # Stage 3: minimise the given negative likelihood
+    >>> result = minimizer.minimize(nll)
 
 This corresponds to the most basic example where the negative likelihood is defined within the pre-determined observable range and all the parameters in the PDF are floated in the fit. It is often the case that we want to only vary a given set of parameters. In this case it is necessary to specify which are the parameters to be floated (so all the remaining ones are fixed to their initial values). 
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
-    result = minimizer.minimize(nll, params=[mu])
+    >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
+    >>> result = minimizer.minimize(nll, params=[mu])
 
 It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the ``error`` method.
-As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calculate the ``MINOS`` with:
+As an example, with the :py:class:`~zfit.minimize.MinuitMinimizer` one can calculate the ``MINOS`` with:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    param_errors = result.error()
-    print(param_errors)
+    >>> param_errors = result.error()
+    >>> for var, errors in param_errors.items():
+    ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
+    mu: ^{+0.00998104141841555}_{--0.009981515893414316}
+    sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results. The object ``result`` (:py:class`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    print("Function minimum:", result.fmin)
-    print("Converged:", result.converged)
-    print("Full minimizer information:", result.info)
+    >>> print("Function minimum:", result.fmin)
+    Function minimum: 14170.396450111948
+    >>> print("Converged:", result.converged)
+    Converged: True
+    >>> print("Full minimizer information:", result.info)
+    Full minimizer information: {'n_eval': 56, 'original': {'fval': 14170.396450111948, 'edm': 2.8519671693442587e-10, 
+    'nfcn': 56, 'up': 0.5, 'is_valid': True, 'has_valid_parameters': True, 'has_accurate_covar': True, 'has_posdef_covar': True, 
+    'has_made_posdef_covar': False, 'hesse_failed': False, 'has_covariance': True, 'is_above_max_edm': False, 'has_reached_call_limit': False}}
 
 Similarly one can obtain information on the fitted parameters with
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Information on all the parameters in the fit
-    params = result.params
-    print(params)
+    >>> # Information on all the parameters in the fit
+    >>> params = result.params
 
-    # Printing information on specific parameters, e.g. mu
-    print("mu={}".format(params[mu]['value']))
+    >>> # Printing information on specific parameters, e.g. mu
+    >>> print("mu={}".format(params[mu]['value']))
+    mu=0.012464509810750313
 
 As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as ``matplotlib``, to do the job:
 
