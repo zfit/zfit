@@ -188,7 +188,7 @@ arguments to override with new value.</td>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ZfitPDF</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a></p>
 </td>
 </tr>
 </tbody>
@@ -254,7 +254,7 @@ arguments to override with new value.</td>
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.log_pdf">
 <code class="descname">log_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.log_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.log_pdf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log probability density/mass function normalized over <cite>norm_range</cite></p>
+<dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -279,7 +279,7 @@ arguments to override with new value.</td>
 <dl class="attribute">
 <dt id="zfit.pdf.BasePDF.norm_range">
 <code class="descname">norm_range</code><a class="headerlink" href="#zfit.pdf.BasePDF.norm_range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the current normalization range.</p>
+<dd><p>Return the current normalization range. If None and the <a href="#id1"><span class="problematic" id="id2">`</span></a>obs`have limits, they are returned.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -319,7 +319,7 @@ arguments to override with new value.</td>
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.pdf">
 <code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.pdf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Probability density/mass function, normalized over <cite>norm_range</cite>.</p>
+<dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -331,10 +331,7 @@ arguments to override with new value.</td>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <cite>Tensor</cite> of type <cite>self.dtype</cite>.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">model</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <cite>self.dtype</cite>.</p>
 </td>
 </tr>
 </tbody>
@@ -343,13 +340,13 @@ arguments to override with new value.</td>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.set_norm_range">
-<code class="descname">set_norm_range</code><span class="sig-paren">(</span><em>norm_range: Optional[zfit.core.limits.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.set_norm_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_norm_range</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.set_norm_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </td>
 </tr>
 </tbody>
 </table>
@@ -416,7 +413,7 @@ defined as <span class="math notranslate nohighlight">\(\frac{ e^{\lambda \cdot 
 <dt id="zfit.pdf.CrystalBall">
 <em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">CrystalBall</code><span class="sig-paren">(</span><em>mu: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], sigma: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], alpha: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], n: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], obs: Union[str, Iterable[str], zfit.Space], name: str = 'CrystalBall', dtype: Type = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#CrystalBall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.CrystalBall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
-<p><a href="#id1"><span class="problematic" id="id2">`Crystal Ball shaped PDF`__</span></a>. A combination of a Gaussian with an powerlaw tail.</p>
+<p><a href="#id3"><span class="problematic" id="id4">`Crystal Ball shaped PDF`__</span></a>. A combination of a Gaussian with an powerlaw tail.</p>
 <p>The function is defined as follows:</p>
 <div class="math notranslate nohighlight">
 \[f(x;\mu, \sigma, \alpha, n) =  \begin{cases} \exp(- \frac{(x - \mu)^2}{2 \sigma^2}),

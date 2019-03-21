@@ -282,7 +282,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return the current normalization range.</span>
+        <span class="sd">&quot;&quot;&quot;Return the current normalization range. If None and the `obs`have limits, they are returned.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            :py:class:`~zfit.Space` or None: The current normalization range</span>
@@ -294,11 +294,11 @@
         <span class="k">return</span> <span class="n">norm_range</span>
 
 <div class="viewcode-block" id="BasePDF.set_norm_range"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.core.basepdf.BasePDF.set_norm_range">[docs]</a>    <span class="nd">@invalidates_cache</span>
-    <span class="k">def</span> <span class="nf">set_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">set_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the normalization range (temporarily if used with contextmanager).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            norm_range ():</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`):</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
@@ -400,8 +400,9 @@
     <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="BasePDF.pdf"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.core.basepdf.BasePDF.pdf">[docs]</a>    <span class="k">def</span> <span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Probability density/mass function, normalized over `norm_range`.</span>
+<div class="viewcode-block" id="BasePDF.pdf"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.core.basepdf.BasePDF.pdf">[docs]</a>    <span class="k">def</span> <span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Probability density function, normalized over `norm_range`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          x (numerical): `float` or `double` `Tensor`.</span>
@@ -409,7 +410,7 @@
 <span class="sd">          name (str): Prepended to names of ops created by this function.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">          model: a `Tensor` of type `self.dtype`.</span>
+<span class="sd">          :py:class:`tf.Tensor` of type `self.dtype`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
@@ -421,7 +422,6 @@
                 <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">assert_op</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_single_hook_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">probability</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -453,7 +453,7 @@
 
 <div class="viewcode-block" id="BasePDF.log_pdf"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.core.basepdf.BasePDF.log_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">log_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;log_pdf&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Log probability density/mass function normalized over `norm_range`</span>
+        <span class="sd">&quot;&quot;&quot;Log probability density function normalized over `norm_range`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          x (numerical): `float` or `double` `Tensor`.</span>
@@ -502,8 +502,6 @@
             <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
         <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># if probs.shape.as_list()[-1] &gt; 1:</span>
-        <span class="c1">#     raise DueToLazynessNotImplementedError()</span>
         <span class="n">gradients</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">prob</span> <span class="ow">in</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">probs</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span></div>
 
@@ -559,7 +557,7 @@
 <span class="sd">            name_addition (str):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            ZfitPDF</span>
+<span class="sd">            :py:class:`~zfit.core.interfaces.ZfitPDF`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO(Mayou36): fix copy</span>
         <span class="kn">from</span> <span class="nn">zfit.models.functor</span> <span class="k">import</span> <span class="n">ProductPDF</span>

@@ -114,6 +114,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">ShapeIncompatibleError</span>
 <span class="kn">from</span> <span class="nn">.basemodel</span> <span class="k">import</span> <span class="n">BaseModel</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitFunc</span>
@@ -177,7 +178,12 @@
                                              <span class="s2">&quot;it received on initialization.&quot;</span>
                                              <span class="s2">&quot;Original Error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
 
-<div class="viewcode-block" id="BaseFunc.as_pdf"><a class="viewcode-back" href="../../../api/zfit.func.html#zfit.core.basefunc.BaseFunc.as_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">as_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseFunc.as_pdf"><a class="viewcode-back" href="../../../api/zfit.func.html#zfit.core.basefunc.BaseFunc.as_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">as_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.core.interfaces.ZfitPDF&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a PDF out of the function</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:class:`~zfit.core.interfaces.ZfitPDF`: a PDF with the current function as the unnormalized probability.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">zfit.core.operations</span> <span class="k">import</span> <span class="n">convert_func_to_pdf</span>
         <span class="k">return</span> <span class="n">convert_func_to_pdf</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 

@@ -190,16 +190,15 @@
         <span class="sd">&quot;&quot;&quot;The base model to inherit from and overwrite `_unnormalized_pdf`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dtype (Type): the dtype of the model</span>
+<span class="sd">            dtype (DType): the dtype of the model</span>
 <span class="sd">            name (str): the name of the model</span>
-<span class="sd">            params (): the parameters the distribution depends on</span>
+<span class="sd">            params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the parameter and</span>
+<span class="sd">                the parameters itself the model depends on</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_set_space</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_integration</span> <span class="o">=</span> <span class="n">zcontainer</span><span class="o">.</span><span class="n">DotDict</span><span class="p">()</span>
-        <span class="c1"># self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler</span>
-        <span class="c1"># self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_integration</span><span class="o">.</span><span class="n">auto_numeric_integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULTS_integration</span><span class="o">.</span><span class="n">auto_numeric_integrator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integration</span> <span class="o">=</span> <span class="n">Integration</span><span class="p">(</span><span class="n">mc_sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULTS_integration</span><span class="o">.</span><span class="n">mc_sampler</span><span class="p">,</span>
                                        <span class="n">draws_per_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULTS_integration</span><span class="o">.</span><span class="n">draws_per_dim</span><span class="p">)</span>
@@ -300,7 +299,13 @@
                 <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x</span>
 
-<div class="viewcode-block" id="BaseModel.set_integration_options"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.set_integration_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_integration_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseModel.update_integration_options"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.update_integration_options">[docs]</a>    <span class="k">def</span> <span class="nf">update_integration_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the integration options.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            draws_per_dim (int): The draws for MC integration to do</span>
+<span class="sd">            mc_sampler ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># mc_options = {} if mc_options is None else mc_options</span>
         <span class="c1"># numeric_options = {} if numeric_options is None else numeric_options</span>
         <span class="c1"># general_options = {} if general_options is None else general_options</span>
@@ -389,10 +394,10 @@
 <span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over</span>
 <span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the</span>
 <span class="sd">                unnormalized probability</span>
-<span class="sd">            name (str):</span>
+<span class="sd">            name (str): name of the operation shown in the :py:class:`tf.Graph`</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor: the integral value</span>
+<span class="sd">            :py:class`tf.Tensor`: the integral value as a scalar with shape ()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
@@ -466,12 +471,12 @@
 <span class="sd">                    * limits (:py:class:`~zfit.Space`): the limits to integrate over.</span>
 <span class="sd">                    * norm_range (:py:class:`~zfit.Space`, None): Normalization range of the integral.</span>
 <span class="sd">                        If not `supports_supports_norm_range`, this will be None.</span>
-<span class="sd">                    * params (Dict[param_name, :py:class:``zfit.Parameters`]): The parameters of the model.</span>
+<span class="sd">                    * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.</span>
 <span class="sd">                    * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.</span>
 
 <span class="sd">            limits (): |limits_arg_descr|</span>
 <span class="sd">            priority (int): Priority of the function. If multiple functions cover the same space, the one with the</span>
-<span class="sd">                highest priority will be tanke.</span>
+<span class="sd">                highest priority will be used.</span>
 <span class="sd">            supports_multiple_limits (bool): If `True`, the `limits` given to the integration function can have</span>
 <span class="sd">                multiple limits. If `False`, only simple limits will pass through and multiple limits will be</span>
 <span class="sd">                auto-handled.</span>
@@ -500,7 +505,7 @@
 
 <div class="viewcode-block" id="BaseModel.analytic_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.analytic_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;analytic_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Do analytical integration over function and raise Error if not possible.</span>
+        <span class="sd">&quot;&quot;&quot;Analytical integration over function and raise Error if not possible.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over</span>
