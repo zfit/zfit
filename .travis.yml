@@ -1,8 +1,7 @@
 language: python
 os:
     - linux
-python:
-    - 3.6
+python: 3.6
 matrix:
     include:
         - python: 3.7
@@ -41,7 +40,6 @@ deploy:
       local_dir: docs/_build/html
       keep-history: true
       on:
-          #          TODO: change branch below to develop
           branch: develop
           condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
 
