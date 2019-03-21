@@ -2,7 +2,7 @@
 Space, Observable and Range
 ============================
 
-Inside ``zfit``, :py:class:`~zfit.Space` defines the domain of objects by specifying the observables/axes and *maybe* also
+Inside zfit, :py:class:`~zfit.Space` defines the domain of objects by specifying the observables/axes and *maybe* also
 the limits. Any model and data needs to be specified in a certain domain, which is usually done using the
 ``obs`` argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
 handle by the :py:class:`~zfit.Space` class.
@@ -22,7 +22,7 @@ with or without limits.
 
     *compared to `RooFit`, a space is **not** the equivalent of an observable but rather corresponds
     to an object combining **a set** of observables (which of course can be of size 1). Furthermore,
-    there is a **strong** distinction in ``zfit`` between a :py:class:`~zfit.Space` (or observables)
+    there is a **strong** distinction in zfit between a :py:class:`~zfit.Space` (or observables)
     and a :py:class:`~zfit.Parameter`, both conceptually and in terms of implementation and usage.*
 
 **Observable**: a string defining the axes; a named axes.

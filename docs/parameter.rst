@@ -1,26 +1,29 @@
 Parameter
 =========
 
-Several objects in ``zfit``, most importantly models, have one or more parameter which typically
-parametrize a function or distribution. There are two different kind of parameters in ``zfit``:
-* independent: can be changed in a fit (or explicitly be set to `fixed`)
-* dependent: can **not** be directly changed but _may_ depends on independent parameters
+Several objects in zfit, most importantly models, have one or more parameter which typically
+parametrise a function or distribution. There are two different kinds of parameters in zfit:
+
+* Independent: can be changed in a fit (or explicitly be set to `fixed`).
+* Dependent: **cannot** be directly changed but _may_ depend on independent parameters.
 
 
 Independent Parameter
-=====================
+---------------------
 
-To create a parameter that can be changed, e.g. to fit a model, a :py:class:`~zfit.Parameter` has to
+To create a parameter that can be changed, *e.g.*, to fit a model, a :py:class:`~zfit.Parameter` has to
 be instantiated.
 
-The syntax is as follows (and is the same as in `RooFit`)
+The syntax is as follows (following closely what is done in RooFit):
+
 .. code:: python
 
     param1 = zfit.Parameter("param_name_human_readable", start_value[, lower_limit, upper_limit])
 
-The value of the parameter can be changes by `set_value`. Using a context manager, the value is
-temporarily changed. Be aware that anything _dependent_ on the parameter will have a value with the
-parameter evaluated with the new value an run-time.
+The value of the parameter can be changed with the :py:func:`~zfit.Parameter.set_value` method.
+Using this method as a a context manager, the value can also temporarily changed.
+However, be aware that anything _dependent_ on the parameter will have a value with the
+parameter evaluated with the new value at run-time:
 
 .. code:: python
 
@@ -35,13 +38,13 @@ parameter evaluated with the new value an run-time.
     mu_val_after = zfit.run(mu)  # 1
     five_mu_val_after = zfit.run(five_mu)  # is evaluated with mu = 1! -> five_mu_val_after is 5
 
-While a dependent parameter is usually free, it can be fixed by setting the attribute `floating` to `False`.
+While a dependent parameter is usually free, it can be fixed by setting the attribute ``floating`` to ``False``.
 
 Limits
 ''''''
 
-:py:class:`~zfit.Parameter` can have limits (test with :py:method:`~zfit.Parameter.has_limits) that will
-clip the value inside the limits given by `:py:method:`~zfit.Parameter.lower_limit` and
+:py:class:`~zfit.Parameter` can have limits (tested with :py:method:`~zfit.Parameter.has_limits`), which will
+clip the value to the limits given by `:py:method:`~zfit.Parameter.lower_limit` and
 `:py:method:`~zfit.Parameter.upper_limit`.
 
 
@@ -60,6 +63,6 @@ and the dependency will be detected automatically. They can be used equivalently
     dependents = dep_param.get_dependents()  # returns set(mu, mu2)
 
 
-A somewhat special case of the above are :py:class:`~zfit.ComplexParameter`. It takes a complex
-:py:class:`~tf.Tensor` as an input and has a few special methods (like `real`, `conj` etc.) to
-easier deal with complex parameters.
+A somewhat special case of the above are :py:class:`~zfit.ComplexParameter`. They takes a complex
+:py:class:`~tf.Tensor` as input and have a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.) to
+easier deal with them.
