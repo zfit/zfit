@@ -11,7 +11,7 @@ The MLE is a specific type of probability model estimation, where the loss funct
 In zfit, loss functions inherit from the :py:class:`~zfit.core.loss.BaseLoss` class and they follow a common interface, in which the model, 
 the dataset and the fit range (which internally sets ``norm_range`` in the PDF and makes sure data only within that range are used) **must** be given, and 
 where parameter constraints in form of a dictionary `{param: constraint}` **may** be given.
-As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.core.loss.UnbinnedNLL`) from the model described in the :ref:`basic model section <basic-model>` and the data from the `Data section <data-section>`:
+As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.core.loss.UnbinnedNLL`) from the model described in the :ref:`Basic model section <basic-model>` and the data from the :ref:`Data section <data-section>`:
 
 .. code-block:: python
 
