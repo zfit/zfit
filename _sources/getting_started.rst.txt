@@ -112,16 +112,16 @@ Similarly one can obtain information on the fitted parameters with
 
 As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as ``matplotlib``, to do the job:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    import matplotlib.pyplot as plt
-    n_bins = 50
-    limits = (-5,5)
-    _ = plt.hist(data_np, bins=n_bins, range=range_)
-    x = np.linspace(*range_, num=1000) 
-    probs = gauss.pdf(x, norm_range=(-10, 10))
-    # Evaluate the PDF by executing the TensorFlow graph
-    pdf = zfit.run(probs)
+    >>> import matplotlib.pyplot as plt
+    >>> n_bins = 50
+    >>> limits = (-5,5)
+    >>> _ = plt.hist(data_np, bins=n_bins, range=range_)
+    >>> x = np.linspace(*range_, num=1000) 
+    >>> probs = gauss.pdf(x, norm_range=(-10, 10))
+    >>> # Evaluate the PDF by executing the TensorFlow graph
+    >>> pdf = zfit.run(probs)
 
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
 While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.
@@ -133,29 +133,28 @@ What did just happen?
 
 The core idea of TensorFlow is to use dataflow *graphs*, in which *sessions* run part of the graphs that are required. Since zfit has TensorFlow at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as ``minimize``. However, it is worth noting that most of the internal objects that are built by zfit are intrinsically graphs that are executed by running the session:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    zfit.run(TensorFlow_object)
+    >>> zfit.run(TensorFlow_object)
 
 One example is the Gauss PDF that has been shown above. The object ``gauss`` contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As an example, let's calculate the probability for given values
 
-.. code-block:: python
+.. code-block:: pycon
 
-    zfit.run(TensorFlow_object)
-    consts = [-1, 0, 1]
-    probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
+    >>> zfit.run(TensorFlow_object)
+    >>> consts = [-1, 0, 1]
+    >>> probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
 
-    # And now execute the tensorflow graph
-    result = zfit.run(probs)
-    print("x values: {}\nresult:   {}".format(consts, result))
+    >>> # And now execute the tensorflow graph
+    >>> result = zfit.run(probs)
+    >>> print("x values: {}\nresult:   {}".format(consts, result))
 
 Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using ``zfit.run``:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    with gauss.set_norm_range((-1e6, 1e6)): 
-        print(zfit.run(gauss.integrate((-0.6, 0.6))))
-        print(zfit.run(gauss.integrate((-3, 3))))
-        print(zfit.run(gauss.integrate((-100, 100))))
-
+    >>> with gauss.set_norm_range((-1e6, 1e6)): 
+    ...    print(zfit.run(gauss.integrate((-0.6, 0.6))))
+    ...    print(zfit.run(gauss.integrate((-3, 3))))
+    ...    print(zfit.run(gauss.integrate((-100, 100))))
 
