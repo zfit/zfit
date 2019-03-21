@@ -64,7 +64,8 @@ class FitResult(SessionHolderMixin, ZfitResult):
         'high': value or similar}}
 
         Args:
-            params (OrderedDict[Parameter, float]): Result of the fit where each Parameter key has the value
+            params (OrderedDict[:py:class:`~zfit.Parameter`, float]): Result of the fit where each
+            :py:class:`~zfit.Parameter` key has the value
                 from the minimum found by the minimizer.
             edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)
             fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer
@@ -156,7 +157,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
         Args:
-            params (list(`zfit.FitParameters`)): The parameters  to calculate the
+            params (list(:py:class:`~zfit.Parameter`)): The parameters  to calculate the
                 Hessian symmetric error. If None, use all parameters.
             method (str): the method to calculate the hessian. Can be {'minuit'} or a callable.
             error_name (str): The name for the error in the dictionary.
@@ -199,7 +200,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         """Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
-                params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the
+                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
                 method (str or Callable): The method to use to calculate the errors. Valid choices are
                     {'minuit_minos'} or a Callable.

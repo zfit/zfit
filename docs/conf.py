@@ -21,10 +21,11 @@
 import os
 import sys
 
+import sphinx_bootstrap_theme
+
 sys.path.insert(0, os.path.abspath('..'))
 
 import zfit
-import sphinx_rtd_theme
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -112,15 +113,96 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+html_theme = 'bootstrap'
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+# Theme options are theme-specific and customize the look and feel of a
+# theme further.
+html_theme_options = {
+    # Navigation bar title. (Default: ``project`` value)
+    'navbar_title': "zfit",
 
+    # Tab name for entire site. (Default: "Site")
+    # 'navbar_site_name': "Docs",
+    # 'navbar_site_name': "Overview",
+
+    # A list of tuples containing pages or urls to link to.
+    # Valid tuples should be in the following forms:
+    #    (name, page)                 # a link to a page
+    #    (name, "/aa/bb", 1)          # a link to an arbitrary relative url
+    #    (name, "http://example.com", True) # arbitrary absolute url
+    # Note the "1" or "True" value above as the third argument to indicate
+    # an arbitrary url.
+    'navbar_links': [
+        ("Getting started", "getting_started"),
+        ("Space", "space"),
+        ("Parameter", "parameter"),
+        ("Model", "model"),
+        ("Data", "data"),
+        ("Loss", "loss"),
+        ("Minimize", "minimize"),
+        ("API", "API"),
+        # ("Link", "http://example.com", True),
+        ],
+
+    # Render the next and previous page links in navbar. (Default: true)
+    'navbar_sidebarrel': False,
+
+    # Render the current pages TOC in the navbar. (Default: true)
+    'navbar_pagenav': False,
+
+    # Tab name for the current pages TOC. (Default: "Page")
+    # 'navbar_pagenav_name': "Page",
+
+    # Global TOC depth for "site" navbar tab. (Default: 1)
+    # Switching to -1 shows all levels.
+    'globaltoc_depth': 1,
+
+    # Include hidden TOCs in Site navbar?
+    #
+    # Note: If this is "false", you cannot have mixed ``:hidden:`` and
+    # non-hidden ``toctree`` directives in the same page, or else the build
+    # will break.
+    #
+    # Values: "true" (default) or "false"
+    'globaltoc_includehidden': "true",
+
+    # HTML navbar class (Default: "navbar") to attach to <div> element.
+    # For black navbar, do "navbar navbar-inverse"
+    # 'navbar_class': "navbar navbar-inverse",
+    'navbar_class': "navbar",
+
+    # Fix navigation bar to top of page?
+    # Values: "true" (default) or "false"
+    'navbar_fixed_top': "true",
+
+    # Location of link to source.
+    # Options are "nav" (default), "footer" or anything else to exclude.
+    # 'source_link_position': "nav",
+    'source_link_position': False,
+
+    # Bootswatch (http://bootswatch.com/) theme.
+    #
+    # Options are nothing (default) or the name of a valid theme
+    # such as "cosmo" or "sandstone".
+    #
+    # The set of valid themes depend on the version of Bootstrap
+    # that's used (the next config option).
+    #
+    # Currently, the supported themes are:
+    # - Bootstrap 2: https://bootswatch.com/2
+    # - Bootstrap 3: https://bootswatch.com/3
+    'bootswatch_theme': "flatly",
+
+    # Choose Bootstrap version.
+    # Values: "3" (default) or "2" (in quotes)
+    'bootstrap_version': "4",
+    }
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -187,27 +269,3 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
 
-rst_epilog = """
-.. |range_init| replace:: This is the range object description
-
-.. |limits_init| replace:: A tuple containing the limits (as tuple) per dimension. So a tuple of the shape (n_obs, 
-n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
-upper2,...). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,... more). 
-Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
-and from 2 to 5.
-
-.. |limits_arg_descr| replace:: If a :py:class:~`zfit.core.base.limits.Range` is given, it is used as limits. 
-Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|
-
-.. |lower_arg_descr| replace:: The lower bounds of the intervall. Has to be of the form (n_intervalls, n_obs). The 
-intervall is the differenz to the upper bounds. Example: ((-1, 4), (1, 6), (3, 10),...)  # 2-d function
-
-.. |upper_arg_descr| replace:: The upper bounds of the intervall. Has to be of the form (n_intervalls, n_obs). The 
-intervall is the differenz to the lower bounds. Example: ((-0.1, 5), (2, 8), (7, 14),...)  # 2-d function
-
-.. |dims_arg_descr| replace:: The dimensions given as a tuple of integers.
-
-.. |dtype_arg_descr| replace:: The DType of the return value. Defaults to the zfit default (usually float64).
-
-.. |norm_range_arg_descr| replace:: The normalization range over which the function will be normalized (to 1).
-"""

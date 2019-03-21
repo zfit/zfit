@@ -482,7 +482,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to `Space` and sort them according to own `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to
+        own `obs`.
 
         Args:
             obs ():
@@ -596,7 +597,7 @@ class Sampler(Data):
         a mapping with `param_values` from `Parameter` to the temporary `value`.
 
         Args:
-            param_values (Dict): a mapping from `Parameter` to a `value`. For the current sampling,
+            param_values (Dict): a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
                 `Parameter` will use the `value`.
             n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
