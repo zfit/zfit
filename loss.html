@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Loss &#8212; zfit 0.0.0 documentation</title>
+    <title>Loss &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+        <span class="navbar-text pull-left"><b>0.3.0</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -118,9 +118,9 @@ The MLE is a specific type of probability model estimation, where the loss funct
 the dataset and the fit range (which internally sets <code class="docutils literal notranslate"><span class="pre">norm_range</span></code> in the PDF and makes sure data only within that range are used) <strong>must</strong> be given, and
 where parameter constraints in form of a dictionary <cite>{param: constraint}</cite> <strong>may</strong> be given.
 As an example, we can create an unbinned negative log-likelihood loss (<a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a>) from the model described in the <span class="xref std std-ref">Basic model section</span> and the data from the <a class="reference internal" href="data.html#data-section"><span class="std std-ref">Data section</span></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model_cb</span><span class="p">,</span>
-                                <span class="n">data</span><span class="p">,</span>
-                                <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model_cb</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                <span class="n">data</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 </pre></div>
 </div>
 <div class="section" id="adding-constraints">
@@ -129,12 +129,12 @@ As an example, we can create an unbinned negative log-likelihood loss (<a class=
 These constraints are specified as a list of penalty terms, which can be any <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> object that is simply added to the calculation of the loss.</p>
 <p>Useful implementations of penalties can be found in the <a class="reference internal" href="api/zfit.constraint.html#module-zfit.constraint" title="zfit.constraint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">zfit.constraint</span></code></a> module.
 For example, if we wanted to add adding a gaussian constraint on the <code class="docutils literal notranslate"><span class="pre">mu</span></code> parameter of the previous model, we would write:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model_cb</span><span class="p">,</span>
-                                <span class="n">data</span><span class="p">,</span>
-                                <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-                                <span class="n">constraints</span><span class="o">=</span><span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">nll_gaussian</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span>
-                                                                         <span class="n">mu</span><span class="o">=</span><span class="mf">5279.</span><span class="p">,</span>
-                                                                         <span class="n">sigma</span><span class="o">=</span><span class="mf">10.</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model_cb</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                <span class="n">data</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>                                <span class="n">constraints</span><span class="o">=</span><span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">nll_gaussian</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                                                         <span class="n">mu</span><span class="o">=</span><span class="mf">5279.</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                                                         <span class="n">sigma</span><span class="o">=</span><span class="mf">10.</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -143,16 +143,16 @@ For example, if we wanted to add adding a gaussian constraint on the <code class
 <p>There are currently two loss functions implementations in the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library, the <a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a> and <a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL" title="zfit.core.loss.ExtendedUnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtendedUnbinnedNLL</span></code></a> classes, which cover non-extended and extended negative log-likelihoods.</p>
 <p>A very common use case likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated).
 To build loss functions for simultaneous fits, the addition operator can be used (the particular combination that is performed depends on the type of loss function):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>
-<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">]</span>
-<span class="n">my_loss1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-<span class="n">my_loss2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-<span class="n">my_loss_sim_operator</span> <span class="o">=</span> <span class="n">my_loss1</span> <span class="o">+</span> <span class="n">my_loss2</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss_sim_operator</span> <span class="o">=</span> <span class="n">my_loss1</span> <span class="o">+</span> <span class="n">my_loss2</span>
 </pre></div>
 </div>
 <p>The same result can be achieved by passing a list of PDFs on instantiation, along with the same number of datasets and fit ranges:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Adding a list of models, data and observable ranges</span>
-<span class="n">my_loss_sim</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">models</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">datasets</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[</span><span class="n">obsRange</span><span class="p">])</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Adding a list of models, data and observable ranges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss_sim</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">models</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">datasets</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[</span><span class="n">obsRange</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>

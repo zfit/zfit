@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Getting started with zfit &#8212; zfit 0.0.0 documentation</title>
+    <title>Getting started with zfit &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+        <span class="navbar-text pull-left"><b>0.3.0</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -212,7 +212,7 @@ As an example, with the <a class="reference internal" href="api/zfit.minimize.ht
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/Gaussian.pdf" src="_images/Gaussian.pdf" />
+<img alt="_images/Gaussian.png" src="_images/Gaussian.png" />
 <p>The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>, a specialised wrapper around <code class="docutils literal notranslate"><span class="pre">tf.Session().run</span></code>.
 While actions like <code class="docutils literal notranslate"><span class="pre">minimize</span></code> or <code class="docutils literal notranslate"><span class="pre">sample</span></code> return Python objects (including numpy arrays or scalars), functions like <code class="docutils literal notranslate"><span class="pre">pdf</span></code> or <code class="docutils literal notranslate"><span class="pre">integrate</span></code> return TensorFlow graphs, which are lazy-evaluated.
 To obtain the value of these PDFs, we need to execute the graph by using <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>.</p>

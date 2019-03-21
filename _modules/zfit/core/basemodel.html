@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>zfit.core.basemodel &#8212; zfit 0.0.0 documentation</title>
+    <title>zfit.core.basemodel &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+        <span class="navbar-text pull-left"><b>0.3.0</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -404,7 +404,13 @@
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
         <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">integral</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span> <span class="o">==</span> <span class="p">[],</span> <span class="s2">&quot;Error in integral creation, should return with shape ()&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Error in integral creation, should return an integral &quot;</span>
+                                             <span class="s2">&quot;with shape () (resp. [] as list), current shape &quot;</span>
+                                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">. If you registered an analytic integral which is used&quot;</span>
+                                             <span class="s2">&quot;now, make sure to return a scalar and not a tensor &quot;</span>
+                                             <span class="s2">&quot;(typically: shape is (1,) insead of () -&gt; return tensor[0] &quot;</span>
+                                             <span class="s2">&quot;instead of tensor)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()))</span>
         <span class="k">return</span> <span class="n">integral</span></div>
 
     <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
