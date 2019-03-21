@@ -83,16 +83,15 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
-            dtype (Type): the dtype of the model
+            dtype (DType): the dtype of the model
             name (str): the name of the model
-            params (): the parameters the distribution depends on
+            params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the parameter and
+                the parameters itself the model depends on
         """
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
         self._check_set_space(obs)
 
         self._integration = zcontainer.DotDict()
-        # self._integration.mc_sampler = self._DEFAULTS_integration.mc_sampler
-        # self._integration.draws_per_dim = self._DEFAULTS_integration.draws_per_dim
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
                                        draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
@@ -193,7 +192,13 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 x = tf.expand_dims(x, -1)
         return x
 
-    def set_integration_options(self, draws_per_dim=None, mc_sampler=None):
+    def update_integration_options(self, draws_per_dim=None, mc_sampler=None):
+        """Set the integration options.
+
+        Args:
+            draws_per_dim (int): The draws for MC integration to do
+            mc_sampler ():
+        """
         # mc_options = {} if mc_options is None else mc_options
         # numeric_options = {} if numeric_options is None else numeric_options
         # general_options = {} if general_options is None else general_options
@@ -282,10 +287,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
             norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the
                 unnormalized probability
-            name (str):
+            name (str): name of the operation shown in the :py:class:`tf.Graph`
 
         Returns:
-            Tensor: the integral value
+            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits)
@@ -359,12 +364,12 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                     * limits (:py:class:`~zfit.Space`): the limits to integrate over.
                     * norm_range (:py:class:`~zfit.Space`, None): Normalization range of the integral.
                         If not `supports_supports_norm_range`, this will be None.
-                    * params (Dict[param_name, :py:class:``zfit.Parameters`]): The parameters of the model.
+                    * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.
                     * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
 
             limits (): |limits_arg_descr|
             priority (int): Priority of the function. If multiple functions cover the same space, the one with the
-                highest priority will be tanke.
+                highest priority will be used.
             supports_multiple_limits (bool): If `True`, the `limits` given to the integration function can have
                 multiple limits. If `False`, only simple limits will pass through and multiple limits will be
                 auto-handled.
@@ -393,7 +398,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
     def analytic_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                            name: str = "analytic_integrate") -> ztyping.XType:
-        """Do analytical integration over function and raise Error if not possible.
+        """Analytical integration over function and raise Error if not possible.
 
         Args:
             limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over

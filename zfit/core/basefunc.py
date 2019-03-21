@@ -7,6 +7,7 @@ import typing
 
 import tensorflow as tf
 
+import zfit
 from zfit.util.exception import ShapeIncompatibleError
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
@@ -70,7 +71,12 @@ class BaseFunc(BaseModel, ZfitFunc):
                                              "it received on initialization."
                                              "Original Error: {}".format(error))
 
-    def as_pdf(self):
+    def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
+        """Create a PDF out of the function
+
+        Returns:
+            :py:class:`~zfit.core.interfaces.ZfitPDF`: a PDF with the current function as the unnormalized probability.
+        """
         from zfit.core.operations import convert_func_to_pdf
         return convert_func_to_pdf(func=self)
 
