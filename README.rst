@@ -1,5 +1,5 @@
 ====
-Zfit
+zfit
 ====
 
 
@@ -20,17 +20,16 @@ Zfit
 
 
 * Free software: BSD-3-Clause
-* `API (temporary) Documentation <https://zfit.github.io/zfit/>`_
+* `Full Documentation <https://zfit.github.io/zfit/>`_
 
-Zfit is around it's alpha stage: core parts are established, but some parts are also missing
-and bugs as well as changes may be encountered.
-If you already want to use it for a specific project, feel free contact us.
+The ``zfit`` package provides scalable, pythonic fitting. It is currently in it's beta stage: core parts are
+established, but it's not feature complete. It can (and is) used in analysis.
+
 
 Acknowledgements
 ----------------
 
-zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNF) under contracs 168169 and 174182.
+zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNF) under contracts 168169 and 174182.
 
-The zfit structure is based on the framework developed by Anton Poluektov using the TensorFlow (TF) open source library https://gitlab.cern.ch/poluekt/TensorFlowAnalysis
-
-The authors would like to thank numerous invaluable inputs from the theory community, i.e., D. van Dyk, G. Isidori, members of LHCb collaboration, as well as from the Scikit-HEP community.
+The authors would like to thank numerous invaluable inputs and inspiration from other packages and
+the HSF community.
