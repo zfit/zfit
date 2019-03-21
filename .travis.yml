@@ -2,7 +2,7 @@ language: python
 os:
     - linux
 python:
-    - 3.6
+    - "3.6"
 matrix:
     include:
         - python: 3.7
@@ -32,7 +32,7 @@ deploy:
           branch: master
           tags: true
           repo: zfit/zfit
-          python: 3.6
+          python: "3.6"
 
     - provider: pages
       skip_cleanup: true
