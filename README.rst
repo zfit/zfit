@@ -1,6 +1,8 @@
+
 ===============================
 zfit: scalable pythonic fitting
 ===============================
+
 
 
 .. image:: https://img.shields.io/pypi/v/zfit.svg
@@ -78,6 +80,7 @@ The domain of the PDF is defined by an *observable space*, which is created usin
 
     obs = zfit.Space('x', limits=(-10, 10))
 
+
 Using this domain, we can now create a simple Gaussian PDF. To do this, we define its parameters and their limits using the ``zfit.Parameter`` class and we instantiate the PDF from the zfit library:
 
 .. code-block:: python
@@ -146,10 +149,10 @@ Contributions are always welcome, please have a look at the `Contributing guide`
 
 .. _Contributing guide: CONTRIBUTING.rst
 
-
 Acknowledgements
 ----------------
 
 zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNSF) under contracts 168169 and 174182.
 
-The zfit structure is based on the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
+The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
+
