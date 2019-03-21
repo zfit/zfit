@@ -203,7 +203,7 @@ Finally, we could also improve the description of the PDF by providing a analyti
     ...    # Write you integral
     ...    return 42. # Dummy value
 
-    >>># Register the integral
+    >>> # Register the integral
     >>> limits = zfit.Space.from_axes(axes=0, limits=(zfit.Space.ANY_LOWER, zfit.Space.ANY_UPPER))
     >>> MyGauss.register_analytic_integral(func=gauss_integral_from_any_to_any, limits=limits)
 
