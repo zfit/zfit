@@ -111,9 +111,31 @@
 <h1>Loss<a class="headerlink" href="#loss" title="Permalink to this headline">¶</a></h1>
 <p>A <em>loss function</em> can be defined as a measurement of the discrepancy between the observed data and the predicted data by the fitted function.
 To some extend it can be visualised as a metric of the goodness of a given prediction as you change the settings of your algorithm.
-For example, in a general linear model the loss function is essentially the sum of squared deviations from the fitted line or plane.</p>
-<p>A more useful application in the context of High Energy Physics is the Maximum Likelihood Estimator (MLE).
-The MLE is a specific type of probability model estimation, where the loss function is the negative (log)-likelihood.</p>
+For example, in a general linear model the loss function is essentially the sum of squared deviations from the fitted line or plane.
+A more useful application in the context of High Energy Physics (HEP) is the Maximum Likelihood Estimator (MLE).
+The MLE is a specific type of probability model estimation, where the loss function is the negative log-likelihood (NLL).</p>
+<p>There are two loss functions implementations in the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library, i.e. the <a class="reference internal" href="api/zfit.loss.html#zfit.loss.UnbinnedNLL" title="zfit.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a> and <code class="xref py py-class docutils literal notranslate"><span class="pre">ExtendedUnbinnedNLL</span></code> classes.
+These loss functions can then be built using <code class="docutils literal notranslate"><span class="pre">pdf.prob</span></code>, following a common interface, in which the model,
+the dataset and the fit range (which internally sets <code class="docutils literal notranslate"><span class="pre">norm_range</span></code> in the PDF and makes sure data only within that range are used) <strong>MUST</strong> be given,
+and where parameter constraints in form of a dictionary <cite>{param: constraint}</cite> <strong>MAY</strong> be given.
+As an example, for unbinned likelihood fits</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="p">,</span>
+                           <span class="n">data</span><span class="p">,</span>
+                           <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                           <span class="n">constraints</span><span class="o">=</span><span class="p">{</span><span class="n">mu</span><span class="p">:</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.4</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Additional constraints <strong>MAY</strong> be passed to the loss object using the <code class="docutils literal notranslate"><span class="pre">add_constraint(constraints)</span></code> method.
+Moreover, in the event of an extended PDF the loss implementation is identical apart from the use of the <code class="docutils literal notranslate"><span class="pre">ExtendedUnbinnedNLL</span></code>.</p>
+<p>A very common use case in HEP is the
+To build loss functions for simultaneous fits, the addition operation,
+either through the <cite>my_loss.add</cite> method or through the <cite>+</cite> operator, can be used (the particular combination that is performed depends on the type of loss function).
+The same result can be achieved by passing a list of PDFs on instantiation, along with the same number of datasets and fit ranges.</p>
+<p>Finally, the value of the loss function is evaluated using the <cite>eval()</cite> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simultaneous_loss</span> <span class="o">=</span> <span class="n">my_loss1</span> <span class="o">+</span> <span class="n">my_loss2</span>
+<span class="n">loss_value</span> <span class="o">=</span> <span class="n">simultaneous_loss</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 
 
