@@ -110,34 +110,38 @@
   <div class="section" id="getting-started-with-zfit">
 <h1>Getting started with zfit<a class="headerlink" href="#getting-started-with-zfit" title="Permalink to this headline">¶</a></h1>
 <p>The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a <em>crash course</em> manner. The simplest example is to generate, fit and plot a Gaussian distribution.</p>
-<p>The first step is to naturally import <code class="docutils literal notranslate"><span class="pre">zfit</span></code> and verify if the installation has been done successfully (plus some additional imports of helpful libraries):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow version:&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<p>The first step is to naturally import <code class="docutils literal notranslate"><span class="pre">zfit</span></code> and verify if the installation has been done successfully:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">zfit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow version:&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="go">TensorFlow version: 1.12.0</span>
 </pre></div>
 </div>
 <p>Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an <em>observable space</em>. This can be created using the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> class</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The best interpretation of the observable at this stage is that it defines the name and range of the observable axis.</p>
-<p>Using this domain, we can now create a simple Gaussian PDF. The most common PDFs are already pre-defined within the :py:mod`~zfit.pdf` module, including a simple Gaussian. First, we have to define the parameters of the PDF and their limits using the <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> class:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mu</span>    <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span>   <span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<p>Using this domain, we can now create a simple Gaussian PDF.
+The most common PDFs are already pre-defined within the <a class="reference internal" href="api/zfit.pdf.html#module-zfit.pdf" title="zfit.pdf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pdf</span></code></a> module, including a simple Gaussian.
+First, we have to define the parameters of the PDF and their limits using the <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> class:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span>    <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span>   <span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With these parameters we can instantiate the Gaussian PDF from the library</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It is recommended to pass the arguments of the PDF as keyword arguments.</p>
 <p>The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the <a class="reference internal" href="data.html#data-section"><span class="std std-ref">Data</span></a> section). In this case, for simplicity we simply produce it using numpy and the <a class="reference internal" href="api/zfit.data.html#zfit.data.Data.from_numpy" title="zfit.data.Data.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">Data.from_numpy</span></code></a> method:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mu_true</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">sigma_true</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">data_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mu_true</span><span class="p">,</span> <span class="n">sigma_true</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">data_np</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_true</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma_true</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mu_true</span><span class="p">,</span> <span class="n">sigma_true</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">data_np</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">&lt;zfit.core.data.Data object at 0x7f90537f4748&gt;</span>
 </pre></div>
 </div>
 <p>Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:</p>
@@ -146,41 +150,49 @@
 <li>instantiate our choice of minimiser; and</li>
 <li>and minimise the log-likelihood.</li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stage 1: create an unbinned likelihood with the given PDF and dataset</span>
-<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">gauss</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stage 1: create an unbinned likelihood with the given PDF and dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">gauss</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-<span class="c1"># Stage 2: instantiate a minimiser (in this case a basic minuit</span>
-<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stage 2: instantiate a minimiser (in this case a basic minuit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
 
-<span class="c1"># Stage 3: minimise the given negative likelihood</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stage 3: minimise the given negative likelihood</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This corresponds to the most basic example where the negative likelihood is defined within the pre-determined observable range and all the parameters in the PDF are floated in the fit. It is often the case that we want to only vary a given set of parameters. In this case it is necessary to specify which are the parameters to be floated (so all the remaining ones are fixed to their initial values).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the <code class="docutils literal notranslate"><span class="pre">error</span></code> method.
-As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calculate the <code class="docutils literal notranslate"><span class="pre">MINOS</span></code> with:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">param_errors</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="n">param_errors</span><span class="p">)</span>
+As an example, with the <a class="reference internal" href="api/zfit.minimize.html#zfit.minimize.MinuitMinimizer" title="zfit.minimize.MinuitMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MinuitMinimizer</span></code></a> one can calculate the <code class="docutils literal notranslate"><span class="pre">MINOS</span></code> with:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param_errors</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">errors</span> <span class="ow">in</span> <span class="n">param_errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;{}: ^{{+{}}}_{{-{}}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]))</span>
+<span class="go">mu: ^{+0.00998104141841555}_{--0.009981515893414316}</span>
+<span class="go">sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}</span>
 </pre></div>
 </div>
 <p>Once we’ve performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results. The object <code class="docutils literal notranslate"><span class="pre">result</span></code> (:py:class`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Function minimum:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Converged:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Full minimizer information:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Function minimum:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span><span class="p">)</span>
+<span class="go">Function minimum: 14170.396450111948</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Converged:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
+<span class="go">Converged: True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Full minimizer information:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="go">Full minimizer information: {&#39;n_eval&#39;: 56, &#39;original&#39;: {&#39;fval&#39;: 14170.396450111948, &#39;edm&#39;: 2.8519671693442587e-10,</span>
+<span class="go">&#39;nfcn&#39;: 56, &#39;up&#39;: 0.5, &#39;is_valid&#39;: True, &#39;has_valid_parameters&#39;: True, &#39;has_accurate_covar&#39;: True, &#39;has_posdef_covar&#39;: True,</span>
+<span class="go">&#39;has_made_posdef_covar&#39;: False, &#39;hesse_failed&#39;: False, &#39;has_covariance&#39;: True, &#39;is_above_max_edm&#39;: False, &#39;has_reached_call_limit&#39;: False}}</span>
 </pre></div>
 </div>
 <p>Similarly one can obtain information on the fitted parameters with</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Information on all the parameters in the fit</span>
-<span class="n">params</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span>
-<span class="k">print</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Information on all the parameters in the fit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span>
 
-<span class="c1"># Printing information on specific parameters, e.g. mu</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;mu={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">mu</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Printing information on specific parameters, e.g. mu</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;mu={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">mu</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]))</span>
+<span class="go">mu=0.012464509810750313</span>
 </pre></div>
 </div>
 <p>As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, to do the job:</p>
