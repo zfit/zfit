@@ -1,4 +1,2 @@
-from Interface import *
-from Dynamics import *
-from Optimisation import *
-from Utility import *
+from . import (baseobject, basepdf, basemodel, basefunc, data, interfaces, integration, math, loss, tfext,
+               sample, limits, operations, parameter, )

@@ -1,0 +1,11 @@
+tensorflow>=1.10.0
+tensorflow_probability>=0.3.0
+scipy>=1.2
+pandas  # temporary, upstream bug in keras-preprocessing
+uproot
+numpy
+iminuit
+typing
+pep487
+colorlog
+texttable

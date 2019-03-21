@@ -1,0 +1,24 @@
+strictness: veryhigh
+#pylint:
+#  disable:
+#    - too-many-arguments
+#    - too-many-statements
+#    - too-many-locals
+#    - too-many-branches
+#    - redefined-builtin
+
+ignore-paths:
+  - docs/
+  - tests/
+python-targets:
+ - 2
+ - 3
+
+pep8:
+  full: true
+
+doc-warnings: true
+max-line-length: 110
+
+
+
