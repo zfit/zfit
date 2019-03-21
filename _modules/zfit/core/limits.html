@@ -1,109 +1,165 @@
+
+
 <!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.core.limits &mdash; zfit 0.2.3 documentation</title>
+  
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>zfit.core.limits &#8212; zfit 0.0.0 documentation</title>
-    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
 
-  </head><body>
+<body class="wy-body-for-nav">
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
 
-        <a class="brand" href="../../../index.html">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+          
+            <a href="../../../index.html" class="icon icon-home"> zfit
+          
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="../../../getting_started.html">Getting started</a></li>
-                <li><a href="../../../space.html">Space</a></li>
-                <li><a href="../../../parameter.html">Parameter</a></li>
-                <li><a href="../../../model.html">Model</a></li>
-                <li><a href="../../../data.html">Data</a></li>
-                <li><a href="../../../loss.html">Loss</a></li>
-                <li><a href="../../../minimize.html">Minimize</a></li>
-                <li><a href="../../../API.html">API</a></li>
+          
+          </a>
+
+          
             
             
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../../../index.html">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../downloading.html">Downloading and Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../minimize.html">Minimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a></li>
-</ul>
-</ul>
-</li>
+              <div class="version">
+                0.2.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
               
             
             
-            
-            
-            
-          </ul>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
 
-          
             
-<form class="navbar-form navbar-right" action="../../../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
           
         </div>
       </div>
-    </div>
-  </div>
+    </nav>
 
-<div class="container">
-  <div class="row">
-    <div class="span12 content">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
       
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>zfit.core.limits</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
   <h1>Source code for zfit.core.limits</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. include:: ../../docs/subst_types.rst</span>
@@ -130,7 +186,7 @@
 <span class="sd">lower = ((lower1_dim1, lower1_dim2, lower1_dim3), (lower2_dim1, lower2_dim2, lower2_dim3),...)</span>
 <span class="sd">upper = ((upper1_dim1, upper1_dim2, upper1_dim3), (upper2_dim1, upper2_dim2, upper2_dim3),...)</span>
 
-<span class="sd">## Using :py:class:`~zfit.Space`</span>
+<span class="sd">## Using :py:class:`NamedSpace`</span>
 
 <span class="sd">:py:class:`NamedSpace` offers a few useful functions to easier deal with the intervals</span>
 
@@ -177,7 +233,7 @@
 
 
 <span class="c1"># Singleton</span>
-<div class="viewcode-block" id="Any"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Any">[docs]</a><span class="k">class</span> <span class="nc">Any</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">PEP487Object</span><span class="p">):</span>  <span class="c1"># pep487 for _init_subclass backport</span>
+<div class="viewcode-block" id="Any"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Any">[docs]</a><span class="k">class</span> <span class="nc">Any</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">PEP487Object</span><span class="p">):</span>  <span class="c1"># pep487 for _init_subclass backport</span>
     <span class="n">_singleton_instance</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -214,7 +270,7 @@
     <span class="c1">#     return</span>
 
 
-<div class="viewcode-block" id="AnyLower"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.AnyLower">[docs]</a><span class="k">class</span> <span class="nc">AnyLower</span><span class="p">(</span><span class="n">Any</span><span class="p">):</span>
+<div class="viewcode-block" id="AnyLower"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.AnyLower">[docs]</a><span class="k">class</span> <span class="nc">AnyLower</span><span class="p">(</span><span class="n">Any</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;Any Lower Limit&gt;&#39;</span>
 
@@ -228,7 +284,7 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="AnyUpper"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.AnyUpper">[docs]</a><span class="k">class</span> <span class="nc">AnyUpper</span><span class="p">(</span><span class="n">Any</span><span class="p">):</span>
+<div class="viewcode-block" id="AnyUpper"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.AnyUpper">[docs]</a><span class="k">class</span> <span class="nc">AnyUpper</span><span class="p">(</span><span class="n">Any</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;Any Upper Limit&gt;&#39;</span>
 
@@ -247,7 +303,7 @@
 <span class="n">ANY_UPPER</span> <span class="o">=</span> <span class="n">AnyUpper</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Space"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space">[docs]</a><span class="k">class</span> <span class="nc">Space</span><span class="p">(</span><span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
+<div class="viewcode-block" id="Space"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space">[docs]</a><span class="k">class</span> <span class="nc">Space</span><span class="p">(</span><span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
     <span class="n">AUTO_FILL</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
     <span class="n">ANY</span> <span class="o">=</span> <span class="n">ANY</span>
     <span class="n">ANY_LOWER</span> <span class="o">=</span> <span class="n">ANY_LOWER</span>  <span class="c1"># TODO: needed? or move everything inside?</span>
@@ -265,7 +321,7 @@
         <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_convert_input_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Space_&quot;</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;NamedSpace_&quot;</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obs</span> <span class="o">=</span> <span class="n">obs</span>
@@ -274,7 +330,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_from_any</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+                  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">new_space</span> <span class="o">=</span> <span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -283,10 +339,10 @@
 
         <span class="k">return</span> <span class="n">new_space</span>
 
-<div class="viewcode-block" id="Space.from_axes"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.from_axes">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Space.from_axes"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.from_axes">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_axes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">,</span>
                   <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+                  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a space from `axes` instead of from `obs`.</span>
 
 <span class="sd">        Args:</span>
@@ -295,7 +351,7 @@
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`</span>
+<span class="sd">            Space</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -442,7 +498,7 @@
         <span class="sd">&quot;&quot;&quot;Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(float, float): so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.</span>
+<span class="sd">            tuple(float, float): so `lower, upper = space.limit1d` for a simple, 1 obs limit.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.</span>
@@ -462,7 +518,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">limit2d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</span>
+        <span class="sd">&quot;&quot;&quot;Simplified `.limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.</span>
@@ -582,7 +638,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span>
 
-<div class="viewcode-block" id="Space.get_axes"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.get_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.get_axes"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.get_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">autofill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeReturn</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Return the axes corresponding to the `obs` (or all if None).</span>
@@ -598,7 +654,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if the requested `obs` do not match with the one defined in the range</span>
-<span class="sd">            AxesNotSpecifiedError: If the axes in this :py:class:`~zfit.Space` have not been specified.</span>
+<span class="sd">            AxesNotSpecifiedError: If the axes in this `Space` have not been specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># check input</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_convert_input_obs</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -623,23 +679,22 @@
 
         <span class="k">return</span> <span class="n">axes</span></div>
 
-<div class="viewcode-block" id="Space.iter_limits"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.iter_limits">[docs]</a>    <span class="k">def</span> <span class="nf">iter_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_tuple</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">_IterLimitsTypeReturn</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.</span>
+<div class="viewcode-block" id="Space.iter_limits"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.iter_limits">[docs]</a>    <span class="k">def</span> <span class="nf">iter_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_tuple</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">_IterLimitsTypeReturn</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the limits, either as `Space` objects or as pure limits-tuple.</span>
 
 <span class="sd">        This makes iterating over limits easier: `for limit in space.iter_limits()`</span>
 <span class="sd">        allows to, for example, pass `limit` to a function that can deal with simple limits</span>
 <span class="sd">        only or if `as_tuple` is True the `limit` can be directly used to calculate something.</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">            .. code:: python</span>
-
-<span class="sd">                for lower, upper in space.iter_limits(as_tuple=True):</span>
-<span class="sd">                    integrals = integrate(lower, upper)  # calculate integral</span>
-<span class="sd">                integral = sum(integrals)</span>
-
+<span class="sd">            ```python</span>
+<span class="sd">            for lower, upper in space.iter_limits(as_tuple=True):</span>
+<span class="sd">                integrals = integrate(lower, upper)  # calculate integral</span>
+<span class="sd">            integral = sum(integrals)</span>
+<span class="sd">            ```</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            List[:py:class:`~zfit.Space`] or List[limit,...]:</span>
+<span class="sd">            List[Space] or List[limit,...]:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">LimitsNotSpecifiedError</span><span class="p">(</span><span class="s2">&quot;Space does not have limits, cannot iterate over them.&quot;</span><span class="p">)</span>
@@ -658,7 +713,7 @@
                 <span class="n">space_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">space</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">space_objects</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Space.with_limits"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.with_limits">[docs]</a>    <span class="k">def</span> <span class="nf">with_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.with_limits"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.with_limits">[docs]</a>    <span class="k">def</span> <span class="nf">with_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return a copy of the space with the new `limits` (and the new `name`).</span>
 
 <span class="sd">        Args:</span>
@@ -666,19 +721,19 @@
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`</span>
+<span class="sd">            Space</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.with_obs"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.with_obs"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Sort by `obs` and return the new instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            obs ():</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`</span>
+<span class="sd">            `Space`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">obs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -687,14 +742,14 @@
         <span class="n">new_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reorder_by_indices</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.with_axes"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.with_axes"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Sort by `obs` and return the new instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            axes ():</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`</span>
+<span class="sd">            `Space`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: what if self.axes is None? Just add them?</span>
         <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">axes</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
@@ -705,7 +760,7 @@
         <span class="n">new_space</span><span class="o">.</span><span class="n">reorder_by_indices</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.get_reorder_indices"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.get_reorder_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_reorder_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.get_reorder_indices"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.get_reorder_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_reorder_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                             <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Indices that would order `self.obs` as `obs` respectively `self.axes` as `axes`.</span>
 
@@ -732,8 +787,8 @@
         <span class="n">new_indices</span> <span class="o">=</span> <span class="n">_reorder_indices</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">new</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_indices</span></div>
 
-<div class="viewcode-block" id="Space.reorder_by_indices"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.reorder_by_indices">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_by_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;Return a :py:class:`~zfit.Space` reordered by the indices.</span>
+<div class="viewcode-block" id="Space.reorder_by_indices"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.reorder_by_indices">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_by_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Return a `Space` reordered by the indices.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            indices ():</span>
@@ -776,7 +831,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_obs</span> <span class="o">=</span> <span class="n">obs</span>
         <span class="k">return</span> <span class="n">obs</span>
 
-<div class="viewcode-block" id="Space.get_obs_axes"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.get_obs_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_obs_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Space.get_obs_axes"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.get_obs_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_obs_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ObsNotSpecifiedError</span><span class="p">(</span><span class="s2">&quot;Obs not specified, cannot create `obs_axes`&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -875,9 +930,9 @@
 
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Space.with_obs_axes"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.with_obs_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs_axes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">ordered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                      <span class="n">allow_subset</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.</span>
+<div class="viewcode-block" id="Space.with_obs_axes"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.with_obs_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs_axes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">ordered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                      <span class="n">allow_subset</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return a new `Space` with reordered observables and set the `axes`.</span>
 
 
 <span class="sd">        Args:</span>
@@ -886,20 +941,20 @@
 <span class="sd">            allow_subset ():</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`:</span>
+<span class="sd">            Space:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_obs_axes</span><span class="p">(</span><span class="n">obs_axes</span><span class="o">=</span><span class="n">obs_axes</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="n">ordered</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Space.with_autofill_axes"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).</span>
+<div class="viewcode-block" id="Space.with_autofill_axes"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return a `Space` with filled axes corresponding to range(len(n_obs)).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.</span>
 <span class="sd">                If axes is already set, don&#39;t do anything if `overwrite` is False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`</span>
+<span class="sd">            `Space`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="n">new_axes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
@@ -909,11 +964,11 @@
 
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.area"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.area">[docs]</a>    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.area"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.area">[docs]</a>    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the total area of all the limits and axes. Useful, for example, for MC integration.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_areas</span><span class="p">(</span><span class="n">rel</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Space.iter_areas"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.iter_areas">[docs]</a>    <span class="k">def</span> <span class="nf">iter_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<div class="viewcode-block" id="Space.iter_areas"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.iter_areas">[docs]</a>    <span class="k">def</span> <span class="nf">iter_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Return the areas of each interval</span>
 
 <span class="sd">        Args:</span>
@@ -934,9 +989,9 @@
         <span class="n">areas</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">up</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">low</span><span class="p">)))</span> <span class="k">for</span> <span class="n">low</span><span class="p">,</span> <span class="n">up</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">limits</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">areas</span>
 
-<div class="viewcode-block" id="Space.get_subspace"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.get_subspace">[docs]</a>    <span class="k">def</span> <span class="nf">get_subspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).</span>
+<div class="viewcode-block" id="Space.get_subspace"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.get_subspace">[docs]</a>    <span class="k">def</span> <span class="nf">get_subspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a `Space` consisting of only a subset of the `obs`/`axes` (only one allowed).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            obs (str, Tuple[str]):</span>
@@ -992,9 +1047,8 @@
 
     <span class="c1"># Operators</span>
 
-<div class="viewcode-block" id="Space.copy"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with</span>
-<span class="sd">        `overwrite_overwrite_kwargs`.</span>
+<div class="viewcode-block" id="Space.copy"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a new `Space` using the current attributes and overwriting with `overwrite_overwrite_kwargs`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): The new name. If not given, the new instance will be named the same as the</span>
@@ -1002,7 +1056,7 @@
 <span class="sd">            **overwrite_kwargs ():</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`</span>
+<span class="sd">            Space</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
 
@@ -1070,29 +1124,28 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="Space.add"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">):</span>
+<div class="viewcode-block" id="Space.add"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add the limits of the spaces. Only works for the same obs.</span>
 
 <span class="sd">        In case the observables are different, the order of the first space is taken.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            other (:py:class:`~zfit.Space`):</span>
+<span class="sd">            other (`Space`):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            `zfit.Space`: &quot;&quot;&quot;</span>
         <span class="n">other</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="n">add_spaces</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.combine"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Space.combine">[docs]</a>    <span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitSpace</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.combine"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.Space.combine">[docs]</a>    <span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitSpace</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Combine spaces with different obs (but consistent limits).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            other (:py:class:`~zfit.Space`):</span>
+<span class="sd">            other (zfit.Space):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`:</span>
+<span class="sd">            zfit.Space:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">other</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="n">combine_spaces</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
@@ -1132,27 +1185,26 @@
         <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="convert_to_space"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.convert_to_space">[docs]</a><span class="k">def</span> <span class="nf">convert_to_space</span><span class="p">(</span><span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="convert_to_space"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.convert_to_space">[docs]</a><span class="k">def</span> <span class="nf">convert_to_space</span><span class="p">(</span><span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="o">*</span><span class="p">,</span> <span class="n">overwrite_limits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">one_dim_limits_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                      <span class="n">simple_limits_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Space</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Convert *limits* to a :py:class:`~zfit.Space` object if not already None or False.</span>
+    <span class="sd">&quot;&quot;&quot;Convert *limits* to a Space object if not already None or False.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        obs (Union[Tuple[float, float], :py:class:`~zfit.Space`]):</span>
+<span class="sd">        obs (Union[Tuple[float, float], zfit.core.limits.Space]):</span>
 <span class="sd">        limits ():</span>
 <span class="sd">        axes ():</span>
-<span class="sd">        overwrite_limits (bool): If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance</span>
-<span class="sd">            of :py:class:`~zfit.Space` with the new limits. If the flag is `False`, the `limits` argument will be</span>
-<span class="sd">            ignored if</span>
+<span class="sd">        overwrite_limits (bool): If `obs` or `axes` is a `Space` _and_ `limits` are given, return an instance</span>
+<span class="sd">            of `Space` with the new limits. If the flag is `False`, the `limits` argument will be ignored if</span>
 <span class="sd">        one_dim_limits_only (bool):</span>
 <span class="sd">        simple_limits_only (bool):</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Union[:py:class:`~zfit.Space`, False, None]:</span>
+<span class="sd">        Union[Space, False, None]:</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        OverdefinedError: if `obs` or `axes` is a :py:class:`~zfit.Space` and `axes` respectively `obs` is not `None`.</span>
+<span class="sd">        OverdefinedError: if `obs` or `axes` is a `Space` and `axes` respectively `obs` is not `None`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">space</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1200,7 +1252,7 @@
     <span class="k">return</span> <span class="n">new_indices</span>
 
 
-<div class="viewcode-block" id="no_norm_range"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.no_norm_range">[docs]</a><span class="k">def</span> <span class="nf">no_norm_range</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="no_norm_range"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.no_norm_range">[docs]</a><span class="k">def</span> <span class="nf">no_norm_range</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decorator: Catch the &#39;norm_range&#39; kwargs. If not None, raise NormRangeNotImplementedError.&quot;&quot;&quot;</span>
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -1229,7 +1281,7 @@
     <span class="k">return</span> <span class="n">new_func</span></div>
 
 
-<div class="viewcode-block" id="no_multiple_limits"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.no_multiple_limits">[docs]</a><span class="k">def</span> <span class="nf">no_multiple_limits</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="no_multiple_limits"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.no_multiple_limits">[docs]</a><span class="k">def</span> <span class="nf">no_multiple_limits</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decorator: Catch the &#39;limits&#39; kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError.&quot;&quot;&quot;</span>
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -1254,7 +1306,7 @@
     <span class="k">return</span> <span class="n">new_func</span></div>
 
 
-<div class="viewcode-block" id="supports"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.supports">[docs]</a><span class="k">def</span> <span class="nf">supports</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">multiple_limits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<div class="viewcode-block" id="supports"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.supports">[docs]</a><span class="k">def</span> <span class="nf">supports</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">multiple_limits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Decorator: Add (mandatory for some methods) on a method to control what it can handle.</span>
 
 <span class="sd">    If any of the flags is set to False, it will check the arguments and, in case they match a flag</span>
@@ -1282,8 +1334,8 @@
     <span class="k">return</span> <span class="n">create_deco_stack</span></div>
 
 
-<div class="viewcode-block" id="convert_to_obs_str"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.convert_to_obs_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert `obs` to the list of obs, also if it is a :py:class:`~zfit.Space`.</span>
+<div class="viewcode-block" id="convert_to_obs_str"><a class="viewcode-back" href="../../../zfit.core.limits.html#zfit.convert_to_obs_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert `obs` to the list of obs, also if it is a `Space`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
@@ -1291,21 +1343,43 @@
     <span class="k">return</span> <span class="n">obs</span></div>
 </pre></div>
 
-    </div>
-      
-  </div>
-</div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-    </p>
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+        &copy; Copyright 2018, zfit
+
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
 </footer>
-  </body>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

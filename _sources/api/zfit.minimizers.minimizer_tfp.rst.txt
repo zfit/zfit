@@ -1,7 +1,0 @@
-minimizer\_tfp
-==============
-
-.. automodule:: zfit.minimizers.minimizer_tfp
-    :members:
-    :undoc-members:
-    :show-inheritance:

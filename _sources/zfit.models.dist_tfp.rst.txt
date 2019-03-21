@@ -1,0 +1,7 @@
+zfit.models.dist\_tfp
+=====================
+
+.. automodule:: zfit.models.dist_tfp
+    :members:
+    :undoc-members:
+    :show-inheritance:

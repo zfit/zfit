@@ -1,0 +1,7 @@
+zfit.func
+=========
+
+.. automodule:: zfit.func
+    :members:
+    :undoc-members:
+    :show-inheritance:

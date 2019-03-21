@@ -1,0 +1,24 @@
+zfit.util
+=========
+
+.. automodule:: zfit.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   zfit.util.cache
+   zfit.util.checks
+   zfit.util.container
+   zfit.util.diverse
+   zfit.util.exception
+   zfit.util.execution
+   zfit.util.graph
+   zfit.util.logging
+   zfit.util.temporary
+   zfit.util.ztyping
+

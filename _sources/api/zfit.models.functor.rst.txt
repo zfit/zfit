@@ -1,7 +1,0 @@
-functor
-=======
-
-.. automodule:: zfit.models.functor
-    :members:
-    :undoc-members:
-    :show-inheritance:

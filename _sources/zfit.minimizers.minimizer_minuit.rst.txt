@@ -1,0 +1,7 @@
+zfit.minimizers.minimizer\_minuit
+=================================
+
+.. automodule:: zfit.minimizers.minimizer_minuit
+    :members:
+    :undoc-members:
+    :show-inheritance:

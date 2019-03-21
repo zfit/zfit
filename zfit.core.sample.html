@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>zfit.core.sample &mdash; zfit 0.2.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> zfit
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.pdf.html">zfit.pdf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.func.html">zfit.func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.data.html">zfit.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.minimize.html">zfit.minimize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.loss.html">zfit.loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.constraint.html">zfit.constraint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zfit.ztf.html">zfit.ztf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">zfit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>zfit.core.sample</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/zfit.core.sample.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-zfit.core.sample">
+<span id="zfit-core-sample"></span><h1>zfit.core.sample<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="zfit.core.sample.accept_reject_sample">
+<code class="descclassname">zfit.core.sample.</code><code class="descname">accept_reject_sample</code><span class="sig-paren">(</span><em>prob: Callable</em>, <em>n: int</em>, <em>limits: zfit.core.limits.Space</em>, <em>sample_and_weights: Callable = &lt;function uniform_sample_and_weights&gt;</em>, <em>dtype=tf.float64</em>, <em>prob_max: Union[None</em>, <em>int] = None</em>, <em>efficiency_estimation: float = 1.0</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accept reject sample from a probability distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prob</strong> (<em>function</em>) – A function taking x a Tensor as an argument and returning the probability
+(or anything that is proportional to the probability).</li>
+<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of samples to produce</li>
+<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>Space</em></a>) – The limits to sample from</li>
+<li><strong>sample_and_weights</strong> (<em>Callable</em>) – <p>A function that returns the sample to insert into <cite>prob</cite> and the weights
+(prob) of each sample together with the random thresholds. The API looks as follows:</p>
+<ul>
+<li>Parameters:<blockquote>
+<div><ul>
+<li>n_to_produce (int, tf.Tensor): The number of events to produce (not exactly).</li>
+<li>limits (Space): the limits in which the samples will be.</li>
+<li>dtype (dtype): DType of the output.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><dl class="first docutils">
+<dt>Return:</dt>
+<dd>A tuple of length 5:
+- proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample<blockquote>
+<div>whose values are inside <cite>limits</cite>.</div></blockquote>
+<ul class="last">
+<li><dl class="first docutils">
+<dt>thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed</dt>
+<dd>random values <strong>between 0 and 1</strong>.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability</dt>
+<dd>for each sample of the distribution it was drawn from.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</dt>
+<dd>what the probability maximum will be scaled with, so it should be rather lower than the maximum
+if the peaks do not exactly coincide. Otherwise return None (which will <strong>assume</strong>
+that the peaks coincide).</dd>
+</dl>
+</li>
+<li>n_produced: the number of events produced. Can deviate from the requested number.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+<li><strong>(</strong><strong>)</strong> (<em>dtype</em>) – </li>
+<li><strong>prob_max</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The maximum of the model function for the given limits. If None
+is given, it will be automatically, safely estimated (by a 10% increase in computation time
+(constant weak scaling)).</li>
+<li><strong>efficiency_estimation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – estimation of the initial sampling efficiency.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tf.Tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.sample.extended_sampling">
+<code class="descclassname">zfit.core.sample.</code><code class="descname">extended_sampling</code><span class="sig-paren">(</span><em>pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF], limits: zfit.core.limits.Space</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="_modules/zfit/core/sample.html#extended_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extended_sampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a sample from extended pdfs by sampling poissonian using the yield.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pdfs</strong> (<em>iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><em>ZfitPDF</em></a><em>]</em>) – </li>
+<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><em>zfit.Space</em></a>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Union[tf.Tensor]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.sample.extract_extended_pdfs">
+<code class="descclassname">zfit.core.sample.</code><code class="descname">extract_extended_pdfs</code><span class="sig-paren">(</span><em>pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF]</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitPDF]<a class="reference internal" href="_modules/zfit/core/sample.html#extract_extended_pdfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extract_extended_pdfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all extended pdfs that are daughters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdfs</strong> (<em>Iterable</em><em>[</em><em>pdfs</em><em>]</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List[pdfs]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.sample.uniform_sample_and_weights">
+<code class="descclassname">zfit.core.sample.</code><code class="descname">uniform_sample_and_weights</code><span class="sig-paren">(</span><em>n_to_produce: Union[int, tensorflow.python.framework.ops.Tensor], limits: zfit.core.limits.Space, dtype</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zfit/core/sample.html#uniform_sample_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.uniform_sample_and_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, 
+upper2,…). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,… more). 
+Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 
+and from 2 to 5.</p>
+<p>Otherwise arguments to instantiate a Range class can be given as follows.|limits_init|</p>
+<p>intervall is the differenz to the upper bounds. Example: ((-1, 4), (1, 6), (3, 10),…)  # 2-d function</p>
+<p>intervall is the differenz to the lower bounds. Example: ((-0.1, 5), (2, 8), (7, 14),…)  # 2-d function</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, zfit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,7 +1,0 @@
-fitresult
-=========
-
-.. automodule:: zfit.minimizers.fitresult
-    :members:
-    :undoc-members:
-    :show-inheritance:

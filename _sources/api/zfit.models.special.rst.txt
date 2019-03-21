@@ -1,7 +1,0 @@
-special
-=======
-
-.. automodule:: zfit.models.special
-    :members:
-    :undoc-members:
-    :show-inheritance:
