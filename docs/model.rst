@@ -245,7 +245,7 @@ To give an example:
 The sample is now resampled with the *current values* (minimized values) of `sigma1`, `sigma2` and with
 the initial values of `mu1`, `mu2` (because they have been fixed).
 
-A typical example of toys could look like
+A typical example of toys would therefore look like
 
 .. code:: python
 
@@ -263,11 +263,19 @@ A typical example of toys could look like
         sigma.set_value(np.random.normal())
 
         sampler.resample()
-
         result = minimizer.minimize(nll)
 
         # safe the result, collect the values, calculate errors...
 
+Note that this changed the values for the sampler *implicitly*. We can provide them explicitly by
+specifying it as an argument. Reusing the example above
+
+.. code:: python
+
+    sigma.set_value(np.random.normal())
+    sampler.resample(param_values={sigma: 5)
+
+The sample (and therefore also the sample the `nll` depends on) is now sampled with `sigma` set to 5.
 
 
 
