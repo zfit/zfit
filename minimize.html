@@ -109,6 +109,63 @@
       
   <div class="section" id="minimization">
 <h1>Minimization<a class="headerlink" href="#minimization" title="Permalink to this headline">¶</a></h1>
+<p>Minimizer objects are the last key element in the API framework of <code class="docutils literal notranslate"><span class="pre">zfit</span></code>.
+In particular, these are connected to the loss function and have an internal state that can be queried at any moment.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library is designed such that it is trivial to introduce new sets of minimizers.
+The only requirement in its initialisation is that a loss function <strong>must</strong> be given.
+Additionally, the parameters to be minimize, the tolerance, its name, as well as any other argument needed to configure the particular algorithm <strong>may</strong> be given.</p>
+<div class="section" id="baseline-minimizers">
+<h2>Baseline minimizers<a class="headerlink" href="#baseline-minimizers" title="Permalink to this headline">¶</a></h2>
+<p>There are three minimizers currently maintained in the package: <code class="docutils literal notranslate"><span class="pre">Minuit</span></code>, <code class="docutils literal notranslate"><span class="pre">Scipy</span></code> and <code class="docutils literal notranslate"><span class="pre">Adam</span></code> TensorFlow optimiser.
+Let’s show how these can be initialised:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Minuit minimizer</span>
+<span class="n">minimizer_Minuit</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
+
+<span class="c1"># Scipy minimizer</span>
+<span class="n">minimizer_Scipy</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">ScipyMinimizer</span><span class="p">()</span>
+
+<span class="c1"># Adam&#39;s Tensorflow minimizer</span>
+<span class="n">minimizer_Adam</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">AdamMinimizer</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We also have available a wrapper for TensorFlow optimisers, such that new ideas are easily integrate in the framework.
+For instance, the Adam minimizer could have been initialised by</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Adam&#39;s TensorFlor optimiser using a wrapper</span>
+<span class="n">minimizer_wrapper</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">WrapOptimizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Finally, any of these minimizers can then be used to minimize the loss function, e.g.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># E.g. in the case of Minuit</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_Minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The choice of which parameters of your model should be floating in the fit can also be determined at this stage</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In the case of a Gaussian (e.g.)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_Minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><strong>Only</strong> the parameters provided are floated in the optimisation process.
+If this argument is not provided or <code class="docutils literal notranslate"><span class="pre">params=None</span></code>, all the parameters in the fit are floated in the minimization process.</p>
+</div>
+<div class="section" id="minimizers-information">
+<h2>Minimizers information<a class="headerlink" href="#minimizers-information" title="Permalink to this headline">¶</a></h2>
+<p>The internal state of the Minimizer is stored in a MinimizerState object,
+which provides access to the Estimated Distance to the Minimum (EDM),
+the value at the minimum and its status through the EMD, fmin and status properties, respectively.
+For instance</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Function minimum</span>
+<span class="n">result</span><span class="o">.</span><span class="n">fmin</span>
+
+<span class="c1"># Whether converged or not</span>
+<span class="n">result</span><span class="o">.</span><span class="n">converged</span>
+
+<span class="c1"># Full minimizer information</span>
+<span class="n">result</span><span class="o">.</span><span class="n">info</span>
+</pre></div>
+</div>
+<p>Additionally, the parameters of the minimizer can be accessed through the <code class="docutils literal notranslate"><span class="pre">result.params</span></code>,
+which provides all the necessary information on them.</p>
+</div>
 </div>
 
 
