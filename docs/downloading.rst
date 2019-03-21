@@ -26,7 +26,7 @@ In order to run the test suite, the `pytest <https://docs.pytest.org/en/latest/>
 
 Downloads
 ---------
-The latest beta version is 0.3.0 and is available from `PyPi <>`.
+The latest beta version is 0.3.0 and is available from `PyPi <https://pypi.org/project/zfit/>`.
 
 Installation
 ------------
