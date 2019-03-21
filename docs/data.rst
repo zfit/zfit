@@ -13,23 +13,23 @@ Import dataset from a ROOT file
 
 With the proliferation of the ROOT framework in the context of particle physics, it is often the case that the user will have access to a ROOT file in their analysis. A simple method has been used to handle this conversion:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    data = zfit.data.Data.from_root(root_file, 
-                                    root_tree, 
-                                    branches)
+    >>> data = zfit.data.Data.from_root(root_file, 
+    ...                                root_tree, 
+    ...                                branches)
     
 where ``root_file`` is the path to the ROOT file, ``root_tree`` is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.
 
 From the default conversion of the dataset there are two optional funcionalities for the user, i.e. the use of weights and the rename of the specified branches. The nominal structure follows: 
 
-.. code-block:: python
+.. code-block:: pycon
 
-    data = zfit.data.Data.from_root(root_file, 
-                                    root_tree, 
-                                    branches, 
-                                    branches_alias=None, 
-                                    weights=None)
+    >>> data = zfit.data.Data.from_root(root_file, 
+    ...                                root_tree, 
+    ...                                branches, 
+    ...                                branches_alias=None, 
+    ...                                weights=None)
 
 The ``branches_alias`` can be seen as a list of strings that renames the original ``branches``. The ``weights`` has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/pandas or similar.
 
@@ -46,16 +46,16 @@ Import dataset from a pandas DataFrame or Numpy ndarray
 
 A very simple manipulation of the dataset is provided via the pandas DataFrame. Naturally this is simplified since the :py:class:`~zfit.Space` (observable) is not mandatory, and can be obtained directly from the columns:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    data = zfit.data.Data.from_pandas(pandas_DataFrame, 
-                                      obs = None, 
-                                      weights = None)
+    >>> data = zfit.data.Data.from_pandas(pandas_DataFrame, 
+    ...                                   obs = None, 
+    ...                                   weights = None)
 
 In the case of Numpy, the only difference is that as input is required a numpy ndarray and the :py:class:`~zfit.Space` (obs) is mandatory:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    data = zfit.data.Data.from_numpy(numpy_ndarray, 
-                                     obs, 
-                                     weights = None)
+    >>> data = zfit.data.Data.from_numpy(numpy_ndarray, 
+    ...                                  obs, 
+    ...                                  weights = None)
