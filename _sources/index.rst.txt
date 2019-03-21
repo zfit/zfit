@@ -17,6 +17,7 @@ This challenging task is tackled by following two basic design pillars:
   The architecture of zfit is built upon this idea and it aims to provide a high level interface to these features, *i.e.*, most of the operations of graphs and evaluations are hidden for the user, leaving a natural and friendly model fitting and sampling experience. 
 
 The zfit package is Free software, using an Open Source license. Both the software and this document are works in progress.
+Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 
 .. toctree::
     :maxdepth: 2

@@ -14,14 +14,21 @@ Independent Parameter
 To create a parameter that can be changed, *e.g.*, to fit a model, a :py:class:`~zfit.Parameter` has to
 be instantiated.
 
-The syntax is as follows (following closely what is done in RooFit):
+The syntax is as follows:
 
 .. code:: python
 
     param1 = zfit.Parameter("param_name_human_readable", start_value[, lower_limit, upper_limit])
 
+:py:class:`~zfit.Parameter` can have limits (tested with :py:method:`~zfit.Parameter.has_limits`), which will
+clip the value to the limits given by `:py:method:`~zfit.Parameter.lower_limit` and
+`:py:method:`~zfit.Parameter.upper_limit`.
+While this closely follows the RooFit syntax, it is very important to note that the optional limits of the parameter behave differently:
+if not given, the parameter will be "unbounded", not fixed.
+Parameters are therefore floating by default, but their value can be fixed by setting the attribute ``floating`` to ``False``.
+
 The value of the parameter can be changed with the :py:func:`~zfit.Parameter.set_value` method.
-Using this method as a a context manager, the value can also temporarily changed.
+Using this method as a context manager, the value can also temporarily changed.
 However, be aware that anything _dependent_ on the parameter will have a value with the
 parameter evaluated with the new value at run-time:
 
@@ -37,15 +44,6 @@ parameter evaluated with the new value at run-time:
     # here, mu is again 1
     mu_val_after = zfit.run(mu)  # 1
     five_mu_val_after = zfit.run(five_mu)  # is evaluated with mu = 1! -> five_mu_val_after is 5
-
-While a dependent parameter is usually free, it can be fixed by setting the attribute ``floating`` to ``False``.
-
-Limits
-''''''
-
-:py:class:`~zfit.Parameter` can have limits (tested with :py:method:`~zfit.Parameter.has_limits`), which will
-clip the value to the limits given by `:py:method:`~zfit.Parameter.lower_limit` and
-`:py:method:`~zfit.Parameter.upper_limit`.
 
 
 Dependent Parameter
@@ -63,6 +61,5 @@ and the dependency will be detected automatically. They can be used equivalently
     dependents = dep_param.get_dependents()  # returns set(mu, mu2)
 
 
-A somewhat special case of the above are :py:class:`~zfit.ComplexParameter`. They takes a complex
-:py:class:`~tf.Tensor` as input and have a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.) to
-easier deal with them.
+A special case of the above is :py:class:`~zfit.ComplexParameter`: it takes a complex :py:class:`tf.Tensor` as input and provides a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.) to easier deal with them.
+Additionally, the :py:func:`~zfit.ComplexParameter.from_cartesian` and :py:func:`~zfit.ComplexParameter.from_polar` methods can be used to initialize polar parameters from floats, avoiding the need of creating complex :py:class:`tf.Tensor` objects.
