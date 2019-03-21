@@ -16,7 +16,7 @@ In other words, in order to a function to be a PDF it must satisfy two criteria:
 In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above. 
 
 Predefined PDFs and basic properties 
-''''''''''''''''''''''''''''''''''''
+------------------------------------
 
 A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in 
 
@@ -62,7 +62,7 @@ In this case the CB has been normalised using the range defined in the observabl
 Conversely, the ``norm_range`` in which the PDF is normalised can also be specified as input. 
 
 Composite PDF
-'''''''''''''
+-------------
 
 A common feature in building composite models it the ability to combine in terms of sum and products different PDFs. 
 There are two ways to create such models, either with the class API or with simple Python syntax. 
@@ -123,7 +123,7 @@ The order of the observables follows the order of the PDFs given.
 
 
 Extended PDF
-''''''''''''
+------------
 
 In the event there are different *species* of distributions in a given observable, 
 the simple sum of PDFs does not a priori provides the absolute number of events for each specie but rather the fraction as seen above. 
@@ -149,7 +149,7 @@ An extended PDF can be easily implemented in zfit in two ways:
 
 
 Custom PDF
-''''''''''
+----------
 A fundamental design choice of zfit is the ability to create custom PDFs and functions in an easy way.
 Let's consider a simplified implementation
 
@@ -199,7 +199,7 @@ Finally, we could also improve the description of the PDF by providing a analyti
 
 
 Sampling from a PDF
-'''''''''''''''''''
+-------------------
 
 
 

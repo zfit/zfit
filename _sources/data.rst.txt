@@ -1,15 +1,15 @@
 .. _data-section:
 
-=================================================
-Data 
-=================================================
+====
+Data
+====
 
 An easy and fast data manipulation are among the crucial aspects in High Energy Particle physics data analysis. With the increasing data availability (e.g. with the advent of LHC), this challenge has been pursued in different manners. Common strategies vary from multidimensional arrays with attached row/column labels (e.g. ``DataFrame`` in *pandas*) or compressed binary formats (e.g. ROOT). While each of these data structure designs has their own advantages in terms of speed and acessibility, the data concept inplemented in ``zfit`` follows closely the features of ``DataFrame`` in *pandas*. 
 
 The :py:class:`~zfit.data.Data` class provides a simple and structured access/manipulation of *data* -- similarly to concept of multidimensional arrays approach from *pandas*. The key feature of :py:class:`~zfit.data.Data` is its relation to the :py:class:`~zfit.Space` or more explicitly its axis or name. A more equally convention is to name the role of the :py:class:`~zfit.Space` in this context as the *observable* under investigation. Note that no explicit range for the :py:class:`~zfit.Space` is required at the moment of the data definition, since this is only required at the moment some calculation is needed (e.g. integrals, fits, etc).
 
 Import dataset from a ROOT file
-================================
+--------------------------------
 
 With the proliferation of the ROOT framework in the context of particle physics, it is often the case that the user will have access to a ROOT file in their analysis. A simple method has been used to handle this conversion:
 
@@ -42,7 +42,7 @@ The ``branches_alias`` can be seen as a list of strings that renames the origina
     and it is the advised implementation of this. 
 
 Import dataset from a pandas DataFrame or Numpy ndarray
-=======================================================
+-------------------------------------------------------
 
 A very simple manipulation of the dataset is provided via the pandas DataFrame. Naturally this is simplified since the :py:class:`~zfit.Space` (observable) is not mandatory, and can be obtained directly from the columns:
 

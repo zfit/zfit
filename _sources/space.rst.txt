@@ -14,7 +14,7 @@ handle by the :py:class:`~zfit.Space` class.
     data = zfit.Data.from_numpy(obs=obs, ...)
 
 Definitions
-'''''''''''
+-----------
 **Space**: an *n*-dimensional definition of a domain (either by using one or more observables or axes),
 with or without limits.
 
@@ -60,7 +60,7 @@ to be combined with ``product`` has to be specified in the same space.
 Now we have a :py:class:`~zfit.data.Data` object that is defined in the same domain as `product` and can be used to build a loss function.
 
 Limits
-""""""
+------
 
 In many places, just defining the observables is not enough and an interval, specified by its limits, is required.
 Examples are a normalization range, the limits of an integration or sampling in a certain region.
@@ -81,7 +81,7 @@ An example of the product of different :py:class:`~zfit.Space` instances has bee
 
 
 Defining limits
----------------
+'''''''''''''''
 
 To define simple, 1-dimensional limits, a tuple with two numbers is enough. For anything more complicated,
 the definition works as follows:

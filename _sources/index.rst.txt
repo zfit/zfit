@@ -1,3 +1,4 @@
+================================
 zfit: scalable pythonic fitting
 ================================
 
@@ -20,8 +21,6 @@ The zfit package is Free software, using an Open Source license. Both the softwa
 .. toctree::
     :titlesonly:
     :maxdepth: 1
-    :caption: Contents:
-
 
     getting_started
     downloading

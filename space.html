@@ -64,8 +64,7 @@
      href="index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -154,8 +153,9 @@ to be combined with <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 <p>Now we have a <a class="reference internal" href="api/zfit.data.html#zfit.data.Data" title="zfit.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a> object that is defined in the same domain as <cite>product</cite> and can be used to build a loss function.</p>
+</div>
 <div class="section" id="limits">
-<h3>Limits<a class="headerlink" href="#limits" title="Permalink to this headline">¶</a></h3>
+<h2>Limits<a class="headerlink" href="#limits" title="Permalink to this headline">¶</a></h2>
 <p>In many places, just defining the observables is not enough and an interval, specified by its limits, is required.
 Examples are a normalization range, the limits of an integration or sampling in a certain region.</p>
 <p>Simple, 1-dimensional limits can be specified as follows. Operations like addition (creating a space with
@@ -170,7 +170,7 @@ two intervals) or combination (increase the dimensionality) are also possible.</
 (-5, 1) and (3, 7.5). This can be useful, <em>e.g.</em>, when fitting in two regions.
 An example of the product of different <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> instances has been shown before as <code class="docutils literal notranslate"><span class="pre">combined_obs</span></code>.</p>
 <div class="section" id="defining-limits">
-<h4>Defining limits<a class="headerlink" href="#defining-limits" title="Permalink to this headline">¶</a></h4>
+<h3>Defining limits<a class="headerlink" href="#defining-limits" title="Permalink to this headline">¶</a></h3>
 <p>To define simple, 1-dimensional limits, a tuple with two numbers is enough. For anything more complicated,
 the definition works as follows:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">first_limit_lower</span> <span class="o">=</span> <span class="p">(</span><span class="n">low_1_obs1</span><span class="p">,</span> <span class="n">low_1_obs2</span><span class="p">,</span><span class="o">...</span><span class="p">)</span>
@@ -204,7 +204,6 @@ the definition works as follows:</p>
 <p>and so on.</p>
 <p>A working code example of <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> handling is provided in <cite>spaces.py</cite> in
 <span class="xref std std-doc">examples</span>.</p>
-</div>
 </div>
 </div>
 </div>
