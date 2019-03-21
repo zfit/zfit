@@ -33,13 +33,13 @@ PDF objects must also be initialised giving their named parameters. For example:
 .. code-block:: python
 
     # Creating the parameters for the crystal ball
-    mu    = zfit.Parameter("mu"   , 5279, 5100, 5300)
-    sigma = zfit.Parameter("sigma",   20, 0, 50)
-    a     = zfit.Parameter("a"    ,    1, 0, 10)
-    n     = zfit.Parameter("n"    ,    1, 0, 10)
+    mu = zfit.Parameter("mu", 5279, 5100, 5300)
+    sigma = zfit.Parameter("sigma", 20, 0, 50)
+    a = zfit.Parameter("a", 1, 0, 10)
+    n = zfit.Parameter("n", 1, 0, 10)
 
     # Single crystal Ball
-    CB = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a, n=n)
+    model_cb = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a, n=n)
 
 In this case the CB object corresponds to a normalised PDF. The main properties of a PDF, e.g. the probability for a given normalisation range or even 
 to set a temporary normalisation range can be given as 
@@ -47,18 +47,18 @@ to set a temporary normalisation range can be given as
 .. code-block:: python
 
     # Get the probabilities of some random generated events
-    probs = CB.prob(x=np.random.random(10), norm_range=(5100, 5400))
+    probs = model_cb.prob(x=np.random.random(10), norm_range=(5100, 5400))
 
     # Performing evaluation within a given range 
-    with CB.temp_norm_range((5000, 6000)):
-        CB.prob(data)  # norm_range is now set
+    with model_cb.temp_norm_range((5000, 6000)):
+        model_cb.prob(data)  # norm_range is now set
 
 Another feature for the PDF is to calculate its integral in a certain limit. This can be easily achieved by 
 
 .. code-block:: python
 
     # Calculate the integral between 5230 and 5230 over the PDF normalized
-    integral_norm = CB.integrate(limits=(5230, 5230))
+    integral_norm = model_cb.integrate(limits=(5230, 5230))
 
 In this case the CB has been normalised using the range defined in the observable. 
 Conversely, the ``norm_range`` in which the PDF is normalised can also be specified as input. 
@@ -74,12 +74,12 @@ Let's consider a second crystal ball with the same mean position and width, but 
 
     # New tail parameters for the second CB
     a2 = zfit.Parameter("a2", -1, 0, -10)
-    n2 = zfit.Parameter("n2",  1, 0,  10)
+    n2 = zfit.Parameter("n2", 1, 0, 10)
 
     # New crystal Ball function defined in the same observable range
-    CB2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
+    model_cb2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
 
-We can now combine these two PDFs to create a double Crystal Ball with a single mean and width: 
+We can now combine these two PDFs to create a double Crystal Ball with a single mean and width, either using arithmetic operations
 
 .. code-block:: python
 
@@ -88,9 +88,14 @@ We can now combine these two PDFs to create a double Crystal Ball with a single 
     frac = zfit.Parameter("frac", 0.5, 0, 1)
 
     # Two different ways to combine 
-    doubleCB = frac * CB + CB2
+    double_cb = frac * model_cb + model_cb2
+
+Or through the :py:class:`zfit.pdf.SumPDF` class:
+
+.. code-block:: python
+
     # or via the class API
-    doubleCB_class = zfit.pdf.SumPDF(pdfs=[CB, CB2], fracs=frac)
+    double_cb_class = zfit.pdf.SumPDF(pdfs=[model_cb, model_cb2], fracs=frac)
 
 Notice that the new PDF has the same observables as the original ones, as they coincide. 
 Alternatively one could consider having PDFs for different axis, which would then create a totalPDF with higher dimension.
@@ -100,11 +105,11 @@ A simple extension of these operations is if we want to instead of a sum of PDFs
 .. code-block:: python
 
     # Defining two Gaussians in two different axis (obs)
-    mu1    = zfit.Parameter("mu1", 1.)
+    mu1 = zfit.Parameter("mu1", 1.)
     sigma1 = zfit.Parameter("sigma1", 1.)
     gauss1 = zfit.pdf.Gauss(obs="obs1", mu=mu1, sigma=sigma1)
 
-    mu2    = zfit.Parameter("mu2", 1.)
+    mu2 = zfit.Parameter("mu2", 1.)
     sigma2 = zfit.Parameter("sigma2", 1.)
     gauss2 = zfit.pdf.Gauss(obs="obs2", mu=mu2, sigma=sigma2)
 
