@@ -114,14 +114,12 @@ The PDF, or density of a continuous random variable, of X is a function f(x) tha
 In this sense, for any two numbers a and b with <span class="math notranslate nohighlight">\(a \leq b\)</span>,</p>
 <p><span class="math notranslate nohighlight">\(P(a \leq X \leq b) = \int^{b}_{a}f(X)dx\)</span></p>
 <p>That is, the probability that X takes on a value in the interval <span class="math notranslate nohighlight">\([a, b]\)</span> is the area above this interval and under the graph of the density function.
-In other words, in order to a function to be a PDF it must satisfy two criteria:</p>
-<ol class="arabic simple">
-<li><span class="math notranslate nohighlight">\(f(x) \geq 0\)</span> for all x;</li>
-<li><span class="math notranslate nohighlight">\(\int^{\infty}_{-\infty}f(x)dx =\)</span> are under the entire graph of <span class="math notranslate nohighlight">\(f(x)=1\)</span>.</li>
-</ol>
-<p>In zfit these distinctions are respected, <em>i.e.</em>, a function can be converted into a PDF by imposing the basic two criteria above.</p>
+In other words, in order to a function to be a PDF it must satisfy two criteria:
+1. <span class="math notranslate nohighlight">\(f(x) \geq 0\)</span> for all x;
+2. <span class="math notranslate nohighlight">\(\int^{\infty}_{-\infty}f(x)dx =\)</span> are under the entire graph of <span class="math notranslate nohighlight">\(f(x)=1\)</span>.
+In zfit these distinctions are respected, <em>i.e.</em>, a function can be converted into a PDF by imposing the basic two criteria above… _basic-model:</p>
 <div class="section" id="predefined-pdfs-and-basic-properties">
-<span id="basic-model"></span><h2>Predefined PDFs and basic properties<a class="headerlink" href="#predefined-pdfs-and-basic-properties" title="Permalink to this headline">¶</a></h2>
+<h2>Predefined PDFs and basic properties<a class="headerlink" href="#predefined-pdfs-and-basic-properties" title="Permalink to this headline">¶</a></h2>
 <p>A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
 <span class="p">[</span><span class="s1">&#39;BasePDF&#39;</span><span class="p">,</span> <span class="s1">&#39;Exponential&#39;</span><span class="p">,</span> <span class="s1">&#39;CrystalBall&#39;</span><span class="p">,</span> <span class="s1">&#39;Gauss&#39;</span><span class="p">,</span> <span class="s1">&#39;Uniform&#39;</span><span class="p">,</span> <span class="s1">&#39;WrapDistribution&#39;</span><span class="p">,</span> <span class="s1">&#39;ProductPDF&#39;</span><span class="p">,</span> <span class="s1">&#39;SumPDF&#39;</span><span class="p">]</span>
@@ -180,10 +178,6 @@ Let’s consider a second crystal ball with the same mean position and width, bu
 </pre></div>
 </div>
 <p>Or through the <a class="reference internal" href="api/zfit.pdf.html#zfit.pdf.SumPDF" title="zfit.pdf.SumPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.pdf.SumPDF</span></code></a> class:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># or via the class API</span>
-<span class="n">double_cb_class</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="p">[</span><span class="n">model_cb</span><span class="p">,</span> <span class="n">model_cb2</span><span class="p">],</span> <span class="n">fracs</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
-</pre></div>
-</div>
 <p>Notice that the new PDF has the same observables as the original ones, as they coincide.
 Alternatively one could consider having PDFs for different axis, which would then create a totalPDF with higher dimension.</p>
 <p>A simple extension of these operations is if we want to instead of a sum of PDFs, to model a two-dimensional Gaussian (e.g.):</p>
@@ -273,9 +267,72 @@ With this new PDF one can access the same feature of the predefined PDFs, e.g.</
 <span class="n">MyGauss</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">gauss_integral_from_any_to_any</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="section" id="sampling-from-a-model">
+<h3>Sampling from a Model<a class="headerlink" href="#sampling-from-a-model" title="Permalink to this headline">¶</a></h3>
+<p>In order to sample from model, there are two different methods,
+<a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> for a <strong>single time</strong> sampling, and
+<a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a> for <strong>multiple sampling</strong> as used for toys.</p>
 </div>
-<div class="section" id="sampling-from-a-pdf">
-<h2>Sampling from a PDF<a class="headerlink" href="#sampling-from-a-pdf" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="one-time-sampling">
+<h3>One time sampling<a class="headerlink" href="#one-time-sampling" title="Permalink to this headline">¶</a></h3>
+<p>The sample from <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> is an independent sample from any
+parameter or model and won’t change.</p>
+</div>
+<div class="section" id="multiple-samplings">
+<h3>Multiple samplings<a class="headerlink" href="#multiple-samplings" title="Permalink to this headline">¶</a></h3>
+<p>The method <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a> returns a sampler that can be used
+like a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object (e.g. for building a <a class="reference internal" href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLoss</span></code></a>).
+The sampling itself is <em>not yet done</em> but only when <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> is
+invoked. The sample generated depends on the original pdf at this point, e.g. parameters have the
+value they have when the <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> is invoked. To have certain
+parameters fixed, they have to be specified <em>either</em> on <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a>
+via <cite>fixed_params</cite>, on <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> by specifying which parameter
+will take which value via <cite>param_values</cite> or by changing the attribute of <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler" title="zfit.core.data.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code></a>.</p>
+<p>To give an example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
+
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
+
+<span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>  <span class="c1"># now it sampled</span>
+
+<span class="c1"># do something with nll</span>
+<span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
+
+<span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+<span class="c1"># note that the nll, being dependent on `sampler`, also changed!</span>
+</pre></div>
+</div>
+<p>The sample is now resampled with the <em>current values</em> (minimized values) of <cite>sigma1</cite>, <cite>sigma2</cite> and with
+the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been fixed).</p>
+<p>A typical example of toys would therefore look like</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a model depending on mu, sigma</span>
+
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
+
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">run_number</span> <span class="ow">in</span> <span class="n">n_runs</span><span class="p">:</span>
+
+    <span class="c1"># initialize the parameters randomly</span>
+    <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+    <span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+
+    <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+
+    <span class="c1"># safe the result, collect the values, calculate errors...</span>
+</pre></div>
+</div>
+<p>Note that this changed the values for the sampler <em>implicitly</em>. We can provide them explicitly by
+specifying it as an argument. Reusing the example above</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{</span><span class="n">sigma</span><span class="p">:</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The sample (and therefore also the sample the <cite>nll</cite> depends on) is now sampled with <cite>sigma</cite> set to 5.</p>
+</div>
 </div>
 </div>
 
