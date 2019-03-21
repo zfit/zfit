@@ -15,11 +15,11 @@ the dataset and the fit range (which internally sets ``norm_range`` in the PDF a
 where parameter constraints in form of a dictionary `{param: constraint}` **may** be given.
 As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.core.loss.UnbinnedNLL`) from the model described in the :ref:`Basic model section <basic-model>` and the data from the :ref:`Data section <data-section>`:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    my_loss = zfit.loss.UnbinnedNLL(model_cb,
-                                    data,
-                                    fit_range=(-10, 10))
+    >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
+    >>>                                 data,
+    >>>                                 fit_range=(-10, 10))
 
 Adding constraints
 ------------------
@@ -30,14 +30,14 @@ These constraints are specified as a list of penalty terms, which can be any ``t
 Useful implementations of penalties can be found in the :py:mod:`zfit.constraint` module.
 For example, if we wanted to add adding a gaussian constraint on the ``mu`` parameter of the previous model, we would write: 
 
-.. code-block:: python
+.. code-block:: pycon
 
-    my_loss = zfit.loss.UnbinnedNLL(model_cb,
-                                    data,
-                                    fit_range=(-10, 10),
-                                    constraints=zfit.constraint.nll_gaussian(params=mu,
-                                                                             mu=5279.,
-                                                                             sigma=10.))
+    >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
+    >>>                                 data,
+    >>>                                 fit_range=(-10, 10),
+    >>>                                 constraints=zfit.constraint.nll_gaussian(params=mu,
+    >>>                                                                          mu=5279.,
+    >>>                                                                          sigma=10.))
 
 
 Simultaneous fits
@@ -48,18 +48,18 @@ There are currently two loss functions implementations in the ``zfit`` library, 
 A very common use case likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated). 
 To build loss functions for simultaneous fits, the addition operator can be used (the particular combination that is performed depends on the type of loss function):
 
-.. code-block:: python
+.. code-block:: pycon
  
-   models = [model1, model2]
-   datasets = [data1, data2]
-   my_loss1 = zfit.loss.UnbinnedNLL(models[0], datasets[0], fit_range=(-10, 10))
-   my_loss2 = zfit.loss.UnbinnedNLL(models[1], datasets[1], fit_range=(-10, 10))
-   my_loss_sim_operator = my_loss1 + my_loss2
+   >>> models = [model1, model2]
+   >>> datasets = [data1, data2]
+   >>> my_loss1 = zfit.loss.UnbinnedNLL(models[0], datasets[0], fit_range=(-10, 10))
+   >>> my_loss2 = zfit.loss.UnbinnedNLL(models[1], datasets[1], fit_range=(-10, 10))
+   >>> my_loss_sim_operator = my_loss1 + my_loss2
 
 The same result can be achieved by passing a list of PDFs on instantiation, along with the same number of datasets and fit ranges:
 
-.. code-block:: python
+.. code-block:: pycon
  
-   # Adding a list of models, data and observable ranges
-   my_loss_sim = zfit.loss.UnbinnedNLL(model=[models], data=[datasets], fit_range=[obsRange])
+   >>> # Adding a list of models, data and observable ranges
+   >>> my_loss_sim = zfit.loss.UnbinnedNLL(model=[models], data=[datasets], fit_range=[obsRange])
 
