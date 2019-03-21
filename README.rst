@@ -24,7 +24,7 @@ Detailed documentation, including the API, can be found in https://zfit.github.i
 It is released as free software following the BSD-3-Clause License.
 
 *N.B.*: zfit is currently in beta stage, so while most core parts are established, some may still be missing and bugs may be encountered.
-It is, however, mostly ready for production, and is being used in a few analysis projects.
+It is, however, mostly ready for production, and is being used in analyses projects.
 If you want to use it for your project and you are not sure if all the needed functionality is there, feel free contact us in our `Gitter channel <https://gitter.im/zfit/zfit>`_.
 
 
@@ -35,12 +35,12 @@ The basic idea behind zfit is to offer a Python oriented alternative to the very
 Contrary to the monolithic approach of ROOT/RooFit, the aim of zfit is to be light and flexible enough to integrate with any state-of-art tools and to allow scalability going to larger datasets.
 
 These core ideas are supported by two basic pillars:
-  
+
 - The skeleton and extension of the code is minimalist, simple and finite:
   the zfit library is exclusively designed for the purpose of model fitting and sampling with no attempt to extend its functionalities to features such as statistical methods or plotting.
 
-- zfit is designed to for optimal parallelisation and scalability by making use of TensorFlow as its backend.
-  Even though this choice introduces a strong software dependency, we believe the use of TensorFlow provides crucial features in the context of model fitting.
+- zfit is designed for optimal parallelisation and scalability by making use of TensorFlow as its backend.
+  The use of TensorFlow provides crucial features in the context of model fitting like taking care of the parallelisation and analytic derivatives.
 
 
 Installing
@@ -64,7 +64,7 @@ For the newest development version (in case you really need it), you can install
 How to use
 ----------
 
-While the zfit library provides a simple model fitting and sampling framework for a broad list of applications, we will illustrate its main features by generating, fitting and ploting a Gaussian distribution. 
+While the zfit library provides a simple model fitting and sampling framework for a broad list of applications, we will illustrate its main features by generating, fitting and ploting a Gaussian distribution.
 
 .. code-block:: python
 
@@ -99,18 +99,18 @@ For simplicity, we create the dataset to be fitted starting from a numpy array, 
 Fits are performed in three steps:
 
 1. Creation of a loss function, in our case a negative log-likelihood.
-2. Instantiation of our choice of minimiser, in the example the ``MinuitMinimizer``.
+2. Instantiation of our minimiser of choice, in the example the ``MinuitMinimizer``.
 3. Minimisation of the loss function.
 
 .. code-block:: python
 
-    # Stage 1: create an unbinned likelihood with the given PDF and dataset 
+    # Stage 1: create an unbinned likelihood with the given PDF and dataset
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-    # Stage 2: instantiate a minimiser (in this case a basic minuit
+    # Stage 2: instantiate a minimiser (in this case a basic minuit)
     minimizer = zfit.minimize.MinuitMinimizer()
 
-    # Stage 3: minimise the given negative likelihood
+    # Stage 3: minimise the given negative log-likelihood
     result = minimizer.minimize(nll)
 
 Errors are calculated with a further function call to avoid running potentially expensive operations if not needed:
