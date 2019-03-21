@@ -17,13 +17,13 @@ Let's show how these can be initialised:
 .. code-block:: python
 
     # Minuit minimizer
-    minimizer_Minuit = zfit.minimize.MinuitMinimizer()
+    minimizer_minuit = zfit.minimize.MinuitMinimizer()
 
     # Scipy minimizer
-    minimizer_Scipy = zfit.minimize.ScipyMinimizer()
+    minimizer_scipy = zfit.minimize.ScipyMinimizer()
 
     # Adam's Tensorflow minimizer
-    minimizer_Adam = zfit.minimize.AdamMinimizer()
+    minimizer_adam = zfit.minimize.AdamMinimizer()
 
 We also have available a wrapper for TensorFlow optimisers, such that new ideas are easily integrate in the framework. 
 For instance, the Adam minimizer could have been initialised by 
@@ -38,14 +38,14 @@ Finally, any of these minimizers can then be used to minimize the loss function,
 .. code-block:: python
 
     # E.g. in the case of Minuit
-    result = minimizer_Minuit.minimize(loss=nll) 
+    result = minimizer_minuit.minimize(loss=nll) 
 
 The choice of which parameters of your model should be floating in the fit can also be determined at this stage
 
 .. code-block:: python
 
     # In the case of a Gaussian (e.g.)
-    result = minimizer_Minuit.minimize(loss=nll, params=[mu, sigma]) 
+    result = minimizer_minuit.minimize(loss=nll, params=[mu, sigma]) 
 
 **Only** the parameters provided are floated in the optimisation process. 
 If this argument is not provided or ``params=None``, all the parameters in the fit are floated in the minimization process. 

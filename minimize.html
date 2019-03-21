@@ -119,13 +119,13 @@ Additionally, the parameters to be minimize, the tolerance, its name, as well as
 <p>There are three minimizers currently maintained in the package: <code class="docutils literal notranslate"><span class="pre">Minuit</span></code>, <code class="docutils literal notranslate"><span class="pre">Scipy</span></code> and <code class="docutils literal notranslate"><span class="pre">Adam</span></code> TensorFlow optimiser.
 Let’s show how these can be initialised:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Minuit minimizer</span>
-<span class="n">minimizer_Minuit</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
+<span class="n">minimizer_minuit</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
 
 <span class="c1"># Scipy minimizer</span>
-<span class="n">minimizer_Scipy</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">ScipyMinimizer</span><span class="p">()</span>
+<span class="n">minimizer_scipy</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">ScipyMinimizer</span><span class="p">()</span>
 
 <span class="c1"># Adam&#39;s Tensorflow minimizer</span>
-<span class="n">minimizer_Adam</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">AdamMinimizer</span><span class="p">()</span>
+<span class="n">minimizer_adam</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">AdamMinimizer</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>We also have available a wrapper for TensorFlow optimisers, such that new ideas are easily integrate in the framework.
@@ -136,12 +136,12 @@ For instance, the Adam minimizer could have been initialised by</p>
 </div>
 <p>Finally, any of these minimizers can then be used to minimize the loss function, e.g.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># E.g. in the case of Minuit</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_Minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The choice of which parameters of your model should be floating in the fit can also be determined at this stage</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In the case of a Gaussian (e.g.)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_Minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">nll</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
 </pre></div>
 </div>
 <p><strong>Only</strong> the parameters provided are floated in the optimisation process.
