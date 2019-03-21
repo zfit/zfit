@@ -9,8 +9,11 @@ In this sense, for any two numbers a and b with :math:`a \leq b`,
 
 That is, the probability that X takes on a value in the interval :math:`[a, b]` is the area above this interval and under the graph of the density function.
 In other words, in order to a function to be a PDF it must satisfy two criteria: 
-(1) :math:`f(x) \geq 0` for all x; (2) :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`. 
-In ``zfit`` these distinctions are respect, i.e. a function can be converted into a PDF by imposing the basic two criteria above. 
+
+1. :math:`f(x) \geq 0` for all x;
+2. :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`. 
+
+In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above. 
 
 Predefined PDFs and basic properties 
 ''''''''''''''''''''''''''''''''''''
@@ -132,7 +135,7 @@ Since we are interested to express a measurement of the number of events,
 the expression :math:`M(x) = N_{S}S(x) + N_{B}B(x)` respect that M(x) is normalised to :math:`N_{S} + N_{B} = N` instead of one. 
 This means that :math:`M(x)` is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions. 
 
-An extended PDF can be easily implemented in ``zfit`` in two ways:
+An extended PDF can be easily implemented in zfit in two ways:
 
 .. code-block:: python
 
@@ -147,7 +150,7 @@ An extended PDF can be easily implemented in ``zfit`` in two ways:
 
 Custom PDF
 ''''''''''
-A fundamental design choice of ``zfit`` is the ability to create custom PDFs and functions in an easy way.
+A fundamental design choice of zfit is the ability to create custom PDFs and functions in an easy way.
 Let's consider a simplified implementation
 
 

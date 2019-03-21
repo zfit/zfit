@@ -71,7 +71,6 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#independent-parameter">Independent Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
@@ -109,22 +108,24 @@
       
   <div class="section" id="parameter">
 <h1>Parameter<a class="headerlink" href="#parameter" title="Permalink to this headline">¶</a></h1>
-<p>Several objects in <code class="docutils literal notranslate"><span class="pre">zfit</span></code>, most importantly models, have one or more parameter which typically
-parametrize a function or distribution. There are two different kind of parameters in <code class="docutils literal notranslate"><span class="pre">zfit</span></code>:
-* independent: can be changed in a fit (or explicitly be set to <cite>fixed</cite>)
-* dependent: can <strong>not</strong> be directly changed but _may_ depends on independent parameters</p>
-</div>
+<p>Several objects in zfit, most importantly models, have one or more parameter which typically
+parametrise a function or distribution. There are two different kinds of parameters in zfit:</p>
+<ul class="simple">
+<li>Independent: can be changed in a fit (or explicitly be set to <cite>fixed</cite>).</li>
+<li>Dependent: <strong>cannot</strong> be directly changed but _may_ depend on independent parameters.</li>
+</ul>
 <div class="section" id="independent-parameter">
-<h1>Independent Parameter<a class="headerlink" href="#independent-parameter" title="Permalink to this headline">¶</a></h1>
-<p>To create a parameter that can be changed, e.g. to fit a model, a <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> has to
+<h2>Independent Parameter<a class="headerlink" href="#independent-parameter" title="Permalink to this headline">¶</a></h2>
+<p>To create a parameter that can be changed, <em>e.g.</em>, to fit a model, a <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> has to
 be instantiated.</p>
-<p>The syntax is as follows (and is the same as in <cite>RooFit</cite>)
-.. code:: python</p>
-<blockquote>
-<div>param1 = zfit.Parameter(“param_name_human_readable”, start_value[, lower_limit, upper_limit])</div></blockquote>
-<p>The value of the parameter can be changes by <cite>set_value</cite>. Using a context manager, the value is
-temporarily changed. Be aware that anything _dependent_ on the parameter will have a value with the
-parameter evaluated with the new value an run-time.</p>
+<p>The syntax is as follows (following closely what is done in RooFit):</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">param1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;param_name_human_readable&quot;</span><span class="p">,</span> <span class="n">start_value</span><span class="p">[,</span> <span class="n">lower_limit</span><span class="p">,</span> <span class="n">upper_limit</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The value of the parameter can be changed with the <a class="reference internal" href="api/zfit.html#zfit.Parameter.set_value" title="zfit.Parameter.set_value"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_value()</span></code></a> method.
+Using this method as a a context manager, the value can also temporarily changed.
+However, be aware that anything _dependent_ on the parameter will have a value with the
+parameter evaluated with the new value at run-time:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_one&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># no limits</span>
 <span class="k">with</span> <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
     <span class="c1"># in here, mu has the value 3</span>
@@ -137,14 +138,16 @@ parameter evaluated with the new value an run-time.</p>
 <span class="n">five_mu_val_after</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">five_mu</span><span class="p">)</span>  <span class="c1"># is evaluated with mu = 1! -&gt; five_mu_val_after is 5</span>
 </pre></div>
 </div>
-<p>While a dependent parameter is usually free, it can be fixed by setting the attribute <cite>floating</cite> to <cite>False</cite>.</p>
+<p>While a dependent parameter is usually free, it can be fixed by setting the attribute <code class="docutils literal notranslate"><span class="pre">floating</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <div class="section" id="limits">
-<h2>Limits<a class="headerlink" href="#limits" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> can have limits (test with <a href="#id1"><span class="problematic" id="id2">:py:method:`~zfit.Parameter.has_limits) that will
-clip the value inside the limits given by `:py:method:`~zfit.Parameter.lower_limit`</span></a> and
+<h3>Limits<a class="headerlink" href="#limits" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> can have limits (tested with <a href="#id1"><span class="problematic" id="id2">:py:method:`~zfit.Parameter.has_limits`</span></a>), which will
+clip the value to the limits given by <cite>:py:method:`~zfit.Parameter.lower_limit</cite> and
 <cite>:py:method:`~zfit.Parameter.upper_limit</cite>.</p>
+</div>
+</div>
 <div class="section" id="dependent-parameter">
-<h3>Dependent Parameter<a class="headerlink" href="#dependent-parameter" title="Permalink to this headline">¶</a></h3>
+<h2>Dependent Parameter<a class="headerlink" href="#dependent-parameter" title="Permalink to this headline">¶</a></h2>
 <p>A parameter can be composed of several other parameters. We can use any <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> for that
 and the dependency will be detected automatically. They can be used equivalently to <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mu2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_two&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
@@ -154,10 +157,9 @@ and the dependency will be detected automatically. They can be used equivalently
 <span class="n">dependents</span> <span class="o">=</span> <span class="n">dep_param</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">()</span>  <span class="c1"># returns set(mu, mu2)</span>
 </pre></div>
 </div>
-<p>A somewhat special case of the above are <a class="reference internal" href="api/zfit.html#zfit.ComplexParameter" title="zfit.ComplexParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComplexParameter</span></code></a>. It takes a complex
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> as an input and has a few special methods (like <cite>real</cite>, <cite>conj</cite> etc.) to
-easier deal with complex parameters.</p>
-</div>
+<p>A somewhat special case of the above are <a class="reference internal" href="api/zfit.html#zfit.ComplexParameter" title="zfit.ComplexParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComplexParameter</span></code></a>. They takes a complex
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> as input and have a few special methods (like <a class="reference internal" href="api/zfit.html#zfit.ComplexParameter.real" title="zfit.ComplexParameter.real"><code class="xref py py-func docutils literal notranslate"><span class="pre">real()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">ComplexParameterconj()</span></code> etc.) to
+easier deal with them.</p>
 </div>
 </div>
 

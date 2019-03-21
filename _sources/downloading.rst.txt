@@ -30,7 +30,7 @@ The latest beta version is 0.3.0 and is available from `PyPi <>`.
 Installation
 ------------
 
-The easiest way to install ``zfit`` is with
+The easiest way to install zfit is with
 
 .. code-block:: shell
 
@@ -52,7 +52,7 @@ and install using:
 Testing
 -------
 
-A battery of tests scripts that can be run with the ``pytest`` testing framework is distributed with ``zfit`` in the ``tests`` folder.
+A battery of tests scripts that can be run with the `pytest <https://docs.pytest.org/en/latest/>`_ testing framework is distributed with zfit in the ``tests`` folder.
 These are automatically run as part of the development process.
 For any release or any master branch from the git repository, running ``pytest`` should run all of these tests to completion without errors or failures.
 
@@ -68,4 +68,11 @@ Acknowledgements
 ----------------
 
 .. include:: ../THANKS.rst
+
+License
+-------
+
+The zfit code is distributed under the BSD-3-Clause License:
+
+.. include:: ../LICENSE
 

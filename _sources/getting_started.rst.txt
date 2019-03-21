@@ -1,8 +1,8 @@
-=============================
+=========================
 Getting started with zfit
-=============================
+=========================
 
-The ``zfit`` library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.  
+The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.  
 
 The first step is to naturally import ``zfit`` and verify if the installation has been done successfully (plus some additional imports of helpful libraries): 
 
@@ -36,7 +36,7 @@ With these parameters we can instantiate the Gaussian PDF from the library
 
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
-The next stage is to create a dataset to be fitted. There are several ways of producing this within the ``zfit`` framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using ``numpy`` and the :func:`Data.from_numpy <zfit.data.Data.from_numpy>` method:
+The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.data.Data.from_numpy>` method:
 
 .. code-block:: python
 
@@ -70,7 +70,7 @@ This corresponds to the most basic example where the negative likelihood is defi
     # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
     result = minimizer.minimize(nll, params=[mu])
 
-It is important to highlight that conceptually ``zfit`` separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the ``error`` method.
 As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calculate the ``MINOS`` with:
 
@@ -98,7 +98,7 @@ Similarly one can obtain information on the fitted parameters with
     # Printing information on specific parameters, e.g. mu
     print("mu={}".format(params[mu]['value']))
 
-As already mentioned, there is no dedicated plotting feature within ``zfit``. However, we can easily use external libraries, such as ``matplotlib``, to do the job:
+As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as ``matplotlib``, to do the job:
 
 .. code-block:: python
 
@@ -112,14 +112,14 @@ As already mentioned, there is no dedicated plotting feature within ``zfit``. Ho
     pdf = zfit.run(probs)
 
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
-While *actions* in ``zfit`` return ``numpy`` arrays or scalars, functions like ``pdf`` return ``TensorFlow`` graph, which are lazy-evaluated.
+While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.
 To obtain the value of these PDFs, we need to execute the graph by using ``zfit.run``.
 
 
 What did just happen? 
 =====================
 
-The core idea of ``TensorFlow`` is to use dataflow *graphs*, in which *sessions* run part of the graphs that are required. Since ``zfit`` has ``TensorFlow`` at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as ``minimize``. However, it is worth noting that most of the internal objects that are built by ``zfit`` are intrinsically ``graphs`` that are executed by running the session:
+The core idea of TensorFlow is to use dataflow *graphs*, in which *sessions* run part of the graphs that are required. Since zfit has TensorFlow at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as ``minimize``. However, it is worth noting that most of the internal objects that are built by zfit are intrinsically graphs that are executed by running the session:
 
 .. code-block:: python
 

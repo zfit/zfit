@@ -71,7 +71,6 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameter.html#independent-parameter">Independent Parameter</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Building a model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
@@ -114,9 +113,12 @@ The PDF, or density of a continuous random variable, of X is a function f(x) tha
 In this sense, for any two numbers a and b with <span class="math notranslate nohighlight">\(a \leq b\)</span>,</p>
 <p><span class="math notranslate nohighlight">\(P(a \leq X \leq b) = \int^{b}_{a}f(X)dx\)</span></p>
 <p>That is, the probability that X takes on a value in the interval <span class="math notranslate nohighlight">\([a, b]\)</span> is the area above this interval and under the graph of the density function.
-In other words, in order to a function to be a PDF it must satisfy two criteria:
-(1) <span class="math notranslate nohighlight">\(f(x) \geq 0\)</span> for all x; (2) <span class="math notranslate nohighlight">\(\int^{\infty}_{-\infty}f(x)dx =\)</span> are under the entire graph of <span class="math notranslate nohighlight">\(f(x)=1\)</span>.
-In <code class="docutils literal notranslate"><span class="pre">zfit</span></code> these distinctions are respect, i.e. a function can be converted into a PDF by imposing the basic two criteria above.</p>
+In other words, in order to a function to be a PDF it must satisfy two criteria:</p>
+<ol class="arabic simple">
+<li><span class="math notranslate nohighlight">\(f(x) \geq 0\)</span> for all x;</li>
+<li><span class="math notranslate nohighlight">\(\int^{\infty}_{-\infty}f(x)dx =\)</span> are under the entire graph of <span class="math notranslate nohighlight">\(f(x)=1\)</span>.</li>
+</ol>
+<p>In zfit these distinctions are respected, <em>i.e.</em>, a function can be converted into a PDF by imposing the basic two criteria above.</p>
 <div class="section" id="predefined-pdfs-and-basic-properties">
 <h2>Predefined PDFs and basic properties<a class="headerlink" href="#predefined-pdfs-and-basic-properties" title="Permalink to this headline">¶</a></h2>
 <p>A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in</p>
@@ -214,7 +216,7 @@ An example is a Gaussian mass distribution with an exponential background, e.g.<
 <p>Since we are interested to express a measurement of the number of events,
 the expression <span class="math notranslate nohighlight">\(M(x) = N_{S}S(x) + N_{B}B(x)\)</span> respect that M(x) is normalised to <span class="math notranslate nohighlight">\(N_{S} + N_{B} = N\)</span> instead of one.
 This means that <span class="math notranslate nohighlight">\(M(x)\)</span> is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions.</p>
-<p>An extended PDF can be easily implemented in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> in two ways:</p>
+<p>An extended PDF can be easily implemented in zfit in two ways:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a parameter for the number of events</span>
 <span class="n">yieldGauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;yieldGauss&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 
@@ -227,7 +229,7 @@ This means that <span class="math notranslate nohighlight">\(M(x)\)</span> is no
 </div>
 <div class="section" id="custom-pdf">
 <h2>Custom PDF<a class="headerlink" href="#custom-pdf" title="Permalink to this headline">¶</a></h2>
-<p>A fundamental design choice of <code class="docutils literal notranslate"><span class="pre">zfit</span></code> is the ability to create custom PDFs and functions in an easy way.
+<p>A fundamental design choice of zfit is the ability to create custom PDFs and functions in an easy way.
 Let’s consider a simplified implementation</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyGauss</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ZPDF</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Simple implementation of a Gaussian similar to :py:class`~zfit.pdf.Gauss` class&quot;&quot;&quot;</span>

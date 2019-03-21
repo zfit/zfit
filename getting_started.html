@@ -71,7 +71,6 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameter.html#independent-parameter">Independent Parameter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
@@ -109,7 +108,7 @@
       
   <div class="section" id="getting-started-with-zfit">
 <h1>Getting started with zfit<a class="headerlink" href="#getting-started-with-zfit" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a <em>crash course</em> manner. The simplest example is to generate, fit and plot a Gaussian distribution.</p>
+<p>The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a <em>crash course</em> manner. The simplest example is to generate, fit and plot a Gaussian distribution.</p>
 <p>The first step is to naturally import <code class="docutils literal notranslate"><span class="pre">zfit</span></code> and verify if the installation has been done successfully (plus some additional imports of helpful libraries):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">zfit</span>
@@ -132,7 +131,7 @@
 </pre></div>
 </div>
 <p>It is recommended to pass the arguments of the PDF as keyword arguments.</p>
-<p>The next stage is to create a dataset to be fitted. There are several ways of producing this within the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> framework (see the <a class="reference internal" href="data.html#data-section"><span class="std std-ref">Data</span></a> section). In this case, for simplicity we simply produce it using <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and the <a class="reference internal" href="api/zfit.data.html#zfit.data.Data.from_numpy" title="zfit.data.Data.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">Data.from_numpy</span></code></a> method:</p>
+<p>The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the <a class="reference internal" href="data.html#data-section"><span class="std std-ref">Data</span></a> section). In this case, for simplicity we simply produce it using numpy and the <a class="reference internal" href="api/zfit.data.html#zfit.data.Data.from_numpy" title="zfit.data.Data.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">Data.from_numpy</span></code></a> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mu_true</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">sigma_true</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">data_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mu_true</span><span class="p">,</span> <span class="n">sigma_true</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
@@ -161,7 +160,7 @@
 <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>It is important to highlight that conceptually <code class="docutils literal notranslate"><span class="pre">zfit</span></code> separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+<p>It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the <code class="docutils literal notranslate"><span class="pre">error</span></code> method.
 As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calculate the <code class="docutils literal notranslate"><span class="pre">MINOS</span></code> with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">param_errors</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">()</span>
@@ -183,7 +182,7 @@ As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calcul
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;mu={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">mu</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]))</span>
 </pre></div>
 </div>
-<p>As already mentioned, there is no dedicated plotting feature within <code class="docutils literal notranslate"><span class="pre">zfit</span></code>. However, we can easily use external libraries, such as <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, to do the job:</p>
+<p>As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, to do the job:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="n">n_bins</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
@@ -195,11 +194,11 @@ As an example, with the :py:class`~zfit.minimize.MinuitMinimizer` one can calcul
 </pre></div>
 </div>
 <p>The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>, a specialised wrapper around <code class="docutils literal notranslate"><span class="pre">tf.Session().run</span></code>.
-While <em>actions</em> in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> return <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays or scalars, functions like <code class="docutils literal notranslate"><span class="pre">pdf</span></code> return <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> graph, which are lazy-evaluated.
+While actions like <code class="docutils literal notranslate"><span class="pre">minimize</span></code> or <code class="docutils literal notranslate"><span class="pre">sample</span></code> return Python objects (including numpy arrays or scalars), functions like <code class="docutils literal notranslate"><span class="pre">pdf</span></code> or <code class="docutils literal notranslate"><span class="pre">integrate</span></code> return TensorFlow graphs, which are lazy-evaluated.
 To obtain the value of these PDFs, we need to execute the graph by using <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>.</p>
 <div class="section" id="what-did-just-happen">
 <h2>What did just happen?<a class="headerlink" href="#what-did-just-happen" title="Permalink to this headline">¶</a></h2>
-<p>The core idea of <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> is to use dataflow <em>graphs</em>, in which <em>sessions</em> run part of the graphs that are required. Since <code class="docutils literal notranslate"><span class="pre">zfit</span></code> has <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code> at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as <code class="docutils literal notranslate"><span class="pre">minimize</span></code>. However, it is worth noting that most of the internal objects that are built by <code class="docutils literal notranslate"><span class="pre">zfit</span></code> are intrinsically <code class="docutils literal notranslate"><span class="pre">graphs</span></code> that are executed by running the session:</p>
+<p>The core idea of TensorFlow is to use dataflow <em>graphs</em>, in which <em>sessions</em> run part of the graphs that are required. Since zfit has TensorFlow at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as <code class="docutils literal notranslate"><span class="pre">minimize</span></code>. However, it is worth noting that most of the internal objects that are built by zfit are intrinsically graphs that are executed by running the session:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">TensorFlow_object</span><span class="p">)</span>
 </pre></div>
 </div>
