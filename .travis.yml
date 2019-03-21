@@ -42,7 +42,7 @@ deploy:
       keep-history: true
       on:
           #          TODO: change branch below to develop
-          branch: docs
+          branch: develop
           condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
 
 
