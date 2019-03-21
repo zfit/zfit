@@ -27,7 +27,7 @@ First, we have to define the parameters of the PDF and their limits using the :p
 
 .. code-block:: pycon
 
-    >>> mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
+    >>> mu = zfit.Parameter("mu", 2.4, -1, 5)
     >>> sigma = zfit.Parameter("sigma", 1.3,  0, 5)
 
 With these parameters we can instantiate the Gaussian PDF from the library
@@ -82,9 +82,9 @@ As an example, with the :py:class:`~zfit.minimize.MinuitMinimizer` one can calcu
 
     >>> param_errors = result.error()
     >>> for var, errors in param_errors.items():
-    ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
-    mu: ^{+0.00998104141841555}_{--0.009981515893414316}
-    sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
+    ...   print('{}: ^{{+{}}}_{{{}}}'.format(var.name, errors['upper'], errors['lower']))
+    mu: ^{+0.00998104141841555}_{-0.009981515893414316}
+    sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results. The object ``result`` (:py:class`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
 
@@ -114,14 +114,22 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
 
 .. code-block:: pycon
 
+    >>> # Some simple matplotlib configurations
     >>> import matplotlib.pyplot as plt
-    >>> n_bins = 50
-    >>> limits = (-5,5)
-    >>> _ = plt.hist(data_np, bins=n_bins, range=range_)
-    >>> x = np.linspace(*range_, num=1000) 
-    >>> probs = gauss.pdf(x, norm_range=(-10, 10))
-    >>> # Evaluate the PDF by executing the TensorFlow graph
-    >>> pdf = zfit.run(probs)
+    >>> lower, upper = obs.limits
+    >>> data_np = zfit.run(data)
+    >>> counts, bin_edges = np.histogram(data_np, 80, range=(lower[-1][0], upper[0][0]))
+    >>> bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
+    >>> err = np.sqrt(counts)
+    >>> plt.errorbar(bin_centres, counts, yerr=err, fmt='o', color='xkcd:black')
+
+    >>> x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
+    >>> y_plot = zfit.run(gauss.pdf(x_plot, norm_range=obs))
+    
+    >>> plt.plot(x_plot, y_plot*data_np.shape[0]/80*obs.area(), color='xkcd:blue')
+    >>> plt.show()
+
+.. image:: images/Gaussian.pdf
 
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
 While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.
@@ -135,19 +143,19 @@ The core idea of TensorFlow is to use dataflow *graphs*, in which *sessions* run
 
 .. code-block:: pycon
 
-    >>> zfit.run(TensorFlow_object)
+    zfit.run(TensorFlow_object)
 
 One example is the Gauss PDF that has been shown above. The object ``gauss`` contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As an example, let's calculate the probability for given values
 
 .. code-block:: pycon
 
-    >>> zfit.run(TensorFlow_object)
-    >>> consts = [-1, 0, 1]
-    >>> probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
+    zfit.run(TensorFlow_object)
+    consts = [-1, 0, 1]
+    probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
 
-    >>> # And now execute the tensorflow graph
-    >>> result = zfit.run(probs)
-    >>> print("x values: {}\nresult:   {}".format(consts, result))
+    # And now execute the tensorflow graph
+    result = zfit.run(probs)
+    print("x values: {}\nresult:   {}".format(consts, result))
 
 Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using ``zfit.run``:
 
