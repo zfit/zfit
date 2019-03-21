@@ -61,10 +61,10 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
-        spaces (Iterable[`zfit.Space`]):
+        spaces (Iterable[:py:class:`~zfit.Space`]):
 
     Returns:
-        Union[None, zfit.core.limits.Space, bool]:
+        Union[None, :py:class:`~zfit.Space`, bool]:
 
     Raises:
         LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
@@ -166,7 +166,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> List[str]:
         returns ['obs1', 'obs3', 'obs2']
 
     Args:
-        spaces (): Spaces to extract the obs from
+        spaces (): :py:class:`~zfit.Space`s to extract the obs from
 
     Returns:
         List[str]: The observables as `str`
@@ -209,11 +209,11 @@ def combine_spaces(spaces: Iterable["zfit.Space"]):
     is not unambiguous and `False` is returned
 
     Args:
-        spaces (List[zfit.Space]):
+        spaces (List[:py:class:`~zfit.Space`]):
 
     Returns:
         `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
-            return the Space with all obs from `spaces` sorted by the order of `spaces` and with the
+            return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the
             combined limits.
     Raises:
         ValueError: if only one space is given

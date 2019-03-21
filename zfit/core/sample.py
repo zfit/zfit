@@ -51,7 +51,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         prob (function): A function taking x a Tensor as an argument and returning the probability
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
-        limits (Space): The limits to sample from
+        limits (:py:class:`~zfit.Space`): The limits to sample from
         sample_and_weights (Callable): A function that returns the sample to insert into `prob` and the weights
             (prob) of each sample together with the random thresholds. The API looks as follows:
 
@@ -213,7 +213,7 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
 
     Args:
         pdfs (iterable[ZfitPDF]):
-        limits (zfit.Space):
+        limits (:py:class:`~zfit.Space`):
 
     Returns:
         Union[tf.Tensor]:

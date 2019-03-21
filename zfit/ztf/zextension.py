@@ -74,25 +74,22 @@ def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
 
 def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values: tf.Tensor,
                value_safer: Callable = tf.ones_like) -> tf.Tensor:
-    """Like `tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.
+    """Like :py:func:`tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.
 
     Args:
-        condition (`tf.Tensor`): Same argument as to `tf.where`, a boolean Tensor
+        condition (:py:class:`tf.Tensor`): Same argument as to :py:func:`tf.where`, a boolean :py:class:`tf.Tensor`
         func (Callable): Function taking `values` as argument and returning the tensor _in case
-            condition is True_. Equivalent `x` of `tf.where` but as function.
+            condition is True_. Equivalent `x` of :py:func:`tf.where` but as function.
         safe_func (Callable): Function taking `values` as argument and returning the tensor
-            _in case the condition is False_, Equivalent `y` of `tf.where` but as function.
-        values (`tf.Tensor`): Values to be evaluated either by `func` or `safe_func` depending on
+            _in case the condition is False_, Equivalent `y` of :py:func:`tf.where` but as function.
+        values (:py:class:`tf.Tensor`): Values to be evaluated either by `func` or `safe_func` depending on
             `condition`.
         value_safer (Callable): Function taking `values` as arguments and returns "safe" values
             that won't cause troubles when given to`func` or by taking the gradient with respect
-            to `func(value_safer(values)`.
+            to `func(value_safer(values))`.
 
     Returns:
-        `tf.Tensor`:
-
-
-
+        :py:class:`tf.Tensor`:
     """
     safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
     result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
