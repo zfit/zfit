@@ -11,16 +11,36 @@ The MLE is a specific type of probability model estimation, where the loss funct
 In zfit, loss functions inherit from the :py:class:`~zfit.core.loss.BaseLoss` class and they follow a common interface, in which the model, 
 the dataset and the fit range (which internally sets ``norm_range`` in the PDF and makes sure data only within that range are used) **must** be given, and 
 where parameter constraints in form of a dictionary `{param: constraint}` **may** be given.
-As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.core.loss.UnbinnedNLL`) from the model described in the :ref:`basic model section <basic-model>` and the data from the `Data section <data-section>`, adding a gaussian constraint on the ``mu`` parameter:
+As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.core.loss.UnbinnedNLL`) from the model described in the :ref:`basic model section <basic-model>` and the data from the `Data section <data-section>`:
 
 .. code-block:: python
 
-    my_loss = zfit.loss.UnbinnedNLL(model,
+    my_loss = zfit.loss.UnbinnedNLL(model_cb,
+                                    data,
+                                    fit_range=(-10, 10))
+
+Adding constraints
+------------------
+
+Constraints (or, in general, penalty terms) can be added to the loss function either by using the ``constraints`` keyword when creating the loss object or by using the :py:func:`~zfit.core.loss.BaseLoss.add_constraints` method.
+These constraints are specified as a list of penalty terms, which can be any ``tf.Tensor`` object that is simply added to the calculation of the loss.
+
+Useful implementations of penalties can be found in the :py:mod:`zfit.constraint` module.
+For example, if we wanted to add adding a gaussian constraint on the ``mu`` parameter of the previous model, we would write: 
+
+.. code-block:: python
+
+    my_loss = zfit.loss.UnbinnedNLL(model_cb,
                                     data,
                                     fit_range=(-10, 10),
-                                    constraints={mu: zfit.pdf.Gauss(mu=1., sigma=0.4)})
+                                    constraints=zfit.constraint.nll_gaussian(params=mu,
+                                                                             mu=5279.,
+                                                                             sigma=10.))
 
-Additional constraints may be passed to the loss object using the :py:func:`~zfit.core.loss.BaseLoss.add_constraints` method.
+
+Simultaneous fits
+-----------------
+
 There are currently two loss functions implementations in the ``zfit`` library, the :py:class:`~zfit.core.loss.UnbinnedNLL` and :py:class:`~zfit.core.loss.ExtendedUnbinnedNLL` classes, which cover non-extended and extended negative log-likelihoods.
 
 A very common use case likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated). 
