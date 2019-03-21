@@ -123,9 +123,9 @@ be instantiated.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">param1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;param_name_human_readable&quot;</span><span class="p">,</span> <span class="n">start_value</span><span class="p">[,</span> <span class="n">lower_limit</span><span class="p">,</span> <span class="n">upper_limit</span><span class="p">])</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> can have limits (tested with <a href="#id1"><span class="problematic" id="id2">:py:method:`~zfit.Parameter.has_limits`</span></a>), which will
-clip the value to the limits given by <cite>:py:method:`~zfit.Parameter.lower_limit</cite> and
-<cite>:py:method:`~zfit.Parameter.upper_limit</cite>.
+<p><a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> can have limits (tested with <a class="reference internal" href="api/zfit.html#zfit.Parameter.has_limits" title="zfit.Parameter.has_limits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">has_limits()</span></code></a>), which will
+clip the value to the limits given by <a class="reference internal" href="api/zfit.html#zfit.Parameter.lower_limit" title="zfit.Parameter.lower_limit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lower_limit()</span></code></a> and
+<a class="reference internal" href="api/zfit.html#zfit.Parameter.upper_limit" title="zfit.Parameter.upper_limit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upper_limit()</span></code></a>.
 While this closely follows the RooFit syntax, it is very important to note that the optional limits of the parameter behave differently:
 if not given, the parameter will be “unbounded”, not fixed.
 Parameters are therefore floating by default, but their value can be fixed by setting the attribute <code class="docutils literal notranslate"><span class="pre">floating</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
@@ -133,16 +133,16 @@ Parameters are therefore floating by default, but their value can be fixed by se
 Using this method as a context manager, the value can also temporarily changed.
 However, be aware that anything _dependent_ on the parameter will have a value with the
 parameter evaluated with the new value at run-time:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_one&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># no limits</span>
-<span class="k">with</span> <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
-    <span class="c1"># in here, mu has the value 3</span>
-    <span class="n">mu_val</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>  <span class="c1"># 3</span>
-    <span class="n">five_mu</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">mu</span>
-    <span class="n">five_mu_val</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">five_mu</span><span class="p">)</span>  <span class="c1"># is evaluated with mu = 5. -&gt; five_mu_val is 15</span>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_one&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># no limits</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="c1"># in here, mu has the value 3</span>
+<span class="gp">... </span>   <span class="n">mu_val</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>  <span class="c1"># 3</span>
+<span class="gp">... </span>   <span class="n">five_mu</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">mu</span>
+<span class="gp">... </span>   <span class="n">five_mu_val</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">five_mu</span><span class="p">)</span>  <span class="c1"># is evaluated with mu = 5. -&gt; five_mu_val is 15</span>
 
-<span class="c1"># here, mu is again 1</span>
-<span class="n">mu_val_after</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>  <span class="c1"># 1</span>
-<span class="n">five_mu_val_after</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">five_mu</span><span class="p">)</span>  <span class="c1"># is evaluated with mu = 1! -&gt; five_mu_val_after is 5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># here, mu is again 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu_val_after</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>  <span class="c1"># 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">five_mu_val_after</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">five_mu</span><span class="p">)</span>  <span class="c1"># is evaluated with mu = 1! -&gt; five_mu_val_after is 5</span>
 </pre></div>
 </div>
 </div>
@@ -150,11 +150,11 @@ parameter evaluated with the new value at run-time:</p>
 <h2>Dependent Parameter<a class="headerlink" href="#dependent-parameter" title="Permalink to this headline">¶</a></h2>
 <p>A parameter can be composed of several other parameters. We can use any <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> for that
 and the dependency will be detected automatically. They can be used equivalently to <a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mu2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_two&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
-<span class="n">dependent_tensor</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">mu2</span>  <span class="c1"># or any kind of computation</span>
-<span class="n">dep_param</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ComposedParameter</span><span class="p">(</span><span class="s2">&quot;dependent_param&quot;</span><span class="p">,</span> <span class="n">dependent_tensor</span><span class="p">)</span>
+<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mu2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_two&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dependent_tensor</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">mu2</span>  <span class="c1"># or any kind of computation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dep_param</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ComposedParameter</span><span class="p">(</span><span class="s2">&quot;dependent_param&quot;</span><span class="p">,</span> <span class="n">dependent_tensor</span><span class="p">)</span>
 
-<span class="n">dependents</span> <span class="o">=</span> <span class="n">dep_param</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">()</span>  <span class="c1"># returns set(mu, mu2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dependents</span> <span class="o">=</span> <span class="n">dep_param</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">()</span>  <span class="c1"># returns set(mu, mu2)</span>
 </pre></div>
 </div>
 <p>A special case of the above is <a class="reference internal" href="api/zfit.html#zfit.ComplexParameter" title="zfit.ComplexParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComplexParameter</span></code></a>: it takes a complex <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> as input and provides a few special methods (like <a class="reference internal" href="api/zfit.html#zfit.ComplexParameter.real" title="zfit.ComplexParameter.real"><code class="xref py py-func docutils literal notranslate"><span class="pre">real()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">ComplexParameterconj()</span></code> etc.) to easier deal with them.

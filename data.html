@@ -114,18 +114,18 @@
 <div class="section" id="import-dataset-from-a-root-file">
 <h2>Import dataset from a ROOT file<a class="headerlink" href="#import-dataset-from-a-root-file" title="Permalink to this headline">¶</a></h2>
 <p>With the proliferation of the ROOT framework in the context of particle physics, it is often the case that the user will have access to a ROOT file in their analysis. A simple method has been used to handle this conversion:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
-                                <span class="n">root_tree</span><span class="p">,</span>
-                                <span class="n">branches</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">root_tree</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">branches</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">root_file</span></code> is the path to the ROOT file, <code class="docutils literal notranslate"><span class="pre">root_tree</span></code> is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.</p>
 <p>From the default conversion of the dataset there are two optional funcionalities for the user, i.e. the use of weights and the rename of the specified branches. The nominal structure follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
-                                <span class="n">root_tree</span><span class="p">,</span>
-                                <span class="n">branches</span><span class="p">,</span>
-                                <span class="n">branches_alias</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                                <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">root_tree</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">branches</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">branches_alias</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">branches_alias</span></code> can be seen as a list of strings that renames the original <code class="docutils literal notranslate"><span class="pre">branches</span></code>. The <code class="docutils literal notranslate"><span class="pre">weights</span></code> has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/pandas or similar.</p>
@@ -141,15 +141,15 @@ and it is the advised implementation of this.</p>
 <div class="section" id="import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">
 <h2>Import dataset from a pandas DataFrame or Numpy ndarray<a class="headerlink" href="#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray" title="Permalink to this headline">¶</a></h2>
 <p>A very simple manipulation of the dataset is provided via the pandas DataFrame. Naturally this is simplified since the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (observable) is not mandatory, and can be obtained directly from the columns:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pandas_DataFrame</span><span class="p">,</span>
-                                  <span class="n">obs</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
-                                  <span class="n">weights</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pandas_DataFrame</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">obs</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">weights</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In the case of Numpy, the only difference is that as input is required a numpy ndarray and the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (obs) is mandatory:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">numpy_ndarray</span><span class="p">,</span>
-                                 <span class="n">obs</span><span class="p">,</span>
-                                 <span class="n">weights</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">numpy_ndarray</span><span class="p">,</span>
+<span class="gp">... </span>                                 <span class="n">obs</span><span class="p">,</span>
+<span class="gp">... </span>                                 <span class="n">weights</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
