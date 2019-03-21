@@ -15,6 +15,8 @@ In other words, in order to a function to be a PDF it must satisfy two criteria:
 
 In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above. 
 
+.. _basic-model:
+
 Predefined PDFs and basic properties 
 ------------------------------------
 
