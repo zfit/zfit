@@ -60,14 +60,14 @@ def sum_prod_gauss():
     gauss33 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
     prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=['a', 'b', 'c'])
-    # prod_gauss_3d.set_integration_options(draws_per_dim=33)
+    # prod_gauss_3d.update_integration_options(draws_per_dim=33)
 
     gauss12 = Gauss(mu=mu1, sigma=sigma1, obs='d', name="gauss12a")
     gauss22 = Gauss(mu=mu2, sigma=sigma2, obs='a', name="gauss22a")
     gauss32 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss32a")
     gauss_dists2 = [gauss12, gauss22, gauss32]
     prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_gauss_3d], obs=['a', 'b', 'c', 'd'])
-    # prod_gauss_4d.set_integration_options(draws_per_dim=33)
+    # prod_gauss_4d.update_integration_options(draws_per_dim=33)
     return sum_gauss, prod_gauss, prod_gauss_3d, prod_gauss_4d, gauss_dists3, gauss_dists2, gauss_dists
 
 
@@ -96,7 +96,7 @@ def test_prod_gauss_nd_mixed():
 
     obs4d = ['a', 'b', 'c', 'd']
     test_values_data = Data.from_tensor(obs=obs4d, tensor=test_values)
-    # prod_gauss_4d.set_integration_options(draws_per_dim=10)
+    # prod_gauss_4d.update_integration_options(draws_per_dim=10)
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=limits_4d)

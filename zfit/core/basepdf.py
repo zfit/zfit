@@ -175,7 +175,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @property
     def norm_range(self) -> Union[Space, None, bool]:
-        """Return the current normalization range.
+        """Return the current normalization range. If None and the `obs`have limits, they are returned.
 
         Returns:
             :py:class:`~zfit.Space` or None: The current normalization range
@@ -187,11 +187,11 @@ class BasePDF(ZfitPDF, BaseModel):
         return norm_range
 
     @invalidates_cache
-    def set_norm_range(self, norm_range: Union[Space, None]):
+    def set_norm_range(self, norm_range: ztyping.LimitsTypeInput):
         """Set the normalization range (temporarily if used with contextmanager).
 
         Args:
-            norm_range ():
+            norm_range (tuple, :py:class:`~zfit.Space`):
 
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
@@ -293,8 +293,9 @@ class BasePDF(ZfitPDF, BaseModel):
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
-    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None, name: str = "model") -> ztyping.XType:
-        """Probability density/mass function, normalized over `norm_range`.
+    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
+            name: str = "model") -> ztyping.XType:
+        """Probability density function, normalized over `norm_range`.
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
@@ -302,7 +303,7 @@ class BasePDF(ZfitPDF, BaseModel):
           name (str): Prepended to names of ops created by this function.
 
         Returns:
-          model: a `Tensor` of type `self.dtype`.
+          :py:class:`tf.Tensor` of type `self.dtype`.
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name, none_is_error=True)
         with self._convert_sort_x(x) as x:
@@ -314,7 +315,6 @@ class BasePDF(ZfitPDF, BaseModel):
                 assert_op = []
             with tf.control_dependencies(assert_op):
                 return ztf.to_real(value)
-
 
     def _single_hook_pdf(self, x, norm_range, name):
         probability = self._hook_pdf(x=x, norm_range=norm_range, name=name)
@@ -346,7 +346,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None,
                 name: str = "log_pdf") -> ztyping.XType:
-        """Log probability density/mass function normalized over `norm_range`
+        """Log probability density function normalized over `norm_range`.
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
@@ -395,8 +395,6 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        # if probs.shape.as_list()[-1] > 1:
-        #     raise DueToLazynessNotImplementedError()
         gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs)]
         return tf.stack(gradients)
 
@@ -452,7 +450,7 @@ class BasePDF(ZfitPDF, BaseModel):
             name_addition (str):
 
         Returns:
-            ZfitPDF
+            :py:class:`~zfit.core.interfaces.ZfitPDF`
         """
         # TODO(Mayou36): fix copy
         from zfit.models.functor import ProductPDF

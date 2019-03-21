@@ -287,7 +287,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 class ZfitModel(ZfitNumeric, ZfitDimensional):
 
     @abc.abstractmethod
-    def set_integration_options(self, *args, **kwargs):  # TODO: handling integration properly
+    def update_integration_options(self, *args, **kwargs):  # TODO: handling integration properly
         raise NotImplementedError
 
     @abc.abstractmethod
