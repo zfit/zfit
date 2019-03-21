@@ -1,0 +1,7 @@
+temporary
+=========
+
+.. automodule:: zfit.util.temporary
+    :members:
+    :undoc-members:
+    :show-inheritance:

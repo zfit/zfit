@@ -1,7 +1,0 @@
-zfit.ztf.wrapping\_tf
-=====================
-
-.. automodule:: zfit.ztf.wrapping_tf
-    :members:
-    :undoc-members:
-    :show-inheritance:

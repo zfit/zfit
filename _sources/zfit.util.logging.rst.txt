@@ -1,7 +1,0 @@
-zfit.util.logging
-=================
-
-.. automodule:: zfit.util.logging
-    :members:
-    :undoc-members:
-    :show-inheritance:

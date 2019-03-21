@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Data &#8212; zfit 0.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Loss" href="loss.html" />
+    <link rel="prev" title="Building a model" href="model.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="index.html">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.0.0</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="getting_started.html">Getting started</a></li>
+                <li><a href="space.html">Space</a></li>
+                <li><a href="parameter.html">Parameter</a></li>
+                <li><a href="model.html">Model</a></li>
+                <li><a href="#">Data</a></li>
+                <li><a href="loss.html">Loss</a></li>
+                <li><a href="minimize.html">Minimize</a></li>
+                <li><a href="API.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="span12 content">
+      
+  <div class="section" id="data">
+<span id="data-section"></span><h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
+<p>An easy and fast data manipulation are among the crucial aspects in High Energy Particle physics data analysis. With the increasing data availability (e.g. with the advent of LHC), this challenge has been pursued in different manners. Common strategies vary from multidimensional arrays with attached row/column labels (e.g. <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in <em>pandas</em>) or compressed binary formats (e.g. ROOT). While each of these data structure designs has their own advantages in terms of speed and acessibility, the data concept inplemented in <code class="docutils literal notranslate"><span class="pre">zfit</span></code> follows closely the features of <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> in <em>pandas</em>.</p>
+<p>The <a class="reference internal" href="api/zfit.data.html#zfit.data.Data" title="zfit.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a> class provides a simple and structured access/manipulation of <em>data</em> – similarly to concept of multidimensional arrays approach from <em>pandas</em>. The key feature of <a class="reference internal" href="api/zfit.data.html#zfit.data.Data" title="zfit.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a> is its relation to the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or more explicitly its axis or name. A more equally convention is to name the role of the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> in this context as the <em>observable</em> under investigation. Note that no explicit range for the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> is required at the moment of the <cite>data</cite> definition, since this is only required at the moment some calculation is needed (e.g. integrals, fits, etc).</p>
+<div class="section" id="import-dataset-from-a-root-file">
+<h2>Import dataset from a ROOT file<a class="headerlink" href="#import-dataset-from-a-root-file" title="Permalink to this headline">¶</a></h2>
+<p>With the proliferation of the <code class="docutils literal notranslate"><span class="pre">ROOT</span></code> framework in the context of particle physics, it is often the case that the user will have access to a ROOT file in their analysis. A simple method has been used to handle this conversion:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
+                                <span class="n">root_tree</span><span class="p">,</span>
+                                <span class="n">branches</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">root_file</span></code> is the path to the ROOT file, <code class="docutils literal notranslate"><span class="pre">root_tree</span></code> is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.</p>
+<p>From the default conversion of the dataset there are two optional funcionalities for the user, i.e. the use of weights and the rename of the specified branches. The nominal structure follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
+                                <span class="n">root_tree</span><span class="p">,</span>
+                                <span class="n">branches</span><span class="p">,</span>
+                                <span class="n">branches_alias</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                                <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">branches_alias</span></code> can be seen as a list of strings that renames the original <code class="docutils literal notranslate"><span class="pre">branches</span></code>. The <code class="docutils literal notranslate"><span class="pre">weights</span></code> has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/pandas or similar.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The implementation of the <code class="docutils literal notranslate"><span class="pre">from_root</span></code> method makes uses of the uproot packages,
+which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner.
+This also means that the <em>goodies</em> from uproot can also be used by specifying the root_dir_options,
+such as cuts in the dataset. However, this can be applied later when examining the produced dataset
+and it is the advised implementation of this.</p>
+</div>
+</div>
+<div class="section" id="import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">
+<h2>Import dataset from a pandas DataFrame or Numpy ndarray<a class="headerlink" href="#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray" title="Permalink to this headline">¶</a></h2>
+<p>A very simple manipulation of the dataset is provided via the pandas DataFrame. Naturally this is simplified since the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (observable) is not mandatory, and can be obtained directly from the columns:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pandas_DataFrame</span><span class="p">,</span>
+                                  <span class="n">obs</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                  <span class="n">weights</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the case of Numpy, the only difference is that as input is required a numpy ndarray and the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (obs) is mandatory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">numpy_ndarray</span><span class="p">,</span>
+                                 <span class="n">obs</span><span class="p">,</span>
+                                 <span class="n">weights</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

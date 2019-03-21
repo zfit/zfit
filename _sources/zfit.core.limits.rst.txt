@@ -1,7 +1,0 @@
-zfit.core.limits
-================
-
-.. automodule:: zfit.core.limits
-    :members:
-    :undoc-members:
-    :show-inheritance:

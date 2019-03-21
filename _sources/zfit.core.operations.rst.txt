@@ -1,7 +1,0 @@
-zfit.core.operations
-====================
-
-.. automodule:: zfit.core.operations
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-zfit.pdf
-========
-
-.. automodule:: zfit.pdf
-    :members:
-    :undoc-members:
-    :show-inheritance:
