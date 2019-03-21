@@ -4,15 +4,17 @@ zfit: scalable pythonic fitting
 ===============================
 
 
-
+.. image:: https://zenodo.org/badge/126311570.svg
+   :target: https://zenodo.org/badge/latestdoi/126311570
+   
 .. image:: https://img.shields.io/pypi/v/zfit.svg
-        :target: https://pypi.python.org/pypi/zfit
+   :target: https://pypi.python.org/pypi/zfit
 
 .. image:: https://img.shields.io/travis/zfit/zfit.svg
-        :target: https://travis-ci.org/zfit/zfit
+   :target: https://travis-ci.org/zfit/zfit
 
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
-        :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
+   :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
 
 .. image:: https://www.codefactor.io/repository/github/zfit/zfit/badge
    :target: https://www.codefactor.io/repository/github/zfit/zfit
