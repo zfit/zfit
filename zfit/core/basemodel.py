@@ -770,7 +770,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def create_sampler(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
                        fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True,
                        name: str = "create_sampler") -> "Sampler":
-        """Create a `Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
             If `n` is None and the model is an extended pdf, 'extended' is used by default.
