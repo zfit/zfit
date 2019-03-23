@@ -15,8 +15,11 @@ script:
     - tox
     - pip install -U .
 
+    - bash utils/ci/test_examples.sh
+    -
+    - bash utils/ci/test_tutorials.sh
+    -
     - pip install -r requirements_dev.txt
-    - ls
     - bash docs/make_docs.sh
 
 after_success:
