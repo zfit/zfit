@@ -84,7 +84,6 @@ def test_func():
 
 
 def test_normalization():
-    # zfit.run(init)
     test_yield = 1524.3
 
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
@@ -104,7 +103,7 @@ def test_normalization():
             probs_extended = dist.pdf(samples)
             result_extended = zfit.run(probs_extended)
             result_extended = np.average(result_extended) * (high - low)
-            assert result_extended == pytest.approx(test_yield, rel=0.05)
+            assert result_extended == pytest.approx(1, rel=0.05)
 
 
 @pytest.mark.parametrize('gauss', [gauss_params1, test_gauss1])

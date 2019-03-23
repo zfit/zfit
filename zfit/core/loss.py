@@ -39,8 +39,6 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
 
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
-            if model.is_extended:
-                probs /= model.get_yield()
         log_probs = tf.log(probs)
         if data.weights is not None:
             log_probs *= data.weights  # because it's prob ** weights
