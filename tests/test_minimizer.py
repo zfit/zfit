@@ -38,9 +38,6 @@ sampled_data = sum_pdf1.create_sampler(n=15000)
 loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, fit_range=obs1)
 
 
-# def func(a, b, c):
-#     probs = ztf.convert_to_tensor((a - a_data) ** 2 + (b - true_b) ** 2 + (c - true_c) ** 4) + 0.42
-#     return tf.reduce_sum(tf.log(probs))
 
 
 def minimize_func(minimizer_class_and_kwargs):
