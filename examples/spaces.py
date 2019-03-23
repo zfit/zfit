@@ -23,6 +23,6 @@ limits = (lower, upper)
 
 space1 = zfit.Space(obs=['obs1', 'obs2'], limits=limits)
 
-assert space1.obs == ['obs1', 'obs2']
+assert space1.obs == ('obs1', 'obs2')
 assert space1.n_obs == 2
 assert space1.n_limits == 3
