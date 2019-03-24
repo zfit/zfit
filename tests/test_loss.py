@@ -11,6 +11,7 @@ from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
+from zfit.util.exception import IntentionNotUnambiguousError
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -171,3 +172,42 @@ def test_gradients():
     assert zfit.run(gradient2) == both_gradients_true
     gradient3 = nll.gradients()
     assert frozenset(zfit.run(gradient3)) == frozenset(both_gradients_true)
+
+
+def test_simple_loss():
+    true_a = 1.
+    true_b = 4.
+    true_c = -0.3
+    a_param = zfit.Parameter("variable_a15151loss", 1.5, -1., 20.,
+                             step_size=ztf.constant(0.1))
+    b_param = zfit.Parameter("variable_b15151loss", 3.5)
+    c_param = zfit.Parameter("variable_c15151loss", -0.04)
+    param_list = [a_param, b_param, c_param]
+
+    def loss_func():
+        probs = ztf.convert_to_tensor((a_param - true_a) ** 2
+                                      + (b_param - true_b) ** 2
+                                      + (c_param - true_c) ** 4) + 0.42
+        return tf.reduce_sum(tf.log(probs))
+
+    loss_deps = zfit.loss.SimpleLoss(func=loss_func, dependents=param_list)
+    loss = zfit.loss.SimpleLoss(func=loss_func)
+
+    assert loss_deps.get_dependents() == set(param_list)
+    assert loss.get_dependents() == set(param_list)
+
+    loss_tensor = loss_func()
+    loss_value_np = zfit.run(loss_tensor)
+
+    assert zfit.run(loss.value()) == loss_value_np
+    assert zfit.run(loss_deps.value()) == loss_value_np
+
+    with pytest.raises(IntentionNotUnambiguousError):
+        _ = loss + loss_deps
+
+    minimizer = zfit.minimize.MinuitMinimizer()
+    result = minimizer.minimize(loss=loss)
+
+    assert true_a == pytest.approx(result.params[a_param]['value'], rel=0.03)
+    assert true_b == pytest.approx(result.params[b_param]['value'], rel=0.06)
+    assert true_c == pytest.approx(result.params[c_param]['value'], rel=0.3)

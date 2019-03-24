@@ -95,7 +95,7 @@ class BaseDependentsMixin(ZfitDependentsMixin):
 
     @staticmethod
     def _extract_dependents(zfit_objects: List[ZfitObject]) -> Set["zfit.Parameters"]:
-        """Calls the `get_dependents` method on every object and returns a combined set.
+        """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
 
         Args:
             zfit_objects ():

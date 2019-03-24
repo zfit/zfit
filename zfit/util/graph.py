@@ -12,7 +12,7 @@ def all_parents(op, current_obs=None):
     return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
 
 
-def get_dependents(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[tf.Tensor]:
+def get_dependents_auto(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[tf.Tensor]:
     """Return the nodes in `candidates` that `tensor` depends on.
 
     Args:
@@ -39,5 +39,5 @@ if __name__ == '__main__':
     c = 5. * b
     d = c + b * var2
     e = c * 3.
-    print(get_dependents(e, [b, c, d, var1, var2, var3]))
-    print(get_dependents(e, [var1, var2, var3]))
+    print(get_dependents_auto(e, [b, c, d, var1, var2, var3]))
+    print(get_dependents_auto(e, [var1, var2, var3]))

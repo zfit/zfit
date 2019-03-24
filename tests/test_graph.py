@@ -2,7 +2,7 @@ import sys
 
 import zfit
 from zfit import ztf
-from zfit.util.graph import get_dependents
+from zfit.util.graph import get_dependents_auto
 
 
 # sys.setrecursionlimit(200)
@@ -18,6 +18,6 @@ def test_get_dependents():
     d = b * var2 + a
     e = d * 3.
     zfit.run(e)
-    assert get_dependents(e, [a, b, c, d, var1, var2, var3]) == [a, b, d, var1, var2]
-    assert get_dependents(e, [var1, var2, var3]) == [var1, var2]
-    assert get_dependents(c, [a, b, d, var1, var2, var3]) == [b, var1, var3]
+    assert get_dependents_auto(e, [a, b, c, d, var1, var2, var3]) == [a, b, d, var1, var2]
+    assert get_dependents_auto(e, [var1, var2, var3]) == [var1, var2]
+    assert get_dependents_auto(c, [a, b, d, var1, var2, var3]) == [b, var1, var3]

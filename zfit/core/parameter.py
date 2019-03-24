@@ -19,7 +19,7 @@ from ..util.cache import Cachable, invalidates_cache
 from ..util import ztyping
 from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
-from ..util.graph import get_dependents
+from ..util.graph import get_dependents_auto
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
@@ -494,7 +494,7 @@ class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
         tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
         independent_params = tf.get_collection("zfit_independent")
-        params = get_dependents(tensor=tensor, candidates=independent_params)
+        params = get_dependents_auto(tensor=tensor, candidates=independent_params)
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
@@ -573,7 +573,7 @@ def convert_to_parameter(value) -> "Parameter":
     else:
         # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
         independend_params = tf.get_collection("zfit_independent")
-        params = get_dependents(tensor=value, candidates=independend_params)
+        params = get_dependents_auto(tensor=value, candidates=independend_params)
         if params:
             value = ComposedParameter("composite_autoparam_" + str(get_auto_number()), tensor=value)
         else:
