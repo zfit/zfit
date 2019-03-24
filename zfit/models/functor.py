@@ -256,7 +256,6 @@ class SumPDF(BaseFunctor):
         norm_range = self._get_component_norm_range()
         return self._pdf(x=x, norm_range=norm_range)
         # raise NotImplementedError
-        # TODO: deal with yields
         # pdfs = self.pdfs
         # fracs = self.fracs
         # func = tf.accumulate_n(

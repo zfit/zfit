@@ -18,7 +18,7 @@ sigma_true = 4.1
 mu_true2 = 1.01
 sigma_true2 = 3.5
 
-yield_true = 1000
+yield_true = 3000
 test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(yield_true, 1))
 test_values_np2 = np.random.normal(loc=mu_true2, scale=sigma_true2, size=yield_true)
 
@@ -76,7 +76,7 @@ def test_unbinned_simultaneous_nll():
 
 
 @pytest.mark.flaky(3)
-@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.5, size=test_values_np.shape[0])])
+@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
 def test_unbinned_nll(weights):
     test_values = tf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
