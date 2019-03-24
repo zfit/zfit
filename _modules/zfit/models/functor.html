@@ -255,9 +255,10 @@
 <span class="sd">            name (str):</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check user input, improve TODO</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fracs</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">set_yield_at_end</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
-        <span class="c1"># pdfs = self.pdfs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span> <span class="o">=</span> <span class="n">pdfs</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot build a sum of a single pdf&quot;</span><span class="p">)</span>
@@ -316,6 +317,7 @@
             <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
                                   <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
             <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_op</span><span class="p">]):</span>
+                <span class="c1"># TODO(Mayou36): always last position?</span>
                 <span class="n">fracs</span><span class="p">[</span><span class="n">not_extended_position</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">)</span>
             <span class="n">implicit</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># now it&#39;s explicit</span>
 
@@ -337,22 +339,34 @@
             <span class="n">yields</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">extended</span><span class="p">:</span>
-            <span class="c1"># yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]</span>
+            <span class="n">yield_fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">yield_</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">yields</span><span class="p">)</span> <span class="k">for</span> <span class="n">yield_</span> <span class="ow">in</span> <span class="n">yields</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="n">yield_fracs</span>
             <span class="c1"># self.fracs = yield_fracs</span>
             <span class="n">set_yield_at_end</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="n">fracs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span> <span class="o">=</span> <span class="n">fracs</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span> <span class="o">=</span> <span class="n">pdfs</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fracs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span><span class="p">):</span>
             <span class="n">params</span><span class="p">[</span><span class="s1">&#39;frac_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">frac</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">set_yield_at_end</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">yields</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fracs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fracs</span>
+        <span class="k">if</span> <span class="n">fracs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span>
+        <span class="k">return</span> <span class="n">fracs</span>
+
+    <span class="nd">@fracs</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fracs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fracs</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">_apply_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">):</span>
@@ -364,7 +378,6 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_component_norm_range</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
         <span class="c1"># raise NotImplementedError</span>
-        <span class="c1"># TODO: deal with yields</span>
         <span class="c1"># pdfs = self.pdfs</span>
         <span class="c1"># fracs = self.fracs</span>
         <span class="c1"># func = tf.accumulate_n(</span>
@@ -374,7 +387,7 @@
     <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
         <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">scale</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)])</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)])</span>
         <span class="c1"># prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])</span>
         <span class="k">return</span> <span class="n">prob</span>
 
@@ -385,14 +398,14 @@
             <span class="k">raise</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">(</span><span class="s2">&quot;Cannot set the yield of a PDF with extended daughters.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs_extended</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># not extended anymore</span>
             <span class="n">reciprocal_yield</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_yield</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">reciprocal_yield</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fracs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">reciprocal_yield</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@supports</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">multiple_limits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
-        <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
+        <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span>
         <span class="k">assert</span> <span class="n">norm_range</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;Bug, who requested an unnormalized integral?&quot;</span>
         <span class="n">integrals</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
         <span class="n">integrals</span> <span class="o">=</span> <span class="p">[</span><span class="n">integral</span> <span class="o">*</span> <span class="n">frac</span> <span class="k">for</span> <span class="n">integral</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">integrals</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)]</span>
@@ -402,7 +415,7 @@
     <span class="nd">@supports</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">multiple_limits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
-        <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
+        <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_extended_fracs</span>
         <span class="k">assert</span> <span class="n">norm_range</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;Bug, who requested an unnormalized integral?&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
