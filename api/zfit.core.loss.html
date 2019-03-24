@@ -109,7 +109,7 @@
 <span id="loss"></span><h1>loss<a class="headerlink" href="#module-zfit.core.loss" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.loss.BaseLoss">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">BaseLoss</code><span class="sig-paren">(</span><em>model</em>, <em>data</em>, <em>fit_range=None</em>, <em>constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">BaseLoss</code><span class="sig-paren">(</span><em>model, data, fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, constraints: List[tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseDependentsMixin" title="zfit.core.baseobject.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
 to the loss. The length of each has to match the length of the others.</p>
@@ -120,8 +120,8 @@ to the loss. The length of each has to match the length of the others.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</li>
 <li><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</li>
-<li><strong>fit_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The fitting range. It’s the norm_range for the models (if they
-have a norm_range) and the data_range for the data.</li>
+<li><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</li>
+<li><strong>they</strong> – have a norm_range) and the data_range for the data.</li>
 <li><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
 <cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</li>
 </ul>
@@ -187,8 +187,8 @@ have a norm_range) and the data_range for the data.</li>
 
 <dl class="class">
 <dt id="zfit.core.loss.SimpleLoss">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">SimpleLoss</code><span class="sig-paren">(</span><em>func</em>, <em>errordef=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.BaseLoss</span></code></a></p>
+<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">SimpleLoss</code><span class="sig-paren">(</span><em>func</em>, <em>dependents=None</em>, <em>errordef=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.CachedLoss" title="zfit.core.loss.CachedLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.CachedLoss</span></code></a></p>
 <dl class="attribute">
 <dt id="zfit.core.loss.SimpleLoss.errordef">
 <code class="descname">errordef</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.errordef" title="Permalink to this definition">¶</a></dt>

@@ -115,6 +115,7 @@
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
+<span class="kn">from</span> <span class="nn">zfit.util.graph</span> <span class="k">import</span> <span class="n">get_dependents_auto</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="k">import</span> <span class="n">BaseObject</span><span class="p">,</span> <span class="n">BaseDependentsMixin</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitPDF</span>
 <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SimpleFunc</span>
@@ -170,7 +171,7 @@
 
 <div class="viewcode-block" id="BaseLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss">[docs]</a><span class="k">class</span> <span class="nc">BaseLoss</span><span class="p">(</span><span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -180,7 +181,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            model (Iterable[ZfitModel]): The model or models to evaluate the data on</span>
 <span class="sd">            data (Iterable[ZfitData]): Data to use</span>
-<span class="sd">            fit_range (:py:class:`~zfit.Space`): The fitting range. It&#39;s the norm_range for the models (if they</span>
+<span class="sd">            fit_range (Iterable[:py:class:`~zfit.Space`]): The fitting range. It&#39;s the norm_range for the models (if</span>
+<span class="sd">            they</span>
 <span class="sd">                have a norm_range) and the data_range for the data.</span>
 <span class="sd">            constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using</span>
 <span class="sd">                `zfit.constraint.*` allows for easy use of predefined constraints.</span>
@@ -309,8 +311,8 @@
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">model</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span>
         <span class="n">fit_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_range</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">fit_range</span>
-        <span class="n">loss</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
-        <span class="n">loss</span><span class="o">.</span><span class="n">add_constraints</span><span class="p">(</span><span class="n">constraints</span><span class="o">=</span><span class="n">other</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">constraints</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">loss</span>
 
     <span class="k">def</span> <span class="nf">_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -390,27 +392,40 @@
         <span class="k">return</span> <span class="n">nll</span></div>
 
 
-<div class="viewcode-block" id="SimpleLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.SimpleLoss">[docs]</a><span class="k">class</span> <span class="nc">SimpleLoss</span><span class="p">(</span><span class="n">BaseLoss</span><span class="p">):</span>
+<div class="viewcode-block" id="SimpleLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.SimpleLoss">[docs]</a><span class="k">class</span> <span class="nc">SimpleLoss</span><span class="p">(</span><span class="n">CachedLoss</span><span class="p">):</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;SimpleLoss&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">errordef</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errordef</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_errordef</span> <span class="o">=</span> <span class="n">errordef</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">dependents</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
 
-        <span class="n">model</span> <span class="o">=</span> <span class="n">SimpleFunc</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">model</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dummy&#39;</span><span class="p">],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[],</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[])</span>
+
+    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span>
+        <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">independent_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
+            <span class="n">dependents</span> <span class="o">=</span> <span class="n">get_dependents_auto</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="n">candidates</span><span class="o">=</span><span class="n">independent_params</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">dependents</span>
+        <span class="k">return</span> <span class="n">dependents</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">errordef</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">errordef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_errordef</span>
         <span class="k">if</span> <span class="n">errordef</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;For this simple loss function, no error calculation is possible.&quot;</span><span class="p">)</span>
+            <span class="n">errordef</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
+            <span class="c1"># raise RuntimeError(&quot;For this SimpleLoss, no error calculation is possible.&quot;)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">errordef</span>
 
     <span class="k">def</span> <span class="nf">_loss_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func</span>
-        <span class="k">return</span> <span class="n">loss</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">loss</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">(</span><span class="s2">&quot;Cannot add a SimpleLoss, &#39;addition&#39; of losses can mean anything.&quot;</span>
+                                           <span class="s2">&quot;Add them manually&quot;</span><span class="p">)</span></div>
 </pre></div>
 
     </div>
