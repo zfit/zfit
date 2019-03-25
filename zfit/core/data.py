@@ -31,7 +31,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
                  name: str = None, weights=None, iterator_feed_dict: Dict = None,
-                 dtype: tf.DType = ztypes.float):
+                 dtype: tf.DType = None):
         """Create a data holder from a `dataset` used to feed into `models`.
 
         Args:
@@ -43,6 +43,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         """
         if name is None:
             name = "Data"
+        if dtype is None:
+            dtype = ztypes.float
         super().__init__(name=name)
         if iterator_feed_dict is None:
             iterator_feed_dict = {}
@@ -143,8 +145,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     def iterator(self, value):
         self._iterator = value
 
-    # constructor
-
+    # constructors
     @classmethod
     def from_root_iter(cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs):
         # branches = convert_to_container(branches)
@@ -185,8 +186,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
-                  name: str = None,
                   weights: ztyping.WeightsStrInputType = None,
+                  name: str = None,
+                  dtype: tf.DType = None,
                   root_dir_options=None) -> "Data":
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
@@ -236,11 +238,11 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         # dataset = dataset.repeat()
         obs = [branches_alias.get(branch, branch) for branch in branches]
-        return Data(dataset=dataset, obs=obs, weights=weights_np, name=name)
+        return Data(dataset=dataset, obs=obs, weights=weights_np, name=name, dtype=dtype)
 
     @classmethod
     def from_pandas(cls, df: pd.DataFrame, obs: ztyping.ObsTypeInput = None, weights: ztyping.WeightsInputType = None,
-                    name: str = None):
+                    name: str = None, dtype: tf.DType = None):
         """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
 
         Args:
@@ -253,11 +255,11 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if obs is None:
             obs = list(df.columns)
         array = df.values
-        return cls.from_numpy(obs=obs, array=array, weights=weights, name=name)
+        return cls.from_numpy(obs=obs, array=array, weights=weights, name=name, dtype=dtype)
 
     @classmethod
     def from_numpy(cls, obs: ztyping.ObsTypeInput, array: np.ndarray, weights: ztyping.WeightsInputType = None,
-                   name: str = None):
+                   name: str = None, dtype: tf.DType = None):
         """Create `Data` from a `np.array`.
 
         Args:
@@ -276,11 +278,12 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         # dataset = dataset.batch(len(array))
         dataset = dataset.repeat()
-        return Data(dataset=dataset, obs=obs, name=name, weights=weights, iterator_feed_dict=iterator_feed_dict)
+        return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype,
+                    iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
-    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, name: str = None,
-                    weights: ztyping.WeightsInputType = None) -> "Data":
+    def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, weights: ztyping.WeightsInputType = None,
+                    name: str = None, dtype: tf.DType = None) -> "Data":
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
         Args:
@@ -291,10 +294,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             zfit.core.data.Data:
         """
-        # dataset = tf.data.Dataset.from_tensor(tensors=tensors)
-        # dataset = dataset.repeat()
         dataset = LightDataset.from_tensor(tensor=tensor)
-        return Data(dataset=dataset, obs=obs, name=name, weights=weights)
+        return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
         """Create a `pd.DataFrame` from `obs` as columns and return it.
@@ -387,8 +388,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             values = list(values[i] for i in perm_indices)
             values = ztf.stack_x(values)
 
-        # cut data to right range
-
+        # cast data to right type
+        if not values.dtype == self.dtype:
+            values = tf.cast(values, dtype=self.dtype)
         return values
 
     # TODO(Mayou36): use Space to permute data?

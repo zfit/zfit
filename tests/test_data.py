@@ -77,12 +77,15 @@ def test_from_numpy(weights):
 
 
 def test_from_to_pandas():
+    dtype = np.float32
     example_data_np = np.random.random(size=(1000, len(obs1)))
     example_data = pd.DataFrame(data=example_data_np, columns=obs1)
-    data = zfit.data.Data.from_pandas(obs=obs1, df=example_data)
+    data = zfit.data.Data.from_pandas(obs=obs1, df=example_data, dtype=dtype)
     x = data.value()
+    assert x.dtype == dtype
     x_np = zfit.run(x)
-    np.testing.assert_array_equal(example_data_np, x_np)
+    assert x_np.dtype == dtype
+    np.testing.assert_array_equal(example_data_np.astype(dtype=dtype), x_np)
 
     # test auto obs retreavel
     example_data2 = pd.DataFrame(data=example_data_np, columns=obs1)
