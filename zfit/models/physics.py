@@ -31,6 +31,15 @@ def crystalball_func(x, mu, sigma, alpha, n):
     return func
 
 
+def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
+    cond = tf.less(x, mu)
+    func = tf.where(cond,
+                    crystalball_func(x, mu, sigma, alphal, nl),
+                    crystalball_func(x, mu, sigma, -alphar, nr))
+
+    return func
+
+
 # def _python_crystalball_integral(limits, params):  # not working with tf, used for autoconvert
 #     mu = params['mu']
 #     sigma = params['sigma']
