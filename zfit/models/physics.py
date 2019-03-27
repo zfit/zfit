@@ -96,6 +96,7 @@ def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
 #     return result
 
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
+
 def crystalball_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
@@ -178,6 +179,26 @@ def crystalball_integral(limits, params, model):
     # if_false_4()
     result = tf.cond(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     return result
+
+
+def double_crystalball_integral(limits, params, model):
+    mu = params['mu']
+
+    (lower,), (upper,) = limits.limits
+    lower = lower[0]  # obs number 0
+    upper = upper[0]
+
+    limits_left = Space(limits.obs, (lower, mu))
+    limits_right = Space(limits.obs, (mu, upper))
+    params_left = dict(mu=mu, sigma=sigma, alpha=params["alphal"],
+                       n=params["nl"])
+    params_right = dict(mu=mu, sigma=sigma, alpha=-params["alphar"],
+                        n=params["nr"])
+
+    left = tf.cond(tf.less(mu, lower), 0., crystalball_integral(limits_left, params_left))
+    right = tf.cond(tf.greater(mu, upper), 0., crystalball_integral(limits_right, params_right))
+
+    return left + right
 
 
 class CrystalBall(BasePDF):
