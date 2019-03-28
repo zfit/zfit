@@ -557,6 +557,7 @@ class Sampler(Data):
         # self.sess.run(sample_holder.initializer)
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
+        self.n = None
         self._n_holder = n_holder
 
     @property
@@ -604,13 +605,18 @@ class Sampler(Data):
             n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
+        if n is None:
+            n = self.n
+
         temp_param_values = self.fixed_params.copy()
         if param_values is not None:
             temp_param_values.update(param_values)
         with ExitStack() as stack:
             _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
-            if not (n and self._initial_resampled):  # we want to load and make sure that it's initialzed
+            if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
                 # means it's handled inside the function
+                # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
+                # fixed with self.n, needs cleanup
                 if not (isinstance(self.n_samples, str) or self.n_samples is None):
                     self.sess.run(self.n_samples.initializer)
             if n:

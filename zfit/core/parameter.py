@@ -504,7 +504,7 @@ class ComposedParameter(BaseComposedParameter):
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, value, dtype=ztypes.complex, **kwargs):
         self._conj = None
-        super().__init__(name, value, dtype, **kwargs)
+        super().__init__(name=name, tensor=value, dtype=dtype, **kwargs)
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
