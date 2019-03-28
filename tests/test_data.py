@@ -15,16 +15,16 @@ example_data1 = np.random.random(size=(7, len(obs1)))
 data1 = zfit.data.Data.from_numpy(obs=obs1, array=example_data1)
 
 
-def test_from_root_iter():
-    from skhep_testdata import data_path
-
-    path_root = data_path("uproot-Zmumu.root")
-
-    branches = ['pt1', 'pt2']
-
-    data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
-
-    x = data.value()
+# def test_from_root_iter():
+#     from skhep_testdata import data_path
+#
+#     path_root = data_path("uproot-Zmumu.root")
+#
+#     branches = ['pt1', 'pt2']
+#
+#     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
+#
+#     x = data.value()
 
 
 @pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),

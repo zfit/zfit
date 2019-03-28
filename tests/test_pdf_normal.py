@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 import tensorflow as tf
 
 import zfit
@@ -34,10 +35,14 @@ def create_gauss():
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 
 
-gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
+# gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
 
 
 def test_gauss1():
+    zfit.run.create_session(reset_graph=True)
+
+    gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
+
     probs1 = gauss1.pdf(x=test_values, norm_range=norm_range1)
     probs1_tfp = normal1.pdf(x=test_values, norm_range=norm_range1)
     probs1 = zfit.run(probs1)
