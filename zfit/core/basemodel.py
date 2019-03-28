@@ -13,7 +13,7 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
-from zfit.core.sample import uniform_sample_and_weights
+from zfit.core.sample import UniformSampleAndWeights
 from ..core.integration import Integration
 from ..util.cache import Cachable
 from .data import Data, Sampler, SampleData
@@ -96,7 +96,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
                                        draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
 
-        self._sample_and_weights = uniform_sample_and_weights
+        self._sample_and_weights = UniformSampleAndWeights
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -801,13 +801,26 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             :py:class:~`zfit.core.data.Sampler`
 
         Raises:
-            NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
+            NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
                 option for `n` but the pdf itself is not extended.
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
+        # if not isinstance(n, tf.Variable):
+        with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.
+            # Or not: refactor that variable can be given due to no variable creation policy!
+            n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+        fixed_params, n, sample = self._create_sampler_tensor(fixed_params=fixed_params,
+                                                              limits=limits, n=n, name=name)
+
+        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=self.obs, fixed_params=fixed_params,
+                                          name=name)
+
+        return sample_data
+
+    def _create_sampler_tensor(self, fixed_params, limits, n, name):
         if limits is None:
-            limits = self.space
+            limits = self.space  # TODO(Mayou36): clean up, better norm_range?
             if limits.limits in (None, False):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         if fixed_params is True:
@@ -816,17 +829,11 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             fixed_params = []
         elif not isinstance(fixed_params, (list, tuple)):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
-
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
-        # needed to be able to change the resampling
-        with suppress(ValueError, TypeError):
-            n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+        # needed to be able to change the number of events in resampling
+
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
-
-        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=self.obs, fixed_params=fixed_params,
-                                          name=name)
-
-        return sample_data
+        return fixed_params, n, sample
 
     @_BaseModel_register_check_support(True)
     def _sample(self, n, limits):
@@ -923,7 +930,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
     def _fallback_sample(self, n, limits):
         sample = zsample.accept_reject_sample(prob=self._func_to_sample_from, n=n, limits=limits,
-                                              prob_max=None)  # None -> auto
+                                              prob_max=None, dtype=self.dtype,
+                                              sample_and_weights_factory=self._sample_and_weights)
         return sample
 
     @contextlib.contextmanager
