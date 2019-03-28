@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>baseminimizer &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -124,48 +123,38 @@ attribute (dict) <cite>minimizer.minimizer_options</cite></p>
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.minimize">
 <code class="descname">minimize</code><span class="sig-paren">(</span><em>loss: zfit.core.interfaces.ZfitLoss</em>, <em>params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>loss</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><em>ZfitLoss</em></a>) – Loss to be minimized.</li>
-<li><strong>params</strong> (list(<cite>zfit.Parameter</cite>) – The parameters with respect to which to
-minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be taken from the <cite>loss</cite>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><em>ZfitLoss</em></a>) – Loss to be minimized.</p></li>
+<li><p><strong>params</strong> (list(<cite>zfit.Parameter</cite>) – The parameters with respect to which to
+minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be taken from the <cite>loss</cite>.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The fit result.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>FitResult</cite></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The fit result.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>FitResult</cite></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.step">
 <code class="descname">step</code><span class="sig-paren">(</span><em>loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a single step in the minimization (if implemented).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>params</em>) – </td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>params</em>) – </p>
+</dd>
+</dl>
 <p>Returns:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> – if the <cite>step</cite> method is not implemented in the minimizer.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <cite>step</cite> method is not implemented in the minimizer.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -190,7 +179,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

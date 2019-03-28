@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>interface &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -137,33 +136,28 @@
 <dt id="zfit.minimizers.interface.ZfitResult.error">
 <code class="descname">error</code><span class="sig-paren">(</span><em>params</em>, <em>method</em>, <em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate and set for <cite>params</cite> the asymmetric error using the set error method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> (list(<cite>zfit.FitParameters</cite> or str)) – The parameters or their names to calculate the
-errors. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</li>
-<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the errors. Valid choices are
-{‘minuit_minos’} or a Callable.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<cite>zfit.FitParameters</cite> or str)) – The parameters or their names to calculate the
+errors. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the errors. Valid choices are
+{‘minuit_minos’} or a Callable.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>A <cite>OrderedDict</cite> containing as keys the parameter names and as value a <cite>dict</cite> which</dt>
-<dd><p class="first last">contains (next to probably more things) two keys ‘lower’ and ‘upper’,
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A <cite>OrderedDict</cite> containing as keys the parameter names and as value a <cite>dict</cite> which</dt><dd><p>contains (next to probably more things) two keys ‘lower’ and ‘upper’,
 holding the calculated errors.
 Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘par1’</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>OrderedDict</cite></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>OrderedDict</cite></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -175,33 +169,28 @@ Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘
 <dt id="zfit.minimizers.interface.ZfitResult.hesse">
 <code class="descname">hesse</code><span class="sig-paren">(</span><em>params</em>, <em>method</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.hesse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate for <cite>params</cite> the symmetric error using the Hessian matrix.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>params</strong> (list(<cite>zfit.FitParameters</cite>)) – The parameters  to calculate the
-Hessian symmetric error. If None, use all parameters.</li>
-<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the method to calculate the hessian. Can be {‘minuit’} or a callable.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<cite>zfit.FitParameters</cite>)) – The parameters  to calculate the
+Hessian symmetric error. If None, use all parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the method to calculate the hessian. Can be {‘minuit’} or a callable.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>Result of the hessian (symmetric) error as dict with each parameter holding</dt>
-<dd><p class="first">the error dict {‘error’: sym_error}.</p>
-<p class="last">So given param_a (from zfit.Parameter(.))
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl>
+<dt>Result of the hessian (symmetric) error as dict with each parameter holding</dt><dd><p>the error dict {‘error’: sym_error}.</p>
+<p>So given param_a (from zfit.Parameter(.))
 <cite>error_a = result.hesse(params=param_a)[param_a][‘error’]</cite>
 error_a is the hessian error.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">OrderedDict</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OrderedDict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -236,7 +225,7 @@ error_a is the hessian error.</p>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

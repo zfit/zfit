@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>loss &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -113,22 +112,18 @@
 <dd><p>Bases: <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseDependentsMixin" title="zfit.core.baseobject.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
 to the loss. The length of each has to match the length of the others.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</li>
-<li><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</li>
-<li><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</li>
-<li><strong>they</strong> – have a norm_range) and the data_range for the data.</li>
-<li><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
-<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.add_constraints">
 <code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.add_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
@@ -223,7 +218,7 @@ to the loss. The length of each has to match the length of the others.</p>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

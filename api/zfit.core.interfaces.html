@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>interfaces &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -255,26 +254,22 @@
 <dt id="zfit.core.interfaces.ZfitModel.integrate">
 <code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</li>
-<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
-unnormalized probability</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the integral value</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -283,47 +278,39 @@ unnormalized probability</li>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</li>
-<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</li>
-<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="zfit.core.interfaces.ZfitModel.register_analytic_integral">
 <em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: int = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.register_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an analytic integral with the class.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>)</strong> (<em>limits</em>) – </li>
-<li><strong>(</strong><strong>)</strong> – <a href="#id1"><span class="problematic" id="id2">|limits_arg_descr|</span></a></li>
-<li><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </li>
-<li><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </li>
-<li><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – <a href="#id1"><span class="problematic" id="id2">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Returns:</p>
 </dd></dl>
 
@@ -331,36 +318,29 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dt id="zfit.core.interfaces.ZfitModel.register_inverse_analytic_integral">
 <em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.register_inverse_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>func</em>) – </td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitModel.sample">
 <code class="descname">sample</code><span class="sig-paren">(</span><em>n: int, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</li>
-<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Tensor(n_obs, n_samples)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tensor(n_obs, n_samples)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -485,14 +465,11 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dt id="zfit.core.interfaces.ZfitSpace.get_axes">
 <code class="descname">get_axes</code><span class="sig-paren">(</span><em>obs: Union[str</em>, <em>Tuple[str</em>, <em>...]] = None</em>, <em>as_dict: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitSpace.get_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.get_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes number of the observable <em>if available</em> (set by <cite>axes_by_obs</cite>).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AxesNotUnambiguousError</span></code> – In case</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.AxesNotUnambiguousError" title="zfit.util.exception.AxesNotUnambiguousError"><strong>AxesNotUnambiguousError</strong></a> – In case</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -552,70 +529,60 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dt id="zfit.core.interfaces.ZfitSpace.with_autofill_axes">
 <code class="descname">with_autofill_axes</code><span class="sig-paren">(</span><em>overwrite: bool</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitSpace.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with filled axes corresponding to range(len(n_obs)).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>self.axes</cite> is not None, replace the axes with the autofilled ones.
-If axes is already set, don’t do anything if <cite>overwrite</cite> is False.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>self.axes</cite> is not None, replace the axes with the autofilled ones.
+If axes is already set, don’t do anything if <cite>overwrite</cite> is False.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitSpace.with_axes">
 <code class="descname">with_axes</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitSpace.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort by <cite>obs</cite> and return the new instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>axes</em>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>axes</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitSpace.with_limits">
 <code class="descname">with_limits</code><span class="sig-paren">(</span><em>limits</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitSpace.with_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.with_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of the space with the new <cite>limits</cite> (and the new <cite>name</cite>).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>(</strong><strong>)</strong> (<em>limits</em>) – </li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitSpace.with_obs">
 <code class="descname">with_obs</code><span class="sig-paren">(</span><em>obs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitSpace.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort by <cite>obs</cite> and return the new instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>obs</em>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>Space</cite></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>Space</cite></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -635,7 +602,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

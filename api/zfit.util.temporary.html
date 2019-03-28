@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>temporary &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -143,25 +142,21 @@ for the time inside a context manager. The usage is as follows:</p>
 &gt;&gt;&gt; print(simple.x)
 42</p>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> (<a class="reference internal" href="zfit.core.limits.html#zfit.core.limits.Any" title="zfit.core.limits.Any"><em>Any</em></a>) – The value to be (temporarily) set (and returned if a context manager is applied).</li>
-<li><strong>setter</strong> (<em>Callable</em>) – The setter function with a signature that is compatible to the call:
-<cite>setter(value, *setter_args, **setter_kwargs)</cite></li>
-<li><strong>getter</strong> (<em>Callable</em>) – The getter function with a signature that is compatible to the call:
-<cite>getter(*getter_args, **getter_kwargs)</cite></li>
-<li><strong>setter_args</strong> (<em>List</em>) – A list of arguments given to the setter</li>
-<li><strong>setter_kwargs</strong> (<em>Dict</em>) – A dict of keyword-arguments given to the setter</li>
-<li><strong>getter_args</strong> (<em>List</em>) – A list of arguments given to the getter</li>
-<li><strong>getter_kwargs</strong> (<em>Dict</em>) – A dict of keyword-arguments given to the getter</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<a class="reference internal" href="zfit.core.limits.html#zfit.core.limits.Any" title="zfit.core.limits.Any"><em>Any</em></a>) – The value to be (temporarily) set (and returned if a context manager is applied).</p></li>
+<li><p><strong>setter</strong> (<em>Callable</em>) – The setter function with a signature that is compatible to the call:
+<cite>setter(value, *setter_args, **setter_kwargs)</cite></p></li>
+<li><p><strong>getter</strong> (<em>Callable</em>) – The getter function with a signature that is compatible to the call:
+<cite>getter(*getter_args, **getter_kwargs)</cite></p></li>
+<li><p><strong>setter_args</strong> (<em>List</em>) – A list of arguments given to the setter</p></li>
+<li><p><strong>setter_kwargs</strong> (<em>Dict</em>) – A dict of keyword-arguments given to the setter</p></li>
+<li><p><strong>getter_args</strong> (<em>List</em>) – A list of arguments given to the getter</p></li>
+<li><p><strong>getter_kwargs</strong> (<em>Dict</em>) – A dict of keyword-arguments given to the getter</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -179,7 +174,7 @@ for the time inside a context manager. The usage is as follows:</p>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

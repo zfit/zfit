@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>integration &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -117,103 +116,87 @@
 <dt id="zfit.core.integration.AnalyticIntegral.get_max_axes">
 <code class="descname">get_max_axes</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.get_max_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.get_max_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the maximal available axes to integrate over analytically for given limits</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The integral function will be able to integrate over this limits</li>
-<li><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – The axes over which (or over a subset) it will integrate</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The integral function will be able to integrate over this limits</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – The axes over which (or over a subset) it will integrate</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.get_max_integral">
 <code class="descname">get_max_integral</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[None, zfit.core.integration.Integral]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.get_max_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.get_max_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the integral over the <cite>limits</cite> with <cite>axes</cite> (or a subset of them).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </li>
-<li><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
+<li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return a callable that integrated over the given limits.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference internal" href="#zfit.core.integration.Integral" title="zfit.core.integration.Integral">Integral</a>]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Return a callable that integrated over the given limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference internal" href="#zfit.core.integration.Integral" title="zfit.core.integration.Integral">Integral</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.integrate">
 <code class="descname">integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor, None], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None, norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, model: zfit.core.interfaces.ZfitModel = None, params: dict = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrate analytically over the axes if available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>numeric</em>) – If a partial integration is made, x are the value to be evaluated for the partial
-integrated function. If a full integration is performed, this should be <cite>None</cite>.</li>
-<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to integrate</li>
-<li><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The dimensions to integrate over</li>
-<li><strong>norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – <a href="#id1"><span class="problematic" id="id2">|norm_range_arg_descr|</span></a></li>
-<li><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The parameters of the function</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numeric</em>) – If a partial integration is made, x are the value to be evaluated for the partial
+integrated function. If a full integration is performed, this should be <cite>None</cite>.</p></li>
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to integrate</p></li>
+<li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The dimensions to integrate over</p></li>
+<li><p><strong>norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – <a href="#id1"><span class="problematic" id="id2">|norm_range_arg_descr|</span></a></p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The parameters of the function</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Union[tf.Tensor, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>]</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> – If the requested integral is not available.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[tf.Tensor, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>]</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If the requested integral is not available.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.register">
 <code class="descname">register</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], priority: int = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an analytic integral.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>func</strong> (<em>callable</em>) – The integral function. Takes 1 argument.</li>
-<li><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – <a href="#id3"><span class="problematic" id="id4">|dims_arg_descr|</span></a></li>
-<li><strong>limits</strong> (<em>possible</em>) – <a href="#id5"><span class="problematic" id="id6">|limits_arg_descr|</span></a> <cite>Limits</cite> can be None if <cite>func</cite> works for any</li>
-<li><strong>limits</strong> – </li>
-<li><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – If two or more integrals can integrate over certain limits, the one with the higher
-priority is taken (usually around 0-100).</li>
-<li><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, norm_range will (if needed) be given to <cite>func</cite> as an argument.</li>
-<li><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, multiple limits may be given as an argument to <cite>func</cite>.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – The integral function. Takes 1 argument.</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – <a href="#id3"><span class="problematic" id="id4">|dims_arg_descr|</span></a></p></li>
+<li><p><strong>limits</strong> (<em>possible</em>) – <a href="#id5"><span class="problematic" id="id6">|limits_arg_descr|</span></a> <cite>Limits</cite> can be None if <cite>func</cite> works for any</p></li>
+<li><p><strong>limits</strong> – </p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – If two or more integrals can integrate over certain limits, the one with the higher
+priority is taken (usually around 0-100).</p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, norm_range will (if needed) be given to <cite>func</cite> as an argument.</p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, multiple limits may be given as an argument to <cite>func</cite>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -236,18 +219,14 @@ priority is taken (usually around 0-100).</li>
 <em class="property">class </em><code class="descclassname">zfit.core.integration.</code><code class="descname">PartialIntegralSampleData</code><span class="sig-paren">(</span><em>sample: List[tensorflow.python.framework.ops.Tensor], space: zfit.core.interfaces.ZfitSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.dimension.html#zfit.core.dimension.BaseDimensional" title="zfit.core.dimension.BaseDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dimension.BaseDimensional</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitData</span></code></a></p>
 <p>Takes a list of tensors and “fakes” a dataset. Useful for tensors with non-matching shapes.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sample</strong> (<em>List</em><em>[</em><em>tf.Tensor</em><em>]</em>) – </li>
-<li><strong>(</strong><strong>)</strong> (<em>space</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample</strong> (<em>List</em><em>[</em><em>tf.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>space</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.sort_by_axes">
 <code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes</em>, <em>allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
@@ -290,33 +269,29 @@ priority is taken (usually around 0-100).</li>
 <dt id="zfit.core.integration.mc_integrate">
 <code class="descclassname">zfit.core.integration.</code><code class="descname">mc_integrate</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int], None] = None, x: Union[float, tensorflow.python.framework.ops.Tensor, None] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000, method: str = None, dtype: Type[CT_co] = tf.float64, mc_sampler: Callable = &lt;function sample_halton_sequence&gt;, importance_sampling: Optional[Callable] = None</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/integration.html#mc_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.mc_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Monte Carlo integration of <cite>func</cite> over <cite>limits</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>func</strong> (<em>callable</em>) – The function to be integrated over</li>
-<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits of the integral</li>
-<li><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>)</em>) – The row to integrate over. None means integration over all value</li>
-<li><strong>x</strong> (<em>numeric</em>) – If a partial integration is performed, this are the value where x will be evaluated.</li>
-<li><strong>n_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of total dimensions (old?)</li>
-<li><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – How many random points to draw per dimensions</li>
-<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which integration method to use</li>
-<li><strong>dtype</strong> (<em>dtype</em>) – <a href="#id7"><span class="problematic" id="id8">|dtype_arg_descr|</span></a></li>
-<li><strong>mc_sampler</strong> (<em>callable</em>) – A function that takes one argument (<cite>n_draws</cite> or similar) and returns
-random value between 0 and 1.</li>
-<li><strong>(</strong><strong>)</strong> (<em>importance_sampling</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – The function to be integrated over</p></li>
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits of the integral</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>)</em>) – The row to integrate over. None means integration over all value</p></li>
+<li><p><strong>x</strong> (<em>numeric</em>) – If a partial integration is performed, this are the value where x will be evaluated.</p></li>
+<li><p><strong>n_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of total dimensions (old?)</p></li>
+<li><p><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – How many random points to draw per dimensions</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which integration method to use</p></li>
+<li><p><strong>dtype</strong> (<em>dtype</em>) – <a href="#id7"><span class="problematic" id="id8">|dtype_arg_descr|</span></a></p></li>
+<li><p><strong>mc_sampler</strong> (<em>callable</em>) – A function that takes one argument (<cite>n_draws</cite> or similar) and returns
+random value between 0 and 1.</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>importance_sampling</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the integral</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numerical</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numerical</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -350,7 +325,7 @@ random value between 0 and 1.</li>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

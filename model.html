@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Building a model &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -300,7 +299,7 @@ parameters fixed, they have to be specified <em>either</em> on <a class="referen
 via <cite>fixed_params</cite>, on <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> by specifying which parameter
 will take which value via <cite>param_values</cite> or by changing the attribute of <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler" title="zfit.core.data.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code></a>.</p>
 <p>To give an example:</p>
-<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
@@ -317,7 +316,7 @@ will take which value via <cite>param_values</cite> or by changing the attribute
 <p>The sample is now resampled with the <em>current values</em> (minimized values) of <cite>sigma1</cite>, <cite>sigma2</cite> and with
 the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been fixed).</p>
 <p>A typical example of toys would therefore look like</p>
-<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu, sigma</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu, sigma</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
@@ -337,7 +336,7 @@ the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been
 </div>
 <p>Note that this changed the values for the sampler <em>implicitly</em>. We can provide them explicitly by
 specifying it as an argument. Reusing the example above</p>
-<div class="code pycon highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{</span><span class="n">sigma</span><span class="p">:</span> <span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -359,7 +358,7 @@ specifying it as an argument. Reusing the example above</p>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

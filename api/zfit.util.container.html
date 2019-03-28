@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>container &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -118,22 +117,18 @@
 <dt id="zfit.util.container.convert_to_container">
 <code class="descclassname">zfit.util.container.</code><code class="descname">convert_to_container</code><span class="sig-paren">(</span><em>value: Any</em>, <em>container: Callable = &lt;class 'list'&gt;</em>, <em>non_containers=None</em>, <em>convert_none=False</em><span class="sig-paren">)</span> &#x2192; Iterable[T_co]<a class="reference internal" href="../_modules/zfit/util/container.html#convert_to_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.container.convert_to_container" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert <cite>value</cite> into a <cite>container</cite> storing <cite>value</cite> if <cite>value</cite> is not yet a python container.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – </li>
-<li><strong>container</strong> (<em>callable</em>) – Converts a tuple to a container.</li>
-<li><strong>non_containers</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Container</em><em>]</em><em>]</em>) – Types that do not count as a container. Has to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – </p></li>
+<li><p><strong>container</strong> (<em>callable</em>) – Converts a tuple to a container.</p></li>
+<li><p><strong>non_containers</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Container</em><em>]</em><em>]</em>) – Types that do not count as a container. Has to
 be a list of types. As an example, if <cite>non_containers</cite> is [list, tuple] and the value
 is [5, 3] (-&gt; a list with two entries),this won’t be converted to the <cite>container</cite> but end
-up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).</li>
+up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Returns:</p>
 </dd></dl>
 
@@ -141,14 +136,11 @@ up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).</l
 <dt id="zfit.util.container.is_container">
 <code class="descclassname">zfit.util.container.</code><code class="descname">is_container</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/container.html#is_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.container.is_container" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if <cite>object</cite> is a list or a tuple.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – </td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – </p>
+</dd>
+</dl>
 <p>Returns:</p>
 </dd></dl>
 
@@ -167,7 +159,7 @@ up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).</l
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

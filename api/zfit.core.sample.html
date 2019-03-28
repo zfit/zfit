@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>sample &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -111,114 +110,107 @@
 <dt id="zfit.core.sample.accept_reject_sample">
 <code class="descclassname">zfit.core.sample.</code><code class="descname">accept_reject_sample</code><span class="sig-paren">(</span><em>prob: Callable</em>, <em>n: int</em>, <em>limits: zfit.core.limits.Space</em>, <em>sample_and_weights: Callable = &lt;function uniform_sample_and_weights&gt;</em>, <em>dtype=tf.float64</em>, <em>prob_max: Union[None</em>, <em>int] = None</em>, <em>efficiency_estimation: float = 1.0</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accept reject sample from a probability distribution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>prob</strong> (<em>function</em>) – A function taking x a Tensor as an argument and returning the probability
-(or anything that is proportional to the probability).</li>
-<li><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of samples to produce</li>
-<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to sample from</li>
-<li><strong>sample_and_weights</strong> (<em>Callable</em>) – <p>A function that returns the sample to insert into <cite>prob</cite> and the weights
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prob</strong> (<em>function</em>) – A function taking x a Tensor as an argument and returning the probability
+(or anything that is proportional to the probability).</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of samples to produce</p></li>
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to sample from</p></li>
+<li><p><strong>sample_and_weights</strong> (<em>Callable</em>) – <p>A function that returns the sample to insert into <cite>prob</cite> and the weights
 (prob) of each sample together with the random thresholds. The API looks as follows:</p>
 <ul>
-<li>Parameters:<blockquote>
-<div><ul>
-<li>n_to_produce (int, tf.Tensor): The number of events to produce (not exactly).</li>
-<li>limits (Space): the limits in which the samples will be.</li>
-<li>dtype (dtype): DType of the output.</li>
+<li><p>Parameters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>n_to_produce (int, tf.Tensor): The number of events to produce (not exactly).</p></li>
+<li><p>limits (Space): the limits in which the samples will be.</p></li>
+<li><p>dtype (dtype): DType of the output.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><dl class="first docutils">
-<dt>Return:</dt>
-<dd>A tuple of length 5:
-- proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample<blockquote>
-<div>whose values are inside <cite>limits</cite>.</div></blockquote>
-<ul class="last">
-<li><dl class="first docutils">
-<dt>thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed</dt>
-<dd>random values <strong>between 0 and 1</strong>.</dd>
+<li><dl>
+<dt>Return:</dt><dd><p>A tuple of length 5:
+- proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample</p>
+<blockquote>
+<div><p>whose values are inside <cite>limits</cite>.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed</dt><dd><p>random values <strong>between 0 and 1</strong>.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability</dt>
-<dd>for each sample of the distribution it was drawn from.</dd>
+<li><dl class="simple">
+<dt>weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability</dt><dd><p>for each sample of the distribution it was drawn from.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</dt>
-<dd>what the probability maximum will be scaled with, so it should be rather lower than the maximum
+<li><dl class="simple">
+<dt>weights_max (int, tf.Tensor, None): The maximum of the weights (if known). This is</dt><dd><p>what the probability maximum will be scaled with, so it should be rather lower than the maximum
 if the peaks do not exactly coincide. Otherwise return None (which will <strong>assume</strong>
-that the peaks coincide).</dd>
+that the peaks coincide).</p>
+</dd>
 </dl>
 </li>
-<li>n_produced: the number of events produced. Can deviate from the requested number.</li>
+<li><p>n_produced: the number of events produced. Can deviate from the requested number.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 </ul>
-</li>
-<li><strong>(</strong><strong>)</strong> (<em>dtype</em>) – </li>
-<li><strong>prob_max</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The maximum of the model function for the given limits. If None
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>dtype</em>) – </p></li>
+<li><p><strong>prob_max</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The maximum of the model function for the given limits. If None
 is given, it will be automatically, safely estimated (by a 10% increase in computation time
-(constant weak scaling)).</li>
-<li><strong>efficiency_estimation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – estimation of the initial sampling efficiency.</li>
+(constant weak scaling)).</p></li>
+<li><p><strong>efficiency_estimation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – estimation of the initial sampling efficiency.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tf.Tensor</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tf.Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.sample.extended_sampling">
 <code class="descclassname">zfit.core.sample.</code><code class="descname">extended_sampling</code><span class="sig-paren">(</span><em>pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF], limits: zfit.core.limits.Space</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#extended_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extended_sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a sample from extended pdfs by sampling poissonian using the yield.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pdfs</strong> (<em>iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><em>ZfitPDF</em></a><em>]</em>) – </li>
-<li><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdfs</strong> (<em>iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><em>ZfitPDF</em></a><em>]</em>) – </p></li>
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Union[tf.Tensor]</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[tf.Tensor]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.sample.extract_extended_pdfs">
 <code class="descclassname">zfit.core.sample.</code><code class="descname">extract_extended_pdfs</code><span class="sig-paren">(</span><em>pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF]</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitPDF]<a class="reference internal" href="../_modules/zfit/core/sample.html#extract_extended_pdfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extract_extended_pdfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all extended pdfs that are daughters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdfs</strong> (<em>Iterable</em><em>[</em><em>pdfs</em><em>]</em>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List[pdfs]</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pdfs</strong> (<em>Iterable</em><em>[</em><em>pdfs</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[pdfs]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -241,7 +233,7 @@ is given, it will be automatically, safely estimated (by a 10% increase in compu
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

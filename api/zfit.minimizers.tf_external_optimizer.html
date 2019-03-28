@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>tf_external_optimizer &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -118,20 +117,18 @@ algorithm.</p>
 <p><cite>ExternalOptimizerInterface</cite> should not be instantiated directly; instead use
 e.g. <cite>ScipyOptimizerInterface</cite>.</p>
 <p>Initialize a new interface instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>loss</strong> – A scalar <cite>Tensor</cite> to be minimized.</li>
-<li><strong>var_list</strong> – Optional <cite>list</cite> of <cite>Variable</cite> objects to update to minimize
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> – A scalar <cite>Tensor</cite> to be minimized.</p></li>
+<li><p><strong>var_list</strong> – Optional <cite>list</cite> of <cite>Variable</cite> objects to update to minimize
 <cite>loss</cite>.  Defaults to the list of variables collected in the graph
-under the key <cite>GraphKeys.TRAINABLE_VARIABLES</cite>.</li>
-<li><strong>equalities</strong> – Optional <cite>list</cite> of equality constraint scalar <a href="#id1"><span class="problematic" id="id2">`</span></a>Tensor`s to be
-held equal to zero.</li>
-<li><strong>inequalities</strong> – Optional <cite>list</cite> of inequality constraint scalar <a href="#id3"><span class="problematic" id="id4">`</span></a>Tensor`s
-to be held nonnegative.</li>
-<li><strong>var_to_bounds</strong> – <p>Optional <cite>dict</cite> where each key is an optimization
+under the key <cite>GraphKeys.TRAINABLE_VARIABLES</cite>.</p></li>
+<li><p><strong>equalities</strong> – Optional <cite>list</cite> of equality constraint scalar <a href="#id1"><span class="problematic" id="id2">`</span></a>Tensor`s to be
+held equal to zero.</p></li>
+<li><p><strong>inequalities</strong> – Optional <cite>list</cite> of inequality constraint scalar <a href="#id3"><span class="problematic" id="id4">`</span></a>Tensor`s
+to be held nonnegative.</p></li>
+<li><p><strong>var_to_bounds</strong> – <p>Optional <cite>dict</cite> where each key is an optimization
 <cite>Variable</cite> and each corresponding value is a length-2 tuple of
 <cite>(low, high)</cite> bounds. Although enforcing this kind of simple constraint
 could be accomplished with the <cite>inequalities</cite> arg, not all optimization
@@ -144,20 +141,19 @@ the following corresponding <cite>bounds</cite> could be supplied:
 * <cite>(0, np.infty)</cite>: Each element of <cite>var</cite> held positive.
 * <cite>(-np.infty, [1, 2])</cite>: First column less than 1, second column less</p>
 <blockquote>
-<div>than 2.</div></blockquote>
+<div><p>than 2.</p>
+</div></blockquote>
 <ul>
-<li><cite>(-np.infty, [[1], [2], [3]])</cite>: First row less than 1, second row less
-than 2, etc.</li>
-<li><cite>(-np.infty, [[1, 2, 3], [4, 5, 6]])</cite>: Entry <cite>var[0, 0]</cite> less than 1,
-<cite>var[0, 1]</cite> less than 2, etc.</li>
+<li><p><cite>(-np.infty, [[1], [2], [3]])</cite>: First row less than 1, second row less
+than 2, etc.</p></li>
+<li><p><cite>(-np.infty, [[1, 2, 3], [4, 5, 6]])</cite>: Entry <cite>var[0, 0]</cite> less than 1,
+<cite>var[0, 1]</cite> less than 2, etc.</p></li>
 </ul>
-</li>
-<li><strong>**optimizer_kwargs</strong> – Other subclass-specific keyword arguments.</li>
+</p></li>
+<li><p><strong>**optimizer_kwargs</strong> – Other subclass-specific keyword arguments.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="method">
 <dt id="zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface.minimize">
 <code class="descname">minimize</code><span class="sig-paren">(</span><em>session=None</em>, <em>feed_dict=None</em>, <em>fetches=None</em>, <em>step_callback=None</em>, <em>loss_callback=None</em>, <em>**run_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ExternalOptimizerInterface.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface.minimize" title="Permalink to this definition">¶</a></dt>
@@ -167,26 +163,22 @@ optimization.</p>
 <p>Note that this method does <em>not</em> just return a minimization <cite>Op</cite>, unlike
 <cite>Optimizer.minimize()</cite>; instead it actually performs minimization by
 executing commands to control a <cite>Session</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>session</strong> – A <cite>Session</cite> instance.</li>
-<li><strong>feed_dict</strong> – A feed dict to be passed to calls to <cite>session.run</cite>.</li>
-<li><strong>fetches</strong> – A list of <cite>Tensor`s to fetch and supply to `loss_callback</cite>
-as positional arguments.</li>
-<li><strong>step_callback</strong> – A function to be called at each optimization step;
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – A <cite>Session</cite> instance.</p></li>
+<li><p><strong>feed_dict</strong> – A feed dict to be passed to calls to <cite>session.run</cite>.</p></li>
+<li><p><strong>fetches</strong> – A list of <cite>Tensor`s to fetch and supply to `loss_callback</cite>
+as positional arguments.</p></li>
+<li><p><strong>step_callback</strong> – A function to be called at each optimization step;
 arguments are the current values of all optimization variables
-flattened into a single vector.</li>
-<li><strong>loss_callback</strong> – A function to be called every time the loss and gradients
-are computed, with evaluated fetches supplied as positional arguments.</li>
-<li><strong>**run_kwargs</strong> – kwargs to pass to <cite>session.run</cite>.</li>
+flattened into a single vector.</p></li>
+<li><p><strong>loss_callback</strong> – A function to be called every time the loss and gradients
+are computed, with evaluated fetches supplied as positional arguments.</p></li>
+<li><p><strong>**run_kwargs</strong> – kwargs to pass to <cite>session.run</cite>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -202,9 +194,9 @@ vector = tf.Variable([7., 7.], ‘vector’)</p>
 <p># Make vector norm as small as possible.
 loss = tf.reduce_sum(tf.square(vector))</p>
 <p>optimizer = ScipyOptimizerInterface(loss, options={‘maxiter’: 100})</p>
-<dl class="docutils">
-<dt>with tf.Session() as session:</dt>
-<dd>optimizer.minimize(session)</dd>
+<dl class="simple">
+<dt>with tf.Session() as session:</dt><dd><p>optimizer.minimize(session)</p>
+</dd>
 </dl>
 <p># The value of vector should now be [0., 0.].
 <a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a></p>
@@ -213,11 +205,11 @@ loss = tf.reduce_sum(tf.square(vector))</p>
 vector = tf.Variable([7., 7.], ‘vector’)</p>
 <p># Make vector norm as small as possible.
 loss = tf.reduce_sum(tf.square(vector))</p>
-<dl class="docutils">
-<dt>optimizer = ScipyOptimizerInterface(</dt>
-<dd>loss, var_to_bounds={vector: ([1, 2], np.infty)})</dd>
-<dt>with tf.Session() as session:</dt>
-<dd>optimizer.minimize(session)</dd>
+<dl class="simple">
+<dt>optimizer = ScipyOptimizerInterface(</dt><dd><p>loss, var_to_bounds={vector: ([1, 2], np.infty)})</p>
+</dd>
+<dt>with tf.Session() as session:</dt><dd><p>optimizer.minimize(session)</p>
+</dd>
 </dl>
 <p># The value of vector should now be [1., 2.].
 <a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a></p>
@@ -234,28 +226,27 @@ inequalities = [vector[0] - 1.]</p>
 # general constraints. Thus we use SLSQP instead.
 optimizer = ScipyOptimizerInterface(</p>
 <blockquote>
-<div>loss, equalities=equalities, inequalities=inequalities, method=’SLSQP’)</div></blockquote>
-<dl class="docutils">
-<dt>with tf.Session() as session:</dt>
-<dd>optimizer.minimize(session)</dd>
+<div><p>loss, equalities=equalities, inequalities=inequalities, method=’SLSQP’)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>with tf.Session() as session:</dt><dd><p>optimizer.minimize(session)</p>
+</dd>
 </dl>
 <p># The value of vector should now be [1., 1.].
 <a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
 <p>Initialize a new interface instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>loss</strong> – A scalar <cite>Tensor</cite> to be minimized.</li>
-<li><strong>var_list</strong> – Optional <cite>list</cite> of <cite>Variable</cite> objects to update to minimize
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> – A scalar <cite>Tensor</cite> to be minimized.</p></li>
+<li><p><strong>var_list</strong> – Optional <cite>list</cite> of <cite>Variable</cite> objects to update to minimize
 <cite>loss</cite>.  Defaults to the list of variables collected in the graph
-under the key <cite>GraphKeys.TRAINABLE_VARIABLES</cite>.</li>
-<li><strong>equalities</strong> – Optional <cite>list</cite> of equality constraint scalar <a href="#id29"><span class="problematic" id="id30">`</span></a>Tensor`s to be
-held equal to zero.</li>
-<li><strong>inequalities</strong> – Optional <cite>list</cite> of inequality constraint scalar <a href="#id31"><span class="problematic" id="id32">`</span></a>Tensor`s
-to be held nonnegative.</li>
-<li><strong>var_to_bounds</strong> – <p>Optional <cite>dict</cite> where each key is an optimization
+under the key <cite>GraphKeys.TRAINABLE_VARIABLES</cite>.</p></li>
+<li><p><strong>equalities</strong> – Optional <cite>list</cite> of equality constraint scalar <a href="#id29"><span class="problematic" id="id30">`</span></a>Tensor`s to be
+held equal to zero.</p></li>
+<li><p><strong>inequalities</strong> – Optional <cite>list</cite> of inequality constraint scalar <a href="#id31"><span class="problematic" id="id32">`</span></a>Tensor`s
+to be held nonnegative.</p></li>
+<li><p><strong>var_to_bounds</strong> – <p>Optional <cite>dict</cite> where each key is an optimization
 <cite>Variable</cite> and each corresponding value is a length-2 tuple of
 <cite>(low, high)</cite> bounds. Although enforcing this kind of simple constraint
 could be accomplished with the <cite>inequalities</cite> arg, not all optimization
@@ -268,20 +259,19 @@ the following corresponding <cite>bounds</cite> could be supplied:
 * <cite>(0, np.infty)</cite>: Each element of <cite>var</cite> held positive.
 * <cite>(-np.infty, [1, 2])</cite>: First column less than 1, second column less</p>
 <blockquote>
-<div>than 2.</div></blockquote>
+<div><p>than 2.</p>
+</div></blockquote>
 <ul>
-<li><cite>(-np.infty, [[1], [2], [3]])</cite>: First row less than 1, second row less
-than 2, etc.</li>
-<li><cite>(-np.infty, [[1, 2, 3], [4, 5, 6]])</cite>: Entry <cite>var[0, 0]</cite> less than 1,
-<cite>var[0, 1]</cite> less than 2, etc.</li>
+<li><p><cite>(-np.infty, [[1], [2], [3]])</cite>: First row less than 1, second row less
+than 2, etc.</p></li>
+<li><p><cite>(-np.infty, [[1, 2, 3], [4, 5, 6]])</cite>: Entry <cite>var[0, 0]</cite> less than 1,
+<cite>var[0, 1]</cite> less than 2, etc.</p></li>
 </ul>
-</li>
-<li><strong>**optimizer_kwargs</strong> – Other subclass-specific keyword arguments.</li>
+</p></li>
+<li><p><strong>**optimizer_kwargs</strong> – Other subclass-specific keyword arguments.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -299,7 +289,7 @@ than 2, etc.</li>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>

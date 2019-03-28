@@ -2,8 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>pdf &#8212; zfit 0.3.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -117,36 +116,29 @@
 <dt id="zfit.pdf.BasePDF.apply_yield">
 <code class="descname">apply_yield</code><span class="sig-paren">(</span><em>value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.apply_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>value</strong> (<em>numerical</em>) – </li>
-<li><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </li>
-<li><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>numerical</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">numerical</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numerical</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.as_func">
 <code class="descname">as_func</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.as_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.as_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <cite>Function</cite> with the function <cite>model(x, norm_range=norm_range)</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -155,45 +147,40 @@
 <dd><p>Creates a copy of the model.</p>
 <p>Note: the copy model may continue to depend on the original
 initialization arguments.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**override_parameters</strong> – String/value dictionary of initialization
-arguments to override with new value.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt>
-<dd>of self.parameters and override_parameters, i.e.,
-<cite>dict(self.parameters, **override_parameters)</cite>.</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**override_parameters</strong> – String/value dictionary of initialization
+arguments to override with new value.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt><dd><p>of self.parameters and override_parameters, i.e.,
+<cite>dict(self.parameters, **override_parameters)</cite>.</p>
+</dd>
 </dl>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">model</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>model</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.create_extended">
 <code class="descname">create_extended</code><span class="sig-paren">(</span><em>yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], name_addition='_extended'</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.create_extended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.create_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an extended version of this pdf with yield <cite>yield_</cite>. The parameters are shared.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </li>
-<li><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -201,34 +188,31 @@ arguments to override with new value.</td>
 <code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.create_projection_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limits_to_integrate</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a pdf without the dimensions from <cite>limits_to_integrate</cite>.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>limits_to_integrate</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pdf without the dimensions from <cite>limits_to_integrate</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.get_yield">
 <code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.get_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.get_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the yield (only for extended models).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the yield of the current model or None</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the yield of the current model or None</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -240,117 +224,98 @@ arguments to override with new value.</td>
 <dt id="zfit.pdf.BasePDF.is_extended">
 <code class="descname">is_extended</code><a class="headerlink" href="#zfit.pdf.BasePDF.is_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flag to tell whether the model is extended or not.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.log_pdf">
 <code class="descname">log_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.log_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.log_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</li>
-<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a <cite>Tensor</cite> of type <cite>self.dtype</cite>.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">log_pdf</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <cite>Tensor</cite> of type <cite>self.dtype</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>log_pdf</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.pdf.BasePDF.norm_range">
 <code class="descname">norm_range</code><a class="headerlink" href="#zfit.pdf.BasePDF.norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the current normalization range. If None and the <a href="#id1"><span class="problematic" id="id2">`</span></a>obs`have limits, they are returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The current normalization range</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current normalization range</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.normalization">
 <code class="descname">normalization</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the normalization value</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Tensor</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the normalization value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.pdf">
 <code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</li>
-<li><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <cite>self.dtype</cite>.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <cite>self.dtype</cite>.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.pdf.BasePDF.set_norm_range">
 <code class="descname">set_norm_range</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.set_norm_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -363,26 +328,22 @@ arguments to override with new value.</td>
 <dt id="zfit.pdf.BasePDF.unnormalized_pdf">
 <code class="descname">unnormalized_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.unnormalized_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</li>
-<li><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</li>
-<li><strong>composition</strong> (<em>certain</em>) – pdfs.</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</p></li>
+<li><p><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</p></li>
+<li><p><strong>composition</strong> (<em>certain</em>) – pdfs.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">1-dimensional <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> containing the unnormalized pdf.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1-dimensional <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> containing the unnormalized pdf.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -394,20 +355,16 @@ arguments to override with new value.</td>
 <p>Exponential function exp(lambda * x).</p>
 <p>The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
 defined as <span class="math notranslate nohighlight">\(\frac{ e^{\lambda \cdot x}}{ \int_{lower}^{upper} e^{\lambda \cdot x} dx}\)</span></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lambda</strong> (<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – Accessed as “lambda”.</li>
-<li><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> the pdf is defined in.</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the pdf.</li>
-<li><strong>dtype</strong> (<em>DType</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lambda</strong> (<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – Accessed as “lambda”.</p></li>
+<li><p><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> the pdf is defined in.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the pdf.</p></li>
+<li><p><strong>dtype</strong> (<em>DType</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -425,23 +382,19 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}A = \left(\frac{n}{\left| \alpha \right|}\right)^n \cdot
 \exp\left(- \frac {\left|\alpha \right|^2}{2}\right)\\B = \frac{n}{\left| \alpha \right|}  - \left| \alpha \right|\end{aligned}\end{align} \]</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mu</strong> (<cite>zfit.Parameter</cite>) – The mean of the gaussian</li>
-<li><strong>sigma</strong> (<cite>zfit.Parameter</cite>) – Standard deviation of the gaussian</li>
-<li><strong>alpha</strong> (<cite>zfit.Parameter</cite>) – parameter where to swith from a gaussian to the powertail</li>
-<li><strong>n</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail</li>
-<li><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
-<li><strong>dtype</strong> (<em>tf.DType</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<cite>zfit.Parameter</cite>) – The mean of the gaussian</p></li>
+<li><p><strong>sigma</strong> (<cite>zfit.Parameter</cite>) – Standard deviation of the gaussian</p></li>
+<li><p><strong>alpha</strong> (<cite>zfit.Parameter</cite>) – parameter where to swith from a gaussian to the powertail</p></li>
+<li><p><strong>n</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail</p></li>
+<li><p><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>dtype</strong> (<em>tf.DType</em>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>__CBShape_</p>
 </dd></dl>
 
@@ -475,29 +428,25 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
 <em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">SumPDF</code><span class="sig-paren">(</span><em>pdfs: List[zfit.core.interfaces.ZfitPDF], fracs: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor, None] = None, obs: Union[str, Iterable[str], zfit.Space] = None, name: str = 'SumPDF'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/functor.html#SumPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.SumPDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.models.functor.html#zfit.models.functor.BaseFunctor" title="zfit.models.functor.BaseFunctor"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.functor.BaseFunctor</span></code></a></p>
 <p>Create the sum of the <cite>pdfs</cite> with <cite>fracs</cite> as coefficients.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pdfs</strong> (<em>pdf</em>) – The pdfs to add.</li>
-<li><strong>fracs</strong> (<em>iterable</em>) – <p>coefficients for the linear combination of the pdfs. If pdfs are
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdfs</strong> (<em>pdf</em>) – The pdfs to add.</p></li>
+<li><p><strong>fracs</strong> (<em>iterable</em>) – <p>coefficients for the linear combination of the pdfs. If pdfs are
 extended, this throws an error.</p>
 <blockquote>
 <div><ul>
-<li>len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
-The last coefficient will equal to 1 - sum(frac)</li>
-<li>len(frac) == len(pdf) each pdf in <cite>pdfs</cite> will become an extended pdf with the
-given yield.</li>
+<li><p>len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
+The last coefficient will equal to 1 - sum(frac)</p></li>
+<li><p>len(frac) == len(pdf) each pdf in <cite>pdfs</cite> will become an extended pdf with the
+given yield.</p></li>
 </ul>
 </div></blockquote>
-</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="zfit.pdf.SumPDF.fracs">
 <code class="descname">fracs</code><a class="headerlink" href="#zfit.pdf.SumPDF.fracs" title="Permalink to this definition">¶</a></dt>
@@ -521,24 +470,23 @@ given yield.</li>
 <dd><p>Creates a copy of the model.</p>
 <p>Note: the copy model may continue to depend on the original
 initialization arguments.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**override_parameters</strong> – String/value dictionary of initialization
-arguments to override with new value.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt>
-<dd>of self.parameters and override_parameters, i.e.,
-<cite>dict(self.parameters, **override_parameters)</cite>.</dd>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**override_parameters</strong> – String/value dictionary of initialization
+arguments to override with new value.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt><dd><p>of self.parameters and override_parameters, i.e.,
+<cite>dict(self.parameters, **override_parameters)</cite>.</p>
+</dd>
 </dl>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">model</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>model</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -564,7 +512,7 @@ arguments to override with new value.</td>
     </p>
     <p>
         &copy; Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
     </p>
   </div>
 </footer>
