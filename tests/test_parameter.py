@@ -47,6 +47,16 @@ def test_complex_param():
         assert part2_val == pytest.approx(mod_val)
     else:
         assert False, "one of the if or elif should be the case"
+
+    param4_name = "param4"
+    param4 = ComplexParameter.from_polar(param4_name, 4., 2., floating=True)
+    deps_param4 = param4.get_dependents()
+    assert len(deps_param4) == 2
+    for dep in deps_param4:
+        assert dep.floating
+    assert param4.mod.name == param4_name + "_mod"
+    assert param4.arg.name == param4_name + "_arg"
+
     # Test properties (1e-8 is too precise)
     assert real_part == pytest.approx(zfit.run(param1.real), rel=1e-6)
     assert imag_part == pytest.approx(zfit.run(param2.imag), rel=1e-6)
