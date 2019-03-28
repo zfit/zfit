@@ -504,18 +504,34 @@ class ComposedParameter(BaseComposedParameter):
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, value, dtype=ztypes.complex, **kwargs):
         self._conj = None
+        self._mod = None
+        self._arg = None
+        self._imag = None
+        self._real = None
+
         super().__init__(name, value, dtype, **kwargs)
 
     @staticmethod
-    def from_cartesian(name, real, imag, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name=name, value=tf.cast(tf.complex(real, imag), dtype=dtype),
-                                **kwargs)
+    def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
+                       **kwargs):  # TODO: correct dtype handling, also below
+        real = convert_to_parameter(real, name=name + "_real", prefer_floating=floating)
+        imag = convert_to_parameter(imag, name=name + "_imag", prefer_floating=floating)
+        param = ComplexParameter(name=name, value=tf.cast(tf.complex(real, imag), dtype=dtype),
+                                 **kwargs)
+        param._real = real
+        param._imag = imag
+        return param
 
     @staticmethod
-    def from_polar(name, mod, arg, dtype=ztypes.complex, **kwargs):
-        return ComplexParameter(name=name, value=tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                    mod * tf.math.sin(arg)),
-                                                         dtype=dtype), **kwargs)
+    def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+        mod = convert_to_parameter(mod, name=name + "_mod", prefer_floating=floating)
+        arg = convert_to_parameter(arg, name=name + "_arg", prefer_floating=floating)
+        param = ComplexParameter(name=name, value=tf.cast(tf.complex(mod * tf.math.cos(arg),
+                                                                     mod * tf.math.sin(arg)),
+                                                          dtype=dtype), **kwargs)
+        param._mod = mod
+        param._arg = arg
+        return param
 
     @property
     def conj(self):
@@ -526,19 +542,31 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def real(self):
-        return tf.real(self)
+        real = self._real
+        if real is None:
+            real = tf.real(self)
+        return real
 
     @property
     def imag(self):
-        return tf.imag(self)
+        imag = self._imag
+        if imag is None:
+            imag = tf.imag(self)
+        return imag
 
     @property
     def mod(self):
-        return tf.math.abs(self)
+        mod = self._mod
+        if mod is None:
+            mod = tf.math.abs(self)
+        return mod
 
     @property
     def arg(self):
-        return tf.math.atan(self.imag / self.real)
+        arg = self._arg
+        if arg is None:
+            arg = tf.math.atan(self.imag / self.real)
+        return arg
 
 
 _auto_number = 0
@@ -551,33 +579,51 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value) -> "Parameter":
+def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParameter":
     """Convert a *numerical* to a fixed parameter or return if already a parameter.
 
     Args:
         value ():
     """
-    if isinstance(value, tf.Variable):
+    floating = False
+    is_python = False
+    if name is not None:
+        name = str(name)
+
+    if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value
+    elif isinstance(value, tf.Variable):
+        raise TypeError("Currently, cannot autoconvert tf.Variable to zfit.Parameter.")
 
     # convert to Tensor if not yet
     if not isinstance(value, tf.Tensor):
+        is_python = True
         if isinstance(value, complex):
             value = ztf.to_complex(value)
         else:
+            floating = prefer_floating
             value = ztf.to_real(value)
 
     if value.dtype.is_complex:
-        value = ComplexParameter("FIXED_autoparam_" + str(get_auto_number()), value=value)
+        if name is None:
+            name = "FIXED_complex_autoparam_" + str(get_auto_number())
+        value = ComplexParameter(name, value=value, floating=False)
 
     else:
         # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
-        independend_params = tf.get_collection("zfit_independent")
-        params = get_dependents_auto(tensor=value, candidates=independend_params)
-        if params:
-            value = ComposedParameter("composite_autoparam_" + str(get_auto_number()), tensor=value)
+        if is_python:
+            params = {}
         else:
-            value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
+            independend_params = tf.get_collection("zfit_independent")
+            params = get_dependents_auto(tensor=value, candidates=independend_params)
+        if params:
+            if name is None:
+                name = "composite_autoparam_" + str(get_auto_number())
+            value = ComposedParameter(name, tensor=value)
+        else:
+            if name is None:
+                name = "FIXED_autoparam_" + str(get_auto_number())
+            value = Parameter(name, value=value, floating=floating)
 
     # value.floating = False
     return value
