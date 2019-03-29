@@ -40,7 +40,7 @@ def square(x, name=None):
 
 
 def sqrt(x, name=None):
-    return _auto_upcast(tf.square(x, name=name))
+    return _auto_upcast(tf.sqrt(x, name=name))
 
 
 def complex(real, imag, name=None):
