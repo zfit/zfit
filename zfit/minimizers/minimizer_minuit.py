@@ -25,6 +25,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
 
         super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options)
         self._minuit_minimizer = None
+        self._use_tfgrad = True
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
         gradients = loss.gradients(params)
@@ -50,6 +51,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
             return loss_evaluated
 
         def grad_func(values):
+            raise RuntimeError
             do_print = self.verbosity > 5
             if do_print:
                 table = tt.Texttable()
@@ -63,6 +65,8 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
 
             gradients_values = self.sess.run(gradients)
             return gradients_values
+
+        grad_func = grad_func if self._use_tfgrad else None
 
         # create options
         minimizer_options = self.minimizer_options.copy()

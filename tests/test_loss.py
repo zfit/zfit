@@ -210,4 +210,4 @@ def test_simple_loss():
 
     assert true_a == pytest.approx(result.params[a_param]['value'], rel=0.03)
     assert true_b == pytest.approx(result.params[b_param]['value'], rel=0.06)
-    assert true_c == pytest.approx(result.params[c_param]['value'], rel=0.3)
+    assert true_c == pytest.approx(result.params[c_param]['value'], rel=0.5)
