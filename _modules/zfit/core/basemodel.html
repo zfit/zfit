@@ -120,7 +120,7 @@
 <span class="kn">from</span> <span class="nn">tensorflow_probability.python</span> <span class="k">import</span> <span class="n">mcmc</span> <span class="k">as</span> <span class="n">mc</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.core.sample</span> <span class="k">import</span> <span class="n">uniform_sample_and_weights</span>
+<span class="kn">from</span> <span class="nn">zfit.core.sample</span> <span class="k">import</span> <span class="n">UniformSampleAndWeights</span>
 <span class="kn">from</span> <span class="nn">..core.integration</span> <span class="k">import</span> <span class="n">Integration</span>
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
@@ -203,7 +203,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">integration</span> <span class="o">=</span> <span class="n">Integration</span><span class="p">(</span><span class="n">mc_sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULTS_integration</span><span class="o">.</span><span class="n">mc_sampler</span><span class="p">,</span>
                                        <span class="n">draws_per_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULTS_integration</span><span class="o">.</span><span class="n">draws_per_dim</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_and_weights</span> <span class="o">=</span> <span class="n">uniform_sample_and_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_and_weights</span> <span class="o">=</span> <span class="n">UniformSampleAndWeights</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -908,13 +908,26 @@
 <span class="sd">            :py:class:~`zfit.core.data.Sampler`</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            NotExtendedPDFError: if &#39;extended&#39; is (implicitly by default or explicitly) chosen as an</span>
+<span class="sd">            NotExtendedPDFError: if &#39;extended&#39; is chosen (implicitly by default or explicitly) as an</span>
 <span class="sd">                option for `n` but the pdf itself is not extended.</span>
 <span class="sd">            ValueError: if n is an invalid string option.</span>
 <span class="sd">            InvalidArgumentError: if n is not specified and pdf is not extended.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if not isinstance(n, tf.Variable):</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>  <span class="c1"># ALSO do if tf.Variable. So a user can change the original var.</span>
+            <span class="c1"># Or not: refactor that variable can be given due to no variable creation policy!</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">use_resource</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">fixed_params</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_sampler_tensor</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
+                                                              <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">n_holder</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
+                                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample_data</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_sampler_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fixed_params</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
+            <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>  <span class="c1"># TODO(Mayou36): clean up, better norm_range?</span>
             <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -923,17 +936,11 @@
             <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fixed_params</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`Fixed_params` has to be a list, tuple or a boolean.&quot;</span><span class="p">)</span>
-
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="c1"># needed to be able to change the resampling</span>
-        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">use_resource</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># needed to be able to change the number of events in resampling</span>
+
         <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">n_holder</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
-                                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">sample_data</span></div>
+        <span class="k">return</span> <span class="n">fixed_params</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">sample</span>
 
     <span class="nd">@_BaseModel_register_check_support</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
@@ -1030,7 +1037,8 @@
 
     <span class="k">def</span> <span class="nf">_fallback_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="n">zsample</span><span class="o">.</span><span class="n">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_func_to_sample_from</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
-                                              <span class="n">prob_max</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># None -&gt; auto</span>
+                                              <span class="n">prob_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                                              <span class="n">sample_and_weights_factory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_and_weights</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sample</span>
 
     <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>

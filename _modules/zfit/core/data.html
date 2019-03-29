@@ -664,6 +664,7 @@
         <span class="c1"># self.sess.run(sample_holder.initializer)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span> <span class="o">=</span> <span class="n">fixed_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_holder</span> <span class="o">=</span> <span class="n">sample_holder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_holder</span> <span class="o">=</span> <span class="n">n_holder</span>
 
     <span class="nd">@property</span>
@@ -711,13 +712,18 @@
 <span class="sd">            n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with</span>
 <span class="sd">                anything else then a numerical or tf.Tensor, this can&#39;t be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
         <span class="n">temp_param_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">param_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">temp_param_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param_values</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="n">_</span> <span class="o">=</span> <span class="p">[</span><span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">n</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span><span class="p">):</span>  <span class="c1"># we want to load and make sure that it&#39;s initialzed</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">n</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span><span class="p">):</span>  <span class="c1"># we want to load and make sure that it&#39;s initialized</span>
                 <span class="c1"># means it&#39;s handled inside the function</span>
+                <span class="c1"># TODO(Mayou36): check logic; what if new_samples loaded? get&#39;s overwritten by initializer</span>
+                <span class="c1"># fixed with self.n, needs cleanup</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="o">.</span><span class="n">initializer</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">n</span><span class="p">:</span>

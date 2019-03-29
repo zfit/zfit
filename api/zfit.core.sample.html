@@ -106,9 +106,15 @@
       
   <div class="section" id="module-zfit.core.sample">
 <span id="sample"></span><h1>sample<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="zfit.core.sample.UniformSampleAndWeights">
+<em class="property">class </em><code class="descclassname">zfit.core.sample.</code><code class="descname">UniformSampleAndWeights</code><a class="reference internal" href="../_modules/zfit/core/sample.html#UniformSampleAndWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.UniformSampleAndWeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
 <dl class="function">
 <dt id="zfit.core.sample.accept_reject_sample">
-<code class="descclassname">zfit.core.sample.</code><code class="descname">accept_reject_sample</code><span class="sig-paren">(</span><em>prob: Callable</em>, <em>n: int</em>, <em>limits: zfit.core.limits.Space</em>, <em>sample_and_weights: Callable = &lt;function uniform_sample_and_weights&gt;</em>, <em>dtype=tf.float64</em>, <em>prob_max: Union[None</em>, <em>int] = None</em>, <em>efficiency_estimation: float = 1.0</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zfit.core.sample.</code><code class="descname">accept_reject_sample</code><span class="sig-paren">(</span><em>prob: Callable</em>, <em>n: int</em>, <em>limits: zfit.core.limits.Space</em>, <em>sample_and_weights_factory: Callable = &lt;class 'zfit.core.sample.UniformSampleAndWeights'&gt;</em>, <em>dtype=tf.float64</em>, <em>prob_max: Union[None</em>, <em>int] = None</em>, <em>efficiency_estimation: float = 1.0</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accept reject sample from a probability distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -117,7 +123,7 @@
 (or anything that is proportional to the probability).</p></li>
 <li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of samples to produce</p></li>
 <li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to sample from</p></li>
-<li><p><strong>sample_and_weights</strong> (<em>Callable</em>) – <p>A function that returns the sample to insert into <cite>prob</cite> and the weights
+<li><p><strong>sample_and_weights_factory</strong> (<em>Callable</em>) – <p>A function that returns the sample to insert into <cite>prob</cite> and the weights
 (prob) of each sample together with the random thresholds. The API looks as follows:</p>
 <ul>
 <li><p>Parameters:</p>
@@ -212,11 +218,6 @@ is given, it will be automatically, safely estimated (by a 10% increase in compu
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="function">
-<dt id="zfit.core.sample.uniform_sample_and_weights">
-<code class="descclassname">zfit.core.sample.</code><code class="descname">uniform_sample_and_weights</code><span class="sig-paren">(</span><em>n_to_produce: Union[int, tensorflow.python.framework.ops.Tensor], limits: zfit.core.limits.Space, dtype</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#uniform_sample_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.uniform_sample_and_weights" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 
