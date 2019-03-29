@@ -6,7 +6,7 @@ zfit: scalable pythonic fitting
 
 .. image:: https://zenodo.org/badge/126311570.svg
    :target: https://zenodo.org/badge/latestdoi/126311570
-   
+
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
 
@@ -19,6 +19,10 @@ zfit: scalable pythonic fitting
 .. image:: https://www.codefactor.io/repository/github/zfit/zfit/badge
    :target: https://www.codefactor.io/repository/github/zfit/zfit
    :alt: CodeFactor
+
+`Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
+`Documentation <https://zfit.github.io/zfit>`_
+`API <https://zfit.github.io/zfit/API.html>`_
 
 The zfit package is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
