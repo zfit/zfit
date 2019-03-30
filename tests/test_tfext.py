@@ -19,7 +19,8 @@ prec = 0.00001
 
 
 def test_polynomial():
-    """Empty test."""
+    zfit.run.create_session(reset_graph=True)
+
     coeffs = [5.3, 1.2, complex(1.3, 0.4), -42, 32.4, 529.3, -0.93]
     x = tf.placeholder(tf.complex128)
     true_dict = {'x': 5.}
@@ -32,6 +33,8 @@ def test_polynomial():
 
 
 def test_auto_upcast():
+    zfit.run.create_session(reset_graph=True)
+
     tensor_from_f32 = _auto_upcast(tf.constant(5, dtype=tf.float32))
     tensor_from_f64 = _auto_upcast(tf.constant(5, dtype=tf.float64))
     assert tensor_from_f32.dtype == tf.float64
