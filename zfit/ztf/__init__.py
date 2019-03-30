@@ -1,3 +1,12 @@
+"""
+ztf is a zfit TensorFlow version, that wraps TF while adding some conveniences, basically using a different
+default dtype (`zfit.ztypes`). In addition, it expands TensorFlow by adding a few convenient functions
+helping to deal with `NaN`s and similar.
+
+Some function are already wrapped, others are not. Best practice is to use `ztf` whenever possible and
+`tf` for the rest.
+"""
+
 # fill the following in to the namespace for (future) wrapping
 
 # doesn't work below because of autoimport... probably anytime in the Future :)
