@@ -153,8 +153,6 @@
                 <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">draw</span><span class="p">())</span>
 
             <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">loss_val</span><span class="p">)</span>
-            <span class="c1"># print(&quot;Current loss:&quot;, loss_evaluated)</span>
-            <span class="c1"># print(&quot;Current value:&quot;, value)</span>
             <span class="k">return</span> <span class="n">loss_evaluated</span>
 
         <span class="k">def</span> <span class="nf">grad_func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>

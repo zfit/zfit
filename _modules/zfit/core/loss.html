@@ -143,8 +143,6 @@
                 <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">)]</span>
         <span class="n">nll_finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">nlls</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">fit_range</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">fit_range</span><span class="p">)</span>
-
         <span class="k">with</span> <span class="n">data</span><span class="o">.</span><span class="n">set_data_range</span><span class="p">(</span><span class="n">fit_range</span><span class="p">):</span>
             <span class="n">probs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">)</span>
         <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
