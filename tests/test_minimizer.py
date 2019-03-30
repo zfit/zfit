@@ -11,39 +11,42 @@ import zfit.minimizers.baseminimizer as zmin
 from zfit import ztf
 import zfit.minimizers.optimizers_tf
 
-with tf.variable_scope("func1"):
-    true_a = 1.
-    true_b = 4.
-    true_c = -0.3
-    a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
-                             step_size=ztf.constant(0.1))
-    b_param = zfit.Parameter("variable_b15151", 3.5)
-    c_param = zfit.Parameter("variable_c15151", -0.04)
-    obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
-
-    # load params for sampling
-    a_param.load(true_a)
-    b_param.load(true_b)
-    c_param.load(true_c)
-
-gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
-exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
-
-sum_pdf1 = 0.9 * gauss1 + exp1
-
-sampled_data = sum_pdf1.create_sampler(n=15000)
-
-# data_np = zfit.run(sampled_data)
-
-loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, fit_range=obs1)
+true_a = 1.
+true_b = 4.
+true_c = -0.3
 
 
+def create_loss():
+    with tf.variable_scope("func1"):
+        a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
+                                 step_size=ztf.constant(0.1))
+        b_param = zfit.Parameter("variable_b15151", 3.5)
+        c_param = zfit.Parameter("variable_c15151", -0.04)
+        obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
+
+        # load params for sampling
+        a_param.load(true_a)
+        b_param.load(true_b)
+        c_param.load(true_c)
+
+    gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
+    exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
+
+    sum_pdf1 = 0.9 * gauss1 + exp1
+
+    sampled_data = sum_pdf1.create_sampler(n=15000)
+    sampled_data.resample()
+
+    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, fit_range=obs1)
+
+    return loss, (a_param, b_param, c_param)
 
 
 def minimize_func(minimizer_class_and_kwargs):
-    from zfit.core.parameter import Parameter
+    zfit.run.create_session(reset_graph=True)
 
-    sampled_data.resample()
+    loss, (a_param, b_param, c_param) = create_loss()
+
     true_minimum = zfit.run(loss.value())
 
     parameter_tolerance = 0.25  # percent
@@ -124,5 +127,4 @@ minimizers = [
 @pytest.mark.parametrize("minimizer_class", minimizers)
 @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class):
-    # for minimizer_class in minimizers:
     minimize_func(minimizer_class)
