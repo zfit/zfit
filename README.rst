@@ -78,7 +78,6 @@ While the zfit library provides a simple model fitting and sampling framework fo
 
     import tensorflow as tf
     import zfit
-    from zfit import ztf
 
 The domain of the PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
 
@@ -91,6 +90,7 @@ Using this domain, we can now create a simple Gaussian PDF. To do this, we defin
 
 .. code-block:: python
 
+  # syntax: zfit.Parameter("any_name", value, lower, upper)
     mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
     sigma = zfit.Parameter("sigma", 1.3,  0, 5)
     gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
@@ -103,7 +103,7 @@ For simplicity, we create the dataset to be fitted starting from a numpy array, 
     mu_true = 0
     sigma_true = 1
     data_np = np.random.normal(mu_true, sigma_true, size=10000)
-    data = zfit.data.Data.from_numpy(obs=obs, array=data_np)
+    data = zfit.Data.from_numpy(obs=obs, array=data_np)
 
 Fits are performed in three steps:
 
