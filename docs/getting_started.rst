@@ -86,7 +86,8 @@ As an example, with the :py:class:`~zfit.minimize.MinuitMinimizer` one can calcu
     mu: ^{+0.00998104141841555}_{-0.009981515893414316}
     sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
 
-Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results. The object ``result`` (:py:class`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
+Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results. 
+The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
 
 .. code-block:: pycon
 
@@ -149,13 +150,15 @@ One example is the Gauss PDF that has been shown above. The object ``gauss`` con
 
 .. code-block:: pycon
 
-    zfit.run(TensorFlow_object)
-    consts = [-1, 0, 1]
-    probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
+    >>> from zfit import ztf
+    >>> consts = [-1, 0, 1]
+    >>> probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
 
-    # And now execute the tensorflow graph
-    result = zfit.run(probs)
-    print("x values: {}\nresult:   {}".format(consts, result))
+    >>> # And now execute the tensorflow graph
+    >>> result = zfit.run(probs)
+    >>> print("x values: {}\nresult:   {}".format(consts, result))
+    x values: [-1, 0, 1]
+    result:   [0.24262615 0.39670691 0.24130008]
 
 Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using ``zfit.run``:
 
@@ -165,4 +168,7 @@ Integrating a given PDF for a given normalisation range also returns a graph, so
     ...    print(zfit.run(gauss.integrate((-0.6, 0.6))))
     ...    print(zfit.run(gauss.integrate((-3, 3))))
     ...    print(zfit.run(gauss.integrate((-100, 100))))
+    0.4492509559828224
+    0.9971473939649167
+    1.0
 

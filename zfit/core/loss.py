@@ -7,6 +7,7 @@ from typing import Optional, Union, List
 from zfit import ztf
 from zfit.util import ztyping
 from zfit.util.cache import Cachable
+from zfit.util.graph import get_dependents_auto
 from .baseobject import BaseObject, BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..models.functions import SimpleFunc
@@ -39,8 +40,6 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
 
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
-            if model.is_extended:
-                probs /= model.get_yield()
         log_probs = tf.log(probs)
         if data.weights is not None:
             log_probs *= data.weights  # because it's prob ** weights
@@ -62,7 +61,7 @@ def _nll_constraints_tf(constraints):
 
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
-    def __init__(self, model, data, fit_range=None, constraints=None):
+    def __init__(self, model, data, fit_range: ztyping.LimitsTypeInput = None, constraints: List[tf.Tensor] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
 
@@ -72,7 +71,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         Args:
             model (Iterable[ZfitModel]): The model or models to evaluate the data on
             data (Iterable[ZfitData]): Data to use
-            fit_range (:py:class:`~zfit.Space`): The fitting range. It's the norm_range for the models (if they
+            fit_range (Iterable[:py:class:`~zfit.Space`]): The fitting range. It's the norm_range for the models (if
+            they
                 have a norm_range) and the data_range for the data.
             constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using
                 `zfit.constraint.*` allows for easy use of predefined constraints.
@@ -201,8 +201,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         model = self.model + other.model
         data = self.data + other.data
         fit_range = self.fit_range + other.fit_range
-        loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=self.constraints)
-        loss.add_constraints(constraints=other.constraints)
+        constraints = self.constraints + other.constraints
+        loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
         return loss
 
     def _gradients(self, params):
@@ -282,24 +282,37 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         return nll
 
 
-class SimpleLoss(BaseLoss):
+class SimpleLoss(CachedLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func, errordef=None):
+    def __init__(self, func, dependents=None, errordef=None):
         self._simple_func = func
         self._simple_errordef = errordef
+        self._simple_func_dependents = convert_to_container(dependents, container=set)
 
-        model = SimpleFunc(func=func, obs='obs1')
-        super().__init__(model=[model], data=['dummy'], fit_range=[None])
+        super().__init__(model=[], data=[], fit_range=[])
+
+    def _get_dependents(self):
+        dependents = self._simple_func_dependents
+        if dependents is None:
+            independent_params = tf.get_collection("zfit_independent")
+            dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
+            self._simple_func_dependents = dependents
+        return dependents
 
     @property
     def errordef(self):
         errordef = self._simple_errordef
         if errordef is None:
-            raise RuntimeError("For this simple loss function, no error calculation is possible.")
+            errordef = -999
+            # raise RuntimeError("For this SimpleLoss, no error calculation is possible.")
         else:
             return errordef
 
     def _loss_func(self, model, data, fit_range, constraints=None):
         loss = self._simple_func
         return loss()
+
+    def __add__(self, other):
+        raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
+                                           "Add them manually")

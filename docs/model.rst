@@ -18,43 +18,50 @@ Predefined PDFs and basic properties
 
 A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in
 
-.. code-block:: python
+.. code-block:: pycon
 
-    print(zfit.pdf.__all__)
-    ['BasePDF', 'Exponential', 'CrystalBall', 'Gauss', 'Uniform', 'WrapDistribution', 'ProductPDF', 'SumPDF']
+    >>> print(zfit.pdf.__all__)
+    ['BasePDF', 'Exponential', 'CrystalBall', 'Gauss', 'Uniform', 'WrapDistribution', 'ProductPDF', 'SumPDF', 'ZPDF', 'SimplePDF', 'SimpleFunctorPDF']
 
 These include the basic function but also some operations discussed below. Let's consider the simple example of a ``CrystalBall``.
 PDF objects must also be initialised giving their named parameters. For example:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Creating the parameters for the crystal ball
-    mu = zfit.Parameter("mu", 5279, 5100, 5300)
-    sigma = zfit.Parameter("sigma", 20, 0, 50)
-    a = zfit.Parameter("a", 1, 0, 10)
-    n = zfit.Parameter("n", 1, 0, 10)
+    >>> obs = zfit.Space('x', limits=(4800, 6000))
 
-    # Single crystal Ball
-    model_cb = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a, n=n)
+    >>> # Creating the parameters for the crystal ball
+    >>> mu = zfit.Parameter("mu", 5279, 5100, 5300)
+    >>> sigma = zfit.Parameter("sigma", 20, 0, 50)
+    >>> a = zfit.Parameter("a", 1, 0, 10)
+    >>> n = zfit.Parameter("n", 1, 0, 10)
+
+    >>> # Single crystal Ball
+    >>> model_cb = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a, n=n)
 
 In this case the CB object corresponds to a normalised PDF. The main properties of a PDF, e.g. the probability for a given normalisation range or even
 to set a temporary normalisation range can be given as
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Get the probabilities of some random generated events
-    probs = model_cb.prob(x=np.random.random(10), norm_range=(5100, 5400))
+    >>> # Get the probabilities of some random generated events
+    >>> probs = model_cb.pdf(x=np.random.random(10), norm_range=(5100, 5400))
+    >>> # And now execute the tensorflow graph
+    >>> result = zfit.run(probs)
+    >>> print(result)
+    [3.34187765e-05 3.34196917e-05 3.34202989e-05 3.34181458e-05
+     3.34172973e-05 3.34209238e-05 3.34164538e-05 3.34210950e-05
+     3.34201199e-05 3.34209360e-05]
 
-    # Performing evaluation within a given range
-    with model_cb.temp_norm_range((5000, 6000)):
-        model_cb.prob(data)  # norm_range is now set
+    >>> # The norm range of the pdf can be changed any time by
+    >>> model_cb.set_norm_range((5000, 6000))
 
 Another feature for the PDF is to calculate its integral in a certain limit. This can be easily achieved by
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Calculate the integral between 5230 and 5230 over the PDF normalized
-    integral_norm = model_cb.integrate(limits=(5230, 5230))
+    >>> # Calculate the integral between 5000 and 5250 over the PDF normalized
+    >>> integral_norm = model_cb.integrate(limits=(5000, 5250))
 
 In this case the CB has been normalised using the range defined in the observable.
 Conversely, the ``norm_range`` in which the PDF is normalised can also be specified as input.
@@ -66,61 +73,62 @@ A common feature in building composite models it the ability to combine in terms
 There are two ways to create such models, either with the class API or with simple Python syntax.
 Let's consider a second crystal ball with the same mean position and width, but different tail parameters
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # New tail parameters for the second CB
-    a2 = zfit.Parameter("a2", -1, 0, -10)
-    n2 = zfit.Parameter("n2", 1, 0, 10)
+    >>> # New tail parameters for the second CB
+    >>> a2 = zfit.Parameter("a2", -1, 0, -10)
+    >>> n2 = zfit.Parameter("n2", 1, 0, 10)
 
-    # New crystal Ball function defined in the same observable range
-    model_cb2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
+    >>> # New crystal Ball function defined in the same observable range
+    >>> model_cb2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
 
 We can now combine these two PDFs to create a double Crystal Ball with a single mean and width, either using arithmetic operations
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # First needs to define a parameters that represent
-    # the relative fraction between the two PDFs
-    frac = zfit.Parameter("frac", 0.5, 0, 1)
+    >>> # First needs to define a parameters that represent
+    >>> # the relative fraction between the two PDFs
+    >>> frac = zfit.Parameter("frac", 0.5, 0, 1)
 
-    # Two different ways to combine
-    double_cb = frac * model_cb + model_cb2
+    >>> # Two different ways to combine
+    >>> double_cb = frac * model_cb + model_cb2
 
 Or through the :py:class:`zfit.pdf.SumPDF` class:
 
-.. code-block:: python
-    # or via the class API
-    double_cb_class = zfit.pdf.SumPDF(pdfs=[model_cb, model_cb2], fracs=frac)
+.. code-block:: pycon
+
+    >>> # or via the class API
+    >>> double_cb_class = zfit.pdf.SumPDF(pdfs=[model_cb, model_cb2], fracs=frac)
 
 Notice that the new PDF has the same observables as the original ones, as they coincide.
 Alternatively one could consider having PDFs for different axis, which would then create a totalPDF with higher dimension.
 
 A simple extension of these operations is if we want to instead of a sum of PDFs, to model a two-dimensional Gaussian (e.g.):
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Defining two Gaussians in two different axis (obs)
-    mu1 = zfit.Parameter("mu1", 1.)
-    sigma1 = zfit.Parameter("sigma1", 1.)
-    gauss1 = zfit.pdf.Gauss(obs="obs1", mu=mu1, sigma=sigma1)
+    >>> # Defining two Gaussians in two different axis (obs)
+    >>> mu1 = zfit.Parameter("mu1", 1.)
+    >>> sigma1 = zfit.Parameter("sigma1", 1.)
+    >>> gauss1 = zfit.pdf.Gauss(obs="obs1", mu=mu1, sigma=sigma1)
 
-    mu2 = zfit.Parameter("mu2", 1.)
-    sigma2 = zfit.Parameter("sigma2", 1.)
-    gauss2 = zfit.pdf.Gauss(obs="obs2", mu=mu2, sigma=sigma2)
+    >>> mu2 = zfit.Parameter("mu2", 1.)
+    >>> sigma2 = zfit.Parameter("sigma2", 1.)
+    >>> gauss2 = zfit.pdf.Gauss(obs="obs2", mu=mu2, sigma=sigma2)
 
-    # Producing the product of two PDFs
-    prod_gauss = gauss1 * gauss2
-    # Or alternatively
-    prod_gauss_class = zfit.pdf.ProductPDF(pdfs=[gauss2, gauss1])  # notice the different order or the pdf
+    >>> # Producing the product of two PDFs
+    >>> prod_gauss = gauss1 * gauss2
+    >>> # Or alternatively
+    >>> prod_gauss_class = zfit.pdf.ProductPDF(pdfs=[gauss2, gauss1])  # notice the different order or the pdf
 
 The new PDF is now in two dimensions.
 The order of the observables follows the order of the PDFs given.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    print("python syntax product obs", prod_gauss.obs)
+    >>> print("python syntax product obs", prod_gauss.obs)
     [python syntax product obs ('obs1', 'obs2')]
-    print("class API product obs", prod_gauss_class.obs)
+    >>> print("class API product obs", prod_gauss_class.obs)
     [class API product obs ('obs2', 'obs1')]
 
 
@@ -139,15 +147,15 @@ This means that :math:`M(x)` is not a true PDF but rather an expression for two 
 
 An extended PDF can be easily implemented in zfit in two ways:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    # Create a parameter for the number of events
-    yieldGauss = zfit.Parameter("yieldGauss", 100, 0, 1000)
+    >>> # Create a parameter for the number of events
+    >>> yieldGauss = zfit.Parameter("yieldGauss", 100, 0, 1000)
 
-    # Extended PDF using a predefined method
-    extended_gauss_method = gauss.create_extended(yieldGauss)
-    # Or simply with a Python syntax of multiplying a PDF with the parameter
-    extended_gauss_python = yieldGauss * gauss
+    >>> # Extended PDF using a predefined method
+    >>> extended_gauss_method = gauss.create_extended(yieldGauss)
+    >>> # Or simply with a Python syntax of multiplying a PDF with the parameter
+    >>> extended_gauss_python = yieldGauss * gauss
 
 
 Custom PDF
@@ -156,48 +164,48 @@ A fundamental design choice of zfit is the ability to create custom PDFs and fun
 Let's consider a simplified implementation
 
 
-.. code-block:: python
+.. code-block:: pycon
 
-    class MyGauss(zfit.pdf.ZPDF):
-        """Simple implementation of a Gaussian similar to :py:class`~zfit.pdf.Gauss` class"""
-        _N_OBS = 1  # dimension, can be omitted
-        _PARAMS = ['mean', 'std']  # the name of the parameters
+    >>> class MyGauss(zfit.pdf.ZPDF):
+    ...    """Simple implementation of a Gaussian similar to :py:class`~zfit.pdf.Gauss` class"""
+    ...    _N_OBS = 1  # dimension, can be omitted
+    ...    _PARAMS = ['mean', 'std']  # the name of the parameters
 
-    def _unnormalized_pdf(self, x):
-        x = zfit.ztf.unstack_x(x)
-        mean = self.params['mean']
-        std  = self.params['std']
-        return zfit.ztf.exp(- ((x - mean)/std)**2)
+    >>> def _unnormalized_pdf(self, x):
+    ...    x = zfit.ztf.unstack_x(x)
+    ...    mean = self.params['mean']
+    ...    std  = self.params['std']
+    ...    return zfit.ztf.exp(- ((x - mean)/std)**2)
 
 This is the basic information required for this custom PDF.
 With this new PDF one can access the same feature of the predefined PDFs, e.g.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    obs = zfit.Space("obs1", limits=(-4, 4))
+    >>> obs = zfit.Space("obs1", limits=(-4, 4))
 
-    mean = zfit.Parameter("mean", 1.)
-    std  = zfit.Parameter("std", 1.)
-    my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
+    >>> mean = zfit.Parameter("mean", 1.)
+    >>> std  = zfit.Parameter("std", 1.)
+    >>> my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
 
-    # For instance integral probabilities
-    integral = my_gauss.integrate(limits=(-1, 2))
-    probs    = my_gauss.pdf(data, norm_range=(-3, 4))
+    >>> # For instance integral probabilities
+    >>> integral = my_gauss.integrate(limits=(-1, 2))
+    >>> probs    = my_gauss.pdf(data, norm_range=(-3, 4))
 
 Finally, we could also improve the description of the PDF by providing a analytical integral for the ``MyGauss`` PDF:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    def gauss_integral_from_any_to_any(limits, params, model):
-        (lower,), (upper,) = limits.limits
-        mean = params['mean']
-        std = params['std']
-        # Write you integral
-        return 42. # Dummy value
+    >>> def gauss_integral_from_any_to_any(limits, params, model):
+    ...    (lower,), (upper,) = limits.limits
+    ...    mean = params['mean']
+    ...    std = params['std']
+    ...    # Write you integral
+    ...    return 42. # Dummy value
 
-    # Register the integral
-    limits = zfit.Space.from_axes(axes=0, limits=(zfit.Space.ANY_LOWER, zfit.Space.ANY_UPPER))
-    MyGauss.register_analytic_integral(func=gauss_integral_from_any_to_any, limits=limits)
+    >>> # Register the integral
+    >>> limits = zfit.Space.from_axes(axes=0, limits=(zfit.Space.ANY_LOWER, zfit.Space.ANY_UPPER))
+    >>> MyGauss.register_analytic_integral(func=gauss_integral_from_any_to_any, limits=limits)
 
 
 Sampling from a Model
@@ -227,53 +235,52 @@ will take which value via `param_values` or by changing the attribute of :py:cla
 
 To give an example:
 
-.. code:: python
+.. code:: pycon
 
-    # create a model depending on mu1, sigma1, mu2, sigma2
+    >>> # create a model depending on mu1, sigma1, mu2, sigma2
 
-    sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
-    nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+    >>> sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
+    >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
 
-    sampler.resample()  # now it sampled
+    >>> sampler.resample()  # now it sampled
 
-    # do something with nll
-    minimizer.minimize(nll)  # minimize
+    >>> # do something with nll
+    >>> minimizer.minimize(nll)  # minimize
 
-    sampler.resample()
-    # note that the nll, being dependent on `sampler`, also changed!
+    >>> sampler.resample()
+    >>> # note that the nll, being dependent on `sampler`, also changed!
 
 The sample is now resampled with the *current values* (minimized values) of `sigma1`, `sigma2` and with
 the initial values of `mu1`, `mu2` (because they have been fixed).
 
 A typical example of toys would therefore look like
 
-.. code:: python
+.. code:: pycon
 
-    # create a model depending on mu, sigma
+    >>> # create a model depending on mu, sigma
 
-    sampler = model.create_sampler(n=1000)
-    nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+    >>> sampler = model.create_sampler(n=1000)
+    >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
 
-    minimizer = zfit.minimize.MinuitMinimizer()
+    >>> minimizer = zfit.minimize.MinuitMinimizer()
 
-    for run_number in n_runs:
-
-        # initialize the parameters randomly
-        mu.set_value(np.random.normal())
-        sigma.set_value(np.random.normal())
-
-        sampler.resample()
-        result = minimizer.minimize(nll)
-
-        # safe the result, collect the values, calculate errors...
+    >>> for run_number in n_runs:
+    ...    # initialize the parameters randomly
+    ...    mu.set_value(np.random.normal())
+    ...    sigma.set_value(np.random.normal())
+    ...
+    ...    sampler.resample()
+    ...    result = minimizer.minimize(nll)
+    ...
+    ...    # safe the result, collect the values, calculate errors...
 
 Note that this changed the values for the sampler *implicitly*. We can provide them explicitly by
 specifying it as an argument. Reusing the example above
 
-.. code:: python
+.. code:: pycon
 
-    sigma.set_value(np.random.normal())
-    sampler.resample(param_values={sigma: 5)
+    >>> sigma.set_value(np.random.normal())
+    >>> sampler.resample(param_values={sigma: 5)
 
 The sample (and therefore also the sample the `nll` depends on) is now sampled with `sigma` set to 5.
 

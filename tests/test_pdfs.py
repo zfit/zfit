@@ -141,7 +141,7 @@ def test_normalization_sum_gauss():
 def test_normalization_sum_gauss_extended():
     test_yield = 109.
     sum_gauss_extended = sum_gauss.create_extended(test_yield)
-    normalization_testing(sum_gauss_extended, normalization_value=test_yield)
+    normalization_testing(sum_gauss_extended)
 
 
 def test_normalization_prod_gauss():
@@ -160,10 +160,10 @@ def test_exp():
     probs1_np, probs2_np = zfit.run([probs1, probs2])
     assert not any(np.isnan(probs1_np))
     assert not any(np.isnan(probs2_np))
-    normalization_testing(exp1, 1)
+    normalization_testing(exp1)
 
 
-def normalization_testing(pdf, normalization_value=1.):
+def normalization_testing(pdf):
     with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
@@ -171,7 +171,7 @@ def normalization_testing(pdf, normalization_value=1.):
         probs = pdf.pdf(samples)
         result = zfit.run(probs)
         result = np.average(result) * (high - low)
-        assert pytest.approx(result, rel=0.07) == normalization_value
+        assert pytest.approx(result, rel=0.07) == 1
 
 
 def test_extended_gauss():
@@ -198,7 +198,7 @@ def test_extended_gauss():
 
         sum_gauss = SumPDF(pdfs=gauss_dists, obs=obs1, )
 
-    normalization_testing(pdf=sum_gauss, normalization_value=sum_yields)
+    normalization_testing(pdf=sum_gauss)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ import pytest
 import zfit
 from zfit import ztf
 from zfit.core.sample import accept_reject_sample
+from zfit.util.execution import SessionHolderMixin
 
 mu_true = 1.5
 sigma_true = 1.2
@@ -37,7 +38,7 @@ def test_sampling_fixed(gauss):
     n_draws = 1000
     n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
                                 name='n_draws',
-                                use_resource=True)  # just variable to have something changeable, predictable
+                                use_resource=True)  # variable to have something changeable, predictable
     zfit.run(n_draws_param.initializer)
     sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
     sample_tensor.resample()
@@ -51,6 +52,7 @@ def test_sampling_fixed(gauss):
     sample_tensor.resample()
     sampled_from_gauss1_small = zfit.run(sample_tensor)
     assert new_n_draws == len(sampled_from_gauss1_small[:, 0])
+    assert not np.allclose(sampled_from_gauss1[:new_n_draws], sampled_from_gauss1_small)
     n_draws_param.load(n_draws, session=zfit.run.sess)
 
     gauss_full_sample = gauss.create_sampler(n=10000,
@@ -127,15 +129,29 @@ def test_importance_sampling():
     gauss_sampler = zfit.pdf.Gauss(mu=mu_sampler, sigma=sigma_sampler, obs=obs_sampler)
     gauss_pdf = zfit.pdf.Gauss(mu=mu_pdf, sigma=sigma_pdf, obs=obs_pdf)
 
-    def gaussian_sample_and_weights(n_to_produce, limits, dtype):
-        gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits)
-        weights = gauss_sampler.pdf(gaussian_sample)
-        weights_max = tf.reduce_max(weights) * 0.7
-        thresholds = tf.random_uniform(shape=(n_to_produce,))
-        return gaussian_sample, thresholds, weights, weights_max, n_to_produce
+    class GaussianSampleAndWeights(SessionHolderMixin):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.n_to_produce = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True,
+                                            trainable=False, validate_shape=False)
+            self.sess.run(self.n_to_produce.initializer)
+            # self.dtype = dtype
+            # self.limits = limits
+
+        def __call__(self, n_to_produce, limits, dtype):
+            n_to_produce = tf.cast(n_to_produce, dtype=tf.int64)
+            assign_op = self.n_to_produce.assign(n_to_produce)
+            with tf.control_dependencies([assign_op]):
+                gaussian_sample = gauss_sampler._create_sampler_tensor(n=assign_op, limits=limits,
+                                                                       fixed_params=False, name='asdf')[2]
+                weights = gauss_sampler.pdf(gaussian_sample)
+                weights_max = tf.reduce_max(weights) * 0.7
+                thresholds = tf.random_uniform(shape=(self.n_to_produce,), dtype=dtype)
+            return gaussian_sample, thresholds, weights, weights_max, self.n_to_produce
 
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
-    gauss_pdf._sample_and_weights = gaussian_sample_and_weights
+    gauss_pdf._sample_and_weights = GaussianSampleAndWeights
     sample2 = gauss_pdf.sample(n=30000, limits=obs_pdf)
     sample_np, sample_np2 = zfit.run([sample, sample2])
 
@@ -143,7 +159,7 @@ def test_importance_sampling():
     mean2 = np.mean(sample_np2)
     std = np.std(sample_np)
     std2 = np.std(sample_np2)
-    assert mean == pytest.approx(mu_pdf, rel=0.01)
-    assert mean2 == pytest.approx(mu_pdf, rel=0.01)
-    assert std == pytest.approx(sigma_pdf, rel=0.01)
-    assert std2 == pytest.approx(sigma_pdf, rel=0.01)
+    assert mean == pytest.approx(mu_pdf, rel=0.02)
+    assert mean2 == pytest.approx(mu_pdf, rel=0.02)
+    assert std == pytest.approx(sigma_pdf, rel=0.02)
+    assert std2 == pytest.approx(sigma_pdf, rel=0.02)

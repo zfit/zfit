@@ -159,7 +159,7 @@ def test_implicit_sumpdf():
     assert isinstance(sum_pdf, SumPDF)
     assert not sum_pdf.is_extended
 
-    assert zfit.run(sum(sum_pdf.fracs)) == 1.
+    assert zfit.run(sum(sum_pdf._maybe_extended_fracs)) == 1.
     true_values = zfit.run(true_values)
     test_values = zfit.run(sum_pdf.pdf(rnd_test_values, norm_range=norm_range))
     np.testing.assert_allclose(true_values, test_values, rtol=5e-2)  # it's MC normalized

@@ -691,6 +691,7 @@ class Space(ZfitSpace, BaseObject):
 
     @property
     def obs_axes(self):
+        # TODO(Mayou36): what if axes is None?
         return OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
 
     def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
@@ -849,9 +850,10 @@ class Space(ZfitSpace, BaseObject):
         if obs is not None:
             try:
                 sub_index = tuple(self.obs.index(o) for o in obs)
-            except KeyError:
+            except ValueError as error:
+                print("Original message: ", error)
                 raise KeyError("Cannot get subspace from `obs` {} as this observables are not defined"
-                               "in this space.".format({set(obs) - set(self.obs)}))
+                               "in this space. Only {} is defined.".format(set(obs) - set(self.obs), set(self.obs)))
             except AttributeError:  # `obs` is None -> has not attribute `index`
                 raise ObsNotSpecifiedError("Observables have not been specified in this space.")
 
@@ -860,9 +862,12 @@ class Space(ZfitSpace, BaseObject):
         if axes is not None:
             try:
                 sub_index = tuple(self.axes.index(ax) for ax in axes)
-            except KeyError:
+
+            except ValueError as error:
+                print("Original message: ", error)
                 raise KeyError("Cannot get subspace from `axes` {} as this axes are not defined"
-                               "in this space.".format({set(axes) - set(self.axes)}))
+                               "in this space. Only the following axes are {}"
+                               "".format(set(axes) - set(self.axes), self.axes))
             except AttributeError:
                 raise AxesNotSpecifiedError("Axes have not been specified for this space.")
 

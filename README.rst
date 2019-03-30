@@ -4,19 +4,25 @@ zfit: scalable pythonic fitting
 ===============================
 
 
+.. image:: https://zenodo.org/badge/126311570.svg
+   :target: https://zenodo.org/badge/latestdoi/126311570
 
 .. image:: https://img.shields.io/pypi/v/zfit.svg
-        :target: https://pypi.python.org/pypi/zfit
+   :target: https://pypi.python.org/pypi/zfit
 
 .. image:: https://img.shields.io/travis/zfit/zfit.svg
-        :target: https://travis-ci.org/zfit/zfit
+   :target: https://travis-ci.org/zfit/zfit
 
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
-        :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
+   :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
 
 .. image:: https://www.codefactor.io/repository/github/zfit/zfit/badge
    :target: https://www.codefactor.io/repository/github/zfit/zfit
    :alt: CodeFactor
+
+`Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
+`Documentation <https://zfit.github.io/zfit>`_
+`API <https://zfit.github.io/zfit/API.html>`_
 
 The zfit package is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
@@ -72,7 +78,6 @@ While the zfit library provides a simple model fitting and sampling framework fo
 
     import tensorflow as tf
     import zfit
-    from zfit import ztf
 
 The domain of the PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
 
@@ -85,6 +90,7 @@ Using this domain, we can now create a simple Gaussian PDF. To do this, we defin
 
 .. code-block:: python
 
+  # syntax: zfit.Parameter("any_name", value, lower, upper)
     mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
     sigma = zfit.Parameter("sigma", 1.3,  0, 5)
     gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
@@ -97,7 +103,7 @@ For simplicity, we create the dataset to be fitted starting from a numpy array, 
     mu_true = 0
     sigma_true = 1
     data_np = np.random.normal(mu_true, sigma_true, size=10000)
-    data = zfit.data.Data.from_numpy(obs=obs, array=data_np)
+    data = zfit.Data.from_numpy(obs=obs, array=data_np)
 
 Fits are performed in three steps:
 

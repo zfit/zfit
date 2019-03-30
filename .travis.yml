@@ -1,34 +1,25 @@
 language: python
 os:
     - linux
-python:
-    #    - 3.7
-    - 3.6
-    - 3.5
-#    - 3.4
+#python:
+#    - "3.6"
 matrix:
-    allow_failures:
-        #        - python: 3.7
-        - python: 3.5
     include:
         - python: 3.7
           dist: xenial
           sudo: true
-#matrix:
-#  include:
-#  - os: osx
-#    language: python
-#  allow_failures:
-#  - os: osx
-
+        - python: 3.6
 
 install: pip install -U tox-travis
 script:
     - tox
     - pip install -U .
 
+    - bash utils/ci/test_examples.sh
+    -
+    - bash utils/ci/test_tutorials.sh
+    -
     - pip install -r requirements_dev.txt
-    - ls
     - bash docs/make_docs.sh
 
 after_success:
@@ -45,7 +36,7 @@ deploy:
           branch: master
           tags: true
           repo: zfit/zfit
-          python: 3.6
+          python: 3.7
 
     - provider: pages
       skip_cleanup: true
@@ -54,8 +45,7 @@ deploy:
       local_dir: docs/_build/html
       keep-history: true
       on:
-          #          TODO: change branch below to develop
-          branch: docs
-          condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
+          branch: develop
+          condition: $TRAVIS_PYTHON_VERSION = "3.7" && $TRAVIS_OS_NAME = "linux"
 
 

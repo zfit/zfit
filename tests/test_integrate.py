@@ -217,6 +217,7 @@ def test_mc_integration():
         Space.from_axes(limits=limits3, axes=(0, 1))) == pytest.approx(integral3, rel=0.03)
 
 
+@pytest.mark.flaky(2)
 def test_mc_partial_integration():
     values = ztf.convert_to_tensor(func4_values)
     data1 = zfit.data.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))

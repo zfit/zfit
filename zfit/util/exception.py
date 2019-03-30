@@ -5,7 +5,7 @@ class PDFCompatibilityError(Exception):
     pass
 
 
-class LogicalUndefinedOperationError(ValueError):
+class LogicalUndefinedOperationError(Exception):
     pass
 
 

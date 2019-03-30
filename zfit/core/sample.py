@@ -15,34 +15,36 @@ from .limits import Space
 from ..settings import ztypes, run
 
 
-def uniform_sample_and_weights(n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
-    rnd_samples = []
-    thresholds_unscaled_list = []
-    weights = ztf.constant(1., shape=(1,))
+class UniformSampleAndWeights:
+    def __call__(self, n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
+        rnd_samples = []
+        thresholds_unscaled_list = []
+        weights = ztf.constant(1., shape=(1,))
 
-    for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
-        n_partial_to_produce = tf.to_int64(ztf.to_real(n_to_produce) * ztf.to_real(area))
-        lower = ztf.convert_to_tensor(lower, dtype=dtype)
-        upper = ztf.convert_to_tensor(upper, dtype=dtype)
-        sample_drawn = tf.random_uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
-                                         # + 1 dim for the function value
-                                         dtype=ztypes.float)
-        rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
-        thresholds_unscaled = sample_drawn[:, -1]
-        # if not multiple_limits:
-        #     return rnd_sample, thresholds_unscaled
-        rnd_samples.append(rnd_sample)
-        thresholds_unscaled_list.append(thresholds_unscaled)
+        for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
+            n_partial_to_produce = tf.to_int64(
+                ztf.to_real(n_to_produce) * ztf.to_real(area))  # TODO(Mayou36): split right!
+            lower = ztf.convert_to_tensor(lower, dtype=dtype)
+            upper = ztf.convert_to_tensor(upper, dtype=dtype)
+            sample_drawn = tf.random_uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
+                                             # + 1 dim for the function value
+                                             dtype=ztypes.float)
+            rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
+            thresholds_unscaled = sample_drawn[:, -1]
+            # if not multiple_limits:
+            #     return rnd_sample, thresholds_unscaled
+            rnd_samples.append(rnd_sample)
+            thresholds_unscaled_list.append(thresholds_unscaled)
 
-    rnd_sample = tf.concat(rnd_samples, axis=0)
-    thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
+        rnd_sample = tf.concat(rnd_samples, axis=0)
+        thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
 
-    n_drawn = n_to_produce
-    return rnd_sample, thresholds_unscaled, weights, weights, n_drawn
+        n_drawn = n_to_produce
+        return rnd_sample, thresholds_unscaled, weights, weights, n_drawn
 
 
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
-                         sample_and_weights: Callable = uniform_sample_and_weights,
+                         sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
                          efficiency_estimation: float = 1.0) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
@@ -52,7 +54,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
         limits (:py:class:`~zfit.Space`): The limits to sample from
-        sample_and_weights (Callable): A function that returns the sample to insert into `prob` and the weights
+        sample_and_weights_factory (Callable): A function that returns the sample to insert into `prob` and the weights
             (prob) of each sample together with the random thresholds. The API looks as follows:
 
             - Parameters:
@@ -91,6 +93,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     #     lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
     #     upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
 
+    sample_and_weights = sample_and_weights_factory()
+
     n = tf.to_int64(n)
 
     def enough_produced(n, sample, n_total_drawn, eff):
@@ -128,7 +132,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # a value smaller by a factor of 1e-14
             # with tf.control_dependencies([probabilities]):
             # UPDATE: this works now? Was it just a one-time bug?
-                prob_max_inferred = tf.reduce_max(probabilities)
+            prob_max_inferred = tf.reduce_max(probabilities)
         else:
             prob_max_inferred = prob_max
 
@@ -161,6 +165,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         eff = ztf.to_real(tf.shape(sample, out_type=tf.int64)[1]) / ztf.to_real(n_total_drawn)
         return n, sample, n_total_drawn, eff
 
+    # TODO(Mayou36): refactor, remove initial call
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
                            loop_vars=sample_body(n=n, sample=None,  # run first once for initialization
                                                  n_total_drawn=0, eff=efficiency_estimation),

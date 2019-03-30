@@ -147,9 +147,10 @@ class SumPDF(BaseFunctor):
             name (str):
         """
         # Check user input, improve TODO
+        self._fracs = None
+
         set_yield_at_end = False
         pdfs = convert_to_container(pdfs)
-        # pdfs = self.pdfs
         self.pdfs = pdfs
         if len(pdfs) < 2:
             raise ValueError("Cannot build a sum of a single pdf")
@@ -208,6 +209,7 @@ class SumPDF(BaseFunctor):
             assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                   data=[remaining_frac])  # check fractions
             with tf.control_dependencies([assert_op]):
+                # TODO(Mayou36): always last position?
                 fracs[not_extended_position] = tf.identity(remaining_frac)
             implicit = False  # now it's explicit
 
@@ -229,22 +231,34 @@ class SumPDF(BaseFunctor):
             yields = [pdf.get_yield() for pdf in pdfs]
 
         if extended:
-            # yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
+            yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
+            self.fracs = yield_fracs
             # self.fracs = yield_fracs
             set_yield_at_end = True
-            self.fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
+            self._maybe_extended_fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
         else:
-            self.fracs = fracs
+            self._maybe_extended_fracs = fracs
 
         self.pdfs = pdfs
 
         params = OrderedDict()
-        for i, frac in enumerate(self.fracs):
+        for i, frac in enumerate(self._maybe_extended_fracs):
             params['frac_{}'.format(i)] = frac
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if set_yield_at_end:
             self._set_yield_inplace(tf.reduce_sum(yields))
+
+    @property
+    def fracs(self):
+        fracs = self._fracs
+        if fracs is None:
+            fracs = self._maybe_extended_fracs
+        return fracs
+
+    @fracs.setter
+    def fracs(self, value):
+        self._fracs = value
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
@@ -256,7 +270,6 @@ class SumPDF(BaseFunctor):
         norm_range = self._get_component_norm_range()
         return self._pdf(x=x, norm_range=norm_range)
         # raise NotImplementedError
-        # TODO: deal with yields
         # pdfs = self.pdfs
         # fracs = self.fracs
         # func = tf.accumulate_n(
@@ -266,7 +279,7 @@ class SumPDF(BaseFunctor):
     def _pdf(self, x, norm_range):
         pdfs = self.pdfs
         fracs = self.fracs
-        prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
+        prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
         # prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
@@ -277,14 +290,14 @@ class SumPDF(BaseFunctor):
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
         elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
             reciprocal_yield = tf.reciprocal(self.get_yield())
-            self.fracs = [reciprocal_yield] * len(self.fracs)
+            self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
         else:
             super()._set_yield(value=value)
 
     @supports(norm_range=True, multiple_limits=True)
     def _integrate(self, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self.fracs
+        fracs = self._maybe_extended_fracs
         assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [pdf.integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
         integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
@@ -294,7 +307,7 @@ class SumPDF(BaseFunctor):
     @supports(norm_range=True, multiple_limits=True)
     def _analytic_integrate(self, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self.fracs
+        fracs = self._maybe_extended_fracs
         assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         try:
             integrals = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
