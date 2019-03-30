@@ -51,7 +51,6 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
             return loss_evaluated
 
         def grad_func(values):
-            raise RuntimeError
             do_print = self.verbosity > 5
             if do_print:
                 table = tt.Texttable()
