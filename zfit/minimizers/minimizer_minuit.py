@@ -46,8 +46,6 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                 print(table.draw())
 
             loss_evaluated = self.sess.run(loss_val)
-            # print("Current loss:", loss_evaluated)
-            # print("Current value:", value)
             return loss_evaluated
 
         def grad_func(values):
