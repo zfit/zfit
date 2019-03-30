@@ -189,6 +189,8 @@ def func4_3deps_1_integrated(x, limits):
 
 
 def test_mc_integration():
+    zfit.run.create_session(reset_graph=True)
+
     # simpel example
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
                                            limits=Space.from_axes(limits=limits_simple_5deps,
@@ -219,6 +221,8 @@ def test_mc_integration():
 
 @pytest.mark.flaky(2)
 def test_mc_partial_integration():
+    zfit.run.create_session(reset_graph=True)
+
     values = ztf.convert_to_tensor(func4_values)
     data1 = zfit.data.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))
     limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'])
@@ -253,6 +257,8 @@ def test_mc_partial_integration():
 
 
 def test_analytic_integral():
+    zfit.run.create_session(reset_graph=True)
+
     class DistFunc3(zbasepdf.BasePDF):
         def _unnormalized_pdf(self, x, norm_range=False):
             return func3_2deps(x)
@@ -287,6 +293,8 @@ def test_analytic_integral():
 
 
 def test_analytic_integral_selection():
+    zfit.run.create_session(reset_graph=True)
+
     class DistFuncInts(zbasepdf.BasePDF):
         def _unnormalized_pdf(self, x, norm_range=False):
             return x ** 2

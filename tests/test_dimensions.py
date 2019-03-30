@@ -49,6 +49,7 @@ space2d_2 = zfit.Space(obs=obs[:2], limits=(lower2d_2, upper2d_2))
 
 
 def test_check_n_obs():
+    zfit.run.create_session(reset_graph=True)
     with pytest.raises(SpaceIncompatibleError):
         zfit.pdf.Gauss(1., 4., obs=space2d_1)
 

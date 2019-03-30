@@ -4,8 +4,6 @@ from zfit import ztf
 import math as _mt
 from ..settings import ztypes
 
-ztf.pi = tf.constant(_mt.pi, dtype=ztypes.float)
-
 
 # density for a complex amplitude
 def density(ampl): return tf.abs(ampl) ** 2
