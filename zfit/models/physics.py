@@ -256,6 +256,73 @@ crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),)
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
 # CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
+
+class DoubleCB(BasePDF):
+    _N_OBS = 1
+
+    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
+                 alphal: ztyping.ParamTypeInput, nl: ztyping.ParamTypeInput,
+                 alphar: ztyping.ParamTypeInput, nr: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput, name: str = "DoubleCB", dtype: Type = ztypes.float):
+        """`Double sided Crystal Ball shaped PDF`__. A combination of a Gaussian with powerlaw tails
+        on each side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
+            & -\\alpha_{L} \\leqslant \\mbox{for}\\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
+            A_{R} \\cdot (B_{R} - \\frac{x - \\mu}{\\sigma})^{-n},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
+            \\end{cases}
+
+        with
+
+        .. math::
+            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot
+            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)
+
+            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
+
+        Args:
+            mu (`zfit.Parameter`): The mean of the gaussian
+            sigma (`zfit.Parameter`): Standard deviation of the gaussian
+            alphal (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail on the left
+            side
+            nl (`zfit.Parameter`): Exponent of the powertail on the left side
+            alphar (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail on the right
+            side
+            nr (`zfit.Parameter`): Exponent of the powertail on the right side
+            obs (:py:class:`~zfit.Space`):
+            name (str):
+            dtype (tf.DType):
+
+        """
+        params = {'mu': mu,
+                  'sigma': sigma,
+                  'alphal': alphal,
+                  'nl': nl,
+                  'alphar': alphar,
+                  'nr': nr}
+        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params['mu']
+        sigma = self.params['sigma']
+        alphal = self.params['alphal']
+        nl = self.params['nl']
+        alphar = self.params['alphar']
+        nr = self.params['nr']
+        x = x.unstack_x()
+        return double_crystalball_func(x=x, mu=mu, sigma=sigma, alphal=alphal, n=nl,
+                                       alphar=alphar, nr=nr)
+
+# DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)
+
+
 if __name__ == '__main__':
     mu = ztf.constant(0)
     sigma = ztf.constant(0.5)
