@@ -183,6 +183,7 @@ def crystalball_integral(limits, params, model):
 
 def double_crystalball_integral(limits, params, model):
     mu = params['mu']
+    sigma = params['sigma']
 
     (lower,), (upper,) = limits.limits
     lower = lower[0]  # obs number 0
@@ -317,7 +318,7 @@ class DoubleCB(BasePDF):
         alphar = self.params['alphar']
         nr = self.params['nr']
         x = x.unstack_x()
-        return double_crystalball_func(x=x, mu=mu, sigma=sigma, alphal=alphal, n=nl,
+        return double_crystalball_func(x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl,
                                        alphar=alphar, nr=nr)
 
 # DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)
