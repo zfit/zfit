@@ -512,11 +512,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 class SampleData(Data):
     _cache_counting = 0
 
-    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Tensor,
                  obs: ztyping.ObsTypeInput = None, weights=None, name: str = None,
                  dtype: tf.DType = ztypes.float):
         super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
-        self.sess.run(sample_holder.initializer)
 
     @classmethod
     def get_cache_counting(cls):
@@ -525,16 +524,11 @@ class SampleData(Data):
         return counting
 
     @classmethod
-    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None, weights=None):
-        import zfit
-        sample = zfit.run(sample)
-        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
-                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
-                                    use_resource=True
-                                    )
-        dataset = LightDataset.from_tensor(sample_holder)
+    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None,
+                    weights=None):                      )
 
-        return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name, weights=weights)
+    dataset = LightDataset.from_tensor(sample)
+    return SampleData(dataset=dataset, sample_holder=sample, obs=obs, name=name, weights=weights)
 
 
 class Sampler(Data):
