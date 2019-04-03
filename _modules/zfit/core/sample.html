@@ -106,7 +106,7 @@
       
   <h1>Source code for zfit.core.sample</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
@@ -115,6 +115,7 @@
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="k">import</span> <span class="n">ZfitPDF</span>
+<span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">ShapeIncompatibleError</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
@@ -148,6 +149,44 @@
 
         <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">n_to_produce</span>
         <span class="k">return</span> <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">n_drawn</span></div>
+
+
+<div class="viewcode-block" id="EventSpace"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace">[docs]</a><span class="k">class</span> <span class="nc">EventSpace</span><span class="p">(</span><span class="n">Space</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;EXPERIMENTAL SPACE CLASS!&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Space&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Limits cannot be None for EventSpaces (currently)&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_limits_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_factory</span> <span class="o">=</span> <span class="n">factory</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeReturn</span><span class="p">:</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">limits</span><span class="p">()</span>
+        <span class="n">limits_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_tensor</span>
+        <span class="k">if</span> <span class="n">limits_tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span>
+            <span class="n">new_bounds</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">old_bounds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">bound</span> <span class="ow">in</span> <span class="n">old_bounds</span><span class="p">:</span>
+                    <span class="n">new_bound</span> <span class="o">=</span> <span class="p">(</span><span class="n">lim</span><span class="p">(</span><span class="n">limits_tensor</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">bound</span><span class="p">)</span>
+                    <span class="n">new_bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_bound</span><span class="p">)</span>
+                <span class="n">new_bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_bounds</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_bounds</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EventSpace.create_limits"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace.create_limits">[docs]</a>    <span class="k">def</span> <span class="nf">create_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_limits_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_factory</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EventSpace.iter_areas"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace.iter_areas">[docs]</a>    <span class="k">def</span> <span class="nf">iter_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot be called with an event space.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EventSpace.add"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot be called with an event space.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EventSpace.combine"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace.combine">[docs]</a>    <span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot be called with an event space.&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
@@ -212,6 +251,10 @@
             <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">n</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">EventSpace</span><span class="p">):</span>  <span class="c1"># EXPERIMENTAL(Mayou36): added to test EventSpace</span>
+            <span class="n">limits</span><span class="o">.</span><span class="n">create_limits</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
         <span class="n">do_print</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_verbosity</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">5</span>
         <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
             <span class="n">print_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Number of samples to produce:&quot;</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">,</span> <span class="s2">&quot; with efficiency &quot;</span><span class="p">,</span> <span class="n">eff</span><span class="p">)</span>

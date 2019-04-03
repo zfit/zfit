@@ -109,6 +109,77 @@
   <div class="section" id="module-zfit.core.sample">
 <span id="sample"></span><h1>sample<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
+<dt id="zfit.core.sample.EventSpace">
+<em class="property">class </em><code class="descclassname">zfit.core.sample.</code><code class="descname">EventSpace</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool], factory=None, name: Optional[str] = 'Space'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.limits.html#zfit.core.limits.Space" title="zfit.core.limits.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.limits.Space</span></code></a></p>
+<p>EXPERIMENTAL SPACE CLASS!</p>
+<dl class="method">
+<dt id="zfit.core.sample.EventSpace.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the limits of the spaces. Only works for the same obs.</p>
+<p>In case the observables are different, the order of the first space is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.sample.EventSpace.combine">
+<code class="descname">combine</code><span class="sig-paren">(</span><em>other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.combine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine spaces with different obs (but consistent limits).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.sample.EventSpace.create_limits">
+<code class="descname">create_limits</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.create_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.create_limits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.sample.EventSpace.iter_areas">
+<code class="descname">iter_areas</code><span class="sig-paren">(</span><em>rel: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[float, ...]<a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.iter_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.iter_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the areas of each interval</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rel</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, return the relative fraction of each interval</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.sample.EventSpace.limits">
+<code class="descname">limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the limits.</p>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="zfit.core.sample.UniformSampleAndWeights">
 <em class="property">class </em><code class="descclassname">zfit.core.sample.</code><code class="descname">UniformSampleAndWeights</code><a class="reference internal" href="../_modules/zfit/core/sample.html#UniformSampleAndWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.UniformSampleAndWeights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
