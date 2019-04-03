@@ -1,16 +1,27 @@
-* zfit version:
-* Python version:
-* Operating System:
-* Tensorflow version:
+<!--- Provide a general summary of the issue in the Title above -->
 
-### Description
+## Current Behaviour
 
-Describe what you were trying to get done.
-Tell us what happened, what went wrong, and what you expected to happen.
-
-### What I Did
+<!--- Tell us what happens instead of the expected behavior -->
+<!--- Include the commands you ran and the output. -->
 
 ```
 Paste the command(s) you ran and the output.
 If there was a crash, please include the traceback here.
 ```
+
+## Expected Behaviour
+<!--- Tell us what should happen. -->
+
+## Context (Environment)
+<!--- How has this issue affected you? What are you trying to accomplish? -->
+<!--- Providing context helps us come up with a solution that is most useful in the real world -->
+* zfit version:
+* Python version:
+* Are you using conda, pipenv, etc? :
+* Operating System:
+* Tensorflow version:
+
+## Possible Solution/Implementation
+<!--- Not obligatory, but suggest a fix/reason for the bug, -->
+<!--- and maybe suggest an idea for implementing addition or change -->
