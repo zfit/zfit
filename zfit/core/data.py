@@ -525,10 +525,9 @@ class SampleData(Data):
 
     @classmethod
     def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None,
-                    weights=None):                      )
-
-    dataset = LightDataset.from_tensor(sample)
-    return SampleData(dataset=dataset, sample_holder=sample, obs=obs, name=name, weights=weights)
+                    weights=None):
+        dataset = LightDataset.from_tensor(sample)
+        return SampleData(dataset=dataset, sample_holder=sample, obs=obs, name=name, weights=weights)
 
 
 class Sampler(Data):
