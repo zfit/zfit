@@ -1,5 +1,5 @@
 from contextlib import suppress
-from typing import Callable, Union, Iterable, List
+from typing import Callable, Union, Iterable, List, Optional, Tuple
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -8,6 +8,7 @@ import numpy as np
 import zfit
 from zfit import ztf
 from zfit.core.interfaces import ZfitPDF
+from zfit.util import ztyping
 from zfit.util.exception import ShapeIncompatibleError
 from .. import settings
 from ..util.container import convert_to_container
@@ -41,6 +42,44 @@ class UniformSampleAndWeights:
 
         n_drawn = n_to_produce
         return rnd_sample, thresholds_unscaled, weights, weights, n_drawn
+
+
+class EventSpace(Space):
+    """EXPERIMENTAL SPACE CLASS!"""
+
+    def __init__(self, obs: ztyping.ObsTypeInput, limits: ztyping.LimitsTypeInput, factory=None,
+                 name: Optional[str] = "Space"):
+        if limits is None:
+            raise ValueError("Limits cannot be None for EventSpaces (currently)")
+        self._limits_tensor = None
+        self._factory = factory
+        super().__init__(obs, limits, name)
+
+    @property
+    def limits(self) -> ztyping.LimitsTypeReturn:
+        limits = super().limits()
+        limits_tensor = self._limits_tensor
+        if limits_tensor is not None:
+            lower, upper = limits
+            new_bounds = [[], []]
+            for i, old_bounds in enumerate(lower, upper):
+                for bound in old_bounds:
+                    new_bound = (lim(limits_tensor) for lim in bound)
+                    new_bounds[i].append(new_bound)
+                new_bounds[i] = tuple(new_bounds[i])
+        return tuple(new_bounds)
+
+    def create_limits(self, n):
+        self._limits_tensor = self._factory(n)
+
+    def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+        raise RuntimeError("Cannot be called with an event space.")
+
+    def add(self, other: ztyping.SpaceOrSpacesTypeInput):
+        raise RuntimeError("Cannot be called with an event space.")
+
+    def combine(self, other: ztyping.SpaceOrSpacesTypeInput):
+        raise RuntimeError("Cannot be called with an event space.")
 
 
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
@@ -105,6 +144,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             n_to_produce = n
         else:
             n_to_produce = n - tf.shape(sample, out_type=tf.int64)[0]
+
+        if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
+            limits.create_limits(n=n)
+
         do_print = settings.get_verbosity() > 5
         if do_print:
             print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
