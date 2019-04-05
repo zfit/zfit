@@ -869,7 +869,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
-        sample_data = SampleData.from_sample(sample=sample, obs=self.space)
+        sample_data = SampleData.from_sample(sample=sample, obs=self.space.obs)
 
         return sample_data
 

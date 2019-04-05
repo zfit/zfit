@@ -25,11 +25,19 @@ class UniformSampleAndWeights:
         for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
             n_partial_to_produce = tf.to_int32(
                 ztf.to_real(n_to_produce) * ztf.to_real(area))  # TODO(Mayou36): split right!
+            print(upper, lower)
+
             lower = ztf.convert_to_tensor(lower, dtype=dtype)
             upper = ztf.convert_to_tensor(upper, dtype=dtype)
+
+            if isinstance(limits, EventSpace):
+                lower = tf.transpose(lower)
+                upper = tf.transpose(upper)
+
             sample_drawn = tf.random_uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                              # + 1 dim for the function value
                                              dtype=ztypes.float)
+
             rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
             thresholds_unscaled = sample_drawn[:, -1]
             # if not multiple_limits:
@@ -37,7 +45,9 @@ class UniformSampleAndWeights:
             rnd_samples.append(rnd_sample)
             thresholds_unscaled_list.append(thresholds_unscaled)
 
-        rnd_sample = tf.concat(rnd_samples, axis=0)
+        print_op = tf.print(rnd_sample, summarize=True)
+        with tf.control_dependencies([print_op]):
+            rnd_sample = tf.concat(rnd_samples, axis=0)
         thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
 
         n_drawn = n_to_produce
@@ -160,10 +170,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
-    is_sampled = tf.constant("EMPTY")
+    initial_is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        is_sampled = tf.fill(value=True, dims=(n,))
+        initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
     inital_n_produced = tf.constant(0, dtype=tf.int32)
     initial_n_drawn = tf.constant(0, dtype=tf.int32)
@@ -197,9 +207,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                 raise DueToLazynessNotImplementedError("Multiple limits for fixed event space not yet implemented")
             is_not_sampled = tf.logical_not(is_sampled)
             (lower,), (upper,) = limits.limits
-            lower = (tf.boolean_mask(low, is_not_sampled) for low in lower)
-            upper = (tf.boolean_mask(up, is_not_sampled) for up in upper)
-            new_limits = limits.with_limits(limits=(lower, upper))
+            lower = tuple(tf.boolean_mask(low, is_not_sampled) for low in lower)
+            upper = tuple(tf.boolean_mask(up, is_not_sampled) for up in upper)
+            new_limits = limits.with_limits(limits=((lower,), (upper,)))
             draw_indices = tf.where(is_not_sampled)
 
         rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(n_to_produce=n_to_produce,
@@ -248,13 +258,16 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         n_produced_new = n_produced + n_accepted
         if not dynamic_array_shape:
             indices = tf.boolean_mask(draw_indices, mask=take_or_not)
-            is_sampled = tf.logical_or(is_sampled, tf.SparseTensor(indices=tf.expand_dims(indices, axis=1),
-                                                                   values=tf.broadcast_to(input=(True,), shape=(n,)),
-                                                                   dense_shape=(tf.cast(n, dtype=tf.int64))))
+            current_sampled = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=indices,
+                                                                        values=tf.broadcast_to(input=(True,),
+                                                                                               shape=(n_accepted,)),
+                                                                        dense_shape=(tf.cast(n, dtype=tf.int64),)),
+                                                        default_value=False)
+            is_sampled = tf.logical_or(is_sampled, current_sampled)
         else:
             indices = tf.range(n_produced, n_produced_new)
 
-        sample_new = sample.scatter(indices=indices, value=filtered_sample)
+        sample_new = sample.scatter(indices=tf.cast(indices[:, 0], dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
         eff = ztf.to_real(n_produced_new) / ztf.to_real(n_total_drawn)
@@ -264,17 +277,21 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     #    loop_vars = sample_body(n=n, sample=None,  # run first once for initialization
     #                            n_total_drawn=0, eff=efficiency_estimation)
     efficiency_estimation = ztf.to_real(efficiency_estimation)
-    loop_vars = (n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, is_sampled)
+    loop_vars = (n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled)
+    # DEBUG call only
+    # tmp1 = sample_body(*loop_vars)
+    # print(tmp1)
+    # END DEBUG call only
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
                                  swap_memory=True,
                                  parallel_iterations=2,
                                  back_prop=False)[1]  # backprop not needed here
-    sample = sample_array.stack()
+    new_sample = sample_array.stack()
     if multiple_limits:
-        sample = tf.random.shuffle(sample)  # to make sure, randomly remove and not biased.
+        new_sample = tf.random.shuffle(new_sample)  # to make sure, randomly remove and not biased.
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
-        new_sample = sample[:n, :]  # cutting away to many produced
+        new_sample = new_sample[:n, :]  # cutting away to many produced
 
     # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
     # if no failure, uncomment both for improvement of shape inference

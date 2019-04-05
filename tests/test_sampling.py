@@ -191,13 +191,25 @@ def test_importance_sampling():
 def test_sampling_fixed_eventlimits():
     import tensorflow as tf
 
+    n_samples = 5000
+
     obs1 = "obs1"
-    lower = tf.convert_to_tensor(tuple(range(-10, 11, 4)))
-    upper = tf.convert_to_tensor(tuple(range(-9, 12, 4)))
+    zfit.settings.set_verbosity(6)
+    lower1, upper1 = -10, -9
+    lower2, upper2 = 0, 1
+    lower3, upper3 = 10, 11
+    lower = tf.convert_to_tensor(tuple([lower1] * n_samples + [lower2] * n_samples + [lower3] * n_samples))
+    upper = tf.convert_to_tensor(tuple([upper1] * n_samples + [upper2] * n_samples + [upper3] * n_samples))
     lower = ((lower,),)
     upper = ((upper,),)
     limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
     gauss1 = zfit.pdf.Gauss(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-7, 8)))
 
-    sample = gauss1.sample(n=5, limits=limits)
-    zfit.run(sample)
+    sample = gauss1.sample(n=3 * n_samples, limits=limits)
+    sample_np = zfit.run(sample)
+    assert all(lower1 <= sample_np[:n_samples])
+    assert all(sample_np[:n_samples] <= upper1)
+    assert all(lower2 <= sample_np[n_samples:n_samples * 2])
+    assert all(sample_np[n_samples:n_samples * 2] <= upper2)
+    assert all(lower3 <= sample_np[n_samples * 2:n_samples * 3])
+    assert all(sample_np[n_samples * 2:n_samples * 3] <= upper3)
