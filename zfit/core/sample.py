@@ -45,9 +45,7 @@ class UniformSampleAndWeights:
             rnd_samples.append(rnd_sample)
             thresholds_unscaled_list.append(thresholds_unscaled)
 
-        print_op = tf.print(rnd_sample, summarize=True)
-        with tf.control_dependencies([print_op]):
-            rnd_sample = tf.concat(rnd_samples, axis=0)
+        rnd_sample = tf.concat(rnd_samples, axis=0)
         thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
 
         n_drawn = n_to_produce
@@ -173,7 +171,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     initial_is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        initial_is_sampled = tf.fill(value=False, dims=(n,))
+        assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
+        with tf.control_dependencies([assert_n_matches_limits_op]):
+            initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
     inital_n_produced = tf.constant(0, dtype=tf.int32)
     initial_n_drawn = tf.constant(0, dtype=tf.int32)
@@ -216,10 +216,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                                                                             limits=new_limits,
                                                                                             dtype=dtype)
 
-        # if n_produced is None:
-        #     raise ShapeIncompatibleError("`sample_and_weights` has to return thresholds with a defined shape."
-        #                                  "Use `Tensor.set_shape()` if the automatic propagation of the shape "
-        #                                  "is not available.")
         n_total_drawn += tf.cast(n_drawn, dtype=tf.int32)
 
         probabilities = prob(rnd_sample)
@@ -250,7 +246,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             assert_op = []
         with tf.control_dependencies(assert_op):
             take_or_not = probabilities > random_thresholds
-        # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=0)
 
@@ -273,15 +268,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         eff = ztf.to_real(n_produced_new) / ztf.to_real(n_total_drawn)
         return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled
 
-    # TODO(Mayou36): refactor, remove initial call
-    #    loop_vars = sample_body(n=n, sample=None,  # run first once for initialization
-    #                            n_total_drawn=0, eff=efficiency_estimation)
     efficiency_estimation = ztf.to_real(efficiency_estimation)
     loop_vars = (n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled)
-    # DEBUG call only
-    # tmp1 = sample_body(*loop_vars)
-    # print(tmp1)
-    # END DEBUG call only
+
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
                                  swap_memory=True,
