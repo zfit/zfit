@@ -259,10 +259,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                                                         dense_shape=(tf.cast(n, dtype=tf.int64),)),
                                                         default_value=False)
             is_sampled = tf.logical_or(is_sampled, current_sampled)
+            indices = indices[:, 0]
         else:
             indices = tf.range(n_produced, n_produced_new)
 
-        sample_new = sample.scatter(indices=tf.cast(indices[:, 0], dtype=tf.int32), value=filtered_sample)
+        sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
         eff = ztf.to_real(n_produced_new) / ztf.to_real(n_total_drawn)

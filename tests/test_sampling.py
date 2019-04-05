@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import tensorflow as tf
 
 import zfit
 from zfit import ztf
@@ -140,7 +141,6 @@ def test_sampling_floating(gauss_factory):
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
     zfit.run.create_session(reset_graph=True)
-    import tensorflow as tf
 
     mu_sampler = 5.
     sigma_sampler = 4.
@@ -189,13 +189,12 @@ def test_importance_sampling():
 
 
 def test_sampling_fixed_eventlimits():
-    import tensorflow as tf
+    zfit.run.create_session(reset_graph=True)
 
     n_samples1 = 500
     n_samples2 = 400  # just to make sure
     n_samples3 = 356  # just to make sure
     n_samples_tot = n_samples1 + n_samples2 + n_samples3
-
 
     obs1 = "obs1"
     zfit.settings.set_verbosity(6)
