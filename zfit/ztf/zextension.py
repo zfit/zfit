@@ -2,10 +2,8 @@ import math as _mt
 
 from typing import Any, Callable
 
-try:
-    from math import inf as _inf
-except ImportError:  # py34 remove try-except
-    _inf = float('inf')
+from pandas.tests.extension.numpy_.test_numpy_nested import np
+from math import inf as _inf
 
 import tensorflow as tf
 from ..settings import ztypes
@@ -17,7 +15,7 @@ def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=F
     return tf.constant(value, dtype=dtype, shape=shape, name=name, verify_shape=verify_shape)
 
 
-pi = constant(_mt.pi)
+pi = np.float64(_mt.pi)
 
 
 def to_complex(number, dtype=ztypes.complex):
@@ -49,7 +47,27 @@ def nth_pow(x, n, name=None):
     return power
 
 
-def unstack_x(value: Any, num: Any = None, axis: int = -1, name: str = "unstack_x"):
+def unstack_x(value: Any, num: Any = None, axis: int = -1, always_list: bool = False, name: str = "unstack_x"):
+    """Unstack a Data object and return a list of tensors in the right order.
+
+    Args:
+        value ():
+        num (Union[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
+        axis (int):
+        always_list (bool): If True, also return a list if only one element.
+        name (str):
+
+    Returns:
+        Union[List[tensorflow.python.framework.ops.Tensor], tensorflow.python.framework.ops.Tensor, None]:
+    """
     if isinstance(value, list):
         return value
     try:

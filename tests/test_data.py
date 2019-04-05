@@ -12,24 +12,33 @@ import zfit
 obs1 = ('obs1', 'obs2', 'obs3')
 
 example_data1 = np.random.random(size=(7, len(obs1)))
-data1 = zfit.data.Data.from_numpy(obs=obs1, array=example_data1)
 
 
-def test_from_root_iter():
-    from skhep_testdata import data_path
-
-    path_root = data_path("uproot-Zmumu.root")
-
-    branches = ['pt1', 'pt2']
-
-    data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
-
-    x = data.value()
+def create_data1():
+    return zfit.Data.from_numpy(obs=obs1, array=example_data1)
 
 
-@pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),
-                                     np.random.normal(size=1000), 'eta1'])
-def test_from_root(weights):
+# def test_from_root_iter():
+#     from skhep_testdata import data_path
+#
+#     path_root = data_path("uproot-Zmumu.root")
+#
+#     branches = ['pt1', 'pt2']
+#
+#     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
+#
+#     x = data.value()
+
+
+@pytest.mark.parametrize("weights_factory", [lambda: None,
+                                             lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
+                                             lambda: np.random.normal(size=1000),
+                                             lambda: 'eta1'])
+def test_from_root(weights_factory):
+    zfit.run.create_session(reset_graph=True)
+
+    weights = weights_factory()
+
     from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
@@ -57,9 +66,14 @@ def test_from_root(weights):
         assert weights_np is None
 
 
-@pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),
-                                     np.random.normal(size=1000)])
-def test_from_numpy(weights):
+@pytest.mark.parametrize("weights_factory", [lambda: None,
+                                             lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
+                                             lambda: np.random.normal(size=1000), ])
+def test_from_numpy(weights_factory):
+    zfit.run.create_session(reset_graph=True)
+
+    weights = weights_factory()
+
     example_data = np.random.random(size=(1000, len(obs1)))
     data = zfit.data.Data.from_numpy(obs=obs1, array=example_data, weights=weights)
     x = data.value()
@@ -77,6 +91,8 @@ def test_from_numpy(weights):
 
 
 def test_from_to_pandas():
+    zfit.run.create_session(reset_graph=True)
+
     dtype = np.float32
     example_data_np = np.random.random(size=(1000, len(obs1)))
     example_data = pd.DataFrame(data=example_data_np, columns=obs1)
@@ -99,9 +115,13 @@ def test_from_to_pandas():
     assert all(df == example_data)
 
 
-@pytest.mark.parametrize("weights", [None, 2. * tf.ones(shape=(1000,), dtype=tf.float64),
-                                     np.random.normal(size=1000)])
-def test_from_tensors(weights):
+@pytest.mark.parametrize("weights_factory", [lambda: None,
+                                             lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
+                                             lambda: np.random.normal(size=1000), ])
+def test_from_tensors(weights_factory):
+    zfit.run.create_session(reset_graph=True)
+
+    weights = weights_factory()
     true_tensor = 42. * tf.ones(shape=(1000, 1), dtype=tf.float64)
     data = zfit.data.Data.from_tensor(obs='obs1', tensor=true_tensor,
                                       weights=weights)
@@ -120,11 +140,11 @@ def test_from_tensors(weights):
         assert weights is None
 
 
-# def test_values():
-#     pass
-
 
 def test_overloaded_operators():
+    zfit.run.create_session(reset_graph=True)
+
+    data1 = create_data1()
     a = data1 * 5.
     np.testing.assert_array_equal(5 * example_data1, zfit.run(a))
     np.testing.assert_array_equal(example_data1, zfit.run(data1))
@@ -134,6 +154,10 @@ def test_overloaded_operators():
 
 
 def test_sort_by_obs():
+    zfit.run.create_session(reset_graph=True)
+
+    data1 = create_data1()
+
     new_obs = (obs1[1], obs1[2], obs1[0])
     new_array = copy.deepcopy(example_data1)[:, np.array((1, 2, 0))]
     # new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
@@ -155,6 +179,9 @@ def test_sort_by_obs():
 
 
 def test_subdata():
+    zfit.run.create_session(reset_graph=True)
+
+    data1 = create_data1()
     new_obs = (obs1[0], obs1[1])
     new_array = copy.deepcopy(example_data1)[:, np.array((0, 1))]
     # new_array = np.array([new_array[:, 0], new_array])
@@ -177,6 +204,9 @@ def test_subdata():
 
 
 def test_data_range():
+    zfit.run.create_session(reset_graph=True)
+
+
     data1 = np.array([[1., 2],
                       [0, 1],
                       [-2, 1],

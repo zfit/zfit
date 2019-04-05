@@ -18,11 +18,7 @@ from ..util import ztyping
 from ..core.limits import Space, ANY_LOWER, ANY_UPPER
 from ..core.basepdf import BasePDF
 
-try:
-    infinity = mt.inf
-except AttributeError:  # py34
-    infinity = float('inf')
-
+infinity = mt.inf
 
 class CustomGaussOLD(BasePDF):
 

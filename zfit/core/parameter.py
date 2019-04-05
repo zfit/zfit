@@ -229,7 +229,7 @@ class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
 class ZfitParameterMixin(BaseNumeric):
     _existing_names = set()
 
-    def __init__(self, name, initial_value, floating=True, **kwargs):
+    def __init__(self, name, initial_value, **kwargs):
         if name in self._existing_names:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))

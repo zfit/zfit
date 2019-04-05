@@ -12,6 +12,8 @@ from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTaken
 
 
 def test_complex_param():
+    zfit.run.create_session(reset_graph=True)
+
     real_part = 1.3
     imag_part = 0.3
     # Constant complex
@@ -65,10 +67,12 @@ def test_complex_param():
     assert cos(arg_val) == pytest.approx(zfit.run(param3.real), rel=1e-6)
 
 def test_composed_param():
-    param1 = Parameter('param1s', 1.)
-    param2 = Parameter('param2s', 2.)
-    param3 = Parameter('param3s', 3., floating=False)
-    param4 = Parameter('param4s', 4.)
+    zfit.run.create_session(reset_graph=True)
+
+    param1 = Parameter('param1', 1.)
+    param2 = Parameter('param2', 2.)
+    param3 = Parameter('param3', 3., floating=False)
+    param4 = Parameter('param4', 4.)
     a = ztf.log(3. * param1) * tf.square(param2) - param3
     param_a = ComposedParameter('param_as', tensor=a)
     assert isinstance(param_a.get_dependents(only_floating=True), set)
@@ -88,9 +92,11 @@ def test_composed_param():
 
 
 def test_param_limits():
+    zfit.run.create_session(reset_graph=True)
+
     lower, upper = -4., 3.
-    param1 = Parameter('param1lim', 1., lower_limit=lower, upper_limit=upper)
-    param2 = Parameter('param2lim', 2.)
+    param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
+    param2 = Parameter('param2', 2.)
 
     param1.load(upper + 0.5)
     assert upper == zfit.run(param1.value())
@@ -102,22 +108,28 @@ def test_param_limits():
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_ao', 5 * 4)
-    param_b = ComposedParameter('param_bo', 3)
+    zfit.run.create_session(reset_graph=True)
+
+    param_a = ComposedParameter('param_a', 5 * 4)
+    param_b = ComposedParameter('param_b', 3)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_do", param_a + param_a * param_b ** 2)
+    param_d = ComposedParameter("param_d", param_a + param_a * param_b ** 2)
     param_d_val = zfit.run(param_d)
     assert param_d_val == zfit.run(param_a + param_a * param_b ** 2)
 
 
 def test_equal_naming():
+    zfit.run.create_session(reset_graph=True)
+
     param_unique_name = zfit.Parameter('fafdsfds', 5.)
     with pytest.raises(NameAlreadyTakenError):
         param_unique_name2 = zfit.Parameter('fafdsfds', 3.)
 
 
 def test_set_value():
+    zfit.run.create_session(reset_graph=True)
+
     value1 = 1.
     value2 = 2.
     value3 = 3.

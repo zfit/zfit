@@ -9,31 +9,50 @@ from zfit.util.execution import SessionHolderMixin
 mu_true = 1.5
 sigma_true = 1.2
 low, high = -4.1, 2.9
-mu = zfit.Parameter("mu_sampling1", mu_true, mu_true - 2., mu_true + 7.)
-sigma = zfit.Parameter("sigma_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
 
 obs1 = 'obs1'
 
-gauss_params1 = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1_sampling1")
+
+def create_gauss1():
+    mu = zfit.Parameter("mu_sampling1", mu_true, mu_true - 2., mu_true + 7.)
+    sigma = zfit.Parameter("sigma_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
+
+    gauss_params1 = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1_sampling1")
+    return gauss_params1, mu, sigma
 
 
-class TestGaussian(zfit.core.basepdf.BasePDF):
+class TestGaussian(zfit.pdf.BasePDF):
+
+    def __init__(self, obs, mu, sigma, params=None,
+                 name: str = "BasePDF", **kwargs):
+        params = {'mu': mu, 'sigma': sigma}
+        super().__init__(obs, params, name=name, **kwargs)
 
     def _unnormalized_pdf(self, x, norm_range=False):
         x = x.unstack_x()
-        return ztf.exp((-(x - mu) ** 2) / (2 * sigma ** 2))  # non-normalized gaussian
+        mu = self.params['mu']
+        sigma = self.params['sigma']
+
+        return ztf.exp((-(x - mu) ** 2) / (
+            2 * sigma ** 2))  # non-normalized gaussian
 
 
-mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2., mu_true + 7.)
-sigma2 = zfit.Parameter("sigma2_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
+def create_test_gauss1():
+    mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2., mu_true + 7.)
+    sigma2 = zfit.Parameter("sigma2_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
 
-test_gauss1 = TestGaussian(name="test_gauss1", obs=obs1)
+    test_gauss1 = TestGaussian(name="test_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
+    return test_gauss1, mu2, sigma2
 
-gaussian_dists = [test_gauss1, gauss_params1]
+
+gaussian_dists = [lambda: create_gauss1(), lambda: create_test_gauss1()]
 
 
-@pytest.mark.parametrize('gauss', gaussian_dists)
-def test_sampling_fixed(gauss):
+@pytest.mark.parametrize('gauss_factory', gaussian_dists)
+def test_sampling_fixed(gauss_factory):
+    zfit.run.create_session(reset_graph=True)
+
+    gauss, mu, sigma = gauss_factory()
     import tensorflow as tf
     n_draws = 1000
     n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
@@ -64,7 +83,7 @@ def test_sampling_fixed(gauss):
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
-    with mu.set_value(mu_true - 1), mu2.set_value(mu_true - 1):
+    with mu.set_value(mu_true - 1):
         sample_tensor.resample()
         sampled_from_gauss1 = zfit.run(sample_tensor)
         assert max(sampled_from_gauss1[:, 0]) <= high
@@ -78,8 +97,12 @@ def test_sampling_fixed(gauss):
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
 
-@pytest.mark.parametrize('gauss', gaussian_dists)
-def test_sampling_floating(gauss):
+@pytest.mark.parametrize('gauss_factory', gaussian_dists)
+def test_sampling_floating(gauss_factory):
+    zfit.run.create_session(reset_graph=True)
+
+    gauss, mu, sigma = gauss_factory()
+
     n_draws = 1000
     sampler = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
     sampler.resample()
@@ -98,9 +121,8 @@ def test_sampling_floating(gauss):
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
-    with mu.set_value(mu_true - 1), mu2.set_value(mu_true - 1):
+    with mu.set_value(mu_true - 1):
         assert zfit.run(mu) == mu_true - 1
-        assert zfit.run(mu2) == mu_true - 1
         sampler.resample()
         sampled_from_gauss1 = zfit.run(sampler)
         assert max(sampled_from_gauss1[:, 0]) <= high
@@ -117,6 +139,7 @@ def test_sampling_floating(gauss):
 
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
+    zfit.run.create_session(reset_graph=True)
     import tensorflow as tf
 
     mu_sampler = 5.
