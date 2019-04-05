@@ -147,9 +147,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     # multiple limits and therefore need to randomly remove events, otherwise we are biased because the
     # drawn samples are ordered in the different
     dynamic_array_shape = True
-    # for fixed limits in EventSpace we need to know which indices have been succesfully sampled. Therefore this
+
+    # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
-    is_sampled = None
+    is_sampled = tf.constant("EMPTY")
     inital_n_produced = tf.constant(0, dtype=tf.int32)
     initial_n_drawn = tf.constant(0, dtype=tf.int32)
 
@@ -223,12 +224,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         sample_new = sample.scatter(indices=indices, value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
-        eff = ztf.to_real(tf.shape(sample, out_type=tf.int32)[0]) / ztf.to_real(n_total_drawn)
+        eff = ztf.to_real(n_produced_new) / ztf.to_real(n_total_drawn)
         return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled
 
     # TODO(Mayou36): refactor, remove initial call
     #    loop_vars = sample_body(n=n, sample=None,  # run first once for initialization
     #                            n_total_drawn=0, eff=efficiency_estimation)
+    efficiency_estimation = ztf.to_real(efficiency_estimation)
     loop_vars = (n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, is_sampled)
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,

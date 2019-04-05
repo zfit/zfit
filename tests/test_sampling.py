@@ -156,22 +156,22 @@ def test_importance_sampling():
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.n_to_produce = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True,
-                                            trainable=False, validate_shape=False)
-            self.sess.run(self.n_to_produce.initializer)
+            # self.n_to_produce = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True,
+            #                                 trainable=False, validate_shape=False)
+            # self.sess.run(self.n_to_produce.initializer)
             # self.dtype = dtype
             # self.limits = limits
 
         def __call__(self, n_to_produce, limits, dtype):
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int64)
-            assign_op = self.n_to_produce.assign(n_to_produce)
-            with tf.control_dependencies([assign_op]):
-                gaussian_sample = gauss_sampler._create_sampler_tensor(n=assign_op, limits=limits,
-                                                                       fixed_params=False, name='asdf')[2]
-                weights = gauss_sampler.pdf(gaussian_sample)
-                weights_max = tf.reduce_max(weights) * 0.7
-                thresholds = tf.random_uniform(shape=(self.n_to_produce,), dtype=dtype)
-            return gaussian_sample, thresholds, weights, weights_max, self.n_to_produce
+            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            # assign_op = self.n_to_produce.assign(n_to_produce)
+            # with tf.control_dependencies([assign_op]):
+            gaussian_sample = gauss_sampler._create_sampler_tensor(n=n_to_produce, limits=limits,
+                                                                   fixed_params=False, name='asdf')[2]
+            weights = gauss_sampler.pdf(gaussian_sample)
+            weights_max = tf.reduce_max(weights) * 0.7
+            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
     gauss_pdf._sample_and_weights = GaussianSampleAndWeights
