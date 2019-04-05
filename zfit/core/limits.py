@@ -782,8 +782,9 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             :py:class:`~zfit.Space`:
         """
-        with self._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset):
-            return copy.deepcopy(self)
+        new_space = Space(obs=self.obs, limits=self.limits)
+        new_space._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset)
+        return new_space
 
     def with_autofill_axes(self, overwrite: bool = False) -> "zfit.Space":
         """Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).

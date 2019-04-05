@@ -192,10 +192,12 @@ def test_sampling_fixed_eventlimits():
     import tensorflow as tf
 
     obs1 = "obs1"
-    lower = tf.convert_to_tensor(tuple(range(-10, 11, step=4)))
-    upper = tf.convert_to_tensor(tuple(range(-9, 12, step=4)))
+    lower = tf.convert_to_tensor(tuple(range(-10, 11, 4)))
+    upper = tf.convert_to_tensor(tuple(range(-9, 12, 4)))
+    lower = ((lower,),)
+    upper = ((upper,),)
     limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
-    gauss1 = zfit.pdf.Gauss(mu=0.3, sigma=4, obs=zfit.Space(obs1=obs1, limits=(-7, 8)))
+    gauss1 = zfit.pdf.Gauss(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-7, 8)))
 
     sample = gauss1.sample(n=5, limits=limits)
     zfit.run(sample)

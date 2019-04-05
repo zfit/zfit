@@ -65,7 +65,7 @@ class EventSpace(Space):
 
     @property
     def limits(self) -> ztyping.LimitsTypeReturn:
-        limits = super().limits()
+        limits = super().limits
         limits_tensor = self._limits_tensor
         if limits_tensor is not None:
             lower, upper = limits
@@ -78,7 +78,9 @@ class EventSpace(Space):
                         new_bound = (lim() for lim in bound)
                     new_bounds[i].append(new_bound)
                 new_bounds[i] = tuple(new_bounds[i])
-        return tuple(new_bounds)
+            limits = tuple(new_bounds)
+
+        return limits
 
     def create_limits(self, n):
         if self._factory is not None:
