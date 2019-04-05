@@ -171,7 +171,7 @@ class Space(ZfitSpace, BaseObject):
         if obs is None:
             new_space = cls.from_axes(axes=axes, limits=limits, name=name)
         else:
-            new_space = Space(obs=obs, limits=limits, name=name)
+            new_space = cls(obs=obs, limits=limits, name=name)
             new_space._axes = axes
 
         return new_space
@@ -547,7 +547,7 @@ class Space(ZfitSpace, BaseObject):
                     limit = lower, upper
                 else:
                     limit = lower
-                space = Space._from_any(obs=self.obs, axes=self.axes, limits=limit)
+                space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=limit)
                 space_objects.append(space)
             return tuple(space_objects)
 

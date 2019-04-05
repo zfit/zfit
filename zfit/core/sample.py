@@ -73,9 +73,9 @@ class EventSpace(Space):
             for i, old_bounds in enumerate(lower, upper):
                 for bound in old_bounds:
                     if self.is_generator:
-                        new_bound = (lim(limits_tensor) for lim in bound)
+                        new_bound = tuple(lim(limits_tensor) for lim in bound)
                     else:
-                        new_bound = (lim() for lim in bound)
+                        new_bound = tuple(lim() for lim in bound)
                     new_bounds[i].append(new_bound)
                 new_bounds[i] = tuple(new_bounds[i])
             limits = tuple(new_bounds)
@@ -87,6 +87,9 @@ class EventSpace(Space):
             self._limits_tensor = self._factory(n)
 
     def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+        if not rel:
+            raise RuntimeError("Currently, only rel with one limits is implemented in EventSpace")
+        return (1.,)  # TODO: remove HACK, use tensors?
         raise RuntimeError("Cannot be called with an event space.")
 
     def add(self, other: ztyping.SpaceOrSpacesTypeInput):
@@ -94,6 +97,11 @@ class EventSpace(Space):
 
     def combine(self, other: ztyping.SpaceOrSpacesTypeInput):
         raise RuntimeError("Cannot be called with an event space.")
+
+    @staticmethod
+    def _calculate_areas(limits) -> Tuple[float]:
+        # TODO: return the area as a tensor?
+        return (1.,)
 
 
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
@@ -155,7 +163,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        is_sampled = tf.constant(True, shape=(n,))
+        is_sampled = tf.fill(value=True, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
     inital_n_produced = tf.constant(0, dtype=tf.int32)
     initial_n_drawn = tf.constant(0, dtype=tf.int32)
