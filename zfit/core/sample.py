@@ -23,7 +23,7 @@ class UniformSampleAndWeights:
         weights = ztf.constant(1., shape=(1,))
 
         for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
-            n_partial_to_produce = tf.to_int64(
+            n_partial_to_produce = tf.to_int32(
                 ztf.to_real(n_to_produce) * ztf.to_real(area))  # TODO(Mayou36): split right!
             lower = ztf.convert_to_tensor(lower, dtype=dtype)
             upper = ztf.convert_to_tensor(upper, dtype=dtype)
@@ -56,6 +56,14 @@ class EventSpace(Space):
         super().__init__(obs, limits, name)
 
     @property
+    def factory(self):
+        return self._factory
+
+    @property
+    def is_generator(self):
+        return self.factory is not None
+
+    @property
     def limits(self) -> ztyping.LimitsTypeReturn:
         limits = super().limits()
         limits_tensor = self._limits_tensor
@@ -64,13 +72,17 @@ class EventSpace(Space):
             new_bounds = [[], []]
             for i, old_bounds in enumerate(lower, upper):
                 for bound in old_bounds:
-                    new_bound = (lim(limits_tensor) for lim in bound)
+                    if self.is_generator:
+                        new_bound = (lim(limits_tensor) for lim in bound)
+                    else:
+                        new_bound = (lim() for lim in bound)
                     new_bounds[i].append(new_bound)
                 new_bounds[i] = tuple(new_bounds[i])
         return tuple(new_bounds)
 
     def create_limits(self, n):
-        self._limits_tensor = self._factory(n)
+        if self._factory is not None:
+            self._limits_tensor = self._factory(n)
 
     def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
         raise RuntimeError("Cannot be called with an event space.")
@@ -93,8 +105,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
         limits (:py:class:`~zfit.Space`): The limits to sample from
-        sample_and_weights_factory (Callable): A function that returns the sample to insert into `prob` and the weights
-            (prob) of each sample together with the random thresholds. The API looks as follows:
+        sample_and_weights_factory (Callable): A factory function that returns the following function:
+            A function that returns the sample to insert into `prob` and the weights
+            (probability density) of each sample together with the random thresholds. The API looks as follows:
 
             - Parameters:
 
@@ -127,23 +140,23 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     """
     multiple_limits = limits.n_limits > 1
 
-    # if limits.n_limits == 1:
-    #     lower, upper = limits.limits
-    #     lower = ztf.convert_to_tensor(lower[0], dtype=dtype)
-    #     upper = ztf.convert_to_tensor(upper[0], dtype=dtype)
-
     sample_and_weights = sample_and_weights_factory()
+    n = tf.to_int32(n)
+    dynamic_array_shape = True
+    is_sampled = None
 
-    n = tf.to_int64(n)
+    sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape, clear_after_read=True,
+                            element_shape=(limits.n_obs,))
+
 
     def enough_produced(n, sample, n_total_drawn, eff):
-        return tf.greater(n, tf.shape(sample, out_type=tf.int64)[0])
+        return tf.greater(n, tf.shape(sample, out_type=tf.int32)[0])
 
     def sample_body(n, sample, n_total_drawn=0, eff=1.0):
         if sample is None:
             n_to_produce = n
         else:
-            n_to_produce = n - tf.shape(sample, out_type=tf.int64)[0]
+            n_to_produce = n - tf.shape(sample, out_type=tf.int32)[0]
 
         if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
             limits.create_limits(n=n)
@@ -152,9 +165,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if do_print:
             print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
         with tf.control_dependencies([print_op] if do_print else []):
-            n_to_produce = tf.to_int64(ztf.to_real(n_to_produce) / eff * 1.01) + 100  # just to make sure
+            n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * 1.01) + 10  # just to make sure
         # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-        n_to_produce = tf.minimum(n_to_produce, tf.to_int64(5e5))  # introduce a cap to force serial
+        n_to_produce = tf.minimum(n_to_produce, tf.to_int32(5e5))  # introduce a cap to force serial
 
         rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(n_to_produce=n_to_produce,
                                                                                             limits=limits,
@@ -165,7 +178,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         #                                  "Use `Tensor.set_shape()` if the automatic propagation of the shape "
         #                                  "is not available.")
         n_total_drawn += n_drawn
-        n_total_drawn = tf.to_int64(n_total_drawn)
+        n_total_drawn = tf.to_int32(n_total_drawn)
 
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
@@ -205,13 +218,15 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             sample = tf.concat([sample, filtered_sample], axis=0)
 
         # efficiency (estimate) of how many samples we get
-        eff = ztf.to_real(tf.shape(sample, out_type=tf.int64)[1]) / ztf.to_real(n_total_drawn)
+        eff = ztf.to_real(tf.shape(sample, out_type=tf.int32)[0]) / ztf.to_real(n_total_drawn)
         return n, sample, n_total_drawn, eff
 
     # TODO(Mayou36): refactor, remove initial call
+    loop_vars = sample_body(n=n, sample=None,  # run first once for initialization
+                            n_total_drawn=0, eff=efficiency_estimation)
+    #    loop_vars = (n, sample, 0, efficiency_estimation)
     sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
-                           loop_vars=sample_body(n=n, sample=None,  # run first once for initialization
-                                                 n_total_drawn=0, eff=efficiency_estimation),
+                           loop_vars=loop_vars,
                            swap_memory=True,
                            parallel_iterations=4,
                            back_prop=False)[1]  # backprop not needed here
