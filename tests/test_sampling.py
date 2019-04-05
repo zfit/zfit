@@ -186,3 +186,16 @@ def test_importance_sampling():
     assert mean2 == pytest.approx(mu_pdf, rel=0.02)
     assert std == pytest.approx(sigma_pdf, rel=0.02)
     assert std2 == pytest.approx(sigma_pdf, rel=0.02)
+
+
+def test_sampling_fixed_eventlimits():
+    import tensorflow as tf
+
+    obs1 = "obs1"
+    lower = tf.convert_to_tensor(tuple(range(-10, 11, step=4)))
+    upper = tf.convert_to_tensor(tuple(range(-9, 12, step=4)))
+    limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
+    gauss1 = zfit.pdf.Gauss(mu=0.3, sigma=4, obs=zfit.Space(obs1=obs1, limits=(-7, 8)))
+
+    sample = gauss1.sample(n=5, limits=limits)
+    zfit.run(sample)

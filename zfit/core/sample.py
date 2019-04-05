@@ -236,7 +236,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         n_accepted = tf.shape(filtered_sample)[0]
         n_produced_new = n_produced + n_accepted
-        if dynamic_array_shape:
+        if not dynamic_array_shape:
             indices = tf.boolean_mask(draw_indices, mask=take_or_not)
             is_sampled = tf.logical_or(is_sampled, tf.SparseTensor(indices=tf.expand_dims(indices, axis=1),
                                                                    values=tf.broadcast_to(input=(True,), shape=(n,)),
