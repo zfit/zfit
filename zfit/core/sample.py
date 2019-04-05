@@ -142,21 +142,27 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.to_int32(n)
+    # whether we may produce more then n, we normally do (except for EventSpace which is not a generator)
+    # we cannot cut inside the while loop as soon as we have produced enough because we may sample from
+    # multiple limits and therefore need to randomly remove events, otherwise we are biased because the
+    # drawn samples are ordered in the different
     dynamic_array_shape = True
+    # for fixed limits in EventSpace we need to know which indices have been succesfully sampled. Therefore this
+    # can be None (if not needed) or a boolean tensor with the size `n`
     is_sampled = None
+    inital_n_produced = tf.constant(0, dtype=tf.int32)
+    initial_n_drawn = tf.constant(0, dtype=tf.int32)
 
-    sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape, clear_after_read=True,
+    sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
+                            clear_after_read=True,  # we read only once at end to tensor
                             element_shape=(limits.n_obs,))
 
+    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled):
+        return tf.greater(n, n_produced)
 
-    def enough_produced(n, sample, n_total_drawn, eff):
-        return tf.greater(n, tf.shape(sample, out_type=tf.int32)[0])
+    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None):
 
-    def sample_body(n, sample, n_total_drawn=0, eff=1.0):
-        if sample is None:
-            n_to_produce = n
-        else:
-            n_to_produce = n - tf.shape(sample, out_type=tf.int32)[0]
+        n_to_produce = n - n_produced
 
         if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
             limits.create_limits(n=n)
@@ -177,8 +183,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         #     raise ShapeIncompatibleError("`sample_and_weights` has to return thresholds with a defined shape."
         #                                  "Use `Tensor.set_shape()` if the automatic propagation of the shape "
         #                                  "is not available.")
-        n_total_drawn += n_drawn
-        n_total_drawn = tf.to_int32(n_total_drawn)
+        n_total_drawn += tf.cast(n_drawn, dtype=tf.int32)
 
         probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
@@ -211,28 +216,30 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=0)
+        n_accepted = tf.shape(filtered_sample)[0]
+        n_produced_new = n_produced + n_accepted
+        indices = tf.range(n_produced, n_produced_new)
 
-        if sample is None:
-            sample = filtered_sample
-        else:
-            sample = tf.concat([sample, filtered_sample], axis=0)
+        sample_new = sample.scatter(indices=indices, value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
         eff = ztf.to_real(tf.shape(sample, out_type=tf.int32)[0]) / ztf.to_real(n_total_drawn)
-        return n, sample, n_total_drawn, eff
+        return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled
 
     # TODO(Mayou36): refactor, remove initial call
-    loop_vars = sample_body(n=n, sample=None,  # run first once for initialization
-                            n_total_drawn=0, eff=efficiency_estimation)
-    #    loop_vars = (n, sample, 0, efficiency_estimation)
-    sample = tf.while_loop(cond=enough_produced, body=sample_body,  # paraopt
-                           loop_vars=loop_vars,
-                           swap_memory=True,
-                           parallel_iterations=4,
-                           back_prop=False)[1]  # backprop not needed here
+    #    loop_vars = sample_body(n=n, sample=None,  # run first once for initialization
+    #                            n_total_drawn=0, eff=efficiency_estimation)
+    loop_vars = (n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, is_sampled)
+    sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
+                                 loop_vars=loop_vars,
+                                 swap_memory=True,
+                                 parallel_iterations=2,
+                                 back_prop=False)[1]  # backprop not needed here
+    sample = sample_array.stack()
     if multiple_limits:
         sample = tf.random.shuffle(sample)  # to make sure, randomly remove and not biased.
-    new_sample = sample[:n, :]  # cutting away to many produced
+    if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
+        new_sample = sample[:n, :]  # cutting away to many produced
 
     # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
     # if no failure, uncomment both for improvement of shape inference
