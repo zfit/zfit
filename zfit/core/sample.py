@@ -9,7 +9,7 @@ import zfit
 from zfit import ztf
 from zfit.core.interfaces import ZfitPDF
 from zfit.util import ztyping
-from zfit.util.exception import ShapeIncompatibleError
+from zfit.util.exception import ShapeIncompatibleError, DueToLazynessNotImplementedError
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
@@ -151,6 +151,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
     is_sampled = tf.constant("EMPTY")
+    if isinstance(limits, EventSpace) and not limits.is_generator:
+        dynamic_array_shape = False
+        is_sampled = tf.constant(True, shape=(n,))
+        efficiency_estimation = 1.0  # generate exactly n
     inital_n_produced = tf.constant(0, dtype=tf.int32)
     initial_n_drawn = tf.constant(0, dtype=tf.int32)
 
@@ -172,12 +176,24 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if do_print:
             print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
         with tf.control_dependencies([print_op] if do_print else []):
+            n_to_produce = tf.identity(n_to_produce)
+        if dynamic_array_shape:
             n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * 1.01) + 10  # just to make sure
-        # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-        n_to_produce = tf.minimum(n_to_produce, tf.to_int32(5e5))  # introduce a cap to force serial
+            # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
+            n_to_produce = tf.minimum(n_to_produce, tf.to_int32(5e5))  # introduce a cap to force serial
+            new_limits = limits
+        else:
+            if multiple_limits:
+                raise DueToLazynessNotImplementedError("Multiple limits for fixed event space not yet implemented")
+            is_not_sampled = tf.logical_not(is_sampled)
+            (lower,), (upper,) = limits.limits
+            lower = (tf.boolean_mask(low, is_not_sampled) for low in lower)
+            upper = (tf.boolean_mask(up, is_not_sampled) for up in upper)
+            new_limits = limits.with_limits(limits=(lower, upper))
+            draw_indices = tf.where(is_not_sampled)
 
         rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(n_to_produce=n_to_produce,
-                                                                                            limits=limits,
+                                                                                            limits=new_limits,
                                                                                             dtype=dtype)
 
         # if n_produced is None:
@@ -217,9 +233,16 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         # rnd_sample = tf.expand_dims(rnd_sample, dim=0) if len(rnd_sample.shape) == 1 else rnd_sample
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(rnd_sample, mask=take_or_not, axis=0)
+
         n_accepted = tf.shape(filtered_sample)[0]
         n_produced_new = n_produced + n_accepted
-        indices = tf.range(n_produced, n_produced_new)
+        if dynamic_array_shape:
+            indices = tf.boolean_mask(draw_indices, mask=take_or_not)
+            is_sampled = tf.logical_or(is_sampled, tf.SparseTensor(indices=tf.expand_dims(indices, axis=1),
+                                                                   values=tf.broadcast_to(input=(True,), shape=(n,)),
+                                                                   dense_shape=(tf.cast(n, dtype=tf.int64))))
+        else:
+            indices = tf.range(n_produced, n_produced_new)
 
         sample_new = sample.scatter(indices=indices, value=filtered_sample)
 
