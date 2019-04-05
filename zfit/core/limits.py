@@ -782,7 +782,7 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             :py:class:`~zfit.Space`:
         """
-        new_space = type(self)(obs=self.obs, limits=self.limits)
+        new_space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=self.limits)
         new_space._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset)
         return new_space
 
