@@ -27,7 +27,7 @@ class RunManager:
         self.set_n_cpu(n_cpu=n_cpu)
 
         # HACK
-        self._enable_parameter_autoconversion = True
+        self._enable_parameter_autoconversion = False
         # HACK END
 
         # set default values
