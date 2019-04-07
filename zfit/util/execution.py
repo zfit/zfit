@@ -26,6 +26,10 @@ class RunManager:
 
         self.set_n_cpu(n_cpu=n_cpu)
 
+        # HACK
+        self._enable_parameter_autoconversion = True
+        # HACK END
+
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
         self.chunking.max_n_points = 1000000
