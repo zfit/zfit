@@ -937,8 +937,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     @contextlib.contextmanager
     def _name_scope(self, name=None, values=None):
         """Helper function to standardize op scope."""
-        with tf.name_scope(self.name):
-            with tf.name_scope(name, values=([] if values is None else values)) as scope:
+
+        # with tf.name_scope(self.name):
+        with tf.name_scope(name, values=([] if values is None else values)) as scope:
                 yield scope
 
     @classmethod
