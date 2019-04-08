@@ -25,7 +25,6 @@ class UniformSampleAndWeights:
         for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
             n_partial_to_produce = tf.to_int32(
                 ztf.to_real(n_to_produce) * ztf.to_real(area))  # TODO(Mayou36): split right!
-            print(upper, lower)
 
             lower = ztf.convert_to_tensor(lower, dtype=dtype)
             upper = ztf.convert_to_tensor(upper, dtype=dtype)
