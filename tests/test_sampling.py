@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import tensorflow as tf
 
 import zfit
 from zfit import ztf
@@ -140,7 +141,6 @@ def test_sampling_floating(gauss_factory):
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
     zfit.run.create_session(reset_graph=True)
-    import tensorflow as tf
 
     mu_sampler = 5.
     sigma_sampler = 4.
@@ -156,22 +156,22 @@ def test_importance_sampling():
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.n_to_produce = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True,
-                                            trainable=False, validate_shape=False)
-            self.sess.run(self.n_to_produce.initializer)
+            # self.n_to_produce = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True,
+            #                                 trainable=False, validate_shape=False)
+            # self.sess.run(self.n_to_produce.initializer)
             # self.dtype = dtype
             # self.limits = limits
 
         def __call__(self, n_to_produce, limits, dtype):
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int64)
-            assign_op = self.n_to_produce.assign(n_to_produce)
-            with tf.control_dependencies([assign_op]):
-                gaussian_sample = gauss_sampler._create_sampler_tensor(n=assign_op, limits=limits,
-                                                                       fixed_params=False, name='asdf')[2]
-                weights = gauss_sampler.pdf(gaussian_sample)
-                weights_max = tf.reduce_max(weights) * 0.7
-                thresholds = tf.random_uniform(shape=(self.n_to_produce,), dtype=dtype)
-            return gaussian_sample, thresholds, weights, weights_max, self.n_to_produce
+            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            # assign_op = self.n_to_produce.assign(n_to_produce)
+            # with tf.control_dependencies([assign_op]):
+            gaussian_sample = gauss_sampler._create_sampler_tensor(n=n_to_produce, limits=limits,
+                                                                   fixed_params=False, name='asdf')[2]
+            weights = gauss_sampler.pdf(gaussian_sample)
+            weights_max = tf.reduce_max(weights) * 0.7
+            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
     gauss_pdf._sample_and_weights = GaussianSampleAndWeights
@@ -186,3 +186,37 @@ def test_importance_sampling():
     assert mean2 == pytest.approx(mu_pdf, rel=0.02)
     assert std == pytest.approx(sigma_pdf, rel=0.02)
     assert std2 == pytest.approx(sigma_pdf, rel=0.02)
+
+
+def test_sampling_fixed_eventlimits():
+    zfit.run.create_session(reset_graph=True)
+
+    n_samples1 = 500
+    n_samples2 = 400  # just to make sure
+    n_samples3 = 356  # just to make sure
+    n_samples_tot = n_samples1 + n_samples2 + n_samples3
+
+    obs1 = "obs1"
+    zfit.settings.set_verbosity(6)
+    lower1, upper1 = -10, -9
+    lower2, upper2 = 0, 1
+    lower3, upper3 = 10, 11
+    lower = tf.convert_to_tensor(tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
+    upper = tf.convert_to_tensor(tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
+    lower = ((lower,),)
+    upper = ((upper,),)
+    limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
+    gauss1 = zfit.pdf.Gauss(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-7, 8)))
+
+    sample = gauss1.sample(n=n_samples_tot, limits=limits)
+    sample_np = zfit.run(sample)
+    assert sample_np.shape[0] == n_samples_tot
+    assert all(lower1 <= sample_np[:n_samples1])
+    assert all(sample_np[:n_samples1] <= upper1)
+    assert all(lower2 <= sample_np[n_samples1:n_samples2])
+    assert all(sample_np[n_samples1:n_samples2] <= upper2)
+    assert all(lower3 <= sample_np[n_samples2:n_samples3])
+    assert all(sample_np[n_samples2:n_samples3] <= upper3)
+    with pytest.raises(ValueError,
+                       match="are incompatible"):  # cannot use the exact message, () are regex syntax... bug in pytest
+        _ = gauss1.sample(n=n_samples_tot + 1, limits=limits)

@@ -169,9 +169,9 @@ class Space(ZfitSpace, BaseObject):
                   limits: Optional[ztyping.LimitsTypeInput] = None,
                   name: str = None) -> "zfit.Space":
         if obs is None:
-            new_space = Space.from_axes(axes=axes, limits=limits, name=name)
+            new_space = cls.from_axes(axes=axes, limits=limits, name=name)
         else:
-            new_space = Space(obs=obs, limits=limits, name=name)
+            new_space = cls(obs=obs, limits=limits, name=name)
             new_space._axes = axes
 
         return new_space
@@ -547,7 +547,7 @@ class Space(ZfitSpace, BaseObject):
                     limit = lower, upper
                 else:
                     limit = lower
-                space = Space._from_any(obs=self.obs, axes=self.axes, limits=limit)
+                space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=limit)
                 space_objects.append(space)
             return tuple(space_objects)
 
@@ -782,8 +782,9 @@ class Space(ZfitSpace, BaseObject):
         Returns:
             :py:class:`~zfit.Space`:
         """
-        with self._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset):
-            return copy.deepcopy(self)
+        new_space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=self.limits)
+        new_space._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset)
+        return new_space
 
     def with_autofill_axes(self, overwrite: bool = False) -> "zfit.Space":
         """Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).
@@ -884,7 +885,7 @@ class Space(ZfitSpace, BaseObject):
             sub_upper = tuple(tuple(lim[i] for i in sub_index) for lim in upper)
             sub_limits = sub_lower, sub_upper
 
-        new_space = Space._from_any(obs=sub_obs, axes=sub_axes, limits=sub_limits, name=name)
+        new_space = type(self)._from_any(obs=sub_obs, axes=sub_axes, limits=sub_limits, name=name)
 
         return new_space
 
@@ -912,7 +913,7 @@ class Space(ZfitSpace, BaseObject):
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
 
-        new_space = Space._from_any(**kwargs)
+        new_space = type(self)._from_any(**kwargs)
         return new_space
 
     def __le__(self, other):
