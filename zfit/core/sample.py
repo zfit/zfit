@@ -170,16 +170,16 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     initial_is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
-        with tf.control_dependencies([assert_n_matches_limits_op]):
-            initial_is_sampled = tf.fill(value=False, dims=(n,))
+        # assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
+        # with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
+        initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
     inital_n_produced = tf.constant(0, dtype=tf.int32)
     initial_n_drawn = tf.constant(0, dtype=tf.int32)
-
-    sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
-                            clear_after_read=True,  # we read only once at end to tensor
-                            element_shape=(limits.n_obs,))
+    with tf.control_dependencies([n]):
+        sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
+                                clear_after_read=True,  # we read only once at end to tensor
+                                element_shape=(limits.n_obs,))
 
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled):
         return tf.greater(n, n_produced)
@@ -215,9 +215,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                                                                             limits=new_limits,
                                                                                             dtype=dtype)
 
-        n_total_drawn += tf.cast(n_drawn, dtype=tf.int32)
+        n_drawn = tf.cast(n_drawn, dtype=tf.int32)
+        assert_op_n_drawn = tf.assert_non_negative(n_drawn)
+        with tf.control_dependencies([assert_op_n_drawn]):
+            n_total_drawn += n_drawn
 
-        probabilities = prob(rnd_sample)
+            probabilities = prob(rnd_sample)
         if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
             # correctly. A bug report on will be filled (WIP).
@@ -265,7 +268,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
-        eff = ztf.to_real(n_produced_new) / ztf.to_real(n_total_drawn)
+        eff = tf.reduce_max([ztf.to_real(n_produced_new), ztf.to_real(1.)]) / tf.reduce_max(
+            [ztf.to_real(n_total_drawn), ztf.to_real(1.)])
         return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled
 
     efficiency_estimation = ztf.to_real(efficiency_estimation)
@@ -274,7 +278,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
                                  swap_memory=True,
-                                 parallel_iterations=2,
+                                 parallel_iterations=1,
                                  back_prop=False)[1]  # backprop not needed here
     new_sample = sample_array.stack()
     if multiple_limits:
