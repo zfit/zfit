@@ -23,7 +23,7 @@ from ..util.graph import get_dependents_auto
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
-from ..settings import ztypes
+from ..settings import ztypes, run
 
 
 class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
@@ -603,6 +603,9 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
         else:
             floating = prefer_floating
             value = ztf.to_real(value)
+
+    if not run._enable_parameter_autoconversion:
+        return value
 
     if value.dtype.is_complex:
         if name is None:
