@@ -155,7 +155,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
-    efficiency_estimation = tf.reduce_max([efficiency_estimation, ztf.to_real(1e-6)])
     multiple_limits = limits.n_limits > 1
 
     sample_and_weights = sample_and_weights_factory()
@@ -186,6 +185,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         return tf.greater(n, n_produced)
 
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None):
+        eff = tf.reduce_max([eff, ztf.to_real(1e-6)])
 
         n_to_produce = n - n_produced
 
@@ -212,9 +212,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             new_limits = limits.with_limits(limits=((lower,), (upper,)))
             draw_indices = tf.where(is_not_sampled)
 
-        rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(n_to_produce=n_to_produce,
-                                                                                            limits=new_limits,
-                                                                                            dtype=dtype)
+        with tf.control_dependencies([n_to_produce]):
+            rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(
+                n_to_produce=n_to_produce,
+                limits=new_limits,
+                dtype=dtype)
 
         n_drawn = tf.cast(n_drawn, dtype=tf.int32)
         assert_op_n_drawn = tf.assert_non_negative(n_drawn)
