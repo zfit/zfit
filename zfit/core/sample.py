@@ -159,6 +159,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.to_int32(n)
+    assert_valid_n_op = tf.assert_non_negative(n)
     # whether we may produce more then n, we normally do (except for EventSpace which is not a generator)
     # we cannot cut inside the while loop as soon as we have produced enough because we may sample from
     # multiple limits and therefore need to randomly remove events, otherwise we are biased because the
@@ -174,12 +175,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         # with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
         initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
-    inital_n_produced = tf.constant(0, dtype=tf.int32)
-    initial_n_drawn = tf.constant(0, dtype=tf.int32)
-    with tf.control_dependencies([n]):
-        sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
-                                clear_after_read=True,  # we read only once at end to tensor
-                                element_shape=(limits.n_obs,))
+    with tf.control_dependencies([assert_valid_n_op]):
+        inital_n_produced = tf.constant(0, dtype=tf.int32)
+        initial_n_drawn = tf.constant(0, dtype=tf.int32)
+        with tf.control_dependencies([n]):
+            sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
+                                    clear_after_read=True,  # we read only once at end to tensor
+                                    element_shape=(limits.n_obs,))
 
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled):
         return tf.greater(n, n_produced)
