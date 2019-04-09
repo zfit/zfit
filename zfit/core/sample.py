@@ -155,6 +155,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
+    efficiency_estimation = tf.reduce_max([efficiency_estimation, ztf.to_real(1e-6)])
     multiple_limits = limits.n_limits > 1
 
     sample_and_weights = sample_and_weights_factory()
