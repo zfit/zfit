@@ -228,7 +228,7 @@ class CrystalBall(BasePDF):
         Args:
             mu (`zfit.Parameter`): The mean of the gaussian
             sigma (`zfit.Parameter`): Standard deviation of the gaussian
-            alpha (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail
+            alpha (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail
             n (`zfit.Parameter`): Exponent of the powertail
             obs (:py:class:`~zfit.Space`):
             name (str):
@@ -291,10 +291,10 @@ class DoubleCB(BasePDF):
         Args:
             mu (`zfit.Parameter`): The mean of the gaussian
             sigma (`zfit.Parameter`): Standard deviation of the gaussian
-            alphal (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail on the left
+            alphal (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the left
             side
             nl (`zfit.Parameter`): Exponent of the powertail on the left side
-            alphar (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail on the right
+            alphar (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the right
             side
             nr (`zfit.Parameter`): Exponent of the powertail on the right side
             obs (:py:class:`~zfit.Space`):
