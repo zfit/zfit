@@ -207,8 +207,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             `zfit.data.Data`:
         """
+        if branches_alias is None and branches is None:
+            raise ValueError("Either branches or branches_alias has to be specified.")
+
         if branches_alias is None:
             branches_alias = {}
+        if branches is None:
+            branches = list(branches_alias.values())
 
         weights_are_branch = isinstance(weights, str)
 

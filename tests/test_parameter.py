@@ -37,7 +37,7 @@ def test_complex_param():
         assert False, "one of the if or elif should be the case"
     # Polar complex
     mod_val = 1.0
-    arg_val = pi/4.0
+    arg_val = pi / 4.0
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
@@ -65,6 +65,7 @@ def test_complex_param():
     assert mod_val == pytest.approx(zfit.run(param3.mod), rel=1e-6)
     assert arg_val == pytest.approx(zfit.run(param3.arg), rel=1e-6)
     assert cos(arg_val) == pytest.approx(zfit.run(param3.real), rel=1e-6)
+
 
 def test_composed_param():
     zfit.run.create_session(reset_graph=True)

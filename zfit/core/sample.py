@@ -171,9 +171,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     initial_is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        # assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
-        # with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
-        initial_is_sampled = tf.fill(value=False, dims=(n,))
+        assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
+        with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
+            initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
     with tf.control_dependencies([assert_valid_n_op]):
         inital_n_produced = tf.constant(0, dtype=tf.int32)
