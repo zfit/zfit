@@ -1,5 +1,6 @@
 # deactivating CUDA capable gpus
 from zfit.ztf.tools import _auto_upcast
+from zfit.core.testing import setup_function, teardown_function, tester
 
 suppress_gpu = False
 if suppress_gpu:

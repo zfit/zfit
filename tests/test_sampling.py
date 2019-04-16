@@ -6,6 +6,7 @@ import zfit
 from zfit import ztf
 from zfit.core.sample import accept_reject_sample
 from zfit.util.execution import SessionHolderMixin
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.5
 sigma_true = 1.2

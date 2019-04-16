@@ -5,6 +5,7 @@ import tensorflow as tf
 import zfit
 from zfit import Parameter
 from zfit.models.dist_tfp import Gauss
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu1_true = 1.
 mu2_true = 2.

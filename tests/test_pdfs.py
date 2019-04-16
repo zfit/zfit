@@ -9,6 +9,7 @@ from zfit.core.parameter import Parameter
 from zfit.models.functor import SumPDF, ProductPDF
 from zfit.models.dist_tfp import Gauss
 import zfit
+from zfit.core.testing import setup_function, teardown_function, tester
 
 low, high = -0.64, 5.9
 

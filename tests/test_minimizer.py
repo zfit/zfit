@@ -10,6 +10,8 @@ from zfit.core.loss import SimpleLoss
 import zfit.minimizers.baseminimizer as zmin
 from zfit import ztf
 import zfit.minimizers.optimizers_tf
+from zfit.core.testing import setup_function, teardown_function, tester
+
 
 true_a = 1.
 true_b = 4.

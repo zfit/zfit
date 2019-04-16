@@ -5,6 +5,7 @@ from zfit import ztf
 import numpy as np
 
 from zfit.util.exception import SubclassingError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_pdf_simple_subclass():

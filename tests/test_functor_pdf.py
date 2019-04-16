@@ -2,6 +2,7 @@ import pytest
 
 import zfit
 from zfit.util.exception import LimitsOverdefinedError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 limits1 = (-4, 3)
 limits2 = (-2, 5)

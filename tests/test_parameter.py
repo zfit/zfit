@@ -9,6 +9,7 @@ import zfit
 from zfit import Parameter, ztf
 from zfit.core.parameter import ComposedParameter, ComplexParameter
 from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_complex_param():

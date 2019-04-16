@@ -4,6 +4,7 @@ import tensorflow as tf
 
 import zfit
 from zfit.core.sample import extract_extended_pdfs, extended_sampling
+from zfit.core.testing import setup_function, teardown_function, tester
 
 obs1 = 'obs1'
 

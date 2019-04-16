@@ -14,6 +14,8 @@ from zfit.models.functor import ProductPDF
 from zfit.models.special import SimplePDF
 import zfit.settings
 from zfit import ztf
+from zfit.core.testing import setup_function, teardown_function, tester
+
 
 # from zfit.ztf import
 from zfit.util import ztyping

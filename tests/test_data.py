@@ -9,6 +9,9 @@ import uproot
 
 import zfit
 
+from zfit.core.testing import setup_function, teardown_function, tester
+
+
 obs1 = ('obs1', 'obs2', 'obs3')
 
 example_data1 = np.random.random(size=(7, len(obs1)))

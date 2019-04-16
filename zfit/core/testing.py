@@ -7,21 +7,31 @@ from collections import OrderedDict
 import scipy.stats
 from typing import Callable, Tuple, List, Union
 
+from ..settings import run
 from .interfaces import ZfitPDF
 from ..util.container import convert_to_container
 
+__all__ = ["tester", "setup_function", "teardown_function"]
+
+
+def setup_function():
+    run.create_session(reset_graph=True)
+
+
+def teardown_function():
+    print("dummy teardown DEBUG")
 
 class BaseTester:
     pass
 
 
-class PDFTester:
+class AutoTester:
 
     def __init__(self):
         self.pdfs = []
 
     def register_pdf(self, pdf_class: ZfitPDF, params_factory: Callable, scipy_dist: scipy.stats.rv_continuous = None,
-                     analytic_int_axes: Union[None, int, List[Tuple[int, ...], ...]] = None):
+                     analytic_int_axes: Union[None, int, List[Tuple[int, ...]]] = None):
         if not isinstance(pdf_class, ZfitPDF):
             raise TypeError(f"PDF {pdf_class} is not a ZfitPDF.")
 
@@ -35,7 +45,7 @@ class PDFTester:
                                     ("scipy_dist", scipy_dist)))
         self.pdfs.append(registration)
 
-    def create_parameterized(self):
+    def create_parameterized_pdfs(self):
         if len(self.pdfs) == 0:
             return [], []
 
@@ -47,3 +57,6 @@ class PDFTester:
                 argvals[i].append(param)
 
         return argnames, argvals
+
+
+tester = AutoTester()

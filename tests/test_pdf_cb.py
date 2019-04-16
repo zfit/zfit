@@ -3,6 +3,7 @@ import numpy as np
 from zfit.models.physics import CrystalBall, DoubleCB
 import zfit
 from scipy.stats import crystalball
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu = 0.0
 sigma = 0.5
