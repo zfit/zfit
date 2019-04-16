@@ -94,8 +94,6 @@ def product_gauss_4d():
 
 
 def test_prod_gauss_nd():
-    zfit.run.create_session(reset_graph=True)
-
     test_values = np.random.random(size=(10, 3))
     lower = ((-5, -5, -5),)
     upper = ((4, 4, 4),)
@@ -111,8 +109,6 @@ def test_prod_gauss_nd():
 
 @pytest.mark.flaky(reruns=3)
 def test_prod_gauss_nd_mixed():
-    zfit.run.create_session(reset_graph=True)
-
     norm_range = (-5, 4)
     low, high = norm_range
     test_values = np.random.uniform(low=low, high=high, size=(1000, 4))
@@ -151,8 +147,6 @@ def test_prod_gauss_nd_mixed():
 
 
 def test_func_sum():
-    zfit.run.create_session(reset_graph=True)
-
     sum_gauss = sum_gaussians()
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm_range=(-10, 10))
@@ -163,28 +157,20 @@ def test_func_sum():
 
 
 def test_normalization_sum_gauss():
-    zfit.run.create_session(reset_graph=True)
-
     normalization_testing(sum_gaussians())
 
 
 def test_normalization_sum_gauss_extended():
-    zfit.run.create_session(reset_graph=True)
-
     test_yield = 109.
     sum_gauss_extended = sum_gaussians().create_extended(test_yield)
     normalization_testing(sum_gauss_extended)
 
 
 def test_normalization_prod_gauss():
-    zfit.run.create_session(reset_graph=True)
-
     normalization_testing(product_gaussians())
 
 
 def test_exp():
-    zfit.run.create_session(reset_graph=True)
-
     lambda_true = 3.1
     lambda_ = zfit.Parameter('lambda1', lambda_true)
     exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
@@ -211,8 +197,6 @@ def normalization_testing(pdf):
 
 
 def test_extended_gauss():
-    zfit.run.create_session(reset_graph=True)
-
     with tf.name_scope("gauss_params2"):
         mu1 = Parameter("mu11", 1.)
         mu2 = Parameter("mu21", 12.)

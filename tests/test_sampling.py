@@ -52,8 +52,6 @@ gaussian_dists = [lambda: create_gauss1(), lambda: create_test_gauss1()]
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists)
 def test_sampling_fixed(gauss_factory):
-    zfit.run.create_session(reset_graph=True)
-
     gauss, mu, sigma = gauss_factory()
     import tensorflow as tf
     n_draws = 1000
@@ -101,8 +99,6 @@ def test_sampling_fixed(gauss_factory):
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists)
 def test_sampling_floating(gauss_factory):
-    zfit.run.create_session(reset_graph=True)
-
     gauss, mu, sigma = gauss_factory()
 
     n_draws = 1000
@@ -141,8 +137,6 @@ def test_sampling_floating(gauss_factory):
 
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
-    zfit.run.create_session(reset_graph=True)
-
     mu_sampler = 5.
     sigma_sampler = 4.
     mu_pdf = 4.
@@ -190,8 +184,6 @@ def test_importance_sampling():
 
 
 def test_sampling_fixed_eventlimits():
-    zfit.run.create_session(reset_graph=True)
-
     n_samples1 = 500
     n_samples2 = 400  # just to make sure
     n_samples3 = 356  # just to make sure

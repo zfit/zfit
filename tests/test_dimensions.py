@@ -11,7 +11,6 @@ import zfit
 from zfit.core.dimension import add_spaces, limits_consistent, limits_overlap, combine_spaces
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
 space2 = zfit.Space(obs=reversed(obs))
@@ -51,7 +50,6 @@ space2d_2 = zfit.Space(obs=obs[:2], limits=(lower2d_2, upper2d_2))
 
 
 def test_check_n_obs():
-    zfit.run.create_session(reset_graph=True)
     with pytest.raises(SpaceIncompatibleError):
         zfit.pdf.Gauss(1., 4., obs=space2d_1)
 

@@ -19,7 +19,8 @@ def setup_function():
 
 
 def teardown_function():
-    print("dummy teardown DEBUG")
+    pass
+
 
 class BaseTester:
     pass

@@ -12,7 +12,6 @@ from zfit import ztf
 import zfit.minimizers.optimizers_tf
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
 true_a = 1.
 true_b = 4.
 true_c = -0.3
@@ -45,8 +44,6 @@ def create_loss():
 
 
 def minimize_func(minimizer_class_and_kwargs):
-    zfit.run.create_session(reset_graph=True)
-
     loss, (a_param, b_param, c_param) = create_loss()
 
     true_minimum = zfit.run(loss.value())

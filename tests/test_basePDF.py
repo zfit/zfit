@@ -16,7 +16,6 @@ import zfit.settings
 from zfit import ztf
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
 # from zfit.ztf import
 from zfit.util import ztyping
 
@@ -109,8 +108,6 @@ def create_gaussian_dists():
 # starting tests
 # ===============================
 def test_gradient():
-    zfit.run.create_session(reset_graph=True)
-
     gauss3 = create_gauss3()
     random_vals = np.random.normal(4., 2., size=5)
     tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
@@ -119,8 +116,6 @@ def test_gradient():
 
 
 def test_func():
-    zfit.run.create_session(reset_graph=True)
-
     test_values = np.array([3., 11.3, -0.2, -7.82])
     test_values = zfit.Data.from_numpy(obs=obs1, array=test_values)
 
@@ -141,8 +136,6 @@ def test_func():
                           create_wrapped_gauss,
                           create_wrapped_normal1])
 def test_normalization(pdf_factory):
-    zfit.run.create_session(reset_graph=True)
-
     test_yield = 1524.3
     dist = pdf_factory()
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
@@ -165,8 +158,6 @@ def test_normalization(pdf_factory):
 
 @pytest.mark.parametrize('gauss_factory', [create_gauss1, create_test_gauss1])
 def test_sampling_simple(gauss_factory):
-    zfit.run.create_session(reset_graph=True)
-
     gauss = gauss_factory()
     n_draws = 1000
     sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
@@ -190,8 +181,6 @@ def test_sampling_simple(gauss_factory):
 
 
 def test_sampling_multiple_limits():
-    zfit.run.create_session(reset_graph=True)
-
     gauss_params1 = create_gauss1()
     n_draws = 1000
     low1, up1 = -1, 0
@@ -223,8 +212,6 @@ def test_sampling_multiple_limits():
 
 
 def test_analytic_sampling():
-    zfit.run.create_session(reset_graph=True)
-
     class SampleGauss(TestGaussian):
         pass
 
@@ -244,8 +231,6 @@ def test_analytic_sampling():
 
 
 def test_multiple_limits():
-    zfit.run.create_session(reset_graph=True)
-
     gauss_params1 = create_gauss1()
     dims = (0,)
     simple_limits = (-3.2, 9.1)
@@ -265,8 +250,6 @@ def test_multiple_limits():
 
 
 def test_projection_pdf():
-    zfit.run.create_session(reset_graph=True)
-
     return  # HACK(Mayou36) check again on projection and dimensions. Why was there an expand_dims?
     # x = zfit.Space("x", limits=(-5, 5))
     # y = zfit.Space("y", limits=(-5, 5))
@@ -303,8 +286,6 @@ def test_projection_pdf():
 
 
 def test_copy():
-    zfit.run.create_session(reset_graph=True)
-
     gauss_params1 = create_gauss1()
     new_gauss = gauss_params1.copy()
     assert new_gauss == gauss_params1
