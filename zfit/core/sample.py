@@ -157,19 +157,20 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     """
     multiple_limits = limits.n_limits > 1
 
-    sample_and_weights = sample_and_weights_factory()
+    sample_and_weights = sample_and_weights_factory()  # call before  while loop for variable instantiation
+    n_samples_maybe_int = n
     n = tf.to_int32(n)
     assert_valid_n_op = tf.assert_non_negative(n)
     # whether we may produce more then n, we normally do (except for EventSpace which is not a generator)
     # we cannot cut inside the while loop as soon as we have produced enough because we may sample from
     # multiple limits and therefore need to randomly remove events, otherwise we are biased because the
     # drawn samples are ordered in the different
-    dynamic_array_shape = True
+    dynamic_array_shape = True  # needed since we may produce more then n and cut in the end
 
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
-    initial_is_sampled = tf.constant("EMPTY")
-    if isinstance(limits, EventSpace) and not limits.is_generator:
+    initial_is_sampled = tf.constant("EMPTY")  # not needed except with fixed n
+    if isinstance(limits, EventSpace) and not limits.is_generator:  # we have n limits and need exactly n samples
         dynamic_array_shape = False
         assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
         with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
@@ -187,12 +188,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         return tf.greater(n, n_produced)
 
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None):
-        eff = tf.reduce_max([eff, ztf.to_real(1e-6)])
+        eff = tf.reduce_max([eff, ztf.to_real(1e-6)])  # cap to not get NaN or 0 (can also happen for low n or low eff)
 
         n_to_produce = n - n_produced
 
         if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
-            limits.create_limits(n=n)
+            limits.create_limits(n=n)  # create op
 
         do_print = settings.get_verbosity() > 5
         if do_print:
@@ -202,17 +203,18 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if dynamic_array_shape:
             n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * 1.01) + 10  # just to make sure
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-            n_to_produce = tf.minimum(n_to_produce, tf.to_int32(5e5))  # introduce a cap to force serial
+            n_to_produce = tf.minimum(n_to_produce, tf.cast(5e5, dtype=tf.float32))  # introduce a cap to force serial
             new_limits = limits
         else:
             if multiple_limits:
                 raise DueToLazynessNotImplementedError("Multiple limits for fixed event space not yet implemented")
-            is_not_sampled = tf.logical_not(is_sampled)
+            is_not_sampled = tf.logical_not(is_sampled)  # we need to know which are to be sampled
             (lower,), (upper,) = limits.limits
+            # cut the limits away that already have been sampled, keep only non-sampled
             lower = tuple(tf.boolean_mask(low, is_not_sampled) for low in lower)
             upper = tuple(tf.boolean_mask(up, is_not_sampled) for up in upper)
             new_limits = limits.with_limits(limits=((lower,), (upper,)))
-            draw_indices = tf.where(is_not_sampled)
+            draw_indices = tf.where(is_not_sampled)  # needed to fill into array later on at right position
 
         with tf.control_dependencies([n_to_produce]):
             rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(
@@ -229,23 +231,27 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         shape_rnd_sample = tf.shape(rnd_sample)[0]
         assert_prob_rnd_sample_op = tf.assert_equal(tf.shape(probabilities), shape_rnd_sample)
         # assert_weights_rnd_sample_op = tf.assert_equal(tf.shape(weights), shape_rnd_sample)
-        print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
         with tf.control_dependencies([assert_prob_rnd_sample_op,
-                                      # assert_weights_rnd_sample_op,
-                                      print_op]):
+                                      # assert_weights_rnd_sample_op
+                                      ]):
             probabilities = tf.identity(probabilities)
-        if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
+        if prob_max is None or weights_max is None:
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
             # correctly. A bug report on will be filled (WIP).
             # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
             # a value smaller by a factor of 1e-14
             # with tf.control_dependencies([probabilities]):
             # UPDATE: this works now? Was it just a one-time bug?
+
+            # creating the scaling like this is computationally more expensive but will for arbitrary shapes return the
+            # right scaling. Alternative is to use the max and could be used for the default sampling maybe.
             weights_scaling = tf.reduce_max(probabilities / weights)
         else:
-            raise RuntimeError("DEBUG remove HACK")
             weights_scaling = prob_max / weights_max
 
+        # we need to bring the weights and the probs to the same scale. Weights are the probability for a certain sample
+        # to have been drawn. Has to be higher (of course) then the probability of the acceptor. The lower the weight
+        # the less probable it was to draw this sample and therefore the higher the chance it will be accepted.
         weights_scaled = weights_scaling * weights
         random_thresholds = thresholds_unscaled * weights_scaled
         if run.numeric_checks:
@@ -265,6 +271,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         n_accepted = tf.shape(filtered_sample)[0]
         n_produced_new = n_produced + n_accepted
         if not dynamic_array_shape:
+            # bookkeeping with indices, found out which one of the sampled are actually accepted and keep this indices
             indices = tf.boolean_mask(draw_indices, mask=take_or_not)
             current_sampled = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=indices,
                                                                         values=tf.broadcast_to(input=(True,),
@@ -276,9 +283,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             indices = tf.range(n_produced, n_produced_new)
 
+        # fill into array
         sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
-        # efficiency (estimate) of how many samples we get
+        # efficiency (estimate) of how many samples we get. Use 1 as efficiency if nothing (yet) is sampled.
         eff = tf.reduce_max([ztf.to_real(n_produced_new), ztf.to_real(1.)]) / tf.reduce_max(
             [ztf.to_real(n_total_drawn), ztf.to_real(1.)])
         return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled
@@ -299,8 +307,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
     # if no failure, uncomment both for improvement of shape inference
-    # with suppress(AttributeError):  # if n_samples_int is not a numpy object
-    #     new_sample.set_shape((n_samples_int, n_dims))
+    with suppress(AttributeError):  # if n_samples_maybe_int is not a numpy object
+        new_sample.set_shape((n_samples_maybe_int, limits.n_obs))
     return new_sample
 
 
