@@ -19,5 +19,6 @@ Authors
 Contributors
 ------------
 | Chris Burr <christopher.burr@cern.ch>
+| Matthieu Marinangeli <matthieu.marinangeli@cern.ch>
 | Abhijit Mathad <amathad@cern.ch>
 | Oliver Lantwin <oliver.lantwin@cern.ch>
