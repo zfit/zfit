@@ -130,7 +130,7 @@
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">NameAlreadyTakenError</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">baseobject</span> <span class="k">as</span> <span class="n">zbaseobject</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">interfaces</span> <span class="k">as</span> <span class="n">zinterfaces</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 
 
 <div class="viewcode-block" id="MetaBaseParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.MetaBaseParameter">[docs]</a><span class="k">class</span> <span class="nc">MetaBaseParameter</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">TFBaseVariable</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">zinterfaces</span><span class="o">.</span><span class="n">ZfitParameter</span><span class="p">)):</span>  <span class="c1"># resolve metaclasses</span>
@@ -336,7 +336,7 @@
 <div class="viewcode-block" id="ZfitParameterMixin"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitParameterMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitParameterMixin</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">):</span>
     <span class="n">_existing_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_existing_names</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NameAlreadyTakenError</span><span class="p">(</span><span class="s2">&quot;Another parameter is already named </span><span class="si">{}</span><span class="s2">. &quot;</span>
                                         <span class="s2">&quot;Use a different, unique one.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
@@ -711,6 +711,9 @@
             <span class="n">floating</span> <span class="o">=</span> <span class="n">prefer_floating</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">run</span><span class="o">.</span><span class="n">_enable_parameter_autoconversion</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+
     <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">is_complex</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;FIXED_complex_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">())</span>
@@ -748,7 +751,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>

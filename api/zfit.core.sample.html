@@ -14,7 +14,7 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="minimizers" href="zfit.minimizers.html" />
+    <link rel="next" title="testing" href="zfit.core.testing.html" />
     <link rel="prev" title="parameter" href="zfit.core.parameter.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -153,6 +153,16 @@
 <code class="descname">create_limits</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.create_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.create_limits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.sample.EventSpace.factory">
+<code class="descname">factory</code><a class="headerlink" href="#zfit.core.sample.EventSpace.factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.sample.EventSpace.is_generator">
+<code class="descname">is_generator</code><a class="headerlink" href="#zfit.core.sample.EventSpace.is_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.iter_areas">
 <code class="descname">iter_areas</code><span class="sig-paren">(</span><em>rel: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[float, ...]<a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.iter_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.iter_areas" title="Permalink to this definition">¶</a></dt>
@@ -196,8 +206,9 @@
 (or anything that is proportional to the probability).</p></li>
 <li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of samples to produce</p></li>
 <li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to sample from</p></li>
-<li><p><strong>sample_and_weights_factory</strong> (<em>Callable</em>) – <p>A function that returns the sample to insert into <cite>prob</cite> and the weights
-(prob) of each sample together with the random thresholds. The API looks as follows:</p>
+<li><p><strong>sample_and_weights_factory</strong> (<em>Callable</em>) – <p>A factory function that returns the following function:
+A function that returns the sample to insert into <cite>prob</cite> and the weights
+(probability density) of each sample together with the random thresholds. The API looks as follows:</p>
 <ul>
 <li><p>Parameters:</p>
 <blockquote>
@@ -307,7 +318,7 @@ is given, it will be automatically, safely estimated (by a 10% increase in compu
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>

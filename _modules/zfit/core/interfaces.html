@@ -498,9 +498,9 @@
     <span class="k">def</span> <span class="nf">is_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_set_yield_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+<div class="viewcode-block" id="ZfitPDF.set_norm_range"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.set_norm_range">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">set_norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="ZfitPDF.create_extended"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.create_extended">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">create_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yield_</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitPDF&quot;</span><span class="p">:</span>
@@ -543,7 +543,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>

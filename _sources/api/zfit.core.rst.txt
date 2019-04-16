@@ -25,4 +25,5 @@ Submodules
    zfit.core.operations
    zfit.core.parameter
    zfit.core.sample
+   zfit.core.testing
 

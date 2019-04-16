@@ -125,11 +125,7 @@
 <span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span>
 <span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="k">import</span> <span class="n">BasePDF</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">infinity</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">inf</span>
-<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># py34</span>
-    <span class="n">infinity</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
-
+<span class="n">infinity</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">inf</span>
 
 <div class="viewcode-block" id="CustomGaussOLD"><a class="viewcode-back" href="../../../api/zfit.models.basic.html#zfit.models.basic.CustomGaussOLD">[docs]</a><span class="k">class</span> <span class="nc">CustomGaussOLD</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
 
@@ -299,7 +295,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>

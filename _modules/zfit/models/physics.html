@@ -138,6 +138,15 @@
     <span class="k">return</span> <span class="n">func</span></div>
 
 
+<div class="viewcode-block" id="double_crystalball_func"><a class="viewcode-back" href="../../../api/zfit.models.physics.html#zfit.models.physics.double_crystalball_func">[docs]</a><span class="k">def</span> <span class="nf">double_crystalball_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">alphal</span><span class="p">,</span> <span class="n">nl</span><span class="p">,</span> <span class="n">alphar</span><span class="p">,</span> <span class="n">nr</span><span class="p">):</span>
+    <span class="n">cond</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span>
+                    <span class="n">crystalball_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">alphal</span><span class="p">,</span> <span class="n">nl</span><span class="p">),</span>
+                    <span class="n">crystalball_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="o">-</span><span class="n">alphar</span><span class="p">,</span> <span class="n">nr</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">func</span></div>
+
+
 <span class="c1"># def _python_crystalball_integral(limits, params):  # not working with tf, used for autoconvert</span>
 <span class="c1">#     mu = params[&#39;mu&#39;]</span>
 <span class="c1">#     sigma = params[&#39;sigma&#39;]</span>
@@ -194,6 +203,7 @@
 <span class="c1">#     return result</span>
 
 <span class="c1"># created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit</span>
+
 <div class="viewcode-block" id="crystalball_integral"><a class="viewcode-back" href="../../../api/zfit.models.physics.html#zfit.models.physics.crystalball_integral">[docs]</a><span class="k">def</span> <span class="nf">crystalball_integral</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
@@ -278,6 +288,27 @@
     <span class="k">return</span> <span class="n">result</span></div>
 
 
+<div class="viewcode-block" id="double_crystalball_integral"><a class="viewcode-back" href="../../../api/zfit.models.physics.html#zfit.models.physics.double_crystalball_integral">[docs]</a><span class="k">def</span> <span class="nf">double_crystalball_integral</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+
+    <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># obs number 0</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">limits_left</span> <span class="o">=</span> <span class="n">Space</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">mu</span><span class="p">))</span>
+    <span class="n">limits_right</span> <span class="o">=</span> <span class="n">Space</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
+    <span class="n">params_left</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alphal&quot;</span><span class="p">],</span>
+                       <span class="n">n</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;nl&quot;</span><span class="p">])</span>
+    <span class="n">params_right</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=-</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alphar&quot;</span><span class="p">],</span>
+                        <span class="n">n</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">])</span>
+
+    <span class="n">left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">lower</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">crystalball_integral</span><span class="p">(</span><span class="n">limits_left</span><span class="p">,</span> <span class="n">params_left</span><span class="p">))</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">crystalball_integral</span><span class="p">(</span><span class="n">limits_right</span><span class="p">,</span> <span class="n">params_right</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span></div>
+
+
 <div class="viewcode-block" id="CrystalBall"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.physics.CrystalBall">[docs]</a><span class="k">class</span> <span class="nc">CrystalBall</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
     <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
@@ -304,7 +335,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            mu (`zfit.Parameter`): The mean of the gaussian</span>
 <span class="sd">            sigma (`zfit.Parameter`): Standard deviation of the gaussian</span>
-<span class="sd">            alpha (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail</span>
+<span class="sd">            alpha (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail</span>
 <span class="sd">            n (`zfit.Parameter`): Exponent of the powertail</span>
 <span class="sd">            obs (:py:class:`~zfit.Space`):</span>
 <span class="sd">            name (str):</span>
@@ -332,6 +363,73 @@
 <span class="n">crystalball_integral_limits</span> <span class="o">=</span> <span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">limits</span><span class="o">=</span><span class="p">(((</span><span class="n">ANY_LOWER</span><span class="p">,),),</span> <span class="p">((</span><span class="n">ANY_UPPER</span><span class="p">,),)))</span>
 <span class="c1"># TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond</span>
 <span class="c1"># CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)</span>
+
+
+<div class="viewcode-block" id="DoubleCB"><a class="viewcode-back" href="../../../api/zfit.models.physics.html#zfit.models.physics.DoubleCB">[docs]</a><span class="k">class</span> <span class="nc">DoubleCB</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
+    <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">alphal</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">nl</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">alphar</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">nr</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DoubleCB&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;`Double sided Crystal Ball shaped PDF`__. A combination of a Gaussian with powerlaw tails</span>
+<span class="sd">        on each side.</span>
+
+<span class="sd">        The function is defined as follows:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}</span>
+<span class="sd">            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n},</span>
+<span class="sd">             &amp; \\mbox{for }\\frac{x - \\mu}{\\sigma} &lt; -\\alpha_{L} \\newline</span>
+<span class="sd">            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),</span>
+<span class="sd">            &amp; -\\alpha_{L} \\leqslant \\mbox{for}\\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline</span>
+<span class="sd">            A_{R} \\cdot (B_{R} - \\frac{x - \\mu}{\\sigma})^{-n},</span>
+<span class="sd">             &amp; \\mbox{for }\\frac{x - \\mu}{\\sigma} &gt; \\alpha_{R}</span>
+<span class="sd">            \\end{cases}</span>
+
+<span class="sd">        with</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot</span>
+<span class="sd">            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)</span>
+
+<span class="sd">            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mu (`zfit.Parameter`): The mean of the gaussian</span>
+<span class="sd">            sigma (`zfit.Parameter`): Standard deviation of the gaussian</span>
+<span class="sd">            alphal (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the left</span>
+<span class="sd">            side</span>
+<span class="sd">            nl (`zfit.Parameter`): Exponent of the powertail on the left side</span>
+<span class="sd">            alphar (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the right</span>
+<span class="sd">            side</span>
+<span class="sd">            nr (`zfit.Parameter`): Exponent of the powertail on the right side</span>
+<span class="sd">            obs (:py:class:`~zfit.Space`):</span>
+<span class="sd">            name (str):</span>
+<span class="sd">            dtype (tf.DType):</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mu&#39;</span><span class="p">:</span> <span class="n">mu</span><span class="p">,</span>
+                  <span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span>
+                  <span class="s1">&#39;alphal&#39;</span><span class="p">:</span> <span class="n">alphal</span><span class="p">,</span>
+                  <span class="s1">&#39;nl&#39;</span><span class="p">:</span> <span class="n">nl</span><span class="p">,</span>
+                  <span class="s1">&#39;alphar&#39;</span><span class="p">:</span> <span class="n">alphar</span><span class="p">,</span>
+                  <span class="s1">&#39;nr&#39;</span><span class="p">:</span> <span class="n">nr</span><span class="p">}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+        <span class="n">alphal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;alphal&#39;</span><span class="p">]</span>
+        <span class="n">nl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;nl&#39;</span><span class="p">]</span>
+        <span class="n">alphar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;alphar&#39;</span><span class="p">]</span>
+        <span class="n">nr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;nr&#39;</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">double_crystalball_func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alphal</span><span class="o">=</span><span class="n">alphal</span><span class="p">,</span> <span class="n">nl</span><span class="o">=</span><span class="n">nl</span><span class="p">,</span>
+                                       <span class="n">alphar</span><span class="o">=</span><span class="n">alphar</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="n">nr</span><span class="p">)</span></div>
+
+<span class="c1"># DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)</span>
+
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -374,7 +472,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>

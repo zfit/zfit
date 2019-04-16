@@ -1,0 +1,7 @@
+testing
+=======
+
+.. automodule:: zfit.core.testing
+    :members:
+    :undoc-members:
+    :show-inheritance:

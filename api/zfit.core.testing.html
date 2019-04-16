@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>basefunctor &#8212; zfit 0.3.1 documentation</title>
+    <title>testing &#8212; zfit 0.3.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -14,8 +14,8 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="basic" href="zfit.models.basic.html" />
-    <link rel="prev" title="models" href="zfit.models.html" />
+    <link rel="next" title="minimizers" href="zfit.minimizers.html" />
+    <link rel="prev" title="sample" href="zfit.core.sample.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -106,24 +106,19 @@
   <div class="row">
     <div class="body span12 content" role="main">
       
-  <div class="section" id="module-zfit.models.basefunctor">
-<span id="basefunctor"></span><h1>basefunctor<a class="headerlink" href="#module-zfit.models.basefunctor" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="zfit.models.basefunctor.FunctorMixin">
-<em class="property">class </em><code class="descclassname">zfit.models.basefunctor.</code><code class="descname">FunctorMixin</code><span class="sig-paren">(</span><em>models</em>, <em>obs</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basefunctor.html#FunctorMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basefunctor.FunctorMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitFunctorMixin" title="zfit.core.interfaces.ZfitFunctorMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitFunctorMixin</span></code></a>, <a class="reference internal" href="zfit.core.basemodel.html#zfit.core.basemodel.BaseModel" title="zfit.core.basemodel.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basemodel.BaseModel</span></code></a></p>
-<dl class="method">
-<dt id="zfit.models.basefunctor.FunctorMixin.get_models">
-<code class="descname">get_models</code><span class="sig-paren">(</span><em>names=None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitModel]<a class="reference internal" href="../_modules/zfit/models/basefunctor.html#FunctorMixin.get_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basefunctor.FunctorMixin.get_models" title="Permalink to this definition">¶</a></dt>
+  <div class="section" id="module-zfit.core.testing">
+<span id="testing"></span><h1>testing<a class="headerlink" href="#module-zfit.core.testing" title="Permalink to this headline">¶</a></h1>
+<p>Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let
+them be tested.</p>
+<dl class="function">
+<dt id="zfit.core.testing.setup_function">
+<code class="descclassname">zfit.core.testing.</code><code class="descname">setup_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/testing.html#setup_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.testing.setup_function" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="zfit.models.basefunctor.FunctorMixin.models">
-<code class="descname">models</code><a class="headerlink" href="#zfit.models.basefunctor.FunctorMixin.models" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the models of this <cite>Functor</cite>. Can be <cite>pdfs</cite> or <cite>funcs</cite>.</p>
-</dd></dl>
-
-</dd></dl>
+<dl class="function">
+<dt id="zfit.core.testing.teardown_function">
+<code class="descclassname">zfit.core.testing.</code><code class="descname">teardown_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/testing.html#teardown_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.testing.teardown_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 

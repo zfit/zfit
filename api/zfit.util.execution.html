@@ -130,11 +130,14 @@
 
 <dl class="method">
 <dt id="zfit.util.execution.RunManager.create_session">
-<code class="descname">create_session</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.create_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.create_session" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_session</code><span class="sig-paren">(</span><em>*args</em>, <em>close_current=True</em>, <em>reset_graph=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.create_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.create_session" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new session (or replace the current one). Arguments will overwrite the already set arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>close_current</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Closes the current open session before replacement. Has no effect if
+no session was created before.</p></li>
+<li><p><strong>reset_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Resets the current (default) graph before creating a new <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Session</span></code>.</p></li>
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
 </ul>
@@ -148,6 +151,11 @@
 <dl class="attribute">
 <dt id="zfit.util.execution.RunManager.n_cpu">
 <code class="descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.execution.RunManager.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.reset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -200,7 +208,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>

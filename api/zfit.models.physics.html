@@ -128,7 +128,7 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mu</strong> (<cite>zfit.Parameter</cite>) – The mean of the gaussian</p></li>
 <li><p><strong>sigma</strong> (<cite>zfit.Parameter</cite>) – Standard deviation of the gaussian</p></li>
-<li><p><strong>alpha</strong> (<cite>zfit.Parameter</cite>) – parameter where to swith from a gaussian to the powertail</p></li>
+<li><p><strong>alpha</strong> (<cite>zfit.Parameter</cite>) – parameter where to switch from a gaussian to the powertail</p></li>
 <li><p><strong>n</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail</p></li>
 <li><p><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
@@ -139,6 +139,45 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
 <p>__CBShape_</p>
 </dd></dl>
 
+<dl class="class">
+<dt id="zfit.models.physics.DoubleCB">
+<em class="property">class </em><code class="descclassname">zfit.models.physics.</code><code class="descname">DoubleCB</code><span class="sig-paren">(</span><em>mu: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], sigma: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], alphal: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], nl: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], alphar: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], nr: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], obs: Union[str, Iterable[str], zfit.Space], name: str = 'DoubleCB', dtype: Type[CT_co] = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#DoubleCB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.DoubleCB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+<p><a href="#id1"><span class="problematic" id="id3">`Double sided Crystal Ball shaped PDF`__</span></a>. A combination of a Gaussian with powerlaw tails
+on each side.</p>
+<p>The function is defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[f(x;\mu, \sigma, \alpha_{L}, n_{L}, \alpha_{R}, n_{R}) =  \begin{cases}
+A_{L} \cdot (B_{L} - \frac{x - \mu}{\sigma})^{-n},
+ &amp; \mbox{for }\frac{x - \mu}{\sigma} &lt; -\alpha_{L} \newline
+\exp(- \frac{(x - \mu)^2}{2 \sigma^2}),
+&amp; -\alpha_{L} \leqslant \mbox{for}\frac{x - \mu}{\sigma} \leqslant \alpha_{R} \newline
+A_{R} \cdot (B_{R} - \frac{x - \mu}{\sigma})^{-n},
+ &amp; \mbox{for }\frac{x - \mu}{\sigma} &gt; \alpha_{R}
+\end{cases}\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}A_{L/R} = \left(\frac{n_{L/R}}{\left| \alpha_{L/R} \right|}\right)^n_{L/R} \cdot
+\exp\left(- \frac {\left|\alpha_{L/R} \right|^2}{2}\right)\\B_{L/R} = \frac{n_{L/R}}{\left| \alpha_{L/R} \right|}  - \left| \alpha_{L/R} \right|\end{aligned}\end{align} \]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<cite>zfit.Parameter</cite>) – The mean of the gaussian</p></li>
+<li><p><strong>sigma</strong> (<cite>zfit.Parameter</cite>) – Standard deviation of the gaussian</p></li>
+<li><p><strong>alphal</strong> (<cite>zfit.Parameter</cite>) – parameter where to switch from a gaussian to the powertail on the left</p></li>
+<li><p><strong>side</strong> – </p></li>
+<li><p><strong>nl</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail on the left side</p></li>
+<li><p><strong>alphar</strong> (<cite>zfit.Parameter</cite>) – parameter where to switch from a gaussian to the powertail on the right</p></li>
+<li><p><strong>side</strong> – </p></li>
+<li><p><strong>nr</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail on the right side</p></li>
+<li><p><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>dtype</strong> (<em>tf.DType</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="function">
 <dt id="zfit.models.physics.crystalball_func">
 <code class="descclassname">zfit.models.physics.</code><code class="descname">crystalball_func</code><span class="sig-paren">(</span><em>x</em>, <em>mu</em>, <em>sigma</em>, <em>alpha</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#crystalball_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.crystalball_func" title="Permalink to this definition">¶</a></dt>
@@ -147,6 +186,16 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
 <dl class="function">
 <dt id="zfit.models.physics.crystalball_integral">
 <code class="descclassname">zfit.models.physics.</code><code class="descname">crystalball_integral</code><span class="sig-paren">(</span><em>limits</em>, <em>params</em>, <em>model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#crystalball_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.crystalball_integral" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.models.physics.double_crystalball_func">
+<code class="descclassname">zfit.models.physics.</code><code class="descname">double_crystalball_func</code><span class="sig-paren">(</span><em>x</em>, <em>mu</em>, <em>sigma</em>, <em>alphal</em>, <em>nl</em>, <em>alphar</em>, <em>nr</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#double_crystalball_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.double_crystalball_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.models.physics.double_crystalball_integral">
+<code class="descclassname">zfit.models.physics.</code><code class="descname">double_crystalball_integral</code><span class="sig-paren">(</span><em>limits</em>, <em>params</em>, <em>model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#double_crystalball_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.double_crystalball_integral" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -164,7 +213,7 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
     </p>
   </div>
 </footer>
