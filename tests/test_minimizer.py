@@ -121,7 +121,7 @@ minimizers = [
     (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.5), False),
     (zfit.minimize.MinuitMinimizer, {}, True),
     (zfit.minimize.ScipyMinimizer, {}, False),
-    ]
+]
 
 
 @pytest.mark.parametrize("minimizer_class", minimizers)

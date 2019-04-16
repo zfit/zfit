@@ -140,7 +140,6 @@ def test_from_tensors(weights_factory):
         assert weights is None
 
 
-
 def test_overloaded_operators():
     zfit.run.create_session(reset_graph=True)
 
@@ -205,7 +204,6 @@ def test_subdata():
 
 def test_data_range():
     zfit.run.create_session(reset_graph=True)
-
 
     data1 = np.array([[1., 2],
                       [0, 1],

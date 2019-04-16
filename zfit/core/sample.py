@@ -171,9 +171,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     initial_is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        # assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
-        # with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
-        initial_is_sampled = tf.fill(value=False, dims=(n,))
+        assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
+        with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
+            initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
     with tf.control_dependencies([assert_valid_n_op]):
         inital_n_produced = tf.constant(0, dtype=tf.int32)
@@ -226,21 +226,18 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             n_total_drawn += n_drawn
 
             probabilities = prob(rnd_sample)
-        if prob_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
+        if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
             # correctly. A bug report on will be filled (WIP).
             # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
             # a value smaller by a factor of 1e-14
             # with tf.control_dependencies([probabilities]):
             # UPDATE: this works now? Was it just a one-time bug?
-            prob_max_inferred = tf.reduce_max(probabilities)
+            weights_scaling = tf.reduce_max(probabilities / weights) * 1.0001
         else:
-            prob_max_inferred = prob_max
+            weights_scaling = prob_max / weights_max
 
-        if weights_max is None:
-            weights_max = tf.reduce_max(weights) * 0.99  # safety margin, also taking numericals into account
-
-        weights_scaled = prob_max_inferred / weights_max * weights
+        weights_scaled = weights_scaling * weights
         random_thresholds = thresholds_unscaled * weights_scaled
         if run.numeric_checks:
             assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
