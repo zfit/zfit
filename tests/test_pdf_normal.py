@@ -5,6 +5,7 @@ import tensorflow as tf
 import zfit
 from zfit import Parameter
 from zfit.models.dist_tfp import Gauss
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu1_true = 1.
 mu2_true = 2.
@@ -39,8 +40,6 @@ def create_gauss():
 
 
 def test_gauss1():
-    zfit.run.create_session(reset_graph=True)
-
     gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
 
     probs1 = gauss1.pdf(x=test_values, norm_range=norm_range1)

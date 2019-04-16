@@ -3,6 +3,7 @@ import numpy as np
 from zfit.models.physics import CrystalBall, DoubleCB
 import zfit
 from scipy.stats import crystalball
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu = 0.0
 sigma = 0.5
@@ -18,6 +19,17 @@ lbounds = (bounds[0], mu)
 rbounds = (mu, bounds[1])
 
 
+def _cb_params_factory():
+    mu_ = zfit.Parameter('mu_cb', mu)
+    sigma_ = zfit.Parameter('sigma_cb', sigma)
+    alphal_ = zfit.Parameter('alphal_cb', alphal)
+    nl_ = zfit.Parameter('nl_cb', nl)
+    return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
+
+
+tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory())
+
+
 def sample_testing(pdf):
     sample = pdf.sample(n=1000)
     sample_np = zfit.run(sample)
@@ -31,8 +43,6 @@ def eval_testing(pdf, x):
 
 
 def test_cb_dcb():
-    zfit.run.create_session(reset_graph=True)
-
     obs = zfit.Space('x', limits=bounds)
 
     mu_ = zfit.Parameter('mu_cb', mu)

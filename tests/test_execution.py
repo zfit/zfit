@@ -4,11 +4,10 @@ import pytest
 
 import zfit
 from zfit import ztf
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_run():
-    zfit.run.create_session(reset_graph=True)
-
     a = ztf.constant(4.)
     b = 5 * a
     assert zfit.run(b) == pytest.approx(20)

@@ -1,4 +1,5 @@
 from zfit.util.temporary import TemporarilySet
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_simple_x():

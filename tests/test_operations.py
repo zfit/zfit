@@ -9,6 +9,7 @@ from zfit.models.functions import SimpleFunc
 from zfit.models.functor import SumPDF
 from zfit.models.special import SimplePDF
 from zfit.util.exception import LogicalUndefinedOperationError, AlreadyExtendedPDFError, ModelIncompatibleError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 rnd_test_values = np.array([1., 0.01, -14.2, 0., 1.5, 152, -0.1, 12])
 
@@ -16,8 +17,6 @@ obs1 = 'obs1'
 
 
 def test_not_allowed():
-    zfit.run.create_session(reset_graph=True)
-
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
@@ -48,8 +47,6 @@ def test_not_allowed():
 
 
 def test_param_func():
-    zfit.run.create_session(reset_graph=True)
-
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
@@ -69,8 +66,6 @@ def test_param_func():
 
 
 def test_func_func():
-    zfit.run.create_session(reset_graph=True)
-
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
@@ -104,8 +99,6 @@ def test_func_func():
 
 
 def test_param_pdf():
-    zfit.run.create_session(reset_graph=True)
-
     # return  # TODO(Mayou36): deps: impl_copy,
     param1 = Parameter('param1', 12.)
     param2 = Parameter('param2', 22.)
@@ -125,8 +118,6 @@ def test_param_pdf():
 def test_implicit_extended():
     # return  # TODO(Mayou36): deps: impl_copy,
 
-    zfit.run.create_session(reset_graph=True)
-
     param1 = Parameter('param1', 12.)
     yield1 = Parameter('yield1', 21.)
     param2 = Parameter('param2', 13., floating=False)
@@ -142,8 +133,6 @@ def test_implicit_extended():
 
 def test_implicit_sumpdf():
     # return  # TODO(Mayou36): deps: impl_copy, (mostly for Simple{PDF,Func})
-
-    zfit.run.create_session(reset_graph=True)
 
     norm_range = (-5.7, 13.6)
     param1 = Parameter('param13s', 1.1)

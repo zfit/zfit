@@ -5,11 +5,10 @@ from zfit import ztf
 import numpy as np
 
 from zfit.util.exception import SubclassingError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_pdf_simple_subclass():
-    zfit.run.create_session(reset_graph=True)
-
     class SimpleGauss(zfit.pdf.ZPDF):
         _PARAMS = ['mu', 'sigma']
 
@@ -37,8 +36,6 @@ def test_pdf_simple_subclass():
 
 
 def test_func_simple_subclass():
-    zfit.run.create_session(reset_graph=True)
-
     class SimpleGaussFunc(zfit.func.ZFunc):
         _PARAMS = ['mu', 'sigma']
 

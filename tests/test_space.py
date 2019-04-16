@@ -8,6 +8,7 @@ import numpy as np
 
 from zfit.core.limits import Space, convert_to_space
 from zfit.util.exception import ConversionError, ObsNotSpecifiedError, AxesNotSpecifiedError, LimitsUnderdefinedError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 lower1 = (1,), (4,)
 upper1 = (3,), (7,)

@@ -2,6 +2,7 @@ import pytest
 
 import zfit
 from zfit.util.exception import LimitsOverdefinedError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 limits1 = (-4, 3)
 limits2 = (-2, 5)
@@ -18,8 +19,6 @@ space5 = space1.combine(space4)
 
 
 def test_norm_range():
-    zfit.run.create_session(reset_graph=True)
-
     gauss1 = zfit.pdf.Gauss(1., 4., obs=space1)
     gauss2 = zfit.pdf.Gauss(1., 4., obs=space1)
     gauss3 = zfit.pdf.Gauss(1., 4., obs=space2)
@@ -38,8 +37,6 @@ def test_norm_range():
 
 
 def test_combine_range():
-    zfit.run.create_session(reset_graph=True)
-
     gauss1 = zfit.pdf.Gauss(1., 4., obs=space1)
     gauss4 = zfit.pdf.Gauss(1., 4., obs=space4)
     gauss5 = zfit.pdf.Gauss(1., 4., obs=space4)

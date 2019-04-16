@@ -12,6 +12,7 @@ from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 from zfit.util.exception import IntentionNotUnambiguousError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -68,8 +69,6 @@ def create_gauss3ext():
 
 
 def test_extended_unbinned_nll():
-    zfit.run.create_session(reset_graph=True)
-
     test_values = ztf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)
     gaussian3, mu3, sigma3, yield3 = create_gauss3ext()
@@ -85,8 +84,6 @@ def test_extended_unbinned_nll():
 
 
 def test_unbinned_simultaneous_nll():
-    zfit.run.create_session(reset_graph=True)
-
     test_values = tf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)
     test_values2 = tf.constant(test_values_np2)
@@ -109,8 +106,6 @@ def test_unbinned_simultaneous_nll():
 @pytest.mark.flaky(3)
 @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
 def test_unbinned_nll(weights):
-    zfit.run.create_session(reset_graph=True)
-
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
 
@@ -140,8 +135,6 @@ def test_unbinned_nll(weights):
 
 
 def test_add():
-    zfit.run.create_session(reset_graph=True)
-
     param1 = Parameter("param1", 1.)
     param2 = Parameter("param2", 2.)
 
@@ -188,8 +181,6 @@ def test_add():
 
 
 def test_gradients():
-    zfit.run.create_session(reset_graph=True)
-
     param1 = Parameter("param111", 1.)
     param2 = Parameter("param222", 2.)
 
@@ -215,8 +206,6 @@ def test_gradients():
 
 
 def test_simple_loss():
-    zfit.run.create_session(reset_graph=True)
-
     true_a = 1.
     true_b = 4.
     true_c = -0.3
