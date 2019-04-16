@@ -226,6 +226,14 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             n_total_drawn += n_drawn
 
             probabilities = prob(rnd_sample)
+        shape_rnd_sample = tf.shape(rnd_sample)[0]
+        assert_prob_rnd_sample_op = tf.assert_equal(tf.shape(probabilities), shape_rnd_sample)
+        # assert_weights_rnd_sample_op = tf.assert_equal(tf.shape(weights), shape_rnd_sample)
+        print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
+        with tf.control_dependencies([assert_prob_rnd_sample_op,
+                                      # assert_weights_rnd_sample_op,
+                                      print_op]):
+            probabilities = tf.identity(probabilities)
         if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
             # correctly. A bug report on will be filled (WIP).
@@ -233,8 +241,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # a value smaller by a factor of 1e-14
             # with tf.control_dependencies([probabilities]):
             # UPDATE: this works now? Was it just a one-time bug?
-            weights_scaling = tf.reduce_max(probabilities / weights) * 1.0001
+            weights_scaling = tf.reduce_max(probabilities / weights)
         else:
+            raise RuntimeError("DEBUG remove HACK")
             weights_scaling = prob_max / weights_max
 
         weights_scaled = weights_scaling * weights
