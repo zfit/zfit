@@ -31,6 +31,7 @@ def eval_testing(pdf, x):
 
 
 def test_cb_dcb():
+    zfit.run.create_session(reset_graph=True)
 
     obs = zfit.Space('x', limits=bounds)
 
