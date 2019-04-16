@@ -2,7 +2,7 @@ import math as _mt
 
 from typing import Any, Callable
 
-from pandas.tests.extension.numpy_.test_numpy_nested import np
+import numpy as np
 from math import inf as _inf
 
 import tensorflow as tf
