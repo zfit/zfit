@@ -1,5 +1,5 @@
 from collections import OrderedDict, defaultdict
-from typing import Dict, Union, Callable, Optional
+from typing import Dict, Union, Callable, Optional, Mapping
 import warnings
 
 import tensorflow as tf
@@ -100,11 +100,11 @@ class FitResult(SessionHolderMixin, ZfitResult):
         return params_uncached
 
     @property
-    def params(self):
+    def params(self) -> Mapping[ZfitParameter, Mapping[str, float]]:
         return self._params
 
     @property
-    def edm(self):
+    def edm(self) -> float:
         """The estimated distance to the minimum.
 
         Returns:
@@ -114,16 +114,16 @@ class FitResult(SessionHolderMixin, ZfitResult):
         return edm
 
     @property
-    def minimizer(self):
+    def minimizer(self) -> ZfitMinimizer:
         return self._minimizer
 
     @property
-    def loss(self):
+    def loss(self) -> ZfitLoss:
         # TODO(Mayou36): this is currently a reference, should be a copy of the loss?
         return self._loss
 
     @property
-    def fmin(self):
+    def fmin(self) -> float:
         """Function value at the minimum.
 
         Returns:

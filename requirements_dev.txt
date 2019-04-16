@@ -10,6 +10,7 @@ sphinx_bootstrap_theme
 twine>=1.10.0
 
 pytest>=3.4.2
+pytest-xdist
 pytest-runner>=2.11.1
 pytest-rerunfailures>=6
 scikit-hep-testdata
