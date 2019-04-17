@@ -4,6 +4,7 @@ from typing import Callable, Union, Iterable, List, Optional, Tuple
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
+from h5py.h5t import TypeEnumID
 
 import zfit
 from zfit import ztf
@@ -307,7 +308,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
     # if no failure, uncomment both for improvement of shape inference
-    with suppress(AttributeError):  # if n_samples_maybe_int is not a numpy object
+    with suppress(AttributeError, TypeError):  # if n_samples_maybe_int is not a numpy object
         new_sample.set_shape((n_samples_maybe_int, limits.n_obs))
     return new_sample
 
