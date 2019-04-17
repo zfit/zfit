@@ -558,13 +558,16 @@ class BasePDF(ZfitPDF, BaseModel):
             lambda_ = parameters.pop('lambda', None)
             if lambda_ is not None:
                 parameters['lambda_'] = lambda_
-        from zfit.models.functor import BaseFunctor
+        from zfit.models.functor import BaseFunctor, SumPDF
         if isinstance(self, BaseFunctor):
             parameters = {}
-            fracs = self.fracs
-            if not self.is_extended:
-                fracs = fracs[:-1]
-            parameters.update(pdfs=self.pdfs, fracs=fracs)
+            if isinstance(self, SumPDF):
+                fracs = self.fracs
+                if not self.is_extended:
+                    fracs = fracs[:-1]
+                parameters.update(fracs=fracs)
+            parameters.update(pdfs=self.pdfs)
+
         parameters.update(obs=obs, name=self.name)
         parameters.update(**override_parameters)
         # if hasattr(self, "distribution"):
