@@ -550,7 +550,7 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.dist_tfp import WrapDistribution
 
         if type(self) == WrapDistribution:
-            parameters = dict(distribution=self.distribution)
+            parameters = dict(distribution=self._distribution, dist_params=self.dist_params)
         else:
             # HACK END
 
