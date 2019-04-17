@@ -26,18 +26,21 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     """
     control_deps = []
     if probs is not None:
-        probs = convert_to_container(probs)
-        if len(probs) < 2:
-            raise ValueError("`probs` has to have length 2 at least.")
-        probs = tf.convert_to_tensor(probs)
+        if not isinstance(probs, (tf.Tensor, tf.Variable)):
+            probs = convert_to_container(probs)
+            if len(probs) < 2:
+                raise ValueError("`probs` has to have length 2 at least.")
+            probs = tf.convert_to_tensor(probs)
         probs = tf.cast(probs, tf.float32)
         control_deps.append(probs)
         # probs_logits_shape = tf.shape(probs)
     elif logits is not None:
-        logits = convert_to_container(logits)
-        if len(logits) < 2:
-            raise ValueError("`logits` has to have length 2 at least.")
-        logits = tf.convert_to_tensor(logits, dtype=None)
+
+        if not isinstance(logits, (tf.Tensor, tf.Variable)):
+            logits = convert_to_container(logits)
+            if len(logits) < 2:
+                raise ValueError("`logits` has to have length 2 at least.")
+            logits = tf.convert_to_tensor(logits, dtype=None)
         logits = tf.cast(logits, tf.float32)
         control_deps.append(logits)
         # probs_logits_shape = tf.shape(logits)
