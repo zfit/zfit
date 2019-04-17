@@ -35,7 +35,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         self.distribution = distribution
         self.dist_params = dist_params
 
-
     def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
         value = x.unstack_x()
         dist = self.distribution(**self.dist_params)
@@ -84,6 +83,18 @@ class Uniform(WrapDistribution):
         dist_params = dict(low=low, high=high, name=name + "_tfp")
         distribution = tfp.distributions.Uniform
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
+
+
+class TruncatedNormal(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self, mu, sigma, low, high, obs, name=None):
+        mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
+        params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
+        distribution = tfp.distributions.TruncatedNormal
+        dist_params = dict(loc=mu, scale=sigma, low=low, high=high, name=name + "_tfp")
+        super().__init__(distribution=distribution, dist_params=dist_params,
+                         obs=obs, params=params, name=name)
 
 
 if __name__ == '__main__':
