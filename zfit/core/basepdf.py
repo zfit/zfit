@@ -49,6 +49,8 @@ For more advanced methods and ways to register analytic integrals or overwrite c
 also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
 
+#  Copyright (c) 2019 zfit
+
 import abc
 from contextlib import suppress
 from typing import Union, Any, Type, Dict
@@ -549,7 +551,7 @@ class BasePDF(ZfitPDF, BaseModel):
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
 
-        if type(self) == WrapDistribution:
+        if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(distribution=self._distribution, dist_params=self.dist_params)
         else:
             # HACK END
