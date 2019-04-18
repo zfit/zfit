@@ -3,6 +3,8 @@ Basic PDFs are provided here. Gauss, exponential... that can be used together wi
 build larger models.
 """
 
+#  Copyright (c) 2019 zfit
+
 import math as mt
 from typing import Type, Any
 import warnings
@@ -52,7 +54,7 @@ class Exponential(BasePDF):
         defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
 
         Args:
-            lambda_ (:py:class:`~zfit.Parameter`): Accessed as "lambda".
+            lambda_ (:py:class:`~zfit.Parameter`): Accessed as parameter "lambda".
             obs (:py:class:`~zfit.Space`): The :py:class:`~zfit.Space` the pdf is defined in.
             name (str): Name of the pdf.
             dtype (DType):

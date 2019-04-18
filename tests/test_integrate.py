@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from contextlib import suppress
 import math as mt
 
@@ -14,6 +16,8 @@ import zfit.core.math as zmath
 from zfit.core.parameter import Parameter
 from zfit.models.basic import CustomGaussOLD
 from zfit.models.dist_tfp import Gauss
+
+from zfit.core.testing import setup_function, teardown_function, tester
 
 from zfit.core.testing import setup_function, teardown_function, tester
 

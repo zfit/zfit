@@ -202,7 +202,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if dynamic_array_shape:
             n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * 1.01) + 10  # just to make sure
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-            n_to_produce = tf.minimum(n_to_produce, tf.to_int32(5e5))  # introduce a cap to force serial
+            n_to_produce = tf.minimum(n_to_produce, tf.to_int32(5e6))  # introduce a cap to force serial
             new_limits = limits
         else:
             if multiple_limits:

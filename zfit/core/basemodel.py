@@ -140,6 +140,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
                                           "OR has been wrapped but it should not be".format(method_name))
 
+    # since subclasses can be funcs of pdfs, we need to now what to sample/integrate from
     @abc.abstractmethod
     def _func_to_integrate(self, x: ztyping.XType) -> tf.Tensor:
         raise NotImplementedError

@@ -80,8 +80,9 @@ def create_mu_sigma_2(nameadd=""):
 
 def create_wrapped_gauss(nameadd=""):
     mu2, sigma2 = create_mu_sigma_2(nameadd)
-    tf_gauss = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
-    return zfit.models.dist_tfp.WrapDistribution(tf_gauss, obs=obs1)
+    gauss_params = dict(loc=mu2, scale=sigma2)
+    tf_gauss = tf.distributions.Normal
+    return zfit.models.dist_tfp.WrapDistribution(tf_gauss, dist_params=gauss_params, obs=obs1, name="tf_gauss1")
 
 
 def create_gauss3(nameadd=""):

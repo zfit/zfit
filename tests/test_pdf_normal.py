@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -18,6 +20,7 @@ test_values = np.random.uniform(low=-3, high=5, size=100)
 norm_range1 = (-4., 2.)
 
 obs1 = 'obs1'
+limits1 = zfit.Space(obs=obs1, limits=(-0.3, 1.5))
 
 
 def create_gauss():
@@ -55,3 +58,23 @@ def test_gauss1():
     assert not np.allclose(probs1_tfp, probs1_tfp_unnorm, rtol=1e-2)
     assert not np.allclose(probs1, probs1_unnorm, rtol=1e-2)
     # np.testing.assert_allclose(probs1_unnorm, probs1_tfp_unnorm, rtol=1e-2)
+
+
+def test_truncated_gauss():
+    high = 2.
+    low = -0.5
+    truncated_gauss = zfit.pdf.TruncatedGauss(mu=1, sigma=2, low=low, high=high, obs=limits1)
+    gauss = zfit.pdf.Gauss(mu=1., sigma=2, obs=limits1)
+
+    probs_truncated = truncated_gauss.pdf(test_values)
+    probs_gauss = gauss.pdf(test_values)
+
+    probs_truncated_np, probs_gauss_np = zfit.run([probs_truncated, probs_gauss])
+
+    bool_index_inside = np.logical_and(low < test_values, test_values < high)
+    inside_probs_truncated = probs_truncated_np[bool_index_inside]
+    outside_probs_truncated = probs_truncated_np[np.logical_not(bool_index_inside)]
+    inside_probs_gauss = probs_gauss_np[bool_index_inside]
+
+    assert inside_probs_gauss == pytest.approx(inside_probs_truncated, rel=1e-3)
+    assert all(0 == outside_probs_truncated)

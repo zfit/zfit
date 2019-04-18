@@ -1,3 +1,8 @@
+#  Copyright (c) 2019 zfit
+
+from zfit.core.testing import setup_function, teardown_function, tester
+
+
 from zfit.util.temporary import TemporarilySet
 from zfit.core.testing import setup_function, teardown_function, tester
 
