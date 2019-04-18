@@ -5,6 +5,8 @@ different from the zfit models, it is similar enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 
 import numpy as np
@@ -90,18 +92,6 @@ class Uniform(WrapDistribution):
         dist_params = dict(low=low, high=high)
         distribution = tfp.distributions.Uniform
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name + "_tfp")
-
-
-class TruncatedNormal(WrapDistribution):
-    _N_OBS = 1
-
-    def __init__(self, mu, sigma, low, high, obs, name=None):
-        mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
-        params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
-        distribution = tfp.distributions.TruncatedNormal
-        dist_params = dict(loc=mu, scale=sigma, low=low, high=high, name=name + "_tfp")
-        super().__init__(distribution=distribution, dist_params=dist_params,
-                         obs=obs, params=params, name=name)
 
 
 if __name__ == '__main__':
