@@ -113,10 +113,10 @@ class Uniform(WrapDistribution):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
 
         Args:
-            low:
-            high:
-            obs:
-            name:
+            low (:py:class:`~zfit.Parameter`): Below this value, the pdf is zero.
+            high (:py:class:`~zfit.Parameter`): Above this value, the pdf is zero.
+            obs (:py:class:`~zfit.Space`): Observables and normalization range the pdf is defined in
+            name (str): Name of the pdf
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
@@ -125,11 +125,21 @@ class Uniform(WrapDistribution):
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name + "_tfp")
 
 
-class TruncatedNormal(WrapDistribution):
+class TruncatedGauss(WrapDistribution):
     _N_OBS = 1
 
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput, low: ztyping.ParamTypeInput,
                  high: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput, name: str = None):
+        """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
+
+        Args:
+            mu (:py:class:`~zfit.Parameter`): Mean of the gaussian dist
+            sigma (:py:class:`~zfit.Parameter`): Standard deviation or spread of the gaussian
+            low (:py:class:`~zfit.Parameter`): Below this value, the pdf is zero.
+            high (:py:class:`~zfit.Parameter`): Above this value, the pdf is zero.
+            obs (:py:class:`~zfit.Space`): Observables and normalization range the pdf is defined in
+            name (str): Name of the pdf
+        """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
