@@ -5,6 +5,7 @@ import copy
 from typing import List
 
 import iminuit
+import numpy as np
 import texttable as tt
 import tensorflow as tf
 
@@ -33,36 +34,9 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         gradients = loss.gradients(params)
         loss_val = loss.value()
         self._check_gradients(params=params, gradients=gradients)
+
         load_params = self._extract_load_method(params=params)
 
-        def func(values):
-            self._update_params(params=params, values=values)
-            do_print = self.verbosity > 5
-            if do_print:
-                table = tt.Texttable()
-                table.header(['Parameter', 'Value'])
-
-                for value in values:
-                    table.add_row([param.name, value])
-                print(table.draw())
-
-            loss_evaluated = self.sess.run(loss_val)
-            return loss_evaluated
-
-        def grad_func(values):
-            self._update_params(params=params, values=values)
-            do_print = self.verbosity > 5
-            if do_print:
-                table = tt.Texttable()
-                table.header(['Parameter', 'Gradient'])
-                for value in values:
-                    table.add_row([param.name, value])
-                print(table.draw())
-
-            gradients_values = self.sess.run(gradients)
-            return gradients_values
-
-        grad_func = grad_func if self._use_tfgrad else None
 
         # create options
         minimizer_options = self.minimizer_options.copy()
@@ -85,6 +59,59 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
             raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
 
         # create Minuit compatible names
+        limits = tuple(tuple((param.lower_limit, param.upper_limit)) for param in params)
+        errors = tuple(param.step_size for param in params)
+        start_values, limits, errors = self.sess.run([params, limits, errors])
+
+        multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
+        if multiparam:
+            # TODO(Mayou36): multiparameter
+            params_name = None  # autogenerate for the moment
+            start_values = start_values[0]
+            errors = errors[0]
+            limits = limits[0]
+            gradients = gradients[0]
+        else:
+            params_name = [param.name for param in params]
+
+        def func(values):
+            self._update_params(params=params, values=values)
+            do_print = self.verbosity > 5
+            if do_print:
+                table = tt.Texttable()
+                table.header(['Parameter', 'Value'])
+
+                for param, value in zip(params, values):
+                    table.add_row([param.name, value])
+                print(table.draw())
+
+            loss_evaluated = self.sess.run(loss_val)
+            return loss_evaluated
+
+        def grad_func(values):
+            self._update_params(params=params, values=values)
+            do_print = self.verbosity > 5
+            if do_print:
+                table = tt.Texttable()
+                table.header(['Parameter', 'Gradient'])
+                for param, value in zip(params, values):
+                    table.add_row([param.name, value])
+                print(table.draw())
+
+            gradients_values = self.sess.run(gradients)
+            return gradients_values
+
+        grad_func = grad_func if self._use_tfgrad else None
+
+        minimizer = iminuit.Minuit.from_array_func(fcn=func, start=start_values,
+                                                   error=errors, limit=limits, name=params_name,
+                                                   grad=grad_func,
+                                                   # use_array_call=True,
+                                                   print_level=self.verbosity,
+                                                   # forced_parameters=[f"param_{i}" for i in range(len(start_values))],
+                                                   **minimizer_init)
+
+        """
         error_limit_kwargs = {}
         param_lower_upper_step = tuple(
             (param, param.lower_limit, param.upper_limit, param.step_size)
@@ -111,7 +138,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                                    forced_parameters=params_name,
                                    print_level=self.verbosity,
                                    **error_limit_kwargs)
-
+        """
         strategy = minimizer_setter.pop('strategy')
         minimizer.set_strategy(strategy)
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter:".format(
@@ -119,8 +146,9 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(**minimize_options)
         params_result = [p_dict for p_dict in result[1]]
-        for load, p in zip(load_params, params_result):
-            load(p['value'])
+
+        result_vals = [res["value"] for res in params_result]
+        self._update_params(params, values=result_vals)
 
         info = {'n_eval': result[0]['nfcn'],
                 # 'n_iter': result['nit'],
@@ -137,9 +165,9 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                            minimizer=self.copy())
         return result
 
-    def copy(self):
-        tmp_minimizer = self._minuit_minimizer
-        self._minuit_minimizer = None
-        new_minimizer = super().copy()
-        new_minimizer._minuit_minimizer = tmp_minimizer
-        return new_minimizer
+        def copy(self):
+            tmp_minimizer = self._minuit_minimizer
+            self._minuit_minimizer = None
+            new_minimizer = super().copy()
+            new_minimizer._minuit_minimizer = tmp_minimizer
+            return new_minimizer
