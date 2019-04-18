@@ -156,6 +156,8 @@
 <span class="sd">also the advanced tutorials in `zfit tutorials &lt;https://github.com/zfit/zfit-tutorials&gt;`_</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span>
@@ -656,8 +658,8 @@
         <span class="c1"># HACK(Mayou36): remove once copy is proper implemented</span>
         <span class="kn">from</span> <span class="nn">..models.dist_tfp</span> <span class="k">import</span> <span class="n">WrapDistribution</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">WrapDistribution</span><span class="p">:</span>
-            <span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">WrapDistribution</span><span class="p">:</span>  <span class="c1"># NOT isinstance! Because e.g. Gauss wraps that and takes different args</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># HACK END</span>
 
@@ -665,13 +667,16 @@
             <span class="n">lambda_</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">lambda_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;lambda_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lambda_</span>
-        <span class="kn">from</span> <span class="nn">zfit.models.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span>
+        <span class="kn">from</span> <span class="nn">zfit.models.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span><span class="p">,</span> <span class="n">SumPDF</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BaseFunctor</span><span class="p">):</span>
             <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
-                <span class="n">fracs</span> <span class="o">=</span> <span class="n">fracs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="o">=</span><span class="n">fracs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SumPDF</span><span class="p">):</span>
+                <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+                    <span class="n">fracs</span> <span class="o">=</span> <span class="n">fracs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fracs</span><span class="o">=</span><span class="n">fracs</span><span class="p">)</span>
+            <span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">)</span>
+
         <span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">override_parameters</span><span class="p">)</span>
         <span class="c1"># if hasattr(self, &quot;distribution&quot;):</span>

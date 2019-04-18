@@ -11,6 +11,7 @@ Submodules
 
 .. toctree::
 
+   zfit.ztf.random
    zfit.ztf.tools
    zfit.ztf.wrapping_tf
    zfit.ztf.zextension
