@@ -16,6 +16,7 @@ import tensorflow_probability as tfp
 import tensorflow as tf
 
 from zfit import ztf
+from ..util import ztyping
 from ..settings import ztypes
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitParameter
@@ -64,7 +65,28 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 class Gauss(WrapDistribution):
     _N_OBS = 1
 
-    def __init__(self, mu, sigma, obs, name="Gauss"):
+    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
+                 name: str = "Gauss"):
+        """Gaussian or Normal distribution with a mean (mu) and a standartdevation (sigma).
+
+        The gaussian shape is defined as
+
+        .. math::
+            f(x \mid \mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+            \\frac{1}{\\sqrt{2\pi\sigma^2} }
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            mu (:py:class:`~zfit.Parameter`): Mean of the gaussian dist
+            sigma (:py:class:`~zfit.Parameter`): Standard deviation or spread of the gaussian
+            obs (:py:class:`~zfit.Space`): Observables and normalization range the pdf is defined in
+            name (str): Name of the pdf
+        """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((('mu', mu), ('sigma', sigma)))
         dist_params = dict(loc=mu, scale=sigma)
@@ -75,7 +97,7 @@ class Gauss(WrapDistribution):
 class ExponentialTFP(WrapDistribution):
     _N_OBS = 1
 
-    def __init__(self, tau, obs, name="Exponential"):
+    def __init__(self, tau: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput, name: str = "Exponential"):
         (tau,) = self._check_input_params(tau)
         params = OrderedDict((('tau', tau),))
         dist_params = dict(rate=tau)
@@ -86,7 +108,16 @@ class ExponentialTFP(WrapDistribution):
 class Uniform(WrapDistribution):
     _N_OBS = 1
 
-    def __init__(self, low, high, obs, name="Uniform"):
+    def __init__(self, low: ztyping.ParamTypeInput, high: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
+                 name: str = "Uniform"):
+        """Uniform distribution which is constant between `low`, `high` and zero outside.
+
+        Args:
+            low:
+            high:
+            obs:
+            name:
+        """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
         dist_params = dict(low=low, high=high)
@@ -97,7 +128,8 @@ class Uniform(WrapDistribution):
 class TruncatedNormal(WrapDistribution):
     _N_OBS = 1
 
-    def __init__(self, mu, sigma, low, high, obs, name=None):
+    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput, low: ztyping.ParamTypeInput,
+                 high: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput, name: str = None):
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
