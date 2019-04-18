@@ -18,6 +18,7 @@ import pep487
 
 import zfit
 from zfit import ztf
+from zfit.util.container import convert_to_container
 from .interface import ZfitMinimizer
 from ..util.execution import SessionHolderMixin
 from .fitresult import FitResult
@@ -101,8 +102,8 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         return values
 
     @staticmethod
-    def _update_params(params: List[ZfitParameter], values: List[Union[float, np.ndarray]], use_op: bool = False) -> \
-    List[tf.Operation]:
+    def _update_params(params: Union[List[ZfitParameter], ZfitParameter], values: Union[List[float], np.ndarray],
+                       use_op: bool = False) -> List[tf.Operation]:
         """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
 
         Args:
@@ -116,6 +117,9 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
                 can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
         """
         new_params_op = []
+        params = convert_to_container(params)
+        if len(params) == 1 and len(values) > 1:
+            values = (values,)  # iteration will be correctly
         for param, value in zip(params, values):
             if use_op:
                 new_params_op.append(param.assign(value))

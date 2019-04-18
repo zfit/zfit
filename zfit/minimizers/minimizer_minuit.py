@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 import copy
 from typing import List
@@ -34,30 +36,27 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         load_params = self._extract_load_method(params=params)
 
         def func(values):
+            self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
             if do_print:
                 table = tt.Texttable()
                 table.header(['Parameter', 'Value'])
-            for param, value in zip(params, values):
-                param.load(value=value)
-                if do_print:
+
+                for value in values:
                     table.add_row([param.name, value])
-            if do_print:
                 print(table.draw())
 
             loss_evaluated = self.sess.run(loss_val)
             return loss_evaluated
 
         def grad_func(values):
+            self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
             if do_print:
                 table = tt.Texttable()
                 table.header(['Parameter', 'Gradient'])
-            for param, value in zip(params, values):
-                param.load(value=value)
-                if do_print:
+                for value in values:
                     table.add_row([param.name, value])
-            if do_print:
                 print(table.draw())
 
             gradients_values = self.sess.run(gradients)
