@@ -3,10 +3,13 @@ Definition of minimizers, wrappers etc.
 
 """
 
+#  Copyright (c) 2019 zfit
+
 import collections
 from collections import OrderedDict
 from contextlib import ExitStack
 import copy
+from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
@@ -15,10 +18,11 @@ import pep487
 
 import zfit
 from zfit import ztf
+from zfit.util.container import convert_to_container
 from .interface import ZfitMinimizer
 from ..util.execution import SessionHolderMixin
 from .fitresult import FitResult
-from ..core.interfaces import ZfitLoss
+from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util import ztyping
 from ..util.temporary import TemporarilySet
 
@@ -96,6 +100,32 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         """
         values = [p for p in params]
         return values
+
+    @staticmethod
+    def _update_params(params: Union[List[ZfitParameter]], values: Union[List[float], np.ndarray],
+                       use_op: bool = False) -> List[tf.Operation]:
+        """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
+
+        Args:
+            params (list(`ZfitParameter`)): The parameters to be updated
+            values (list(float, `np.ndarray`)): New values for the parameters.
+            use_op (bool): Use the :py:meth:`~tf.Variable.assign` operation and return a list of them. If
+                False, use  :py:meth:`~tf.Variable.load` and a session to load the values
+
+        Returns:
+            list(empty, :py:class:`~tf.Operation`): List of assign operations if `use_op`, otherwise empty. The output
+                can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
+        """
+        new_params_op = []
+        if len(params) == 1 and len(values) > 1:
+            values = (values,)  # iteration will be correctly
+        for param, value in zip(params, values):
+            if use_op:
+                new_params_op.append(param.assign(value))
+            else:
+                param.set_value(value)
+
+        return new_params_op
 
     def step(self, loss, params: ztyping.ParamsOrNameType = None):
         """Perform a single step in the minimization (if implemented).
