@@ -110,10 +110,13 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">ExitStack</span>
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -122,10 +125,11 @@
 
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit.util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="k">import</span> <span class="n">ZfitMinimizer</span>
 <span class="kn">from</span> <span class="nn">..util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
 <span class="kn">from</span> <span class="nn">.fitresult</span> <span class="k">import</span> <span class="n">FitResult</span>
-<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="k">import</span> <span class="n">ZfitLoss</span>
+<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="k">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
 
@@ -203,6 +207,32 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">values</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_update_params</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">]],</span> <span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                       <span class="n">use_op</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Operation</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (list(`ZfitParameter`)): The parameters to be updated</span>
+<span class="sd">            values (list(float, `np.ndarray`)): New values for the parameters.</span>
+<span class="sd">            use_op (bool): Use the :py:meth:`~tf.Variable.assign` operation and return a list of them. If</span>
+<span class="sd">                False, use  :py:meth:`~tf.Variable.load` and a session to load the values</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list(empty, :py:class:`~tf.Operation`): List of assign operations if `use_op`, otherwise empty. The output</span>
+<span class="sd">                can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_params_op</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">(</span><span class="n">values</span><span class="p">,)</span>  <span class="c1"># iteration will be correctly</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">use_op</span><span class="p">:</span>
+                <span class="n">new_params_op</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_params_op</span>
 
 <div class="viewcode-block" id="BaseMinimizer.step"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsOrNameType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform a single step in the minimization (if implemented).</span>

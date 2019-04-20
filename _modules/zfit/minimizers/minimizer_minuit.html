@@ -105,11 +105,14 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.minimizers.minimizer_minuit</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">iminuit</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">texttable</span> <span class="k">as</span> <span class="nn">tt</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -138,39 +141,9 @@
         <span class="n">gradients</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">loss_val</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">gradients</span><span class="o">=</span><span class="n">gradients</span><span class="p">)</span>
+
         <span class="n">load_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_load_method</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">5</span>
-            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                <span class="n">table</span> <span class="o">=</span> <span class="n">tt</span><span class="o">.</span><span class="n">Texttable</span><span class="p">()</span>
-                <span class="n">table</span><span class="o">.</span><span class="n">header</span><span class="p">([</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">draw</span><span class="p">())</span>
-
-            <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">loss_val</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">loss_evaluated</span>
-
-        <span class="k">def</span> <span class="nf">grad_func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">5</span>
-            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                <span class="n">table</span> <span class="o">=</span> <span class="n">tt</span><span class="o">.</span><span class="n">Texttable</span><span class="p">()</span>
-                <span class="n">table</span><span class="o">.</span><span class="n">header</span><span class="p">([</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;Gradient&#39;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">draw</span><span class="p">())</span>
-
-            <span class="n">gradients_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">gradients_values</span>
-
-        <span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_func</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># create options</span>
         <span class="n">minimizer_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimizer_options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -193,33 +166,86 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following options are not (yet) supported: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">minimizer_options</span><span class="p">))</span>
 
         <span class="c1"># create Minuit compatible names</span>
-        <span class="n">error_limit_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">param_lower_upper_step</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">upper_limit</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">step_size</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
-        <span class="n">param_lower_upper_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param_lower_upper_step</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">param_lower_upper_step</span><span class="p">):</span>
-            <span class="n">param_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">param_kwargs</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="n">param_kwargs</span><span class="p">[</span><span class="s1">&#39;limit_&#39;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">low</span><span class="p">,</span> <span class="n">up</span>
-            <span class="n">param_kwargs</span><span class="p">[</span><span class="s1">&#39;error_&#39;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">param</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">upper_limit</span><span class="p">))</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">step_size</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">start_values</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">params</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">errors</span><span class="p">])</span>
 
-            <span class="n">error_limit_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param_kwargs</span><span class="p">)</span>
-        <span class="n">params_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
+        <span class="n">multiparam</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">start_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">multiparam</span><span class="p">:</span>
+            <span class="c1"># TODO(Mayou36): multiparameter</span>
+            <span class="n">params_name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># autogenerate for the moment</span>
+            <span class="n">start_values</span> <span class="o">=</span> <span class="n">start_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">gradients</span> <span class="o">=</span> <span class="n">gradients</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
 
-        <span class="n">overlapping_kwargs</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">error_limit_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">minimizer_init</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">overlapping_kwargs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The following `minimizer_init` arguments are defined internally and are invalid: &quot;</span>
-                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">overlapping_kwargs</span><span class="p">))</span>
-        <span class="n">error_limit_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">minimizer_init</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">5</span>
+            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">tt</span><span class="o">.</span><span class="n">Texttable</span><span class="p">()</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">header</span><span class="p">([</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">])</span>
 
-        <span class="c1"># if self._minuit_minimizer is None:</span>
-        <span class="n">minimizer</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="p">(</span><span class="n">fcn</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">use_array_call</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                   <span class="n">grad</span><span class="o">=</span><span class="n">grad_func</span><span class="p">,</span>
-                                   <span class="n">forced_parameters</span><span class="o">=</span><span class="n">params_name</span><span class="p">,</span>
-                                   <span class="n">print_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">,</span>
-                                   <span class="o">**</span><span class="n">error_limit_kwargs</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">draw</span><span class="p">())</span>
 
+            <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">loss_val</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">loss_evaluated</span>
+
+        <span class="k">def</span> <span class="nf">grad_func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">5</span>
+            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">tt</span><span class="o">.</span><span class="n">Texttable</span><span class="p">()</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">header</span><span class="p">([</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;Gradient&#39;</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+                    <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">([</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">draw</span><span class="p">())</span>
+
+            <span class="n">gradients_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gradients_values</span>
+
+        <span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_func</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">minimizer</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="o">.</span><span class="n">from_array_func</span><span class="p">(</span><span class="n">fcn</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_values</span><span class="p">,</span>
+                                                   <span class="n">error</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">params_name</span><span class="p">,</span>
+                                                   <span class="n">grad</span><span class="o">=</span><span class="n">grad_func</span><span class="p">,</span>
+                                                   <span class="c1"># use_array_call=True,</span>
+                                                   <span class="n">print_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">,</span>
+                                                   <span class="c1"># forced_parameters=[f&quot;param_{i}&quot; for i in range(len(start_values))],</span>
+                                                   <span class="o">**</span><span class="n">minimizer_init</span><span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        error_limit_kwargs = {}</span>
+<span class="sd">        param_lower_upper_step = tuple(</span>
+<span class="sd">            (param, param.lower_limit, param.upper_limit, param.step_size)</span>
+<span class="sd">            for param in params)</span>
+<span class="sd">        param_lower_upper_step = self.sess.run(param_lower_upper_step)</span>
+<span class="sd">        for param, (value, low, up, step) in zip(params, param_lower_upper_step):</span>
+<span class="sd">            param_kwargs = {}</span>
+<span class="sd">            param_kwargs[param.name] = value</span>
+<span class="sd">            param_kwargs[&#39;limit_&#39; + param.name] = low, up</span>
+<span class="sd">            param_kwargs[&#39;error_&#39; + param.name] = step</span>
+
+<span class="sd">            error_limit_kwargs.update(param_kwargs)</span>
+<span class="sd">        params_name = [param.name for param in params]</span>
+
+<span class="sd">        overlapping_kwargs = frozenset(error_limit_kwargs.keys()).intersection(minimizer_init.keys())</span>
+<span class="sd">        if overlapping_kwargs:</span>
+<span class="sd">            raise ValueError(&quot;The following `minimizer_init` arguments are defined internally and are invalid: &quot;</span>
+<span class="sd">                             &quot;{}&quot;.format(overlapping_kwargs))</span>
+<span class="sd">        error_limit_kwargs.update(minimizer_init)</span>
+
+<span class="sd">        # if self._minuit_minimizer is None:</span>
+<span class="sd">        minimizer = iminuit.Minuit(fcn=func, use_array_call=True,</span>
+<span class="sd">                                   grad=grad_func,</span>
+<span class="sd">                                   forced_parameters=params_name,</span>
+<span class="sd">                                   print_level=self.verbosity,</span>
+<span class="sd">                                   **error_limit_kwargs)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">strategy</span> <span class="o">=</span> <span class="n">minimizer_setter</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;strategy&#39;</span><span class="p">)</span>
         <span class="n">minimizer</span><span class="o">.</span><span class="n">set_strategy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">minimizer_setter</span><span class="p">,</span> <span class="s2">&quot;minimizer_setter is not empty, bug. Please report. minimizer_setter:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -227,8 +253,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">migrad</span><span class="p">(</span><span class="o">**</span><span class="n">minimize_options</span><span class="p">)</span>
         <span class="n">params_result</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_dict</span> <span class="k">for</span> <span class="n">p_dict</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="k">for</span> <span class="n">load</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">load_params</span><span class="p">,</span> <span class="n">params_result</span><span class="p">):</span>
-            <span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+
+        <span class="n">result_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">params_result</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">result_vals</span><span class="p">)</span>
 
         <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_eval&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nfcn&#39;</span><span class="p">],</span>
                 <span class="c1"># &#39;n_iter&#39;: result[&#39;nit&#39;],</span>
@@ -245,12 +272,12 @@
                            <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">result</span>
 
-<div class="viewcode-block" id="MinuitMinimizer.copy"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizer_minuit.html#zfit.minimize.MinuitMinimizer.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">tmp_minimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">new_minimizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">new_minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">tmp_minimizer</span>
-        <span class="k">return</span> <span class="n">new_minimizer</span></div></div>
+        <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">tmp_minimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">new_minimizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">new_minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">tmp_minimizer</span>
+            <span class="k">return</span> <span class="n">new_minimizer</span></div>
 </pre></div>
 
     </div>
