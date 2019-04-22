@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from contextlib import suppress
 from typing import Callable, Union, Iterable, List, Optional, Tuple
 
@@ -232,7 +234,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
         with tf.control_dependencies([assert_prob_rnd_sample_op,
                                       # assert_weights_rnd_sample_op,
-                                      print_op]):
+                                      # print_op
+                                      ]):
             probabilities = tf.identity(probabilities)
         if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
@@ -243,7 +246,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # UPDATE: this works now? Was it just a one-time bug?
             weights_scaling = tf.reduce_max(probabilities / weights)
         else:
-            raise RuntimeError("DEBUG remove HACK")
             weights_scaling = prob_max / weights_max
 
         weights_scaled = weights_scaling * weights
