@@ -13,18 +13,30 @@ from zfit.core.interfaces import ZfitLoss
 from .fitresult import FitResult
 from ..util.cache import Cachable
 from ..core.parameter import Parameter
-from .baseminimizer import BaseMinimizer
+from .baseminimizer import BaseMinimizer, ZfitStrategy
 
 
 class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, strategy=None, minimize_strategy=1, tolerance=None, verbosity=5, name=None, ncall=10000,
-                 **minimizer_options):
+    def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
+                 verbosity: int = 5, name: str = None,
+                 ncall: int = 10000, **minimizer_options):
+        """
 
+        Args:
+            strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
+            the minimizer in certain situations.
+            minimize_strategy (): A number used by minuit to define the strategy
+            tolerance (): Internal numerical tolerance
+            verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
+            name (): Name of the minimizer
+            ncall (): Maximum number of minimization steps.
+            **minimizer_options (): Options for the minimizer internally used.
+        """
         minimizer_options['ncall'] = ncall
         if not minimize_strategy in range(3):
-            raise ValueError("Strategy has to be 0, 1 or 2.")
+            raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy
 
         super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
