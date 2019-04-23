@@ -120,18 +120,30 @@
 <span class="kn">from</span> <span class="nn">.fitresult</span> <span class="k">import</span> <span class="n">FitResult</span>
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="k">import</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="k">import</span> <span class="n">BaseMinimizer</span>
+<span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="k">import</span> <span class="n">BaseMinimizer</span><span class="p">,</span> <span class="n">ZfitStrategy</span>
 
 
 <div class="viewcode-block" id="MinuitMinimizer"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizer_minuit.html#zfit.minimize.MinuitMinimizer">[docs]</a><span class="k">class</span> <span class="nc">MinuitMinimizer</span><span class="p">(</span><span class="n">BaseMinimizer</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">):</span>
     <span class="n">_DEFAULT_name</span> <span class="o">=</span> <span class="s2">&quot;MinuitMinimizer&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minimize_strategy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ncall</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
-                 <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">ZfitStrategy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minimize_strategy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ncall</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of</span>
+<span class="sd">            the minimizer in certain situations.</span>
+<span class="sd">            minimize_strategy (): A number used by minuit to define the strategy</span>
+<span class="sd">            tolerance (): Internal numerical tolerance</span>
+<span class="sd">            verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.</span>
+<span class="sd">            name (): Name of the minimizer</span>
+<span class="sd">            ncall (): Maximum number of minimization steps.</span>
+<span class="sd">            **minimizer_options (): Options for the minimizer internally used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">minimizer_options</span><span class="p">[</span><span class="s1">&#39;ncall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncall</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">minimize_strategy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Strategy has to be 0, 1 or 2.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;minimize_strategy has to be 0, 1 or 2, not </span><span class="si">{minimize_strategy}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="n">minimizer_options</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minimize_strategy</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">,</span>

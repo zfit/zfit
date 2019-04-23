@@ -110,8 +110,22 @@
 <span id="minimize"></span><h1>minimize<a class="headerlink" href="#module-zfit.minimize" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.minimize.MinuitMinimizer">
-<em class="property">class </em><code class="descclassname">zfit.minimize.</code><code class="descname">MinuitMinimizer</code><span class="sig-paren">(</span><em>strategy=None</em>, <em>minimize_strategy=1</em>, <em>tolerance=None</em>, <em>verbosity=5</em>, <em>name=None</em>, <em>ncall=10000</em>, <em>**minimizer_options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_minuit.html#MinuitMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.MinuitMinimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.minimize.</code><code class="descname">MinuitMinimizer</code><span class="sig-paren">(</span><em>strategy: zfit.minimizers.baseminimizer.ZfitStrategy = None</em>, <em>minimize_strategy: int = 1</em>, <em>tolerance: float = None</em>, <em>verbosity: int = 5</em>, <em>name: str = None</em>, <em>ncall: int = 10000</em>, <em>**minimizer_options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_minuit.html#MinuitMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.MinuitMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>**minimizer_options</em>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitStrategy</span></code> object that defines the behavior of</p></li>
+<li><p><strong>minimizer in certain situations.</strong> (<em>the</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – A number used by minuit to define the strategy</p></li>
+<li><p><strong>(</strong><strong>)</strong> – Internal numerical tolerance</p></li>
+<li><p><strong>(</strong><strong>)</strong> – Regulates how much will be printed during minimization. Values between 0 and 10 are valid.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – Name of the minimizer</p></li>
+<li><p><strong>(</strong><strong>)</strong> – Maximum number of minimization steps.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – Options for the minimizer internally used.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
