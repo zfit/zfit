@@ -399,6 +399,45 @@ A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, &amp; \mbox{for }\frac{x - \mu}{\sigm
 </dd></dl>
 
 <dl class="class">
+<dt id="zfit.pdf.DoubleCB">
+<em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">DoubleCB</code><span class="sig-paren">(</span><em>mu: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], sigma: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], alphal: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], nl: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], alphar: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], nr: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], obs: Union[str, Iterable[str], zfit.Space], name: str = 'DoubleCB', dtype: Type[CT_co] = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#DoubleCB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.DoubleCB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+<p><a href="#id3"><span class="problematic" id="id5">`Double sided Crystal Ball shaped PDF`__</span></a>. A combination of two CB using the <strong>mu</strong> (not a frac).
+on each side.</p>
+<p>The function is defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[f(x;\mu, \sigma, \alpha_{L}, n_{L}, \alpha_{R}, n_{R}) =  \begin{cases}
+A_{L} \cdot (B_{L} - \frac{x - \mu}{\sigma})^{-n},
+ &amp; \mbox{for }\frac{x - \mu}{\sigma} &lt; -\alpha_{L} \newline
+\exp(- \frac{(x - \mu)^2}{2 \sigma^2}),
+&amp; -\alpha_{L} \leqslant \mbox{for}\frac{x - \mu}{\sigma} \leqslant \alpha_{R} \newline
+A_{R} \cdot (B_{R} - \frac{x - \mu}{\sigma})^{-n},
+ &amp; \mbox{for }\frac{x - \mu}{\sigma} &gt; \alpha_{R}
+\end{cases}\]</div>
+<p>with</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}A_{L/R} = \left(\frac{n_{L/R}}{\left| \alpha_{L/R} \right|}\right)^n_{L/R} \cdot
+\exp\left(- \frac {\left|\alpha_{L/R} \right|^2}{2}\right)\\B_{L/R} = \frac{n_{L/R}}{\left| \alpha_{L/R} \right|}  - \left| \alpha_{L/R} \right|\end{aligned}\end{align} \]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<cite>zfit.Parameter</cite>) – The mean of the gaussian</p></li>
+<li><p><strong>sigma</strong> (<cite>zfit.Parameter</cite>) – Standard deviation of the gaussian</p></li>
+<li><p><strong>alphal</strong> (<cite>zfit.Parameter</cite>) – parameter where to switch from a gaussian to the powertail on the left</p></li>
+<li><p><strong>side</strong> – </p></li>
+<li><p><strong>nl</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail on the left side</p></li>
+<li><p><strong>alphar</strong> (<cite>zfit.Parameter</cite>) – parameter where to switch from a gaussian to the powertail on the right</p></li>
+<li><p><strong>side</strong> – </p></li>
+<li><p><strong>nr</strong> (<cite>zfit.Parameter</cite>) – Exponent of the powertail on the right side</p></li>
+<li><p><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>dtype</strong> (<em>tf.DType</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
 <dt id="zfit.pdf.Gauss">
 <em class="property">class </em><code class="descclassname">zfit.pdf.</code><code class="descname">Gauss</code><span class="sig-paren">(</span><em>mu: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], sigma: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], obs: Union[str, Iterable[str], zfit.Space], name: str = 'Gauss'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/dist_tfp.html#Gauss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.Gauss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.models.dist_tfp.html#zfit.models.dist_tfp.WrapDistribution" title="zfit.models.dist_tfp.WrapDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.dist_tfp.WrapDistribution</span></code></a></p>
