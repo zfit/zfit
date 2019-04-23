@@ -100,7 +100,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                 print(table.draw())
 
             gradients_values = self.sess.run(gradients)
-            if any(np.isnan(gradients)):
+            if any(np.isnan(gradients_values)):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
             return gradients_values
 
