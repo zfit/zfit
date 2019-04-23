@@ -6,6 +6,7 @@ Definition of minimizers, wrappers etc.
 #  Copyright (c) 2019 zfit
 
 import collections
+from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from contextlib import ExitStack
 import copy
@@ -13,18 +14,55 @@ from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
-import tensorflow_probability as tfp
-import pep487
 
-import zfit
-from zfit import ztf
-from zfit.util.container import convert_to_container
+from ..settings import run
 from .interface import ZfitMinimizer
 from ..util.execution import SessionHolderMixin
 from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util import ztyping
-from ..util.temporary import TemporarilySet
+
+
+class FailMinimizeNaN(Exception):
+    pass
+
+
+class ZfitStrategy(metaclass=ABCMeta):
+
+    @abstractmethod
+    def minimize_nan(self, loss, loss_value, params):
+        raise NotImplementedError
+
+
+class BaseStrategy(ZfitStrategy):
+
+    def __init__(self) -> None:
+        self.fit_result = None
+        self.error = None
+        super().__init__()
+
+    def minimize_nan(self, loss, params, minimizer, loss_value=None, gradient_values=None):
+        return self._minimize_nan(loss=loss, params=params, minimizer=minimizer, loss_value=loss_value,
+                                  gradient_values=gradient_values)
+
+    def _minimize_nan(self, loss, loss_value, params, minimizer, gradient_values):
+        raise NotImplementedError
+
+
+class ToyStrategyFail(BaseStrategy):
+
+    def _minimize_nan(self, loss, params, minimizer, loss_value, gradient_values):
+        values = run(params)
+        params = OrderedDict((param, value) for param, value in zip(params, values))
+        self.fit_result = FitResult(params=params, edm=-999, fmin=-999, status=9, converged=False, info={}, loss=loss,
+                                    minimizer=minimizer)
+        raise FailMinimizeNaN()
+
+
+class DefaultStrategy(BaseStrategy):
+
+    def _minimize_nan(self, loss, params, minimizer, loss_value, gradient_values):
+        pass  # nothing to do here
 
 
 class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
@@ -36,10 +74,15 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
     """
     _DEFAULT_name = "BaseMinimizer"
 
-    def __init__(self, name, tolerance, verbosity, minimizer_options, **kwargs):
+    def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, **kwargs):
         super().__init__(**kwargs)
         if name is None:
             name = self._DEFAULT_name
+        if strategy is None:
+            strategy = DefaultStrategy()
+        if not isinstance(strategy, ZfitStrategy):
+            raise TypeError(f"strategy {strategy} is not an instance of ZfitStrategy.")
+        self.strategy = strategy
         self.name = name
         if tolerance is None:
             tolerance = 1e-5
@@ -158,7 +201,10 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
         with ExitStack() as stack:
             tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
-            return self._hook_minimize(loss=loss, params=params)
+            try:
+                return self._hook_minimize(loss=loss, params=params)
+            except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
+                return self.strategy.fit_result
 
     def _hook_minimize(self, loss, params):
         return self._call_minimize(loss=loss, params=params)
