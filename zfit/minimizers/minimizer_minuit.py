@@ -19,12 +19,12 @@ from .baseminimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, strategy=1, tolerance=None, verbosity=5, name=None, ncall=10000, **minimizer_options):
+    def __init__(self, minimize_strategy=1, tolerance=None, verbosity=5, name=None, ncall=10000, **minimizer_options):
 
         minimizer_options['ncall'] = ncall
-        if not strategy in range(3):
+        if not minimize_strategy in range(3):
             raise ValueError("Strategy has to be 0, 1 or 2.")
-        minimizer_options['strategy'] = strategy
+        minimizer_options['strategy'] = minimize_strategy
 
         super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options)
         self._minuit_minimizer = None
@@ -35,8 +35,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         loss_val = loss.value()
         self._check_gradients(params=params, gradients=gradients)
 
-        load_params = self._extract_load_method(params=params)
-
+        # load_params = self._extract_load_method(params=params)  REMOVE
 
         # create options
         minimizer_options = self.minimizer_options.copy()
@@ -86,6 +85,8 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                 print(table.draw())
 
             loss_evaluated = self.sess.run(loss_val)
+            if np.isnan(loss_evaluated):
+                self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
             return loss_evaluated
 
         def grad_func(values):
@@ -99,6 +100,8 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                 print(table.draw())
 
             gradients_values = self.sess.run(gradients)
+            if any(np.isnan(gradients)):
+                self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
             return gradients_values
 
         grad_func = grad_func if self._use_tfgrad else None
