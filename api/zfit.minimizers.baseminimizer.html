@@ -111,7 +111,7 @@
 <p>Definition of minimizers, wrappers etc.</p>
 <dl class="class">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer">
-<em class="property">class </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">BaseMinimizer</code><span class="sig-paren">(</span><em>name</em>, <em>tolerance</em>, <em>verbosity</em>, <em>minimizer_options</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">BaseMinimizer</code><span class="sig-paren">(</span><em>name</em>, <em>tolerance</em>, <em>verbosity</em>, <em>minimizer_options</em>, <em>strategy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.util.execution.html#zfit.util.execution.SessionHolderMixin" title="zfit.util.execution.SessionHolderMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.execution.SessionHolderMixin</span></code></a>, <a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.interface.ZfitMinimizer</span></code></a></p>
 <p>Minimizer for loss functions.</p>
 <p>Additional <cite>minimizer_options</cite> (given as <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs) can be accessed and changed via the
@@ -162,6 +162,46 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dl class="attribute">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.tolerance">
 <code class="descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.minimizers.baseminimizer.BaseStrategy">
+<em class="property">class </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">BaseStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="zfit.minimizers.baseminimizer.ZfitStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.ZfitStrategy</span></code></a></p>
+<dl class="method">
+<dt id="zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan">
+<code class="descname">minimize_nan</code><span class="sig-paren">(</span><em>loss</em>, <em>params</em>, <em>minimizer</em>, <em>loss_value=None</em>, <em>gradient_values=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.minimizers.baseminimizer.DefaultStrategy">
+<em class="property">class </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">DefaultStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#DefaultStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="zfit.minimizers.baseminimizer.BaseStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseStrategy</span></code></a></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.minimizers.baseminimizer.FailMinimizeNaN">
+<em class="property">exception </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">FailMinimizeNaN</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#FailMinimizeNaN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.FailMinimizeNaN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.minimizers.baseminimizer.ToyStrategyFail">
+<em class="property">class </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">ToyStrategyFail</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ToyStrategyFail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ToyStrategyFail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="zfit.minimizers.baseminimizer.BaseStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseStrategy</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.minimizers.baseminimizer.ZfitStrategy">
+<em class="property">class </em><code class="descclassname">zfit.minimizers.baseminimizer.</code><code class="descname">ZfitStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan">
+<code class="descname">minimize_nan</code><span class="sig-paren">(</span><em>loss</em>, <em>loss_value</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
