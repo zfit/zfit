@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Type, Any
 
 import tensorflow as tf
@@ -265,7 +267,7 @@ class DoubleCB(BasePDF):
                  alphal: ztyping.ParamTypeInput, nl: ztyping.ParamTypeInput,
                  alphar: ztyping.ParamTypeInput, nr: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput, name: str = "DoubleCB", dtype: Type = ztypes.float):
-        """`Double sided Crystal Ball shaped PDF`__. A combination of a Gaussian with powerlaw tails
+        """`Double sided Crystal Ball shaped PDF`__. A combination of two CB using the **mu** (not a frac).
         on each side.
 
         The function is defined as follows:
