@@ -15,6 +15,7 @@ from typing import List, Union
 import numpy as np
 import tensorflow as tf
 
+from ..settings import run
 from .interface import ZfitMinimizer
 from ..util.execution import SessionHolderMixin
 from .fitresult import FitResult
@@ -51,9 +52,11 @@ class BaseStrategy(ZfitStrategy):
 class ToyStrategyFail(BaseStrategy):
 
     def _minimize_nan(self, loss, params, minimizer, loss_value, gradient_values):
+        values = run(params)
+        params = OrderedDict((param, value) for param, value in zip(params, values))
         self.fit_result = FitResult(params=params, edm=-999, fmin=-999, status=9, converged=False, info={}, loss=loss,
                                     minimizer=minimizer)
-        raise FailMinimizeNaN
+        raise FailMinimizeNaN()
 
 
 class DefaultStrategy(BaseStrategy):
@@ -78,7 +81,8 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         if strategy is None:
             strategy = DefaultStrategy()
         if not isinstance(strategy, ZfitStrategy):
-            self.strategy = strategy
+            raise TypeError(f"strategy {strategy} is not an instance of ZfitStrategy.")
+        self.strategy = strategy
         self.name = name
         if tolerance is None:
             tolerance = 1e-5
@@ -199,7 +203,7 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
             try:
                 return self._hook_minimize(loss=loss, params=params)
-            except FailMinimizeNaN:
+            except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
                 return self.strategy.fit_result
 
     def _hook_minimize(self, loss, params):

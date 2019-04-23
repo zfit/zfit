@@ -19,14 +19,16 @@ from .baseminimizer import BaseMinimizer
 class MinuitMinimizer(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
-    def __init__(self, minimize_strategy=1, tolerance=None, verbosity=5, name=None, ncall=10000, **minimizer_options):
+    def __init__(self, strategy=None, minimize_strategy=1, tolerance=None, verbosity=5, name=None, ncall=10000,
+                 **minimizer_options):
 
         minimizer_options['ncall'] = ncall
         if not minimize_strategy in range(3):
             raise ValueError("Strategy has to be 0, 1 or 2.")
         minimizer_options['strategy'] = minimize_strategy
 
-        super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options)
+        super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
+                         minimizer_options=minimizer_options)
         self._minuit_minimizer = None
         self._use_tfgrad = True
 
