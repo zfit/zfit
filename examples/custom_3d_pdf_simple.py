@@ -30,6 +30,6 @@ custom_pdf = CustomPDF(obs=obs, alpha=0.2, beta=0.4)
 
 integral = custom_pdf.integrate(limits=obs)  # = 1 since normalized
 sample = custom_pdf.sample(n=1000)
-prob = custom_pdf.pdf(sample)
+prob = custom_pdf.pdf(sample)  # DO NOT USE THIS FOR TOYS!
 
 integral_np, sample_np, prob_np = zfit.run([integral, sample, prob])
