@@ -431,12 +431,13 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
     # TODO: make it a random variable? return tensor that evaluates new all the time?
-    def randomize(self, minval=None, maxval=None):
+    def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):
         """Update the value with a randomised value between minval and maxval.
 
         Args:
             minval (Numerical):
             maxval (Numerical):
+            sampler ():
         """
         if minval is None:
             minval = self.sess.run(self.lower_limit)
@@ -452,8 +453,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # if shape == []:
         #     size = 1
         # value = self.sess.run(value)
-        eps = 1e-8
-        value = np.random.uniform(size=self.shape, low=minval + eps, high=maxval - eps)
+        # eps = 1e-8
+        # value = sampler(size=self.shape, low=minval + eps, high=maxval - eps)
+        value = sampler(size=self.shape, low=minval, high=maxval)
         # value = np.random.uniform(size=size, low=minval, high=maxval)
         # if shape == []:
         #     value = value[0]

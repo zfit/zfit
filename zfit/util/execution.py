@@ -9,7 +9,7 @@ import warnings
 import tensorflow as tf
 
 import zfit
-from zfit.util.temporary import TemporarilySet
+from .temporary import TemporarilySet
 from .container import DotDict
 
 
@@ -109,6 +109,11 @@ class RunManager:
             from zfit.core.parameter import ZfitParameterMixin
             ZfitParameterMixin._existing_names = set()  # TODO(Mayou36): better hook for reset?
         self.sess = tf.Session(*args, **sess_kwargs)
+
+        from ..settings import ztypes
+        tf.get_variable_scope().set_use_resource(True)
+        tf.get_variable_scope().set_dtype(ztypes.float)
+
         return self.sess
 
     @property

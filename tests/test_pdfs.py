@@ -1,9 +1,12 @@
+from typing import List
+
 import pytest
 import tensorflow as tf
 import numpy as np
 
 from zfit import ztf
 from zfit.core.data import Data
+from zfit.core.interfaces import ZfitPDF
 from zfit.core.limits import Space
 from zfit.core.parameter import Parameter
 from zfit.models.functor import SumPDF, ProductPDF
@@ -46,7 +49,7 @@ def create_params(name_add=""):
     return mu1, mu2, mu3, sigma1, sigma2, sigma3
 
 
-def create_gaussians():
+def create_gaussians() -> List[ZfitPDF]:
     # Gauss for sum, same axes
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params()
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")
@@ -118,15 +121,20 @@ def test_prod_gauss_nd_mixed():
     # prod_gauss_4d.update_integration_options(draws_per_dim=10)
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     prod_gauss_4d = product_gauss_4d()
+    prod_gauss_4d.set_norm_range(limits_4d)
     probs = prod_gauss_4d.pdf(x=test_values_data,
                               norm_range=limits_4d)
-    gauss1, gauss2, gauss3 = create_gaussians()
+    gausses = create_gaussians()
+
+    for gauss in (gausses):
+        gauss.set_norm_range(norm_range)
+    gauss1, gauss2, gauss3 = gausses
     prod_gauss_3d = product_gauss_3d()
 
     def probs_4d(values):
-        true_prob = [gauss1.pdf(values[:, 3], norm_range=norm_range)]
-        true_prob += [gauss2.pdf(values[:, 0], norm_range=norm_range)]
-        true_prob += [gauss3.pdf(values[:, 2], norm_range=norm_range)]
+        true_prob = [gauss1.pdf(values[:, 3])]
+        true_prob += [gauss2.pdf(values[:, 0])]
+        true_prob += [gauss3.pdf(values[:, 2])]
         true_prob += [prod_gauss_3d.pdf(values[:, (0, 1, 2)],
                                         norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
                                                          obs=['a', 'b', 'c']))]
