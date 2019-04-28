@@ -538,12 +538,13 @@
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">)</span></div>
 
     <span class="c1"># TODO: make it a random variable? return tensor that evaluates new all the time?</span>
-<div class="viewcode-block" id="Parameter.randomize"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.Parameter.randomize">[docs]</a>    <span class="k">def</span> <span class="nf">randomize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.randomize"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.Parameter.randomize">[docs]</a>    <span class="k">def</span> <span class="nf">randomize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update the value with a randomised value between minval and maxval.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            minval (Numerical):</span>
 <span class="sd">            maxval (Numerical):</span>
+<span class="sd">            sampler ():</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">minval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">minval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">)</span>
@@ -559,8 +560,9 @@
         <span class="c1"># if shape == []:</span>
         <span class="c1">#     size = 1</span>
         <span class="c1"># value = self.sess.run(value)</span>
-        <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-8</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">minval</span> <span class="o">+</span> <span class="n">eps</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">maxval</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="c1"># eps = 1e-8</span>
+        <span class="c1"># value = sampler(size=self.shape, low=minval + eps, high=maxval - eps)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">minval</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">maxval</span><span class="p">)</span>
         <span class="c1"># value = np.random.uniform(size=size, low=minval, high=maxval)</span>
         <span class="c1"># if shape == []:</span>
         <span class="c1">#     value = value[0]</span>

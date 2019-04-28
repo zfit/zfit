@@ -116,7 +116,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit.util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
 <span class="kn">from</span> <span class="nn">.container</span> <span class="k">import</span> <span class="n">DotDict</span>
 
 
@@ -216,6 +216,11 @@
             <span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="k">import</span> <span class="n">ZfitParameterMixin</span>
             <span class="n">ZfitParameterMixin</span><span class="o">.</span><span class="n">_existing_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># TODO(Mayou36): better hook for reset?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">sess_kwargs</span><span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">set_use_resource</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">set_dtype</span><span class="p">(</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span></div>
 
     <span class="nd">@property</span>
