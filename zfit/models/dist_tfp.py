@@ -54,7 +54,14 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     @property
     def distribution(self):
-        return self._distribution(**self.dist_params, **self.dist_kwargs, name=self.name + "_tfp")
+
+        params = self.dist_params
+        if callable(params):
+            params = params()
+        kwargs = self.dist_kwargs
+        if callable(kwargs):
+            kwargs = kwargs()
+        return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
     def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
         value = x.value()
