@@ -1,5 +1,7 @@
 """Recurrent polynomials."""
 
+#  Copyright (c) 2019 zfit
+
 from typing import Callable
 import tensorflow as tf
 
@@ -20,7 +22,8 @@ class RecursivePolynomial(zfit.func.BaseFunc):
 
     """
 
-    def __init__(self, obs, degree: int, f0: Callable, f1: Callable, recurrence: Callable, name: str = "Polynomial", **kwargs):  # noqa
+    def __init__(self, obs, degree: int, f0: Callable, f1: Callable, recurrence: Callable, name: str = "Polynomial",
+                 **kwargs):  # noqa
         self._degree = degree
         self._polys = [f0, f1]
         self._recurrence = recurrence
@@ -38,6 +41,10 @@ class RecursivePolynomial(zfit.func.BaseFunc):
             polys.append(self.recurrence(polys[-1], polys[-2], i_deg, x))
         return polys[-1]
 
+    @property
+    def recurrence(self):
+        return self._recurrence
+
 
 def legendre_recurrence(p1, p2, n, x):
     """Recurrence relation for Legendre polynomials.
@@ -53,7 +60,7 @@ class Legendre(RecursivePolynomial):
 
     def __init__(self, obs, degree: int, name: str = "Legendre", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=tf.ones_like, f1=lambda x: x,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: x, degree=degree,
                          recurrence=legendre_recurrence, **kwargs)
 
 
@@ -71,7 +78,7 @@ class Chebyshev(RecursivePolynomial):
 
     def __init__(self, obs, degree: int, name: str = "Chebyshev", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=tf.ones_like, f1=lambda x: x,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: x, degree=degree,
                          recurrence=chebyshev_recurrence, **kwargs)
 
 
@@ -80,7 +87,7 @@ class Chebyshev2(RecursivePolynomial):
 
     def __init__(self, obs, degree: int, name: str = "Chebyshev2", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=tf.ones_like, f1=lambda x: x*2,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: x * 2, degree=degree,
                          recurrence=chebyshev_recurrence, **kwargs)
 
 
@@ -90,7 +97,7 @@ def laguerre_recurrence(p1, p2, n, x):
     (n+1) L_{n+1}(x) = (2n + 1 - x) L_{n}(x) - n L_{n-1}(x)
 
     """
-    return (tf.multiply(2*n + 1 - x, p1(x)) - n * p2(x)) / (n+1)
+    return (tf.multiply(2 * n + 1 - x, p1(x)) - n * p2(x)) / (n + 1)
 
 
 class Laguerre(RecursivePolynomial):
@@ -98,7 +105,7 @@ class Laguerre(RecursivePolynomial):
 
     def __init__(self, obs, degree: int, name: str = "Laguerre", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=tf.ones_like, f1=lambda x: 1 - x,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: 1 - x, degree=degree,
                          recurrence=laguerre_recurrence, **kwargs)
 
 
@@ -116,8 +123,7 @@ class Hermite(RecursivePolynomial):
 
     def __init__(self, obs, degree: int, name: str = "Hermite", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=tf.ones_like, f1=lambda x: 2*x,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: 2 * x, degree=degree,
                          recurrence=hermite_recurrence, **kwargs)
-
 
 # EOF
