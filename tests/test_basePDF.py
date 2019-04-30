@@ -120,7 +120,7 @@ def test_gradient():
 
 def test_func():
     test_values = np.array([3., 11.3, -0.2, -7.82])
-    test_values = zfit.Data.fuom_numpy(obs=obs1, array=test_values)
+    test_values = zfit.Data.from_numpy(obs=obs1, array=test_values)
 
     gauss_params1 = create_gauss1()
 
