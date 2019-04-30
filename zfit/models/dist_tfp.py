@@ -80,65 +80,66 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         return integral[0]
 
 
-class KernelDensity(WrapDistribution):
+# class KernelDensity(WrapDistribution):
+#
+#     def __init__(self, loc: ztyping.ParamTypeInput, scale: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
+#                  kernel: tfp.distributions.Distribution = tfp.distributions.Normal,
+#                  weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "KernelDensity"):
+#         """Kernel Density Estimation of loc and either a broadcasted or a per-loc scale with a Distribution as kernel.
+#
+#         Args:
+#             loc: 1-D Tensor-like. The positions of the `kernel`. Determines how many kernels will be created.
+#             scale: Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
+#                 to `loc` for a 1-D distribution.
+#             obs: Observables
+#             kernel: Distribution that is used as kernel
+#             weights: Weights of each `loc`, can be None or Tensor-like with shape compatible with loc
+#             name: Name of the PDF
+#         """
+#         if not isinstance(kernel,
+#                           tfp.distributions.Distribution) and False:  # HACK remove False, why does test not work?
+#             raise TypeError("Currently, only tfp distributions are supported as kernels. Please open an issue if this "
+#                             "is too restrictive.")
+#
+#         if isinstance(loc, ZfitData):
+#             if loc.weights is not None:
+#                 if weights is not None:
+#                     raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
+#                 else:
+#                     weights = loc.weights
+#
+#         if weights is None:
+#             weights = tf.ones_like(loc, dtype=tf.float64)
+#         self._weights_loc = weights
+#         self._weights_sum = ztf.reduce_sum(weights)
+#         self._latent_loc = loc
+#         params = {"scale": scale}
+#         dist_params = {"loc": loc, "scale": scale}
+#         super().__init__(distribution=kernel, dist_params=dist_params, obs=obs, params=params, dtype=ztypes.float,
+#                          name=name)
+#
+#     def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
+#         value = tf.expand_dims(x.value(), -2)
+#         new_shape = tf.concat([tf.shape(value)[:2], [tf.shape(self._latent_loc)[0], 4]], axis=0)
+#         value = tf.broadcast_to(value, new_shape)
+#         probs = self.distribution.prob(value=value, name="unnormalized_pdf")
+#         # weights = tf.expand_dims(self._weights_loc, axis=-1)
+#         weights = self._weights_loc
+#         probs = ztf.reduce_sum(probs * weights, axis=-1) / self._weights_sum
+#         return probs
+#
+#     @supports()
+#     def _analytic_integrate(self, limits, norm_range):
+#         lower, upper = limits.limits
+#         if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
+#             return ztf.reduce_sum(self._weights_loc)  # tfp distributions are normalized to 1
+#         lower = ztf.to_real(lower[0], dtype=self.dtype)
+#         # lower = tf.broadcast_to(lower, shape=(tf.shape(self._latent_loc)[0], limits.n_obs,))  # remove
+#         upper = ztf.to_real(upper[0], dtype=self.dtype)
+#         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
+#         integral = ztf.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum
+#         return integral  # TODO: generalize for VectorSpaces
 
-    def __init__(self, loc: ztyping.ParamTypeInput, scale: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
-                 kernel: tfp.distributions.Distribution = tfp.distributions.Normal,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "KernelDensity"):
-        """Kernel Density Estimation of loc and either a broadcasted or a per-loc scale with a Distribution as kernel.
-
-        Args:
-            loc: 1-D Tensor-like. The positions of the `kernel`. Determines how many kernels will be created.
-            scale: Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
-                to `loc` for a 1-D distribution.
-            obs: Observables
-            kernel: Distribution that is used as kernel
-            weights: Weights of each `loc`, can be None or Tensor-like with shape compatible with loc
-            name: Name of the PDF
-        """
-        if not isinstance(kernel,
-                          tfp.distributions.Distribution) and False:  # HACK remove False, why does test not work?
-            raise TypeError("Currently, only tfp distributions are supported as kernels. Please open an issue if this "
-                            "is too restrictive.")
-
-        if isinstance(loc, ZfitData):
-            if loc.weights is not None:
-                if weights is not None:
-                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
-                else:
-                    weights = loc.weights
-
-        if weights is None:
-            weights = tf.ones_like(loc, dtype=tf.float64)
-        self._weights_loc = weights
-        self._weights_sum = ztf.reduce_sum(weights)
-        self._latent_loc = loc
-        params = {"scale": scale}
-        dist_params = {"loc": loc, "scale": scale}
-        super().__init__(distribution=kernel, dist_params=dist_params, obs=obs, params=params, dtype=ztypes.float,
-                         name=name)
-
-    @supports()
-    def _analytic_integrate(self, limits, norm_range):
-        lower, upper = limits.limits
-        if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
-            return ztf.reduce_sum(self._weights_loc)  # tfp distributions are normalized to 1
-        lower = ztf.to_real(lower[0], dtype=self.dtype)
-        # lower = tf.broadcast_to(lower, shape=(tf.shape(self._latent_loc)[0], limits.n_obs,))  # remove
-        upper = ztf.to_real(upper[0], dtype=self.dtype)
-        integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
-        integral = ztf.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum
-        return integral  # TODO: generalize for VectorSpaces
-
-    def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
-        value = tf.expand_dims(x.value(), -2)
-        new_shape = tf.concat([tf.shape(value)[:2], [tf.shape(self._latent_loc)[0], 4]], axis=0)
-        value = tf.broadcast_to(value, new_shape)
-        probs = self.distribution.prob(value=value, name="unnormalized_pdf")
-        # weights = tf.expand_dims(self._weights_loc, axis=-1)
-        weights = self._weights_loc
-        probs = ztf.reduce_sum(probs * weights, axis=-1) / self._weights_sum
-        return probs
 
 
 class Gauss(WrapDistribution):
