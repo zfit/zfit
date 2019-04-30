@@ -2,6 +2,8 @@
 This module contains functions for the numeric as well as the analytic (partial) integration.
 """
 
+#  Copyright (c) 2019 zfit
+
 import collections
 import numpy as np
 
@@ -345,9 +347,9 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
     def value(self, obs: List[str] = None):
         return self
 
-    def unstack_x(self):
+    def unstack_x(self, always_list=False):
         unstacked_x = [self._sample[i] for i in self._reorder_indices_list]
-        if len(unstacked_x) == 1:
+        if len(unstacked_x) == 1 and not always_list:
             unstacked_x = unstacked_x[0]
         return unstacked_x
 
