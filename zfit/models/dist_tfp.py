@@ -31,8 +31,14 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     """
 
-    def __init__(self, distribution, dist_params, obs, params=None, dtype=ztypes.float, name=None, **kwargs):
+    def __init__(self, distribution, dist_params, obs, params=None, dist_kwargs=None, dtype=ztypes.float, name=None,
+                 **kwargs):
         # Check if subclass of distribution?
+        if dist_kwargs is None:
+            dist_kwargs = {}
+
+        if dist_params is None:
+            dist_params = {}
         name = name or distribution.name
         if params is None:
             params = OrderedDict((k, p) for k, p in dist_params.items())
@@ -40,13 +46,15 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
             params = OrderedDict((k, convert_to_parameter(p)) for k, p in params.items())
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
+
         # self.tf_distribution = self.parameters['distribution']
         self._distribution = distribution
         self.dist_params = dist_params
+        self.dist_kwargs = dist_kwargs
 
     @property
     def distribution(self):
-        return self._distribution(**self.dist_params, name=self.name + "_tfp")
+        return self._distribution(**self.dist_params, **self.dist_kwargs, name=self.name + "_tfp")
 
     def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
         value = x.unstack_x()
