@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import math as _mt
 
 from typing import Any, Callable
@@ -48,19 +50,11 @@ def nth_pow(x, n, name=None):
 
 
 def unstack_x(value: Any, num: Any = None, axis: int = -1, always_list: bool = False, name: str = "unstack_x"):
-    """Unstack a Data object and return a list of tensors in the right order.
+    """Unstack a Data object and return a list of (or a single) tensors in the right order.
 
     Args:
         value ():
-        num (Union[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
+        num (Union[]):
         axis (int):
         always_list (bool): If True, also return a list if only one element.
         name (str):
@@ -69,12 +63,14 @@ def unstack_x(value: Any, num: Any = None, axis: int = -1, always_list: bool = F
         Union[List[tensorflow.python.framework.ops.Tensor], tensorflow.python.framework.ops.Tensor, None]:
     """
     if isinstance(value, list):
+        if len(value) == 1 and not always_list:
+            value = value[0]
         return value
     try:
-        return value.unstack_x()
+        return value.unstack_x(always_list=always_list)
     except AttributeError:
         unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
-    if len(unstacked_x) == 1:
+    if len(unstacked_x) == 1 and not always_list:
         unstacked_x = unstacked_x[0]
     return unstacked_x
 

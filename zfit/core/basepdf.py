@@ -393,7 +393,7 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs)]
+        gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs, always_list=True)]
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:

@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 from contextlib import ExitStack
 from typing import List, Tuple, Union, Dict, Mapping
@@ -352,11 +354,12 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     def value(self, obs: ztyping.ObsTypeInput = None):
         return self._value_internal(obs=obs)
 
-    def unstack_x(self, obs: ztyping.ObsTypeInput = None):
-        """Return the unstacked data: a list of tensors.
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list: bool = False):
+        """Return the unstacked data: a list of tensors or a single Tensor.
 
         Args:
             obs (): which observables to return
+            always_list (bool): If True, always return a list (also if length 1)
 
         Returns:
             List(tf.Tensor)
