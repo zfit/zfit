@@ -70,6 +70,7 @@ def create_gauss3ext():
     return gaussian3, mu, sigma, yield3
 
 
+@pytest.mark.flaky(2)  # minimization can fail
 def test_extended_unbinned_nll():
     test_values = ztf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)

@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Dict, Type
 
 import pytest
@@ -113,7 +115,7 @@ def test_gradient():
     random_vals = np.random.normal(4., 2., size=5)
     tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = zfit.run(tensor_grad)
-    np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-4)
+    np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
 
 
 def test_func():
