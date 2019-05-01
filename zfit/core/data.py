@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 from contextlib import ExitStack
 from typing import List, Tuple, Union, Dict, Mapping
@@ -207,8 +209,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             `zfit.data.Data`:
         """
+        if branches_alias is None and branches is None:
+            raise ValueError("Either branches or branches_alias has to be specified.")
+
         if branches_alias is None:
             branches_alias = {}
+        if branches is None:
+            branches = list(branches_alias.values())
 
         weights_are_branch = isinstance(weights, str)
 
@@ -347,11 +354,12 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     def value(self, obs: ztyping.ObsTypeInput = None):
         return self._value_internal(obs=obs)
 
-    def unstack_x(self, obs: ztyping.ObsTypeInput = None):
-        """Return the unstacked data: a list of tensors.
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list: bool = False):
+        """Return the unstacked data: a list of tensors or a single Tensor.
 
         Args:
             obs (): which observables to return
+            always_list (bool): If True, always return a list (also if length 1)
 
         Returns:
             List(tf.Tensor)
@@ -512,11 +520,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 class SampleData(Data):
     _cache_counting = 0
 
-    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Tensor,
                  obs: ztyping.ObsTypeInput = None, weights=None, name: str = None,
                  dtype: tf.DType = ztypes.float):
         super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
-        self.sess.run(sample_holder.initializer)
 
     @classmethod
     def get_cache_counting(cls):
@@ -525,16 +532,10 @@ class SampleData(Data):
         return counting
 
     @classmethod
-    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None, weights=None):
-        import zfit
-        sample = zfit.run(sample)
-        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
-                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
-                                    use_resource=True
-                                    )
-        dataset = LightDataset.from_tensor(sample_holder)
-
-        return SampleData(dataset=dataset, sample_holder=sample_holder, obs=obs, name=name, weights=weights)
+    def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None,
+                    weights=None):
+        dataset = LightDataset.from_tensor(sample)
+        return SampleData(dataset=dataset, sample_holder=sample, obs=obs, name=name, weights=weights)
 
 
 class Sampler(Data):

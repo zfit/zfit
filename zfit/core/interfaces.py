@@ -392,7 +392,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _set_yield_inplace(self, value: Union[ZfitParameter, None]):
+    def set_norm_range(self):
         raise NotImplementedError
 
     @abc.abstractmethod

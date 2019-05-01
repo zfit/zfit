@@ -140,6 +140,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
                                           "OR has been wrapped but it should not be".format(method_name))
 
+    # since subclasses can be funcs of pdfs, we need to now what to sample/integrate from
     @abc.abstractmethod
     def _func_to_integrate(self, x: ztyping.XType) -> tf.Tensor:
         raise NotImplementedError
@@ -869,7 +870,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
-        sample_data = SampleData.from_sample(sample=sample, obs=self.space)
+        sample_data = SampleData.from_sample(sample=sample, obs=self.space.obs)
 
         return sample_data
 
@@ -937,8 +938,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     @contextlib.contextmanager
     def _name_scope(self, name=None, values=None):
         """Helper function to standardize op scope."""
-        with tf.name_scope(self.name):
-            with tf.name_scope(name, values=([] if values is None else values)) as scope:
+
+        # with tf.name_scope(self.name):
+        with tf.name_scope(name, values=([] if values is None else values)) as scope:
                 yield scope
 
     @classmethod

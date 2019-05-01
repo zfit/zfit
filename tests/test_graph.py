@@ -1,8 +1,14 @@
+#  Copyright (c) 2019 zfit
+
+from zfit.core.testing import setup_function, teardown_function, tester
+
+
 import sys
 
 import zfit
 from zfit import ztf
 from zfit.util.graph import get_dependents_auto
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 # sys.setrecursionlimit(200)

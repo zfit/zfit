@@ -23,7 +23,7 @@ from ..util.graph import get_dependents_auto
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
-from ..settings import ztypes
+from ..settings import ztypes, run
 
 
 class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
@@ -229,7 +229,7 @@ class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
 class ZfitParameterMixin(BaseNumeric):
     _existing_names = set()
 
-    def __init__(self, name, initial_value, floating=True, **kwargs):
+    def __init__(self, name, initial_value, **kwargs):
         if name in self._existing_names:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
@@ -431,12 +431,13 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
     # TODO: make it a random variable? return tensor that evaluates new all the time?
-    def randomize(self, minval=None, maxval=None):
+    def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):
         """Update the value with a randomised value between minval and maxval.
 
         Args:
             minval (Numerical):
             maxval (Numerical):
+            sampler ():
         """
         if minval is None:
             minval = self.sess.run(self.lower_limit)
@@ -452,8 +453,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # if shape == []:
         #     size = 1
         # value = self.sess.run(value)
-        eps = 1e-8
-        value = np.random.uniform(size=self.shape, low=minval + eps, high=maxval - eps)
+        # eps = 1e-8
+        # value = sampler(size=self.shape, low=minval + eps, high=maxval - eps)
+        value = sampler(size=self.shape, low=minval, high=maxval)
         # value = np.random.uniform(size=size, low=minval, high=maxval)
         # if shape == []:
         #     value = value[0]
@@ -603,6 +605,9 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
         else:
             floating = prefer_floating
             value = ztf.to_real(value)
+
+    if not run._enable_parameter_autoconversion:
+        return value
 
     if value.dtype.is_complex:
         if name is None:

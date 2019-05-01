@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import pytest
 import tensorflow as tf
 import numpy as np
@@ -12,6 +14,7 @@ from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 from zfit.util.exception import IntentionNotUnambiguousError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -23,33 +26,60 @@ test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(yield_tru
 test_values_np2 = np.random.normal(loc=mu_true2, scale=sigma_true2, size=yield_true)
 
 low, high = -24.3, 28.6
-mu1 = Parameter("mu1", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma1 = Parameter("sigma1", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-mu2 = Parameter("mu25", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma2 = Parameter("sigma25", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-mu3 = Parameter("mu35", ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-sigma3 = Parameter("sigma35", ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-yield3 = Parameter("yield35", yield_true + 300, 0, yield_true + 20000)
+
+
+def create_params1(nameadd=""):
+    mu1 = Parameter("mu1" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma1 = Parameter("sigma1" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    return mu1, sigma1
+
+
+def create_params2(nameadd=""):
+    mu2 = Parameter("mu25" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma2 = Parameter("sigma25" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    return mu2, sigma2
+
+
+def create_params3(nameadd=""):
+    mu3 = Parameter("mu35" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma3 = Parameter("sigma35" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    yield3 = Parameter("yield35" + nameadd, yield_true + 300, 0, yield_true + 20000)
+    return mu3, sigma3, yield3
+
 
 obs1 = 'obs1'
 
 mu_constr = [1.6, 0.2]  # mu, sigma
 sigma_constr = [3.8, 0.2]
 
-gaussian1 = Gauss(mu1, sigma1, obs=obs1, name="gaussian1")
-gaussian2 = Gauss(mu2, sigma2, obs=obs1, name="gaussian2")
-gaussian3 = Gauss(mu3, sigma3, obs=obs1, name="gaussian3")
-gaussian3 = gaussian3.create_extended(yield3)
+
+def create_gauss1():
+    mu, sigma = create_params1()
+    return Gauss(mu, sigma, obs=obs1, name="gaussian1"), mu, sigma
 
 
+def create_gauss2():
+    mu, sigma = create_params2()
+    return Gauss(mu, sigma, obs=obs1, name="gaussian2"), mu, sigma
+
+
+def create_gauss3ext():
+    mu, sigma, yield3 = create_params3()
+    gaussian3 = Gauss(mu, sigma, obs=obs1, name="gaussian3")
+    gaussian3 = gaussian3.create_extended(yield3)
+    return gaussian3, mu, sigma, yield3
+
+
+@pytest.mark.flaky(2)  # minimization can fail
 def test_extended_unbinned_nll():
     test_values = ztf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)
+    gaussian3, mu3, sigma3, yield3 = create_gauss3ext()
     nll_object = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
                                                data=test_values,
                                                fit_range=(-20, 20))
     minimizer = MinuitMinimizer()
-    status = minimizer.minimize(loss=nll_object, params=[mu3, sigma3, yield3])
+    status = minimizer.minimize(loss=nll_object)
     params = status.params
     assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
     assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
@@ -61,7 +91,8 @@ def test_unbinned_simultaneous_nll():
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)
     test_values2 = tf.constant(test_values_np2)
     test_values2 = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values2)
-
+    gaussian1, mu1, sigma1 = create_gauss1()
+    gaussian2, mu2, sigma2 = create_gauss2()
     nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
                                        data=[test_values, test_values2],
                                        fit_range=[(-np.infty, np.infty), (-np.infty, np.infty)]
@@ -78,6 +109,9 @@ def test_unbinned_simultaneous_nll():
 @pytest.mark.flaky(3)
 @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
 def test_unbinned_nll(weights):
+    gaussian1, mu1, sigma1 = create_gauss1()
+    gaussian2, mu2, sigma2 = create_gauss2()
+
     test_values = tf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))

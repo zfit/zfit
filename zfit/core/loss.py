@@ -36,8 +36,6 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 for p, d, r in zip(model, data, fit_range)]
         nll_finished = tf.reduce_sum(nlls)
     else:
-        fit_range = model.convert_sort_space(fit_range)
-
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
         log_probs = tf.log(probs)

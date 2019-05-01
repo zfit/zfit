@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from contextlib import suppress
 import math as mt
 
@@ -14,6 +16,10 @@ import zfit.core.math as zmath
 from zfit.core.parameter import Parameter
 from zfit.models.basic import CustomGaussOLD
 from zfit.models.dist_tfp import Gauss
+
+from zfit.core.testing import setup_function, teardown_function, tester
+
+from zfit.core.testing import setup_function, teardown_function, tester
 
 limits1_5deps = [((1., -1., 2., 4., 3.),), ((5., 4., 5., 8., 9.),)]
 # limits_simple_5deps = (0.9, 4.7)

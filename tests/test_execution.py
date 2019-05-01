@@ -1,9 +1,15 @@
+#  Copyright (c) 2019 zfit
+
+from zfit.core.testing import setup_function, teardown_function, tester
+
+
 import copy
 
 import pytest
 
 import zfit
 from zfit import ztf
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_run():

@@ -1,8 +1,13 @@
+#  Copyright (c) 2019 zfit
+
+from typing import Dict, Type
+
 import pytest
 import tensorflow as tf
 import numpy as np
 
 import zfit.core.basepdf
+from zfit.core.interfaces import ZfitParameter
 from zfit.core.limits import Space, ANY_UPPER
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
@@ -11,31 +16,49 @@ from zfit.models.functor import ProductPDF
 from zfit.models.special import SimplePDF
 import zfit.settings
 from zfit import ztf
+from zfit.core.testing import setup_function, teardown_function, tester
 
 # from zfit.ztf import
+from zfit.util import ztyping
+
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
 mu_true = 1.4
 sigma_true = 1.8
 low, high = -4.3, 1.9
-mu = Parameter("mu", mu_true, mu_true - 2., mu_true + 7.)
-sigma = Parameter("sigma", sigma_true, sigma_true - 10., sigma_true + 5.)
 
 obs1 = 'obs1'
 
-gauss_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
 
-mu_true_param = zfit.Parameter('mu_true123', mu_true)
-sigma_true_param = zfit.Parameter('sigma_true123', sigma_true)
+def create_gauss1(nameadd=""):
+    mu = Parameter("mu" + nameadd, mu_true, mu_true - 2., mu_true + 7.)
+    sigma = Parameter("sigma" + nameadd, sigma_true, sigma_true - 10., sigma_true + 5.)
+
+    gauss_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
+    return gauss_params1
+
+
+def create_mu_sigma_true_params():
+    mu_true_param = zfit.Parameter('mu_true123', mu_true)
+    sigma_true_param = zfit.Parameter('sigma_true123', sigma_true)
+    return mu_true_param, sigma_true_param
 
 
 class TestGaussian(zfit.pdf.BasePDF):
 
+    def __init__(self, obs: ztyping.ObsTypeInput, mu, sigma, params: Dict[str, ZfitParameter] = None,
+                 dtype: Type = zfit.ztypes.float,
+                 name: str = "BasePDF", **kwargs):
+        params = {'mu': mu, 'sigma': sigma}
+        super().__init__(obs, params, dtype, name, **kwargs)
+
     def _unnormalized_pdf(self, x, norm_range=False):
         x = x.unstack_x()
+        mu = self.params['mu']
+        sigma = self.params['sigma']
 
-        return tf.exp((-(x - mu_true_param) ** 2) / (
-            2 * sigma_true_param ** 2))  # non-normalized gaussian
+        return tf.exp((-(x - mu) ** 2) / (
+            2 * sigma ** 2))  # non-normalized gaussian
 
 
 def true_gaussian_unnorm_func(x):
@@ -51,64 +74,94 @@ def true_gaussian_grad(x):
     return np.array((grad_mu, grad_sigma)).transpose()
 
 
-mu2 = Parameter("mu2", mu_true, mu_true - 2., mu_true + 7.)
-sigma2 = Parameter("sigma2", sigma_true, sigma_true - 10., sigma_true + 5.)
-mu3 = Parameter("mu3", mu_true, mu_true - 2., mu_true + 7.)
-sigma3 = Parameter("sigma3", sigma_true, sigma_true - 10., sigma_true + 5.)
-tf_gauss1 = tf.distributions.Normal(loc=mu2, scale=sigma2, name="tf_gauss1")
-wrapped_gauss = zfit.models.dist_tfp.WrapDistribution(tf_gauss1, obs=obs1)
-
-gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3, obs=obs1)
-
-test_gauss1 = TestGaussian(name="test_gauss1", obs=obs1)
-wrapped_normal1 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name='wrapped_normal1')
-
-gaussian_dists = [test_gauss1, gauss_params1]
+def create_mu_sigma_2(nameadd=""):
+    mu2 = Parameter("mu2" + nameadd, mu_true, mu_true - 2., mu_true + 7.)
+    sigma2 = Parameter("sigma2" + nameadd, sigma_true, sigma_true - 10., sigma_true + 5.)
+    return mu2, sigma2
 
 
+def create_wrapped_gauss(nameadd=""):
+    mu2, sigma2 = create_mu_sigma_2(nameadd)
+    gauss_params = dict(loc=mu2, scale=sigma2)
+    tf_gauss = tf.distributions.Normal
+    return zfit.models.dist_tfp.WrapDistribution(tf_gauss, dist_params=gauss_params, obs=obs1, name="tf_gauss1")
+
+
+def create_gauss3(nameadd=""):
+    mu3 = Parameter("mu3" + nameadd, mu_true, mu_true - 2., mu_true + 7.)
+    sigma3 = Parameter("sigma3" + nameadd, sigma_true, sigma_true - 10., sigma_true + 5.)
+    gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3, obs=obs1)
+    return gauss3
+
+
+def create_test_gauss1():
+    mu, sigma = create_mu_sigma_true_params()
+    return TestGaussian(name="test_gauss1", mu=mu, sigma=sigma, obs=obs1)
+
+
+def create_wrapped_normal1(nameadd=""):
+    mu2, sigma2 = create_mu_sigma_2(nameadd)
+    return Gauss(mu=mu2, sigma=sigma2, obs=obs1, name='wrapped_normal1')
+
+
+def create_gaussian_dists():
+    return [create_test_gauss1(), create_gauss1("dists")]
+
+
+# starting tests
+# ===============================
 def test_gradient():
+    gauss3 = create_gauss3()
     random_vals = np.random.normal(4., 2., size=5)
     tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = zfit.run(tensor_grad)
-    np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-4)
+    np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
 
 
 def test_func():
     test_values = np.array([3., 11.3, -0.2, -7.82])
-    test_values_tf = ztf.convert_to_tensor(test_values, dtype=zfit.settings.ztypes.float)
+    test_values = zfit.Data.from_numpy(obs=obs1, array=test_values)
 
-    gauss_func = gauss_params1.as_func(norm_range=(-5, 5))
+    gauss_params1 = create_gauss1()
+
+    limits = (-15, 5)
+
+    gauss_func = gauss_params1.as_func(norm_range=limits)
     vals = gauss_func.func(test_values)
-    vals = zfit.run(vals)
-    assert True  # better assertion?
+    vals_pdf = gauss_params1.pdf(x=test_values, norm_range=limits)
+    vals, vals_pdf = zfit.run([vals, vals_pdf])
+    np.testing.assert_allclose(vals_pdf, vals, rtol=1e-3)  # better assertion?
 
 
-def test_normalization():
+@pytest.mark.parametrize('pdf_factory',
+                         [lambda: create_gaussian_dists()[0],
+                          lambda: create_gaussian_dists()[1],
+                          create_wrapped_gauss,
+                          create_wrapped_normal1])
+def test_normalization(pdf_factory):
     test_yield = 1524.3
-
+    dist = pdf_factory()
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
-    for dist in gaussian_dists + [wrapped_gauss, wrapped_normal1]:
-        with dist.set_norm_range(Space(obs1, limits=(low, high))):
-            samples.limits = low, high
-            print("Testing currently: ", dist.name)
-            probs = dist.pdf(samples)
-            probs_small = dist.pdf(small_samples)
-            log_probs = dist.log_pdf(small_samples)
-            probs, log_probs = zfit.run([probs, log_probs])
-            probs = np.average(probs) * (high - low)
-            assert probs == pytest.approx(1., rel=0.05)
-            assert log_probs == pytest.approx(zfit.run(tf.log(probs_small)), rel=0.05)
-            dist = dist.create_extended(ztf.constant(test_yield))
-            probs_extended = dist.pdf(samples)
-            result_extended = zfit.run(probs_extended)
-            result_extended = np.average(result_extended) * (high - low)
-            assert result_extended == pytest.approx(1, rel=0.05)
+    with dist.set_norm_range(Space(obs1, limits=(low, high))):
+        samples.limits = low, high
+        probs = dist.pdf(samples)
+        probs_small = dist.pdf(small_samples)
+        log_probs = dist.log_pdf(small_samples)
+        probs, log_probs = zfit.run([probs, log_probs])
+        probs = np.average(probs) * (high - low)
+        assert probs == pytest.approx(1., rel=0.05)
+        assert log_probs == pytest.approx(zfit.run(tf.log(probs_small)), rel=0.05)
+        dist = dist.create_extended(ztf.constant(test_yield))
+        probs_extended = dist.pdf(samples)
+        result_extended = zfit.run(probs_extended)
+        result_extended = np.average(result_extended) * (high - low)
+        assert result_extended == pytest.approx(1, rel=0.05)
 
 
-@pytest.mark.parametrize('gauss', [gauss_params1, test_gauss1])
-def test_sampling_simple(gauss):
-
+@pytest.mark.parametrize('gauss_factory', [create_gauss1, create_test_gauss1])
+def test_sampling_simple(gauss_factory):
+    gauss = gauss_factory()
     n_draws = 1000
     sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
     sampled_from_gauss1 = zfit.run(sample_tensor)
@@ -131,6 +184,7 @@ def test_sampling_simple(gauss):
 
 
 def test_sampling_multiple_limits():
+    gauss_params1 = create_gauss1()
     n_draws = 1000
     low1, up1 = -1, 0
     lower_interval = zfit.Space(obs=obs1, limits=(low1, up1))
@@ -154,9 +208,6 @@ def test_sampling_multiple_limits():
 
     sample_tensor5 = gauss_params1.sample(n=10000, limits=lower_interval + upper_interval)
     sampled_gauss1_full = zfit.run(sample_tensor5)
-    # HACK
-    # sample_tensor5 = gauss_params1.sample(n=10000, limits=one_interval)
-    # sampled_gauss1_full = zfit.run(sample_tensor5)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
@@ -172,7 +223,8 @@ def test_analytic_sampling():
                                                                   axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
-    gauss1 = SampleGauss(obs=obs1)
+    mu, sigma = create_mu_sigma_true_params()
+    gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2., 5.))
 
     sample = zfit.run(sample)
@@ -182,7 +234,7 @@ def test_analytic_sampling():
 
 
 def test_multiple_limits():
-    # zfit.run(init)
+    gauss_params1 = create_gauss1()
     dims = (0,)
     simple_limits = (-3.2, 9.1)
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
@@ -237,5 +289,7 @@ def test_projection_pdf():
 
 
 def test_copy():
+    gauss_params1 = create_gauss1()
     new_gauss = gauss_params1.copy()
     assert new_gauss == gauss_params1
+    assert new_gauss is not gauss_params1

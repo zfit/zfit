@@ -7,55 +7,9 @@ Contributing
 Contributions are welcome, and they are greatly appreciated! Every little bit
 helps, and credit will always be given.
 
-You can contribute in many ways:
-
-Types of Contributions
-----------------------
-
-Report Bugs
-~~~~~~~~~~~
-
-Report bugs at https://github.com/zfit/zfit/issues.
-
-If you are reporting a bug, please include:
-
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
-
-Submit Feedback
-~~~~~~~~~~~~~~~
-
-The best way to send feedback is to file an issue at https://github.com/zfit/zfit/issues.
-
-If you are proposing a feature:
-
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
-
-
-Write Documentation
-~~~~~~~~~~~~~~~~~~~
-
-zfit could always use more documentation, whether as part of the
-official zfit docs, in docstrings, or even on the web in blog posts,
-articles, and such.
-
-
-
-Fix Bugs
-~~~~~~~~
-
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
-
-Implement Features
-~~~~~~~~~~~~~~~~~~
-
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+* You can report bugs at https://github.com/zfit/zfit/issues.
+* You can send feedback by filing an issue at https://github.com/zfit/zfit/issues or,
+for more informal discussions, you can also join our `Gitter channel <https://gitter.im/zfit/zfit>`_.
 
 
 Get Started!
@@ -105,13 +59,9 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    necessary explanations in the corresponding rst file in the docs.
+   If any math is involved, please document the exact formulae implemented
+   in the docstring/docs.
 3. The pull request should work for Python 3.6 and 3.7. Check
    https://travis-ci.org/zfit/zfit/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
-Tips
-----
-
-To run a subset of tests::
-
-$ py.test tests.test_new_feature

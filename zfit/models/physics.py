@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Type, Any
 
 import tensorflow as tf
@@ -27,6 +29,15 @@ def crystalball_func(x, mu, sigma, alpha, n):
                           lambda t: _powerlaw(b - t, a, -n),
                           lambda t: tf.exp(-0.5 * tf.square(t)),
                           values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
+
+    return func
+
+
+def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
+    cond = tf.less(x, mu)
+    func = tf.where(cond,
+                    crystalball_func(x, mu, sigma, alphal, nl),
+                    crystalball_func(x, mu, sigma, -alphar, nr))
 
     return func
 
@@ -87,6 +98,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
 #     return result
 
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
+
 def crystalball_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
@@ -171,6 +183,27 @@ def crystalball_integral(limits, params, model):
     return result
 
 
+def double_crystalball_integral(limits, params, model):
+    mu = params['mu']
+    sigma = params['sigma']
+
+    (lower,), (upper,) = limits.limits
+    lower = lower[0]  # obs number 0
+    upper = upper[0]
+
+    limits_left = Space(limits.obs, (lower, mu))
+    limits_right = Space(limits.obs, (mu, upper))
+    params_left = dict(mu=mu, sigma=sigma, alpha=params["alphal"],
+                       n=params["nl"])
+    params_right = dict(mu=mu, sigma=sigma, alpha=-params["alphar"],
+                        n=params["nr"])
+
+    left = tf.cond(tf.less(mu, lower), 0., crystalball_integral(limits_left, params_left))
+    right = tf.cond(tf.greater(mu, upper), 0., crystalball_integral(limits_right, params_right))
+
+    return left + right
+
+
 class CrystalBall(BasePDF):
     _N_OBS = 1
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
@@ -197,7 +230,7 @@ class CrystalBall(BasePDF):
         Args:
             mu (`zfit.Parameter`): The mean of the gaussian
             sigma (`zfit.Parameter`): Standard deviation of the gaussian
-            alpha (`zfit.Parameter`): parameter where to swith from a gaussian to the powertail
+            alpha (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail
             n (`zfit.Parameter`): Exponent of the powertail
             obs (:py:class:`~zfit.Space`):
             name (str):
@@ -225,6 +258,73 @@ class CrystalBall(BasePDF):
 crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
 # CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
+
+
+class DoubleCB(BasePDF):
+    _N_OBS = 1
+
+    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
+                 alphal: ztyping.ParamTypeInput, nl: ztyping.ParamTypeInput,
+                 alphar: ztyping.ParamTypeInput, nr: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput, name: str = "DoubleCB", dtype: Type = ztypes.float):
+        """`Double sided Crystal Ball shaped PDF`__. A combination of two CB using the **mu** (not a frac).
+        on each side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
+            & -\\alpha_{L} \\leqslant \\mbox{for}\\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
+            A_{R} \\cdot (B_{R} - \\frac{x - \\mu}{\\sigma})^{-n},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
+            \\end{cases}
+
+        with
+
+        .. math::
+            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot
+            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)
+
+            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
+
+        Args:
+            mu (`zfit.Parameter`): The mean of the gaussian
+            sigma (`zfit.Parameter`): Standard deviation of the gaussian
+            alphal (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the left
+            side
+            nl (`zfit.Parameter`): Exponent of the powertail on the left side
+            alphar (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the right
+            side
+            nr (`zfit.Parameter`): Exponent of the powertail on the right side
+            obs (:py:class:`~zfit.Space`):
+            name (str):
+            dtype (tf.DType):
+
+        """
+        params = {'mu': mu,
+                  'sigma': sigma,
+                  'alphal': alphal,
+                  'nl': nl,
+                  'alphar': alphar,
+                  'nr': nr}
+        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params['mu']
+        sigma = self.params['sigma']
+        alphal = self.params['alphal']
+        nl = self.params['nl']
+        alphar = self.params['alphar']
+        nr = self.params['nr']
+        x = x.unstack_x()
+        return double_crystalball_func(x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl,
+                                       alphar=alphar, nr=nr)
+
+# DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)
+
 
 if __name__ == '__main__':
     mu = ztf.constant(0)

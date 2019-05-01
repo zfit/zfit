@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"

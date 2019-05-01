@@ -1,3 +1,8 @@
+#  Copyright (c) 2019 zfit
+
+from zfit.core.testing import setup_function, teardown_function, tester
+
+
 from collections import OrderedDict
 import copy
 import random
@@ -8,6 +13,7 @@ import numpy as np
 
 from zfit.core.limits import Space, convert_to_space
 from zfit.util.exception import ConversionError, ObsNotSpecifiedError, AxesNotSpecifiedError, LimitsUnderdefinedError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 lower1 = (1,), (4,)
 upper1 = (3,), (7,)
@@ -45,7 +51,7 @@ sub_arguments2 = (sub_space2, sub_lower2, sub_upper2, sub_limit2, sub_limit2_axe
 
 @pytest.mark.parametrize("space1, space2", [
     [space2_subbed_axes, sub_space2]
-    ])
+])
 def test_equality(space1, space2):
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
@@ -67,7 +73,7 @@ def test_sub_space():
                              arguments1,
                              arguments2,
                              sub_arguments2,
-                             ])
+                         ])
 def test_space(space, lower, upper, limit, axes, areas, n_limits):
     assert space.area() == pytest.approx(sum(areas), rel=1e-8)
     assert space.iter_areas() == pytest.approx(areas, rel=1e-8)
@@ -93,7 +99,7 @@ def test_space(space, lower, upper, limit, axes, areas, n_limits):
                              (space1_obs, limit1_obs),
                              (space2_obs, limit2_obs)
 
-                             ])
+                         ])
 def test_setting_axes(space, obs):
     lower, upper = space.limits
     axes = space.axes

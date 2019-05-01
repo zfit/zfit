@@ -8,10 +8,13 @@ Most classes and functions are documented with docstrings, but don't hesitate to
     :titlesonly:
     :maxdepth: 1
 
+    api/zfit
     api/zfit.pdf
     api/zfit.func
     api/zfit.data
-    api/zfit.minimize
     api/zfit.loss
     api/zfit.constraint
+    api/zfit.minimize
+    api/zfit.minimizers.fitresult
+    api/zfit.settings
     api/zfit.ztf

@@ -9,7 +9,7 @@ import warnings
 import tensorflow as tf
 
 import zfit
-from zfit.util.temporary import TemporarilySet
+from .temporary import TemporarilySet
 from .container import DotDict
 
 
@@ -18,13 +18,17 @@ class RunManager:
     def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
         self.MAX_CHUNK_SIZE = sys.maxsize
-        self._sess = None
+        self.sess = None
         self._sess_kwargs = {}
         self.chunking = DotDict()
         self._cpu = []
         self.numeric_checks = True
 
         self.set_n_cpu(n_cpu=n_cpu)
+
+        # HACK
+        self._enable_parameter_autoconversion = True
+        # HACK END
 
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
@@ -76,10 +80,20 @@ class RunManager:
     def __call__(self, *args, **kwargs):
         return self.sess.run(*args, **kwargs)
 
-    def create_session(self, *args, **kwargs):
+    # def close(self):
+    #     """Closes the current session."""
+    def reset(self):
+        if self._sess is not None:
+            self.sess.close()
+        tf.reset_default_graph()
+
+    def create_session(self, *args, close_current=True, reset_graph=False, **kwargs):
         """Create a new session (or replace the current one). Arguments will overwrite the already set arguments.
 
         Args:
+            close_current (bool): Closes the current open session before replacement. Has no effect if
+                no session was created before.
+            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.Session`.
             *args ():
             **kwargs ():
 
@@ -88,7 +102,18 @@ class RunManager:
         """
         sess_kwargs = copy.deepcopy(self._sess_kwargs)
         sess_kwargs.update(kwargs)
+        if close_current and self._sess is not None:
+            self.sess.close()
+        if reset_graph:
+            tf.reset_default_graph()
+            from zfit.core.parameter import ZfitParameterMixin
+            ZfitParameterMixin._existing_names = set()  # TODO(Mayou36): better hook for reset?
         self.sess = tf.Session(*args, **sess_kwargs)
+
+        from ..settings import ztypes
+        tf.get_variable_scope().set_use_resource(True)
+        tf.get_variable_scope().set_dtype(ztypes.float)
+
         return self.sess
 
     @property

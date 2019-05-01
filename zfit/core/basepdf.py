@@ -49,6 +49,8 @@ For more advanced methods and ways to register analytic integrals or overwrite c
 also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
 
+#  Copyright (c) 2019 zfit
+
 import abc
 from contextlib import suppress
 from typing import Union, Any, Type, Dict
@@ -391,7 +393,7 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs)]
+        gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs, always_list=True)]
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
@@ -549,8 +551,8 @@ class BasePDF(ZfitPDF, BaseModel):
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
 
-        if type(self) == WrapDistribution:
-            parameters = dict(distribution=self.distribution)
+        if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
+            parameters = dict(distribution=self._distribution, dist_params=self.dist_params)
         else:
             # HACK END
 
@@ -558,13 +560,16 @@ class BasePDF(ZfitPDF, BaseModel):
             lambda_ = parameters.pop('lambda', None)
             if lambda_ is not None:
                 parameters['lambda_'] = lambda_
-        from zfit.models.functor import BaseFunctor
+        from zfit.models.functor import BaseFunctor, SumPDF
         if isinstance(self, BaseFunctor):
             parameters = {}
-            fracs = self.fracs
-            if not self.is_extended:
-                fracs = fracs[:-1]
-            parameters.update(pdfs=self.pdfs, fracs=fracs)
+            if isinstance(self, SumPDF):
+                fracs = self.fracs
+                if not self.is_extended:
+                    fracs = fracs[:-1]
+                parameters.update(fracs=fracs)
+            parameters.update(pdfs=self.pdfs)
+
         parameters.update(obs=obs, name=self.name)
         parameters.update(**override_parameters)
         # if hasattr(self, "distribution"):

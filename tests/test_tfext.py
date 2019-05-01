@@ -1,5 +1,6 @@
 # deactivating CUDA capable gpus
 from zfit.ztf.tools import _auto_upcast
+from zfit.core.testing import setup_function, teardown_function, tester
 
 suppress_gpu = False
 if suppress_gpu:
@@ -19,7 +20,6 @@ prec = 0.00001
 
 
 def test_polynomial():
-    """Empty test."""
     coeffs = [5.3, 1.2, complex(1.3, 0.4), -42, 32.4, 529.3, -0.93]
     x = tf.placeholder(tf.complex128)
     true_dict = {'x': 5.}

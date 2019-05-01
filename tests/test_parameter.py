@@ -9,6 +9,7 @@ import zfit
 from zfit import Parameter, ztf
 from zfit.core.parameter import ComposedParameter, ComplexParameter
 from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_complex_param():
@@ -35,7 +36,7 @@ def test_complex_param():
         assert False, "one of the if or elif should be the case"
     # Polar complex
     mod_val = 1.0
-    arg_val = pi/4.0
+    arg_val = pi / 4.0
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
@@ -64,11 +65,12 @@ def test_complex_param():
     assert arg_val == pytest.approx(zfit.run(param3.arg), rel=1e-6)
     assert cos(arg_val) == pytest.approx(zfit.run(param3.real), rel=1e-6)
 
+
 def test_composed_param():
-    param1 = Parameter('param1s', 1.)
-    param2 = Parameter('param2s', 2.)
-    param3 = Parameter('param3s', 3., floating=False)
-    param4 = Parameter('param4s', 4.)
+    param1 = Parameter('param1', 1.)
+    param2 = Parameter('param2', 2.)
+    param3 = Parameter('param3', 3., floating=False)
+    param4 = Parameter('param4', 4.)
     a = ztf.log(3. * param1) * tf.square(param2) - param3
     param_a = ComposedParameter('param_as', tensor=a)
     assert isinstance(param_a.get_dependents(only_floating=True), set)
@@ -89,8 +91,8 @@ def test_composed_param():
 
 def test_param_limits():
     lower, upper = -4., 3.
-    param1 = Parameter('param1lim', 1., lower_limit=lower, upper_limit=upper)
-    param2 = Parameter('param2lim', 2.)
+    param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
+    param2 = Parameter('param2', 2.)
 
     param1.load(upper + 0.5)
     assert upper == zfit.run(param1.value())
@@ -102,11 +104,11 @@ def test_param_limits():
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_ao', 5 * 4)
-    param_b = ComposedParameter('param_bo', 3)
+    param_a = ComposedParameter('param_a', 5 * 4)
+    param_b = ComposedParameter('param_b', 3)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_do", param_a + param_a * param_b ** 2)
+    param_d = ComposedParameter("param_d", param_a + param_a * param_b ** 2)
     param_d_val = zfit.run(param_d)
     assert param_d_val == zfit.run(param_a + param_a * param_b ** 2)
 
