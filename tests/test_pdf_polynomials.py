@@ -1,0 +1,28 @@
+#  Copyright (c) 2019 zfit
+
+
+import pytest
+import zfit
+from zfit import ztf
+
+from zfit.core.testing import setup_function, teardown_function, tester
+
+obs1 = zfit.Space(obs="obs1", limits=(-0.9, 0.85))
+
+
+def test_legendre_polynomial():
+    legendre = zfit.pdf.Legendre(obs=obs1, degree=5)
+
+    integral = legendre.integrate(limits=obs1)
+    assert pytest.approx(1, rel=1e-3) == zfit.run(integral)
+    numerical_integral = legendre.numeric_integrate(limits=obs1)
+    assert pytest.approx(1, rel=1e-3) == zfit.run(numerical_integral)
+
+
+def test_legendre_chebyshev():
+    chebyshev = zfit.pdf.Chebyshev(obs=obs1, degree=5)
+
+    integral = chebyshev.integrate(limits=obs1)
+    assert pytest.approx(1, rel=1e-3) == zfit.run(integral)
+    numerical_integral = chebyshev.numeric_integrate(limits=obs1)
+    assert pytest.approx(1, rel=1e-3) == zfit.run(numerical_integral)
