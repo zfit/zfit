@@ -107,6 +107,8 @@
   <h1>Source code for zfit.core.basemodel</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Baseclass for a Model. Handle integration and sampling&quot;&quot;&quot;</span>
 
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">builtins</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
@@ -282,7 +284,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">x</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Wrong type of x (</span><span class="si">{}</span><span class="s2">). Has to be a `Data` or convertible to a tf.Tensor&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor&quot;</span><span class="p">)</span>
             <span class="c1"># check dimension</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_dim_to_x</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
             <span class="n">x_shape</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
