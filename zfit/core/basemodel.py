@@ -1,5 +1,7 @@
 """Baseclass for a Model. Handle integration and sampling"""
 
+#  Copyright (c) 2019 zfit
+
 import abc
 import builtins
 from collections import OrderedDict
@@ -175,7 +177,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 try:
                     x = ztf.convert_to_tensor(value=x)
                 except TypeError:
-                    raise TypeError("Wrong type of x ({}). Has to be a `Data` or convertible to a tf.Tensor")
+                    raise TypeError(f"Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor")
             # check dimension
             x = self._add_dim_to_x(x=x)
             x_shape = x.shape.as_list()[-1]
