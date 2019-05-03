@@ -676,6 +676,19 @@ class LightDataset:
         return self.tensor
 
 
+class BinnedData:
+
+    def __init__(self, bincounts, edges):
+        self._bincounts = bincounts
+        self._edges = edges
+
+    @classmethod
+    def from_numpy_bins(cls):
+        return cls()
+
+
+
+
 if __name__ == '__main__':
 
     # from skhep_testdata import data_path
