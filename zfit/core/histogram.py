@@ -31,3 +31,8 @@ def histogramdd(sample, bins=10, range=None, weights=None,
         return np.histogramdd(**new_kwargs, density=density)
 
     return tf.py_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
+
+
+def midpoints_from_hist(bincounts, edges):
+    midpoints = (edges[:-1] + edges[1:]) / 2
+    return midpoints
