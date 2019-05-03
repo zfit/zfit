@@ -15,7 +15,8 @@ import pandas as pd
 # from ..settings import types as ztypes
 import zfit
 from zfit import ztf
-from zfit.core.interfaces import ZfitSpace
+from .histogram import histogramdd, midpoints_from_hist
+from .interfaces import ZfitSpace
 from ..util.cache import Cachable, invalidates_cache
 from ..util.execution import SessionHolderMixin
 from .baseobject import BaseObject
@@ -44,6 +45,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             iterator_feed_dict ():
             dtype ():
         """
+        # TODO: input check for obs not specified
         if name is None:
             name = "Data"
         if dtype is None:
@@ -307,6 +309,21 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
 
+    def create_hist(self, obs=None, converter=None, bin_kwargs=None, name=None):
+        if converter is None:
+            converter = histogramdd
+        if bin_kwargs is None:
+            bin_kwargs = {}
+
+        if name is None:
+            name = f"{self.name}_hist"
+
+        value = self.value(obs=obs)
+        if obs is None:
+            obs = self.space
+        bincounts, edges = converter(sample=value, **bin_kwargs)
+        return HistData(bincounts=bincounts, edges=edges, obs=obs, name=name)
+
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
         """Create a `pd.DataFrame` from `obs` as columns and return it.
 
@@ -368,6 +385,24 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             # value = tf.transpose(value)
 
         return value
+
+    def value(self, obs: ztyping.ObsTypeInput = None):
+        return self._single_hook_value(obs)
+
+    def _single_hook_value(self, obs):
+        return self._value_internal(obs=obs)
+
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list: bool = False):
+        """Return the unstacked data: a list of tensors or a single Tensor.
+
+        Args:
+            obs (): which observables to return
+            always_list (bool): If True, always return a list (also if length 1)
+
+        Returns:
+            List(tf.Tensor)
+        """
+        return ztf.unstack_x(self._value_internal(obs=obs))
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
@@ -676,17 +711,56 @@ class LightDataset:
         return self.tensor
 
 
-class BinnedData(Data):
+class HistData(Data):  # TODO: add weights (not 1D!)
 
-    def __init__(self, bincounts, edges):
+    def __init__(self, bincounts, edges, obs, value_converter=None, name="HistData"):
+        dummy_dataset = LightDataset(tensor=tf.constant("DUMMY"))
+        super().__init__(dataset=dummy_dataset, obs=obs)
         self._bincounts = bincounts
         self._edges = edges
+        if value_converter is None:
+            value_converter = midpoints_from_hist
+        self._value_converter = value_converter
 
-    @classmethod
-    def from_numpy_bins(cls):
-        return cls()
+    def hist(self, obs=None):
+        warnings.warn("data_range does not (yet) cut automatically on histogram data!")
+        return self.get_bincounts(obs=obs), self.get_edges(obs=obs)
 
+    def get_bincounts(self, obs=None):
+        bincounts = self._bincounts
+        if obs is not None:
+            obs = convert_to_obs_str(obs)
+            bincounts = self._reorder_select_values(obs=obs, values=bincounts)
+        return bincounts
 
+    def get_edges(self, obs=None):
+        edges = self._edges
+        if obs is not None:
+            obs = convert_to_obs_str(obs)
+            edges = self._reorder_select_values(obs=obs, values=edges)
+        return edges
+
+    def set_value_converter(self, converter):
+        def setter(value):
+            self._value_converter = value
+
+        def getter():
+            return self.value_converter
+
+        return TemporarilySet(value=converter, setter=setter, getter=getter)
+
+    @property
+    def value_converter(self):
+        return self._value_converter
+
+    def _single_hook_value(self, obs):
+        converter = self.value_converter
+        if converter is None:
+            raise RuntimeError(f"Cannot use a {self.__class__} as a `Data` object without specifying "
+                               f"a value converter. Use `set_value_converter`to set a converter function.")
+        self._next_batch = converter(bincounts=self.get_bincounts(obs=obs),
+                                     edges=self.get_edges(obs=obs))
+        return super()._single_hook_value(obs)
 
 
 if __name__ == '__main__':
