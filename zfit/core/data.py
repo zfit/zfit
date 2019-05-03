@@ -683,7 +683,7 @@ class LightDataset:
         return self.tensor
 
 
-class BinnedData:
+class BinnedData(Data):
 
     def __init__(self, bincounts, edges):
         self._bincounts = bincounts
