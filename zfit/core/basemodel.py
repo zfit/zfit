@@ -608,10 +608,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         else:
             part_int = self._func_to_integrate
 
-        if norm_range.limits is False:
-            integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, x=x)
-        else:
-            raise NormRangeNotImplementedError
+        integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, x=x, norm_range=norm_range)
+
         return integral_vals
 
     @_BaseModel_register_check_support(True)
@@ -943,7 +941,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         # with tf.name_scope(self.name):
         with tf.name_scope(name, values=([] if values is None else values)) as scope:
-                yield scope
+            yield scope
 
     @classmethod
     def register_additional_repr(cls, **kwargs):
