@@ -311,10 +311,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _single_hook_integrate(self, limits, norm_range, name):
         return self._hook_integrate(limits=limits, norm_range=norm_range, name=name)
 
-    def _hook_integrate(self, limits, norm_range, name='_hook_integrate'):
+    def _hook_integrate(self, limits, norm_range, name='hook_integrate'):
         return self._norm_integrate(limits=limits, norm_range=norm_range, name=name)
 
-    def _norm_integrate(self, limits, norm_range, name='_norm_integrate'):
+    def _norm_integrate(self, limits, norm_range, name='norm_integrate'):
         try:
             integral = self._limits_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -429,10 +429,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _single_hook_analytic_integrate(self, limits, norm_range, name):
         return self._hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
-    def _hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
+    def _hook_analytic_integrate(self, limits, norm_range, name="hook_analytic_integrate"):
         return self._norm_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
 
-    def _norm_analytic_integrate(self, limits, norm_range, name='_norm_analytic_integrate'):
+    def _norm_analytic_integrate(self, limits, norm_range, name='norm_analytic_integrate'):
         try:
             integral = self._limits_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -497,10 +497,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _single_hook_numeric_integrate(self, limits, norm_range, name):
         return self._hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
-    def _hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
+    def _hook_numeric_integrate(self, limits, norm_range, name='hook_numeric_integrate'):
         return self._norm_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
 
-    def _norm_numeric_integrate(self, limits, norm_range, name='_norm_numeric_integrate'):
+    def _norm_numeric_integrate(self, limits, norm_range, name='norm_numeric_integrate'):
         try:
             integral = self._limits_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -560,7 +560,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _single_hook_partial_integrate(self, x, limits, norm_range, name):
         return self._hook_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
-    def _hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
+    def _hook_partial_integrate(self, x, limits, norm_range, name='hook_partial_integrate'):
         integral = self._norm_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         return integral
 
@@ -648,10 +648,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name):
         return self._hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
-    def _hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
+    def _hook_partial_analytic_integrate(self, x, limits, norm_range, name='hook_partial_analytic_integrate'):
         return self._norm_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
-    def _norm_partial_analytic_integrate(self, x, limits, norm_range, name='_norm_partial_analytic_integrate'):
+    def _norm_partial_analytic_integrate(self, x, limits, norm_range, name='norm_partial_analytic_integrate'):
         try:
             integral = self._limits_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except NormRangeNotImplementedError:
@@ -722,7 +722,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self._hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _hook_partial_numeric_integrate(self, x, limits, norm_range,
-                                        name='_hook_partial_numeric_integrate'):
+                                        name='hook_partial_numeric_integrate'):
         integral = self._norm_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         return integral
 
@@ -877,7 +877,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _single_hook_sample(self, n, limits, name):
         return self._hook_sample(n=n, limits=limits, name=name)
 
-    def _hook_sample(self, limits, n, name='_hook_sample'):
+    def _hook_sample(self, limits, n, name='hook_sample'):
         return self._norm_sample(n=n, limits=limits, name=name)
 
     def _norm_sample(self, n, limits, name):
