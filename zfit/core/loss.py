@@ -82,7 +82,7 @@ def _binned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit
         with data.set_data_range(fit_range):
             with model.set_norm_range(fit_range):
                 probs = hist_to_probs(data=data, model=model)
-        log_probs = tf.math.log(probs)
+        log_probs = tf.math.log(probs) * data.value_bincounts
         if data.weights is not None:
             raise DueToLazynessNotImplementedError("Weights for binned fits not yet implemented. Open issue if needed.")
             # log_probs *= data.weights  # because it's prob ** weights
@@ -303,8 +303,6 @@ class CachedLoss(BaseLoss):
 def hist_to_probs_midpoints(data: HistData, model):
     with data.set_value_converter(midpoints_from_hist):
         probs = model.pdf(data)
-        probs *= data.value_bincounts
-        # TODO: weights
     return probs
 
 
