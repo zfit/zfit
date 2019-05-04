@@ -34,5 +34,6 @@ def histogramdd(sample, bins=10, range=None, weights=None,
 
 
 def midpoints_from_hist(bincounts, edges):
-    midpoints = (edges[:-1] + edges[1:]) / 2
-    return midpoints
+    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2
+    midpoints_grid = tf.stack(tf.meshgrid(*tf.unstack(midpoints), indexing='ij'), axis=-1)
+    return midpoints_grid
