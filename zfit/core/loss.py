@@ -7,15 +7,18 @@ import tensorflow as tf
 from typing import Optional, Union, List, Callable
 
 from zfit import ztf
-from zfit.util import ztyping
-from zfit.util.cache import Cachable
-from zfit.util.graph import get_dependents_auto
+from zfit.core.data import HistData
+from .histogram import midpoints_from_hist
+from ..util import ztyping
+from ..util.cache import Cachable
+from ..util.graph import get_dependents_auto
+from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject, BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..models.functions import SimpleFunc
 from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError
-from zfit.settings import ztypes
+from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
+from ..settings import ztypes
 
 
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
@@ -38,11 +41,46 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 for p, d, r in zip(model, data, fit_range)]
         nll_finished = tf.reduce_sum(nlls)
     else:
-        with data.set_data_range(fit_range):
-            probs = model.pdf(data, norm_range=fit_range)
+        data_range = fit_range if fit_range is not None else data.data_range
+        norm_range = fit_range if fit_range is not None else model.norm_range
+        with data.set_data_range(data_range):
+            with model.set_norm_range(norm_range):
+                probs = model.pdf(data)
         log_probs = tf.log(probs)
         if data.weights is not None:
             log_probs *= data.weights  # because it's prob ** weights
+        nll = -tf.reduce_sum(log_probs)
+        nll_finished = nll
+    return nll_finished
+
+
+def _binned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace, hist_to_probs):
+    """Return binned negative log likelihood graph for a PDF
+
+    Args:
+        model (ZfitModel): PDFs with a `.pdf` method. Has to be as many models as data
+        data (ZfitData):
+        fit_range ():
+
+    Returns:
+        graph: the unbinned nll
+
+    Raises:
+        ValueError: if both `probs` and `log_probs` are specified.
+    """
+
+    if is_container(model):
+        nlls = [_binned_nll_tf(model=p, data=d, fit_range=r, hist_to_probs=hist_to_probs)
+                for p, d, r in zip(model, data, fit_range)]
+        nll_finished = tf.reduce_sum(nlls)
+    else:
+        with data.set_data_range(fit_range):
+            with model.set_norm_range(fit_range):
+                probs = hist_to_probs(data=data, model=model)
+        log_probs = tf.log(probs)
+        if data.weights is not None:
+            raise DueToLazynessNotImplementedError("Weights for binned fits not yet implemented. Open issue if needed.")
+            # log_probs *= data.weights  # because it's prob ** weights
         nll = -tf.reduce_sum(log_probs)
         nll_finished = nll
     return nll_finished
@@ -244,6 +282,57 @@ class CachedLoss(BaseLoss):
 
         param_gradients = [params_cache[param] for param in params]
         return param_gradients
+
+
+def hist_to_probs_midpoints(data: HistData, model):
+    with data.set_value_converter(midpoints_from_hist):
+        probs = model.pdf(data)
+        probs *= data.value_bincounts
+        # TODO: weights
+    return probs
+
+
+class BinnedNLL(CachedLoss):
+
+    def __init__(self, model, data, fit_range=None, constraints=None, hist_to_probs=None):
+        self._hist_to_probs = None
+        if hist_to_probs is None:
+            hist_to_probs = hist_to_probs_midpoints
+        self.set_hist_to_probs(hist_to_probs)
+        super().__init__(model, data, fit_range, constraints)
+        for data_checked in self.data:
+            if not isinstance(data_checked, HistData):
+                raise TypeError(f"data {data} has to be of type HistData but is {type(data)}."
+                                f"It is a binned loss, so the data has to be binned as well.")
+
+    def _loss_func(self, model, data, fit_range, constraints):
+        nll = _binned_nll_tf(model=model, data=data, fit_range=fit_range, hist_to_probs=self.hist_to_probs)
+        if constraints:
+            constraints = ztf.reduce_sum(constraints)
+            nll += constraints
+        return nll
+
+    def _cache_add_constraints(self, constraints):
+        if self._cache.get('loss') is not None:
+            self._cache['loss'] += ztf.reduce_sum(constraints)
+
+    @property
+    def errordef(self) -> Union[float, int]:
+        return 0.5
+
+    @property
+    def hist_to_probs(self):
+        return self._hist_to_probs
+
+    def set_hist_to_probs(self, hist_to_probs):
+
+        def setter(value):
+            self._hist_to_probs = value
+
+        def getter():
+            return self.hist_to_probs
+
+        return TemporarilySet(value=hist_to_probs, setter=setter, getter=getter)
 
 
 class UnbinnedNLL(CachedLoss):

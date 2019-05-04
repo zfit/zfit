@@ -1,3 +1,5 @@
-from .core.data import Data
+#  Copyright (c) 2019 zfit
 
-__all__ = ['Data']
+from .core.data import Data, HistData
+
+__all__ = ['Data', 'HistData']
