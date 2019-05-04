@@ -149,18 +149,18 @@ def test_binned_nll(weights):
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
-    test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(10000, 1))
+    test_values_np = np.random.normal(loc=mu_true, scale=4, size=(10000, 1))
 
     test_values = tf.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
-    test_values_binned = test_values.create_hist(converter=histogramdd, bin_kwargs={"bins": 500})
-    nll_object = zfit.loss.BinnedNLL(model=gaussian1, data=test_values_binned, fit_range=(-np.infty, np.infty))
+    test_values_binned = test_values.create_hist(converter=zfit.hist.histogramdd, bin_kwargs={"bins": 100})
+    nll_object = zfit.loss.BinnedNLL(model=gaussian1, data=test_values_binned)
     loss_val = nll_object.value()
     zfit.run(loss_val)
     minimizer = MinuitMinimizer()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
-    rel_error = 0.005 if weights is None else 0.1  # more fluctuating with weights
+    rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
 
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=rel_error)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=rel_error)
