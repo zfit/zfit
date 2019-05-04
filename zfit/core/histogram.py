@@ -10,6 +10,9 @@ def histogramdd(sample, bins=10, range=None, weights=None,
     out_dtype = [tf.float64, tf.float64]
     if isinstance(sample, ZfitData):
         sample = sample.value()
+        n_obs = sample.n_obs
+    else:
+        n_obs = sample.shape[-1].value
 
     none_tensor = tf.constant("NONE_TENSOR", shape=(), name="none_tensor")
     inputs = [sample, bins, range, weights]
@@ -27,13 +30,30 @@ def histogramdd(sample, bins=10, range=None, weights=None,
                 value = None
 
             new_kwargs[key] = value
-            print(f"key {key}: {value}")
         return np.histogramdd(**new_kwargs, density=density)
 
-    return tf.py_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
+    bincounts, edges = tf.py_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
+    bincounts.set_shape(shape=(None,) * n_obs)
+    edges.set_shape(shape=(n_obs, None))
+    return bincounts, edges
 
 
 def midpoints_from_hist(bincounts, edges):
-    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2
+    """Calculate the midpoints of a hist and return the non-zero entries, non-zero bincounts and indices.
+
+    Args:
+        bincounts: Tensor with shape (nbins_0, ..., nbins_n) with n being the dimension.
+        edges: Tensor with shape (n_obs, nbins + 1) holding the position of the edges, assuming a rectangular grid.
+
+    Returns:
+        bincounts: the bincounts that are non-zero in a 1-D array corresponding to the indices and the midpoints
+        midpoints: the coordinates of the midpoint of each bin with shape (nbincounts, n_obs)
+        indices: original position in the bincounts from the input
+    """
+
+    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2.
     midpoints_grid = tf.stack(tf.meshgrid(*tf.unstack(midpoints), indexing='ij'), axis=-1)
-    return midpoints_grid
+    bincounts_nonzero_index = tf.where(bincounts)
+    bincounts_nonzero = tf.gather_nd(bincounts, indices=bincounts_nonzero_index)
+    midpoints_nonzero = tf.gather_nd(midpoints_grid, indices=bincounts_nonzero_index)
+    return bincounts_nonzero, midpoints_nonzero, bincounts_nonzero_index

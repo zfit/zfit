@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import List, Tuple, Union, Dict, Mapping
+from typing import List, Tuple, Union, Dict, Mapping, Callable
 import warnings
 
 import tensorflow as tf
@@ -314,9 +314,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
 
-    def create_hist(self, obs=None, converter=None, bin_kwargs=None, name=None):
-        if converter is None:
-            converter = histogramdd
+    def create_hist(self, obs: ztyping.ObsTypeInput = None, converter: Callable = None, bin_kwargs: Dict = None,
+                    name: str = None) -> "HistData":
+        # if converter is None:
+        #     converter = histogramdd
         if bin_kwargs is None:
             bin_kwargs = {}
 
@@ -722,12 +723,31 @@ class HistData(Data):  # TODO: add weights (not 1D!)
 
     def __init__(self, bincounts, edges, obs, value_converter=None, name="HistData"):
         dummy_dataset = LightDataset(tensor=tf.constant("DUMMY"))
+        # TODO: add numerical cache?
         super().__init__(dataset=dummy_dataset, obs=obs)
+        self._value_bincounts = None
+        self._value_indices = None
         self._bincounts = bincounts
         self._edges = edges
         if value_converter is None:
             value_converter = midpoints_from_hist
         self._value_converter = value_converter
+
+    @property
+    def value_bincounts(self):
+        value_bincounts = self._value_bincounts
+        if value_bincounts is None:
+            _ = self.value()  # creates the value and the indices
+            value_bincounts = self._value_bincounts
+        return value_bincounts
+
+    @property
+    def value_indices(self):
+        value_indices = self._value_indices
+        if value_indices is None:
+            _ = self.value()  # creates the value and the indices
+            value_indices = self._value_indices
+        return value_indices
 
     def hist(self, obs=None):
         warnings.warn("data_range does not (yet) cut automatically on histogram data!")
@@ -747,6 +767,7 @@ class HistData(Data):  # TODO: add weights (not 1D!)
             edges = self._reorder_select_values(obs=obs, values=edges)
         return edges
 
+    @invalidates_cache
     def set_value_converter(self, converter):
         def setter(value):
             self._value_converter = value
@@ -757,6 +778,7 @@ class HistData(Data):  # TODO: add weights (not 1D!)
         return TemporarilySet(value=converter, setter=setter, getter=getter)
 
     @property
+    @invalidates_cache
     def value_converter(self):
         return self._value_converter
 
@@ -765,8 +787,12 @@ class HistData(Data):  # TODO: add weights (not 1D!)
         if converter is None:
             raise RuntimeError(f"Cannot use a {self.__class__} as a `Data` object without specifying "
                                f"a value converter. Use `set_value_converter`to set a converter function.")
-        self._next_batch = converter(bincounts=self.get_bincounts(obs=obs),
-                                     edges=self.get_edges(obs=obs))
+
+        value_bincounts, midpoints, value_indices = converter(bincounts=self.get_bincounts(obs=obs),
+                                                              edges=self.get_edges(obs=obs))
+        self._value_bincounts = value_bincounts
+        self._value_indices = value_indices
+        self.dataset = LightDataset(midpoints)
         return super()._single_hook_value(obs)
 
 
