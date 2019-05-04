@@ -2,12 +2,15 @@
 import numpy as np
 
 import zfit
+from zfit import ztf
+from zfit.core.histogram import midpoints_from_hist
 from zfit.core.testing import setup_function, teardown_function, tester
+import tensorflow as tf
 
 data1 = np.random.normal(size=(1000, 3))
-obs1 = zfit.Space("obs1", limits=(-1, 3))
-obs2 = zfit.Space("obs2", limits=(-1, 3))
-obs3 = zfit.Space("obs3", limits=(-1, 3))
+obs1 = zfit.Space("obs1", limits=(-100, 300))
+obs2 = zfit.Space("obs2", limits=(-100, 300))
+obs3 = zfit.Space("obs3", limits=(-100, 300))
 
 obs = obs1 * obs2 * obs3
 
@@ -23,9 +26,32 @@ def test_histogramdd():
 
 def test_histdata():
     data = zfit.Data.from_numpy(obs=obs, array=data1)
-    histdata = data.create_hist(name="histdata")
 
-    bincount_true, edges_true = np.histogramdd(sample=data1)
+    histdd_kwargs = {"bins": 4}
+    histdata = data.create_hist(name="histdata", bin_kwargs=histdd_kwargs)
+
+    bincount_true, edges_true = np.histogramdd(sample=data1, **histdd_kwargs)
     bincount_np, edges_np = zfit.run(histdata.hist())
     np.testing.assert_allclose(bincount_true, bincount_np)
     np.testing.assert_allclose(edges_true, edges_np)
+
+
+def test_midpoints():
+    edges = np.array([[-1., 0, 3, 10],
+                      [-5., 0, 1, 4]])
+    bincounts = np.array([[0, 0, 1],
+                          [0, 5, 7],
+                          [0, 3, 0],
+                          [0, 0, 0]])
+
+    edges = ztf.convert_to_tensor(edges)
+    midpoints_true = np.array([[-0.5, 2.5],
+                               [1.5, 0.5],
+                               [1.5, 2.5],
+                               [6.5, 0.5]])
+    midpoints_grid = midpoints_from_hist(bincounts=None, edges=edges)
+    bincounts_nonzero_index = tf.where(bincounts)
+    bincounts_nonzero = tf.gather_nd(bincounts, indices=bincounts_nonzero_index)
+    midpoints_nonzero = tf.gather_nd(midpoints_grid, indices=bincounts_nonzero_index)
+    np.testing.assert_allclose(np.array([1, 5, 7, 3]), zfit.run(bincounts_nonzero))
+    np.testing.assert_allclose(midpoints_true, zfit.run(midpoints_nonzero))
