@@ -2,6 +2,7 @@
 import tensorflow as tf
 import numpy as np
 
+from zfit import ztf
 from .interfaces import ZfitData
 
 
@@ -12,6 +13,7 @@ def histogramdd(sample, bins=10, range=None, weights=None,
         sample = sample.value()
         n_obs = sample.n_obs
     else:
+        sample = ztf.convert_to_tensor(sample)
         n_obs = sample.shape[-1].value
 
     none_tensor = tf.constant("NONE_TENSOR", shape=(), name="none_tensor")
@@ -50,6 +52,8 @@ def midpoints_from_hist(bincounts, edges):
         midpoints: the coordinates of the midpoint of each bin with shape (nbincounts, n_obs)
         indices: original position in the bincounts from the input
     """
+    bincounts = ztf.convert_to_tensor(bincounts)
+    edges = ztf.convert_to_tensor(edges)
 
     midpoints = (edges[:, :-1] + edges[:, 1:]) / 2.
     midpoints_grid = tf.stack(tf.meshgrid(*tf.unstack(midpoints), indexing='ij'), axis=-1)

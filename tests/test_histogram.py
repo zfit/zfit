@@ -28,7 +28,7 @@ def test_histdata():
     data = zfit.Data.from_numpy(obs=obs, array=data1)
 
     histdd_kwargs = {"bins": 4}
-    histdata = data.create_hist(name="histdata", bin_kwargs=histdd_kwargs)
+    histdata = data.create_hist(converter=zfit.hist.histogramdd, name="histdata", bin_kwargs=histdd_kwargs)
 
     bincount_true, edges_true = np.histogramdd(sample=data1, **histdd_kwargs)
     bincount_np, edges_np = zfit.run(histdata.hist())
@@ -49,9 +49,7 @@ def test_midpoints():
                                [1.5, 0.5],
                                [1.5, 2.5],
                                [6.5, 0.5]])
-    midpoints_grid = midpoints_from_hist(bincounts=None, edges=edges)
-    bincounts_nonzero_index = tf.where(bincounts)
-    bincounts_nonzero = tf.gather_nd(bincounts, indices=bincounts_nonzero_index)
-    midpoints_nonzero = tf.gather_nd(midpoints_grid, indices=bincounts_nonzero_index)
+    bincounts_nonzero, midpoints_nonzero, bincounts_nonzero_index = midpoints_from_hist(bincounts=bincounts,
+                                                                                        edges=edges)
     np.testing.assert_allclose(np.array([1, 5, 7, 3]), zfit.run(bincounts_nonzero))
     np.testing.assert_allclose(midpoints_true, zfit.run(midpoints_nonzero))

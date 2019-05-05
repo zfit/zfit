@@ -309,7 +309,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
 
-    def create_hist(self, obs: ztyping.ObsTypeInput = None, converter: Callable = None, bin_kwargs: Dict = None,
+    def create_hist(self, converter: Callable, obs: ztyping.ObsTypeInput = None, bin_kwargs: Dict = None,
                     name: str = None) -> "HistData":
         # if converter is None:
         #     converter = histogramdd
