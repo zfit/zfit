@@ -105,11 +105,13 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.core.loss</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">abc</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
@@ -390,7 +392,17 @@
 <div class="viewcode-block" id="SimpleLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.SimpleLoss">[docs]</a><span class="k">class</span> <span class="nc">SimpleLoss</span><span class="p">(</span><span class="n">CachedLoss</span><span class="p">):</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;SimpleLoss&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errordef</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">dependents</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ParametersType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">errordef</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loss from a (function returning a ) Tensor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            func: Callable that constructs the loss and returns a tensor.</span>
+<span class="sd">            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are</span>
+<span class="sd">                figured out automatically.</span>
+<span class="sd">            errordef: Definition of which change in the loss corresponds to a change of 1 sigma.</span>
+<span class="sd">                For example, 1 for Chi squared, 0.5 for negative log-likelihood.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_errordef</span> <span class="o">=</span> <span class="n">errordef</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">dependents</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>

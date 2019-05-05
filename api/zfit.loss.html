@@ -190,8 +190,20 @@ to the loss. The length of each has to match the length of the others.</p>
 
 <dl class="class">
 <dt id="zfit.loss.SimpleLoss">
-<em class="property">class </em><code class="descclassname">zfit.loss.</code><code class="descname">SimpleLoss</code><span class="sig-paren">(</span><em>func</em>, <em>dependents=None</em>, <em>errordef=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">zfit.loss.</code><code class="descname">SimpleLoss</code><span class="sig-paren">(</span><em>func: Callable</em>, <em>dependents: Optional[Dict[str</em>, <em>zfit.core.interfaces.ZfitParameter]] = None</em>, <em>errordef: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.loss.html#zfit.core.loss.CachedLoss" title="zfit.core.loss.CachedLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.CachedLoss</span></code></a></p>
+<p>Loss from a (function returning a ) Tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – Callable that constructs the loss and returns a tensor.</p></li>
+<li><p><strong>dependents</strong> – The dependents (independent <cite>zfit.Parameter</cite>) of the loss. If not given, the dependents are
+figured out automatically.</p></li>
+<li><p><strong>errordef</strong> – Definition of which change in the loss corresponds to a change of 1 sigma.
+For example, 1 for Chi squared, 0.5 for negative log-likelihood.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="zfit.loss.SimpleLoss.errordef">
 <code class="descname">errordef</code><a class="headerlink" href="#zfit.loss.SimpleLoss.errordef" title="Permalink to this definition">¶</a></dt>
