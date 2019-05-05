@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import numpy as np
 import zfit
 
@@ -13,7 +15,7 @@ gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 
 # data
 normal_np = np.random.normal(loc=2., scale=3., size=10000)
-data = zfit.data.Data.from_numpy(obs=obs, array=normal_np)
+data = zfit.Data.from_numpy(obs=obs, array=normal_np)
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
