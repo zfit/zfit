@@ -46,6 +46,8 @@ which you can now iterate through. For example, to calc an integral (assuming th
 >>> def integrate(lower_limit, upper_limit): return 42  # dummy function
 >>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
 """
+#  Copyright (c) 2019 zfit
+
 # TODO(Mayou36): update docs above
 
 from collections import OrderedDict
@@ -55,7 +57,6 @@ import inspect
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pep487
 
 from .dimension import add_spaces, combine_spaces
 from .baseobject import BaseObject
@@ -70,7 +71,7 @@ from ..util.temporary import TemporarilySet
 
 
 # Singleton
-class Any(pep487.PEP487Object):  # pep487 for _init_subclass backport
+class Any:
     _singleton_instance = None
 
     def __new__(cls, *args, **kwargs):
