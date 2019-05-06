@@ -6,6 +6,5 @@ uproot
 numpy
 iminuit
 typing
-pep487
 colorlog
 texttable
