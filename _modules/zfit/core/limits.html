@@ -153,6 +153,8 @@
 <span class="sd">&gt;&gt;&gt; def integrate(lower_limit, upper_limit): return 42  # dummy function</span>
 <span class="sd">&gt;&gt;&gt; integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="c1"># TODO(Mayou36): update docs above</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
@@ -162,7 +164,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pep487</span>
 
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="k">import</span> <span class="n">add_spaces</span><span class="p">,</span> <span class="n">combine_spaces</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="k">import</span> <span class="n">BaseObject</span>
@@ -177,7 +178,7 @@
 
 
 <span class="c1"># Singleton</span>
-<div class="viewcode-block" id="Any"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Any">[docs]</a><span class="k">class</span> <span class="nc">Any</span><span class="p">(</span><span class="n">pep487</span><span class="o">.</span><span class="n">PEP487Object</span><span class="p">):</span>  <span class="c1"># pep487 for _init_subclass backport</span>
+<div class="viewcode-block" id="Any"><a class="viewcode-back" href="../../../api/zfit.core.limits.html#zfit.Any">[docs]</a><span class="k">class</span> <span class="nc">Any</span><span class="p">:</span>
     <span class="n">_singleton_instance</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
