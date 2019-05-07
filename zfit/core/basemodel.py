@@ -10,7 +10,6 @@ from contextlib import suppress
 from typing import Dict, Type, Union, Callable, List, Tuple
 import warnings
 
-import pep487
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
@@ -1019,7 +1018,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return operations.multiply(other, self)
 
 
-class SimpleModelSubclassMixin(pep487.ABC):
+class SimpleModelSubclassMixin:
     """Subclass a model: implement the corresponding function and specify _PARAMS.
 
     In order to create a custom model, two things have to be implemented: the class attribute
