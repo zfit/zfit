@@ -232,7 +232,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         shape_rnd_sample = tf.shape(rnd_sample)[0]
         assert_prob_rnd_sample_op = tf.assert_equal(tf.shape(probabilities), shape_rnd_sample)
         # assert_weights_rnd_sample_op = tf.assert_equal(tf.shape(weights), shape_rnd_sample)
-        print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
+        # print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
         with tf.control_dependencies([assert_prob_rnd_sample_op,
                                       # assert_weights_rnd_sample_op,
                                       # print_op

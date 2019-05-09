@@ -180,8 +180,12 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
         err_weight = 1 / tf.to_double(batch_num + 1)
         # err_weight /= err_weight + 1
         # print_op = tf.print(batch_mean)
-        print_op = tf.print(batch_num + 1)
-        with tf.control_dependencies([print_op]):
+        do_print = False
+        if do_print:
+            deps = [tf.print(batch_num + 1)]
+        else:
+            deps = []
+        with tf.control_dependencies(deps):
             return batch_num + 1, mean + err_weight * (batch_mean - mean)
 
     cond = lambda batch_num, _: batch_num < num_batches
@@ -259,8 +263,12 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
             err_weight = 1 / tf.to_double(batch_num + 1)
             # err_weight /= err_weight + 1
             # print_op = tf.print(batch_mean)
-            print_op = tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))
-            with tf.control_dependencies([print_op]):
+            do_print = False
+            if do_print:
+                deps = [tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))]
+            else:
+                deps = []
+            with tf.control_dependencies(deps):
                 return batch_num + 1, mean + err_weight * (batch_mean - mean)
             # return batch_num + 1, tf.guarantee_const(mean + err_weight * (batch_mean - mean))
 
@@ -289,8 +297,12 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
         def dummy_grad_without_var(dy):
             return dummy_grad_with_var(dy=dy, variables=None)
 
-        print_op = tf.print(final_mean)
-        with tf.control_dependencies([print_op]):
+        do_print = False
+        if do_print:
+            deps = [tf.print(final_mean)]
+        else:
+            deps = []
+        with tf.control_dependencies(deps):
             return tf.guarantee_const(final_mean), dummy_grad_with_var
 
     try:
