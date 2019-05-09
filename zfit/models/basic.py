@@ -22,12 +22,14 @@ from ..core.basepdf import BasePDF
 
 infinity = mt.inf
 
+
 class CustomGaussOLD(BasePDF):
 
     def __init__(self, mu, sigma, obs, name="Gauss"):
         super().__init__(name=name, obs=obs, params=dict(mu=mu, sigma=sigma))
 
     def _unnormalized_pdf(self, x):
+        x = x.unstack_x()
         mu = self.params['mu']
         sigma = self.params['sigma']
         gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma))
