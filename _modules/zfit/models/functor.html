@@ -112,6 +112,8 @@
 
 <span class="sd">Their implementation is often non-trivial.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
@@ -131,7 +133,7 @@
                               <span class="n">LimitsOverdefinedError</span><span class="p">,</span>
                               <span class="n">ModelIncompatibleError</span><span class="p">,</span> <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 
 
 <div class="viewcode-block" id="BaseFunctor"><a class="viewcode-back" href="../../../api/zfit.models.functor.html#zfit.models.functor.BaseFunctor">[docs]</a><span class="k">class</span> <span class="nc">BaseFunctor</span><span class="p">(</span><span class="n">FunctorMixin</span><span class="p">,</span> <span class="n">BasePDF</span><span class="p">):</span>
@@ -313,18 +315,26 @@
                 <span class="n">new_pdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
             <span class="n">pdfs</span> <span class="o">=</span> <span class="n">new_pdfs</span>
             <span class="n">remaining_frac</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span>
-            <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
-                                  <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_op</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
+                <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
+                                      <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_op</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
                 <span class="c1"># TODO(Mayou36): always last position?</span>
                 <span class="n">fracs</span><span class="p">[</span><span class="n">not_extended_position</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">)</span>
             <span class="n">implicit</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># now it&#39;s explicit</span>
 
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">extended</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">implicit</span><span class="p">:</span>
             <span class="n">remaining_frac</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span>
-            <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
-                                  <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_op</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
+                <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)),</span>
+                                      <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">remaining_frac</span><span class="p">])</span>  <span class="c1"># check fractions</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_op</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
                 <span class="n">fracs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">))</span>
 
         <span class="c1"># make extended</span>
