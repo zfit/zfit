@@ -287,8 +287,12 @@
         <span class="n">err_weight</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_double</span><span class="p">(</span><span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># err_weight /= err_weight + 1</span>
         <span class="c1"># print_op = tf.print(batch_mean)</span>
-        <span class="n">print_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">print_op</span><span class="p">]):</span>
+        <span class="n">do_print</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">err_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_mean</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span>
 
     <span class="n">cond</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">batch_num</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">batch_num</span> <span class="o">&lt;</span> <span class="n">num_batches</span>
@@ -366,8 +370,12 @@
             <span class="n">err_weight</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_double</span><span class="p">(</span><span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="c1"># err_weight /= err_weight + 1</span>
             <span class="c1"># print_op = tf.print(batch_mean)</span>
-            <span class="n">print_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">err_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_mean</span> <span class="o">-</span> <span class="n">mean</span><span class="p">))</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">print_op</span><span class="p">]):</span>
+            <span class="n">do_print</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">err_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_mean</span> <span class="o">-</span> <span class="n">mean</span><span class="p">))]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">batch_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">err_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_mean</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span>
             <span class="c1"># return batch_num + 1, tf.guarantee_const(mean + err_weight * (batch_mean - mean))</span>
 
@@ -396,8 +404,12 @@
         <span class="k">def</span> <span class="nf">dummy_grad_without_var</span><span class="p">(</span><span class="n">dy</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">dummy_grad_with_var</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">print_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">final_mean</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">print_op</span><span class="p">]):</span>
+        <span class="n">do_print</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">final_mean</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">guarantee_const</span><span class="p">(</span><span class="n">final_mean</span><span class="p">),</span> <span class="n">dummy_grad_with_var</span>
 
     <span class="k">try</span><span class="p">:</span>
