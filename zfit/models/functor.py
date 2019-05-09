@@ -5,6 +5,8 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 import itertools
 from typing import Union, List, Optional
@@ -24,7 +26,7 @@ from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesNot
                               LimitsOverdefinedError,
                               ModelIncompatibleError, )
 from ..util.temporary import TemporarilySet
-from ..settings import ztypes
+from ..settings import ztypes, run
 
 
 class BaseFunctor(FunctorMixin, BasePDF):
@@ -206,18 +208,26 @@ class SumPDF(BaseFunctor):
                 new_pdfs.append(pdf)
             pdfs = new_pdfs
             remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
-            assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
-                                  data=[remaining_frac])  # check fractions
-            with tf.control_dependencies([assert_op]):
+            if run.numeric_checks:
+                assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
+                                      data=[remaining_frac])  # check fractions
+                deps = [assert_op]
+            else:
+                deps = []
+            with tf.control_dependencies(deps):
                 # TODO(Mayou36): always last position?
                 fracs[not_extended_position] = tf.identity(remaining_frac)
             implicit = False  # now it's explicit
 
         elif not extended and not implicit:
             remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
-            assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
-                                  data=[remaining_frac])  # check fractions
-            with tf.control_dependencies([assert_op]):
+            if run.numeric_checks:
+                assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
+                                      data=[remaining_frac])  # check fractions
+                deps = [assert_op]
+            else:
+                deps = []
+            with tf.control_dependencies(deps):
                 fracs.append(tf.identity(remaining_frac))
 
         # make extended
