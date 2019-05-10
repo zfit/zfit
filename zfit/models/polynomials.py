@@ -4,7 +4,6 @@
 from typing import Callable
 import tensorflow as tf
 
-import zfit
 from zfit import ztf
 from ..core.limits import Space
 from ..core.basepdf import BasePDF
@@ -16,12 +15,12 @@ class RecursivePolynomial(BasePDF):
 
     """
 
-    def __init__(self, obs, degree: int, f0: Callable, f1: Callable, recurrence: Callable, name: str = "Polynomial",
+    def __init__(self, obs, coeffs: list, f0: Callable, f1: Callable, recurrence: Callable, name: str = "Polynomial",
                  **kwargs):  # noqa
         """
 
         Args:
-            degree (int): Degree of the polynomial to calculate
+            coeffs (list): Coefficients for each polynomial. Used to calculate the degree.
             f0 (Callable): Order 0 polynomial
             f1 (Callable): Order 1 polynomial
             Recurrence(func): Recurrence relation as function of the two previous
@@ -30,20 +29,21 @@ class RecursivePolynomial(BasePDF):
                 .. math::
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
         """
-        self._degree = degree
+        params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
+        self._degree = len(coeffs)
         self._polys = [f0, f1]
         self._recurrence = recurrence
-        super().__init__(obs=obs, name=name, **kwargs)
+        super().__init__(obs=obs, name=name, params=params **kwargs)
 
     @property
     def degree(self):
-        """int: degree of the polynomial."""
-        return self._degree
+        """int: degree of the polynomial. Zero is excluded from the count."""
+        return self._degree - 1
 
     def _unnormalized_pdf(self, x):
         x = x.unstack_x()
         polys = self.do_recurrence(x, polys=self._polys, degree=self.degree, recurrence=self.recurrence)
-        return polys[-1]
+        return tf.reduce_sum([self.params[f"c_{i}"] * poly for i, poly in enumerate(polys)], axis=-1)
 
     @staticmethod
     def do_recurrence(x, polys, degree, recurrence):
@@ -95,9 +95,9 @@ def legendre_integral(x, limits, norm_range, params, model):
 class Legendre(RecursivePolynomial):
     """Legendre polynomials."""
 
-    def __init__(self, obs, degree: int, name: str = "Legendre", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, name: str = "Legendre", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: x, degree=degree,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: x, coeffs=coeffs,
                          recurrence=legendre_recurrence, **kwargs)
 
 
@@ -117,9 +117,9 @@ def chebyshev_recurrence(p1, p2, _, x):
 class Chebyshev(RecursivePolynomial):
     """Chebyshev polynomials."""
 
-    def __init__(self, obs, degree: int, name: str = "Chebyshev", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, name: str = "Chebyshev", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: x, degree=degree,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: x, coeffs=coeffs,
                          recurrence=chebyshev_recurrence, **kwargs)
 
 
@@ -164,9 +164,9 @@ Chebyshev.register_analytic_integral(func=func_integral_chebyshev1_one_to_one,
 class Chebyshev2(RecursivePolynomial):
     """Chebyshev polynomials of the second kind."""
 
-    def __init__(self, obs, degree: int, name: str = "Chebyshev2", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, name: str = "Chebyshev2", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: x * 2, degree=degree,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: x * 2, coeffs=coeffs,
                          recurrence=chebyshev_recurrence, **kwargs)
 
 
@@ -182,9 +182,9 @@ def laguerre_recurrence(p1, p2, n, x):
 class Laguerre(RecursivePolynomial):
     """Laguerre polynomials."""
 
-    def __init__(self, obs, degree: int, name: str = "Laguerre", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, name: str = "Laguerre", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: 1 - x, degree=degree,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: 1 - x, coeffs=coeffs,
                          recurrence=laguerre_recurrence, **kwargs)
 
 
@@ -200,9 +200,9 @@ def hermite_recurrence(p1, p2, n, x):
 class Hermite(RecursivePolynomial):
     """Hermite polynomials as defined for Physics."""
 
-    def __init__(self, obs, degree: int, name: str = "Hermite", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, name: str = "Hermite", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: 2 * x, degree=degree,
+                         f0=lambda x: tf.ones_like(x), f1=lambda x: 2 * x, coeffs=coeffs,
                          recurrence=hermite_recurrence, **kwargs)
 
 # EOF
