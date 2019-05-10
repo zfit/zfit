@@ -15,8 +15,10 @@ class RecursivePolynomial(BasePDF):
 
     """
 
-    def __init__(self, obs, coeffs: list, f0: Callable, f1: Callable, recurrence: Callable, name: str = "Polynomial",
-                 **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list,
+                 f0: Callable, f1: Callable, recurrence: Callable,
+                 apply_scaling: bool = True,
+                 name: str = "Polynomial", **kwargs):  # noqa
         """
 
         Args:
@@ -28,12 +30,14 @@ class RecursivePolynomial(BasePDF):
 
                 .. math::
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
+
         """
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs)
         self._polys = [f0, f1]
         self._recurrence = recurrence
-        super().__init__(obs=obs, name=name, params=params **kwargs)
+        self._do_scale = apply_scaling
+        super().__init__(obs=obs, name=name, params=params, **kwargs)
 
     @property
     def degree(self):
@@ -42,6 +46,9 @@ class RecursivePolynomial(BasePDF):
 
     def _unnormalized_pdf(self, x):
         x = x.unstack_x()
+        if self._do_scale:
+            lim_low, lim_high = self.obs.limit1d
+            x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)
         polys = self.do_recurrence(x, polys=self._polys, degree=self.degree, recurrence=self.recurrence)
         return tf.reduce_sum([self.params[f"c_{i}"] * poly for i, poly in enumerate(polys)], axis=-1)
 
@@ -95,10 +102,10 @@ def legendre_integral(x, limits, norm_range, params, model):
 class Legendre(RecursivePolynomial):
     """Legendre polynomials."""
 
-    def __init__(self, obs, coeffs: list, name: str = "Legendre", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Legendre", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          f0=lambda x: tf.ones_like(x), f1=lambda x: x, coeffs=coeffs,
-                         recurrence=legendre_recurrence, **kwargs)
+                         recurrence=legendre_recurrence, apply_scaling=apply_scaling, **kwargs)
 
 
 legendre_limits = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
@@ -117,10 +124,10 @@ def chebyshev_recurrence(p1, p2, _, x):
 class Chebyshev(RecursivePolynomial):
     """Chebyshev polynomials."""
 
-    def __init__(self, obs, coeffs: list, name: str = "Chebyshev", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          f0=lambda x: tf.ones_like(x), f1=lambda x: x, coeffs=coeffs,
-                         recurrence=chebyshev_recurrence, **kwargs)
+                         recurrence=chebyshev_recurrence, apply_scaling=apply_scaling, **kwargs)
 
 
 def func_integral_chebyshev1(x, limits, norm_range, params, model):
@@ -164,10 +171,10 @@ Chebyshev.register_analytic_integral(func=func_integral_chebyshev1_one_to_one,
 class Chebyshev2(RecursivePolynomial):
     """Chebyshev polynomials of the second kind."""
 
-    def __init__(self, obs, coeffs: list, name: str = "Chebyshev2", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev2", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          f0=lambda x: tf.ones_like(x), f1=lambda x: x * 2, coeffs=coeffs,
-                         recurrence=chebyshev_recurrence, **kwargs)
+                         recurrence=chebyshev_recurrence, apply_scaling=apply_scaling, **kwargs)
 
 
 def laguerre_recurrence(p1, p2, n, x):
@@ -182,10 +189,10 @@ def laguerre_recurrence(p1, p2, n, x):
 class Laguerre(RecursivePolynomial):
     """Laguerre polynomials."""
 
-    def __init__(self, obs, coeffs: list, name: str = "Laguerre", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Laguerre", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          f0=lambda x: tf.ones_like(x), f1=lambda x: 1 - x, coeffs=coeffs,
-                         recurrence=laguerre_recurrence, **kwargs)
+                         recurrence=laguerre_recurrence, apply_scaling=apply_scaling, **kwargs)
 
 
 def hermite_recurrence(p1, p2, n, x):
@@ -200,9 +207,9 @@ def hermite_recurrence(p1, p2, n, x):
 class Hermite(RecursivePolynomial):
     """Hermite polynomials as defined for Physics."""
 
-    def __init__(self, obs, coeffs: list, name: str = "Hermite", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Hermite", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          f0=lambda x: tf.ones_like(x), f1=lambda x: 2 * x, coeffs=coeffs,
-                         recurrence=hermite_recurrence, **kwargs)
+                         recurrence=hermite_recurrence, apply_scaling=apply_scaling, **kwargs)
 
 # EOF
