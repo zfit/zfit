@@ -1,10 +1,11 @@
 #  Copyright (c) 2019 zfit
 """Recurrent polynomials."""
 
-from typing import Callable
+from typing import Callable, List
 import tensorflow as tf
 
 from zfit import ztf
+from zfit.util import ztyping
 from ..core.limits import Space
 from ..core.basepdf import BasePDF
 
@@ -25,6 +26,7 @@ class RecursivePolynomial(BasePDF):
             coeffs (list): Coefficients for each polynomial. Used to calculate the degree.
             f0 (Callable): Order 0 polynomial
             f1 (Callable): Order 1 polynomial
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
             Recurrence(func): Recurrence relation as function of the two previous
                 polynomials and the degree n:
 
@@ -37,7 +39,15 @@ class RecursivePolynomial(BasePDF):
         self._polys = [f0, f1]
         self._recurrence = recurrence
         self._do_scale = apply_scaling
+        if apply_scaling and not (isinstance(obs, Space) and obs.n_limits == 1):
+            raise ValueError("obs need to be a Space with exactly one limit if rescaling is requested.")
         super().__init__(obs=obs, name=name, params=params, **kwargs)
+
+    def _polynomials_rescale(self, x):
+        if self._do_scale:
+            lim_low, lim_high = self.space.limit1d
+            x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)
+        return x
 
     @property
     def degree(self):
@@ -46,9 +56,7 @@ class RecursivePolynomial(BasePDF):
 
     def _unnormalized_pdf(self, x):
         x = x.unstack_x()
-        if self._do_scale:
-            lim_low, lim_high = self.obs.limit1d
-            x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)
+        x = self._polynomials_rescale(x)
         polys = self.do_recurrence(x, polys=self._polys, degree=self.degree, recurrence=self.recurrence)
         return tf.reduce_sum([self.params[f"c_{i}"] * poly for i, poly in enumerate(polys)], axis=-1)
 
@@ -74,24 +82,24 @@ def legendre_recurrence(p1, p2, n, x):
     return ((2 * n + 1) * tf.multiply(x, p1) - n * p2) / (n + 1)
 
 
-def legendre_integral(x, limits, norm_range, params, model):
+def legendre_integral(x: ztyping.XTypeInput, limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
+                      params: List["zfit.Parameter"], model: RecursivePolynomial):
     """Recursive integral of Legendre polynomials"""
     lower, upper = limits.limits
-    lower = ztf.convert_to_tensor(lower)
-    upper = ztf.convert_to_tensor(upper)
+    lower = model._polynomials_rescale(ztf.convert_to_tensor(lower))
+    upper = model._polynomials_rescale(ztf.convert_to_tensor(upper))
     if model.degree == 0:
         integral = limits.area()  # if polynomial 0 is 1
 
     else:
         def indefinite_integral(limits):
-            if model.degree > 0:
-                degree = model.degree + 1
-            else:
-                degree = model.degree
+            degree = model.degree + 1
             polys = RecursivePolynomial.do_recurrence(x=limits, polys=model._polys, degree=degree,
                                                       recurrence=model.recurrence)
-
-            one_limit_integral = (polys[-1] - polys[-3]) / (2. * ztf.convert_to_tensor(model.degree))
+            c_nplus1 = model.params[f"c_{degree}"]
+            c_nminus1 = model.params[f"c_{degree - 2}"]
+            one_limit_integral = ((c_nplus1 * polys[-1] - c_nminus1 * polys[-3])
+                                  / (2. * (ztf.convert_to_tensor(model.degree) + 1)))
             return one_limit_integral
 
         integral = indefinite_integral(upper) - indefinite_integral(lower)
@@ -133,8 +141,8 @@ class Chebyshev(RecursivePolynomial):
 def func_integral_chebyshev1(x, limits, norm_range, params, model):
     n = model.degree
     lower, upper = limits.limits
-    lower = ztf.convert_to_tensor(lower)
-    upper = ztf.convert_to_tensor(upper)
+    lower = model._polynomials_rescale(ztf.convert_to_tensor(lower))
+    upper = model._polynomials_rescale(ztf.convert_to_tensor(upper))
 
     def indefinite_integral_one(limits):
         polys = RecursivePolynomial.do_recurrence(x=limits, degree=n + 1, polys=model._polys,

@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 
 import numpy as np
@@ -26,7 +28,7 @@ ObsTypeReturn = Union[Tuple[str, ...], None]
 
 # Space
 SpaceOrSpacesTypeInput = Union["zfit.Space", Iterable["zfit.Space"]]
-SpaceTypeReturn = "zfit.Space"
+SpaceType = "zfit.Space"
 
 # Data
 XType = Union[float, tf.Tensor]
