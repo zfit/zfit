@@ -259,23 +259,28 @@ A typical example of toys would therefore look like
 
     >>> # create a model depending on mu, sigma
 
-    >>> sampler = model.create_sampler(n=1000)
+    >>> sampler = model.create_sampler(n=1000, fixed_params=True)
     >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
 
     >>> minimizer = zfit.minimize.MinuitMinimizer()
 
     >>> for run_number in n_runs:
     ...    # initialize the parameters randomly
-    ...    mu.set_value(np.random.normal())
-    ...    sigma.set_value(np.random.normal())
+    ...    sampler.resample()  # now the resampling gets executed
     ...
-    ...    sampler.resample()
+    ...    mu.set_value(np.random.normal())
+    ...    sigma.set_value(abs(np.random.normal()))
+    ...
     ...    result = minimizer.minimize(nll)
     ...
     ...    # safe the result, collect the values, calculate errors...
 
-Note that this changed the values for the sampler *implicitly*. We can provide them explicitly by
-specifying it as an argument. Reusing the example above
+Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+arguments to `resample`, this will always sample now from the distribution with the parameters set to the
+ values when the sampler was created.
+
+We can also specify the parameter values explicitly by
+using the following argument. Reusing the example above
 
 .. code:: pycon
 

@@ -318,24 +318,30 @@ the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been
 <p>A typical example of toys would therefore look like</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu, sigma</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">MinuitMinimizer</span><span class="p">()</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">run_number</span> <span class="ow">in</span> <span class="n">n_runs</span><span class="p">:</span>
 <span class="gp">... </span>   <span class="c1"># initialize the parameters randomly</span>
-<span class="gp">... </span>   <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
-<span class="gp">... </span>   <span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+<span class="gp">... </span>   <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>  <span class="c1"># now the resampling gets executed</span>
 <span class="gp">...</span>
-<span class="gp">... </span>   <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+<span class="gp">... </span>   <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+<span class="gp">... </span>   <span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">()))</span>
+<span class="gp">...</span>
 <span class="gp">... </span>   <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
 <span class="gp">...</span>
 <span class="gp">... </span>   <span class="c1"># safe the result, collect the values, calculate errors...</span>
 </pre></div>
 </div>
-<p>Note that this changed the values for the sampler <em>implicitly</em>. We can provide them explicitly by
-specifying it as an argument. Reusing the example above</p>
+<p>Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+arguments to <cite>resample</cite>, this will always sample now from the distribution with the parameters set to the</p>
+<blockquote>
+<div><p>values when the sampler was created.</p>
+</div></blockquote>
+<p>We can also specify the parameter values explicitly by
+using the following argument. Reusing the example above</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{</span><span class="n">sigma</span><span class="p">:</span> <span class="mi">5</span><span class="p">)</span>
 </pre></div>
