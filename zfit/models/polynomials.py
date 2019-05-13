@@ -2,10 +2,12 @@
 """Recurrent polynomials."""
 
 from typing import Callable, List
-import tensorflow as tf
 
+import tensorflow as tf
+import numpy as np
 from zfit import ztf
 from zfit.util import ztyping
+
 from ..core.limits import Space
 from ..core.basepdf import BasePDF
 
@@ -85,25 +87,35 @@ def legendre_recurrence(p1, p2, n, x):
 def legendre_integral(x: ztyping.XTypeInput, limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
                       params: List["zfit.Parameter"], model: RecursivePolynomial):
     """Recursive integral of Legendre polynomials"""
-    lower, upper = limits.limits
-    lower = model._polynomials_rescale(ztf.convert_to_tensor(lower))
-    upper = model._polynomials_rescale(ztf.convert_to_tensor(upper))
+    lower, upper = limits.limit1d
+    lower_rescaled = model._polynomials_rescale(lower)
+    upper_rescaled = model._polynomials_rescale(upper)
+    if np.allclose((lower_rescaled, upper_rescaled), (-1, 1)):
+        return ztf.constant(2.)  #
+
+    lower = ztf.convert_to_tensor(lower_rescaled)
+    upper = ztf.convert_to_tensor(upper_rescaled)
+
     if model.degree == 0:
-        integral = limits.area()  # if polynomial 0 is 1
+        integral = upper - lower  # if polynomial 0 is 1
+        integral = ztf.constant(integral)
 
     else:
+
         def indefinite_integral(limits):
-            degree = model.degree + 1
-            polys = RecursivePolynomial.do_recurrence(x=limits, polys=model._polys, degree=degree,
+            max_degree = model.degree + 1
+            polys = RecursivePolynomial.do_recurrence(x=limits, polys=model._polys, degree=max_degree,
                                                       recurrence=model.recurrence)
-            c_nplus1 = model.params[f"c_{degree}"]
-            c_nminus1 = model.params[f"c_{degree - 2}"]
-            one_limit_integral = ((c_nplus1 * polys[-1] - c_nminus1 * polys[-3])
-                                  / (2. * (ztf.convert_to_tensor(model.degree) + 1)))
-            return one_limit_integral
+            one_limit_integrals = []
+            for degree in range(max_degree):
+                c_nplus1 = model.params[f"c_{degree}"]
+                one_limit_integrals.append(c_nplus1 * (polys[-1] - polys[-3]) /
+                                           (2. * (ztf.convert_to_tensor(model.degree) + 1)))
+            return ztf.reduce_sum(one_limit_integrals, axis=0)
 
         integral = indefinite_integral(upper) - indefinite_integral(lower)
         integral = tf.reshape(integral, shape=())
+
     return integral
 
 
