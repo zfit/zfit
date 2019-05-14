@@ -57,6 +57,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         self._nevents = None
         self._weights = None
 
+        self._data_range = None
         self._set_space(obs)
         self._data_range = self.space  # TODO proper data cuts: currently set so that the cuts in all dims are applied
         self.dataset = dataset
