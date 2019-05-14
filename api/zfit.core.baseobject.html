@@ -130,10 +130,45 @@
 <dt id="zfit.core.baseobject.BaseNumeric">
 <em class="property">class </em><code class="descclassname">zfit.core.baseobject.</code><code class="descname">BaseNumeric</code><span class="sig-paren">(</span><em>name</em>, <em>dtype</em>, <em>params</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#BaseNumeric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="#zfit.core.baseobject.BaseDependentsMixin" title="zfit.core.baseobject.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumeric" title="zfit.core.interfaces.ZfitNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitNumeric</span></code></a>, <a class="reference internal" href="#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
+<dl class="method">
+<dt id="zfit.core.baseobject.BaseNumeric.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.baseobject.BaseNumeric.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="zfit.core.baseobject.BaseNumeric.dtype">
 <code class="descname">dtype</code><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.baseobject.BaseNumeric.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -157,9 +192,37 @@
 </dd></dl>
 
 <dl class="attribute">
+<dt id="zfit.core.baseobject.BaseNumeric.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="zfit.core.baseobject.BaseNumeric.params">
 <code class="descname">params</code><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.baseobject.BaseNumeric.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.baseobject.BaseNumeric.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.baseobject.BaseNumeric.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -5,3 +5,4 @@ minimizer\_minuit
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

@@ -112,6 +112,35 @@
 <dt id="zfit.core.interfaces.ZfitData">
 <em class="property">class </em><code class="descclassname">zfit.core.interfaces.</code><code class="descname">ZfitData</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.interfaces.ZfitDimensional" title="zfit.core.interfaces.ZfitDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitDimensional</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitData.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.interfaces.ZfitData.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitData.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitData.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitData.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitData.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitData.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitData.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitData.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitData.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitData.sort_by_axes">
 <code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes</em>, <em>allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitData.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
@@ -121,6 +150,12 @@
 <dt id="zfit.core.interfaces.ZfitData.sort_by_obs">
 <code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs</em>, <em>allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitData.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitData.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.interfaces.ZfitData.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitData.value">
@@ -155,10 +190,21 @@
 <dd><p>Return the axes.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitDimensional.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitDimensional.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="zfit.core.interfaces.ZfitDimensional.n_obs">
 <code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitDimensional.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitDimensional.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitDimensional.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -184,9 +230,163 @@
 <code class="descname">as_pdf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitFunc.as_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.as_pdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>DType</cite> of <cite>Tensor`s handled by this `model</cite>.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitFunc.func">
 <code class="descname">func</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], name: str = 'value'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitFunc.func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.get_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.partial_integrate">
+<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.interfaces.ZfitFunc.register_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: int = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an analytic integral with the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – <a href="#id1"><span class="problematic" id="id2">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.interfaces.ZfitFunc.register_inverse_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: int, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tensor(n_obs, n_samples)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitFunc.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitFunc.update_integration_options">
+<code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.update_integration_options" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -216,6 +416,11 @@
 <code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints: List[tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitLoss.add_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitLoss.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="zfit.core.interfaces.ZfitLoss.data">
 <code class="descname">data</code><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.data" title="Permalink to this definition">¶</a></dt>
@@ -232,6 +437,11 @@
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.interfaces.ZfitLoss.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.interfaces.ZfitLoss.gradients">
 <code class="descname">gradients</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter</em>, <em>int</em>, <em>float</em>, <em>complex</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitLoss.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -240,6 +450,12 @@
 <dt id="zfit.core.interfaces.ZfitLoss.model">
 <code class="descname">model</code><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitLoss.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitLoss.value">
@@ -252,6 +468,33 @@
 <dt id="zfit.core.interfaces.ZfitModel">
 <em class="property">class </em><code class="descclassname">zfit.core.interfaces.</code><code class="descname">ZfitModel</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.interfaces.ZfitNumeric" title="zfit.core.interfaces.ZfitNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitNumeric</span></code></a>, <a class="reference internal" href="#zfit.core.interfaces.ZfitDimensional" title="zfit.core.interfaces.ZfitDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitDimensional</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitModel.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitModel.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>DType</cite> of <cite>Tensor`s handled by this `model</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitModel.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitModel.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitModel.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitModel.get_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitModel.integrate">
 <code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.integrate" title="Permalink to this definition">¶</a></dt>
@@ -273,6 +516,29 @@ unnormalized probability</p></li>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitModel.partial_integrate">
@@ -306,7 +572,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
-<li><p><strong>(</strong><strong>)</strong> – <a href="#id1"><span class="problematic" id="id2">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>(</strong><strong>)</strong> – <a href="#id3"><span class="problematic" id="id4">|limits_arg_descr|</span></a></p></li>
 <li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
 <li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
 <li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
@@ -345,6 +611,12 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 </dl>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitModel.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitModel.update_integration_options">
 <code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.update_integration_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.update_integration_options" title="Permalink to this definition">¶</a></dt>
@@ -361,6 +633,11 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <code class="descname">dtype</code><a class="headerlink" href="#zfit.core.interfaces.ZfitNumeric.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <cite>DType</cite> of <cite>Tensor`s handled by this `model</cite>.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitNumeric.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitNumeric.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitNumeric.get_params">
@@ -400,9 +677,36 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <code class="descname">as_func</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.as_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.as_func" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.create_extended">
 <code class="descname">create_extended</code><span class="sig-paren">(</span><em>yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.create_extended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.create_extended" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>DType</cite> of <cite>Tensor`s handled by this `model</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.get_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -410,24 +714,151 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.interfaces.ZfitParameter]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.get_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.get_yield" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="zfit.core.interfaces.ZfitPDF.is_extended">
 <code class="descname">is_extended</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.is_extended" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.normalization">
 <code class="descname">normalization</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.core.multiarray.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.normalization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.partial_integrate">
+<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.pdf">
 <code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.pdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="classmethod">
+<dt id="zfit.core.interfaces.ZfitPDF.register_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: int = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an analytic integral with the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – <a href="#id5"><span class="problematic" id="id6">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.interfaces.ZfitPDF.register_inverse_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: int, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tensor(n_obs, n_samples)</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.set_norm_range">
 <code class="descname">set_norm_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.set_norm_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitPDF.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitPDF.update_integration_options">
+<code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.update_integration_options" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -437,13 +868,34 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <em class="property">class </em><code class="descclassname">zfit.core.interfaces.</code><code class="descname">ZfitParameter</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.interfaces.ZfitNumeric" title="zfit.core.interfaces.ZfitNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitNumeric</span></code></a></p>
 <dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitParameter.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>DType</cite> of <cite>Tensor`s handled by this `model</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="zfit.core.interfaces.ZfitParameter.floating">
 <code class="descname">floating</code><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.floating" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitParameter.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitParameter.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.get_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.core.interfaces.ZfitParameter.independent">
 <code class="descname">independent</code><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.independent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitParameter.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -466,6 +918,11 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dl class="attribute">
 <dt id="zfit.core.interfaces.ZfitSpace.axes">
 <code class="descname">axes</code><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.axes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.interfaces.ZfitSpace.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -518,6 +975,12 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dt id="zfit.core.interfaces.ZfitSpace.n_obs">
 <code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables (axis).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.interfaces.ZfitSpace.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.interfaces.ZfitSpace.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="attribute">

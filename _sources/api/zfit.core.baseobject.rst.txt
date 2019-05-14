@@ -5,3 +5,4 @@ baseobject
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

@@ -5,3 +5,4 @@ tf\_external\_optimizer
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

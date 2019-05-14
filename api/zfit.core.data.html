@@ -125,6 +125,31 @@
 </dd>
 </dl>
 <dl class="method">
+<dt id="zfit.core.data.Data.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Data.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.data.Data.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.data.Data.convert_sort_space">
 <code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/data.html#Data.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
@@ -140,6 +165,11 @@ own <cite>obs</cite>.</p>
 </dl>
 <p>Returns:</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Data.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.Data.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.core.data.Data.data_range">
@@ -259,14 +289,70 @@ column.</p></li>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="zfit.core.data.Data.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.data.Data.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Data.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.data.Data.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="zfit.core.data.Data.nevents">
 <code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.Data.nevents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Data.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.data.Data.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Data.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Data.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Data.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Data.sess">
+<code class="descname">sess</code><a class="headerlink" href="#zfit.core.data.Data.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.set_data_range">
 <code class="descname">set_data_range</code><span class="sig-paren">(</span><em>data_range</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_data_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Data.set_sess">
+<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.set_sess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.set_weights">
@@ -356,14 +442,310 @@ column.</p></li>
 <dt id="zfit.core.data.SampleData">
 <em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">SampleData</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], sample_holder: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], zfit.Space] = None, weights=None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.data.Data</span></code></a></p>
+<dl class="method">
+<dt id="zfit.core.data.SampleData.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.data.SampleData.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.convert_sort_space">
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.core.data.SampleData.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+own <cite>obs</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.SampleData.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.data_range">
+<code class="descname">data_range</code><a class="headerlink" href="#zfit.core.data.SampleData.data_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.data.SampleData.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.SampleData.from_numpy">
+<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <cite>Data</cite> from a <cite>np.array</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – </p></li>
+<li><p><strong>array</strong> (<em>numpy.ndarray</em>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>zfit.Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.SampleData.from_pandas">
+<em class="property">classmethod </em><code class="descname">from_pandas</code><span class="sig-paren">(</span><em>df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a pandas DataFrame. If <cite>obs</cite> is <cite>None</cite>, columns are used as obs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<cite>pandas.DataFrame</cite>) – </p></li>
+<li><p><strong>weights</strong> (<em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>np.ndarray</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – Weights of the data. Has to be 1-D and match the shape
+of the data (nevents).</p></li>
+<li><p><strong>obs</strong> (<cite>zfit.Space</cite>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.SampleData.from_root">
+<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path: str</em>, <em>treepath: str</em>, <em>branches: List[str] = None</em>, <em>branches_alias: Dict[KT</em>, <em>VT] = None</em>, <em>weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em>None</em>, <em>numpy.ndarray</em>, <em>str] = None</em>, <em>name: str = None</em>, <em>dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.SampleData.from_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a ROOT file. Arguments are passed to <cite>uproot</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>treepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>branches</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>branches_alias</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – A mapping from the <cite>branches</cite> (as keys) to the actual <cite>observables</cite> (as values).
+This allows to have different <cite>observable</cite> names, independent of the branch name in the file.</p></li>
+<li><p><strong>weights</strong> (<em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>np.ndarray</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – Weights of the data. Has to be 1-D and match the shape
+of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
+column.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>root_dir_options</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>zfit.data.Data</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.SampleData.from_root_iter">
+<em class="property">classmethod </em><code class="descname">from_root_iter</code><span class="sig-paren">(</span><em>path</em>, <em>treepath</em>, <em>branches=None</em>, <em>entrysteps=None</em>, <em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_root_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="classmethod">
 <dt id="zfit.core.data.SampleData.from_sample">
 <em class="property">classmethod </em><code class="descname">from_sample</code><span class="sig-paren">(</span><em>sample: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], zfit.Space], name: str = None, weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.from_sample" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
+<dt id="zfit.core.data.SampleData.from_tensor">
+<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.SampleData.from_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a <cite>tf.Tensor</cite>. <cite>Value</cite> simply returns the tensor (in the right order).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>tensor</strong> (<cite>tf.Tensor</cite>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data">zfit.core.data.Data</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
 <dt id="zfit.core.data.SampleData.get_cache_counting">
 <em class="property">classmethod </em><code class="descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.get_cache_counting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.get_iteration">
+<code class="descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.get_iteration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.initialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.iterator">
+<code class="descname">iterator</code><a class="headerlink" href="#zfit.core.data.SampleData.iterator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.data.SampleData.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.data.SampleData.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.nevents">
+<code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.SampleData.nevents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.data.SampleData.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.sess">
+<code class="descname">sess</code><a class="headerlink" href="#zfit.core.data.SampleData.sess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.set_data_range">
+<code class="descname">set_data_range</code><span class="sig-paren">(</span><em>data_range</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_data_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.set_sess">
+<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_sess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.set_weights">
+<code class="descname">set_weights</code><span class="sig-paren">(</span><em>weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set (temporarily) the weights of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weights</strong> (<cite>tf.Tensor</cite>, np.ndarray, None) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.sort_by_axes">
+<code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.sort_by_obs">
+<code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.data.SampleData.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.to_pandas">
+<code class="descname">to_pandas</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.to_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>pd.DataFrame</cite> from <cite>obs</cite> as columns and return it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – The observables to use as columns. If <cite>None</cite>, all observables are used.</p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.unstack_x">
+<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.unstack_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the unstacked data: a list of tensors or a single Tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – which observables to return</p></li>
+<li><p><strong>always_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, always return a list (also if length 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List(tf.Tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.SampleData.value">
+<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.SampleData.weights">
+<code class="descname">weights</code><a class="headerlink" href="#zfit.core.data.SampleData.weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -372,20 +754,218 @@ column.</p></li>
 <dt id="zfit.core.data.Sampler">
 <em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">Sampler</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], sample_holder: tensorflow.python.ops.variables.VariableV1, n_holder: tensorflow.python.ops.variables.VariableV1, weights=None, fixed_params: Dict[zfit.Parameter, Union[int, float, complex, tensorflow.python.framework.ops.Tensor]] = None, obs: Union[str, Iterable[str], zfit.Space] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.data.Data</span></code></a></p>
+<dl class="method">
+<dt id="zfit.core.data.Sampler.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.data.Sampler.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.convert_sort_space">
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.core.data.Sampler.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+own <cite>obs</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.Sampler.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.data_range">
+<code class="descname">data_range</code><a class="headerlink" href="#zfit.core.data.Sampler.data_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.data.Sampler.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.Sampler.from_numpy">
+<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <cite>Data</cite> from a <cite>np.array</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – </p></li>
+<li><p><strong>array</strong> (<em>numpy.ndarray</em>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>zfit.Data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.Sampler.from_pandas">
+<em class="property">classmethod </em><code class="descname">from_pandas</code><span class="sig-paren">(</span><em>df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a pandas DataFrame. If <cite>obs</cite> is <cite>None</cite>, columns are used as obs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<cite>pandas.DataFrame</cite>) – </p></li>
+<li><p><strong>weights</strong> (<em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>np.ndarray</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – Weights of the data. Has to be 1-D and match the shape
+of the data (nevents).</p></li>
+<li><p><strong>obs</strong> (<cite>zfit.Space</cite>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.Sampler.from_root">
+<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path: str</em>, <em>treepath: str</em>, <em>branches: List[str] = None</em>, <em>branches_alias: Dict[KT</em>, <em>VT] = None</em>, <em>weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em>None</em>, <em>numpy.ndarray</em>, <em>str] = None</em>, <em>name: str = None</em>, <em>dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.Sampler.from_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a ROOT file. Arguments are passed to <cite>uproot</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>treepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>branches</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>branches_alias</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – A mapping from the <cite>branches</cite> (as keys) to the actual <cite>observables</cite> (as values).
+This allows to have different <cite>observable</cite> names, independent of the branch name in the file.</p></li>
+<li><p><strong>weights</strong> (<em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>np.ndarray</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – Weights of the data. Has to be 1-D and match the shape
+of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
+column.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>root_dir_options</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>zfit.data.Data</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.core.data.Sampler.from_root_iter">
+<em class="property">classmethod </em><code class="descname">from_root_iter</code><span class="sig-paren">(</span><em>path</em>, <em>treepath</em>, <em>branches=None</em>, <em>entrysteps=None</em>, <em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_root_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="classmethod">
 <dt id="zfit.core.data.Sampler.from_sample">
 <em class="property">classmethod </em><code class="descname">from_sample</code><span class="sig-paren">(</span><em>sample: tensorflow.python.framework.ops.Tensor, n_holder: tensorflow.python.ops.variables.VariableV1, obs: Union[str, Iterable[str], zfit.Space], fixed_params=None, name: str = None, weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.from_sample" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
+<dt id="zfit.core.data.Sampler.from_tensor">
+<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.Sampler.from_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>Data</cite> from a <cite>tf.Tensor</cite>. <cite>Value</cite> simply returns the tensor (in the right order).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>tensor</strong> (<cite>tf.Tensor</cite>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data">zfit.core.data.Data</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
 <dt id="zfit.core.data.Sampler.get_cache_counting">
 <em class="property">classmethod </em><code class="descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.get_cache_counting" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.get_iteration">
+<code class="descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.get_iteration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.initialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.iterator">
+<code class="descname">iterator</code><a class="headerlink" href="#zfit.core.data.Sampler.iterator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.data.Sampler.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.core.data.Sampler.n_samples">
 <code class="descname">n_samples</code><a class="headerlink" href="#zfit.core.data.Sampler.n_samples" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.data.Sampler.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.nevents">
+<code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.Sampler.nevents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.data.Sampler.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.resample">
@@ -405,6 +985,104 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.sess">
+<code class="descname">sess</code><a class="headerlink" href="#zfit.core.data.Sampler.sess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.set_data_range">
+<code class="descname">set_data_range</code><span class="sig-paren">(</span><em>data_range</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_data_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.set_sess">
+<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_sess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.set_weights">
+<code class="descname">set_weights</code><span class="sig-paren">(</span><em>weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set (temporarily) the weights of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weights</strong> (<cite>tf.Tensor</cite>, np.ndarray, None) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.sort_by_axes">
+<code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.sort_by_obs">
+<code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.core.data.Sampler.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.to_pandas">
+<code class="descname">to_pandas</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.to_pandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>pd.DataFrame</cite> from <cite>obs</cite> as columns and return it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – The observables to use as columns. If <cite>None</cite>, all observables are used.</p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.unstack_x">
+<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.unstack_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the unstacked data: a list of tensors or a single Tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>obs</em>) – which observables to return</p></li>
+<li><p><strong>always_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, always return a list (also if length 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List(tf.Tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.data.Sampler.value">
+<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.data.Sampler.weights">
+<code class="descname">weights</code><a class="headerlink" href="#zfit.core.data.Sampler.weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

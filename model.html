@@ -280,16 +280,16 @@ With this new PDF one can access the same feature of the predefined PDFs, e.g.</
 <div class="section" id="sampling-from-a-model">
 <h3>Sampling from a Model<a class="headerlink" href="#sampling-from-a-model" title="Permalink to this headline">¶</a></h3>
 <p>In order to sample from model, there are two different methods,
-<a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> for a <strong>single time</strong> sampling, and
+<a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> for <strong>advanced</strong> sampling returning a Tensor, and
 <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a> for <strong>multiple sampling</strong> as used for toys.</p>
 </div>
-<div class="section" id="one-time-sampling">
-<h3>One time sampling<a class="headerlink" href="#one-time-sampling" title="Permalink to this headline">¶</a></h3>
-<p>The sample from <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> is an independent sample from any
-parameter or model and won’t change.</p>
+<div class="section" id="tensor-sampling">
+<h3>Tensor sampling<a class="headerlink" href="#tensor-sampling" title="Permalink to this headline">¶</a></h3>
+<p>The sample from <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> is a Tensor that samples when executed.
+This is for an advanced usecase only</p>
 </div>
-<div class="section" id="multiple-samplings">
-<h3>Multiple samplings<a class="headerlink" href="#multiple-samplings" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="playing-with-toys-multiple-samplings">
+<h3>Playing with toys: Multiple samplings<a class="headerlink" href="#playing-with-toys-multiple-samplings" title="Permalink to this headline">¶</a></h3>
 <p>The method <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a> returns a sampler that can be used
 like a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object (e.g. for building a <a class="reference internal" href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLoss</span></code></a>).
 The sampling itself is <em>not yet done</em> but only when <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> is
@@ -298,23 +298,8 @@ value they have when the <a class="reference internal" href="api/zfit.core.data.
 parameters fixed, they have to be specified <em>either</em> on <a class="reference internal" href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a>
 via <cite>fixed_params</cite>, on <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> by specifying which parameter
 will take which value via <cite>param_values</cite> or by changing the attribute of <a class="reference internal" href="api/zfit.core.data.html#zfit.core.data.Sampler" title="zfit.core.data.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code></a>.</p>
-<p>To give an example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>  <span class="c1"># now it sampled</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do something with nll</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note that the nll, being dependent on `sampler`, also changed!</span>
-</pre></div>
-</div>
-<p>The sample is now resampled with the <em>current values</em> (minimized values) of <cite>sigma1</cite>, <cite>sigma2</cite> and with
-the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been fixed).</p>
+<p>How typically toys look like:
+.. _playing_with_toys:</p>
 <p>A typical example of toys would therefore look like</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu, sigma</span>
 
@@ -340,6 +325,23 @@ arguments to <cite>resample</cite>, this will always sample now from the distrib
 <blockquote>
 <div><p>values when the sampler was created.</p>
 </div></blockquote>
+<p>To give another, though not very useful example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>  <span class="c1"># now it sampled</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do something with nll</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note that the nll, being dependent on `sampler`, also changed!</span>
+</pre></div>
+</div>
+<p>The sample is now resampled with the <em>current values</em> (minimized values) of <cite>sigma1</cite>, <cite>sigma2</cite> and with
+the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been fixed).</p>
 <p>We can also specify the parameter values explicitly by
 using the following argument. Reusing the example above</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>

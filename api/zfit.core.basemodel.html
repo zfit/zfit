@@ -127,6 +127,25 @@ the parameters itself the model depends on</p></li>
 </dd>
 </dl>
 <dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.analytic_integrate">
 <code class="descname">analytic_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analytical integration over function and raise Error if not possible.</p>
@@ -155,6 +174,12 @@ the parameters itself the model depends on</p></li>
 </dl>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.convert_sort_space">
 <code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.convert_sort_space" title="Permalink to this definition">¶</a></dt>
@@ -171,6 +196,11 @@ own <cite>obs</cite>.</p>
 </dl>
 <p>Returns:</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.basemodel.BaseModel.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.create_sampler">
@@ -215,6 +245,43 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.basemodel.BaseModel.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[ZfitParameter]<a class="headerlink" href="#zfit.core.basemodel.BaseModel.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.gradients">
 <code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.gradients" title="Permalink to this definition">¶</a></dt>
@@ -239,6 +306,18 @@ unnormalized probability</p></li>
 </dl>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.numeric_integrate">
 <code class="descname">numeric_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.numeric_integrate" title="Permalink to this definition">¶</a></dt>
@@ -259,6 +338,17 @@ unnormalized probability</p></li>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.basemodel.BaseModel.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.partial_analytic_integrate">
@@ -394,6 +484,17 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="classmethod">
 <dt id="zfit.core.basemodel.BaseModel.register_inverse_analytic_integral">
 <em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_inverse_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
@@ -403,6 +504,17 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.basemodel.BaseModel.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">

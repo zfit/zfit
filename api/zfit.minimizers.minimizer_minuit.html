@@ -126,6 +126,111 @@
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.minimize">
+<code class="descname">minimize</code><span class="sig-paren">(</span><em>loss: zfit.core.interfaces.ZfitLoss</em>, <em>params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><em>ZfitLoss</em></a>) – Loss to be minimized.</p></li>
+<li><p><strong>params</strong> (list(<cite>zfit.Parameter</cite>) – The parameters with respect to which to
+minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be taken from the <cite>loss</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The fit result.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>FitResult</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.sess">
+<code class="descname">sess</code><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.sess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.set_sess">
+<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.set_sess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a single step in the minimization (if implemented).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>params</em>) – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <cite>step</cite> method is not implemented in the minimizer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.minimizers.minimizer_minuit.MinuitMinimizer.tolerance">
+<code class="descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizer_minuit.MinuitMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>

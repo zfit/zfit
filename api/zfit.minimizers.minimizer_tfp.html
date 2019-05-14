@@ -113,6 +113,11 @@
 <em class="property">class </em><code class="descclassname">zfit.minimizers.minimizer_tfp.</code><code class="descname">BFGSMinimizer</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_tfp.html#BFGSMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a></p>
 <dl class="method">
+<dt id="zfit.minimizers.minimizer_tfp.BFGSMinimizer.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.minimizers.minimizer_tfp.BFGSMinimizer.minimize">
 <code class="descname">minimize</code><span class="sig-paren">(</span><em>sess=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_tfp.html#BFGSMinimizer.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
@@ -132,6 +137,44 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.minimizers.minimizer_tfp.BFGSMinimizer.sess">
+<code class="descname">sess</code><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer.sess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_tfp.BFGSMinimizer.set_sess">
+<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer.set_sess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.minimizer_tfp.BFGSMinimizer.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a single step in the minimization (if implemented).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>params</em>) – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <cite>step</cite> method is not implemented in the minimizer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.minimizers.minimizer_tfp.BFGSMinimizer.tolerance">
+<code class="descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGSMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

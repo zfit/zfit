@@ -130,25 +130,25 @@
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 
 
-<div class="viewcode-block" id="FailMinimizeNaN"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.FailMinimizeNaN">[docs]</a><span class="k">class</span> <span class="nc">FailMinimizeNaN</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="FailMinimizeNaN"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.FailMinimizeNaN">[docs]</a><span class="k">class</span> <span class="nc">FailMinimizeNaN</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ZfitStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.ZfitStrategy">[docs]</a><span class="k">class</span> <span class="nc">ZfitStrategy</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+<div class="viewcode-block" id="ZfitStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.ZfitStrategy">[docs]</a><span class="k">class</span> <span class="nc">ZfitStrategy</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
 
-<div class="viewcode-block" id="ZfitStrategy.minimize_nan"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ZfitStrategy.minimize_nan"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.ZfitStrategy.minimize_nan">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_value</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="BaseStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseStrategy">[docs]</a><span class="k">class</span> <span class="nc">BaseStrategy</span><span class="p">(</span><span class="n">ZfitStrategy</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseStrategy">[docs]</a><span class="k">class</span> <span class="nc">BaseStrategy</span><span class="p">(</span><span class="n">ZfitStrategy</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_result</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="BaseStrategy.minimize_nan"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan">[docs]</a>    <span class="k">def</span> <span class="nf">minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">,</span> <span class="n">loss_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gradient_values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseStrategy.minimize_nan"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseStrategy.minimize_nan">[docs]</a>    <span class="k">def</span> <span class="nf">minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">,</span> <span class="n">loss_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gradient_values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">loss_value</span><span class="o">=</span><span class="n">loss_value</span><span class="p">,</span>
                                   <span class="n">gradient_values</span><span class="o">=</span><span class="n">gradient_values</span><span class="p">)</span></div>
 
@@ -156,7 +156,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="ToyStrategyFail"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.ToyStrategyFail">[docs]</a><span class="k">class</span> <span class="nc">ToyStrategyFail</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
+<div class="viewcode-block" id="ToyStrategyFail"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.ToyStrategyFail">[docs]</a><span class="k">class</span> <span class="nc">ToyStrategyFail</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">_minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">,</span> <span class="n">loss_value</span><span class="p">,</span> <span class="n">gradient_values</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
@@ -166,13 +166,13 @@
         <span class="k">raise</span> <span class="n">FailMinimizeNaN</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="DefaultStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.DefaultStrategy">[docs]</a><span class="k">class</span> <span class="nc">DefaultStrategy</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.DefaultStrategy">[docs]</a><span class="k">class</span> <span class="nc">DefaultStrategy</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">_minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">,</span> <span class="n">loss_value</span><span class="p">,</span> <span class="n">gradient_values</span><span class="p">):</span>
         <span class="k">pass</span>  <span class="c1"># nothing to do here</span></div>
 
 
-<div class="viewcode-block" id="BaseMinimizer"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer">[docs]</a><span class="k">class</span> <span class="nc">BaseMinimizer</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitMinimizer</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMinimizer"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseMinimizer">[docs]</a><span class="k">class</span> <span class="nc">BaseMinimizer</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitMinimizer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Minimizer for loss functions.</span>
 
 <span class="sd">    Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the</span>
@@ -277,7 +277,7 @@
 
         <span class="k">return</span> <span class="n">new_params_op</span>
 
-<div class="viewcode-block" id="BaseMinimizer.step"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsOrNameType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMinimizer.step"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseMinimizer.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsOrNameType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform a single step in the minimization (if implemented).</span>
 
 <span class="sd">        Args:</span>
@@ -294,7 +294,7 @@
 
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseMinimizer.minimize"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer.minimize">[docs]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FitResult</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseMinimizer.minimize"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseMinimizer.minimize">[docs]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FitResult</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fully minimize the `loss` with respect to `params`.</span>
 
 <span class="sd">        Args:</span>
@@ -366,7 +366,7 @@
                          <span class="n">converged</span><span class="o">=</span><span class="n">success</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
                          <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 
-<div class="viewcode-block" id="BaseMinimizer.copy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMinimizer.copy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseMinimizer.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 </pre></div>
 

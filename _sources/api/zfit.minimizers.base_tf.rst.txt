@@ -5,3 +5,4 @@ base\_tf
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

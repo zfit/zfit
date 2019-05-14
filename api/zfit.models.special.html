@@ -114,12 +114,792 @@ simply define a non-normalizable function.</p>
 <dt id="zfit.models.special.SimpleFunctorPDF">
 <em class="property">class </em><code class="descclassname">zfit.models.special.</code><code class="descname">SimpleFunctorPDF</code><span class="sig-paren">(</span><em>obs</em>, <em>pdfs</em>, <em>func</em>, <em>name='SimpleFunctorPDF'</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/special.html#SimpleFunctorPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.models.functor.html#zfit.models.functor.BaseFunctor" title="zfit.models.functor.BaseFunctor"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.functor.BaseFunctor</span></code></a>, <a class="reference internal" href="#zfit.models.special.SimplePDF" title="zfit.models.special.SimplePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.special.SimplePDF</span></code></a></p>
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.analytic_integrate">
+<code class="descname">analytic_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analytical integration over function and raise Error if not possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <cite>False</cite>) – the limits to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+    integral over the limits = norm_range is not available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.apply_yield">
+<code class="descname">apply_yield</code><span class="sig-paren">(</span><em>value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.apply_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>numerical</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numerical</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.as_func">
+<code class="descname">as_func</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.as_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>Function</cite> with the function <cite>model(x, norm_range=norm_range)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.convert_sort_space">
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+own <cite>obs</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>**override_parameters</em><span class="sig-paren">)</span> &#x2192; zfit.core.basepdf.BasePDF<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of the model.</p>
+<p>Note: the copy model may continue to depend on the original
+initialization arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**override_parameters</strong> – String/value dictionary of initialization
+arguments to override with new value.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt><dd><p>of self.parameters and override_parameters, i.e.,
+<cite>dict(self.parameters, **override_parameters)</cite>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.create_extended">
+<code class="descname">create_extended</code><span class="sig-paren">(</span><em>yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], name_addition='_extended'</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.create_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an extended version of this pdf with yield <cite>yield_</cite>. The parameters are shared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.create_projection_pdf">
+<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
+<p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>limits_to_integrate</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pdf without the dimensions from <cite>limits_to_integrate</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.create_sampler">
+<code class="descname">create_sampler</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.create_sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
+<blockquote>
+<div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li><p>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
+If True, all are fixed, if False, all are floating. If a <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> is not fixed and
+its
+value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
+<cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
+been created with when it resamples.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>py:class:~`zfit.core.data.Sampler`</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError" title="zfit.util.exception.NotExtendedPDFError"><strong>NotExtendedPDFError</strong></a> – if ‘extended’ is chosen (implicitly by default or explicitly) as an
+    option for <cite>n</cite> but the pdf itself is not extended.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if n is an invalid string option.</p></li>
+<li><p><strong>InvalidArgumentError</strong> – if n is not specified and pdf is not extended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.get_models">
+<code class="descname">get_models</code><span class="sig-paren">(</span><em>names=None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitModel]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.get_models" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.get_yield">
+<code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.get_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the yield (only for extended models).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the yield of the current model or None</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.gradients">
+<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the operation shown in the <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Graph</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>py:class`tf.Tensor`: the integral value as a scalar with shape ()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.is_extended">
+<code class="descname">is_extended</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.is_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to tell whether the model is extended or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.log_pdf">
+<code class="descname">log_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.log_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <cite>Tensor</cite> of type <cite>self.dtype</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>log_pdf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.models">
+<code class="descname">models</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the models of this <cite>Functor</cite>. Can be <cite>pdfs</cite> or <cite>funcs</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.norm_range">
+<code class="descname">norm_range</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.norm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current normalization range. If None and the <a href="#id1"><span class="problematic" id="id2">`</span></a>obs`have limits, they are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current normalization range</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.normalization">
+<code class="descname">normalization</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the normalization value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.numeric_integrate">
+<code class="descname">numeric_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numerical integration over the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.partial_analytic_integrate">
+<code class="descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <em>analytic</em> integral (over this limits) is not implemented</p></li>
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+    integral over the limits = norm_range is not available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.partial_integrate">
+<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.partial_numeric_integrate">
+<code class="descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.pdf">
+<code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <cite>self.dtype</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.pdfs_extended">
+<code class="descname">pdfs_extended</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.pdfs_extended" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.SimpleFunctorPDF.register_additional_repr">
+<em class="property">classmethod </em><code class="descname">register_additional_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an additional attribute to add to the repr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keyword argument. The value has to be gettable from the instance</strong><strong> (</strong><strong>has to be an</strong> (<em>any</em>) – </p></li>
+<li><p><strong>or callable method of self.</strong> (<em>attribute</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.SimpleFunctorPDF.register_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an analytic integral with the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – <p>A function that calculates the (partial) integral over the axes <cite>limits</cite>.
+The signature has to be the following:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>x (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitData</span></code></a>, None): the data for the remaining axes in a partial</dt><dd><p>integral. If it is not a partial integral, this will be None.</p>
+</dd>
+</dl>
+</li>
+<li><p>limits (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>): the limits to integrate over.</p></li>
+<li><dl class="simple">
+<dt>norm_range (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
+</dd>
+</dl>
+</li>
+<li><p>params (Dict[param_name, <code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Parameters</span></code>]): The parameters of the model.</p></li>
+<li><p>model (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitModel</span></code></a>):The model that is being integrated.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – <a href="#id7"><span class="problematic" id="id8">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Priority of the function. If multiple functions cover the same space, the one with the
+highest priority will be used.</p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, the <cite>limits</cite> given to the integration function can have
+multiple limits. If <cite>False</cite>, only simple limits will pass through and multiple limits will be
+auto-handled.</p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, <cite>norm_range</cite> argument to the function may not be <cite>None</cite>.
+If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> and care is taken of the normalization automatically.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.SimpleFunctorPDF.register_inverse_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
+<p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li><p>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SampleData(n_obs, n_samples)</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError" title="zfit.util.exception.NotExtendedPDFError"><strong>NotExtendedPDFError</strong></a> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+    option for <cite>n</cite> but the pdf itself is not extended.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if n is an invalid string option.</p></li>
+<li><p><strong>InvalidArgumentError</strong> – if n is not specified and pdf is not extended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.set_norm_range">
+<code class="descname">set_norm_range</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimpleFunctorPDF.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.unnormalized_pdf">
+<code class="descname">unnormalized_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</p></li>
+<li><p><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</p></li>
+<li><p><strong>composition</strong> (<em>certain</em>) – pdfs.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1-dimensional <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> containing the unnormalized pdf.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimpleFunctorPDF.update_integration_options">
+<code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>draws_per_dim=None</em>, <em>mc_sampler=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimpleFunctorPDF.update_integration_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the integration options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The draws for MC integration to do</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>mc_sampler</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.models.special.SimplePDF">
 <em class="property">class </em><code class="descclassname">zfit.models.special.</code><code class="descname">SimplePDF</code><span class="sig-paren">(</span><em>obs</em>, <em>func</em>, <em>name='SimplePDF'</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/special.html#SimplePDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.special.SimplePDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.analytic_integrate">
+<code class="descname">analytic_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analytical integration over function and raise Error if not possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <cite>False</cite>) – the limits to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+    integral over the limits = norm_range is not available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.apply_yield">
+<code class="descname">apply_yield</code><span class="sig-paren">(</span><em>value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.apply_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>numerical</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numerical</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.as_func">
+<code class="descname">as_func</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.as_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>Function</cite> with the function <cite>model(x, norm_range=norm_range)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.models.special.SimplePDF.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.convert_sort_space">
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.models.special.SimplePDF.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+own <cite>obs</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="zfit.models.special.SimplePDF.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><em>**override_parameters</em><span class="sig-paren">)</span> &#x2192; zfit.core.basepdf.BasePDF<a class="reference internal" href="../_modules/zfit/models/special.html#SimplePDF.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.special.SimplePDF.copy" title="Permalink to this definition">¶</a></dt>
@@ -145,12 +925,1215 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.create_extended">
+<code class="descname">create_extended</code><span class="sig-paren">(</span><em>yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], name_addition='_extended'</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.special.SimplePDF.create_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an extended version of this pdf with yield <cite>yield_</cite>. The parameters are shared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.create_projection_pdf">
+<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.special.SimplePDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
+<p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>limits_to_integrate</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pdf without the dimensions from <cite>limits_to_integrate</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.create_sampler">
+<code class="descname">create_sampler</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.special.SimplePDF.create_sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
+<blockquote>
+<div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li><p>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
+If True, all are fixed, if False, all are floating. If a <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> is not fixed and
+its
+value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
+<cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
+been created with when it resamples.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>py:class:~`zfit.core.data.Sampler`</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError" title="zfit.util.exception.NotExtendedPDFError"><strong>NotExtendedPDFError</strong></a> – if ‘extended’ is chosen (implicitly by default or explicitly) as an
+    option for <cite>n</cite> but the pdf itself is not extended.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if n is an invalid string option.</p></li>
+<li><p><strong>InvalidArgumentError</strong> – if n is not specified and pdf is not extended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.models.special.SimplePDF.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.special.SimplePDF.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.models.special.SimplePDF.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.get_yield">
+<code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.special.SimplePDF.get_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the yield (only for extended models).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the yield of the current model or None</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.gradients">
+<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the operation shown in the <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Graph</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>py:class`tf.Tensor`: the integral value as a scalar with shape ()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.is_extended">
+<code class="descname">is_extended</code><a class="headerlink" href="#zfit.models.special.SimplePDF.is_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to tell whether the model is extended or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.log_pdf">
+<code class="descname">log_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.log_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <cite>Tensor</cite> of type <cite>self.dtype</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>log_pdf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.models.special.SimplePDF.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.models.special.SimplePDF.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.norm_range">
+<code class="descname">norm_range</code><a class="headerlink" href="#zfit.models.special.SimplePDF.norm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current normalization range. If None and the <a href="#id3"><span class="problematic" id="id4">`</span></a>obs`have limits, they are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current normalization range</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.normalization">
+<code class="descname">normalization</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the normalization value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.numeric_integrate">
+<code class="descname">numeric_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numerical integration over the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.models.special.SimplePDF.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.models.special.SimplePDF.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.partial_analytic_integrate">
+<code class="descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.special.SimplePDF.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <em>analytic</em> integral (over this limits) is not implemented</p></li>
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+    integral over the limits = norm_range is not available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.partial_integrate">
+<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.special.SimplePDF.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.partial_numeric_integrate">
+<code class="descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.pdf">
+<code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <cite>self.dtype</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.SimplePDF.register_additional_repr">
+<em class="property">classmethod </em><code class="descname">register_additional_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an additional attribute to add to the repr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keyword argument. The value has to be gettable from the instance</strong><strong> (</strong><strong>has to be an</strong> (<em>any</em>) – </p></li>
+<li><p><strong>or callable method of self.</strong> (<em>attribute</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.SimplePDF.register_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.special.SimplePDF.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an analytic integral with the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – <p>A function that calculates the (partial) integral over the axes <cite>limits</cite>.
+The signature has to be the following:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>x (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitData</span></code></a>, None): the data for the remaining axes in a partial</dt><dd><p>integral. If it is not a partial integral, this will be None.</p>
+</dd>
+</dl>
+</li>
+<li><p>limits (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>): the limits to integrate over.</p></li>
+<li><dl class="simple">
+<dt>norm_range (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
+</dd>
+</dl>
+</li>
+<li><p>params (Dict[param_name, <code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Parameters</span></code>]): The parameters of the model.</p></li>
+<li><p>model (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitModel</span></code></a>):The model that is being integrated.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – <a href="#id9"><span class="problematic" id="id10">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Priority of the function. If multiple functions cover the same space, the one with the
+highest priority will be used.</p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, the <cite>limits</cite> given to the integration function can have
+multiple limits. If <cite>False</cite>, only simple limits will pass through and multiple limits will be
+auto-handled.</p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, <cite>norm_range</cite> argument to the function may not be <cite>None</cite>.
+If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> and care is taken of the normalization automatically.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.SimplePDF.register_inverse_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.special.SimplePDF.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.special.SimplePDF.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
+<p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li><p>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SampleData(n_obs, n_samples)</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError" title="zfit.util.exception.NotExtendedPDFError"><strong>NotExtendedPDFError</strong></a> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+    option for <cite>n</cite> but the pdf itself is not extended.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if n is an invalid string option.</p></li>
+<li><p><strong>InvalidArgumentError</strong> – if n is not specified and pdf is not extended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.set_norm_range">
+<code class="descname">set_norm_range</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.SimplePDF.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.models.special.SimplePDF.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.unnormalized_pdf">
+<code class="descname">unnormalized_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.SimplePDF.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</p></li>
+<li><p><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</p></li>
+<li><p><strong>composition</strong> (<em>certain</em>) – pdfs.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1-dimensional <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> containing the unnormalized pdf.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.SimplePDF.update_integration_options">
+<code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>draws_per_dim=None</em>, <em>mc_sampler=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.SimplePDF.update_integration_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the integration options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The draws for MC integration to do</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>mc_sampler</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.models.special.ZPDF">
 <em class="property">class </em><code class="descclassname">zfit.models.special.</code><code class="descname">ZPDF</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], name: str = 'ZPDF', **params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/special.html#ZPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.special.ZPDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.basemodel.html#zfit.core.basemodel.SimpleModelSubclassMixin" title="zfit.core.basemodel.SimpleModelSubclassMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basemodel.SimpleModelSubclassMixin</span></code></a>, <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.add_cache_dependents">
+<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.analytic_integrate">
+<code class="descname">analytic_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analytical integration over function and raise Error if not possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <cite>False</cite>) – the limits to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+    integral over the limits = norm_range is not available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.apply_yield">
+<code class="descname">apply_yield</code><span class="sig-paren">(</span><em>value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.apply_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>numerical</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numerical</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.as_func">
+<code class="descname">as_func</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.as_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>Function</cite> with the function <cite>model(x, norm_range=norm_range)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>norm_range</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.axes">
+<code class="descname">axes</code><a class="headerlink" href="#zfit.models.special.ZPDF.axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.convert_sort_space">
+<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.models.special.ZPDF.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+own <cite>obs</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><em>**override_parameters</em><span class="sig-paren">)</span> &#x2192; zfit.core.basepdf.BasePDF<a class="headerlink" href="#zfit.models.special.ZPDF.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of the model.</p>
+<p>Note: the copy model may continue to depend on the original
+initialization arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**override_parameters</strong> – String/value dictionary of initialization
+arguments to override with new value.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A new instance of <cite>type(self)</cite> initialized from the union</dt><dd><p>of self.parameters and override_parameters, i.e.,
+<cite>dict(self.parameters, **override_parameters)</cite>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.create_extended">
+<code class="descname">create_extended</code><span class="sig-paren">(</span><em>yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], name_addition='_extended'</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.special.ZPDF.create_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an extended version of this pdf with yield <cite>yield_</cite>. The parameters are shared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.create_projection_pdf">
+<code class="descname">create_projection_pdf</code><span class="sig-paren">(</span><em>limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.special.ZPDF.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
+<p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>limits_to_integrate</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pdf without the dimensions from <cite>limits_to_integrate</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">ZfitPDF</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.create_sampler">
+<code class="descname">create_sampler</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.special.ZPDF.create_sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
+<blockquote>
+<div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li><p>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
+If True, all are fixed, if False, all are floating. If a <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> is not fixed and
+its
+value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
+<cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
+been created with when it resamples.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>py:class:~`zfit.core.data.Sampler`</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError" title="zfit.util.exception.NotExtendedPDFError"><strong>NotExtendedPDFError</strong></a> – if ‘extended’ is chosen (implicitly by default or explicitly) as an
+    option for <cite>n</cite> but the pdf itself is not extended.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if n is an invalid string option.</p></li>
+<li><p><strong>InvalidArgumentError</strong> – if n is not specified and pdf is not extended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.dtype">
+<code class="descname">dtype</code><a class="headerlink" href="#zfit.models.special.ZPDF.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.get_dependents">
+<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.special.ZPDF.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.models.special.ZPDF.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.get_yield">
+<code class="descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.special.ZPDF.get_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the yield (only for extended models).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the yield of the current model or None</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.gradients">
+<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the operation shown in the <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Graph</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>py:class`tf.Tensor`: the integral value as a scalar with shape ()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.is_extended">
+<code class="descname">is_extended</code><a class="headerlink" href="#zfit.models.special.ZPDF.is_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to tell whether the model is extended or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.log_pdf">
+<code class="descname">log_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.log_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <cite>Tensor</cite> of type <cite>self.dtype</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>log_pdf</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.n_obs">
+<code class="descname">n_obs</code><a class="headerlink" href="#zfit.models.special.ZPDF.n_obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.name">
+<code class="descname">name</code><a class="headerlink" href="#zfit.models.special.ZPDF.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.norm_range">
+<code class="descname">norm_range</code><a class="headerlink" href="#zfit.models.special.ZPDF.norm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current normalization range. If None and the <a href="#id5"><span class="problematic" id="id6">`</span></a>obs`have limits, they are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current normalization range</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.normalization">
+<code class="descname">normalization</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the normalization value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.numeric_integrate">
+<code class="descname">numeric_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numerical integration over the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.obs">
+<code class="descname">obs</code><a class="headerlink" href="#zfit.models.special.ZPDF.obs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observables.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.params">
+<code class="descname">params</code><a class="headerlink" href="#zfit.models.special.ZPDF.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.partial_analytic_integrate">
+<code class="descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.special.ZPDF.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <em>analytic</em> integral (over this limits) is not implemented</p></li>
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
+    integral over the limits = norm_range is not available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.partial_integrate">
+<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.special.ZPDF.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.partial_numeric_integrate">
+<code class="descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.pdf">
+<code class="descname">pdf</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> of type <cite>self.dtype</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.ZPDF.register_additional_repr">
+<em class="property">classmethod </em><code class="descname">register_additional_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an additional attribute to add to the repr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keyword argument. The value has to be gettable from the instance</strong><strong> (</strong><strong>has to be an</strong> (<em>any</em>) – </p></li>
+<li><p><strong>or callable method of self.</strong> (<em>attribute</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.ZPDF.register_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.special.ZPDF.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an analytic integral with the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – <p>A function that calculates the (partial) integral over the axes <cite>limits</cite>.
+The signature has to be the following:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>x (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitData</span></code></a>, None): the data for the remaining axes in a partial</dt><dd><p>integral. If it is not a partial integral, this will be None.</p>
+</dd>
+</dl>
+</li>
+<li><p>limits (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>): the limits to integrate over.</p></li>
+<li><dl class="simple">
+<dt>norm_range (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
+</dd>
+</dl>
+</li>
+<li><p>params (Dict[param_name, <code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Parameters</span></code>]): The parameters of the model.</p></li>
+<li><p>model (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitModel</span></code></a>):The model that is being integrated.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – <a href="#id11"><span class="problematic" id="id12">|limits_arg_descr|</span></a></p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Priority of the function. If multiple functions cover the same space, the one with the
+highest priority will be used.</p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, the <cite>limits</cite> given to the integration function can have
+multiple limits. If <cite>False</cite>, only simple limits will pass through and multiple limits will be
+auto-handled.</p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, <cite>norm_range</cite> argument to the function may not be <cite>None</cite>.
+If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> and care is taken of the normalization automatically.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.register_cacher">
+<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="zfit.models.special.ZPDF.register_inverse_analytic_integral">
+<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.special.ZPDF.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>func</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.reset_cache">
+<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.reset_cache_self">
+<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.special.ZPDF.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
+<p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
+If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The number of samples to be generated. Can be a Tensor that will be
+or a valid string. Currently implemented:</p>
+<blockquote>
+<div><ul>
+<li><p>’extended’: samples <cite>poisson(yield)</cite> from each pdf that is extended.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SampleData(n_obs, n_samples)</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError" title="zfit.util.exception.NotExtendedPDFError"><strong>NotExtendedPDFError</strong></a> – if ‘extended’ is (implicitly by default or explicitly) chosen as an
+    option for <cite>n</cite> but the pdf itself is not extended.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if n is an invalid string option.</p></li>
+<li><p><strong>InvalidArgumentError</strong> – if n is not specified and pdf is not extended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.set_norm_range">
+<code class="descname">set_norm_range</code><span class="sig-paren">(</span><em>norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.special.ZPDF.space">
+<code class="descname">space</code><a class="headerlink" href="#zfit.models.special.ZPDF.space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.unnormalized_pdf">
+<code class="descname">unnormalized_pdf</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.special.ZPDF.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</p></li>
+<li><p><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</p></li>
+<li><p><strong>composition</strong> (<em>certain</em>) – pdfs.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1-dimensional <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code> containing the unnormalized pdf.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.models.special.ZPDF.update_integration_options">
+<code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>draws_per_dim=None</em>, <em>mc_sampler=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.special.ZPDF.update_integration_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the integration options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The draws for MC integration to do</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>mc_sampler</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">

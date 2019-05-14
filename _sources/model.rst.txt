@@ -212,17 +212,17 @@ Sampling from a Model
 '''''''''''''''''''''
 
 In order to sample from model, there are two different methods,
-:py:meth:`~zfit.core.basemodel.BaseModel.sample` for a **single time** sampling, and
+:py:meth:`~zfit.core.basemodel.BaseModel.sample` for **advanced** sampling returning a Tensor, and
 :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler` for **multiple sampling** as used for toys.
 
-One time sampling
+Tensor sampling
 '''''''''''''''''
 
-The sample from :py:meth:`~zfit.core.basemodel.BaseModel.sample` is an independent sample from any
-parameter or model and won't change.
+The sample from :py:meth:`~zfit.core.basemodel.BaseModel.sample` is a Tensor that samples when executed.
+This is for an advanced usecase only
 
-Multiple samplings
-''''''''''''''''''
+Playing with toys: Multiple samplings
+'''''''''''''''''''''''''''''''''''''
 
 The method :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler` returns a sampler that can be used
 like a :py:class:`~zift.Data` object (e.g. for building a :py:class:`~zfit.core.interfaces.ZfitLoss`).
@@ -233,25 +233,8 @@ parameters fixed, they have to be specified *either* on :py:meth:`~zfit.core.bas
 via `fixed_params`, on :py:meth:`~zfit.core.data.Sampler.resample` by specifying which parameter
 will take which value via `param_values` or by changing the attribute of :py:class:`~zfit.core.data.Sampler`.
 
-To give an example:
-
-.. code:: pycon
-
-    >>> # create a model depending on mu1, sigma1, mu2, sigma2
-
-    >>> sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
-    >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
-
-    >>> sampler.resample()  # now it sampled
-
-    >>> # do something with nll
-    >>> minimizer.minimize(nll)  # minimize
-
-    >>> sampler.resample()
-    >>> # note that the nll, being dependent on `sampler`, also changed!
-
-The sample is now resampled with the *current values* (minimized values) of `sigma1`, `sigma2` and with
-the initial values of `mu1`, `mu2` (because they have been fixed).
+How typically toys look like:
+.. _playing_with_toys:
 
 A typical example of toys would therefore look like
 
@@ -278,6 +261,27 @@ A typical example of toys would therefore look like
 Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
 arguments to `resample`, this will always sample now from the distribution with the parameters set to the
  values when the sampler was created.
+
+
+To give another, though not very useful example:
+
+.. code:: pycon
+
+    >>> # create a model depending on mu1, sigma1, mu2, sigma2
+
+    >>> sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
+    >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+    >>> sampler.resample()  # now it sampled
+
+    >>> # do something with nll
+    >>> minimizer.minimize(nll)  # minimize
+
+    >>> sampler.resample()
+    >>> # note that the nll, being dependent on `sampler`, also changed!
+
+The sample is now resampled with the *current values* (minimized values) of `sigma1`, `sigma2` and with
+the initial values of `mu1`, `mu2` (because they have been fixed).
 
 We can also specify the parameter values explicitly by
 using the following argument. Reusing the example above

@@ -274,6 +274,33 @@ than 2, etc.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface.minimize">
+<code class="descname">minimize</code><span class="sig-paren">(</span><em>session=None</em>, <em>feed_dict=None</em>, <em>fetches=None</em>, <em>step_callback=None</em>, <em>loss_callback=None</em>, <em>**run_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface.minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimize a scalar <cite>Tensor</cite>.</p>
+<p>Variables subject to optimization are updated in-place at the end of
+optimization.</p>
+<p>Note that this method does <em>not</em> just return a minimization <cite>Op</cite>, unlike
+<cite>Optimizer.minimize()</cite>; instead it actually performs minimization by
+executing commands to control a <cite>Session</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – A <cite>Session</cite> instance.</p></li>
+<li><p><strong>feed_dict</strong> – A feed dict to be passed to calls to <cite>session.run</cite>.</p></li>
+<li><p><strong>fetches</strong> – A list of <cite>Tensor`s to fetch and supply to `loss_callback</cite>
+as positional arguments.</p></li>
+<li><p><strong>step_callback</strong> – A function to be called at each optimization step;
+arguments are the current values of all optimization variables
+flattened into a single vector.</p></li>
+<li><p><strong>loss_callback</strong> – A function to be called every time the loss and gradients
+are computed, with evaluated fetches supplied as positional arguments.</p></li>
+<li><p><strong>**run_kwargs</strong> – kwargs to pass to <cite>session.run</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
