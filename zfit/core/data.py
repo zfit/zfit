@@ -25,7 +25,8 @@ from .limits import Space, convert_to_space, convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError
+from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError, \
+    ObsIncompatibleError
 from ..util.temporary import TemporarilySet
 
 
@@ -50,7 +51,6 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         super().__init__(name=name)
         if iterator_feed_dict is None:
             iterator_feed_dict = {}
-        self._data_range = None
         self._permutation_indices_data = None
         self._next_batch = None
         self._dtype = dtype
@@ -58,6 +58,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         self._weights = None
 
         self._set_space(obs)
+        self._data_range = self.space  # TODO proper data cuts: currently set so that the cuts in all dims are applied
         self.dataset = dataset
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
@@ -90,8 +91,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @invalidates_cache
     def set_data_range(self, data_range):
-        # warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
-        #               "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
+        warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
+                      "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
         data_range = self._check_input_data_range(data_range=data_range)
 
         def setter(value):
@@ -335,8 +336,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return self._next_batch
 
     def _cut_data(self, value, obs=None):
-        if self.space.limits is not None:
-            data_range = self.space.with_obs(obs=obs)
+        if self.data_range.limits is not None:
+            data_range = self.data_range.with_obs(obs=obs)
 
             inside_limits = []
             # value = tf.transpose(value)
@@ -487,6 +488,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
+        if not frozenset(self.data_range.obs) == frozenset(data_range.obs):
+            raise ObsIncompatibleError(f"Data range has to cover the full observable space {self.data_range.obs}, not "
+                                       f"only {data_range.obs}")
         return self.convert_sort_space(limits=data_range)
 
     # TODO(Mayou36): refactor with pdf or other range things?
