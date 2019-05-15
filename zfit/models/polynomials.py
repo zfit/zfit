@@ -65,7 +65,7 @@ class RecursivePolynomial(BasePDF):
     @staticmethod
     def do_recurrence(x, polys, degree, recurrence):
         polys = [polys[0](x), polys[1](x)]
-        for i_deg in range(2, degree):
+        for i_deg in range(2, degree + 1):
             polys.append(recurrence(polys[-1], polys[-2], i_deg, x))
         return polys
 
@@ -151,41 +151,41 @@ class Chebyshev(RecursivePolynomial):
 
 
 def func_integral_chebyshev1(x, limits, norm_range, params, model):
-    n = model.degree
-    lower, upper = limits.limits
-    lower = model._polynomials_rescale(ztf.convert_to_tensor(lower))
-    upper = model._polynomials_rescale(ztf.convert_to_tensor(upper))
+    lower, upper = limits.limit1d
+    lower_rescaled = model._polynomials_rescale(lower)
+    upper_rescaled = model._polynomials_rescale(upper)
+    if np.allclose((lower_rescaled, upper_rescaled), (-1, 1)):
+        return ztf.constant(2.)  #
 
-    def indefinite_integral_one(limits):
-        polys = RecursivePolynomial.do_recurrence(x=limits, degree=n + 1, polys=model._polys,
-                                                  recurrence=model.recurrence)
-        n_float = ztf.convert_to_tensor(n)
-        one_limits_integral = n_float * polys[-1] / (ztf.square(n_float) - 1) - limits[:, 0] * polys[-2] / (n_float - 1)
-        return one_limits_integral
+    lower = ztf.convert_to_tensor(lower_rescaled)
+    upper = ztf.convert_to_tensor(upper_rescaled)
 
-    integral = indefinite_integral_one(upper) - indefinite_integral_one(lower)
-    integral = tf.reshape(integral, shape=())
+    if model.degree == 0:
+        integral = upper - lower  # if polynomial 0 is 1
+        integral = ztf.constant(integral)
+
+    else:
+
+        def indefinite_integral(limits):
+            max_degree = model.degree + 1
+            polys = RecursivePolynomial.do_recurrence(x=limits, polys=model._polys, degree=max_degree,
+                                                      recurrence=model.recurrence)
+            one_limit_integrals = []
+            for degree in range(max_degree):
+                c_nplus1 = model.params[f"c_{degree}"]
+                n_float = ztf.convert_to_tensor(degree + 1)
+                integral = (n_float * polys[-1] / (ztf.square(n_float) - 1) - limits[:, 0] * polys[-2] / (n_float - 1))
+                one_limit_integrals.append(ztf.convert_to_tensor(c_nplus1) * integral)
+            return ztf.reduce_sum(one_limit_integrals, axis=0)
+
+        integral = indefinite_integral(upper) - indefinite_integral(lower)
+        integral = tf.reshape(integral, shape=())
+
     return integral
 
 
 chebyshev1_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev.register_analytic_integral(func=func_integral_chebyshev1, limits=chebyshev1_limits_integral)
-
-
-def func_integral_chebyshev1_one_to_one(x, limits, norm_range, params, model):
-    if model.degree == 0:
-        integral = 0
-    else:
-        integral = ((-1) ** model.degree + 1) / (1 - model.degree ** 2)
-
-    integral = ztf.convert_to_tensor(integral)
-    return integral
-
-
-chebyshev1_limits_integral_one_to_one = Space.from_axes(axes=0, limits=(-1, 1))
-Chebyshev.register_analytic_integral(func=func_integral_chebyshev1_one_to_one,
-                                     limits=chebyshev1_limits_integral_one_to_one,
-                                     priority=999)
 
 
 class Chebyshev2(RecursivePolynomial):
