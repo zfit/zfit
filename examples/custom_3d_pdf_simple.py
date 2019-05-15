@@ -26,10 +26,12 @@ class CustomPDF(zfit.pdf.ZPDF):
 
 obs = zfit.Space(["x", "y", "z"], limits=(((-4., -3., -2.),), ((4., 3., 2.),)))
 
-custom_pdf = CustomPDF(obs=obs, alpha=0.2, beta=0.4)
+alpha = zfit.Parameter("alpha", 0.2)  # floating
+beta = zfit.Paramter("beta", 0.4, floating=False)  # non-floating
+custom_pdf = CustomPDF(obs=obs, alpha=alpha, beta=beta)
 
 integral = custom_pdf.integrate(limits=obs)  # = 1 since normalized
-sample = custom_pdf.sample(n=1000)
+sample = custom_pdf.sample(n=1000)  # DO NOT USE THIS FOR TOYS!
 prob = custom_pdf.pdf(sample)  # DO NOT USE THIS FOR TOYS!
 
 integral_np, sample_np, prob_np = zfit.run([integral, sample, prob])
