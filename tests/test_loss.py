@@ -182,7 +182,6 @@ def test_add():
     ranges[1]._axes = (0,)
     ranges[2]._axes = (0,)
     ranges[3]._axes = (0,)
-
     assert simult_nll.fit_range == ranges
 
     def eval_constraint(constraints):

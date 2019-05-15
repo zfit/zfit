@@ -98,7 +98,9 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
     upper = ztf.convert_to_tensor(upper_rescaled)
 
     integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
-    if model.degree > 0:
+    if model.degree == 0:
+        integral = integral_0
+    else:
 
         def indefinite_integral(limits):
             max_degree = model.degree + 1
@@ -159,7 +161,9 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
     upper = ztf.convert_to_tensor(upper_rescaled)
 
     integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
-    if model.degree > 0:
+    if model.degree == 0:
+        integral = integral_0
+    else:
 
         def indefinite_integral(limits):
             max_degree = model.degree + 1
