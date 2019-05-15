@@ -145,33 +145,33 @@ class BasePDF(ZfitPDF, BaseModel):
     def _func_to_sample_from(self, x):
         return self.unnormalized_pdf(x)
 
-    def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
+    def _single_hook_integrate(self, limits, norm_range, name='hook_integrate'):
         integral = super()._single_hook_integrate(limits=limits, norm_range=norm_range, name=name)
         integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
-    def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
+    def _single_hook_analytic_integrate(self, limits, norm_range, name='hook_analytic_integrate'):
         integral = super()._single_hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
         integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
-    def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
+    def _single_hook_numeric_integrate(self, limits, norm_range, name='hook_numeric_integrate'):
         numeric_integral = super()._single_hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         numeric_integral = self.apply_yield(numeric_integral, norm_range=norm_range)
         return numeric_integral
 
-    def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
+    def _single_hook_partial_integrate(self, x, limits, norm_range, name='hook_partial_integrate'):
         partial_integral = super()._single_hook_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         partial_integral = self.apply_yield(partial_integral, norm_range=norm_range)
         return partial_integral
 
-    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
+    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='hook_partial_analytic_integrate'):
         part_analytic_int = super()._single_hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range,
                                                                             name=name)
         part_analytic_int = self.apply_yield(part_analytic_int, norm_range=norm_range)
         return part_analytic_int
 
-    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
+    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='hook_partial_numeric_integrate'):
         part_numeric_int = super()._single_hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range,
                                                                           name=name)
         part_numeric_int = self.apply_yield(part_numeric_int, norm_range=norm_range)
@@ -326,7 +326,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _hook_pdf(self, x, norm_range, name="_hook_pdf"):
         return self._norm_pdf(x=x, norm_range=norm_range, name=name)
 
-    def _norm_pdf(self, x, norm_range, name='_norm_pdf'):
+    def _norm_pdf(self, x, norm_range, name='norm_pdf'):
         return self._call_pdf(x=x, norm_range=norm_range, name=name)
 
     def _call_pdf(self, x, norm_range, name):
@@ -370,7 +370,7 @@ class BasePDF(ZfitPDF, BaseModel):
         log_prob = self._norm_log_pdf(x=x, norm_range=norm_range, name=name)
         return log_prob
 
-    def _norm_log_pdf(self, x, norm_range, name='_norm_log_pdf'):
+    def _norm_log_pdf(self, x, norm_range, name='norm_log_pdf'):
         return self._call_log_pdf(x=x, norm_range=norm_range, name=name)
 
     def _call_log_pdf(self, x, norm_range, name):
@@ -476,7 +476,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         return self._yield is not None
 
-    def _hook_sample(self, limits, n, name='_hook_sample'):
+    def _hook_sample(self, limits, n, name='hook_sample'):
         if n is None and self.is_extended:
             n = 'extended'
         if n == 'extended':

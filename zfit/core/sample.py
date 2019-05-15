@@ -161,7 +161,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.to_int32(n)
-    assert_valid_n_op = tf.assert_non_negative(n)
+    if run.numeric_checks:
+        assert_valid_n_op = tf.assert_non_negative(n)
+        deps = [assert_valid_n_op]
+    else:
+        deps = []
     # whether we may produce more then n, we normally do (except for EventSpace which is not a generator)
     # we cannot cut inside the while loop as soon as we have produced enough because we may sample from
     # multiple limits and therefore need to randomly remove events, otherwise we are biased because the
@@ -173,11 +177,15 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     initial_is_sampled = tf.constant("EMPTY")
     if isinstance(limits, EventSpace) and not limits.is_generator:
         dynamic_array_shape = False
-        assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
-        with tf.control_dependencies([assert_n_matches_limits_op]):  # TODO(Mayou36): good check? could be 1d
+        if run.numeric_checks:
+            assert_n_matches_limits_op = tf.assert_equal(tf.shape(limits.lower[0][0])[0], n)
+            tfdeps = [assert_n_matches_limits_op]
+        else:
+            tfdeps = []
+        with tf.control_dependencies(tfdeps):  # TODO(Mayou36): good check? could be 1d
             initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
-    with tf.control_dependencies([assert_valid_n_op]):
+    with tf.control_dependencies(deps):
         inital_n_produced = tf.constant(0, dtype=tf.int32)
         initial_n_drawn = tf.constant(0, dtype=tf.int32)
         with tf.control_dependencies([n]):
@@ -224,19 +232,24 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                 dtype=dtype)
 
         n_drawn = tf.cast(n_drawn, dtype=tf.int32)
-        assert_op_n_drawn = tf.assert_non_negative(n_drawn)
-        with tf.control_dependencies([assert_op_n_drawn]):
+        if run.numeric_checks:
+            assert_op_n_drawn = tf.assert_non_negative(n_drawn)
+            tfdeps = [assert_op_n_drawn]
+        else:
+            tfdeps = []
+        with tf.control_dependencies(tfdeps):
             n_total_drawn += n_drawn
 
             probabilities = prob(rnd_sample)
         shape_rnd_sample = tf.shape(rnd_sample)[0]
-        assert_prob_rnd_sample_op = tf.assert_equal(tf.shape(probabilities), shape_rnd_sample)
+        if run.numeric_checks:
+            assert_prob_rnd_sample_op = tf.assert_equal(tf.shape(probabilities), shape_rnd_sample)
+            tfdeps = [assert_prob_rnd_sample_op]
+        else:
+            tfdeps = []
         # assert_weights_rnd_sample_op = tf.assert_equal(tf.shape(weights), shape_rnd_sample)
-        print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
-        with tf.control_dependencies([assert_prob_rnd_sample_op,
-                                      # assert_weights_rnd_sample_op,
-                                      # print_op
-                                      ]):
+        # print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
+        with tf.control_dependencies(tfdeps):
             probabilities = tf.identity(probabilities)
         if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined

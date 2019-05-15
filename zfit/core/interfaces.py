@@ -1,15 +1,16 @@
+#  Copyright (c) 2019 zfit
+
 import abc
 from collections import OrderedDict
 from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
-import pep487
 import tensorflow as tf
 
 import zfit
 from ..util import ztyping
 
 
-class ZfitObject(pep487.PEP487Object):  # __init_subclass__ backport
+class ZfitObject:  # __init_subclass__ backport
 
     @property
     # @abc.abstractmethod

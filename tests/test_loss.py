@@ -183,7 +183,11 @@ def test_add():
     assert simult_nll.constraints == merged_contraints
 
 
-def test_gradients():
+@pytest.mark.parametrize("chunksize", [10000000, 1000])
+def test_gradients(chunksize):
+    zfit.run.chunking.active = True
+    zfit.run._chunksize = chunksize
+
     param1 = Parameter("param111", 1.)
     param2 = Parameter("param222", 2.)
 

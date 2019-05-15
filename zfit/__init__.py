@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
@@ -18,6 +18,8 @@ __all__ = ["ztf", "constraint", "pdf", "minimize", "loss", "core", "data", "func
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
+
+#  Copyright (c) 2019 zfit
 
 from . import ztf
 from .settings import ztypes

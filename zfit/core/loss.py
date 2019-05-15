@@ -1,8 +1,10 @@
+#  Copyright (c) 2019 zfit
+
 import abc
 from collections import OrderedDict
 
 import tensorflow as tf
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Callable
 
 from zfit import ztf
 from zfit.util import ztyping
@@ -283,7 +285,17 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(CachedLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func, dependents=None, errordef=None):
+    def __init__(self, func: Callable, dependents: Optional[ztyping.ParametersType] = None,
+                 errordef: Optional[float] = None):
+        """Loss from a (function returning a ) Tensor.
+
+        Args:
+            func: Callable that constructs the loss and returns a tensor.
+            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are
+                figured out automatically.
+            errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
+                For example, 1 for Chi squared, 0.5 for negative log-likelihood.
+        """
         self._simple_func = func
         self._simple_errordef = errordef
         self._simple_func_dependents = convert_to_container(dependents, container=set)

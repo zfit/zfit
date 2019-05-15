@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 import functools
 import time
@@ -115,7 +117,7 @@ def minimize_func(minimizer_class_and_kwargs):
             _ = result.error(params=a_param)
 
 
-minimizers = [
+minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
     (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.5), False),
     (zfit.minimize.MinuitMinimizer, {}, True),
@@ -123,7 +125,10 @@ minimizers = [
 ]
 
 
+@pytest.mark.parametrize("chunksize", [10000000, 3000])
 @pytest.mark.parametrize("minimizer_class", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizer_class):
+def test_minimizers(minimizer_class, chunksize):
+    zfit.run.chunking.active = True
+    zfit.run._chunksize = chunksize
     minimize_func(minimizer_class)

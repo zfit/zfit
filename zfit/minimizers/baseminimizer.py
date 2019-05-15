@@ -203,8 +203,12 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
             try:
                 return self._hook_minimize(loss=loss, params=params)
-            except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
-                return self.strategy.fit_result
+            except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
+                fail_result = self.strategy.fit_result
+                if fail_result is not None:
+                    return fail_result
+                else:
+                    raise
 
     def _hook_minimize(self, loss, params):
         return self._call_minimize(loss=loss, params=params)

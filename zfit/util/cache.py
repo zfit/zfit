@@ -49,11 +49,12 @@ Example with a pdf that caches the normalization:
 
 """
 
+#  Copyright (c) 2019 zfit
+
 import abc
 from abc import abstractmethod
 import functools
 
-import pep487
 
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container

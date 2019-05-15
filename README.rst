@@ -1,4 +1,3 @@
-
 ===============================
 zfit: scalable pythonic fitting
 ===============================
@@ -20,9 +19,8 @@ zfit: scalable pythonic fitting
    :target: https://www.codefactor.io/repository/github/zfit/zfit
    :alt: CodeFactor
 
-`Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
-`Documentation <https://zfit.github.io/zfit>`_
-`API <https://zfit.github.io/zfit/API.html>`_
+| Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
+| Read the `Documentation <https://zfit.github.io/zfit>`_ and `API <https://zfit.github.io/zfit/API.html>`_
 
 The zfit package is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
@@ -60,9 +58,8 @@ To install zfit, run this command in your terminal:
 
     $ pip install zfit
 
-This is the preferred method to install zfit, as it will always install the most recent stable release.
 
-For the newest development version (in case you really need it), you can install the version from git with
+For the newest development version, you can install the version from git with
 
 .. code-block:: console
 
@@ -76,7 +73,6 @@ While the zfit library provides a simple model fitting and sampling framework fo
 
 .. code-block:: python
 
-    import tensorflow as tf
     import zfit
 
 The domain of the PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
@@ -151,6 +147,7 @@ For more details and information of what you can do with zfit, please see the `d
 Contributing
 ------------
 
+Any idea of how to improve the library? Or interested to write some code?
 Contributions are always welcome, please have a look at the `Contributing guide`_.
 
 .. _Contributing guide: CONTRIBUTING.rst
