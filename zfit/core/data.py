@@ -93,8 +93,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @invalidates_cache
     def set_data_range(self, data_range):
-        warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
-                      "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
+        # warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
+        #               "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
         data_range = self._check_input_data_range(data_range=data_range)
 
         def setter(value):
@@ -495,10 +495,11 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
+        data_range = self.convert_sort_space(limits=data_range)
         if not frozenset(self.data_range.obs) == frozenset(data_range.obs):
             raise ObsIncompatibleError(f"Data range has to cover the full observable space {self.data_range.obs}, not "
                                        f"only {data_range.obs}")
-        return self.convert_sort_space(limits=data_range)
+        return data_range
 
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
