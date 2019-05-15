@@ -165,11 +165,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         if isinstance(x, ZfitData):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs, allow_superset=True):
-                    # HACK START
-                    import zfit
-                    print(f"nevents:{zfit.run(x.nevents)}, obs: {x.obs}")
-                    print(f"limits:{x.data_range.limits}")
-                    # HACK END
                     yield x
             elif x.axes is not None:
                 with x.sort_by_axes(axes=self.axes):
