@@ -161,7 +161,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self, x: ztyping.XTypeInput) -> Data:
+    def _convert_sort_x(self, x: ztyping.XTypeInput, partial: bool = False) -> Data:
         if isinstance(x, ZfitData):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs, allow_superset=True):
@@ -180,7 +180,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             # check dimension
             x = self._add_dim_to_x(x=x)
             x_shape = x.shape.as_list()[-1]
-            if x_shape != self.n_obs:
+            if not partial and x_shape != self.n_obs:
                 raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_obs))
             x = Data.from_tensor(obs=self.obs, tensor=x)
@@ -553,7 +553,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x, partial=True) as x:
             return self._single_hook_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _single_hook_partial_integrate(self, x, limits, norm_range, name):
@@ -641,7 +641,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x, partial=True) as x:
             return self._single_hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name):
@@ -714,7 +714,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x, partial=True) as x:
             return self._single_hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name):
