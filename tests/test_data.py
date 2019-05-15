@@ -218,3 +218,26 @@ def test_data_range():
 
     np.testing.assert_equal(cut_data1, zfit.run(value_cut))
     np.testing.assert_equal(data1, zfit.run(dataset.value()))
+
+
+def test_multidim_data_range():
+    data1 = np.linspace((0, 5), (10, 15), num=11)
+    data_true = np.linspace(10, 15, num=6)
+    lower = ((5, 5),)
+    upper = ((10, 15),)
+    obs1 = "x"
+    obs2 = "y"
+    data_range = zfit.Space([obs1, obs2], limits=(lower, upper))
+    dataset = zfit.Data.from_numpy(array=data1, obs=data_range)
+    assert zfit.run(dataset.nevents) == 6
+    with dataset.sort_by_obs(obs=obs1):
+        assert zfit.run(dataset.nevents) == 6
+    assert zfit.run(dataset.nevents) == 6
+    with dataset.sort_by_obs(obs=obs2):
+        assert zfit.run(dataset.nevents) == 6
+        np.testing.assert_allclose(data_true, zfit.run(dataset.unstack_x()))
+
+    data2 = np.linspace((0, 5), (10, 15), num=11)[:, 1]
+    data_range = zfit.Space([obs1], limits=(5, 15))
+    dataset = zfit.Data.from_numpy(array=data2, obs=data_range)
+    assert zfit.run(dataset.nevents) == 11

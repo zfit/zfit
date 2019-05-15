@@ -25,7 +25,8 @@ from .limits import Space, convert_to_space, convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError
+from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError, \
+    ObsIncompatibleError
 from ..util.temporary import TemporarilySet
 
 
@@ -50,14 +51,16 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         super().__init__(name=name)
         if iterator_feed_dict is None:
             iterator_feed_dict = {}
-        self._data_range = None
         self._permutation_indices_data = None
         self._next_batch = None
         self._dtype = dtype
         self._nevents = None
         self._weights = None
 
+        self._data_range = None
         self._set_space(obs)
+        self._original_obs = self.space.obs
+        self._data_range = self.space  # TODO proper data cuts: currently set so that the cuts in all dims are applied
         self.dataset = dataset
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
@@ -132,9 +135,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     @property
     def space(self) -> "ZfitSpace":
         space = self._space
-        if space.limits is None:
-            if self._data_range is not None:
-                space = self._data_range
+        # if space.limits is None:
+        #     if self._data_range is not None:
+        #         space = self._data_range
         return space
 
     @property
@@ -334,9 +337,24 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             self._next_batch = self.iterator.get_next()
         return self._next_batch
 
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list: bool = False):
+        """Return the unstacked data: a list of tensors or a single Tensor.
+
+        Args:
+            obs (): which observables to return
+            always_list (bool): If True, always return a list (also if length 1)
+
+        Returns:
+            List(tf.Tensor)
+        """
+        return ztf.unstack_x(self._value_internal(obs=obs))
+
+    def value(self, obs: ztyping.ObsTypeInput = None):
+        return self._value_internal(obs=obs)
+
     def _cut_data(self, value, obs=None):
-        if self.space.limits is not None:
-            data_range = self.space.with_obs(obs=obs)
+        if self.data_range.limits is not None:
+            data_range = self.data_range.with_obs(obs=obs)
 
             inside_limits = []
             # value = tf.transpose(value)
@@ -351,37 +369,30 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         return value
 
-    def value(self, obs: ztyping.ObsTypeInput = None):
-        return self._value_internal(obs=obs)
-
-    def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list: bool = False):
-        """Return the unstacked data: a list of tensors or a single Tensor.
-
-        Args:
-            obs (): which observables to return
-            always_list (bool): If True, always return a list (also if length 1)
-
-        Returns:
-            List(tf.Tensor)
-        """
-        return ztf.unstack_x(self._value_internal(obs=obs))
-
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
             obs = convert_to_obs_str(obs)
-        value = self._value(obs=obs)
-        value = self._cut_data(value, obs=obs)
-        return value
+        raw_value = self._value()
+        value = self._cut_data(raw_value, obs=self._original_obs)
+        value_sorted = self._sort_value(value=value, obs=obs)
+        return value_sorted
 
-    def _value(self, obs: Tuple[str]):
-        obs = convert_to_container(value=obs, container=tuple)
+    def _value(self):
         values = self.get_iteration()
         # TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?
         if len(values.shape.as_list()) == 0:
             values = tf.expand_dims(values, -1)
         if len(values.shape.as_list()) == 1:
             values = tf.expand_dims(values, -1)
-        perm_indices = self.space.axes if self.space.axes != tuple(range(values.shape[-1])) else False
+
+        # cast data to right type
+        if not values.dtype == self.dtype:
+            values = tf.cast(values, dtype=self.dtype)
+        return values
+
+    def _sort_value(self, value, obs: Tuple[str]):
+        obs = convert_to_container(value=obs, container=tuple)
+        perm_indices = self.space.axes if self.space.axes != tuple(range(value.shape[-1])) else False
 
         # permutate = perm_indices is not None
         if obs:
@@ -392,14 +403,11 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             perm_indices = self.space.get_axes(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
-            values = ztf.unstack_x(values)
-            values = list(values[i] for i in perm_indices)
-            values = ztf.stack_x(values)
+            value = ztf.unstack_x(value)
+            value = list(value[i] for i in perm_indices)
+            value = ztf.stack_x(value)
 
-        # cast data to right type
-        if not values.dtype == self.dtype:
-            values = tf.cast(values, dtype=self.dtype)
-        return values
+        return value
 
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
@@ -487,7 +495,11 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
-        return self.convert_sort_space(limits=data_range)
+        data_range = self.convert_sort_space(limits=data_range)
+        if not frozenset(self.data_range.obs) == frozenset(data_range.obs):
+            raise ObsIncompatibleError(f"Data range has to cover the full observable space {self.data_range.obs}, not "
+                                       f"only {data_range.obs}")
+        return data_range
 
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
