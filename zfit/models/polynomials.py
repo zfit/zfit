@@ -36,6 +36,7 @@ class RecursivePolynomial(BasePDF):
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
 
         """
+        coeffs.insert(0, ztf.constant(1.))
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs)
         self._polys = [f0, f1]
@@ -60,12 +61,12 @@ class RecursivePolynomial(BasePDF):
         x = x.unstack_x()
         x = self._polynomials_rescale(x)
         polys = self.do_recurrence(x, polys=self._polys, degree=self.degree, recurrence=self.recurrence)
-        return tf.reduce_sum([self.params[f"c_{i}"] * poly for i, poly in enumerate(polys)], axis=-1)
+        return tf.reduce_sum([self.params[f"c_{i}"] * poly for i, poly in enumerate(polys)], axis=0)
 
     @staticmethod
     def do_recurrence(x, polys, degree, recurrence):
         polys = [polys[0](x), polys[1](x)]
-        for i_deg in range(2, degree + 1):
+        for i_deg in range(1, degree):
             polys.append(recurrence(polys[-1], polys[-2], i_deg, x))
         return polys
 
@@ -84,7 +85,7 @@ def legendre_recurrence(p1, p2, n, x):
     return ((2 * n + 1) * tf.multiply(x, p1) - n * p2) / (n + 1)
 
 
-def legendre_integral(x: ztyping.XTypeInput, limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
+def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
                       params: List["zfit.Parameter"], model: RecursivePolynomial):
     """Recursive integral of Legendre polynomials"""
     lower, upper = limits.limit1d
@@ -96,24 +97,21 @@ def legendre_integral(x: ztyping.XTypeInput, limits: ztyping.SpaceType, norm_ran
     lower = ztf.convert_to_tensor(lower_rescaled)
     upper = ztf.convert_to_tensor(upper_rescaled)
 
-    if model.degree == 0:
-        integral = upper - lower  # if polynomial 0 is 1
-        integral = ztf.constant(integral)
-
-    else:
+    integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
+    if model.degree > 0:
 
         def indefinite_integral(limits):
             max_degree = model.degree + 1
             polys = RecursivePolynomial.do_recurrence(x=limits, polys=model._polys, degree=max_degree,
                                                       recurrence=model.recurrence)
             one_limit_integrals = []
-            for degree in range(max_degree):
-                c_nplus1 = model.params[f"c_{degree}"]
-                one_limit_integrals.append(c_nplus1 * (polys[-1] - polys[-3]) /
-                                           (2. * (ztf.convert_to_tensor(model.degree) + 1)))
+            for degree in range(1, max_degree):
+                coeff = model.params[f"c_{degree}"]
+                one_limit_integrals.append(coeff * (polys[degree + 1] - polys[degree - 1]) /
+                                           (2. * (ztf.convert_to_tensor(degree)) + 1))
             return ztf.reduce_sum(one_limit_integrals, axis=0)
 
-        integral = indefinite_integral(upper) - indefinite_integral(lower)
+        integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = tf.reshape(integral, shape=())
 
     return integral
@@ -150,7 +148,7 @@ class Chebyshev(RecursivePolynomial):
                          recurrence=chebyshev_recurrence, apply_scaling=apply_scaling, **kwargs)
 
 
-def func_integral_chebyshev1(x, limits, norm_range, params, model):
+def func_integral_chebyshev1(limits, norm_range, params, model):
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
@@ -160,25 +158,23 @@ def func_integral_chebyshev1(x, limits, norm_range, params, model):
     lower = ztf.convert_to_tensor(lower_rescaled)
     upper = ztf.convert_to_tensor(upper_rescaled)
 
-    if model.degree == 0:
-        integral = upper - lower  # if polynomial 0 is 1
-        integral = ztf.constant(integral)
-
-    else:
+    integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
+    if model.degree > 0:
 
         def indefinite_integral(limits):
             max_degree = model.degree + 1
             polys = RecursivePolynomial.do_recurrence(x=limits, polys=model._polys, degree=max_degree,
                                                       recurrence=model.recurrence)
             one_limit_integrals = []
-            for degree in range(max_degree):
-                c_nplus1 = model.params[f"c_{degree}"]
-                n_float = ztf.convert_to_tensor(degree + 1)
-                integral = (n_float * polys[-1] / (ztf.square(n_float) - 1) - limits[:, 0] * polys[-2] / (n_float - 1))
-                one_limit_integrals.append(ztf.convert_to_tensor(c_nplus1) * integral)
+            for degree in range(1, max_degree):
+                coeff = model.params[f"c_{degree}"]
+                n_float = ztf.convert_to_tensor(degree)
+                integral = (n_float * polys[degree + 1] / (ztf.square(n_float) - 1)
+                            - limits[:, 0] * polys[degree] / (n_float - 1))
+                one_limit_integrals.append(coeff * integral)
             return ztf.reduce_sum(one_limit_integrals, axis=0)
 
-        integral = indefinite_integral(upper) - indefinite_integral(lower)
+        integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = tf.reshape(integral, shape=())
 
     return integral
