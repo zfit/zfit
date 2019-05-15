@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.exception &#8212; zfit 0.3.2 documentation</title>
+    <title>zfit.util.exception &#8212; zfit 0.3.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.2</b></span>
+        <span class="navbar-text pull-left"><b>0.3.3</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -105,7 +105,9 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.util.exception</h1><div class="highlight"><pre>
-<span></span><span class="c1"># TODO: improve errors of models. Generate more general error, inherit and use more specific?</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="c1"># TODO: improve errors of models. Generate more general error, inherit and use more specific?</span>
 
 
 <div class="viewcode-block" id="PDFCompatibilityError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.PDFCompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">PDFCompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -197,6 +199,9 @@
 <div class="viewcode-block" id="ShapeIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ShapeIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
+
+<div class="viewcode-block" id="ObsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ObsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ObsIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="SpaceIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.SpaceIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">SpaceIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>

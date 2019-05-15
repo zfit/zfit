@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.data &#8212; zfit 0.3.2 documentation</title>
+    <title>zfit.core.data &#8212; zfit 0.3.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.2</b></span>
+        <span class="navbar-text pull-left"><b>0.3.3</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -132,7 +132,8 @@
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">NoSessionSpecifiedError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">NoSessionSpecifiedError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> \
+    <span class="n">ObsIncompatibleError</span>
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
 
 
@@ -157,14 +158,16 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">iterator_feed_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">iterator_feed_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data_range</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_permutation_indices_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_next_batch</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nevents</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_range</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_space</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_original_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>  <span class="c1"># TODO proper data cuts: currently set so that the cuts in all dims are applied</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iterator_feed_dict</span> <span class="o">=</span> <span class="n">iterator_feed_dict</span>
@@ -239,9 +242,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitSpace&quot;</span><span class="p">:</span>
         <span class="n">space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
-        <span class="k">if</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_range</span>
+        <span class="c1"># if space.limits is None:</span>
+        <span class="c1">#     if self._data_range is not None:</span>
+        <span class="c1">#         space = self._data_range</span>
         <span class="k">return</span> <span class="n">space</span>
 
     <span class="nd">@property</span>
@@ -441,9 +444,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_next_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterator</span><span class="o">.</span><span class="n">get_next</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_batch</span></div>
 
+<div class="viewcode-block" id="Data.unstack_x"><a class="viewcode-back" href="../../../api/zfit.data.html#zfit.core.data.Data.unstack_x">[docs]</a>    <span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">always_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the unstacked data: a list of tensors or a single Tensor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obs (): which observables to return</span>
+<span class="sd">            always_list (bool): If True, always return a list (also if length 1)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List(tf.Tensor)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Data.value"><a class="viewcode-back" href="../../../api/zfit.data.html#zfit.core.data.Data.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">_cut_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_range</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
 
             <span class="n">inside_limits</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="c1"># value = tf.transpose(value)</span>
@@ -458,37 +476,30 @@
 
         <span class="k">return</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="Data.value"><a class="viewcode-back" href="../../../api/zfit.data.html#zfit.core.data.Data.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Data.unstack_x"><a class="viewcode-back" href="../../../api/zfit.data.html#zfit.core.data.Data.unstack_x">[docs]</a>    <span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">always_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the unstacked data: a list of tensors or a single Tensor.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            obs (): which observables to return</span>
-<span class="sd">            always_list (bool): If True, always return a list (also if length 1)</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            List(tf.Tensor)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value_internal</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">))</span></div>
-
     <span class="k">def</span> <span class="nf">_value_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cut_data</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span>
+        <span class="n">raw_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">()</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cut_data</span><span class="p">(</span><span class="n">raw_value</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_original_obs</span><span class="p">)</span>
+        <span class="n">value_sorted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sort_value</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value_sorted</span>
 
-    <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration</span><span class="p">()</span>
         <span class="c1"># TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">perm_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="c1"># cast data to right type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="nf">_sort_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+        <span class="n">perm_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="k">else</span> <span class="kc">False</span>
 
         <span class="c1"># permutate = perm_indices is not None</span>
         <span class="k">if</span> <span class="n">obs</span><span class="p">:</span>
@@ -499,14 +510,11 @@
             <span class="n">perm_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">get_axes</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
             <span class="c1"># values = list(values[self.obs.index(o)] for o in obs if o in self.obs)</span>
         <span class="k">if</span> <span class="n">perm_indices</span><span class="p">:</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">perm_indices</span><span class="p">)</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">stack_x</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">perm_indices</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">stack_x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-        <span class="c1"># cast data to right type</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">values</span>
+        <span class="k">return</span> <span class="n">value</span>
 
     <span class="c1"># TODO(Mayou36): use Space to permute data?</span>
     <span class="c1"># TODO(Mayou36): raise error is not obs &lt;= self.obs?</span>
@@ -594,7 +602,11 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">_run_op</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_input_data_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_range</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">data_range</span><span class="p">)</span>
+        <span class="n">data_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">data_range</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_range</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">data_range</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ObsIncompatibleError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Data range has to cover the full observable space </span><span class="si">{self.data_range.obs}</span><span class="s2">, not &quot;</span>
+                                       <span class="n">f</span><span class="s2">&quot;only </span><span class="si">{data_range.obs}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data_range</span>
 
     <span class="c1"># TODO(Mayou36): refactor with pdf or other range things?</span>
 <div class="viewcode-block" id="Data.convert_sort_space"><a class="viewcode-back" href="../../../api/zfit.data.html#zfit.core.data.Data.convert_sort_space">[docs]</a>    <span class="k">def</span> <span class="nf">convert_sort_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
