@@ -32,6 +32,8 @@ def nll_gaussian(params, mu, sigma):
         covariance = np.diag(np.power(sigma, 2.))
     elif isnumber:
         covariance = np.diag([sigma**2])
+    else:
+        covariance = sigma
 
     covariance = ztf.convert_to_tensor(covariance)
 
