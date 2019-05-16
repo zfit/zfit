@@ -12,7 +12,8 @@ def nll_gaussian(params, mu, sigma):
     Args:
         params (list(zfit.Parameter)): The parameters to constraint
         mu (float, list(float) or numpy array): The central value of the constraint
-        sigma (float, list(float) or numpy array): The standard deviations of correlations matrix of the constraint
+        sigma (float, list(float) or numpy array): The standard deviations of correlations matrix of the 
+        constraint
     Returns:
         graph: the nll of the constraint
     Raises:
@@ -28,9 +29,9 @@ def nll_gaussian(params, mu, sigma):
     isnumber = isinstance(sigma, (float, int))
 
     if iscontainer or is1darray:
-        covariance = np.diag(sigma)
+        covariance = np.diag(np.power(sigma, 2.))
     elif isnumber:
-        covariance = np.diag([sigma])
+        covariance = np.diag([sigma**2])
 
     covariance = ztf.convert_to_tensor(covariance)
 
