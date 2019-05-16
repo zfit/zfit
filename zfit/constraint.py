@@ -5,7 +5,8 @@ import tensorflow as tf
 
 __all__ = ["nll_gaussian"]
 
-#def nll_gaussian(params, mu, sigma):
+
+# def nll_gaussian(params, mu, sigma):
 #    params = convert_to_container(params, container=tuple)
 #    mu = convert_to_container(mu, container=tuple)
 #    sigma = convert_to_container(sigma, container=tuple)
@@ -18,10 +19,11 @@ __all__ = ["nll_gaussian"]
 #        constraint += ztf.reduce_sum(ztf.square(param - mean) / (2. * ztf.square(sig)))
 #
 #    return constraint
-    
+
+
 def nll_gaussian(params, mu, sigma):
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
-    
+
     Args:
         params (list(zfit.Parameter)): The parameters to constraint
         mu (float, list(float) or numpy array): The central value of the constraint
@@ -31,33 +33,33 @@ def nll_gaussian(params, mu, sigma):
     Raises:
         ValueError: if params, mu and sigma don't have the same size
     """
-    
+
     params = convert_to_container(params, tuple)
     mu = convert_to_container(mu, tuple)
-    
+
     iscontainer = isinstance(sigma, (list, tuple))
     isarray = isinstance(sigma, (np.ndarray))
     is1darray = isarray and sigma.ndim == 1
-    isnumber = lambda x: isinstance(x, (float, int))
-    
+    isnumber = isinstance(sigma, (float, int))
+
     if iscontainer or is1darray:
         covariance = np.diag(sigma)
-    elif isnumber(sigma):
+    elif isnumber:
         covariance = np.diag([sigma])
-        
+
     covariance = ztf.convert_to_tensor(covariance)
-                
+
     if not len(params) == len(mu) == covariance.shape[0] == covariance.shape[1]:
         raise ValueError("params, mu and sigma have to have the same length.")
-        
+
     params = ztf.convert_to_tensor(params)
     mu = ztf.convert_to_tensor(mu)
-        
-    X = (params - mu)
-    Xt = tf.transpose(X)
 
-    constraint = tf.tensordot(tf.linalg.inv(covariance), X, 1)
-    constraint = 0.5 * tf.tensordot(Xt, constraint, 1)
+    x = (params - mu)
+    xt = tf.transpose(x)
+
+    constraint = tf.tensordot(tf.linalg.inv(covariance), x, 1)
+    constraint = 0.5 * tf.tensordot(xt, constraint, 1)
 
     return constraint
 
