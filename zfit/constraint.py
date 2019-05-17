@@ -12,7 +12,7 @@ def nll_gaussian(params, mu, sigma):
     Args:
         params (list(zfit.Parameter)): The parameters to constraint
         mu (float, list(float) or numpy array): The central value of the constraint
-        sigma (float, list(float) or numpy array): The standard deviations of correlations matrix of the 
+        sigma (float, list(float) or numpy array): The standard deviations or covariance matrix of the 
         constraint
     Returns:
         graph: the nll of the constraint
