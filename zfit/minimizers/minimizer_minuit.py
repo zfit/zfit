@@ -163,7 +163,6 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(**minimize_options)
         params_result = [p_dict for p_dict in result[1]]
-
         result_vals = [res["value"] for res in params_result]
         self._update_params(params, values=result_vals)
 
