@@ -1,6 +1,6 @@
 #  Copyright (c) 2019 zfit
 
-from typing import Callable, Any, Iterable
+from typing import Callable, Any, Iterable, Union
 
 import tensorflow as tf
 
@@ -14,7 +14,7 @@ class DotDict(dict):
 
 
 def convert_to_container(value: Any, container: Callable = list, non_containers=None,
-                         convert_none=False) -> Iterable:
+                         convert_none=False) -> Union[None, Iterable]:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:
