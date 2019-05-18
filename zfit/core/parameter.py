@@ -1,4 +1,6 @@
 """Define Parameter which holds the value."""
+#  Copyright (c) 2019 zfit
+
 from contextlib import suppress
 
 import numpy as np
@@ -462,6 +464,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         self.load(value=value)
         return value
 
+    def __repr__(self):
+        return f"<zfit.Parameter '{self.name}' floating={self.floating}>"
+
 
 class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
@@ -492,6 +497,7 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
         return False
 
 
+
 class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
         tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
@@ -501,6 +507,9 @@ class ComposedParameter(BaseComposedParameter):
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
         super().__init__(params=params, value=tensor, name=name, dtype=dtype, **kwargs)
+
+    def __repr__(self):
+        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name}>"
 
 
 class ComplexParameter(ComposedParameter):
