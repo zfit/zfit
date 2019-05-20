@@ -884,7 +884,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self._limits_sample(n=n, limits=limits, name=name)
 
     def _limits_sample(self, n, limits, name):
-        return self._call_sample(n=n, limits=limits, name=name)
         try:
             return self._call_sample(n=n, limits=limits, name=name)
         except MultipleLimitsNotImplementedError:
@@ -892,8 +891,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
     def _call_sample(self, n, limits, name):
         with self._name_scope(name, values=[n, limits]):
-            # n = ztf.convert_to_tensor(n, dtype=ztypes.int, name="n")
-
             with suppress(NotImplementedError):
                 return self._sample(n=n, limits=limits)
             with suppress(NotImplementedError):
