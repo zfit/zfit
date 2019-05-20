@@ -1,3 +1,4 @@
+import zfit
 from zfit import ztf
 from .util.container import convert_to_container
 import numpy as np
@@ -12,7 +13,7 @@ def nll_gaussian(params, mu, sigma):
     Args:
         params (list(zfit.Parameter)): The parameters to constraint
         mu (float, list(float) or numpy array): The central value of the constraint
-        sigma (float, list(float) or numpy array): The standard deviations or covariance matrix of the 
+        sigma (float, list(float), numpy array or a tensor): The standard deviations or covariance matrix of the 
         constraint
     Returns:
         graph: the nll of the constraint
@@ -22,21 +23,18 @@ def nll_gaussian(params, mu, sigma):
 
     params = convert_to_container(params, tuple)
     mu = convert_to_container(mu, tuple)
-
-    iscontainer = isinstance(sigma, (list, tuple))
-    isarray = isinstance(sigma, (np.ndarray))
-    is1darray = isarray and sigma.ndim == 1
-    isnumber = isinstance(sigma, (float, int))
-
-    if iscontainer or is1darray:
-        covariance = np.diag(np.power(sigma, 2.))
-    elif isnumber:
-        covariance = np.diag([sigma**2])
+    sigma = ztf.convert_to_tensor(sigma)
+    
+    covfunc = lambda s: tf.diag(ztf.pow(s, 2.))
+    
+    if len(sigma.shape) == 0:
+        sigma = tf.reshape(sigma, [1])
+        covariance = covfunc(sigma)
+    elif len(sigma.shape) == 1:
+        covariance = covfunc(sigma)
     else:
         covariance = sigma
-
-    covariance = ztf.convert_to_tensor(covariance)
-
+    
     if not len(params) == len(mu) == covariance.shape[0] == covariance.shape[1]:
         raise ValueError("params, mu and sigma have to have the same length.")
 
@@ -45,7 +43,7 @@ def nll_gaussian(params, mu, sigma):
 
     x = (params - mu)
     xt = tf.transpose(x)
-
+    
     constraint = tf.tensordot(tf.linalg.inv(covariance), x, 1)
     constraint = 0.5 * tf.tensordot(xt, constraint, 1)
 

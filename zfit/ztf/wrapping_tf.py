@@ -41,6 +41,10 @@ def square(x, name=None):
 
 def sqrt(x, name=None):
     return _auto_upcast(tf.sqrt(x, name=name))
+    
+    
+def pow(x, y, name=None):
+    return _auto_upcast(tf.pow(x, y, name=name))
 
 
 def complex(real, imag, name=None):

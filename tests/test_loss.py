@@ -51,8 +51,7 @@ obs1 = 'obs1'
 
 mu_constr = [1.6, 0.2]  # mu, sigma
 sigma_constr = [3.8, 0.2]
-
-covariance = np.array([[mu_constr[1]**0.5, 0.2], [0.2, sigma_constr[1]**0.5]])
+covariance = np.array([[mu_constr[1]**0.5, -0.05], [-0.05, sigma_constr[1]**0.5]])
 
 
 def create_gauss1():
