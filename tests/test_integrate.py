@@ -198,7 +198,7 @@ def func4_3deps_1_integrated(x, limits):
 def test_mc_integration(chunksize):
     # simpel example
     zfit.run.chunking.active = True
-    zfit.run._chunksize = chunksize
+    zfit.run.chunking.max_n_points = chunksize
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
                                            limits=Space.from_axes(limits=limits_simple_5deps,
                                                                   axes=tuple(range(5))),

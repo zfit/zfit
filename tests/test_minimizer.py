@@ -130,5 +130,5 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class, chunksize):
     zfit.run.chunking.active = True
-    zfit.run._chunksize = chunksize
+    zfit.run.chunking.max_n_points = chunksize
     minimize_func(minimizer_class)
