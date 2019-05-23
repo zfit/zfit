@@ -148,6 +148,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     # return ztf.to_real(integral, dtype=dtype)
 
 
+# TODO(Mayou36): Make more flexible for sampling
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
     lower = ztf.convert_to_tensor(lower, dtype=dtype)
