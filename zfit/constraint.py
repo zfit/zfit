@@ -42,7 +42,7 @@ def nll_gaussian(params, mu, sigma):
 
     x = (params - mu)
     xt = tf.transpose(x)
-    
+
     constraint = tf.tensordot(tf.linalg.inv(covariance), x, 1)
     constraint = 0.5 * tf.tensordot(xt, constraint, 1)
 
