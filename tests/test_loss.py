@@ -53,7 +53,7 @@ mu_constr = [1.6, 0.2]  # mu, sigma
 sigma_constr = [3.8, 0.2]
 constr = lambda: [mu_constr[1], sigma_constr[1]]
 constr_tf = lambda: ztf.convert_to_tensor(constr())
-covariance = lambda: np.array([[mu_constr[1]**0.5, -0.05], [-0.05, sigma_constr[1]**0.5]])
+covariance = lambda: np.array([[mu_constr[1] ** 0.5, -0.05], [-0.05, sigma_constr[1] ** 0.5]])
 covariance_tf = lambda: ztf.convert_to_tensor(covariance())
 
 
@@ -193,8 +193,8 @@ def test_gradients(chunksize):
     zfit.run.chunking.active = True
     zfit.run._chunksize = chunksize
 
-    param1 = Parameter("param111", 1.)
-    param2 = Parameter("param222", 2.)
+    param1 = Parameter("param1", 1.)
+    param2 = Parameter("param2", 2.)
 
     gauss1 = Gauss(param1, 4, obs=obs1)
     gauss1.set_norm_range((-5, 5))
