@@ -1,11 +1,16 @@
-from zfit import ztf
+#  Copyright (c) 2019 zfit
+
+from .util.exception import ShapeIncompatibleError
+from .util import ztyping
 from .util.container import convert_to_container
+from zfit import ztf
 import tensorflow as tf
 
 __all__ = ["nll_gaussian"]
 
 
-def nll_gaussian(params, mu, sigma):
+def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
+                 sigma: ztyping.NumericalScalarType) -> tf.Tensor:
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
 
     Args:
@@ -16,11 +21,14 @@ def nll_gaussian(params, mu, sigma):
     Returns:
         graph: the nll of the constraint
     Raises:
-        ValueError: if params, mu and sigma don't have the same size
+        ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """
 
     params = convert_to_container(params, tuple)
     mu = convert_to_container(mu, tuple)
+
+    params = ztf.convert_to_tensor(params)
+    mu = ztf.convert_to_tensor(mu)
     sigma = ztf.convert_to_tensor(sigma)
 
     def covfunc(s):
@@ -34,11 +42,10 @@ def nll_gaussian(params, mu, sigma):
         sigma = tf.reshape(sigma, [1])
         covariance = covfunc(sigma)
 
-    if not len(params) == len(mu) == covariance.shape[0] == covariance.shape[1]:
-        raise ValueError("params, mu and sigma have to have the same length.")
-
-    params = ztf.convert_to_tensor(params)
-    mu = ztf.convert_to_tensor(mu)
+    if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
+        raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
+                                     f"param: {params.shape[0]}, mu: {mu.shape[0]}, "
+                                     f"covariance (from sigma): {covariance.shape[0:2]}")
 
     x = (params - mu)
     xt = tf.transpose(x)
@@ -47,7 +54,6 @@ def nll_gaussian(params, mu, sigma):
     constraint = 0.5 * tf.tensordot(xt, constraint, 1)
 
     return constraint
-
 
 # def nll_pdf(constraints: dict):
 #     if not constraints:
