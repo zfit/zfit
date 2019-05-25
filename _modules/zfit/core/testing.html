@@ -109,6 +109,8 @@
 <span class="sd">Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let</span>
 <span class="sd">them be tested.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 
 <span class="kn">import</span> <span class="nn">scipy.stats</span>
@@ -126,7 +128,8 @@
 
 
 <div class="viewcode-block" id="teardown_function"><a class="viewcode-back" href="../../../api/zfit.core.testing.html#zfit.core.testing.teardown_function">[docs]</a><span class="k">def</span> <span class="nf">teardown_function</span><span class="p">():</span>
-    <span class="k">pass</span></div>
+    <span class="kn">import</span> <span class="nn">zfit</span>
+    <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">chunking</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># not yet integrated</span></div>
 
 
 <span class="k">class</span> <span class="nc">BaseTester</span><span class="p">:</span>

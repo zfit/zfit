@@ -181,7 +181,7 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 
 <dl class="function">
 <dt id="zfit.util.container.convert_to_container">
-<code class="descclassname">zfit.util.container.</code><code class="descname">convert_to_container</code><span class="sig-paren">(</span><em>value: Any</em>, <em>container: Callable = &lt;class 'list'&gt;</em>, <em>non_containers=None</em>, <em>convert_none=False</em><span class="sig-paren">)</span> &#x2192; Iterable[T_co]<a class="reference internal" href="../_modules/zfit/util/container.html#convert_to_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.container.convert_to_container" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zfit.util.container.</code><code class="descname">convert_to_container</code><span class="sig-paren">(</span><em>value: Any</em>, <em>container: Callable = &lt;class 'list'&gt;</em>, <em>non_containers=None</em>, <em>convert_none=False</em><span class="sig-paren">)</span> &#x2192; Union[None, Iterable[T_co]]<a class="reference internal" href="../_modules/zfit/util/container.html#convert_to_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.container.convert_to_container" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert <cite>value</cite> into a <cite>container</cite> storing <cite>value</cite> if <cite>value</cite> is not yet a python container.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -200,14 +200,19 @@ up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).</p
 
 <dl class="function">
 <dt id="zfit.util.container.is_container">
-<code class="descclassname">zfit.util.container.</code><code class="descname">is_container</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/container.html#is_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.container.is_container" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zfit.util.container.</code><code class="descname">is_container</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/container.html#is_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.container.is_container" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if <cite>object</cite> is a list or a tuple.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – </p>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>obj</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if it is a <em>container</em>, otherwise False</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
 </dd>
 </dl>
-<p>Returns:</p>
 </dd></dl>
 
 </div>

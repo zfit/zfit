@@ -106,6 +106,8 @@
       
   <h1>Source code for zfit.core.parameter</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define Parameter which holds the value.&quot;&quot;&quot;</span>
+<span class="c1">#  Copyright (c) 2019 zfit</span>
+
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -567,7 +569,10 @@
         <span class="c1"># if shape == []:</span>
         <span class="c1">#     value = value[0]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span></div></div>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;&lt;zfit.Parameter &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; floating=</span><span class="si">{self.floating}</span><span class="s2">&gt;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">ComposedVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
@@ -599,6 +604,7 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
+
 <div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">tensor</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -607,7 +613,10 @@
         <span class="c1"># params_init_op = [param.initializer for param in params]</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">}</span>
         <span class="c1"># with tf.control_dependencies(params_init_op):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;&lt;zfit.</span><span class="si">{self.__class__.__name__}</span><span class="s2"> &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; dtype=</span><span class="si">{self.dtype.name}</span><span class="s2">&gt;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
