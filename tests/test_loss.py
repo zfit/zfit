@@ -111,8 +111,8 @@ def test_unbinned_simultaneous_nll():
 
 
 @pytest.mark.flaky(3)
-@pytest.mark.parametrize('weights', (None, None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0]), None, None))
-@pytest.mark.parametrize('sigma', (constr, covariance, constr, constr_tf, covariance))
+@pytest.mark.parametrize('weights', (None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])))
+@pytest.mark.parametrize('sigma', (constr, covariance, constr_tf))
 def test_unbinned_nll(weights, sigma):
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
