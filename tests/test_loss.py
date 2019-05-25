@@ -186,11 +186,7 @@ def test_add():
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
 def test_gradients(chunksize):
     zfit.run.chunking.active = True
-    zfit.run.zfit.run.chunking.max_n_points = chunksize
     zfit.run.chunking.max_n_points = chunksize
-
-
-chunking.max_n_points = chunksize
 
     param1 = Parameter("param111", 1.)
     param2 = Parameter("param222", 2.)
