@@ -5,6 +5,7 @@ from .util import ztyping
 from .util.container import convert_to_container
 from zfit import ztf
 import tensorflow as tf
+import numpy as np
 
 __all__ = ["nll_gaussian"]
 
@@ -15,17 +16,17 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
 
     Args:
         params (list(zfit.Parameter)): The parameters to constraint
-        mu (float, list(float) or numpy array): The central value of the constraint
-        sigma (float, list(float), numpy array or a tensor): The standard deviations or covariance
-        matrix of the constraint
+        mu (numerical, list(numerical)): The central value of the constraint
+        sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
+            matrix of the constraint. Can either be a single value or
     Returns:
-        graph: the nll of the constraint
+        `tf.Tensor`: the nll of the constraint
     Raises:
         ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """
 
     params = convert_to_container(params, tuple)
-    mu = convert_to_container(mu, tuple)
+    mu = convert_to_container(mu, container=tuple, non_containers=[np.ndarray])
 
     params = ztf.convert_to_tensor(params)
     mu = ztf.convert_to_tensor(mu)
@@ -34,9 +35,9 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
     def covfunc(s):
         return tf.diag(ztf.pow(s, 2.))
 
-    if len(sigma.shape) > 1:
+    if sigma.shape.ndims > 1:
         covariance = sigma
-    elif len(sigma.shape) == 1:
+    elif sigma.shape.ndims == 1:
         covariance = covfunc(sigma)
     else:
         sigma = tf.reshape(sigma, [1])
