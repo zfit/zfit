@@ -51,6 +51,10 @@ obs1 = 'obs1'
 
 mu_constr = [1.6, 0.2]  # mu, sigma
 sigma_constr = [3.8, 0.2]
+constr = lambda: [mu_constr[1], sigma_constr[1]]
+constr_tf = lambda: ztf.convert_to_tensor(constr())
+covariance = lambda: np.array([[mu_constr[1] ** 0.5, -0.05], [-0.05, sigma_constr[1] ** 0.5]])
+covariance_tf = lambda: ztf.convert_to_tensor(covariance())
 
 
 def create_gauss1():
@@ -107,8 +111,9 @@ def test_unbinned_simultaneous_nll():
 
 
 @pytest.mark.flaky(3)
-@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
-def test_unbinned_nll(weights):
+@pytest.mark.parametrize('weights', (None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])))
+@pytest.mark.parametrize('sigma', (constr, covariance, constr_tf))
+def test_unbinned_nll(weights, sigma):
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
 
@@ -125,7 +130,7 @@ def test_unbinned_nll(weights):
 
     constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
                                                mu=[mu_constr[0], sigma_constr[0]],
-                                               sigma=[mu_constr[1], sigma_constr[1]])
+                                               sigma=sigma())
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                              constraints=constraints)
 
@@ -188,8 +193,8 @@ def test_gradients(chunksize):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
 
-    param1 = Parameter("param111", 1.)
-    param2 = Parameter("param222", 2.)
+    param1 = Parameter("param1", 1.)
+    param2 = Parameter("param2", 2.)
 
     gauss1 = Gauss(param1, 4, obs=obs1)
     gauss1.set_norm_range((-5, 5))
