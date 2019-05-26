@@ -110,8 +110,28 @@
 <span id="constraint"></span><h1>constraint<a class="headerlink" href="#module-zfit.constraint" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="zfit.constraint.nll_gaussian">
-<code class="descclassname">zfit.constraint.</code><code class="descname">nll_gaussian</code><span class="sig-paren">(</span><em>params</em>, <em>mu</em>, <em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/constraint.html#nll_gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.constraint.nll_gaussian" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">zfit.constraint.</code><code class="descname">nll_gaussian</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], mu: Union[int, float, complex, tensorflow.python.framework.ops.Tensor], sigma: Union[int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/constraint.html#nll_gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.constraint.nll_gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return negative log likelihood graph for gaussian constraints on a list of parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><em>zfit.Parameter</em></a><em>)</em>) – The parameters to constraint</p></li>
+<li><p><strong>mu</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><em>numerical</em><em>)</em>) – The central value of the constraint</p></li>
+<li><p><strong>sigma</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><em>numerical</em><em>) or </em><em>array/tensor</em>) – The standard deviations or covariance
+matrix of the constraint. Can either be a single value or</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the nll of the constraint</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>tf.Tensor</cite></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError" title="zfit.util.exception.ShapeIncompatibleError"><strong>ShapeIncompatibleError</strong></a> – if params, mu and sigma don’t have the same size</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 

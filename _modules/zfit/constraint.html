@@ -105,25 +105,63 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.constraint</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">from</span> <span class="nn">.util.exception</span> <span class="k">import</span> <span class="n">ShapeIncompatibleError</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">.util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nll_gaussian&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="nll_gaussian"><a class="viewcode-back" href="../../api/zfit.constraint.html#zfit.constraint.nll_gaussian">[docs]</a><span class="k">def</span> <span class="nf">nll_gaussian</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
-    <span class="n">sigma</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
-    <span class="n">constraint</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;params, mu and sigma have to have the same length.&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">sig</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
-        <span class="n">mean</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span>
-        <span class="n">sig</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
-        <span class="n">constraint</span> <span class="o">+=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">param</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">ztf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">sig</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="nll_gaussian"><a class="viewcode-back" href="../../api/zfit.constraint.html#zfit.constraint.nll_gaussian">[docs]</a><span class="k">def</span> <span class="nf">nll_gaussian</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span>
+                 <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return negative log likelihood graph for gaussian constraints on a list of parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        params (list(zfit.Parameter)): The parameters to constraint</span>
+<span class="sd">        mu (numerical, list(numerical)): The central value of the constraint</span>
+<span class="sd">        sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance</span>
+<span class="sd">            matrix of the constraint. Can either be a single value or</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        `tf.Tensor`: the nll of the constraint</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ShapeIncompatibleError: if params, mu and sigma don&#39;t have the same size</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">non_containers</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">covfunc</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mf">2.</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">sigma</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">covariance</span> <span class="o">=</span> <span class="n">sigma</span>
+    <span class="k">elif</span> <span class="n">sigma</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">covariance</span> <span class="o">=</span> <span class="n">covfunc</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">covariance</span> <span class="o">=</span> <span class="n">covfunc</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;params, mu and sigma have to have the same length. Currently&quot;</span>
+                                     <span class="n">f</span><span class="s2">&quot;param: </span><span class="si">{params.shape[0]}</span><span class="s2">, mu: </span><span class="si">{mu.shape[0]}</span><span class="s2">, &quot;</span>
+                                     <span class="n">f</span><span class="s2">&quot;covariance (from sigma): </span><span class="si">{covariance.shape[0:2]}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span>
+    <span class="n">xt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">covariance</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">xt</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">constraint</span></div>
-
 
 <span class="c1"># def nll_pdf(constraints: dict):</span>
 <span class="c1">#     if not constraints:</span>
