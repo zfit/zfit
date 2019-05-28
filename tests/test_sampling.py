@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -147,6 +149,8 @@ def test_importance_sampling():
     gauss_sampler = zfit.pdf.Gauss(mu=mu_sampler, sigma=sigma_sampler, obs=obs_sampler)
     gauss_pdf = zfit.pdf.Gauss(mu=mu_pdf, sigma=sigma_pdf, obs=obs_pdf)
 
+    importance_sampling_called = [False]
+
     class GaussianSampleAndWeights(SessionHolderMixin):
 
         def __init__(self, *args, **kwargs):
@@ -158,6 +162,7 @@ def test_importance_sampling():
             # self.limits = limits
 
         def __call__(self, n_to_produce, limits, dtype):
+            importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
             # assign_op = self.n_to_produce.assign(n_to_produce)
             # with tf.control_dependencies([assign_op]):
@@ -171,6 +176,7 @@ def test_importance_sampling():
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
     gauss_pdf._sample_and_weights = GaussianSampleAndWeights
     sample2 = gauss_pdf.sample(n=30000, limits=obs_pdf)
+    assert importance_sampling_called[0]
     sample_np, sample_np2 = zfit.run([sample, sample2])
 
     mean = np.mean(sample_np)
