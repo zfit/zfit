@@ -262,10 +262,14 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             weights_scaling = prob_max / weights_max
 
-        weights_scaled = weights_scaling * weights
+        weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
         if run.numeric_checks:
+            invalid_probs_weights = tf.greater(probabilities, weights_scaled)
+            failed_weights = tf.boolean_mask(weights_scaled, mask=invalid_probs_weights)
+            failed_probs = tf.boolean_mask(probabilities, mask=invalid_probs_weights)
             assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
+                                                 data=[failed_weights, failed_probs],
                                                  message="Not all weights are >= probs so the sampling "
                                                          "will be biased. If a custom `sample_and_weights` "
                                                          "was used, make sure that either the shape of the "
