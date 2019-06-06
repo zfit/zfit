@@ -298,13 +298,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                                          "or decrease the `max_weight`")]
 
             # check disabled (below not added to deps)
-            assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),
-                                               data=[weights_scaling, min_prob_weights_ratio],
-                                               message="The ratio between the probabilities from the pdf and the"
-                                               f"probability from the sampler is higher "
-                                               f" then {ratio_threshold}. This will most probably bias the sampling. "
-                                               f"Use importance sampling or, to disable this check, do"
-                                               f"zfit.run.numeric_checks = False")
+            # assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),
+            #                                    data=[weights_scaling, min_prob_weights_ratio],
+            #                                    message="The ratio between the probabilities from the pdf and the"
+            #                                    f"probability from the sampler is higher "
+            #                                    f" then {ratio_threshold}. This will most probably bias the sampling. "
+            #                                    f"Use importance sampling or, to disable this check, do"
+            #                                    f"zfit.run.numeric_checks = False")
             # assert_op.append(assert_scaling_op)
         else:
             assert_op = []
