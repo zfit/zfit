@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import pytest
 import numpy as np
 from zfit.models.physics import CrystalBall, DoubleCB
@@ -31,7 +33,7 @@ tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory()
 
 
 def sample_testing(pdf):
-    sample = pdf.sample(n=1000)
+    sample = pdf.sample(n=1000, limits=(-0.5, 1.5))
     sample_np = zfit.run(sample)
     assert not any(np.isnan(sample_np))
 

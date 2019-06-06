@@ -22,7 +22,7 @@ class UniformSampleAndWeights:
     def __call__(self, n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
         rnd_samples = []
         thresholds_unscaled_list = []
-        weights = ztf.constant(1., shape=(1,))
+        weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
 
         for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
             n_partial_to_produce = tf.to_int32(
@@ -193,10 +193,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                     clear_after_read=True,  # we read only once at end to tensor
                                     element_shape=(limits.n_obs,))
 
-    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weight_scaling):
+    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
         return tf.greater(n, n_produced)
 
-    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=1.):
+    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.):
         eff = tf.reduce_max([eff, ztf.to_real(1e-6)])
 
         n_to_produce = n - n_produced
@@ -264,10 +264,22 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # UPDATE: this works now? Was it just a one-time bug?
 
             # safety margin, predicting future, improve for small samples?
-            weights_scaling = tf.maximum(weights_scaling, tf.reduce_max(probabilities / weights) * (1 + 1e-2))
+            prob_weights_ratio = probabilities / weights
+            min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)
+            max_prob_weights_ratio = tf.reduce_max(prob_weights_ratio)
+            ratio_threshold = 50000.
+            # clipping means that we don't scale more for a certain threshold
+            # to properly account for very small numbers, the thresholds should be scaled to match the ratio
+            # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
+            # of other samples to decrease strongly. We introduce a cut here, meaning that any event with an acceptance
+            # chance of less then 1 in ratio_threshold will be underestimated.
+            # TODO(Mayou36): make ratio_threshold a global setting
+            max_prob_weights_ratio_clipped = tf.minimum(max_prob_weights_ratio,
+                                                        min_prob_weights_ratio * ratio_threshold)
+            weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
         else:
-            raise RuntimeError
             weights_scaling = prob_max / weights_max
+            min_prob_weights_ratio = weights_scaling
 
         weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
@@ -275,21 +287,25 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
             failed_weights = tf.boolean_mask(weights_scaled, mask=invalid_probs_weights)
             failed_probs = tf.boolean_mask(probabilities, mask=invalid_probs_weights)
+            # TODO: allow to have not right cut in sample by ignoring the illegal ones. We guarantee that this only happens
+            # for weights scaled more then ratio_threshold
             assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
-                                                 data=[failed_weights, failed_probs],
+                                                 data=[tf.shape(failed_weights), failed_weights, failed_probs],
                                                  message="Not all weights are >= probs so the sampling "
                                                          "will be biased. If a custom `sample_and_weights` "
                                                          "was used, make sure that either the shape of the "
                                                          "custom sampler (resp. it's weights) overlap better "
                                                          "or decrease the `max_weight`")]
-            check_ratio_threshold = 10000.
-            assert_scaling_op = tf.assert_less(weights_scaling, ztf.constant(check_ratio_threshold),
+
+            # check disabled (below not added to deps)
+            assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),
+                                               data=[weights_scaling, min_prob_weights_ratio],
                                                message="The ratio between the probabilities from the pdf and the"
-                                               f"probability from the sampler is higher"
-                                               f" then {check_ratio_threshold}. This will most probably bias the sampling."
+                                               f"probability from the sampler is higher "
+                                               f" then {ratio_threshold}. This will most probably bias the sampling. "
                                                f"Use importance sampling or, to disable this check, do"
-                                               f"\nzfit.run.numeric_checks = False")
-            assert_op.append(assert_scaling_op)
+                                               f"zfit.run.numeric_checks = False")
+            # assert_op.append(assert_scaling_op)
         else:
             assert_op = []
         with tf.control_dependencies(assert_op):
@@ -319,7 +335,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling
 
     efficiency_estimation = ztf.to_real(efficiency_estimation)
-    weights_scaling = ztf.constant(1.)
+    weights_scaling = ztf.constant(0.)
     loop_vars = (
         n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling)
 

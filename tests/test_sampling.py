@@ -12,7 +12,7 @@ from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.5
 sigma_true = 1.2
-low, high = -4.1, 2.9
+low, high = -3.8, 2.9
 
 obs1 = 'obs1'
 
@@ -77,7 +77,7 @@ def test_sampling_fixed(gauss_factory):
     n_draws_param.load(n_draws, session=zfit.run.sess)
 
     gauss_full_sample = gauss.create_sampler(n=10000,
-                                             limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5))
+                                             limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3))
     gauss_full_sample.resample()
     sampled_gauss1_full = zfit.run(gauss_full_sample)
     mu_sampled = np.mean(sampled_gauss1_full)
@@ -112,7 +112,7 @@ def test_sampling_floating(gauss_factory):
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
     gauss_full_sample = gauss.create_sampler(n=10000,
-                                             limits=(mu_true - abs(sigma_true) * 5, mu_true + abs(sigma_true) * 5),
+                                             limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
                                              fixed_params=False)
     gauss_full_sample.resample()
     sampled_gauss1_full = zfit.run(gauss_full_sample)
@@ -121,8 +121,9 @@ def test_sampling_floating(gauss_factory):
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
-    with mu.set_value(mu_true - 1):
-        assert zfit.run(mu) == mu_true - 1
+    mu_diff = 0.7
+    with mu.set_value(mu_true - mu_diff):
+        assert zfit.run(mu) == mu_true - mu_diff
         sampler.resample()
         sampled_from_gauss1 = zfit.run(sampler)
         assert max(sampled_from_gauss1[:, 0]) <= high
@@ -133,7 +134,7 @@ def test_sampling_floating(gauss_factory):
         sampled_gauss1_full = zfit.run(gauss_full_sample)
         mu_sampled = np.mean(sampled_gauss1_full)
         sigma_sampled = np.std(sampled_gauss1_full)
-        assert mu_sampled == pytest.approx(mu_true - 1, rel=0.07)
+        assert mu_sampled == pytest.approx(mu_true - mu_diff, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
 
@@ -145,7 +146,7 @@ def test_importance_sampling():
     sigma_pdf = 1.
 
     obs_sampler = zfit.Space(obs='obs1', limits=(4.5, 5.5))  # smaller, so pdf is bigger
-    obs_pdf = zfit.Space(obs='obs1', limits=(1, 9))
+    obs_pdf = zfit.Space(obs='obs1', limits=(1, 7))
     gauss_sampler = zfit.pdf.Gauss(mu=mu_sampler, sigma=sigma_sampler, obs=obs_sampler)
     gauss_pdf = zfit.pdf.Gauss(mu=mu_pdf, sigma=sigma_pdf, obs=obs_pdf)
 
@@ -169,7 +170,7 @@ def test_importance_sampling():
             gaussian_sample = gauss_sampler._create_sampler_tensor(n=n_to_produce, limits=limits,
                                                                    fixed_params=False, name='asdf')[2]
             weights = gauss_sampler.pdf(gaussian_sample)
-            weights_max = tf.reduce_max(weights) * 0.7
+            weights_max = None
             thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
@@ -225,9 +226,9 @@ def test_importance_sampling_uniform():
 
     assert np.std(bin_counts) < np.sqrt(expected_per_bin) * 2
     assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
-    # import matplotlib.pyplot as plt
-    # plt.hist(sample_np, bins=40)
-    # plt.show()
+    import matplotlib.pyplot as plt
+    plt.hist(sample_np, bins=40)
+    plt.show()
 
 def test_sampling_fixed_eventlimits():
     n_samples1 = 500

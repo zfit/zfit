@@ -175,7 +175,7 @@ def test_sampling_simple(gauss_factory):
         mu_true1 = mu_true
         sigma_true1 = sigma_true
     sampled_gauss1_full = gauss.sample(n=10000,
-                                       limits=(mu_true1 - abs(sigma_true1) * 5, mu_true1 + abs(sigma_true1) * 5))
+                                       limits=(mu_true1 - abs(sigma_true1) * 3, mu_true1 + abs(sigma_true1) * 3))
     sampled_gauss1_full = zfit.run(sampled_gauss1_full)
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
