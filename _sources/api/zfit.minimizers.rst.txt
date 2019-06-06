@@ -2,10 +2,10 @@ minimizers
 ==========
 
 .. automodule:: zfit.minimizers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 Submodules
 ----------
@@ -21,4 +21,3 @@ Submodules
    zfit.minimizers.minimizers_scipy
    zfit.minimizers.optimizers_tf
    zfit.minimizers.tf_external_optimizer
-

@@ -369,10 +369,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weights_scaling</span> <span class="o">=</span> <span class="n">prob_max</span> <span class="o">/</span> <span class="n">weights_max</span>
 
-        <span class="n">weights_scaled</span> <span class="o">=</span> <span class="n">weights_scaling</span> <span class="o">*</span> <span class="n">weights</span>
+        <span class="n">weights_scaled</span> <span class="o">=</span> <span class="n">weights_scaling</span> <span class="o">*</span> <span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>  <span class="c1"># numerical epsilon</span>
         <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="n">weights_scaled</span>
         <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
+            <span class="n">invalid_probs_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">weights_scaled</span><span class="p">)</span>
+            <span class="n">failed_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
+            <span class="n">failed_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
             <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">assert_greater_equal</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
+                                                 <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">failed_weights</span><span class="p">,</span> <span class="n">failed_probs</span><span class="p">],</span>
                                                  <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Not all weights are &gt;= probs so the sampling &quot;</span>
                                                          <span class="s2">&quot;will be biased. If a custom `sample_and_weights` &quot;</span>
                                                          <span class="s2">&quot;was used, make sure that either the shape of the &quot;</span>
@@ -531,7 +535,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

@@ -2,10 +2,10 @@ models
 ======
 
 .. automodule:: zfit.models
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 Submodules
 ----------
@@ -19,4 +19,3 @@ Submodules
    zfit.models.functor
    zfit.models.physics
    zfit.models.special
-

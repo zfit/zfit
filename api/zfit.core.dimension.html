@@ -110,40 +110,40 @@
 <span id="dimension"></span><h1>dimension<a class="headerlink" href="#module-zfit.core.dimension" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.dimension.BaseDimensional">
-<em class="property">class </em><code class="descclassname">zfit.core.dimension.</code><code class="descname">BaseDimensional</code><a class="reference internal" href="../_modules/zfit/core/dimension.html#BaseDimensional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.BaseDimensional" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">BaseDimensional</code><a class="reference internal" href="../_modules/zfit/core/dimension.html#BaseDimensional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.BaseDimensional" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitDimensional" title="zfit.core.interfaces.ZfitDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitDimensional</span></code></a></p>
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.dimension.BaseDimensional.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.dimension.BaseDimensional.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.dimension.BaseDimensional.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.dimension.BaseDimensional.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.dimension.BaseDimensional.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.dimension.BaseDimensional.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.dimension.BaseDimensional.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.dimension.BaseDimensional.space">
-<code class="descname">space</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.space" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.dimension.BaseDimensional.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
 </dd></dl>
 
@@ -151,7 +151,7 @@
 
 <dl class="function">
 <dt id="zfit.core.dimension.add_spaces">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">add_spaces</code><span class="sig-paren">(</span><em>spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#add_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.add_spaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">add_spaces</code><span class="sig-paren">(</span><em class="sig-param">spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#add_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.add_spaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add two spaces and merge their limits if possible or return False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -171,7 +171,7 @@
 
 <dl class="function">
 <dt id="zfit.core.dimension.combine_spaces">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">combine_spaces</code><span class="sig-paren">(</span><em>spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#combine_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.combine_spaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">combine_spaces</code><span class="sig-paren">(</span><em class="sig-param">spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#combine_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.combine_spaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine spaces with different <cite>obs</cite> and <cite>limits</cite> to one <cite>space</cite>.</p>
 <p>Checks if the limits in each obs coincide <em>exactly</em>. If this is not the case, the combination
 is not unambiguous and <cite>False</cite> is returned</p>
@@ -202,7 +202,7 @@ combined limits.</p>
 
 <dl class="function">
 <dt id="zfit.core.dimension.common_obs">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">common_obs</code><span class="sig-paren">(</span><em>spaces: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="../_modules/zfit/core/dimension.html#common_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.common_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">common_obs</code><span class="sig-paren">(</span><em class="sig-param">spaces: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="../_modules/zfit/core/dimension.html#common_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.common_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the union of <cite>obs</cite> from <cite>spaces</cite> in the order of <cite>spaces</cite>.</p>
 <dl>
 <dt>For example:</dt><dd><div class="line-block">
@@ -228,17 +228,17 @@ combined limits.</p>
 
 <dl class="attribute">
 <dt id="zfit.core.dimension.get_same_obs">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">get_same_obs</code><a class="reference internal" href="../_modules/zfit/core/dimension.html#get_same_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.get_same_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">get_same_obs</code><a class="reference internal" href="../_modules/zfit/core/dimension.html#get_same_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.get_same_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.dimension.is_combinable">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">is_combinable</code><span class="sig-paren">(</span><em>spaces</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#is_combinable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.is_combinable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">is_combinable</code><span class="sig-paren">(</span><em class="sig-param">spaces</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#is_combinable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.is_combinable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.dimension.limits_consistent">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">limits_consistent</code><span class="sig-paren">(</span><em>spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#limits_consistent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.limits_consistent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">limits_consistent</code><span class="sig-paren">(</span><em class="sig-param">spaces: Iterable[zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/dimension.html#limits_consistent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.limits_consistent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if space limits are the <em>exact</em> same in each obs they are defined and therefore are compatible.</p>
 <p>In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
 to be consistent with this limits, other limits have to have (in this obs) also the limits
@@ -259,7 +259,7 @@ from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is consi
 
 <dl class="function">
 <dt id="zfit.core.dimension.limits_overlap">
-<code class="descclassname">zfit.core.dimension.</code><code class="descname">limits_overlap</code><span class="sig-paren">(</span><em>spaces: Union[zfit.Space, Iterable[zfit.Space]], allow_exact_match: bool = False</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/zfit/core/dimension.html#limits_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.limits_overlap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.dimension.</code><code class="sig-name descname">limits_overlap</code><span class="sig-paren">(</span><em class="sig-param">spaces: Union[zfit.Space, Iterable[zfit.Space]], allow_exact_match: bool = False</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/zfit/core/dimension.html#limits_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.dimension.limits_overlap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if _any_ of the limits of <cite>spaces</cite> overlaps with _any_ other of <cite>spaces</cite>.</p>
 <p>This also checks multiple limits within one space. If <cite>allow_exact_match</cite> is set to true, then
 an <em>exact</em> overlap of limits is allowed.</p>
@@ -296,7 +296,7 @@ Example: limits from -1 to 3 and 4 to 5 to <em>NOT</em> overlap with the limits 
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

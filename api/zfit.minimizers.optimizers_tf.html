@@ -110,16 +110,16 @@
 <span id="optimizers-tf"></span><h1>optimizers_tf<a class="headerlink" href="#module-zfit.minimizers.optimizers_tf" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer">
-<em class="property">class </em><code class="descclassname">zfit.minimizers.optimizers_tf.</code><code class="descname">AdamMinimizer</code><span class="sig-paren">(</span><em>tolerance=None</em>, <em>learning_rate=0.2</em>, <em>beta1=0.9</em>, <em>beta2=0.999</em>, <em>epsilon=1e-08</em>, <em>use_locking=False</em>, <em>name='Adam'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/optimizers_tf.html#AdamMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.optimizers_tf.</code><code class="sig-name descname">AdamMinimizer</code><span class="sig-paren">(</span><em class="sig-param">tolerance=None</em>, <em class="sig-param">learning_rate=0.2</em>, <em class="sig-param">beta1=0.9</em>, <em class="sig-param">beta2=0.999</em>, <em class="sig-param">epsilon=1e-08</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name='Adam'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/optimizers_tf.html#AdamMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.base_tf.html#zfit.minimizers.base_tf.WrapOptimizer" title="zfit.minimizers.base_tf.WrapOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.base_tf.WrapOptimizer</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer.minimize">
-<code class="descname">minimize</code><span class="sig-paren">(</span><em>loss: zfit.core.interfaces.ZfitLoss</em>, <em>params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss</em>, <em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -138,14 +138,14 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer.set_sess">
-<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.set_sess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -156,7 +156,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 
 <dl class="method">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer.step">
-<code class="descname">step</code><span class="sig-paren">(</span><em>loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a single step in the minimization (if implemented).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -171,9 +171,9 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.optimizers_tf.AdamMinimizer.tolerance">
-<code class="descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.optimizers_tf.AdamMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -193,7 +193,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

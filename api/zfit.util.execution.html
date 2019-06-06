@@ -110,27 +110,27 @@
 <span id="execution"></span><h1>execution<a class="headerlink" href="#module-zfit.util.execution" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.util.execution.RunManager">
-<em class="property">class </em><code class="descclassname">zfit.util.execution.</code><code class="descname">RunManager</code><span class="sig-paren">(</span><em>n_cpu='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">RunManager</code><span class="sig-paren">(</span><em class="sig-param">n_cpu='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Handle the resources and runtime specific options. The <cite>run</cite> method is equivalent to <cite>sess.run</cite></p>
 <dl class="method">
 <dt id="zfit.util.execution.RunManager.aquire_cpu">
-<code class="descname">aquire_cpu</code><span class="sig-paren">(</span><em>max_cpu: int = -1</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.aquire_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.aquire_cpu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">aquire_cpu</code><span class="sig-paren">(</span><em class="sig-param">max_cpu: int = -1</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.aquire_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.aquire_cpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.execution.RunManager.auto_initialize">
-<code class="descname">auto_initialize</code><span class="sig-paren">(</span><em>variable: tensorflow.python.ops.variables.VariableV1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.auto_initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.auto_initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">auto_initialize</code><span class="sig-paren">(</span><em class="sig-param">variable: tensorflow.python.ops.variables.VariableV1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.auto_initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.auto_initialize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.util.execution.RunManager.chunksize">
-<code class="descname">chunksize</code><a class="headerlink" href="#zfit.util.execution.RunManager.chunksize" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">chunksize</code><a class="headerlink" href="#zfit.util.execution.RunManager.chunksize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.execution.RunManager.create_session">
-<code class="descname">create_session</code><span class="sig-paren">(</span><em>*args</em>, <em>close_current=True</em>, <em>reset_graph=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.create_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.create_session" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_session</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">close_current=True</em>, <em class="sig-param">reset_graph=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.create_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.create_session" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new session (or replace the current one). Arguments will overwrite the already set arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -148,41 +148,41 @@ no session was created before.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.util.execution.RunManager.n_cpu">
-<code class="descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.execution.RunManager.reset">
-<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.reset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.reset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.util.execution.RunManager.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.util.execution.RunManager.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.util.execution.RunManager.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.execution.RunManager.set_n_cpu">
-<code class="descname">set_n_cpu</code><span class="sig-paren">(</span><em>n_cpu='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param">n_cpu='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.util.execution.SessionHolderMixin">
-<em class="property">class </em><code class="descclassname">zfit.util.execution.</code><code class="descname">SessionHolderMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#SessionHolderMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.SessionHolderMixin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">SessionHolderMixin</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#SessionHolderMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.SessionHolderMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Creates a <cite>self.sess</cite> attribute, a setter <cite>set_sess</cite> (with a fallback to the zfit default session).</p>
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.util.execution.SessionHolderMixin.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.util.execution.SessionHolderMixin.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.util.execution.SessionHolderMixin.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.execution.SessionHolderMixin.set_sess">
-<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#SessionHolderMixin.set_sess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.SessionHolderMixin.set_sess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#SessionHolderMixin.set_sess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.SessionHolderMixin.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -208,7 +208,7 @@ no session was created before.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

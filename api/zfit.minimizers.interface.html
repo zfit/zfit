@@ -110,33 +110,33 @@
 <span id="interface"></span><h1>interface<a class="headerlink" href="#module-zfit.minimizers.interface" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.minimizers.interface.ZfitMinimizer">
-<em class="property">class </em><code class="descclassname">zfit.minimizers.interface.</code><code class="descname">ZfitMinimizer</code><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.interface.</code><code class="sig-name descname">ZfitMinimizer</code><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Define the minimizer interface.</p>
 <dl class="method">
 <dt id="zfit.minimizers.interface.ZfitMinimizer.minimize">
-<code class="descname">minimize</code><span class="sig-paren">(</span><em>loss</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitMinimizer.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitMinimizer.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.minimizers.interface.ZfitMinimizer.step">
-<code class="descname">step</code><span class="sig-paren">(</span><em>loss</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitMinimizer.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitMinimizer.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer.step" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.interface.ZfitMinimizer.tolerance">
-<code class="descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.minimizers.interface.ZfitResult">
-<em class="property">class </em><code class="descclassname">zfit.minimizers.interface.</code><code class="descname">ZfitResult</code><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.interface.</code><code class="sig-name descname">ZfitResult</code><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.interface.ZfitResult.error">
-<code class="descname">error</code><span class="sig-paren">(</span><em>params</em>, <em>method</em>, <em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.error" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">method</em>, <em class="sig-param">sigma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate and set for <cite>params</cite> the asymmetric error using the set error method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -162,14 +162,14 @@ Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.interface.ZfitResult.fmin">
-<code class="descname">fmin</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.fmin" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">fmin</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.fmin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.minimizers.interface.ZfitResult.hesse">
-<code class="descname">hesse</code><span class="sig-paren">(</span><em>params</em>, <em>method</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.hesse" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">hesse</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">method</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/interface.html#ZfitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.hesse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate for <cite>params</cite> the symmetric error using the Hessian matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -195,19 +195,19 @@ error_a is the hessian error.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.interface.ZfitResult.loss">
-<code class="descname">loss</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.loss" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">loss</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.loss" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.interface.ZfitResult.minimizer">
-<code class="descname">minimizer</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.minimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">minimizer</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.minimizer" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.interface.ZfitResult.params">
-<code class="descname">params</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.params" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.minimizers.interface.ZfitResult.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -227,7 +227,7 @@ error_a is the hessian error.</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

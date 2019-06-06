@@ -110,32 +110,32 @@
 <span id="sample"></span><h1>sample<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.sample.EventSpace">
-<em class="property">class </em><code class="descclassname">zfit.core.sample.</code><code class="descname">EventSpace</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool], factory=None, name: Optional[str] = 'Space'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">EventSpace</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool], factory=None, name: Optional[str] = 'Space'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.limits.html#zfit.core.limits.Space" title="zfit.core.limits.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.limits.Space</span></code></a></p>
 <p>EXPERIMENTAL SPACE CLASS!</p>
 <dl class="attribute">
 <dt id="zfit.core.sample.EventSpace.ANY">
-<code class="descname">ANY</code><em class="property"> = &lt;Any&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ANY</code><em class="property"> = &lt;Any&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.core.sample.EventSpace.ANY_LOWER">
-<code class="descname">ANY_LOWER</code><em class="property"> = &lt;Any Lower Limit&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY_LOWER" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ANY_LOWER</code><em class="property"> = &lt;Any Lower Limit&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY_LOWER" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.core.sample.EventSpace.ANY_UPPER">
-<code class="descname">ANY_UPPER</code><em class="property"> = &lt;Any Upper Limit&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY_UPPER" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ANY_UPPER</code><em class="property"> = &lt;Any Upper Limit&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY_UPPER" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.core.sample.EventSpace.AUTO_FILL">
-<code class="descname">AUTO_FILL</code><em class="property"> = &lt;object object&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.AUTO_FILL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AUTO_FILL</code><em class="property"> = &lt;object object&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.AUTO_FILL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.add">
-<code class="descname">add</code><span class="sig-paren">(</span><em>other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the limits of the spaces. Only works for the same obs.</p>
 <p>In case the observables are different, the order of the first space is taken.</p>
 <dl class="field-list simple">
@@ -153,20 +153,20 @@
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.area">
-<code class="descname">area</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.core.sample.EventSpace.area" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">area</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.core.sample.EventSpace.area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the total area of all the limits and axes. Useful, for example, for MC integration.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.sample.EventSpace.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.sample.EventSpace.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The axes (“obs with int”) the space is defined in.</p>
 <p>Returns:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.combine">
-<code class="descname">combine</code><span class="sig-paren">(</span><em>other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.combine" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">combine</code><span class="sig-paren">(</span><em class="sig-param">other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.combine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine spaces with different obs (but consistent limits).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -183,7 +183,7 @@
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>name: Optional[str] = None</em>, <em>**overwrite_kwargs</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">name: Optional[str] = None</em>, <em class="sig-param">**overwrite_kwargs</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> using the current attributes and overwriting with
 <cite>overwrite_overwrite_kwargs</cite>.</p>
 <dl class="field-list simple">
@@ -202,17 +202,17 @@ current one.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.create_limits">
-<code class="descname">create_limits</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.create_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.create_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_limits</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.create_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.create_limits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.factory">
-<code class="descname">factory</code><a class="headerlink" href="#zfit.core.sample.EventSpace.factory" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">factory</code><a class="headerlink" href="#zfit.core.sample.EventSpace.factory" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.from_axes">
-<em class="property">classmethod </em><code class="descname">from_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool, None] = None, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.from_axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int]], limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool, None] = None, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.from_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a space from <cite>axes</cite> instead of from <cite>obs</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -230,7 +230,7 @@ current one.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.get_axes">
-<code class="descname">get_axes</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, as_dict: bool = False, autofill: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Tuple[int], None, Dict[str, int]]<a class="headerlink" href="#zfit.core.sample.EventSpace.get_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_axes</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, as_dict: bool = False, autofill: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Tuple[int], None, Dict[str, int]]<a class="headerlink" href="#zfit.core.sample.EventSpace.get_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes corresponding to the <cite>obs</cite> (or all if None).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -255,12 +255,12 @@ them with the default numbering and return (not setting them).</p></li>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.get_obs_axes">
-<code class="descname">get_obs_axes</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_obs_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_obs_axes</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.get_reorder_indices">
-<code class="descname">get_reorder_indices</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="headerlink" href="#zfit.core.sample.EventSpace.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="headerlink" href="#zfit.core.sample.EventSpace.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indices that would order <cite>self.obs</cite> as <cite>obs</cite> respectively <cite>self.axes</cite> as <cite>axes</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,7 +275,7 @@ them with the default numbering and return (not setting them).</p></li>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.get_subspace">
-<code class="descname">get_subspace</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.get_subspace" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_subspace</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.get_subspace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> consisting of only a subset of the <cite>obs</cite>/<cite>axes</cite> (only one allowed).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -289,14 +289,14 @@ them with the default numbering and return (not setting them).</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.is_generator">
-<code class="descname">is_generator</code><a class="headerlink" href="#zfit.core.sample.EventSpace.is_generator" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_generator</code><a class="headerlink" href="#zfit.core.sample.EventSpace.is_generator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.iter_areas">
-<code class="descname">iter_areas</code><span class="sig-paren">(</span><em>rel: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[float, ...]<a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.iter_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.iter_areas" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">iter_areas</code><span class="sig-paren">(</span><em class="sig-param">rel: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[float, ...]<a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.iter_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.iter_areas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the areas of each interval</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -313,7 +313,7 @@ them with the default numbering and return (not setting them).</p></li>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.iter_limits">
-<code class="descname">iter_limits</code><span class="sig-paren">(</span><em>as_tuple: bool = True</em><span class="sig-paren">)</span> &#x2192; Union[Tuple[zfit.Space], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]<a class="headerlink" href="#zfit.core.sample.EventSpace.iter_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">iter_limits</code><span class="sig-paren">(</span><em class="sig-param">as_tuple: bool = True</em><span class="sig-paren">)</span> &#x2192; Union[Tuple[zfit.Space], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]<a class="headerlink" href="#zfit.core.sample.EventSpace.iter_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the limits, either as <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> objects or as pure limits-tuple.</p>
 <p>This makes iterating over limits easier: <cite>for limit in space.iter_limits()</cite>
 allows to, for example, pass <cite>limit</cite> to a function that can deal with simple limits
@@ -334,10 +334,10 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.limit1d">
-<code class="descname">limit1d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limit1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the tuple(lower, upper).</p>
+<em class="property">property </em><code class="sig-name descname">limit1d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limit1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>so <code class="code docutils literal notranslate"><span class="pre">lower,</span> <span class="pre">upper</span> <span class="pre">=</span> <span class="pre">space.limit1d</span></code> for a simple, 1 obs limit.</p>
@@ -348,16 +348,13 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Simplified limits getter for 1 obs, 1 limit only</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.limit2d">
-<code class="descname">limit2d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limit2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</p>
+<em class="property">property </em><code class="sig-name descname">limit2d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limit2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simplified <cite>limits</cite> for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -372,23 +369,20 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Simplified <cite>limits</cite> for exactly 2 obs, 1 limit</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.limits">
-<code class="descname">limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the limits.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.limits1d">
-<code class="descname">limits1d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
+<em class="property">property </em><code class="sig-name descname">limits1d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simplified <cite>.limits</cite> for exactly 1 obs, n limits: return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -403,22 +397,19 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
 </dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>Simplified <cite>.limits</cite> for exactly 1 obs, n limits</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.lower">
-<code class="descname">lower</code><a class="headerlink" href="#zfit.core.sample.EventSpace.lower" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">lower</code><a class="headerlink" href="#zfit.core.sample.EventSpace.lower" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the lower limits.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.n_limits">
-<code class="descname">n_limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_limits" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of different limits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -427,9 +418,9 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables/axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -438,27 +429,27 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.sample.EventSpace.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.sample.EventSpace.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.sample.EventSpace.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.sample.EventSpace.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The observables (“axes with str”)the space is defined in.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.obs_axes">
-<code class="descname">obs_axes</code><a class="headerlink" href="#zfit.core.sample.EventSpace.obs_axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs_axes</code><a class="headerlink" href="#zfit.core.sample.EventSpace.obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.reorder_by_indices">
-<code class="descname">reorder_by_indices</code><span class="sig-paren">(</span><em>indices: Tuple[int]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.reorder_by_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reorder_by_indices</code><span class="sig-paren">(</span><em class="sig-param">indices: Tuple[int]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.reorder_by_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> reordered by the indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -467,16 +458,16 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.sample.EventSpace.upper">
-<code class="descname">upper</code><a class="headerlink" href="#zfit.core.sample.EventSpace.upper" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">upper</code><a class="headerlink" href="#zfit.core.sample.EventSpace.upper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the upper limits.</p>
 <p>Returns:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.with_autofill_axes">
-<code class="descname">with_autofill_axes</code><span class="sig-paren">(</span><em>overwrite: bool = False</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param">overwrite: bool = False</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with filled axes corresponding to range(len(n_obs)).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -491,7 +482,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.with_axes">
-<code class="descname">with_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]]</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int]]</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort by <cite>obs</cite> and return the new instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -505,7 +496,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.with_limits">
-<code class="descname">with_limits</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool], name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_limits</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool], name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of the space with the new <cite>limits</cite> (and the new <cite>name</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -522,7 +513,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.with_obs">
-<code class="descname">with_obs</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space]</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space]</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort by <cite>obs</cite> and return the new instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -536,7 +527,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="method">
 <dt id="zfit.core.sample.EventSpace.with_obs_axes">
-<code class="descname">with_obs_axes</code><span class="sig-paren">(</span><em>obs_axes: Dict[str, int], ordered: bool = False, allow_subset=False</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_obs_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs_axes</code><span class="sig-paren">(</span><em class="sig-param">obs_axes: Dict[str, int], ordered: bool = False, allow_subset=False</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="headerlink" href="#zfit.core.sample.EventSpace.with_obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with reordered observables and set the <cite>axes</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -559,13 +550,13 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 
 <dl class="class">
 <dt id="zfit.core.sample.UniformSampleAndWeights">
-<em class="property">class </em><code class="descclassname">zfit.core.sample.</code><code class="descname">UniformSampleAndWeights</code><a class="reference internal" href="../_modules/zfit/core/sample.html#UniformSampleAndWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.UniformSampleAndWeights" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">UniformSampleAndWeights</code><a class="reference internal" href="../_modules/zfit/core/sample.html#UniformSampleAndWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.UniformSampleAndWeights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.sample.accept_reject_sample">
-<code class="descclassname">zfit.core.sample.</code><code class="descname">accept_reject_sample</code><span class="sig-paren">(</span><em>prob: Callable</em>, <em>n: int</em>, <em>limits: zfit.core.limits.Space</em>, <em>sample_and_weights_factory: Callable = &lt;class 'zfit.core.sample.UniformSampleAndWeights'&gt;</em>, <em>dtype=tf.float64</em>, <em>prob_max: Union[None</em>, <em>int] = None</em>, <em>efficiency_estimation: float = 1.0</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">accept_reject_sample</code><span class="sig-paren">(</span><em class="sig-param">prob: Callable</em>, <em class="sig-param">n: int</em>, <em class="sig-param">limits: zfit.core.limits.Space</em>, <em class="sig-param">sample_and_weights_factory: Callable = &lt;class 'zfit.core.sample.UniformSampleAndWeights'&gt;</em>, <em class="sig-param">dtype=tf.float64</em>, <em class="sig-param">prob_max: Union[None</em>, <em class="sig-param">int] = None</em>, <em class="sig-param">efficiency_estimation: float = 1.0</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#accept_reject_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.accept_reject_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accept reject sample from a probability distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -636,7 +627,7 @@ is given, it will be automatically, safely estimated (by a 10% increase in compu
 
 <dl class="function">
 <dt id="zfit.core.sample.extended_sampling">
-<code class="descclassname">zfit.core.sample.</code><code class="descname">extended_sampling</code><span class="sig-paren">(</span><em>pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF], limits: zfit.core.limits.Space</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#extended_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extended_sampling" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">extended_sampling</code><span class="sig-paren">(</span><em class="sig-param">pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF], limits: zfit.core.limits.Space</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#extended_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extended_sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a sample from extended pdfs by sampling poissonian using the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -656,7 +647,7 @@ is given, it will be automatically, safely estimated (by a 10% increase in compu
 
 <dl class="function">
 <dt id="zfit.core.sample.extract_extended_pdfs">
-<code class="descclassname">zfit.core.sample.</code><code class="descname">extract_extended_pdfs</code><span class="sig-paren">(</span><em>pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF]</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitPDF]<a class="reference internal" href="../_modules/zfit/core/sample.html#extract_extended_pdfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extract_extended_pdfs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">extract_extended_pdfs</code><span class="sig-paren">(</span><em class="sig-param">pdfs: Union[Iterable[zfit.core.interfaces.ZfitPDF], zfit.core.interfaces.ZfitPDF]</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitPDF]<a class="reference internal" href="../_modules/zfit/core/sample.html#extract_extended_pdfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extract_extended_pdfs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all extended pdfs that are daughters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -686,7 +677,7 @@ is given, it will be automatically, safely estimated (by a 10% increase in compu
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

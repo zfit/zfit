@@ -110,7 +110,7 @@
 <span id="data"></span><h1>data<a class="headerlink" href="#module-zfit.core.data" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.data.Data">
-<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], obs: Union[str, Iterable[str], zfit.Space] = None, name: str = None, weights=None, iterator_feed_dict: Dict[KT, VT] = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">Data</code><span class="sig-paren">(</span><em class="sig-param">dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], obs: Union[str, Iterable[str], zfit.Space] = None, name: str = None, weights=None, iterator_feed_dict: Dict = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.util.execution.html#zfit.util.execution.SessionHolderMixin" title="zfit.util.execution.SessionHolderMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.execution.SessionHolderMixin</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitData</span></code></a>, <a class="reference internal" href="zfit.core.dimension.html#zfit.core.dimension.BaseDimensional" title="zfit.core.dimension.BaseDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dimension.BaseDimensional</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>Create a data holder from a <cite>dataset</cite> used to feed into <cite>models</cite>.</p>
 <dl class="field-list simple">
@@ -126,7 +126,7 @@
 </dl>
 <dl class="method">
 <dt id="zfit.core.data.Data.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -143,15 +143,15 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.data.Data.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.data.Data.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.convert_sort_space">
-<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/data.html#Data.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/data.html#Data.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -168,22 +168,22 @@ own <cite>obs</cite>.</p>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.Data.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.Data.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.data_range">
-<code class="descname">data_range</code><a class="headerlink" href="#zfit.core.data.Data.data_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data_range</code><a class="headerlink" href="#zfit.core.data.Data.data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.dtype">
-<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.data.Data.dtype" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.data.Data.dtype" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Data.from_numpy">
-<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_numpy" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_numpy</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_numpy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create <cite>Data</cite> from a <cite>np.array</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -202,9 +202,9 @@ own <cite>obs</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Data.from_pandas">
-<em class="property">classmethod </em><code class="descname">from_pandas</code><span class="sig-paren">(</span><em>df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_pandas" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_pandas</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_pandas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a pandas DataFrame. If <cite>obs</cite> is <cite>None</cite>, columns are used as obs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,9 +219,9 @@ of the data (nevents).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Data.from_root">
-<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path: str</em>, <em>treepath: str</em>, <em>branches: List[str] = None</em>, <em>branches_alias: Dict[KT</em>, <em>VT] = None</em>, <em>weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em>None</em>, <em>numpy.ndarray</em>, <em>str] = None</em>, <em>name: str = None</em>, <em>dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_root" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_root</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">treepath: str</em>, <em class="sig-param">branches: List[str] = None</em>, <em class="sig-param">branches_alias: Dict = None</em>, <em class="sig-param">weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">None</em>, <em class="sig-param">numpy.ndarray</em>, <em class="sig-param">str] = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em class="sig-param">root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a ROOT file. Arguments are passed to <cite>uproot</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -247,14 +247,14 @@ column.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Data.from_root_iter">
-<em class="property">classmethod </em><code class="descname">from_root_iter</code><span class="sig-paren">(</span><em>path</em>, <em>treepath</em>, <em>branches=None</em>, <em>entrysteps=None</em>, <em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_root_iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_root_iter" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_root_iter</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">treepath</em>, <em class="sig-param">branches=None</em>, <em class="sig-param">entrysteps=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_root_iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_root_iter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Data.from_tensor">
-<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_tensor</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="reference internal" href="../_modules/zfit/core/data.html#Data.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.from_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a <cite>tf.Tensor</cite>. <cite>Value</cite> simply returns the tensor (in the right order).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,45 +275,45 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.get_iteration">
-<code class="descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.get_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.get_iteration" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.get_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.get_iteration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.initialize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.iterator">
-<code class="descname">iterator</code><a class="headerlink" href="#zfit.core.data.Data.iterator" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">iterator</code><a class="headerlink" href="#zfit.core.data.Data.iterator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.data.Data.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.data.Data.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.data.Data.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.data.Data.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.nevents">
-<code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.Data.nevents" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nevents</code><a class="headerlink" href="#zfit.core.data.Data.nevents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.data.Data.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.data.Data.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -324,28 +324,28 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.core.data.Data.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.core.data.Data.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.set_data_range">
-<code class="descname">set_data_range</code><span class="sig-paren">(</span><em>data_range</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_data_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_data_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param">data_range</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_data_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.set_sess">
-<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.set_sess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Data.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -356,7 +356,7 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.set_weights">
-<code class="descname">set_weights</code><span class="sig-paren">(</span><em>weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param">weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set (temporarily) the weights of the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,23 +367,23 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.sort_by_axes">
-<code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.sort_by_obs">
-<code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.space">
-<code class="descname">space</code><a class="headerlink" href="#zfit.core.data.Data.space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.data.Data.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.to_pandas">
-<code class="descname">to_pandas</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.to_pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.to_pandas" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_pandas</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.to_pandas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.to_pandas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>pd.DataFrame</cite> from <cite>obs</cite> as columns and return it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -395,7 +395,7 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.unstack_x">
-<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.unstack_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unstack_x</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.unstack_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the unstacked data: a list of tensors or a single Tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -412,39 +412,39 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Data.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Data.weights">
-<code class="descname">weights</code><a class="headerlink" href="#zfit.core.data.Data.weights" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">weights</code><a class="headerlink" href="#zfit.core.data.Data.weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.data.LightDataset">
-<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">LightDataset</code><span class="sig-paren">(</span><em>tensor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#LightDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">LightDataset</code><span class="sig-paren">(</span><em class="sig-param">tensor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#LightDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.LightDataset.from_tensor">
-<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>tensor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#LightDataset.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset.from_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_tensor</code><span class="sig-paren">(</span><em class="sig-param">tensor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#LightDataset.from_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset.from_tensor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.LightDataset.value">
-<code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#LightDataset.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#LightDataset.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.LightDataset.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.data.SampleData">
-<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">SampleData</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], sample_holder: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], zfit.Space] = None, weights=None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">SampleData</code><span class="sig-paren">(</span><em class="sig-param">dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], sample_holder: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], zfit.Space] = None, weights=None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.data.Data</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.data.SampleData.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -461,15 +461,15 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.data.SampleData.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.data.SampleData.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.convert_sort_space">
-<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.core.data.SampleData.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.core.data.SampleData.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -486,22 +486,22 @@ own <cite>obs</cite>.</p>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.SampleData.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.SampleData.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.data_range">
-<code class="descname">data_range</code><a class="headerlink" href="#zfit.core.data.SampleData.data_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data_range</code><a class="headerlink" href="#zfit.core.data.SampleData.data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.dtype">
-<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.data.SampleData.dtype" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.data.SampleData.dtype" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.from_numpy">
-<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_numpy" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_numpy</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_numpy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create <cite>Data</cite> from a <cite>np.array</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -520,9 +520,9 @@ own <cite>obs</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.from_pandas">
-<em class="property">classmethod </em><code class="descname">from_pandas</code><span class="sig-paren">(</span><em>df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_pandas" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_pandas</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_pandas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a pandas DataFrame. If <cite>obs</cite> is <cite>None</cite>, columns are used as obs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -537,9 +537,9 @@ of the data (nevents).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.from_root">
-<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path: str</em>, <em>treepath: str</em>, <em>branches: List[str] = None</em>, <em>branches_alias: Dict[KT</em>, <em>VT] = None</em>, <em>weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em>None</em>, <em>numpy.ndarray</em>, <em>str] = None</em>, <em>name: str = None</em>, <em>dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.SampleData.from_root" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_root</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">treepath: str</em>, <em class="sig-param">branches: List[str] = None</em>, <em class="sig-param">branches_alias: Dict = None</em>, <em class="sig-param">weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">None</em>, <em class="sig-param">numpy.ndarray</em>, <em class="sig-param">str] = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em class="sig-param">root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.SampleData.from_root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a ROOT file. Arguments are passed to <cite>uproot</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -565,19 +565,19 @@ column.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.from_root_iter">
-<em class="property">classmethod </em><code class="descname">from_root_iter</code><span class="sig-paren">(</span><em>path</em>, <em>treepath</em>, <em>branches=None</em>, <em>entrysteps=None</em>, <em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_root_iter" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_root_iter</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">treepath</em>, <em class="sig-param">branches=None</em>, <em class="sig-param">entrysteps=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.from_root_iter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.from_sample">
-<em class="property">classmethod </em><code class="descname">from_sample</code><span class="sig-paren">(</span><em>sample: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], zfit.Space], name: str = None, weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.from_sample" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_sample</code><span class="sig-paren">(</span><em class="sig-param">sample: tensorflow.python.framework.ops.Tensor, obs: Union[str, Iterable[str], zfit.Space], name: str = None, weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.from_sample" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.from_tensor">
-<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.SampleData.from_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_tensor</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.SampleData.from_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a <cite>tf.Tensor</cite>. <cite>Value</cite> simply returns the tensor (in the right order).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -596,52 +596,52 @@ column.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.get_cache_counting">
-<em class="property">classmethod </em><code class="descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.get_cache_counting" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#SampleData.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.SampleData.get_cache_counting" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.get_iteration">
-<code class="descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.get_iteration" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.get_iteration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.initialize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.iterator">
-<code class="descname">iterator</code><a class="headerlink" href="#zfit.core.data.SampleData.iterator" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">iterator</code><a class="headerlink" href="#zfit.core.data.SampleData.iterator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.data.SampleData.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.data.SampleData.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.data.SampleData.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.data.SampleData.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.nevents">
-<code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.SampleData.nevents" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nevents</code><a class="headerlink" href="#zfit.core.data.SampleData.nevents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.data.SampleData.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.data.SampleData.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -652,28 +652,28 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.core.data.SampleData.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.core.data.SampleData.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.set_data_range">
-<code class="descname">set_data_range</code><span class="sig-paren">(</span><em>data_range</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_data_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param">data_range</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.set_sess">
-<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_sess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -684,7 +684,7 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.set_weights">
-<code class="descname">set_weights</code><span class="sig-paren">(</span><em>weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param">weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set (temporarily) the weights of the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -695,23 +695,23 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.sort_by_axes">
-<code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.sort_by_obs">
-<code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.space">
-<code class="descname">space</code><a class="headerlink" href="#zfit.core.data.SampleData.space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.data.SampleData.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.to_pandas">
-<code class="descname">to_pandas</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.to_pandas" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_pandas</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.to_pandas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>pd.DataFrame</cite> from <cite>obs</cite> as columns and return it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -723,7 +723,7 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.unstack_x">
-<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.unstack_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unstack_x</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.unstack_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the unstacked data: a list of tensors or a single Tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -740,23 +740,23 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.SampleData.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.SampleData.weights">
-<code class="descname">weights</code><a class="headerlink" href="#zfit.core.data.SampleData.weights" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">weights</code><a class="headerlink" href="#zfit.core.data.SampleData.weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.data.Sampler">
-<em class="property">class </em><code class="descclassname">zfit.core.data.</code><code class="descname">Sampler</code><span class="sig-paren">(</span><em>dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], sample_holder: tensorflow.python.ops.variables.VariableV1, n_holder: tensorflow.python.ops.variables.VariableV1, weights=None, fixed_params: Dict[zfit.Parameter, Union[int, float, complex, tensorflow.python.framework.ops.Tensor]] = None, obs: Union[str, Iterable[str], zfit.Space] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">Sampler</code><span class="sig-paren">(</span><em class="sig-param">dataset: Union[tensorflow.python.data.ops.dataset_ops.DatasetV1, LightDataset], sample_holder: tensorflow.python.ops.variables.VariableV1, n_holder: tensorflow.python.ops.variables.VariableV1, weights=None, fixed_params: Dict[zfit.Parameter, Union[int, float, complex, tensorflow.python.framework.ops.Tensor]] = None, obs: Union[str, Iterable[str], zfit.Space] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.data.Data</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.data.Sampler.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -773,15 +773,15 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.data.Sampler.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.data.Sampler.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.convert_sort_space">
-<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.core.data.Sampler.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.core.data.Sampler.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -798,22 +798,22 @@ own <cite>obs</cite>.</p>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.Sampler.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.data.Sampler.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.data_range">
-<code class="descname">data_range</code><a class="headerlink" href="#zfit.core.data.Sampler.data_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data_range</code><a class="headerlink" href="#zfit.core.data.Sampler.data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.dtype">
-<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.data.Sampler.dtype" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.data.Sampler.dtype" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.from_numpy">
-<em class="property">classmethod </em><code class="descname">from_numpy</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_numpy" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_numpy</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], array: numpy.ndarray, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_numpy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create <cite>Data</cite> from a <cite>np.array</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -832,9 +832,9 @@ own <cite>obs</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.from_pandas">
-<em class="property">classmethod </em><code class="descname">from_pandas</code><span class="sig-paren">(</span><em>df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_pandas" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_pandas</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame, obs: Union[str, Iterable[str], zfit.Space] = None, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_pandas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a pandas DataFrame. If <cite>obs</cite> is <cite>None</cite>, columns are used as obs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -849,9 +849,9 @@ of the data (nevents).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.from_root">
-<em class="property">classmethod </em><code class="descname">from_root</code><span class="sig-paren">(</span><em>path: str</em>, <em>treepath: str</em>, <em>branches: List[str] = None</em>, <em>branches_alias: Dict[KT</em>, <em>VT] = None</em>, <em>weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em>None</em>, <em>numpy.ndarray</em>, <em>str] = None</em>, <em>name: str = None</em>, <em>dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em>root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.Sampler.from_root" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_root</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">treepath: str</em>, <em class="sig-param">branches: List[str] = None</em>, <em class="sig-param">branches_alias: Dict = None</em>, <em class="sig-param">weights: Union[tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">None</em>, <em class="sig-param">numpy.ndarray</em>, <em class="sig-param">str] = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">dtype: tensorflow.python.framework.dtypes.DType = None</em>, <em class="sig-param">root_dir_options=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.Sampler.from_root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a ROOT file. Arguments are passed to <cite>uproot</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -877,19 +877,19 @@ column.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.from_root_iter">
-<em class="property">classmethod </em><code class="descname">from_root_iter</code><span class="sig-paren">(</span><em>path</em>, <em>treepath</em>, <em>branches=None</em>, <em>entrysteps=None</em>, <em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_root_iter" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_root_iter</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">treepath</em>, <em class="sig-param">branches=None</em>, <em class="sig-param">entrysteps=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.from_root_iter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.from_sample">
-<em class="property">classmethod </em><code class="descname">from_sample</code><span class="sig-paren">(</span><em>sample: tensorflow.python.framework.ops.Tensor, n_holder: tensorflow.python.ops.variables.VariableV1, obs: Union[str, Iterable[str], zfit.Space], fixed_params=None, name: str = None, weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.from_sample" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_sample</code><span class="sig-paren">(</span><em class="sig-param">sample: tensorflow.python.framework.ops.Tensor, n_holder: tensorflow.python.ops.variables.VariableV1, obs: Union[str, Iterable[str], zfit.Space], fixed_params=None, name: str = None, weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.from_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.from_sample" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.from_tensor">
-<em class="property">classmethod </em><code class="descname">from_tensor</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.Sampler.from_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_tensor</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], tensor: tensorflow.python.framework.ops.Tensor, weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray] = None, name: str = None, dtype: tensorflow.python.framework.dtypes.DType = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Data<a class="headerlink" href="#zfit.core.data.Sampler.from_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>Data</cite> from a <cite>tf.Tensor</cite>. <cite>Value</cite> simply returns the tensor (in the right order).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -908,57 +908,57 @@ column.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.get_cache_counting">
-<em class="property">classmethod </em><code class="descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.get_cache_counting" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">get_cache_counting</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.get_cache_counting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.get_cache_counting" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.get_iteration">
-<code class="descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.get_iteration" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_iteration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.get_iteration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.initialize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.iterator">
-<code class="descname">iterator</code><a class="headerlink" href="#zfit.core.data.Sampler.iterator" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">iterator</code><a class="headerlink" href="#zfit.core.data.Sampler.iterator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.data.Sampler.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.data.Sampler.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.n_samples">
-<code class="descname">n_samples</code><a class="headerlink" href="#zfit.core.data.Sampler.n_samples" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_samples</code><a class="headerlink" href="#zfit.core.data.Sampler.n_samples" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.data.Sampler.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.data.Sampler.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.nevents">
-<code class="descname">nevents</code><a class="headerlink" href="#zfit.core.data.Sampler.nevents" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">nevents</code><a class="headerlink" href="#zfit.core.data.Sampler.nevents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.data.Sampler.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.data.Sampler.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -969,7 +969,7 @@ column.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.resample">
-<code class="descname">resample</code><span class="sig-paren">(</span><em>param_values: Mapping[KT</em>, <em>VT_co] = None</em>, <em>n: Union[int</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.resample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param">param_values: Mapping = None</em>, <em class="sig-param">n: Union[int</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Sampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Sampler.resample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the sample by newly sampling. This affects any object that used this data already.</p>
 <p>All params that are not in the attribute <cite>fixed_params</cite> will use their current value for
 the creation of the new sample. The value can also be overwritten for one sampling by providing
@@ -988,28 +988,28 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.core.data.Sampler.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.core.data.Sampler.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.set_data_range">
-<code class="descname">set_data_range</code><span class="sig-paren">(</span><em>data_range</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_data_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param">data_range</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.set_sess">
-<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_sess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1020,7 +1020,7 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.set_weights">
-<code class="descname">set_weights</code><span class="sig-paren">(</span><em>weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param">weights: Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set (temporarily) the weights of the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1031,23 +1031,23 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.sort_by_axes">
-<code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int]], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.sort_by_obs">
-<code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], allow_superset: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.space">
-<code class="descname">space</code><a class="headerlink" href="#zfit.core.data.Sampler.space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.data.Sampler.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.to_pandas">
-<code class="descname">to_pandas</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.to_pandas" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_pandas</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.to_pandas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <cite>pd.DataFrame</cite> from <cite>obs</cite> as columns and return it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1059,7 +1059,7 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.unstack_x">
-<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.unstack_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unstack_x</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, always_list: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.unstack_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the unstacked data: a list of tensors or a single Tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1076,29 +1076,29 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.data.Sampler.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.data.Sampler.weights">
-<code class="descname">weights</code><a class="headerlink" href="#zfit.core.data.Sampler.weights" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">weights</code><a class="headerlink" href="#zfit.core.data.Sampler.weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.data.feed_function">
-<code class="descclassname">zfit.core.data.</code><code class="descname">feed_function</code><span class="sig-paren">(</span><em>data</em>, <em>feed_val</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.feed_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">feed_function</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">feed_val</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.feed_function" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.data.feed_function_for_partial_run">
-<code class="descclassname">zfit.core.data.</code><code class="descname">feed_function_for_partial_run</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.feed_function_for_partial_run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">feed_function_for_partial_run</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.feed_function_for_partial_run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.data.fetch_function">
-<code class="descclassname">zfit.core.data.</code><code class="descname">fetch_function</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.fetch_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.data.</code><code class="sig-name descname">fetch_function</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.fetch_function" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -1116,7 +1116,7 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

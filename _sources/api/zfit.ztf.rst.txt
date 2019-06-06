@@ -2,10 +2,10 @@ ztf
 ===
 
 .. automodule:: zfit.ztf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 Submodules
 ----------
@@ -16,4 +16,3 @@ Submodules
    zfit.ztf.tools
    zfit.ztf.wrapping_tf
    zfit.ztf.zextension
-

@@ -2,21 +2,21 @@ zfit package
 ============
 
 .. automodule:: zfit
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 Subpackages
 -----------
 
 .. toctree::
 
-    zfit.core
-    zfit.minimizers
-    zfit.models
-    zfit.util
-    zfit.ztf
+   zfit.core
+   zfit.minimizers
+   zfit.models
+   zfit.util
+   zfit.ztf
 
 Submodules
 ----------
@@ -32,4 +32,3 @@ Submodules
    zfit.pdf
    zfit.sample
    zfit.settings
-

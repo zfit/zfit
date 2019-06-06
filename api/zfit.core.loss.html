@@ -110,7 +110,7 @@
 <span id="loss"></span><h1>loss<a class="headerlink" href="#module-zfit.core.loss" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.loss.BaseLoss">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">BaseLoss</code><span class="sig-paren">(</span><em>model, data, fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, constraints: List[tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param">model, data, fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, constraints: List[tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseDependentsMixin" title="zfit.core.baseobject.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
 to the loss. The length of each has to match the length of the others.</p>
@@ -128,7 +128,7 @@ to the loss. The length of each has to match the length of the others.</p>
 </dl>
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -147,37 +147,37 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.add_constraints">
-<code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.add_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param">constraints</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.add_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.BaseLoss.constraints">
-<code class="descname">constraints</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.constraints" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.BaseLoss.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.BaseLoss.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.BaseLoss.data">
-<code class="descname">data</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.data" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.BaseLoss.errordef">
-<code class="descname">errordef</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.errordef" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.errordef" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.BaseLoss.fit_range">
-<code class="descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.fit_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.fit_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.get_dependents">
-<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.BaseLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.BaseLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -188,23 +188,23 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter</em>, <em>int</em>, <em>float</em>, <em>complex</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.BaseLoss.model">
-<code class="descname">model</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.model" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.BaseLoss.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.loss.BaseLoss.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -215,29 +215,29 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.value">
-<code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.loss.CachedLoss">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">CachedLoss</code><span class="sig-paren">(</span><em>model</em>, <em>data</em>, <em>fit_range=None</em>, <em>constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#CachedLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.CachedLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">CachedLoss</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#CachedLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.CachedLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.BaseLoss</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -256,37 +256,37 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.add_constraints">
-<code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param">constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.CachedLoss.constraints">
-<code class="descname">constraints</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.constraints" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.CachedLoss.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.CachedLoss.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.CachedLoss.data">
-<code class="descname">data</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.data" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.CachedLoss.errordef">
-<code class="descname">errordef</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.errordef" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.errordef" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.CachedLoss.fit_range">
-<code class="descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.fit_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.fit_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.get_dependents">
-<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.CachedLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.CachedLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -297,23 +297,23 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter</em>, <em>int</em>, <em>float</em>, <em>complex</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.CachedLoss.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.CachedLoss.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.CachedLoss.model">
-<code class="descname">model</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.model" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.CachedLoss.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.loss.CachedLoss.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -324,30 +324,30 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.value">
-<code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">ExtendedUnbinnedNLL</code><span class="sig-paren">(</span><em>model</em>, <em>data</em>, <em>fit_range=None</em>, <em>constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#ExtendedUnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">ExtendedUnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#ExtendedUnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.UnbinnedNLL</span></code></a></p>
 <p>An Unbinned Negative Log Likelihood with an additional poisson term for the</p>
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -366,37 +366,37 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.add_constraints">
-<code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.add_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param">constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.add_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.constraints">
-<code class="descname">constraints</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.constraints" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.data">
-<code class="descname">data</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.data" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.errordef">
-<code class="descname">errordef</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.errordef" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.errordef" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.fit_range">
-<code class="descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.fit_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.fit_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.get_dependents">
-<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -407,23 +407,23 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter</em>, <em>int</em>, <em>float</em>, <em>complex</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.model">
-<code class="descname">model</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.model" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -434,25 +434,25 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.value">
-<code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.loss.SimpleLoss">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">SimpleLoss</code><span class="sig-paren">(</span><em>func: Callable</em>, <em>dependents: Optional[Dict[str</em>, <em>zfit.core.interfaces.ZfitParameter]] = None</em>, <em>errordef: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">SimpleLoss</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em>, <em class="sig-param">dependents: Optional[Dict[str</em>, <em class="sig-param">zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">errordef: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.CachedLoss" title="zfit.core.loss.CachedLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.CachedLoss</span></code></a></p>
 <p>Loss from a (function returning a ) Tensor.</p>
 <dl class="field-list simple">
@@ -468,7 +468,7 @@ For example, 1 for Chi squared, 0.5 for negative log-likelihood.</p></li>
 </dl>
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -487,37 +487,37 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.add_constraints">
-<code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param">constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.constraints">
-<code class="descname">constraints</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.constraints" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.SimpleLoss.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.SimpleLoss.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.data">
-<code class="descname">data</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.data" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.errordef">
-<code class="descname">errordef</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.errordef" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.errordef" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.fit_range">
-<code class="descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.fit_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.fit_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.get_dependents">
-<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.SimpleLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.SimpleLoss.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -528,23 +528,23 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter</em>, <em>int</em>, <em>float</em>, <em>complex</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.SimpleLoss.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.SimpleLoss.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.model">
-<code class="descname">model</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.model" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.loss.SimpleLoss.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -555,30 +555,30 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.value">
-<code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.loss.UnbinnedNLL">
-<em class="property">class </em><code class="descclassname">zfit.core.loss.</code><code class="descname">UnbinnedNLL</code><span class="sig-paren">(</span><em>model</em>, <em>data</em>, <em>fit_range=None</em>, <em>constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#UnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">UnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#UnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.CachedLoss" title="zfit.core.loss.CachedLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.CachedLoss</span></code></a></p>
 <p>The Unbinned Negative Log Likelihood.</p>
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -597,37 +597,37 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.add_constraints">
-<code class="descname">add_constraints</code><span class="sig-paren">(</span><em>constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.add_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param">constraints</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.add_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.constraints">
-<code class="descname">constraints</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.constraints" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.data">
-<code class="descname">data</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.data" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.errordef">
-<code class="descname">errordef</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.errordef" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.errordef" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.fit_range">
-<code class="descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.fit_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.fit_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.get_dependents">
-<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -638,23 +638,23 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>params: Union[zfit.core.interfaces.ZfitParameter</em>, <em>int</em>, <em>float</em>, <em>complex</em>, <em>tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor] = None</em><span class="sig-paren">)</span> &#x2192; List[tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.model">
-<code class="descname">model</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.model" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -665,18 +665,18 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.value">
-<code class="descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -696,7 +696,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

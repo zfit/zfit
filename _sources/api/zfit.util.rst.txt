@@ -2,10 +2,10 @@ util
 ====
 
 .. automodule:: zfit.util
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 Submodules
 ----------
@@ -22,4 +22,3 @@ Submodules
    zfit.util.logging
    zfit.util.temporary
    zfit.util.ztyping
-

@@ -111,7 +111,7 @@
 <p>Baseclass for a Model. Handle integration and sampling</p>
 <dl class="class">
 <dt id="zfit.core.basemodel.BaseModel">
-<em class="property">class </em><code class="descclassname">zfit.core.basemodel.</code><code class="descname">BaseModel</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space], params: Optional[Dict[str, zfit.core.interfaces.ZfitParameter]] = None, name: str = 'BaseModel', dtype=tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.basemodel.</code><code class="sig-name descname">BaseModel</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space], params: Optional[Dict[str, zfit.core.interfaces.ZfitParameter]] = None, name: str = 'BaseModel', dtype=tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric" title="zfit.core.baseobject.BaseNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseNumeric</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.dimension.html#zfit.core.dimension.BaseDimensional" title="zfit.core.dimension.BaseDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dimension.BaseDimensional</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitModel</span></code></a></p>
 <p>Base class for any generic model.</p>
 <p># TODO instructions on how to use</p>
@@ -128,7 +128,7 @@ the parameters itself the model depends on</p></li>
 </dl>
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -147,7 +147,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.analytic_integrate">
-<code class="descname">analytic_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analytical integration over function and raise Error if not possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -174,15 +174,15 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.convert_sort_space">
-<code class="descname">convert_sort_space</code><span class="sig-paren">(</span><em>obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.convert_sort_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -199,12 +199,12 @@ own <cite>obs</cite>.</p>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>name: str = None</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.basemodel.BaseModel.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.basemodel.BaseModel.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.create_sampler">
-<code class="descname">create_sampler</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.create_sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.create_sampler" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.create_sampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.create_sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
 <blockquote>
 <div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
@@ -245,15 +245,15 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.dtype">
-<code class="descname">dtype</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.dtype" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.get_dependents">
-<code class="descname">get_dependents</code><span class="sig-paren">(</span><em>only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.basemodel.BaseModel.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.core.basemodel.BaseModel.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,7 +264,7 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[ZfitParameter]<a class="headerlink" href="#zfit.core.basemodel.BaseModel.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[ZfitParameter]<a class="headerlink" href="#zfit.core.basemodel.BaseModel.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -284,12 +284,12 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.gradients">
-<code class="descname">gradients</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.gradients" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.integrate">
-<code class="descname">integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -306,21 +306,21 @@ unnormalized probability</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.numeric_integrate">
-<code class="descname">numeric_integrate</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerical integration over the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -339,20 +339,20 @@ unnormalized probability</p></li>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.params">
-<code class="descname">params</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.params" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.partial_analytic_integrate">
-<code class="descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_analytic_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -384,7 +384,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.partial_integrate">
-<code class="descname">partial_integrate</code><span class="sig-paren">(</span><em>x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -408,7 +408,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.partial_numeric_integrate">
-<code class="descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.partial_numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -430,9 +430,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.register_additional_repr">
-<em class="property">classmethod </em><code class="descname">register_additional_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_additional_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_additional_repr</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_additional_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_additional_repr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an additional attribute to add to the repr.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -444,9 +444,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.register_analytic_integral">
-<em class="property">classmethod </em><code class="descname">register_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an analytic integral with the class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -486,7 +486,7 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -495,9 +495,9 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.register_inverse_analytic_integral">
-<em class="property">classmethod </em><code class="descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em>func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_inverse_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.register_inverse_analytic_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -508,18 +508,18 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.basemodel.BaseModel.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.sample">
-<code class="descname">sample</code><span class="sig-paren">(</span><em>n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
 <p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
 If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
@@ -552,15 +552,15 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.space">
-<code class="descname">space</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.basemodel.BaseModel.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.basemodel.BaseModel.update_integration_options">
-<code class="descname">update_integration_options</code><span class="sig-paren">(</span><em>draws_per_dim=None</em>, <em>mc_sampler=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.update_integration_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.update_integration_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_integration_options</code><span class="sig-paren">(</span><em class="sig-param">draws_per_dim=None</em>, <em class="sig-param">mc_sampler=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#BaseModel.update_integration_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.BaseModel.update_integration_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the integration options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -576,7 +576,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="class">
 <dt id="zfit.core.basemodel.SimpleModelSubclassMixin">
-<em class="property">class </em><code class="descclassname">zfit.core.basemodel.</code><code class="descname">SimpleModelSubclassMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#SimpleModelSubclassMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.SimpleModelSubclassMixin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.basemodel.</code><code class="sig-name descname">SimpleModelSubclassMixin</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basemodel.html#SimpleModelSubclassMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.basemodel.SimpleModelSubclassMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Subclass a model: implement the corresponding function and specify _PARAMS.</p>
 <p>In order to create a custom model, two things have to be implemented: the class attribute
@@ -610,7 +610,7 @@ function (_unnormalized_pdf/_func) has to be overridden.</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

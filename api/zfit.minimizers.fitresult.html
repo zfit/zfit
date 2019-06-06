@@ -110,7 +110,7 @@
 <span id="fitresult"></span><h1>fitresult<a class="headerlink" href="#module-zfit.minimizers.fitresult" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.minimizers.fitresult.FitResult">
-<em class="property">class </em><code class="descclassname">zfit.minimizers.fitresult.</code><code class="descname">FitResult</code><span class="sig-paren">(</span><em>params: Dict[zfit.core.interfaces.ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool, info: dict, loss: zfit.core.interfaces.ZfitLoss, minimizer: zfit.minimizers.interface.ZfitMinimizer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">FitResult</code><span class="sig-paren">(</span><em class="sig-param">params: Dict[zfit.core.interfaces.ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool, info: dict, loss: zfit.core.interfaces.ZfitLoss, minimizer: zfit.minimizers.interface.ZfitMinimizer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.util.execution.html#zfit.util.execution.SessionHolderMixin" title="zfit.util.execution.SessionHolderMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.execution.SessionHolderMixin</span></code></a>, <a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitResult" title="zfit.minimizers.interface.ZfitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.interface.ZfitResult</span></code></a></p>
 <p>Create a <cite>FitResult</cite> from a minimization. Store parameter values, minimization infos and calculate errors.</p>
 <p>Any errors calculated are saved under <cite>self.params</cite> dictionary with {parameter: {error_name1: {‘low’: value
@@ -144,14 +144,14 @@ won’t be altered.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.converged">
-<code class="descname">converged</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.converged" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">converged</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.converged" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.edm">
-<code class="descname">edm</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.edm" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">edm</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.edm" title="Permalink to this definition">¶</a></dt>
 <dd><p>The estimated distance to the minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -162,7 +162,7 @@ won’t be altered.</p></li>
 
 <dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.error">
-<code class="descname">error</code><span class="sig-paren">(</span><em>params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em>method: Union[str</em>, <em>Callable] = 'minuit_minos'</em>, <em>error_name: str = None</em>, <em>sigma: float = 1.0</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">method: Union[str</em>, <em class="sig-param">Callable] = 'minuit_minos'</em>, <em class="sig-param">error_name: str = None</em>, <em class="sig-param">sigma: float = 1.0</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate and set for <cite>params</cite> the asymmetric error using the set error method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -194,9 +194,9 @@ Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.fmin">
-<code class="descname">fmin</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.fmin" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">fmin</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.fmin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function value at the minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -207,7 +207,7 @@ Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘
 
 <dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.hesse">
-<code class="descname">hesse</code><span class="sig-paren">(</span><em>params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em>method: Union[str</em>, <em>Callable] = 'minuit_hesse'</em>, <em>error_name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.hesse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">hesse</code><span class="sig-paren">(</span><em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">method: Union[str</em>, <em class="sig-param">Callable] = 'minuit_hesse'</em>, <em class="sig-param">error_name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.hesse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate for <cite>params</cite> the symmetric error using the Hessian matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -234,34 +234,34 @@ error_a is the hessian error.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.info">
-<code class="descname">info</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.info" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.loss">
-<code class="descname">loss</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.loss" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">loss</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.loss" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.minimizer">
-<code class="descname">minimizer</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.minimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">minimizer</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.minimizer" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.params">
-<code class="descname">params</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.params" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.sess">
-<code class="descname">sess</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.sess" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.set_sess">
-<code class="descname">set_sess</code><span class="sig-paren">(</span><em>sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.set_sess" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,9 +270,9 @@ error_a is the hessian error.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.status">
-<code class="descname">status</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.status" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">status</code><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.status" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -292,7 +292,7 @@ error_a is the hessian error.</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

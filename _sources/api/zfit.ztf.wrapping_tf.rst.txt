@@ -2,7 +2,7 @@ wrapping\_tf
 ============
 
 .. automodule:: zfit.ztf.wrapping_tf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

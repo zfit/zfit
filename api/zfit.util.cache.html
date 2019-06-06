@@ -153,11 +153,11 @@ calls <cite>reset_cache</cite>) can be brought into play.</p></li>
 </div>
 <dl class="class">
 <dt id="zfit.util.cache.Cachable">
-<em class="property">class </em><code class="descclassname">zfit.util.cache.</code><code class="descname">Cachable</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">Cachable</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.ZfitCachable</span></code></a></p>
 <dl class="method">
 <dt id="zfit.util.cache.Cachable.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.add_cache_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.add_cache_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -176,7 +176,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.util.cache.Cachable.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -187,12 +187,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.util.cache.Cachable.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.cache.Cachable.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
@@ -200,11 +200,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="class">
 <dt id="zfit.util.cache.ZfitCachable">
-<em class="property">class </em><code class="descclassname">zfit.util.cache.</code><code class="descname">ZfitCachable</code><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">ZfitCachable</code><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="zfit.util.cache.ZfitCachable.add_cache_dependents">
-<code class="descname">add_cache_dependents</code><span class="sig-paren">(</span><em>cache_dependents</em>, <em>allow_non_cachable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.add_cache_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents</em>, <em class="sig-param">allow_non_cachable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.add_cache_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -223,17 +223,17 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.util.cache.ZfitCachable.register_cacher">
-<code class="descname">register_cacher</code><span class="sig-paren">(</span><em>cacher: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.register_cacher" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.cache.ZfitCachable.reset_cache">
-<code class="descname">reset_cache</code><span class="sig-paren">(</span><em>reseter</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.reset_cache" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.util.cache.ZfitCachable.reset_cache_self">
-<code class="descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
@@ -241,7 +241,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="function">
 <dt id="zfit.util.cache.invalidates_cache">
-<code class="descclassname">zfit.util.cache.</code><code class="descname">invalidates_cache</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#invalidates_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.invalidates_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">invalidates_cache</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#invalidates_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.invalidates_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -260,7 +260,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>

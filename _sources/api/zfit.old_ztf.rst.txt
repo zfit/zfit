@@ -2,7 +2,7 @@ old\_ztf
 ========
 
 .. automodule:: zfit.old_ztf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

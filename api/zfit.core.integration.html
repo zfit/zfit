@@ -111,12 +111,12 @@
 <p>This module contains functions for the numeric as well as the analytic (partial) integration.</p>
 <dl class="class">
 <dt id="zfit.core.integration.AnalyticIntegral">
-<em class="property">class </em><code class="descclassname">zfit.core.integration.</code><code class="descname">AnalyticIntegral</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">AnalyticIntegral</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Hold analytic integrals and manage their dimensions, limits etc.</p>
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.get_max_axes">
-<code class="descname">get_max_axes</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.get_max_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.get_max_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_max_axes</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.get_max_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.get_max_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the maximal available axes to integrate over analytically for given limits</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -136,7 +136,7 @@
 
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.get_max_integral">
-<code class="descname">get_max_integral</code><span class="sig-paren">(</span><em>limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[None, zfit.core.integration.Integral]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.get_max_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.get_max_integral" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_max_integral</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[None, zfit.core.integration.Integral]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.get_max_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.get_max_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the integral over the <cite>limits</cite> with <cite>axes</cite> (or a subset of them).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -156,7 +156,7 @@
 
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.integrate">
-<code class="descname">integrate</code><span class="sig-paren">(</span><em>x: Union[float, tensorflow.python.framework.ops.Tensor, None], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None, norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, model: zfit.core.interfaces.ZfitModel = None, params: dict = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor, None], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int]] = None, norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, model: zfit.core.interfaces.ZfitModel = None, params: dict = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrate analytically over the axes if available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -183,7 +183,7 @@ integrated function. If a full integration is performed, this should be <cite>No
 
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.register">
-<code class="descname">register</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], priority: int = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.register" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], priority: int = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an analytic integral.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -205,20 +205,20 @@ priority is taken (usually around 0-100).</p></li>
 
 <dl class="class">
 <dt id="zfit.core.integration.Integral">
-<em class="property">class </em><code class="descclassname">zfit.core.integration.</code><code class="descname">Integral</code><span class="sig-paren">(</span><em>func: Callable, limits: zfit.core.limits.Space, priority: Union[int, float]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">Integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: zfit.core.limits.Space, priority: Union[int, float]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A lightweight holder for the integral function.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.integration.Integration">
-<em class="property">class </em><code class="descclassname">zfit.core.integration.</code><code class="descname">Integration</code><span class="sig-paren">(</span><em>mc_sampler</em>, <em>draws_per_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integration" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">Integration</code><span class="sig-paren">(</span><em class="sig-param">mc_sampler</em>, <em class="sig-param">draws_per_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.integration.PartialIntegralSampleData">
-<em class="property">class </em><code class="descclassname">zfit.core.integration.</code><code class="descname">PartialIntegralSampleData</code><span class="sig-paren">(</span><em>sample: List[tensorflow.python.framework.ops.Tensor], space: zfit.core.interfaces.ZfitSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">PartialIntegralSampleData</code><span class="sig-paren">(</span><em class="sig-param">sample: List[tensorflow.python.framework.ops.Tensor], space: zfit.core.interfaces.ZfitSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.dimension.html#zfit.core.dimension.BaseDimensional" title="zfit.core.dimension.BaseDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dimension.BaseDimensional</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitData</span></code></a></p>
 <p>Takes a list of tensors and “fakes” a dataset. Useful for tensors with non-matching shapes.</p>
 <dl class="field-list simple">
@@ -229,81 +229,81 @@ priority is taken (usually around 0-100).</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.axes">
-<code class="descname">axes</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><em>deep: bool = False</em>, <em>**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.n_obs">
-<code class="descname">n_obs</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.n_obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.name">
-<code class="descname">name</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.obs">
-<code class="descname">obs</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.obs" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.sort_by_axes">
-<code class="descname">sort_by_axes</code><span class="sig-paren">(</span><em>axes</em>, <em>allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param">axes</em>, <em class="sig-param">allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.sort_by_obs">
-<code class="descname">sort_by_obs</code><span class="sig-paren">(</span><em>obs</em>, <em>allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param">obs</em>, <em class="sig-param">allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.space">
-<code class="descname">space</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.unstack_x">
-<code class="descname">unstack_x</code><span class="sig-paren">(</span><em>always_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.unstack_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unstack_x</code><span class="sig-paren">(</span><em class="sig-param">always_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.unstack_x" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.value">
-<code class="descname">value</code><span class="sig-paren">(</span><em>obs: List[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><em class="sig-param">obs: List[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.weights">
-<code class="descname">weights</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.weights" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">weights</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.weights" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.integration.auto_integrate">
-<code class="descclassname">zfit.core.integration.</code><code class="descname">auto_integrate</code><span class="sig-paren">(</span><em>*</em>, <em>norm_range: bool = False</em>, <em>multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="../_modules/zfit/core/integration.html#auto_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.auto_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">auto_integrate</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">norm_range: bool = False</em>, <em class="sig-param">multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="../_modules/zfit/core/integration.html#auto_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.auto_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.integration.chunked_average">
-<code class="descclassname">zfit.core.integration.</code><code class="descname">chunked_average</code><span class="sig-paren">(</span><em>func</em>, <em>x</em>, <em>num_batches</em>, <em>batch_size</em>, <em>space</em>, <em>mc_sampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#chunked_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.chunked_average" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">chunked_average</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">x</em>, <em class="sig-param">num_batches</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">space</em>, <em class="sig-param">mc_sampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#chunked_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.chunked_average" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.integration.mc_integrate">
-<code class="descclassname">zfit.core.integration.</code><code class="descname">mc_integrate</code><span class="sig-paren">(</span><em>func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int], None] = None, x: Union[float, tensorflow.python.framework.ops.Tensor, None] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000, method: str = None, dtype: Type[CT_co] = tf.float64, mc_sampler: Callable = &lt;function sample_halton_sequence&gt;, importance_sampling: Optional[Callable] = None</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/integration.html#mc_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.mc_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">mc_integrate</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], axes: Union[int, Iterable[int], None] = None, x: Union[float, tensorflow.python.framework.ops.Tensor, None] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000, method: str = None, dtype: Type = tf.float64, mc_sampler: Callable = &lt;function sample_halton_sequence&gt;, importance_sampling: Optional[Callable] = None</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/integration.html#mc_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.mc_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Monte Carlo integration of <cite>func</cite> over <cite>limits</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -332,17 +332,17 @@ random value between 0 and 1.</p></li>
 
 <dl class="function">
 <dt id="zfit.core.integration.normalization_chunked">
-<code class="descclassname">zfit.core.integration.</code><code class="descname">normalization_chunked</code><span class="sig-paren">(</span><em>func</em>, <em>n_axes</em>, <em>batch_size</em>, <em>num_batches</em>, <em>dtype</em>, <em>space</em>, <em>x=None</em>, <em>shape_after=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#normalization_chunked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.normalization_chunked" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">normalization_chunked</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">n_axes</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">num_batches</em>, <em class="sig-param">dtype</em>, <em class="sig-param">space</em>, <em class="sig-param">x=None</em>, <em class="sig-param">shape_after=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#normalization_chunked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.normalization_chunked" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.integration.normalization_nograd">
-<code class="descclassname">zfit.core.integration.</code><code class="descname">normalization_nograd</code><span class="sig-paren">(</span><em>func</em>, <em>n_axes</em>, <em>batch_size</em>, <em>num_batches</em>, <em>dtype</em>, <em>space</em>, <em>x=None</em>, <em>shape_after=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#normalization_nograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.normalization_nograd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">normalization_nograd</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">n_axes</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">num_batches</em>, <em class="sig-param">dtype</em>, <em class="sig-param">space</em>, <em class="sig-param">x=None</em>, <em class="sig-param">shape_after=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#normalization_nograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.normalization_nograd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zfit.core.integration.numeric_integrate">
-<code class="descclassname">zfit.core.integration.</code><code class="descname">numeric_integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#numeric_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrate <cite>func</cite> using numerical methods.</p>
 </dd></dl>
 
@@ -361,7 +361,7 @@ random value between 0 and 1.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
     </p>
   </div>
 </footer>
