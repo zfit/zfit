@@ -225,9 +225,9 @@ def test_importance_sampling_uniform():
 
     assert np.std(bin_counts) < np.sqrt(expected_per_bin) * 2
     assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
-    import matplotlib.pyplot as plt
-    plt.hist(sample_np, bins=40)
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.hist(sample_np, bins=40)
+    # plt.show()
 
 def test_sampling_fixed_eventlimits():
     n_samples1 = 500

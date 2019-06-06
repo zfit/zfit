@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import List
 
 import pytest
@@ -179,7 +181,7 @@ def test_normalization_prod_gauss():
 
 
 def test_exp():
-    lambda_true = 3.1
+    lambda_true = 0.31
     lambda_ = zfit.Parameter('lambda1', lambda_true)
     exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
     sample = exp1.sample(n=1000, limits=(-10, 10))
