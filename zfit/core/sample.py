@@ -193,10 +193,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                     clear_after_read=True,  # we read only once at end to tensor
                                     element_shape=(limits.n_obs,))
 
-    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled):
+    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weight_scaling):
         return tf.greater(n, n_produced)
 
-    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None):
+    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=1.):
         eff = tf.reduce_max([eff, ztf.to_real(1e-6)])
 
         n_to_produce = n - n_produced
@@ -206,13 +206,17 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         do_print = settings.get_verbosity() > 5
         if do_print:
-            print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff)
+            print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff,
+                                " with total produced ", n_produced, " and total drawn ", n_total_drawn,
+                                " with weights scaling", weights_scaling)
         with tf.control_dependencies([print_op] if do_print else []):
             n_to_produce = tf.identity(n_to_produce)
         if dynamic_array_shape:
             n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * 1.01) + 10  # just to make sure
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-            n_to_produce = tf.minimum(n_to_produce, tf.to_int32(8e5))  # introduce a cap to force serial
+            max_produce_cap = tf.to_int32(8e5)
+            safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
+            n_to_produce = tf.minimum(safe_to_produce, max_produce_cap)  # introduce a cap to force serial
             new_limits = limits
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
@@ -258,8 +262,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # a value smaller by a factor of 1e-14
             # with tf.control_dependencies([probabilities]):
             # UPDATE: this works now? Was it just a one-time bug?
-            weights_scaling = tf.reduce_max(probabilities / weights)
+
+            # safety margin, predicting future, improve for small samples?
+            weights_scaling = tf.maximum(weights_scaling, tf.reduce_max(probabilities / weights) * (1 + 1e-2))
         else:
+            raise RuntimeError
             weights_scaling = prob_max / weights_max
 
         weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
@@ -275,6 +282,14 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                                          "was used, make sure that either the shape of the "
                                                          "custom sampler (resp. it's weights) overlap better "
                                                          "or decrease the `max_weight`")]
+            check_ratio_threshold = 10000.
+            assert_scaling_op = tf.assert_less(weights_scaling, ztf.constant(check_ratio_threshold),
+                                               message="The ratio between the probabilities from the pdf and the"
+                                               f"probability from the sampler is higher"
+                                               f" then {check_ratio_threshold}. This will most probably bias the sampling."
+                                               f"Use importance sampling or, to disable this check, do"
+                                               f"\nzfit.run.numeric_checks = False")
+            assert_op.append(assert_scaling_op)
         else:
             assert_op = []
         with tf.control_dependencies(assert_op):
@@ -301,10 +316,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         # efficiency (estimate) of how many samples we get
         eff = tf.reduce_max([ztf.to_real(n_produced_new), ztf.to_real(1.)]) / tf.reduce_max(
             [ztf.to_real(n_total_drawn), ztf.to_real(1.)])
-        return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled
+        return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling
 
     efficiency_estimation = ztf.to_real(efficiency_estimation)
-    loop_vars = (n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled)
+    weights_scaling = ztf.constant(1.)
+    loop_vars = (
+        n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling)
 
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,

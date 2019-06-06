@@ -189,6 +189,46 @@ def test_importance_sampling():
     assert std2 == pytest.approx(sigma_pdf, rel=0.02)
 
 
+@pytest.mark.flaky(3)  # statistical
+def test_importance_sampling_uniform():
+    low = -3.
+    high = 7.
+    obs = zfit.Space("obs1", (low, high))
+    uniform = zfit.pdf.Uniform(obs=obs, low=low, high=high)
+    importance_sampling_called = [False]
+
+    class GaussianSampleAndWeights(SessionHolderMixin):
+
+        def __call__(self, n_to_produce, limits, dtype):
+            importance_sampling_called[0] = True
+
+            import tensorflow_probability.python.distributions as tfd
+            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            gaussian = tfd.TruncatedNormal(loc=ztf.constant(-1.), scale=ztf.constant(2.),
+                                           low=low, high=high)
+            sample = gaussian.sample(sample_shape=(n_to_produce, 1))
+            weights = gaussian.prob(sample)[:, 0]
+            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            return sample, thresholds, weights, None, n_to_produce
+
+    uniform._sample_and_weights = GaussianSampleAndWeights
+    # HACK
+    zfit.settings.set_verbosity(10)
+    # HACK END
+    n_sample = 10000
+    sample = uniform.sample(n=n_sample)
+    assert importance_sampling_called[0]
+    sample_np = zfit.run(sample)
+    n_bins = 20
+    bin_counts, _ = np.histogram(sample_np, bins=n_bins)
+    expected_per_bin = n_sample / n_bins
+
+    assert np.std(bin_counts) < np.sqrt(expected_per_bin) * 2
+    assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
+    import matplotlib.pyplot as plt
+    plt.hist(sample_np, bins=40)
+    plt.show()
+
 def test_sampling_fixed_eventlimits():
     n_samples1 = 500
     n_samples2 = 400  # just to make sure
