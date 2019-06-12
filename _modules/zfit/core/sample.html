@@ -374,7 +374,7 @@
             <span class="n">prob_weights_ratio</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">/</span> <span class="n">weights</span>
             <span class="n">min_prob_weights_ratio</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span><span class="n">prob_weights_ratio</span><span class="p">)</span>
             <span class="n">max_prob_weights_ratio</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">prob_weights_ratio</span><span class="p">)</span>
-            <span class="n">ratio_threshold</span> <span class="o">=</span> <span class="mf">50000.</span>
+            <span class="n">ratio_threshold</span> <span class="o">=</span> <span class="mf">50000000.</span>
             <span class="c1"># clipping means that we don&#39;t scale more for a certain threshold</span>
             <span class="c1"># to properly account for very small numbers, the thresholds should be scaled to match the ratio</span>
             <span class="c1"># but if a weight of a sample is very low (compared to the other weights), this would force the acceptance</span>
@@ -568,7 +568,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
     </p>
   </div>
 </footer>

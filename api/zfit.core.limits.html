@@ -141,21 +141,6 @@ the total area of your intervals. You can retrieve the total area or (if multipl
 <cite>integrate</cite> taking the lower and upper limits and returning the function), you can do
 &gt;&gt;&gt; def integrate(lower_limit, upper_limit): return 42  # dummy function
 &gt;&gt;&gt; integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))</p>
-<dl class="data">
-<dt id="zfit.core.limits.ANY">
-<code class="sig-prename descclassname">zfit.core.limits.</code><code class="sig-name descname">ANY</code><em class="property"> = &lt;Any&gt;</em><a class="headerlink" href="#zfit.core.limits.ANY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="zfit.core.limits.ANY_LOWER">
-<code class="sig-prename descclassname">zfit.core.limits.</code><code class="sig-name descname">ANY_LOWER</code><em class="property"> = &lt;Any Lower Limit&gt;</em><a class="headerlink" href="#zfit.core.limits.ANY_LOWER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="zfit.core.limits.ANY_UPPER">
-<code class="sig-prename descclassname">zfit.core.limits.</code><code class="sig-name descname">ANY_UPPER</code><em class="property"> = &lt;Any Upper Limit&gt;</em><a class="headerlink" href="#zfit.core.limits.ANY_UPPER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
 <dt id="zfit.core.limits.Any">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.limits.</code><code class="sig-name descname">Any</code><a class="reference internal" href="../_modules/zfit/core/limits.html#Any"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.limits.Any" title="Permalink to this definition">¶</a></dt>
@@ -397,7 +382,7 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dl class="method">
 <dt id="zfit.core.limits.Space.limit1d">
 <em class="property">property </em><code class="sig-name descname">limit1d</code><a class="headerlink" href="#zfit.core.limits.Space.limit1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).</p>
+<dd><p>return the tuple(lower, upper).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>so <code class="code docutils literal notranslate"><span class="pre">lower,</span> <span class="pre">upper</span> <span class="pre">=</span> <span class="pre">space.limit1d</span></code> for a simple, 1 obs limit.</p>
@@ -408,13 +393,16 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
 </dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>Simplified limits getter for 1 obs, 1 limit only</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.limits.Space.limit2d">
 <em class="property">property </em><code class="sig-name descname">limit2d</code><a class="headerlink" href="#zfit.core.limits.Space.limit2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simplified <cite>limits</cite> for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</p>
+<dd><p>return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -429,6 +417,9 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
 </dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>Simplified <cite>limits</cite> for exactly 2 obs, 1 limit</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -442,7 +433,7 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 <dl class="method">
 <dt id="zfit.core.limits.Space.limits1d">
 <em class="property">property </em><code class="sig-name descname">limits1d</code><a class="headerlink" href="#zfit.core.limits.Space.limits1d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simplified <cite>.limits</cite> for exactly 1 obs, n limits: return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
+<dd><p>return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -456,6 +447,9 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
+</dd>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>Simplified <cite>.limits</cite> for exactly 1 obs, n limits</p>
 </dd>
 </dl>
 </dd></dl>
@@ -689,7 +683,7 @@ therefore required.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
     </p>
   </div>
 </footer>

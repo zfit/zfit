@@ -112,7 +112,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
-<div class="viewcode-block" id="DotDict"><a class="viewcode-back" href="../../../api/zfit.util.container.html#zfit.settings.DotDict">[docs]</a><span class="k">class</span> <span class="nc">DotDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="DotDict"><a class="viewcode-back" href="../../../api/zfit.util.container.html#zfit.util.container.DotDict">[docs]</a><span class="k">class</span> <span class="nc">DotDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;dot.notation access to dictionary attributes&quot;&quot;&quot;</span>
 
     <span class="fm">__getattr__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">get</span>
@@ -120,7 +120,7 @@
     <span class="fm">__delattr__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__delitem__</span></div>
 
 
-<div class="viewcode-block" id="convert_to_container"><a class="viewcode-back" href="../../../api/zfit.util.container.html#zfit.settings.convert_to_container">[docs]</a><span class="k">def</span> <span class="nf">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">container</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">list</span><span class="p">,</span> <span class="n">non_containers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="convert_to_container"><a class="viewcode-back" href="../../../api/zfit.util.container.html#zfit.util.container.convert_to_container">[docs]</a><span class="k">def</span> <span class="nf">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">container</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">list</span><span class="p">,</span> <span class="n">non_containers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">convert_none</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Convert `value` into a `container` storing `value` if `value` is not yet a python container.</span>
 
@@ -153,7 +153,7 @@
     <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="is_container"><a class="viewcode-back" href="../../../api/zfit.util.container.html#zfit.settings.is_container">[docs]</a><span class="k">def</span> <span class="nf">is_container</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="is_container"><a class="viewcode-back" href="../../../api/zfit.util.container.html#zfit.util.container.is_container">[docs]</a><span class="k">def</span> <span class="nf">is_container</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Check if `object` is a list or a tuple.</span>
 
 <span class="sd">    Args:</span>
@@ -177,7 +177,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
     </p>
   </div>
 </footer>
