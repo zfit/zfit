@@ -267,7 +267,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             prob_weights_ratio = probabilities / weights
             min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)
             max_prob_weights_ratio = tf.reduce_max(prob_weights_ratio)
-            ratio_threshold = 50000.
+            ratio_threshold = 50000000.
             # clipping means that we don't scale more for a certain threshold
             # to properly account for very small numbers, the thresholds should be scaled to match the ratio
             # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
