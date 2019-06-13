@@ -371,8 +371,11 @@
             <span class="c1"># UPDATE: this works now? Was it just a one-time bug?</span>
 
             <span class="c1"># safety margin, predicting future, improve for small samples?</span>
-            <span class="n">prob_weights_ratio</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">/</span> <span class="n">weights</span>
-            <span class="n">min_prob_weights_ratio</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span><span class="n">prob_weights_ratio</span><span class="p">)</span>
+            <span class="n">weights_maximum</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+            <span class="n">weights_clipped</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">weights_maximum</span> <span class="o">*</span> <span class="mf">1e-5</span><span class="p">)</span>
+            <span class="c1"># prob_weights_ratio = probabilities / weights</span>
+            <span class="n">prob_weights_ratio</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">/</span> <span class="n">weights_clipped</span>
+            <span class="c1"># min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)</span>
             <span class="n">max_prob_weights_ratio</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">prob_weights_ratio</span><span class="p">)</span>
             <span class="n">ratio_threshold</span> <span class="o">=</span> <span class="mf">50000000.</span>
             <span class="c1"># clipping means that we don&#39;t scale more for a certain threshold</span>
