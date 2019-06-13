@@ -264,8 +264,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # UPDATE: this works now? Was it just a one-time bug?
 
             # safety margin, predicting future, improve for small samples?
-            prob_weights_ratio = probabilities / weights
-            min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)
+            weights_maximum = tf.reduce_max(weights)
+            weights_clipped = tf.maximum(weights, weights_maximum * 1e-5)
+            # prob_weights_ratio = probabilities / weights
+            prob_weights_ratio = probabilities / weights_clipped
+            # min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)
             max_prob_weights_ratio = tf.reduce_max(prob_weights_ratio)
             ratio_threshold = 50000000.
             # clipping means that we don't scale more for a certain threshold
