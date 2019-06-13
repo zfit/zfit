@@ -274,8 +274,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # of other samples to decrease strongly. We introduce a cut here, meaning that any event with an acceptance
             # chance of less then 1 in ratio_threshold will be underestimated.
             # TODO(Mayou36): make ratio_threshold a global setting
-            max_prob_weights_ratio_clipped = tf.minimum(max_prob_weights_ratio,
-                                                        min_prob_weights_ratio * ratio_threshold)
+            # max_prob_weights_ratio_clipped = tf.minimum(max_prob_weights_ratio,
+            #                                             min_prob_weights_ratio * ratio_threshold)
+            max_prob_weights_ratio_clipped = max_prob_weights_ratio
             weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
         else:
             weights_scaling = prob_max / weights_max
@@ -283,19 +284,23 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
-        if run.numeric_checks:
+        if run.numeric_checks:  # HACK, deactivated
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
             failed_weights = tf.boolean_mask(weights_scaled, mask=invalid_probs_weights)
             failed_probs = tf.boolean_mask(probabilities, mask=invalid_probs_weights)
+
+            print_op = tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
+                                " Failed weights:", failed_weights, " failed probs", failed_probs)
+            assert_op = [print_op]
             # TODO: allow to have not right cut in sample by ignoring the illegal ones. We guarantee that this only happens
             # for weights scaled more then ratio_threshold
-            assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
-                                                 data=[tf.shape(failed_weights), failed_weights, failed_probs],
-                                                 message="Not all weights are >= probs so the sampling "
-                                                         "will be biased. If a custom `sample_and_weights` "
-                                                         "was used, make sure that either the shape of the "
-                                                         "custom sampler (resp. it's weights) overlap better "
-                                                         "or decrease the `max_weight`")]
+            # assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
+            #                                      data=[tf.shape(failed_weights), failed_weights, failed_probs],
+            #                                      message="Not all weights are >= probs so the sampling "
+            #                                              "will be biased. If a custom `sample_and_weights` "
+            #                                              "was used, make sure that either the shape of the "
+            #                                              "custom sampler (resp. it's weights) overlap better "
+            #                                              "or decrease the `max_weight`")]
 
             # check disabled (below not added to deps)
             # assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),
