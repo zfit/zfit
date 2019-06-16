@@ -20,12 +20,15 @@ The syntax is as follows:
 
     param1 = zfit.Parameter("param_name_human_readable", start_value[, lower_limit, upper_limit])
 
+Furthermore, a ``step_size`` can be specified. If not, it is set to a default value around 0.001.
 :py:class:`~zfit.Parameter` can have limits (tested with :py:meth:`~zfit.Parameter.has_limits`), which will
 clip the value to the limits given by :py:meth:`~zfit.Parameter.lower_limit` and
 :py:meth:`~zfit.Parameter.upper_limit`.
-While this closely follows the RooFit syntax, it is very important to note that the optional limits of the parameter behave differently:
-if not given, the parameter will be "unbounded", not fixed.
-Parameters are therefore floating by default, but their value can be fixed by setting the attribute ``floating`` to ``False``.
+While this closely follows the RooFit syntax, it is very important to note that the optional limits
+of the parameter behave differently:
+if not given, the parameter will be "unbounded", not fixed (as in RooFit).
+Parameters are therefore floating by default, but their value can be fixed by setting the attribute
+``floating`` to ``False`` or already specifying it in the init.
 
 The value of the parameter can be changed with the :py:func:`~zfit.Parameter.set_value` method.
 Using this method as a context manager, the value can also temporarily changed.

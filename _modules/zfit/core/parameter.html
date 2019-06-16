@@ -495,10 +495,12 @@
         <span class="n">step_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span>
         <span class="k">if</span> <span class="n">step_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># auto-infer from limits</span>
-            <span class="n">step_splits</span> <span class="o">=</span> <span class="mf">1e4</span>
-            <span class="c1"># step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?</span>
+            <span class="c1"># step_splits = 1e4</span>
+            <span class="c1"># if self.has_limits:</span>
+            <span class="c1">#     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?</span>
+            <span class="c1"># else:</span>
             <span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.001</span>
-            <span class="k">if</span> <span class="n">step_size</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">step_size</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">:</span>
                     <span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.001</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -512,7 +514,8 @@
     <span class="nd">@step_size</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">step_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="Parameter.load"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.Parameter.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>

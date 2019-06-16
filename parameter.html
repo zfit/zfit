@@ -122,12 +122,15 @@ be instantiated.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">param1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;param_name_human_readable&quot;</span><span class="p">,</span> <span class="n">start_value</span><span class="p">[,</span> <span class="n">lower_limit</span><span class="p">,</span> <span class="n">upper_limit</span><span class="p">])</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> can have limits (tested with <a class="reference internal" href="api/zfit.html#zfit.Parameter.has_limits" title="zfit.Parameter.has_limits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">has_limits()</span></code></a>), which will
+<p>Furthermore, a <code class="docutils literal notranslate"><span class="pre">step_size</span></code> can be specified. If not, it is set to a default value around 0.001.
+<a class="reference internal" href="api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> can have limits (tested with <a class="reference internal" href="api/zfit.html#zfit.Parameter.has_limits" title="zfit.Parameter.has_limits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">has_limits()</span></code></a>), which will
 clip the value to the limits given by <a class="reference internal" href="api/zfit.html#zfit.Parameter.lower_limit" title="zfit.Parameter.lower_limit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lower_limit()</span></code></a> and
 <a class="reference internal" href="api/zfit.html#zfit.Parameter.upper_limit" title="zfit.Parameter.upper_limit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upper_limit()</span></code></a>.
-While this closely follows the RooFit syntax, it is very important to note that the optional limits of the parameter behave differently:
-if not given, the parameter will be “unbounded”, not fixed.
-Parameters are therefore floating by default, but their value can be fixed by setting the attribute <code class="docutils literal notranslate"><span class="pre">floating</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+While this closely follows the RooFit syntax, it is very important to note that the optional limits
+of the parameter behave differently:
+if not given, the parameter will be “unbounded”, not fixed (as in RooFit).
+Parameters are therefore floating by default, but their value can be fixed by setting the attribute
+<code class="docutils literal notranslate"><span class="pre">floating</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> or already specifying it in the init.</p>
 <p>The value of the parameter can be changed with the <a class="reference internal" href="api/zfit.html#zfit.Parameter.set_value" title="zfit.Parameter.set_value"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_value()</span></code></a> method.
 Using this method as a context manager, the value can also temporarily changed.
 However, be aware that anything _dependent_ on the parameter will have a value with the
