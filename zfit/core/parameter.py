@@ -388,10 +388,12 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         step_size = self._step_size
         if step_size is None:
             # auto-infer from limits
-            step_splits = 1e4
-            # step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            # step_splits = 1e4
+            # if self.has_limits:
+            #     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            # else:
             step_size = 0.001
-            if step_size == np.nan:
+            if np.isnan(step_size):
                 if self.lower_limit == -np.infty or self.upper_limit == np.infty:
                     step_size = 0.001
                 else:
@@ -405,7 +407,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
     @step_size.setter
     def step_size(self, value):
         if value is not None:
-            value = ztf.convert_to_tensor(value)
+            value = ztf.convert_to_tensor(value, preferred_dtype=ztypes.float)
+            value = tf.cast(value, dtype=ztypes.float)
         self._step_size = value
 
     def load(self, value: ztyping.NumericalScalarType):
