@@ -239,6 +239,51 @@ class FitResult(SessionHolderMixin, ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
 
+    def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None,
+                   as_dict: bool = False):
+        """Calculate the covariance matrix for `params`.
+
+            Args:
+                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate
+                    the covariance matrix. If `params` is `None`, use all *floating* parameters.
+                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+
+            Returns:
+                2D `numpy.array` of shape (N, N);
+                `dict`(param1, param2) -> covariance if `as_dict == True`.
+        """
+        params = self._input_check_params(params)
+        covariance_dict = self.minimizer._minuit_minimizer.covariance
+
+        cov = {}
+        for p1 in params:
+            for p2 in params:
+                k = (p1.name, p2.name)
+                cov[k] = covariance_dict[k]
+        covariance_dict = cov
+
+        if as_dict:
+            return covariance_dict
+        else:
+            return self._np_covariance(params, covariance_dict)
+
+    def _np_covariance(self, params, covariance_dict):
+        import numpy as np
+
+        nparams = len(params)
+        matrix = np.empty((nparams, nparams))
+
+        for i in range(nparams):
+            pi = params[i].name
+            for j in range(nparams-i):
+                j = j+i
+                pj = params[j].name
+                k = (pi, pj)
+                matrix[i, j] = covariance_dict[k]
+                matrix[j, i] = covariance_dict[k]
+
+        return matrix
+
 # def set_error_method(self, method):
 #     if isinstance(method, str):
 #         try:
