@@ -27,7 +27,7 @@ def test_legendre_polynomial():
 
 
 def test_chebyshev():
-    chebyshev = zfit.pdf.Chebyshev(obs=obs1, coeffs=[1.1, 11.5, 0.6])
+    chebyshev = zfit.pdf.Chebyshev(obs=obs1, coeffs=[1.1, 1.5, 0.6])
 
     integral = chebyshev.integrate(limits=obs1, norm_range=False)
     numerical_integral = chebyshev.numeric_integrate(limits=obs1, norm_range=False)
