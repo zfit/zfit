@@ -29,6 +29,14 @@ def test_legendre_polynomial():
 def test_chebyshev():
     chebyshev = zfit.pdf.Chebyshev(obs=obs1, coeffs=[1.1, 1.5, 0.6])
 
-    integral = chebyshev.integrate(limits=obs1, norm_range=False)
+    integral = chebyshev.analytic_integrate(limits=obs1, norm_range=False)
     numerical_integral = chebyshev.numeric_integrate(limits=obs1, norm_range=False)
+    assert pytest.approx(zfit.run(integral), rel=1e-3) == zfit.run(numerical_integral)
+
+
+def test_chebyshev2():
+    chebyshev2 = zfit.pdf.Chebyshev2(obs=obs1, coeffs=[1.0])
+
+    integral = chebyshev2.analytic_integrate(limits=obs1, norm_range=False)
+    numerical_integral = chebyshev2.numeric_integrate(limits=obs1, norm_range=False)
     assert pytest.approx(zfit.run(integral), rel=1e-3) == zfit.run(numerical_integral)

@@ -205,14 +205,52 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
 chebyshev1_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev.register_analytic_integral(func=func_integral_chebyshev1, limits=chebyshev1_limits_integral)
 
+chebyshev2_polys = [lambda x: tf.ones_like(x), lambda x: x * 2]
+
+
+def chebyshev2_shape(x, coeffs):
+    return create_poly(x=x, polys=chebyshev2_polys, coeffs=coeffs, recurrence=chebyshev_recurrence)
+
 
 class Chebyshev2(RecursivePolynomial):
     """Chebyshev polynomials of the second kind."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev2", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: x * 2, coeffs=coeffs,
-                         recurrence=chebyshev_recurrence, apply_scaling=apply_scaling, **kwargs)
+                         coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
+
+    @staticmethod
+    def _poly_func(x, coeffs):
+        return chebyshev2_shape(x=x, coeffs=coeffs)
+
+
+def func_integral_chebyshev2(limits, norm_range, params, model):
+    lower, upper = limits.limit1d
+    lower_rescaled = model._polynomials_rescale(lower)
+    upper_rescaled = model._polynomials_rescale(upper)
+
+    lower = ztf.convert_to_tensor(lower_rescaled)
+    upper = ztf.convert_to_tensor(upper_rescaled)
+
+    # the integral of cheby2_ni is a cheby1_ni+1/(n+1). We add the (n+1) to the coeffs. The cheby1 shape makes
+    # the sum for us.
+    coeffs_cheby1 = {f'c_{int(n.split("_", 1)[-1]) + 1}': c / ztf.convert_to_tensor(i + 1, dtype=model.dtype)
+                     for i, (n, c) in enumerate(params.items())}  # increase n -> n+1 of naming
+    coeffs_cheby1['c_0'] = tf.constant(0., dtype=model.dtype)
+
+    def indefinite_integral(limits):
+        return chebyshev_shape(x=limits, coeffs=coeffs_cheby1)
+
+    integral = indefinite_integral(upper) - indefinite_integral(lower)
+    integral = tf.reshape(integral, shape=())
+
+    return integral
+
+
+chebyshev2_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+Chebyshev2.register_analytic_integral(func=func_integral_chebyshev2, limits=chebyshev2_limits_integral)
+
+laguerre_polys = [lambda x: tf.ones_like(x), lambda x: 1 - x]
 
 
 def laguerre_recurrence(p1, p2, n, x):
@@ -224,13 +262,23 @@ def laguerre_recurrence(p1, p2, n, x):
     return (tf.multiply(2 * n + 1 - x, p1) - n * p2) / (n + 1)
 
 
+def laguerre_shape(x, coeffs):
+    return create_poly(x=x, polys=laguerre_polys, coeffs=coeffs, recurrence=laguerre_recurrence)
+
+
 class Laguerre(RecursivePolynomial):
     """Laguerre polynomials."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Laguerre", **kwargs):  # noqa
-        super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: 1 - x, coeffs=coeffs,
-                         recurrence=laguerre_recurrence, apply_scaling=apply_scaling, **kwargs)
+        super().__init__(obs=obs, name=name, coeffs=coeffs,
+                         apply_scaling=apply_scaling, **kwargs)
+
+    @staticmethod
+    def _poly_func(x, coeffs):
+        return laguerre_shape(x=x, coeffs=coeffs)
+
+
+hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
 
 def hermite_recurrence(p1, p2, n, x):
@@ -242,12 +290,18 @@ def hermite_recurrence(p1, p2, n, x):
     return 2 * (tf.multiply(x, p1) - n * p2)
 
 
+def hermite_shape(x, coeffs):
+    return create_poly(x=x, polys=hermite_polys, coeffs=coeffs, recurrence=hermite_recurrence)
+
+
 class Hermite(RecursivePolynomial):
     """Hermite polynomials as defined for Physics."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Hermite", **kwargs):  # noqa
-        super().__init__(obs=obs, name=name,
-                         f0=lambda x: tf.ones_like(x), f1=lambda x: 2 * x, coeffs=coeffs,
-                         recurrence=hermite_recurrence, apply_scaling=apply_scaling, **kwargs)
+        super().__init__(obs=obs, name=name, coeffs=coeffs,
+                         apply_scaling=apply_scaling, **kwargs)
 
+    @staticmethod
+    def _poly_func(x, coeffs):
+        return hermite_shape(x=x, coeffs=coeffs)
 # EOF
