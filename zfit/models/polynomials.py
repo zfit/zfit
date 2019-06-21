@@ -1,7 +1,7 @@
 #  Copyright (c) 2019 zfit
 """Recurrent polynomials."""
 
-from typing import Callable, List
+from typing import Callable, List, Dict
 
 import tensorflow as tf
 import numpy as np
@@ -250,20 +250,41 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
 chebyshev2_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev2.register_analytic_integral(func=func_integral_chebyshev2, limits=chebyshev2_limits_integral)
 
-laguerre_polys = [lambda x: tf.ones_like(x), lambda x: 1 - x]
+
+def generalized_laguerre_polys_factory(alpha=0.):
+    return [lambda x: tf.ones_like(x), lambda x: 1 + alpha - x]
 
 
-def laguerre_recurrence(p1, p2, n, x):
-    """Recurrence relation for Laguerre polynomials.
-
-    (n+1) L_{n+1}(x) = (2n + 1 - x) L_{n}(x) - n L_{n-1}(x)
-
-    """
-    return (tf.multiply(2 * n + 1 - x, p1) - n * p2) / (n + 1)
+laguerre_polys = generalized_laguerre_polys_factory(alpha=0.)
 
 
-def laguerre_shape(x, coeffs):
-    return create_poly(x=x, polys=laguerre_polys, coeffs=coeffs, recurrence=laguerre_recurrence)
+def generalized_laguerre_recurrence_factory(alpha=0.):
+    def generalized_laguerre_recurrence(p1, p2, n, x):
+        """Recurrence relation for Laguerre polynomials.
+
+        :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
+
+        """
+        return (tf.multiply(2 * n + 1 + alpha - x, p1) - (n + alpha) * p2) / (n + 1)
+
+    return generalized_laguerre_recurrence
+
+
+laguerre_recurrence = generalized_laguerre_recurrence_factory(alpha=0.)
+
+
+def generalized_laguerre_shape_factory(alpha=0.):
+    recurrence = generalized_laguerre_recurrence_factory(alpha=alpha)
+    polys = generalized_laguerre_polys_factory(alpha=alpha)
+
+    def general_laguerre_shape(x, coeffs):
+        return create_poly(x=x, polys=polys, coeffs=coeffs, recurrence=recurrence)
+
+    return general_laguerre_shape
+
+
+laguerre_shape = generalized_laguerre_shape_factory(alpha=0.)
+laguerre_shape_alpha_minusone = generalized_laguerre_shape_factory(alpha=-1.)  # for integral
 
 
 class Laguerre(RecursivePolynomial):
@@ -277,6 +298,44 @@ class Laguerre(RecursivePolynomial):
     def _poly_func(x, coeffs):
         return laguerre_shape(x=x, coeffs=coeffs)
 
+
+def func_integral_laguerre(limits, norm_range, params: Dict, model):
+    """The integral of the simple laguerre polynomials.
+
+    Defined as :math:`\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
+
+    Args:
+        limits:
+        norm_range:
+        params:
+        model:
+
+    Returns:
+
+    """
+    lower, upper = limits.limit1d
+    lower_rescaled = model._polynomials_rescale(lower)
+    upper_rescaled = model._polynomials_rescale(upper)
+
+    lower = ztf.convert_to_tensor(lower_rescaled)
+    upper = ztf.convert_to_tensor(upper_rescaled)
+
+    # The laguerre shape makes the sum for us. setting the 0th coeff to 0, since no -1 term exists.
+    coeffs_laguerre_nup = {f'c_{int(n.split("_", 1)[-1]) + 1}': c
+                           for i, (n, c) in enumerate(params.items())}  # increase n -> n+1 of naming
+    coeffs_laguerre_nup['c_0'] = tf.constant(0., dtype=model.dtype)
+
+    def indefinite_integral(limits):
+        return -1 * laguerre_shape_alpha_minusone(x=limits, coeffs=coeffs_laguerre_nup)
+
+    integral = indefinite_integral(upper) - indefinite_integral(lower)
+    integral = tf.reshape(integral, shape=())
+
+    return integral
+
+
+laguerre_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+Laguerre.register_analytic_integral(func=func_integral_laguerre, limits=laguerre_limits_integral)
 
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
