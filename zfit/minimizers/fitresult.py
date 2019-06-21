@@ -239,8 +239,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
 
-    def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None,
-                   as_dict: bool = False):
+    def covariance(self, params: ParamsTypeOpt = None, as_dict: bool = False):
         """Calculate the covariance matrix for `params`.
 
             Args:
@@ -265,24 +264,26 @@ class FitResult(SessionHolderMixin, ZfitResult):
         if as_dict:
             return covariance_dict
         else:
-            return self._np_covariance(params, covariance_dict)
+            return np_matrix(params, covariance_dict)
 
-    def _np_covariance(self, params, covariance_dict):
-        import numpy as np
 
-        nparams = len(params)
-        matrix = np.empty((nparams, nparams))
+def np_matrix(self, params, matrix_dict):
+    import numpy as np
 
-        for i in range(nparams):
-            pi = params[i].name
-            for j in range(nparams-i):
-                j = j+i
-                pj = params[j].name
-                k = (pi, pj)
-                matrix[i, j] = covariance_dict[k]
-                matrix[j, i] = covariance_dict[k]
+    nparams = len(params)
+    matrix = np.empty((nparams, nparams))
 
-        return matrix
+    for i in range(nparams):
+        pi = params[i].name
+        for j in range(nparams - i):
+            j = j + i
+            pj = params[j].name
+            k = (pi, pj)
+            matrix[i, j] = matrix_dict[k]
+            if i != j:
+                matrix[j, i] = matrix_dict[k]
+
+    return matrix
 
 # def set_error_method(self, method):
 #     if isinstance(method, str):
