@@ -153,9 +153,9 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                            minimizer=self.copy())
         return result
 
-        def copy(self):
-            tmp_minimizer = self._minuit_minimizer
-            self._minuit_minimizer = None
-            new_minimizer = super().copy()
-            new_minimizer._minuit_minimizer = tmp_minimizer
-            return new_minimizer
+    def copy(self):
+        tmp_minimizer = self._minuit_minimizer
+        self._minuit_minimizer = None
+        new_minimizer = super().copy()
+        new_minimizer._minuit_minimizer = tmp_minimizer
+        return new_minimizer
