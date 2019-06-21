@@ -267,7 +267,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
             return np_matrix(params, covariance_dict)
 
 
-def np_matrix(self, params, matrix_dict):
+def np_matrix(params, matrix_dict):
     import numpy as np
 
     nparams = len(params)
