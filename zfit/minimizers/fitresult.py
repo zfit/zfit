@@ -1,8 +1,11 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict, defaultdict
 from typing import Dict, Union, Callable, Optional
 import warnings
 
 import tensorflow as tf
+import numpy as np
 
 import zfit
 from zfit.util.exception import WeightsNotImplementedError
@@ -243,7 +246,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         """Calculate the covariance matrix for `params`.
 
             Args:
-                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate
+                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
@@ -257,31 +260,29 @@ class FitResult(SessionHolderMixin, ZfitResult):
         cov = {}
         for p1 in params:
             for p2 in params:
-                k = (p1.name, p2.name)
-                cov[k] = covariance_dict[k]
+                key = (p1, p2)
+                cov[key] = covariance_dict[(k.name for k in key)]
         covariance_dict = cov
 
         if as_dict:
             return covariance_dict
         else:
-            return np_matrix(params, covariance_dict)
+            return dict_to_matrix(params, covariance_dict)
 
 
-def np_matrix(params, matrix_dict):
-    import numpy as np
+def dict_to_matrix(params, matrix_dict):
 
     nparams = len(params)
     matrix = np.empty((nparams, nparams))
 
     for i in range(nparams):
-        pi = params[i].name
-        for j in range(nparams - i):
-            j = j + i
-            pj = params[j].name
-            k = (pi, pj)
-            matrix[i, j] = matrix_dict[k]
+        pi = params[i]
+        for j in range(i, nparams):
+            pj = params[j]
+            key = (pi, pj)
+            matrix[i, j] = matrix_dict[key]
             if i != j:
-                matrix[j, i] = matrix_dict[k]
+                matrix[j, i] = matrix_dict[key]
 
     return matrix
 
