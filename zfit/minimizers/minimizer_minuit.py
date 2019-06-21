@@ -61,7 +61,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
         if 'errordef' in minimizer_options:
             raise ValueError("errordef cannot be specified for Minuit as this is already defined in the Loss.")
         loss_errordef = loss.errordef
-        if not isinstance(loss_errordef, float):
+        if not isinstance(loss_errordef, (float, int)):
             loss_errordef = 1.0  # default of minuit
         minimizer_init['errordef'] = loss_errordef
         minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
@@ -128,34 +128,6 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
                                                    # forced_parameters=[f"param_{i}" for i in range(len(start_values))],
                                                    **minimizer_init)
 
-        """
-        error_limit_kwargs = {}
-        param_lower_upper_step = tuple(
-            (param, param.lower_limit, param.upper_limit, param.step_size)
-            for param in params)
-        param_lower_upper_step = self.sess.run(param_lower_upper_step)
-        for param, (value, low, up, step) in zip(params, param_lower_upper_step):
-            param_kwargs = {}
-            param_kwargs[param.name] = value
-            param_kwargs['limit_' + param.name] = low, up
-            param_kwargs['error_' + param.name] = step
-
-            error_limit_kwargs.update(param_kwargs)
-        params_name = [param.name for param in params]
-
-        overlapping_kwargs = frozenset(error_limit_kwargs.keys()).intersection(minimizer_init.keys())
-        if overlapping_kwargs:
-            raise ValueError("The following `minimizer_init` arguments are defined internally and are invalid: "
-                             "{}".format(overlapping_kwargs))
-        error_limit_kwargs.update(minimizer_init)
-
-        # if self._minuit_minimizer is None:
-        minimizer = iminuit.Minuit(fcn=func, use_array_call=True,
-                                   grad=grad_func,
-                                   forced_parameters=params_name,
-                                   print_level=self.verbosity,
-                                   **error_limit_kwargs)
-        """
         strategy = minimizer_setter.pop('strategy')
         minimizer.set_strategy(strategy)
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter:".format(
