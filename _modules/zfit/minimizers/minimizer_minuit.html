@@ -168,7 +168,7 @@
         <span class="k">if</span> <span class="s1">&#39;errordef&#39;</span> <span class="ow">in</span> <span class="n">minimizer_options</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;errordef cannot be specified for Minuit as this is already defined in the Loss.&quot;</span><span class="p">)</span>
         <span class="n">loss_errordef</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">errordef</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loss_errordef</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loss_errordef</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
             <span class="n">loss_errordef</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># default of minuit</span>
         <span class="n">minimizer_init</span><span class="p">[</span><span class="s1">&#39;errordef&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_errordef</span>
         <span class="n">minimizer_init</span><span class="p">[</span><span class="s1">&#39;pedantic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minimizer_options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;pedantic&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -235,37 +235,9 @@
                                                    <span class="c1"># forced_parameters=[f&quot;param_{i}&quot; for i in range(len(start_values))],</span>
                                                    <span class="o">**</span><span class="n">minimizer_init</span><span class="p">)</span>
 
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        error_limit_kwargs = {}</span>
-<span class="sd">        param_lower_upper_step = tuple(</span>
-<span class="sd">            (param, param.lower_limit, param.upper_limit, param.step_size)</span>
-<span class="sd">            for param in params)</span>
-<span class="sd">        param_lower_upper_step = self.sess.run(param_lower_upper_step)</span>
-<span class="sd">        for param, (value, low, up, step) in zip(params, param_lower_upper_step):</span>
-<span class="sd">            param_kwargs = {}</span>
-<span class="sd">            param_kwargs[param.name] = value</span>
-<span class="sd">            param_kwargs[&#39;limit_&#39; + param.name] = low, up</span>
-<span class="sd">            param_kwargs[&#39;error_&#39; + param.name] = step</span>
-
-<span class="sd">            error_limit_kwargs.update(param_kwargs)</span>
-<span class="sd">        params_name = [param.name for param in params]</span>
-
-<span class="sd">        overlapping_kwargs = frozenset(error_limit_kwargs.keys()).intersection(minimizer_init.keys())</span>
-<span class="sd">        if overlapping_kwargs:</span>
-<span class="sd">            raise ValueError(&quot;The following `minimizer_init` arguments are defined internally and are invalid: &quot;</span>
-<span class="sd">                             &quot;{}&quot;.format(overlapping_kwargs))</span>
-<span class="sd">        error_limit_kwargs.update(minimizer_init)</span>
-
-<span class="sd">        # if self._minuit_minimizer is None:</span>
-<span class="sd">        minimizer = iminuit.Minuit(fcn=func, use_array_call=True,</span>
-<span class="sd">                                   grad=grad_func,</span>
-<span class="sd">                                   forced_parameters=params_name,</span>
-<span class="sd">                                   print_level=self.verbosity,</span>
-<span class="sd">                                   **error_limit_kwargs)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">strategy</span> <span class="o">=</span> <span class="n">minimizer_setter</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;strategy&#39;</span><span class="p">)</span>
         <span class="n">minimizer</span><span class="o">.</span><span class="n">set_strategy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="n">minimizer_setter</span><span class="p">,</span> <span class="s2">&quot;minimizer_setter is not empty, bug. Please report. minimizer_setter:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">minimizer_setter</span><span class="p">,</span> <span class="s2">&quot;minimizer_setter is not empty, bug. Please report. minimizer_setter: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">minimizer_setter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">migrad</span><span class="p">(</span><span class="o">**</span><span class="n">minimize_options</span><span class="p">)</span>
@@ -288,12 +260,12 @@
                            <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">result</span>
 
-        <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="n">tmp_minimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">new_minimizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">new_minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">tmp_minimizer</span>
-            <span class="k">return</span> <span class="n">new_minimizer</span></div>
+<div class="viewcode-block" id="MinuitMinimizer.copy"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizer_minuit.html#zfit.minimize.MinuitMinimizer.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tmp_minimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">new_minimizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">tmp_minimizer</span>
+        <span class="k">return</span> <span class="n">new_minimizer</span></div></div>
 </pre></div>
 
     </div>
@@ -308,7 +280,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

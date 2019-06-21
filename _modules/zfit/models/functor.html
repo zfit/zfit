@@ -348,7 +348,9 @@
             <span class="n">yields</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">extended</span><span class="p">:</span>
-            <span class="n">yield_fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">yield_</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">yields</span><span class="p">)</span> <span class="k">for</span> <span class="n">yield_</span> <span class="ow">in</span> <span class="n">yields</span><span class="p">]</span>
+            <span class="c1"># TODO(Mayou36): convert to correct dtype</span>
+            <span class="n">sum_yields</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">yields</span><span class="p">])</span>
+            <span class="n">yield_fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">yield_</span> <span class="o">/</span> <span class="n">sum_yields</span> <span class="k">for</span> <span class="n">yield_</span> <span class="ow">in</span> <span class="n">yields</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span> <span class="o">=</span> <span class="n">yield_fracs</span>
             <span class="c1"># self.fracs = yield_fracs</span>
             <span class="n">set_yield_at_end</span> <span class="o">=</span> <span class="kc">True</span>
@@ -364,7 +366,7 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">set_yield_at_end</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">yields</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">sum_yields</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fracs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -489,7 +491,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

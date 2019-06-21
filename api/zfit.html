@@ -212,6 +212,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.Parameter.aggregation">
+<em class="property">property </em><code class="sig-name descname">aggregation</code><a class="headerlink" href="#zfit.Parameter.aggregation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.Parameter.assign">
 <code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.Parameter.assign" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns a new value to this variable.</p>
@@ -408,6 +413,12 @@ distinct.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.Parameter.gather_nd">
+<code class="sig-name descname">gather_nd</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.Parameter.gather_nd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the value of this variable sparsely, using <cite>gather_nd</cite>.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.Parameter.get_dependents">
 <code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.Parameter.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
@@ -441,7 +452,7 @@ distinct.</p>
 <dl class="method">
 <dt id="zfit.Parameter.get_shape">
 <code class="sig-name descname">get_shape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.Parameter.get_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias of Variable.shape.</p>
+<dd><p>Alias of <cite>Variable.shape</cite>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -475,12 +486,15 @@ distinct.</p>
 <dl class="method">
 <dt id="zfit.Parameter.initialized_value">
 <code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.Parameter.initialized_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of the initialized variable.</p>
+<dd><p>Returns the value of the initialized variable. (deprecated)</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use Variable.read_value. Variables in 2.X are initialized automatically both in eager and graph (inside tf.defun) contexts.</p>
 <p>You should use this instead of the variable itself to initialize another
 variable with a value that depends on the value of this variable.</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">#</span> <span class="pre">Initialize</span> <span class="pre">'v'</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">random</span> <span class="pre">tensor.</span>
-<span class="pre">v</span> <span class="pre">=</span> <span class="pre">tf.Variable(tf.truncated_normal([10,</span> <span class="pre">40]))</span>
+<span class="pre">v</span> <span class="pre">=</span> <span class="pre">tf.Variable(tf.random.truncated_normal([10,</span> <span class="pre">40]))</span>
 <span class="pre">#</span> <span class="pre">Use</span> <span class="pre">`initialized_value`</span> <span class="pre">to</span> <span class="pre">guarantee</span> <span class="pre">that</span> <span class="pre">`v`</span> <span class="pre">has</span> <span class="pre">been</span>
 <span class="pre">#</span> <span class="pre">initialized</span> <span class="pre">before</span> <span class="pre">its</span> <span class="pre">value</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">`w`.</span>
 <span class="pre">#</span> <span class="pre">The</span> <span class="pre">random</span> <span class="pre">values</span> <span class="pre">are</span> <span class="pre">picked</span> <span class="pre">only</span> <span class="pre">once.</span>
@@ -646,7 +660,7 @@ dimension of `ref</cite>.</p>
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 add = ref.scatter_nd_add(indices, updates)
-with tf.Session() as sess:</p>
+with tf.compat.v1.Session() as sess:</p>
 <blockquote>
 <div><p>print sess.run(add)</p>
 </div></blockquote>
@@ -698,7 +712,7 @@ dimension of `ref</cite>.</p>
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 op = ref.scatter_nd_sub(indices, updates)
-with tf.Session() as sess:</p>
+with tf.compat.v1.Session() as sess:</p>
 <blockquote>
 <div><p>print sess.run(op)</p>
 </div></blockquote>
@@ -750,7 +764,7 @@ dimension of `ref</cite>.</p>
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 op = ref.scatter_nd_update(indices, updates)
-with tf.Session() as sess:</p>
+with tf.compat.v1.Session() as sess:</p>
 <blockquote>
 <div><p>print sess.run(op)</p>
 </div></blockquote>
@@ -876,6 +890,11 @@ the scattered subtraction has completed.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="zfit.Parameter.synchronization">
+<em class="property">property </em><code class="sig-name descname">synchronization</code><a class="headerlink" href="#zfit.Parameter.synchronization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.Parameter.to_proto">
 <code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.Parameter.to_proto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a <cite>ResourceVariable</cite> to a <cite>VariableDef</cite> protocol buffer.</p>
@@ -915,76 +934,6 @@ in the specified name scope.</p>
 <dt id="zfit.ComposedParameter">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">tensor</em>, <em class="sig-param">dtype=tf.float64</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComposedParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
-<dl class="class">
-<dt id="zfit.ComposedParameter.SaveSliceInfo">
-<em class="property">class </em><code class="sig-name descname">SaveSliceInfo</code><span class="sig-paren">(</span><em class="sig-param">full_name=None</em>, <em class="sig-param">full_shape=None</em>, <em class="sig-param">var_offset=None</em>, <em class="sig-param">var_shape=None</em>, <em class="sig-param">save_slice_info_def=None</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.SaveSliceInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Information on how to save this Variable as a slice.</p>
-<p>Provides internal support for saving variables as slices of a larger
-variable.  This API is not public and is subject to change.</p>
-<p>Available properties:</p>
-<ul class="simple">
-<li><p>full_name</p></li>
-<li><p>full_shape</p></li>
-<li><p>var_offset</p></li>
-<li><p>var_shape</p></li>
-</ul>
-<p>Create a <cite>SaveSliceInfo</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>full_name</strong> – Name of the full variable of which this <cite>Variable</cite> is a
-slice.</p></li>
-<li><p><strong>full_shape</strong> – Shape of the full variable, as a list of int.</p></li>
-<li><p><strong>var_offset</strong> – Offset of this <cite>Variable</cite> into the full variable, as a
-list of int.</p></li>
-<li><p><strong>var_shape</strong> – Shape of this <cite>Variable</cite>, as a list of int.</p></li>
-<li><p><strong>save_slice_info_def</strong> – <cite>SaveSliceInfoDef</cite> protocol buffer. If not <cite>None</cite>,
-recreates the SaveSliceInfo object its contents.
-<cite>save_slice_info_def</cite> and other arguments are mutually
-exclusive.</p></li>
-<li><p><strong>import_scope</strong> – Optional <cite>string</cite>. Name scope to add. Only used
-when initializing from protocol buffer.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="zfit.ComposedParameter.SaveSliceInfo.spec">
-<em class="property">property </em><code class="sig-name descname">spec</code><a class="headerlink" href="#zfit.ComposedParameter.SaveSliceInfo.spec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the spec string used for saving.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.SaveSliceInfo.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.SaveSliceInfo.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a SaveSliceInfoDef() proto.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>export_scope</strong> – Optional <cite>string</cite>. Name scope to remove.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>SaveSliceInfoDef</cite> protocol buffer, or None if the <cite>Variable</cite> is not
-in the specified name scope.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.__iter__">
-<code class="sig-name descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.__iter__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dummy method to prevent iteration. Do not call.</p>
-<p>NOTE(mrry): If we register __getitem__ as an overloaded operator,
-Python will valiantly attempt to iterate over the variable’s Tensor from 0
-to infinity.  Declaring this method prevents this unintended behavior.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – when invoked.</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="zfit.ComposedParameter.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -1007,175 +956,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.ComposedParameter.assign">
 <code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.assign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns a new value to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> – A <cite>Tensor</cite>. The new value for this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the assignment.</p></li>
-<li><p><strong>name</strong> – The name to use for the assignment.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.assign_add">
-<code class="sig-name descname">assign_add</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.assign_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a value to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> – A <cite>Tensor</cite>. The value to add to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – The name to use for the operation.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.assign_sub">
-<code class="sig-name descname">assign_sub</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.assign_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subtracts a value from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> – A <cite>Tensor</cite>. The value to subtract from this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – The name to use for the operation.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.batch_scatter_update">
-<code class="sig-name descname">batch_scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.batch_scatter_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns <cite>IndexedSlices</cite> to this variable batch-wise.</p>
-<p>Analogous to <cite>batch_gather</cite>. This assumes that this variable and the
-sparse_delta IndexedSlices have a series of leading dimensions that are the
-same for all of them, and the updates are performed on the last dimension of
-indices. In other words, the dimensions should be the following:</p>
-<p><cite>num_prefix_dims = sparse_delta.indices.ndims - 1</cite>
-<cite>batch_dim = num_prefix_dims + 1</cite>
-<a href="#id29"><span class="problematic" id="id30">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
-<blockquote>
-<div><p>batch_dim:]`</p>
-</div></blockquote>
-<p>where</p>
-<p><cite>sparse_delta.updates.shape[:num_prefix_dims]</cite>
-<cite>== sparse_delta.indices.shape[:num_prefix_dims]</cite>
-<cite>== var.shape[:num_prefix_dims]</cite></p>
-<p>And the operation performed can be expressed as:</p>
-<dl class="simple">
-<dt><a href="#id31"><span class="problematic" id="id32">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
-<dt>sparse_delta.indices[i_1, …, i_n, j]] = sparse_delta.updates[</dt><dd><p>i_1, …, i_n, j]`</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>When sparse_delta.indices is a 1D tensor, this operation is equivalent to
-<cite>scatter_update</cite>.</p>
-<p>To avoid this operation one can looping over the first <cite>ndims</cite> of the
-variable and using <cite>scatter_update</cite> on the subtensors that result of slicing
-the first dimension. This is a valid option for <cite>ndims = 1</cite>, but less
-efficient than this implementation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be assigned to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.constraint">
-<em class="property">property </em><code class="sig-name descname">constraint</code><a class="headerlink" href="#zfit.ComposedParameter.constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the constraint function associated with this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The constraint function that was passed to the variable constructor.
-Can be <cite>None</cite> if no constraint was passed.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComposedParameter.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.ComposedParameter.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.count_up_to">
-<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param">limit</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.count_up_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Increments this variable until it reaches <cite>limit</cite>. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Prefer Dataset.range instead.</p>
-<p>When that Op is run it tries to increment the variable by <cite>1</cite>. If
-incrementing the variable would bring it above <cite>limit</cite> then the Op raises
-the exception <cite>OutOfRangeError</cite>.</p>
-<p>If no error is raised, the Op outputs the value of the variable before
-the increment.</p>
-<p>This is essentially a shortcut for <cite>count_up_to(self, limit)</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>limit</strong> – value at which incrementing the variable raises an error.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the variable value before the increment. If no
-other Op modifies this variable, the values produced will all be
-distinct.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.create">
-<em class="property">property </em><code class="sig-name descname">create</code><a class="headerlink" href="#zfit.ComposedParameter.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op responsible for initializing this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.device">
-<em class="property">property </em><code class="sig-name descname">device</code><a class="headerlink" href="#zfit.ComposedParameter.device" title="Permalink to this definition">¶</a></dt>
-<dd><p>The device this variable is on.</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComposedParameter.dtype">
@@ -1184,21 +970,9 @@ distinct.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComposedParameter.eval">
-<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.eval" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates and returns the value of this variable.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComposedParameter.floating">
 <em class="property">property </em><code class="sig-name descname">floating</code><a class="headerlink" href="#zfit.ComposedParameter.floating" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.from_proto">
-<em class="property">static </em><code class="sig-name descname">from_proto</code><span class="sig-paren">(</span><em class="sig-param">variable_def</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.from_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <cite>Variable</cite> object created from <cite>variable_def</cite>.</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComposedParameter.get_dependents">
@@ -1232,130 +1006,19 @@ distinct.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComposedParameter.get_shape">
-<code class="sig-name descname">get_shape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.get_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias of Variable.shape.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.graph">
-<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#zfit.ComposedParameter.graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <cite>Graph</cite> of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.handle">
-<em class="property">property </em><code class="sig-name descname">handle</code><a class="headerlink" href="#zfit.ComposedParameter.handle" title="Permalink to this definition">¶</a></dt>
-<dd><p>The handle by which this variable can be accessed.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComposedParameter.independent">
 <em class="property">property </em><code class="sig-name descname">independent</code><a class="headerlink" href="#zfit.ComposedParameter.independent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComposedParameter.initial_value">
-<em class="property">property </em><code class="sig-name descname">initial_value</code><a class="headerlink" href="#zfit.ComposedParameter.initial_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the Tensor used as the initial value for the variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.initialized_value">
-<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.initialized_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of the initialized variable.</p>
-<p>You should use this instead of the variable itself to initialize another
-variable with a value that depends on the value of this variable.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">#</span> <span class="pre">Initialize</span> <span class="pre">'v'</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">random</span> <span class="pre">tensor.</span>
-<span class="pre">v</span> <span class="pre">=</span> <span class="pre">tf.Variable(tf.truncated_normal([10,</span> <span class="pre">40]))</span>
-<span class="pre">#</span> <span class="pre">Use</span> <span class="pre">`initialized_value`</span> <span class="pre">to</span> <span class="pre">guarantee</span> <span class="pre">that</span> <span class="pre">`v`</span> <span class="pre">has</span> <span class="pre">been</span>
-<span class="pre">#</span> <span class="pre">initialized</span> <span class="pre">before</span> <span class="pre">its</span> <span class="pre">value</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">`w`.</span>
-<span class="pre">#</span> <span class="pre">The</span> <span class="pre">random</span> <span class="pre">values</span> <span class="pre">are</span> <span class="pre">picked</span> <span class="pre">only</span> <span class="pre">once.</span>
-<span class="pre">w</span> <span class="pre">=</span> <span class="pre">tf.Variable(v.initialized_value()</span> <span class="pre">*</span> <span class="pre">2.0)</span>
-<span class="pre">`</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <cite>Tensor</cite> holding the value of this variable after its initializer
-has run.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.initializer">
-<em class="property">property </em><code class="sig-name descname">initializer</code><a class="headerlink" href="#zfit.ComposedParameter.initializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op responsible for initializing this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.is_initialized">
-<code class="sig-name descname">is_initialized</code><span class="sig-paren">(</span><em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.is_initialized" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks whether a resource variable has been initialized.</p>
-<p>Outputs boolean scalar indicating whether the tensor has been initialized.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – A name for the operation (optional).</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> of type <cite>bool</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComposedParameter.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load new value into this variable.</p>
-<p>Writes new value to variable’s memory. Doesn’t add ops to the graph.</p>
-<p>This convenience method requires a session where the graph
-containing this variable has been launched. If no session is
-passed, the default session is used.  See <cite>tf.Session</cite> for more
-information on launching a graph and on sessions.</p>
-<p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>python
-v = tf.Variable([1, 2])
-init = tf.global_variables_initializer()</p>
-<dl class="simple">
-<dt>with tf.Session() as sess:</dt><dd><p>sess.run(init)
-# Usage passing the session explicitly.
-v.load([2, 3], sess)
-print(v.eval(sess)) # prints [2 3]
-# Usage with the default session.  The ‘with’ block
-# above makes ‘sess’ the default session.
-v.load([3, 4], sess)
-print(v.eval()) # prints [3 4]</p>
-</dd>
-</dl>
-<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> – New variable value</p></li>
-<li><p><strong>session</strong> – The session to use to evaluate this variable. If
-none, the default session is used.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – Session is not passed and no default session</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComposedParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.ComposedParameter.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.numpy">
-<code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.numpy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.op">
-<em class="property">property </em><code class="sig-name descname">op</code><a class="headerlink" href="#zfit.ComposedParameter.op" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op for this variable.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1366,15 +1029,7 @@ none, the default session is used.</p></li>
 <dl class="method">
 <dt id="zfit.ComposedParameter.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.read_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructs an op which reads the value of this variable.</p>
-<p>Should be used when there are multiple reads, or when it is desirable to
-read the value only after some condition is true.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the read operation.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComposedParameter.register_cacher">
@@ -1399,273 +1054,9 @@ read the value only after some condition is true.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComposedParameter.scatter_add">
-<code class="sig-name descname">scatter_add</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.scatter_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds <cite>IndexedSlices</cite> from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be added to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.scatter_nd_add">
-<code class="sig-name descname">scatter_nd_add</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.scatter_nd_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse addition to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-add = ref.scatter_nd_add(indices, updates)
-with tf.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(add)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, 13, 3, 14, 14, 6, 7, 20]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.scatter_nd_sub">
-<code class="sig-name descname">scatter_nd_sub</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.scatter_nd_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse subtraction to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-op = ref.scatter_nd_sub(indices, updates)
-with tf.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(op)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, -9, 3, -6, -6, 6, 7, -4]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.scatter_nd_update">
-<code class="sig-name descname">scatter_nd_update</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.scatter_nd_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse assignment to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-op = ref.scatter_nd_update(indices, updates)
-with tf.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(op)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, 11, 3, 10, 9, 6, 7, 12]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.scatter_sub">
-<code class="sig-name descname">scatter_sub</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.scatter_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subtracts <cite>IndexedSlices</cite> from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be subtracted from this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.scatter_update">
-<code class="sig-name descname">scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.scatter_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns <cite>IndexedSlices</cite> to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be assigned to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.set_shape">
-<code class="sig-name descname">set_shape</code><span class="sig-paren">(</span><em class="sig-param">shape</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.set_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unsupported.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.shape">
-<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.ComposedParameter.shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>The shape of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.sparse_read">
-<code class="sig-name descname">sparse_read</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.sparse_read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the value of this variable sparsely, using <cite>gather</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a <cite>ResourceVariable</cite> to a <cite>VariableDef</cite> protocol buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>export_scope</strong> – Optional <cite>string</cite>. Name scope to remove.</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If run in EAGER mode.</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <cite>VariableDef</cite> protocol buffer, or <cite>None</cite> if the <cite>Variable</cite> is not
-in the specified name scope.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComposedParameter.trainable">
-<em class="property">property </em><code class="sig-name descname">trainable</code><a class="headerlink" href="#zfit.ComposedParameter.trainable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComposedParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.value" title="Permalink to this definition">¶</a></dt>
-<dd><p>A cached operation which reads the value of this variable.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1673,76 +1064,6 @@ in the specified name scope.</p>
 <dt id="zfit.ComplexParameter">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">dtype=tf.complex128</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.ComposedParameter" title="zfit.core.parameter.ComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ComposedParameter</span></code></a></p>
-<dl class="class">
-<dt id="zfit.ComplexParameter.SaveSliceInfo">
-<em class="property">class </em><code class="sig-name descname">SaveSliceInfo</code><span class="sig-paren">(</span><em class="sig-param">full_name=None</em>, <em class="sig-param">full_shape=None</em>, <em class="sig-param">var_offset=None</em>, <em class="sig-param">var_shape=None</em>, <em class="sig-param">save_slice_info_def=None</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.SaveSliceInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Information on how to save this Variable as a slice.</p>
-<p>Provides internal support for saving variables as slices of a larger
-variable.  This API is not public and is subject to change.</p>
-<p>Available properties:</p>
-<ul class="simple">
-<li><p>full_name</p></li>
-<li><p>full_shape</p></li>
-<li><p>var_offset</p></li>
-<li><p>var_shape</p></li>
-</ul>
-<p>Create a <cite>SaveSliceInfo</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>full_name</strong> – Name of the full variable of which this <cite>Variable</cite> is a
-slice.</p></li>
-<li><p><strong>full_shape</strong> – Shape of the full variable, as a list of int.</p></li>
-<li><p><strong>var_offset</strong> – Offset of this <cite>Variable</cite> into the full variable, as a
-list of int.</p></li>
-<li><p><strong>var_shape</strong> – Shape of this <cite>Variable</cite>, as a list of int.</p></li>
-<li><p><strong>save_slice_info_def</strong> – <cite>SaveSliceInfoDef</cite> protocol buffer. If not <cite>None</cite>,
-recreates the SaveSliceInfo object its contents.
-<cite>save_slice_info_def</cite> and other arguments are mutually
-exclusive.</p></li>
-<li><p><strong>import_scope</strong> – Optional <cite>string</cite>. Name scope to add. Only used
-when initializing from protocol buffer.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="zfit.ComplexParameter.SaveSliceInfo.spec">
-<em class="property">property </em><code class="sig-name descname">spec</code><a class="headerlink" href="#zfit.ComplexParameter.SaveSliceInfo.spec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the spec string used for saving.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.SaveSliceInfo.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.SaveSliceInfo.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a SaveSliceInfoDef() proto.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>export_scope</strong> – Optional <cite>string</cite>. Name scope to remove.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>SaveSliceInfoDef</cite> protocol buffer, or None if the <cite>Variable</cite> is not
-in the specified name scope.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.__iter__">
-<code class="sig-name descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.__iter__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dummy method to prevent iteration. Do not call.</p>
-<p>NOTE(mrry): If we register __getitem__ as an overloaded operator,
-Python will valiantly attempt to iterate over the variable’s Tensor from 0
-to infinity.  Declaring this method prevents this unintended behavior.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – when invoked.</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="zfit.ComplexParameter.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -1770,121 +1091,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.ComplexParameter.assign">
 <code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.assign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns a new value to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> – A <cite>Tensor</cite>. The new value for this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the assignment.</p></li>
-<li><p><strong>name</strong> – The name to use for the assignment.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.assign_add">
-<code class="sig-name descname">assign_add</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.assign_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a value to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> – A <cite>Tensor</cite>. The value to add to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – The name to use for the operation.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.assign_sub">
-<code class="sig-name descname">assign_sub</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.assign_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subtracts a value from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> – A <cite>Tensor</cite>. The value to subtract from this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – The name to use for the operation.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.batch_scatter_update">
-<code class="sig-name descname">batch_scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.batch_scatter_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns <cite>IndexedSlices</cite> to this variable batch-wise.</p>
-<p>Analogous to <cite>batch_gather</cite>. This assumes that this variable and the
-sparse_delta IndexedSlices have a series of leading dimensions that are the
-same for all of them, and the updates are performed on the last dimension of
-indices. In other words, the dimensions should be the following:</p>
-<p><cite>num_prefix_dims = sparse_delta.indices.ndims - 1</cite>
-<cite>batch_dim = num_prefix_dims + 1</cite>
-<a href="#id65"><span class="problematic" id="id66">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
-<blockquote>
-<div><p>batch_dim:]`</p>
-</div></blockquote>
-<p>where</p>
-<p><cite>sparse_delta.updates.shape[:num_prefix_dims]</cite>
-<cite>== sparse_delta.indices.shape[:num_prefix_dims]</cite>
-<cite>== var.shape[:num_prefix_dims]</cite></p>
-<p>And the operation performed can be expressed as:</p>
-<dl class="simple">
-<dt><a href="#id67"><span class="problematic" id="id68">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
-<dt>sparse_delta.indices[i_1, …, i_n, j]] = sparse_delta.updates[</dt><dd><p>i_1, …, i_n, j]`</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>When sparse_delta.indices is a 1D tensor, this operation is equivalent to
-<cite>scatter_update</cite>.</p>
-<p>To avoid this operation one can looping over the first <cite>ndims</cite> of the
-variable and using <cite>scatter_update</cite> on the subtensors that result of slicing
-the first dimension. This is a valid option for <cite>ndims = 1</cite>, but less
-efficient than this implementation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be assigned to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComplexParameter.conj">
@@ -1892,69 +1099,14 @@ the scattered subtraction has completed.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComplexParameter.constraint">
-<em class="property">property </em><code class="sig-name descname">constraint</code><a class="headerlink" href="#zfit.ComplexParameter.constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the constraint function associated with this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The constraint function that was passed to the variable constructor.
-Can be <cite>None</cite> if no constraint was passed.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComplexParameter.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.ComplexParameter.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComplexParameter.count_up_to">
-<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param">limit</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.count_up_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Increments this variable until it reaches <cite>limit</cite>. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Prefer Dataset.range instead.</p>
-<p>When that Op is run it tries to increment the variable by <cite>1</cite>. If
-incrementing the variable would bring it above <cite>limit</cite> then the Op raises
-the exception <cite>OutOfRangeError</cite>.</p>
-<p>If no error is raised, the Op outputs the value of the variable before
-the increment.</p>
-<p>This is essentially a shortcut for <cite>count_up_to(self, limit)</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>limit</strong> – value at which incrementing the variable raises an error.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the variable value before the increment. If no
-other Op modifies this variable, the values produced will all be
-distinct.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.create">
-<em class="property">property </em><code class="sig-name descname">create</code><a class="headerlink" href="#zfit.ComplexParameter.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op responsible for initializing this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.device">
-<em class="property">property </em><code class="sig-name descname">device</code><a class="headerlink" href="#zfit.ComplexParameter.device" title="Permalink to this definition">¶</a></dt>
-<dd><p>The device this variable is on.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComplexParameter.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.ComplexParameter.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.eval">
-<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.eval" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates and returns the value of this variable.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1971,12 +1123,6 @@ distinct.</p>
 <dt id="zfit.ComplexParameter.from_polar">
 <em class="property">static </em><code class="sig-name descname">from_polar</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">mod</em>, <em class="sig-param">arg</em>, <em class="sig-param">dtype=tf.complex128</em>, <em class="sig-param">floating=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_polar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter.from_polar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.from_proto">
-<em class="property">static </em><code class="sig-name descname">from_proto</code><span class="sig-paren">(</span><em class="sig-param">variable_def</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.from_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <cite>Variable</cite> object created from <cite>variable_def</cite>.</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComplexParameter.get_dependents">
@@ -2010,24 +1156,6 @@ distinct.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComplexParameter.get_shape">
-<code class="sig-name descname">get_shape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.get_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias of Variable.shape.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.graph">
-<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#zfit.ComplexParameter.graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <cite>Graph</cite> of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.handle">
-<em class="property">property </em><code class="sig-name descname">handle</code><a class="headerlink" href="#zfit.ComplexParameter.handle" title="Permalink to this definition">¶</a></dt>
-<dd><p>The handle by which this variable can be accessed.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComplexParameter.imag">
 <em class="property">property </em><code class="sig-name descname">imag</code><a class="headerlink" href="#zfit.ComplexParameter.imag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2038,91 +1166,9 @@ distinct.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComplexParameter.initial_value">
-<em class="property">property </em><code class="sig-name descname">initial_value</code><a class="headerlink" href="#zfit.ComplexParameter.initial_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the Tensor used as the initial value for the variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.initialized_value">
-<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.initialized_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of the initialized variable.</p>
-<p>You should use this instead of the variable itself to initialize another
-variable with a value that depends on the value of this variable.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">#</span> <span class="pre">Initialize</span> <span class="pre">'v'</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">random</span> <span class="pre">tensor.</span>
-<span class="pre">v</span> <span class="pre">=</span> <span class="pre">tf.Variable(tf.truncated_normal([10,</span> <span class="pre">40]))</span>
-<span class="pre">#</span> <span class="pre">Use</span> <span class="pre">`initialized_value`</span> <span class="pre">to</span> <span class="pre">guarantee</span> <span class="pre">that</span> <span class="pre">`v`</span> <span class="pre">has</span> <span class="pre">been</span>
-<span class="pre">#</span> <span class="pre">initialized</span> <span class="pre">before</span> <span class="pre">its</span> <span class="pre">value</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">`w`.</span>
-<span class="pre">#</span> <span class="pre">The</span> <span class="pre">random</span> <span class="pre">values</span> <span class="pre">are</span> <span class="pre">picked</span> <span class="pre">only</span> <span class="pre">once.</span>
-<span class="pre">w</span> <span class="pre">=</span> <span class="pre">tf.Variable(v.initialized_value()</span> <span class="pre">*</span> <span class="pre">2.0)</span>
-<span class="pre">`</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <cite>Tensor</cite> holding the value of this variable after its initializer
-has run.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.initializer">
-<em class="property">property </em><code class="sig-name descname">initializer</code><a class="headerlink" href="#zfit.ComplexParameter.initializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op responsible for initializing this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.is_initialized">
-<code class="sig-name descname">is_initialized</code><span class="sig-paren">(</span><em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.is_initialized" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks whether a resource variable has been initialized.</p>
-<p>Outputs boolean scalar indicating whether the tensor has been initialized.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – A name for the operation (optional).</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> of type <cite>bool</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComplexParameter.load">
 <code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load new value into this variable.</p>
-<p>Writes new value to variable’s memory. Doesn’t add ops to the graph.</p>
-<p>This convenience method requires a session where the graph
-containing this variable has been launched. If no session is
-passed, the default session is used.  See <cite>tf.Session</cite> for more
-information on launching a graph and on sessions.</p>
-<p><a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a>python
-v = tf.Variable([1, 2])
-init = tf.global_variables_initializer()</p>
-<dl class="simple">
-<dt>with tf.Session() as sess:</dt><dd><p>sess.run(init)
-# Usage passing the session explicitly.
-v.load([2, 3], sess)
-print(v.eval(sess)) # prints [2 3]
-# Usage with the default session.  The ‘with’ block
-# above makes ‘sess’ the default session.
-v.load([3, 4], sess)
-print(v.eval()) # prints [3 4]</p>
-</dd>
-</dl>
-<p><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> – New variable value</p></li>
-<li><p><strong>session</strong> – The session to use to evaluate this variable. If
-none, the default session is used.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – Session is not passed and no default session</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComplexParameter.mod">
@@ -2136,17 +1182,6 @@ none, the default session is used.</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComplexParameter.numpy">
-<code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.numpy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.op">
-<em class="property">property </em><code class="sig-name descname">op</code><a class="headerlink" href="#zfit.ComplexParameter.op" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op for this variable.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComplexParameter.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.ComplexParameter.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2154,15 +1189,7 @@ none, the default session is used.</p></li>
 <dl class="method">
 <dt id="zfit.ComplexParameter.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.read_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructs an op which reads the value of this variable.</p>
-<p>Should be used when there are multiple reads, or when it is desirable to
-read the value only after some condition is true.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the read operation.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.ComplexParameter.real">
@@ -2192,273 +1219,9 @@ read the value only after some condition is true.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.ComplexParameter.scatter_add">
-<code class="sig-name descname">scatter_add</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.scatter_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds <cite>IndexedSlices</cite> from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be added to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.scatter_nd_add">
-<code class="sig-name descname">scatter_nd_add</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.scatter_nd_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse addition to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-add = ref.scatter_nd_add(indices, updates)
-with tf.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(add)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, 13, 3, 14, 14, 6, 7, 20]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.scatter_nd_sub">
-<code class="sig-name descname">scatter_nd_sub</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.scatter_nd_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse subtraction to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-op = ref.scatter_nd_sub(indices, updates)
-with tf.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(op)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, -9, 3, -6, -6, 6, 7, -4]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.scatter_nd_update">
-<code class="sig-name descname">scatter_nd_update</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.scatter_nd_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse assignment to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-op = ref.scatter_nd_update(indices, updates)
-with tf.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(op)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, 11, 3, 10, 9, 6, 7, 12]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.scatter_sub">
-<code class="sig-name descname">scatter_sub</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.scatter_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subtracts <cite>IndexedSlices</cite> from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be subtracted from this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.scatter_update">
-<code class="sig-name descname">scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.scatter_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns <cite>IndexedSlices</cite> to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>IndexedSlices</cite> to be assigned to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.set_shape">
-<code class="sig-name descname">set_shape</code><span class="sig-paren">(</span><em class="sig-param">shape</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.set_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unsupported.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.shape">
-<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.ComplexParameter.shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>The shape of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.sparse_read">
-<code class="sig-name descname">sparse_read</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.sparse_read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the value of this variable sparsely, using <cite>gather</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a <cite>ResourceVariable</cite> to a <cite>VariableDef</cite> protocol buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>export_scope</strong> – Optional <cite>string</cite>. Name scope to remove.</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If run in EAGER mode.</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <cite>VariableDef</cite> protocol buffer, or <cite>None</cite> if the <cite>Variable</cite> is not
-in the specified name scope.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.ComplexParameter.trainable">
-<em class="property">property </em><code class="sig-name descname">trainable</code><a class="headerlink" href="#zfit.ComplexParameter.trainable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="zfit.ComplexParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.value" title="Permalink to this definition">¶</a></dt>
-<dd><p>A cached operation which reads the value of this variable.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -3083,7 +1846,7 @@ therefore required.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>

@@ -232,17 +232,18 @@
 
 
 <span class="c1"># class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):</span>
-<div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">(</span><span class="n">ResourceVariable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">)):</span>
+<span class="c1"># class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):</span>
+<div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">)):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># super().__init__(initial_value=initial_value, **kwargs, use_resource=True)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="c1"># self._name = name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -665,14 +666,14 @@
     <span class="k">def</span> <span class="nf">real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">real</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real</span>
         <span class="k">if</span> <span class="n">real</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">real</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">real</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">real</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">imag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">imag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imag</span>
         <span class="k">if</span> <span class="n">imag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">imag</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>  <span class="c1"># HACK tf bug #30029</span>
         <span class="k">return</span> <span class="n">imag</span>
 
     <span class="nd">@property</span>
@@ -765,7 +766,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
     </p>
   </div>
 </footer>
