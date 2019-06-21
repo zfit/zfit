@@ -5,6 +5,7 @@ from zfit.core.testing import setup_function, teardown_function, tester
 import tensorflow as tf
 import zfit
 from zfit import ztf
+import numpy as np
 
 true_a = 1.
 true_b = 4.
@@ -55,7 +56,10 @@ def create_fitresult(minimizer_class_and_kwargs):
     cur_val = zfit.run(loss.value())
     aval, bval, cval = zfit.run([v for v in (a_param, b_param, c_param)])
 
-    return {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval}
+    ret = {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval,
+           'a_param': a_param, 'b_param': b_param, 'c_param': c_param}
+
+    return ret
 
 
 minimizers = [
@@ -75,4 +79,24 @@ def test_fmin(minimizer_class_and_kwargs):
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_covariance(minimizer_class_and_kwargs):
-    pass
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results['result']
+    hesse = result.hesse()
+    a = results['a_param']
+    b = results['b_param']
+    c = results['c_param']
+
+    cov_mat_3 = result.covariance(params=[a, b, c])
+    cov_mat_2 = result.covariance(params=[c, b])
+    cov_dict = result.covariance(params=[a, b, c], as_dict=True)
+
+    assert pytest.approx(hesse[a]['error'], rel=0.01) == np.sqrt(cov_dict[(a, a)])
+    assert pytest.approx(hesse[a]['error'], rel=0.01) == np.sqrt(cov_mat_3[0, 0])
+
+    assert pytest.approx(hesse[b]['error'], rel=0.01) == np.sqrt(cov_dict[(b, b)])
+    assert pytest.approx(hesse[b]['error'], rel=0.01) == np.sqrt(cov_mat_3[1, 1])
+    assert pytest.approx(hesse[b]['error'], rel=0.01) == np.sqrt(cov_mat_2[1, 1])
+
+    assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_dict[(c, c)])
+    assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_3[2, 2])
+    assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_2[0, 0])

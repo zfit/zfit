@@ -261,7 +261,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         for p1 in params:
             for p2 in params:
                 key = (p1, p2)
-                cov[key] = covariance_dict[(k.name for k in key)]
+                cov[key] = covariance_dict[tuple(k.name for k in key)]
         covariance_dict = cov
 
         if as_dict:
