@@ -6,7 +6,8 @@ from typing import Callable, List, Dict
 import tensorflow as tf
 import numpy as np
 from zfit import ztf
-from zfit.util import ztyping
+from ..util import ztyping
+from ..util.container import convert_to_container
 
 from ..core.limits import Space
 from ..core.basepdf import BasePDF
@@ -34,6 +35,7 @@ class RecursivePolynomial(BasePDF):
 
         """
         # 0th coefficient set to 1 by default
+        coeffs = convert_to_container(coeffs)
         coeffs.insert(0, ztf.constant(1.))
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
@@ -234,9 +236,11 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
 
     # the integral of cheby2_ni is a cheby1_ni+1/(n+1). We add the (n+1) to the coeffs. The cheby1 shape makes
     # the sum for us.
-    coeffs_cheby1 = {f'c_{int(n.split("_", 1)[-1]) + 1}': c / ztf.convert_to_tensor(i + 1, dtype=model.dtype)
-                     for i, (n, c) in enumerate(params.items())}  # increase n -> n+1 of naming
-    coeffs_cheby1['c_0'] = tf.constant(0., dtype=model.dtype)
+    coeffs_cheby1 = {'c_0': ztf.constant(0., dtype=model.dtype)}
+
+    for name, coeff in params.items():
+        n_plus1 = int(name.split("_", 1)[-1]) + 1
+        coeffs_cheby1[f'c_{n_plus1}'] = coeff / ztf.convert_to_tensor(n_plus1, dtype=model.dtype)
 
     def indefinite_integral(limits):
         return chebyshev_shape(x=limits, coeffs=coeffs_cheby1)
@@ -343,7 +347,7 @@ hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
-    H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)
+    :math:`H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)`
 
     """
     return 2 * (tf.multiply(x, p1) - n * p2)
@@ -363,4 +367,32 @@ class Hermite(RecursivePolynomial):
     @staticmethod
     def _poly_func(x, coeffs):
         return hermite_shape(x=x, coeffs=coeffs)
+
+
+def func_integral_hermite(limits, norm_range, params, model):
+    lower, upper = limits.limit1d
+    lower_rescaled = model._polynomials_rescale(lower)
+    upper_rescaled = model._polynomials_rescale(upper)
+
+    lower = ztf.convert_to_tensor(lower_rescaled)
+    upper = ztf.convert_to_tensor(upper_rescaled)
+
+    # the integral of hermite is a hermite_ni. We add the ni to the coeffs.
+    coeffs_cheby1 = {'c_0': ztf.constant(0., dtype=model.dtype)}
+
+    for name, coeff in params.items():
+        i_coeff = int(name.split("_", 1)[-1])
+        coeffs_cheby1[f'c_{i_coeff + 1}'] = coeff / ztf.convert_to_tensor(i_coeff, dtype=model.dtype)
+
+    def indefinite_integral(limits):
+        return hermite_shape(x=limits, coeffs=coeffs_cheby1)
+
+    integral = indefinite_integral(upper) - indefinite_integral(lower)
+    integral = tf.reshape(integral, shape=())
+
+    return integral
+
+
+hermite_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_limits_integral)
 # EOF
