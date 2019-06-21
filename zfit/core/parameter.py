@@ -125,17 +125,18 @@ class ComposedResourceVariable(ResourceVariable):
 
 
 # class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
-class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
+# class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
+class ComposedVariable(metaclass=type(tf.Variable)):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
-        super().__init__(initial_value=initial_value, **kwargs)
+        super().__init__(name=name, **kwargs)
         self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
         # self._name = name
 
     @property
     def name(self):
-        return self.op.name
+        return self.name
 
     @property
     def dtype(self):
@@ -558,14 +559,14 @@ class ComplexParameter(ComposedParameter):
     def real(self):
         real = self._real
         if real is None:
-            real = tf.real(self)
+            real = ztf.to_real(self)
         return real
 
     @property
     def imag(self):
         imag = self._imag
         if imag is None:
-            imag = tf.imag(self)
+            imag = tf.imag(tf.convert_to_tensor(self, preferred_dtype=self.dtype))  # HACK tf bug #30029
         return imag
 
     @property

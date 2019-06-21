@@ -224,7 +224,7 @@ def test_simple_loss():
     a_param = zfit.Parameter("variable_a15151loss", 1.5, -1., 20.,
                              step_size=ztf.constant(0.1))
     b_param = zfit.Parameter("variable_b15151loss", 3.5)
-    c_param = zfit.Parameter("variable_c15151loss", -0.04)
+    c_param = zfit.Parameter("variable_c15151loss", -0.23)
     param_list = [a_param, b_param, c_param]
 
     def loss_func():

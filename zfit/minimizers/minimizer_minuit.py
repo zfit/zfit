@@ -130,7 +130,7 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
 
         strategy = minimizer_setter.pop('strategy')
         minimizer.set_strategy(strategy)
-        assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter:".format(
+        assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(**minimize_options)
