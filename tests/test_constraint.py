@@ -6,6 +6,21 @@ import zfit
 from zfit import ztf
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import ShapeIncompatibleError
+from zfit.constraint import SimpleConstraint, GaussianConstraint
+from zfit.util.container import convert_to_container
+
+
+def nll_gaussian(params, mu, sigma):
+    params = convert_to_container(params, container=tuple)
+    mu = convert_to_container(mu, container=tuple)
+    sigma = convert_to_container(sigma, container=tuple)
+    constraint = ztf.constant(0.)
+    if not len(params) == len(mu) == len(sigma):
+        raise ValueError("params, mu and sigma have to have the same length.")
+    for param, mean, sig in zip(params, mu, sigma):
+        constraint += ztf.reduce_sum(ztf.square(param - mean) / (2. * ztf.square(sig)))
+
+    return constraint
 
 
 def test_shape_errors():
@@ -13,23 +28,54 @@ def test_shape_errors():
     param2 = zfit.Parameter("Param2", 6)
 
     with pytest.raises(ShapeIncompatibleError):
-        zfit.constraint.nll_gaussian([param1, param2], mu=[4, 2, 3], sigma=5)
+        GaussianConstraint([param1, param2], mu=[4, 2, 3], sigma=5)
     with pytest.raises(ShapeIncompatibleError):
-        zfit.constraint.nll_gaussian([param1, param2], mu=[4, 2], sigma=5)
+        GaussianConstraint([param1, param2], mu=[4, 2], sigma=5)
     with pytest.raises(ShapeIncompatibleError):
-        zfit.constraint.nll_gaussian([param1, param2], mu=2, sigma=[1, 4])
+        GaussianConstraint([param1, param2], mu=2, sigma=[1, 4])
     with pytest.raises(ShapeIncompatibleError):
-        zfit.constraint.nll_gaussian(param1, mu=[4, 2], sigma=[2, 3])
+        GaussianConstraint(param1, mu=[4, 2], sigma=[2, 3])
 
 
-def test_nll_gaussian_values():
+def test_gaussian_constraint_value():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
     params = [param1, param2]
 
     mu = [3., 6.1]
     sigma = np.array([[1, 0.3],
-                      [0.8, 0.5]])
-    constr = zfit.constraint.nll_gaussian(params=params, mu=mu, sigma=sigma)
-    constr_np = zfit.run(constr)
-    assert constr_np == pytest.approx(4.28846)
+                      [0.3, 0.5]])
+    constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
+    constr_np = zfit.run(constr.value())
+    assert constr_np == pytest.approx(3.989638)
+
+
+def test_GaussianConstraint_sampling():
+    param1 = zfit.Parameter("Param1", 5)
+    params = [param1]
+
+    mu = [5]
+    sigma = [1]
+    constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
+
+    sample = zfit.run(constr.sample(15000))
+
+    assert np.mean(sample[param1]) == pytest.approx(5, rel=0.01)
+    assert np.std(sample[param1]) == pytest.approx(1, rel=0.01)
+
+
+def test_simple_constraint():
+
+    param1 = zfit.Parameter("Param1", 5)
+    param2 = zfit.Parameter("Param2", 6)
+    params = [param1, param2]
+
+    mu = [3., 6.1]
+    sigma = [1., 0.5]
+
+    def func():
+        return nll_gaussian(params=params, mu=mu, sigma=sigma)
+    constr = SimpleConstraint(func=func)
+
+    constr_np = zfit.run(constr.value())
+    assert constr_np == pytest.approx(2.02)

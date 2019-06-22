@@ -39,11 +39,11 @@ class BaseConstraint(BaseNumeric):
         except NotImplementedError:
             raise NotImplementedError("_eval not properly defined!")
 
-    def sample(self):
-        return self._sample
+    def sample(self, n=1):
+        return self._sample(n=n)
 
     @abc.abstractmethod
-    def _sample(self):
+    def _sample(self, n):
         raise NotImplementedError()
 
     def _get_dependents(self) -> ztyping.DependentsType:
@@ -111,6 +111,6 @@ class GaussianConstraint(BaseConstraint):
         value = -self._dist.log_prob(self._tparams)
         return value
 
-    def _sample(self):
-        sample = self._dist.sample()
-        return {p: sample[i] for i, p in enumerate(self.get_params())}
+    def _sample(self, n):
+        sample = self._dist.sample(n)
+        return {p: sample[:, i] for i, p in enumerate(self.get_params())}

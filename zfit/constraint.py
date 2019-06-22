@@ -3,11 +3,13 @@
 from .util.exception import ShapeIncompatibleError
 from .util import ztyping
 from .util.container import convert_to_container
+from .core.constraint import SimpleConstraint, GaussianConstraint
 from zfit import ztf
 import tensorflow as tf
 import numpy as np
+import warnings
 
-__all__ = ["nll_gaussian"]
+__all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 
 
 def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
@@ -24,6 +26,8 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
     Raises:
         ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """
+
+    warnings.warn("Please use `GaussianConstraint instead", DeprecationWarning)
 
     params = convert_to_container(params, tuple)
     mu = convert_to_container(mu, container=tuple, non_containers=[np.ndarray])
@@ -54,7 +58,7 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
     constraint = tf.tensordot(tf.linalg.inv(covariance), x, 1)
     constraint = 0.5 * tf.tensordot(xt, constraint, 1)
 
-    return constraint
+    return SimpleConstraint(lambda: constraint)
 
 # def nll_pdf(constraints: dict):
 #     if not constraints:

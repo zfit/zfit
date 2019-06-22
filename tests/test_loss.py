@@ -168,7 +168,6 @@ def test_add():
     constraint1 = zfit.constraint.nll_gaussian(params=param1, mu=1, sigma=0.5)
     constraint2 = zfit.constraint.nll_gaussian(params=param1, mu=2, sigma=0.25)
     merged_contraints = [constraint1, constraint2]
-    # merged_contraints = [SimpleConstraint(lambda: constraint1), SimpleConstraint(lambda: constraint2)]
 
     nll1 = UnbinnedNLL(model=pdfs[0], data=datas[0], fit_range=ranges[0], constraints=constraint1)
     nll2 = UnbinnedNLL(model=pdfs[1], data=datas[1], fit_range=ranges[1], constraints=constraint2)
@@ -187,8 +186,10 @@ def test_add():
 
     assert simult_nll.fit_range == ranges
 
-    funcs = [c._simple_func() for c in simult_nll.constraints]
-    assert funcs == merged_contraints
+    def eval_constraint(constraints):
+        return zfit.run(ztf.reduce_sum([c.value() for c in constraints]))
+
+    assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
 
 
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
