@@ -1,7 +1,7 @@
 #  Copyright (c) 2019 zfit
 """Recurrent polynomials."""
-
-from typing import Callable, List, Dict
+import abc
+from typing import Callable, List, Dict, Optional
 
 import tensorflow as tf
 import numpy as np
@@ -13,22 +13,20 @@ from ..core.limits import Space
 from ..core.basepdf import BasePDF
 
 
-class RecursivePolynomial(BasePDF):
+class RecursivePolynomial(BasePDF, metaclass=abc.ABCMeta):
     """1D polynomial generated via three-term recurrence.
 
 
     """
 
     def __init__(self, obs, coeffs: list,
-                 apply_scaling: bool = True,
-                 name: str = "Polynomial", **kwargs):  # noqa
-        """
+                 apply_scaling: bool = True, coeff0: Optional[tf.Tensor] = None,
+                 name: str = "Polynomial"):  # noqa
+        """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
         Args:
             coeffs (list): Coefficients for each polynomial. Used to calculate the degree.
             apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            Recurrence(func): Recurrence relation as function of the two previous
-                polynomials and the degree n:
 
                 .. math::
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
@@ -36,13 +34,14 @@ class RecursivePolynomial(BasePDF):
         """
         # 0th coefficient set to 1 by default
         coeffs = convert_to_container(coeffs)
-        coeffs.insert(0, ztf.constant(1.))
+        coeff0 = ztf.constant(1.) if coeff0 is None else coeff0
+        coeffs.insert(0, coeff0)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
         self._do_scale = apply_scaling
         if apply_scaling and not (isinstance(obs, Space) and obs.n_limits == 1):
             raise ValueError("obs need to be a Space with exactly one limit if rescaling is requested.")
-        super().__init__(obs=obs, name=name, params=params, **kwargs)
+        super().__init__(obs=obs, name=name, params=params)
 
     def _polynomials_rescale(self, x):
         if self._do_scale:
@@ -52,13 +51,17 @@ class RecursivePolynomial(BasePDF):
 
     @property
     def degree(self):
-        """int: degree of the polynomial."""
+        """int: degree of the polynomial, starting from 0."""
         return self._degree
 
     def _unnormalized_pdf(self, x):
         x = x.unstack_x()
         x = self._polynomials_rescale(x)
-        return self._poly_func(x=x, coeffs=self.params)
+        return self._poly_func(x=x)
+
+    @abc.abstractmethod
+    def _poly_func(self, x):
+        raise NotImplementedError
 
 
 def create_poly(x, polys, coeffs, recurrence):
@@ -133,8 +136,8 @@ class Legendre(RecursivePolynomial):
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
 
-    @staticmethod
-    def _poly_func(x, coeffs):
+    def _poly_func(self, x):
+        coeffs = self.params
         return legendre_shape(x=x, coeffs=coeffs)
 
 
@@ -165,8 +168,8 @@ class Chebyshev(RecursivePolynomial):
                          coeffs=coeffs,
                          apply_scaling=apply_scaling, **kwargs)
 
-    @staticmethod
-    def _poly_func(x, coeffs):
+    def _poly_func(self, x):
+        coeffs = self.params
         return chebyshev_shape(x=x, coeffs=coeffs)
 
 
@@ -174,8 +177,6 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
-    # if np.allclose((lower_rescaled, upper_rescaled), (-1, 1)):
-    #     return ztf.constant(2.)  #
 
     lower = ztf.convert_to_tensor(lower_rescaled)
     upper = ztf.convert_to_tensor(upper_rescaled)
@@ -216,13 +217,12 @@ def chebyshev2_shape(x, coeffs):
 
 class Chebyshev2(RecursivePolynomial):
     """Chebyshev polynomials of the second kind."""
-
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev2", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
 
-    @staticmethod
-    def _poly_func(x, coeffs):
+    def _poly_func(self, x):
+        coeffs = self.params
         return chebyshev2_shape(x=x, coeffs=coeffs)
 
 
@@ -298,8 +298,8 @@ class Laguerre(RecursivePolynomial):
         super().__init__(obs=obs, name=name, coeffs=coeffs,
                          apply_scaling=apply_scaling, **kwargs)
 
-    @staticmethod
-    def _poly_func(x, coeffs):
+    def _poly_func(self, x):
+        coeffs = self.params
         return laguerre_shape(x=x, coeffs=coeffs)
 
 
@@ -364,8 +364,8 @@ class Hermite(RecursivePolynomial):
         super().__init__(obs=obs, name=name, coeffs=coeffs,
                          apply_scaling=apply_scaling, **kwargs)
 
-    @staticmethod
-    def _poly_func(x, coeffs):
+    def _poly_func(self, x):
+        coeffs = self.params
         return hermite_shape(x=x, coeffs=coeffs)
 
 
