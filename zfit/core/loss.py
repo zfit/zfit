@@ -16,6 +16,7 @@ from ..models.functions import SimpleFunc
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError
 from zfit.settings import ztypes
+from .constraint import BaseConstraint, SimpleConstraint
 
 
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
@@ -59,6 +60,19 @@ def _nll_constraints_tf(constraints):
     return constraints_neg_log_prob
 
 
+def _constraint_check(constraints):
+    _constraints = []
+    for c in constraints:
+        print(c, isinstance(c, BaseConstraint))
+        if isinstance(c, BaseConstraint):
+            _constraints.append(c)
+        else:
+            c_ = SimpleConstraint(func=lambda: c)
+            _constraints.append(c_)
+        print(_constraints)
+    return _constraints
+
+
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model, data, fit_range: ztyping.LimitsTypeInput = None, constraints: List[tf.Tensor] = None):
@@ -84,7 +98,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         self._fit_range = fit_range
         if constraints is None:
             constraints = []
-        self._constraints = convert_to_container(constraints, list)
+        self._constraints = _constraint_check(convert_to_container(constraints, list))
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -150,7 +164,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._add_constraints(constraints)
 
     def _add_constraints(self, constraints):
-        constraints = convert_to_container(constraints, container=list)
+        constraints = _constraint_check(convert_to_container(constraints, container=list))
         self._constraints.extend(constraints)
         return constraints
 
@@ -254,12 +268,13 @@ class UnbinnedNLL(CachedLoss):
     def _loss_func(self, model, data, fit_range, constraints):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
-            constraints = ztf.reduce_sum(constraints)
+            constraints = ztf.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
 
     def _cache_add_constraints(self, constraints):
         if self._cache.get('loss') is not None:
+            constraints = [c.value() for c in constraints]
             self._cache['loss'] += ztf.reduce_sum(constraints)
 
     @property

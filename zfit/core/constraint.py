@@ -2,19 +2,19 @@ import abc
 
 from typing import Dict, Union, Callable, Optional
 
-from .core.baseobject import BaseNumeric
-from .core.interfaces import ZfitParameter
-from .util import ztyping
-from .util.graph import get_dependents_auto
-from .util.container import convert_to_container
-from .util.exception import ShapeIncompatibleError
+from .baseobject import BaseNumeric
+from .interfaces import ZfitParameter
+from ..util import ztyping
+from ..util.graph import get_dependents_auto
+from ..util.container import convert_to_container
+from ..util.exception import ShapeIncompatibleError
 from ..settings import ztypes
 from zfit import ztf
 
 import tensorflow as tf
 import numpy as np
-import tensorflow_probability.distributions as tfd
-mvnfc = tfd.MultivariateNormalFullCovariance
+import tensorflow_probability as tfp
+mvnfc = tfp.distributions.MultivariateNormalFullCovariance
 
 
 class BaseConstraint(BaseNumeric):
@@ -57,7 +57,9 @@ class SimpleConstraint(BaseConstraint):
         self._simple_func = func
         self._simple_func_dependents = convert_to_container(params, container=set)
         if params is None:
-            params = convert_to_container(self.get_dependents(), container=list)
+            params = self.get_dependents()
+
+        params = convert_to_container(params, container=list)
         params = {p.name: p for p in params}
 
         super().__init__(name="SimpleConstraint", params=params)
