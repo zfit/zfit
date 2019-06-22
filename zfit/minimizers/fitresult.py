@@ -255,7 +255,11 @@ class FitResult(SessionHolderMixin, ZfitResult):
                 `dict`(param1, param2) -> covariance if `as_dict == True`.
         """
         params = self._input_check_params(params)
-        covariance_dict = self.minimizer._minuit_minimizer.covariance
+
+        try:
+            covariance_dict = self.minimizer._minuit_minimizer.covariance
+        except AttributeError:
+            raise AttributeError("Only covariance from minuit is available.")
 
         cov = {}
         for p1 in params:
