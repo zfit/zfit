@@ -60,8 +60,8 @@ def test_GaussianConstraint_sampling():
 
     sample = zfit.run(constr.sample(15000))
 
-    assert np.mean(sample[param1]) == pytest.approx(5, rel=0.01)
-    assert np.std(sample[param1]) == pytest.approx(1, rel=0.01)
+    assert np.mean(sample[param1]) == pytest.approx(mu[0], rel=0.01)
+    assert np.std(sample[param1]) == pytest.approx(sigma[0], rel=0.01)
 
 
 def test_simple_constraint():

@@ -1,13 +1,8 @@
 #  Copyright (c) 2019 zfit
 
-from .util.exception import ShapeIncompatibleError
 from .util import ztyping
-from .util.container import convert_to_container
 from .core.constraint import SimpleConstraint, GaussianConstraint
-from zfit import ztf
 import tensorflow as tf
-import numpy as np
-import warnings
 
 __all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 
@@ -27,38 +22,7 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
         ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """
 
-    warnings.warn("Please use `GaussianConstraint instead", DeprecationWarning)
-
-    params = convert_to_container(params, tuple)
-    mu = convert_to_container(mu, container=tuple, non_containers=[np.ndarray])
-
-    params = ztf.convert_to_tensor(params)
-    mu = ztf.convert_to_tensor(mu)
-    sigma = ztf.convert_to_tensor(sigma)
-
-    def covfunc(s):
-        return tf.diag(ztf.pow(s, 2.))
-
-    if sigma.shape.ndims > 1:
-        covariance = sigma
-    elif sigma.shape.ndims == 1:
-        covariance = covfunc(sigma)
-    else:
-        sigma = tf.reshape(sigma, [1])
-        covariance = covfunc(sigma)
-
-    if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
-        raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
-                                     f"param: {params.shape[0]}, mu: {mu.shape[0]}, "
-                                     f"covariance (from sigma): {covariance.shape[0:2]}")
-
-    x = (params - mu)
-    xt = tf.transpose(x)
-
-    constraint = tf.tensordot(tf.linalg.inv(covariance), x, 1)
-    constraint = 0.5 * tf.tensordot(xt, constraint, 1)
-
-    return SimpleConstraint(lambda: constraint)
+    return GaussianConstraint(params=params, mu=mu, sigma=sigma)
 
 # def nll_pdf(constraints: dict):
 #     if not constraints:
