@@ -1,11 +1,14 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict, defaultdict
 from typing import Dict, Union, Callable, Optional
 import warnings
 
 import tensorflow as tf
+import numpy as np
 
 import zfit
-from zfit.util.exception import WeightsNotImplementedError
+from zfit.util.exception import WeightsNotImplementedError, DueToLazynessNotImplementedError
 from zfit.util.execution import SessionHolderMixin
 from .interface import ZfitMinimizer, ZfitResult
 from ..util.ztyping import ParamsTypeOpt
@@ -238,6 +241,55 @@ class FitResult(SessionHolderMixin, ZfitResult):
             except KeyError:
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
+
+    def covariance(self, params: ParamsTypeOpt = None, as_dict: bool = False):
+        """Calculate the covariance matrix for `params`.
+
+            Args:
+                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
+                    the covariance matrix. If `params` is `None`, use all *floating* parameters.
+                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+
+            Returns:
+                2D `numpy.array` of shape (N, N);
+                `dict`(param1, param2) -> covariance if `as_dict == True`.
+        """
+        params = self._input_check_params(params)
+
+        try:
+            covariance_dict = self.minimizer._minuit_minimizer.covariance
+        except AttributeError:
+            raise DueToLazynessNotImplementedError("Currently, only covariance from minuit is available. "
+                                                   "Use `MinuitMinimizer` or open an issue on GitHub.")
+
+        cov = {}
+        for p1 in params:
+            for p2 in params:
+                key = (p1, p2)
+                cov[key] = covariance_dict[tuple(k.name for k in key)]
+        covariance_dict = cov
+
+        if as_dict:
+            return covariance_dict
+        else:
+            return dict_to_matrix(params, covariance_dict)
+
+
+def dict_to_matrix(params, matrix_dict):
+
+    nparams = len(params)
+    matrix = np.empty((nparams, nparams))
+
+    for i in range(nparams):
+        pi = params[i]
+        for j in range(i, nparams):
+            pj = params[j]
+            key = (pi, pj)
+            matrix[i, j] = matrix_dict[key]
+            if i != j:
+                matrix[j, i] = matrix_dict[key]
+
+    return matrix
 
 # def set_error_method(self, method):
 #     if isinstance(method, str):
