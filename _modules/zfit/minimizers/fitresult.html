@@ -105,14 +105,17 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">WeightsNotImplementedError</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">WeightsNotImplementedError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">zfit.util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="k">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="k">import</span> <span class="n">ParamsTypeOpt</span>
@@ -344,7 +347,56 @@
                 <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FitResult.covariance"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.covariance">[docs]</a>    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the covariance matrix for `params`.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate</span>
+<span class="sd">                    the covariance matrix. If `params` is `None`, use all *floating* parameters.</span>
+<span class="sd">                as_dict (bool): Default `False`. If `True` then returns a dictionnary.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                2D `numpy.array` of shape (N, N);</span>
+<span class="sd">                `dict`(param1, param2) -&gt; covariance if `as_dict == True`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">covariance_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span><span class="o">.</span><span class="n">_minuit_minimizer</span><span class="o">.</span><span class="n">covariance</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DueToLazynessNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Currently, only covariance from minuit is available. &quot;</span>
+                                                   <span class="s2">&quot;Use `MinuitMinimizer` or open an issue on GitHub.&quot;</span><span class="p">)</span>
+
+        <span class="n">cov</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p1</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p2</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+                <span class="n">cov</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">covariance_dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">key</span><span class="p">)]</span>
+        <span class="n">covariance_dict</span> <span class="o">=</span> <span class="n">cov</span>
+
+        <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">covariance_dict</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">covariance_dict</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="dict_to_matrix"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.dict_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix_dict</span><span class="p">):</span>
+
+    <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nparams</span><span class="p">,</span> <span class="n">nparams</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparams</span><span class="p">):</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nparams</span><span class="p">):</span>
+            <span class="n">pj</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">)</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
+                <span class="n">matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">matrix</span></div>
 
 <span class="c1"># def set_error_method(self, method):</span>
 <span class="c1">#     if isinstance(method, str):</span>
