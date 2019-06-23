@@ -10,18 +10,18 @@ from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError
 from ..settings import ztypes
 from zfit import ztf
+import zfit
 
 import tensorflow as tf
 import numpy as np
 import tensorflow_probability as tfp
-Distribution = tfp.distributions.Distribution
-mvnfc = tfp.distributions.MultivariateNormalFullCovariance
+tfd = tfp.distributions
 
 
 class BaseConstraint(BaseNumeric):
     """ Base class for constraints."""
 
-    def __init__(self, params: Union[Dict[str, ZfitParameter], None] = None,
+    def __init__(self, params: Union[Dict[str, ZfitParameter]] = None,
                  name: str = "BaseConstraint", dtype=ztypes.float,
                  **kwargs):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
@@ -35,19 +35,12 @@ class BaseConstraint(BaseNumeric):
 
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
 
-    @abc.abstractmethod
-    def _eval(self):
-        raise NotImplementedError
-
     def value(self):
         return self._value()
 
+    @abc.abstractmethod
     def _value(self):
-        try:
-            return self._eval()
-
-        except NotImplementedError:
-            raise NotImplementedError("_eval not properly defined!")
+        raise NotImplementedError
 
     def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_params())
@@ -85,14 +78,14 @@ class SimpleConstraint(BaseConstraint):
             self._simple_func_dependents = dependents
         return dependents
 
-    def _eval(self):
+    def _value(self):
         return self._simple_func()
 
 
-class ProbConstraint(BaseConstraint):
+class DistributionConstraint(BaseConstraint):
 
-    def __init__(self, params: Dict[str, ZfitParameter], distribution: Distribution,
-                 name: str = "ProbConstraint", dtype=ztypes.float,
+    def __init__(self, params: Dict[str, ZfitParameter], distribution: tfd.Distribution,
+                 dist_params, dist_kwargs=None, name: str = "DistributionConstraint", dtype=ztypes.float,
                  **kwargs):
         """ Base class for constraints using a probability density function.
 
@@ -105,13 +98,21 @@ class ProbConstraint(BaseConstraint):
         super().__init__(params=params, name=name, dtype=dtype, **kwargs)
 
         self._distribution = distribution
-        self._tparams = ztf.convert_to_tensor(list(params.values()))
+        self.dist_params = dist_params
+        self.dist_kwargs = dist_kwargs
+        self._tparams = ztf.convert_to_tensor(self.get_params())
 
     @property
     def distribution(self):
-        return self._distribution
+        params = self.dist_params
+        if callable(params):
+            params = params()
+        kwargs = self.dist_kwargs
+        if callable(kwargs):
+            kwargs = kwargs()
+        return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
-    def _eval(self):
+    def _value(self):
         value = -self.distribution.log_prob(self._tparams)
         return value
 
@@ -128,10 +129,10 @@ class ProbConstraint(BaseConstraint):
         return {p: sample[:, i] for i, p in enumerate(self.get_params())}
 
     def _sample(self, n):
-        return self.distribution.sample(n)
+        return zfit.run(self.distribution.sample(n))
 
 
-class GaussianConstraint(ProbConstraint):
+class GaussianConstraint(DistributionConstraint):
 
     def __init__(self, params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
                  sigma: ztyping.NumericalScalarType):
@@ -172,7 +173,9 @@ class GaussianConstraint(ProbConstraint):
         self._covariance = covariance
         self._mu = mu
 
-        distribution = mvnfc(loc=mu, covariance_matrix=covariance, validate_args=True)
+        distribution = tfd.MultivariateNormalFullCovariance
+        dist_params = dict(loc=mu, covariance_matrix=covariance)
+        dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", params=params_dict,
-                         distribution=distribution)
+                         distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
