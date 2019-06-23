@@ -98,7 +98,7 @@ class DistributionConstraint(BaseConstraint):
         super().__init__(params=params, name=name, dtype=dtype, **kwargs)
 
         self._distribution = distribution
-        self.dist_params = dist_params
+        self.dist_params = dist_params if dist_params is not None else {}
         self.dist_kwargs = dist_kwargs
         self._tparams = ztf.convert_to_tensor(self.get_params())
 
@@ -129,6 +129,7 @@ class DistributionConstraint(BaseConstraint):
         return {p: sample[:, i] for i, p in enumerate(self.get_params())}
 
     def _sample(self, n):
+        # TODO cache: add proper caching
         return zfit.run(self.distribution.sample(n))
 
 

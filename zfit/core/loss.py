@@ -66,8 +66,7 @@ def _constraint_check_convert(constraints):
         if isinstance(constr, BaseConstraint):
             checked_constraints.append(constr)
         else:
-            simple_constr = SimpleConstraint(func=lambda: constr)
-            checked_constraints.append(simple_constr)
+            checked_constraints.append(SimpleConstraint(func=lambda: constr))
     return checked_constraints
 
 
