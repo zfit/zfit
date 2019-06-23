@@ -15,9 +15,9 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
         params (list(zfit.Parameter)): The parameters to constraint
         mu (numerical, list(numerical)): The central value of the constraint
         sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
-            matrix of the constraint. Can either be a single value or
+            matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
     Returns:
-        `tf.Tensor`: the nll of the constraint
+        `GaussianConstraint`: the constraint object
     Raises:
         ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """

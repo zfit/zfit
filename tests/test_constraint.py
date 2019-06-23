@@ -8,6 +8,8 @@ from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import ShapeIncompatibleError
 from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
 from zfit.util.container import convert_to_container
+import tensorflow_probability as tfp
+poisson = tfp.distributions.poisson
 
 
 def nll_gaussian(params, mu, sigma):

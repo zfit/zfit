@@ -14,14 +14,24 @@ from zfit import ztf
 import tensorflow as tf
 import numpy as np
 import tensorflow_probability as tfp
+Distribution = tfp.distributions.Distribution
 mvnfc = tfp.distributions.MultivariateNormalFullCovariance
 
 
 class BaseConstraint(BaseNumeric):
+    """ Base class for constraints."""
 
     def __init__(self, params: Union[Dict[str, ZfitParameter], None] = None,
-                 name: str = "BaseModel", dtype=ztypes.float,
+                 name: str = "BaseConstraint", dtype=ztypes.float,
                  **kwargs):
+        """The base model to inherit from and overwrite `_unnormalized_pdf`.
+
+        Args:
+            dtype (DType): the dtype of the constraint
+            name (str): the name of the constraint
+            params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the
+                parameter and the parameters itself the constrains depends on
+        """
 
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
 
@@ -39,20 +49,23 @@ class BaseConstraint(BaseNumeric):
         except NotImplementedError:
             raise NotImplementedError("_eval not properly defined!")
 
-    def sample(self, n=1):
-        return self._sample(n=n)
-
-    @abc.abstractmethod
-    def _sample(self, n):
-        raise NotImplementedError()
-
     def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_params())
+
+    def sample(self, n):
+        raise NotImplementedError
 
 
 class SimpleConstraint(BaseConstraint):
 
     def __init__(self, func: Callable, params: Optional[ztyping.ParametersType] = None):
+        """Constraint from a (function returning a ) Tensor.
+
+        Args:
+            func: Callable that constructs the constraint and returns a tensor.
+            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the
+                dependents are figured out automatically.
+        """
 
         self._simple_func = func
         self._simple_func_dependents = convert_to_container(params, container=set)
@@ -76,18 +89,72 @@ class SimpleConstraint(BaseConstraint):
         return self._simple_func()
 
 
-class GaussianConstraint(BaseConstraint):
+class ProbConstraint(BaseConstraint):
+
+    def __init__(self, params: Dict[str, ZfitParameter], distribution: Distribution,
+                 name: str = "ProbConstraint", dtype=ztypes.float,
+                 **kwargs):
+        """ Base class for constraints using a probability density function.
+
+        Args:
+            distribution (tensorflow_probability.distributions.Distribution): The probability density function
+                used to constraint the parameters
+
+        """
+
+        super().__init__(params=params, name=name, dtype=dtype, **kwargs)
+
+        self._distribution = distribution
+        self._tparams = ztf.convert_to_tensor(list(params.values()))
+
+    @property
+    def distribution(self):
+        return self._distribution
+
+    def _eval(self):
+        value = -self.distribution.log_prob(self._tparams)
+        return value
+
+    def sample(self, n: ztyping.nSamplingTypeIn = 1) -> Dict:
+        """Sample `n` points from the probability density function for the constrained parameters.
+
+            Args:
+                n (int, tf.Tensor): The number of samples to be generated.
+            Returns:
+                Dict(Parameter: n_samples)
+
+        """
+        sample = self._sample(n=n)
+        return {p: sample[:, i] for i, p in enumerate(self.get_params())}
+
+    def _sample(self, n):
+        return self.distribution.sample(n)
+
+
+class GaussianConstraint(ProbConstraint):
 
     def __init__(self, params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
                  sigma: ztyping.NumericalScalarType):
+        """Gaussian constraints on a list of parameters.
 
+        Args:
+            params (list(zfit.Parameter)): The parameters to constraint
+            mu (numerical, list(numerical)): The central value of the constraint
+            sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
+                matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
+
+        Raises:
+            ShapeIncompatibleError: if params, mu and sigma don't have the same size
+        """
+
+        mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
         params = convert_to_container(params, tuple)
-        mu = convert_to_container(mu, container=tuple, non_containers=[np.ndarray])
-        super().__init__(name="GaussianConstraint", params={p.name: p for p in params})
 
-        params = ztf.convert_to_tensor(params)
+        params_dict = {p.name: p for p in params}
+
         mu = ztf.convert_to_tensor(mu)
         sigma = ztf.convert_to_tensor(sigma)
+        params = ztf.convert_to_tensor(params)
 
         if sigma.shape.ndims > 1:
             covariance = sigma
@@ -104,13 +171,8 @@ class GaussianConstraint(BaseConstraint):
 
         self._covariance = covariance
         self._mu = mu
-        self._tparams = params
-        self._dist = mvnfc(loc=mu, covariance_matrix=covariance, validate_args=True)
 
-    def _eval(self):
-        value = -self._dist.log_prob(self._tparams)
-        return value
+        distribution = mvnfc(loc=mu, covariance_matrix=covariance, validate_args=True)
 
-    def _sample(self, n):
-        sample = self._dist.sample(n)
-        return {p: sample[:, i] for i, p in enumerate(self.get_params())}
+        super().__init__(name="GaussianConstraint", params=params_dict,
+                         distribution=distribution)
