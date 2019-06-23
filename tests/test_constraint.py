@@ -58,7 +58,8 @@ def test_gaussian_constraint():
     assert constr.get_dependents() == set(params)
 
 
-def test_GaussianConstraint_sampling():
+@pytest.mark.flaky(3)
+def test_gaussian_constraint_sampling():
     param1 = zfit.Parameter("Param1", 5)
     params = [param1]
 
