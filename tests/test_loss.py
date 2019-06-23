@@ -15,7 +15,6 @@ import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 from zfit.util.exception import IntentionNotUnambiguousError
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.core.constraint import BaseConstraint, SimpleConstraint
 
 mu_true = 1.2
 sigma_true = 4.1

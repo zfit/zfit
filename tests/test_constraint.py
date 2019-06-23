@@ -6,7 +6,7 @@ import zfit
 from zfit import ztf
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import ShapeIncompatibleError
-from zfit.constraint import SimpleConstraint, GaussianConstraint
+from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
 from zfit.util.container import convert_to_container
 
 
@@ -23,7 +23,13 @@ def nll_gaussian(params, mu, sigma):
     return constraint
 
 
-def test_shape_errors():
+def test_base_constraint():
+    constr = BaseConstraint()
+    with pytest.raises(NotImplementedError):
+        constr.value()
+
+
+def test_gaussian_constraint_shape_errors():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
 
@@ -37,7 +43,7 @@ def test_shape_errors():
         GaussianConstraint(param1, mu=[4, 2], sigma=[2, 3])
 
 
-def test_gaussian_constraint_value():
+def test_gaussian_constraint():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
     params = [param1, param2]
@@ -48,6 +54,8 @@ def test_gaussian_constraint_value():
     constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
     constr_np = zfit.run(constr.value())
     assert constr_np == pytest.approx(3.989638)
+
+    assert constr.get_dependents() == set(params)
 
 
 def test_GaussianConstraint_sampling():
@@ -79,3 +87,5 @@ def test_simple_constraint():
 
     constr_np = zfit.run(constr.value())
     assert constr_np == pytest.approx(2.02)
+
+    assert constr.get_dependents() == set(params)
