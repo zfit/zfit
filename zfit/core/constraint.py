@@ -98,8 +98,8 @@ class DistributionConstraint(BaseConstraint):
         super().__init__(params=params, name=name, dtype=dtype, **kwargs)
 
         self._distribution = distribution
-        self.dist_params = dist_params if dist_params is not None else {}
-        self.dist_kwargs = dist_kwargs
+        self.dist_params = dist_params
+        self.dist_kwargs = dist_kwargs if dist_kwargs is not None else {}
         self._tparams = ztf.convert_to_tensor(self.get_params())
 
     @property
