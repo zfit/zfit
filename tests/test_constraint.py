@@ -10,7 +10,7 @@ from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConst
 from zfit.util.container import convert_to_container
 
 
-def nll_gaussian(params, mu, sigma):
+def true_nll_gaussian(params, mu, sigma):
     params = convert_to_container(params, container=tuple)
     mu = convert_to_container(mu, container=tuple)
     sigma = convert_to_container(sigma, container=tuple)
@@ -82,7 +82,7 @@ def test_simple_constraint():
     sigma = [1., 0.5]
 
     def func():
-        return nll_gaussian(params=params, mu=mu, sigma=sigma)
+        return true_nll_gaussian(params=params, mu=mu, sigma=sigma)
     constr = SimpleConstraint(func=func)
 
     constr_np = zfit.run(constr.value())

@@ -60,17 +60,15 @@ def _nll_constraints_tf(constraints):
     return constraints_neg_log_prob
 
 
-def _constraint_check(constraints):
-    _constraints = []
-    for c in constraints:
-        print(c, isinstance(c, BaseConstraint))
-        if isinstance(c, BaseConstraint):
-            _constraints.append(c)
+def _constraint_check_convert(constraints):
+    checked_constraints = []
+    for constr in constraints:
+        if isinstance(constr, BaseConstraint):
+            checked_constraints.append(constr)
         else:
-            c_ = SimpleConstraint(func=lambda: c)
-            _constraints.append(c_)
-        print(_constraints)
-    return _constraints
+            simple_constr = SimpleConstraint(func=lambda: constr)
+            checked_constraints.append(simple_constr)
+    return checked_constraints
 
 
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
@@ -98,7 +96,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         self._fit_range = fit_range
         if constraints is None:
             constraints = []
-        self._constraints = _constraint_check(convert_to_container(constraints, list))
+        self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -164,7 +162,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._add_constraints(constraints)
 
     def _add_constraints(self, constraints):
-        constraints = _constraint_check(convert_to_container(constraints, container=list))
+        constraints = _constraint_check_convert(convert_to_container(constraints, container=list))
         self._constraints.extend(constraints)
         return constraints
 
