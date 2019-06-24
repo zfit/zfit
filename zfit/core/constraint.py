@@ -19,12 +19,11 @@ tfd = tfp.distributions
 
 
 class BaseConstraint(BaseNumeric):
-    """ Base class for constraints."""
 
     def __init__(self, params: Union[Dict[str, ZfitParameter]] = None,
                  name: str = "BaseConstraint", dtype=ztypes.float,
                  **kwargs):
-        """The base model to inherit from and overwrite `_unnormalized_pdf`.
+        """Base class for constraints.
 
         Args:
             dtype (DType): the dtype of the constraint
