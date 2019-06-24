@@ -32,7 +32,6 @@ class BaseConstraint(BaseNumeric):
             params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the
                 parameter and the parameters itself the constrains depends on
         """
-
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
 
     def value(self):
@@ -59,7 +58,6 @@ class SimpleConstraint(BaseConstraint):
             dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the
                 dependents are figured out automatically.
         """
-
         self._simple_func = func
         self._simple_func_dependents = convert_to_container(params, container=set)
         if params is None:
@@ -94,7 +92,6 @@ class DistributionConstraint(BaseConstraint):
                 used to constraint the parameters
 
         """
-
         super().__init__(params=params, name=name, dtype=dtype, **kwargs)
 
         self._distribution = distribution
@@ -119,10 +116,10 @@ class DistributionConstraint(BaseConstraint):
     def sample(self, n: ztyping.nSamplingTypeIn = 1) -> Dict:
         """Sample `n` points from the probability density function for the constrained parameters.
 
-            Args:
-                n (int, tf.Tensor): The number of samples to be generated.
-            Returns:
-                Dict(Parameter: n_samples)
+        Args:
+            n (int, tf.Tensor): The number of samples to be generated.
+        Returns:
+            Dict(Parameter: n_samples)
 
         """
         sample = self._sample(n=n)
@@ -148,7 +145,6 @@ class GaussianConstraint(DistributionConstraint):
         Raises:
             ShapeIncompatibleError: if params, mu and sigma don't have the same size
         """
-
         mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
         params = convert_to_container(params, tuple)
 
