@@ -22,6 +22,9 @@ gauss_z = zfit.pdf.Gauss(mu=mu23, sigma=sigma3, obs=zobs)
 
 product_gauss = zfit.pdf.ProductPDF([gauss_x, gauss_y, gauss_z])
 
+# OR create directly from your 3 dimensional pdf as
+# model = MyPDF(obs=obs, param1=..., param2,...)
+
 # data
 normal_np = np.random.normal(loc=[2., 2.5, 2.5], scale=[3., 3, 1.5], size=(10000, 3))
 data_raw = zfit.Data.from_numpy(obs=obs, array=normal_np)  # or from anywhere else, e.g. root
