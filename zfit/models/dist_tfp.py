@@ -13,7 +13,7 @@ from typing import Union
 import numpy as np
 
 import tensorflow_probability as tfp
-
+import tensorflow_probability.python.distributions as tfd
 import tensorflow as tf
 
 
@@ -26,6 +26,30 @@ from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitParameter, ZfitData
 from ..core.limits import no_norm_range, supports
 from ..core.parameter import convert_to_parameter
+from ..core.limits import Space
+
+
+def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeInput):
+    """Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.
+
+    Args:
+        n: Number of samples to get
+        dist: Distribution to sample from
+        limits: Limits to sample from within
+
+    Returns:
+        `tf.Tensor` (n, n_obs): The sampled data with the number of samples and the number of observables.
+    """
+    if limits.n_limits > 1:
+        raise NotImplementedError
+    (lower_bound,), (upper_bound,) = limits.limits
+    lower_prob_lim = dist.cdf(lower_bound)
+    upper_prob_lim = dist.cdf(upper_bound)
+
+    prob_sample = ztf.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
+                                     maxval=upper_prob_lim)
+    sample = dist.quantile(prob_sample)
+    return sample
 
 
 class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like icdf
@@ -53,6 +77,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         self._distribution = distribution
         self.dist_params = dist_params
         self.dist_kwargs = dist_kwargs
+        self._inverse_analytic_integral = []
 
     @property
     def distribution(self):
@@ -80,6 +105,9 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         upper = ztf.to_real(upper[0], dtype=self.dtype)
         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
         return integral[0]
+
+    def _analytic_sample(self, n, limits: Space):
+        return tfd_analytic_sample(n=n, dist=self.distribution, limits=limits)
 
 
 # class KernelDensity(WrapDistribution):
@@ -141,7 +169,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
 #         integral = ztf.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum
 #         return integral  # TODO: generalize for VectorSpaces
-
 
 
 class Gauss(WrapDistribution):
