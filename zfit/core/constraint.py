@@ -10,7 +10,7 @@ from .interfaces import ZfitParameter
 from ..util import ztyping
 from ..util.graph import get_dependents_auto
 from ..util.container import convert_to_container
-from ..util.exception import ShapeIncompatibleError
+from ..util.exception import ShapeIncompatibleError, LogicalUndefinedOperationError
 from ..settings import ztypes
 from zfit import ztf
 import zfit
@@ -65,7 +65,7 @@ class BaseConstraint(BaseNumeric):
 
 class SimpleConstraint(BaseConstraint):
 
-    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType] = None):
+    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType] = None, sampler: Callable = None):
         """Constraint from a (function returning a) Tensor.
 
         The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
@@ -76,6 +76,7 @@ class SimpleConstraint(BaseConstraint):
                 dependents are figured out automatically.
         """
         self._simple_func = func
+        self._sampler = sampler
         self._simple_func_dependents = convert_to_container(params, container=set)
         if params is None:
             params = self.get_dependents()
@@ -95,6 +96,13 @@ class SimpleConstraint(BaseConstraint):
 
     def _value(self):
         return self._simple_func()
+
+    def _sample(self, n):
+        sampler = self._sampler
+        if sampler is None:
+            raise LogicalUndefinedOperationError(
+                "Cannot sample from a SimpleLoss if no sampler was given on instanciation.")
+        return sampler(n)
 
 
 class DistributionConstraint(BaseConstraint):
