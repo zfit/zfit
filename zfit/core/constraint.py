@@ -1,4 +1,7 @@
+#  Copyright (c) 2019 zfit
+
 import abc
+from collections import OrderedDict
 
 from typing import Dict, Union, Callable, Optional
 
@@ -15,6 +18,7 @@ import zfit
 import tensorflow as tf
 import numpy as np
 import tensorflow_probability as tfp
+
 tfd = tfp.distributions
 
 
@@ -44,13 +48,27 @@ class BaseConstraint(BaseNumeric):
         return self._extract_dependents(self.get_params())
 
     def sample(self, n):
+        """Sample `n` points from the probability density function for the constrained parameters.
+
+        Args:
+            n (int, tf.Tensor): The number of samples to be generated.
+        Returns:
+            Dict(Parameter: n_samples)
+        """
+        sample = self._sample(n=n)
+        return {p: sample[:, i] for i, p in enumerate(self.get_params())}
+
+    @abc.abstractmethod
+    def _sample(self, n):
         raise NotImplementedError
 
 
 class SimpleConstraint(BaseConstraint):
 
     def __init__(self, func: Callable, params: Optional[ztyping.ParametersType] = None):
-        """Constraint from a (function returning a ) Tensor.
+        """Constraint from a (function returning a) Tensor.
+
+        The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
 
         Args:
             func: Callable that constructs the constraint and returns a tensor.
@@ -63,7 +81,7 @@ class SimpleConstraint(BaseConstraint):
             params = self.get_dependents()
 
         params = convert_to_container(params, container=list)
-        params = {p.name: p for p in params}
+        params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
 
         super().__init__(name="SimpleConstraint", params=params)
 
@@ -87,7 +105,7 @@ class DistributionConstraint(BaseConstraint):
         """ Base class for constraints using a probability density function.
 
         Args:
-            distribution (tensorflow_probability.distributions.Distribution): The probability density function
+            distribution (`tensorflow_probability.distributions.Distribution`): The probability density function
                 used to constraint the parameters
 
         """
@@ -112,18 +130,6 @@ class DistributionConstraint(BaseConstraint):
         value = -self.distribution.log_prob(self._tparams)
         return value
 
-    def sample(self, n: ztyping.nSamplingTypeIn = 1) -> Dict:
-        """Sample `n` points from the probability density function for the constrained parameters.
-
-        Args:
-            n (int, tf.Tensor): The number of samples to be generated.
-        Returns:
-            Dict(Parameter: n_samples)
-
-        """
-        sample = self._sample(n=n)
-        return {p: sample[:, i] for i, p in enumerate(self.get_params())}
-
     def _sample(self, n):
         # TODO cache: add proper caching
         return zfit.run(self.distribution.sample(n))
@@ -136,7 +142,7 @@ class GaussianConstraint(DistributionConstraint):
         """Gaussian constraints on a list of parameters.
 
         Args:
-            params (list(zfit.Parameter)): The parameters to constraint
+            params (list(1zfit.Parameter1)): The parameters to constraint
             mu (numerical, list(numerical)): The central value of the constraint
             sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor

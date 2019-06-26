@@ -28,7 +28,7 @@ Constraints (or, in general, penalty terms) can be added to the loss function ei
 These constraints are specified as a list of penalty terms, which can be any object inheriting from :py:class:`~zfit.core.constraint.BaseConstraint` that is simply added to the calculation of the loss.
 
 Useful implementations of penalties can be found in the :py:mod:`zfit.constraint` module.
-For example, if we wanted to add adding a gaussian constraint on the ``mu`` parameter of the previous model, we would write:
+For example, if we wanted to add a gaussian constraint on the ``mu`` parameter of the previous model, we would write:
 
 .. code-block:: pycon
 
