@@ -16,6 +16,7 @@ Submodules
    zfit.core.basemodel
    zfit.core.baseobject
    zfit.core.basepdf
+   zfit.core.constraint
    zfit.core.data
    zfit.core.dimension
    zfit.core.integration
