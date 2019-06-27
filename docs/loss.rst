@@ -32,12 +32,12 @@ For example, if we wanted to add a gaussian constraint on the ``mu`` parameter o
 
 .. code-block:: pycon
 
+    >>> constraint = zfit.constraint.GaussianConstraint(params=mu, mu=5279., sigma=10.))
+
     >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
     >>>                                 data,
     >>>                                 fit_range=(-10, 10),
-    >>>                                 constraints=zfit.constraint.GaussianConstraint(params=mu,
-    >>>                                                                                mu=5279.,
-    >>>                                                                                sigma=10.))
+    >>>                                 constraints=constraint)
 
 
 Simultaneous fits
