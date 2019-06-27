@@ -185,7 +185,10 @@ def test_add():
 
     assert simult_nll.fit_range == ranges
 
-    assert simult_nll.constraints == merged_contraints
+    def eval_constraint(constraints):
+        return zfit.run(ztf.reduce_sum([c.value() for c in constraints]))
+
+    assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
 
 
 @pytest.mark.parametrize("chunksize", [10000000, 1000])

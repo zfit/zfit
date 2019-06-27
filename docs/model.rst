@@ -289,15 +289,28 @@ using the following argument. Reusing the example above
 .. code:: pycon
 
     >>> sigma.set_value(np.random.normal())
-    >>> sampler.resample(param_values={sigma: 5)
+    >>> sampler.resample(param_values={sigma1: 5})
 
-The sample (and therefore also the sample the `nll` depends on) is now sampled with `sigma` set to 5.
+The sample (and therefore also the sample the `nll` depends on) is now sampled with `sigma1` set to 5.
 
+If some parameters are constrained from external measurements, usually Gaussian constraints, then sampling of
+those parameters might be needed to obtain an unbiased sample from the model. Example:
 
+.. code:: pycon
 
+    >>> # same model depending on mu1, sigma1, mu2, sigma2
 
+    >>> constraint = zfit.constraint.GaussianConstraint(params=[sigma1, sigma2], mu=[1.0, 0.5], sigma=[0.1, 0.05])
 
+    >>> sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
+    >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
 
+    >>> n_samples = 1000
+    >>> constr_values = constraint.sample(n=n_toys)
 
-
-
+    >>> for i in range(n_samples):
+    >>>     sigma1_i = constr_values[sigma1][i]
+    >>>     sigma2_i = constr_values[sigma2][i]
+    >>>     sampler.resample(param_values={sigma1: sigma1_i, sigma2: sigma2_i})
+    >>>     # do something with nll
+    >>>     minimizer.minimize(nll)  # minimize
