@@ -39,7 +39,7 @@ For example, if we wanted to add a gaussian constraint on the ``mu`` parameter o
     >>>                                 fit_range=(-10, 10),
     >>>                                 constraints=constraint)
 
-Custom penalty can also be added to the loss function, for instance if you want to set limits on a parameter:
+Custom penalties can also be added to the loss function, for instance if you want to set limits on a parameter:
 
 .. code-block:: pycon
 
@@ -69,7 +69,7 @@ Simultaneous fits
 
 There are currently two loss functions implementations in the ``zfit`` library, the :py:class:`~zfit.core.loss.UnbinnedNLL` and :py:class:`~zfit.core.loss.ExtendedUnbinnedNLL` classes, which cover non-extended and extended negative log-likelihoods.
 
-A very common use case likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated).
+A very common use case of likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated).
 To build loss functions for simultaneous fits, the addition operator can be used (the particular combination that is performed depends on the type of loss function):
 
 .. code-block:: pycon
@@ -80,9 +80,9 @@ To build loss functions for simultaneous fits, the addition operator can be used
    >>> my_loss2 = zfit.loss.UnbinnedNLL(models[1], datasets[1], fit_range=(-10, 10))
    >>> my_loss_sim_operator = my_loss1 + my_loss2
 
-The same result can be achieved by passing a list of PDFs on instantiation, along with the same number of datasets and fit ranges:
+The same result can be achieved by passing a list of PDFs on instantiation, along with the same number of datasets:
 
 .. code-block:: pycon
 
    >>> # Adding a list of models, data and observable ranges
-   >>> my_loss_sim = zfit.loss.UnbinnedNLL(model=[models], data=[datasets], fit_range=[obsRange])
+   >>> my_loss_sim = zfit.loss.UnbinnedNLL(model=[model1, model2, ...], data=[data1, data2, ...])
