@@ -302,15 +302,15 @@ those parameters might be needed to obtain an unbiased sample from the model. Ex
 
     >>> constraint = zfit.constraint.GaussianConstraint(params=[sigma1, sigma2], mu=[1.0, 0.5], sigma=[0.1, 0.05])
 
-    >>> sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
+    >>> n_samples = 1000
+
+    >>> sampler = model.create_sampler(n=n_samples, fixed_params=[mu1, mu2])
     >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
 
-    >>> n_samples = 1000
-    >>> constr_values = constraint.sample(n=n_toys)
+    >>> constr_values = constraint.sample(n=n_samples)
 
     >>> for i in range(n_samples):
-    >>>     sigma1_i = constr_values[sigma1][i]
-    >>>     sigma2_i = constr_values[sigma2][i]
-    >>>     sampler.resample(param_values={sigma1: sigma1_i, sigma2: sigma2_i})
+    >>>     sampler.resample(param_values={sigma1: constr_values[sigma1][i],
+                                           sigma2: constr_values[sigma2][i]})
     >>>     # do something with nll
     >>>     minimizer.minimize(nll)  # minimize
