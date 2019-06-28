@@ -84,5 +84,5 @@ The same result can be achieved by passing a list of PDFs on instantiation, alon
 
 .. code-block:: pycon
 
-   >>> # Adding a list of models, data and observable ranges
+   >>> # Adding a list of models and datasets
    >>> my_loss_sim = zfit.loss.UnbinnedNLL(model=[model1, model2, ...], data=[data1, data2, ...])
