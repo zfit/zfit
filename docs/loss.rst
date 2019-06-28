@@ -56,7 +56,7 @@ or equivalently
 
 .. code-block:: pycon
 
->>> simple_constraint = zfit.constraint.SimpleConstraint(lamdba: custom_constraint(mu, 5400))
+>>> simple_constraint = zfit.constraint.SimpleConstraint(lambda: custom_constraint(mu, 5400))
 >>> my_loss.add_constraints(simple_constraint)
 
 In this example if the value of ``param`` is larger than ``max_value`` a large value is added the loss function
