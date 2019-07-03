@@ -627,10 +627,7 @@ class Sampler(Data):
 
         with ExitStack() as stack:
 
-            [stack.enter_context(param.set_value(val)) for param, val in temp_param_values.items()]
-
-            for p in temp_param_values.keys():
-                print(p.name, zfit.run(p))
+            _ = [stack.enter_context(param.set_value(val)) for param, val in temp_param_values.items()]
 
             if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
                 # means it's handled inside the function
