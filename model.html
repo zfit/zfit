@@ -364,7 +364,7 @@ those parameters might be needed to obtain an unbiased sample from the model. Ex
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{</span><span class="n">sigma1</span><span class="p">:</span> <span class="n">constr_values</span><span class="p">[</span><span class="n">sigma1</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
-<span class="go">                                       sigma2: constr_values[sigma2][i]})</span>
+<span class="gp">&gt;&gt;&gt; </span>                                   <span class="n">sigma2</span><span class="p">:</span> <span class="n">constr_values</span><span class="p">[</span><span class="n">sigma2</span><span class="p">][</span><span class="n">i</span><span class="p">]})</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># do something with nll</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
 </pre></div>

@@ -311,6 +311,6 @@ those parameters might be needed to obtain an unbiased sample from the model. Ex
 
     >>> for i in range(n_samples):
     >>>     sampler.resample(param_values={sigma1: constr_values[sigma1][i],
-                                           sigma2: constr_values[sigma2][i]})
+    >>>                                    sigma2: constr_values[sigma2][i]})
     >>>     # do something with nll
     >>>     minimizer.minimize(nll)  # minimize

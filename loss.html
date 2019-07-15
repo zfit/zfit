@@ -137,25 +137,16 @@ For example, if we wanted to add a gaussian constraint on the <code class="docut
 </pre></div>
 </div>
 <p>Custom penalties can also be added to the loss function, for instance if you want to set limits on a parameter:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">custom_constraint</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">max_value</span><span class="p">):</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">custom_constraint</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">max_value</span><span class="p">):</span>
 <span class="go">        return tf.cond(tf.greater_equal(param, max_value), lambda: 10000., lambda: 0.)</span>
 </pre></div>
 </div>
 <p>The custom penalty needs to be callable to be added to the loss function</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span><span class="o">.</span><span class="n">add_constraints</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">custom_constraint</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="mi">5400</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span><span class="o">.</span><span class="n">add_constraints</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">custom_constraint</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="mi">5400</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>or equivalently</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simple_constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">SimpleConstraint</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">custom_constraint</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="mi">5400</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simple_constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">SimpleConstraint</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">custom_constraint</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="mi">5400</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span><span class="o">.</span><span class="n">add_constraints</span><span class="p">(</span><span class="n">simple_constraint</span><span class="p">)</span>
 </pre></div>
 </div>
