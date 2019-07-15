@@ -4,11 +4,11 @@ import numpy as np
 import zfit
 
 # create space
-obs = zfit.Space("x", limits=(-10, 10))
+obs = zfit.Space("x", limits=(-2, 3))
 
 # parameters
-mu = zfit.Parameter("mu", 1., -4, 6)
-sigma = zfit.Parameter("sigma", 1., 0.1, 10)
+mu = zfit.Parameter("mu", 1.2, -4, 6)
+sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
 
 # model building, pdf creation
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
@@ -26,3 +26,4 @@ result = minimizer.minimize(nll)
 
 # do the error calculations, here with minos
 param_errors = result.error()
+
