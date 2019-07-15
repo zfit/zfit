@@ -624,8 +624,11 @@ class Sampler(Data):
         temp_param_values = self.fixed_params.copy()
         if param_values is not None:
             temp_param_values.update(param_values)
+
         with ExitStack() as stack:
-            _ = [stack.enter_context(param.set_value(val)) for param, val in self.fixed_params.items()]
+
+            _ = [stack.enter_context(param.set_value(val)) for param, val in temp_param_values.items()]
+
             if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
                 # means it's handled inside the function
                 # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer

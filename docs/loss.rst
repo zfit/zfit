@@ -43,21 +43,21 @@ Custom penalties can also be added to the loss function, for instance if you wan
 
 .. code-block:: pycon
 
->>> def custom_constraint(param, max_value):
-        return tf.cond(tf.greater_equal(param, max_value), lambda: 10000., lambda: 0.)
+    >>> def custom_constraint(param, max_value):
+            return tf.cond(tf.greater_equal(param, max_value), lambda: 10000., lambda: 0.)
 
 The custom penalty needs to be callable to be added to the loss function
 
 .. code-block:: pycon
 
->>> my_loss.add_constraints(lambda: custom_constraint(mu, 5400))
+    >>> my_loss.add_constraints(lambda: custom_constraint(mu, 5400))
 
 or equivalently
 
 .. code-block:: pycon
 
->>> simple_constraint = zfit.constraint.SimpleConstraint(lambda: custom_constraint(mu, 5400))
->>> my_loss.add_constraints(simple_constraint)
+    >>> simple_constraint = zfit.constraint.SimpleConstraint(lambda: custom_constraint(mu, 5400))
+    >>> my_loss.add_constraints(simple_constraint)
 
 In this example if the value of ``param`` is larger than ``max_value`` a large value is added the loss function
 driving it away from the minimum.
