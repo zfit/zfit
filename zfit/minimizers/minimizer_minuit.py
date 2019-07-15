@@ -130,6 +130,8 @@ class MinuitMinimizer(BaseMinimizer, Cachable):
 
         strategy = minimizer_setter.pop('strategy')
         minimizer.set_strategy(strategy)
+        # print("HACK HEAVY MINUIT TOL")
+        # minimizer.tol = 1.
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer

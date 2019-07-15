@@ -810,19 +810,25 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.
             # Or not: refactor that variable can be given due to no variable creation policy!
             n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+
+        limits = self._check_input_limits(limits=limits)
+
+        if limits.limits is None:
+            limits = self.space  # TODO(Mayou36): clean up, better norm_range?
+            if limits.limits in (None, False):
+                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         fixed_params, n, sample = self._create_sampler_tensor(fixed_params=fixed_params,
                                                               limits=limits, n=n, name=name)
-
-        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=self.obs, fixed_params=fixed_params,
+        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=limits, fixed_params=fixed_params,
                                           name=name)
 
         return sample_data
 
     def _create_sampler_tensor(self, fixed_params, limits, n, name):
-        if limits is None:
-            limits = self.space  # TODO(Mayou36): clean up, better norm_range?
-            if limits.limits in (None, False):
-                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+        # if limits is None:
+        #     limits = self.space  # TODO(Mayou36): clean up, better norm_range?
+        #     if limits.limits in (None, False):
+        #         raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
         elif fixed_params is False:
@@ -863,7 +869,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
-        if limits is None:
+        limits = self._check_input_limits(limits=limits)
+        if limits.limits is None:
             limits = self.space
             if limits.limits in (None, False):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
