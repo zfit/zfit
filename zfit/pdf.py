@@ -7,7 +7,7 @@ from .models.dist_tfp import Gauss, Uniform, WrapDistribution, TruncatedGauss
 from .models.functor import ProductPDF, SumPDF, BaseFunctor
 from .models.special import ZPDF, SimplePDF, SimpleFunctorPDF
 
-__all__ = ['BasePDF',
+__all__ = ['BasePDF', 'BaseFunctor',
            'Exponential',
            'CrystalBall', 'DoubleCB',
            'Gauss', 'Uniform', 'TruncatedGauss', 'WrapDistribution',
