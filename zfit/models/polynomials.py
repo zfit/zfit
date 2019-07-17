@@ -1,7 +1,7 @@
 #  Copyright (c) 2019 zfit
 """Recurrent polynomials."""
 import abc
-from typing import Callable, List, Dict, Optional
+from typing import Callable, List, Dict, Optional, Mapping
 
 import tensorflow as tf
 import numpy as np
@@ -67,7 +67,7 @@ class RecursivePolynomial(BasePDF, metaclass=abc.ABCMeta):
 def create_poly(x, polys, coeffs, recurrence):
     degree = len(coeffs) - 1
     polys = do_recurrence(x, polys=polys, degree=degree, recurrence=recurrence)
-    sum_polys = tf.reduce_sum([coeffs[f"c_{i}"] * poly for i, poly in enumerate(polys)], axis=0)
+    sum_polys = tf.reduce_sum([coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
     return sum_polys
 
 
@@ -137,7 +137,7 @@ class Legendre(RecursivePolynomial):
                          coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
 
     def _poly_func(self, x):
-        coeffs = self.params
+        coeffs = convert_coeffs_dict_to_list(self.params)
         return legendre_shape(x=x, coeffs=coeffs)
 
 
@@ -169,7 +169,7 @@ class Chebyshev(RecursivePolynomial):
                          apply_scaling=apply_scaling, **kwargs)
 
     def _poly_func(self, x):
-        coeffs = self.params
+        coeffs = convert_coeffs_dict_to_list(self.params)
         return chebyshev_shape(x=x, coeffs=coeffs)
 
 
@@ -217,12 +217,13 @@ def chebyshev2_shape(x, coeffs):
 
 class Chebyshev2(RecursivePolynomial):
     """Chebyshev polynomials of the second kind."""
+
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev2", **kwargs):  # noqa
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
 
     def _poly_func(self, x):
-        coeffs = self.params
+        coeffs = convert_coeffs_dict_to_list(self.params)
         return chebyshev2_shape(x=x, coeffs=coeffs)
 
 
@@ -241,6 +242,7 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
     for name, coeff in params.items():
         n_plus1 = int(name.split("_", 1)[-1]) + 1
         coeffs_cheby1[f'c_{n_plus1}'] = coeff / ztf.convert_to_tensor(n_plus1, dtype=model.dtype)
+    coeffs_cheby1 = convert_coeffs_dict_to_list(coeffs_cheby1)
 
     def indefinite_integral(limits):
         return chebyshev_shape(x=limits, coeffs=coeffs_cheby1)
@@ -299,7 +301,7 @@ class Laguerre(RecursivePolynomial):
                          apply_scaling=apply_scaling, **kwargs)
 
     def _poly_func(self, x):
-        coeffs = self.params
+        coeffs = convert_coeffs_dict_to_list(self.params)
         return laguerre_shape(x=x, coeffs=coeffs)
 
 
@@ -328,6 +330,7 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
     coeffs_laguerre_nup = {f'c_{int(n.split("_", 1)[-1]) + 1}': c
                            for i, (n, c) in enumerate(params.items())}  # increase n -> n+1 of naming
     coeffs_laguerre_nup['c_0'] = tf.constant(0., dtype=model.dtype)
+    coeffs_laguerre_nup = convert_coeffs_dict_to_list(coeffs_laguerre_nup)
 
     def indefinite_integral(limits):
         return -1 * laguerre_shape_alpha_minusone(x=limits, coeffs=coeffs_laguerre_nup)
@@ -365,7 +368,7 @@ class Hermite(RecursivePolynomial):
                          apply_scaling=apply_scaling, **kwargs)
 
     def _poly_func(self, x):
-        coeffs = self.params
+        coeffs = convert_coeffs_dict_to_list(self.params)
         return hermite_shape(x=x, coeffs=coeffs)
 
 
@@ -395,4 +398,9 @@ def func_integral_hermite(limits, norm_range, params, model):
 
 hermite_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_limits_integral)
+
+
+def convert_coeffs_dict_to_list(coeffs: Mapping) -> List:
+    return [coeffs[f"c_{i}"] for i in range(len(coeffs))]
+
 # EOF
