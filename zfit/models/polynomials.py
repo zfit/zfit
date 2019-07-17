@@ -129,12 +129,28 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
     return integral
 
 
-class Legendre(RecursivePolynomial):
-    """Legendre polynomials."""
+"""Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Legendre", **kwargs):  # noqa
+Args:
+    coeffs (list): Coefficients for each polynomial. Used to calculate the degree.
+    """
+
+
+class Legendre(RecursivePolynomial):
+
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
+                 name: str = "Legendre"):  # noqa
+        """Sum of Legendre polynomials
+
+        The recursive definition of the polynomial is
+
+        .. math::
+            (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
+
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+        """
         super().__init__(obs=obs, name=name,
-                         coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
+                         coeffs=coeffs, apply_scaling=apply_scaling, coeff0=coeff0)
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -163,10 +179,11 @@ def chebyshev_shape(x, coeffs):
 class Chebyshev(RecursivePolynomial):
     """Chebyshev polynomials."""
 
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
+                 name: str = "Chebyshev"):  # noqa
         super().__init__(obs=obs, name=name,
-                         coeffs=coeffs,
-                         apply_scaling=apply_scaling, **kwargs)
+                         coeffs=coeffs, coeff0=coeff0,
+                         apply_scaling=apply_scaling)
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -218,9 +235,10 @@ def chebyshev2_shape(x, coeffs):
 class Chebyshev2(RecursivePolynomial):
     """Chebyshev polynomials of the second kind."""
 
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Chebyshev2", **kwargs):  # noqa
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
+                 name: str = "Chebyshev2"):  # noqa
         super().__init__(obs=obs, name=name,
-                         coeffs=coeffs, apply_scaling=apply_scaling, **kwargs)
+                         coeffs=coeffs, coeff0=coeff0, apply_scaling=apply_scaling)
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -296,9 +314,10 @@ laguerre_shape_alpha_minusone = generalized_laguerre_shape_factory(alpha=-1.)  #
 class Laguerre(RecursivePolynomial):
     """Laguerre polynomials."""
 
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Laguerre", **kwargs):  # noqa
-        super().__init__(obs=obs, name=name, coeffs=coeffs,
-                         apply_scaling=apply_scaling, **kwargs)
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
+                 name: str = "Laguerre"):  # noqa
+        super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
+                         apply_scaling=apply_scaling)
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -363,9 +382,10 @@ def hermite_shape(x, coeffs):
 class Hermite(RecursivePolynomial):
     """Hermite polynomials as defined for Physics."""
 
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, name: str = "Hermite", **kwargs):  # noqa
-        super().__init__(obs=obs, name=name, coeffs=coeffs,
-                         apply_scaling=apply_scaling, **kwargs)
+    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
+                 name: str = "Hermite"):  # noqa
+        super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
+                         apply_scaling=apply_scaling)
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
