@@ -21,7 +21,13 @@ coeffs_parametrization = [
     [11.1, 1.4, 5.6, 3.1, 18.1, 3.1],
 ]
 
-rel_integral = 3e-2
+rel_integral = 6e-2
+
+poly_pdfs = [zfit.pdf.Legendre,
+             zfit.pdf.Chebyshev,
+             zfit.pdf.Chebyshev2,
+             zfit.pdf.Hermite,
+             zfit.pdf.Laguerre]
 
 
 @pytest.mark.parametrize("coeffs", coeffs_parametrization)
@@ -41,44 +47,15 @@ def test_legendre_polynomial(coeffs):
     assert pytest.approx(zfit.run(numerical_integral2), rel=1e-2) == zfit.run(integral2)
 
 
+@pytest.mark.parametrize("poly_pdf", poly_pdfs)
 @pytest.mark.parametrize("coeffs", coeffs_parametrization)
-def test_chebyshev(coeffs):
+def test_polynomials(poly_pdf, coeffs):
     coeffs = copy.copy(coeffs)
-    chebyshev = zfit.pdf.Chebyshev(obs=obs1, coeffs=coeffs)
+    polynomial = poly_pdf(obs=obs1, coeffs=coeffs)
 
-    integral = chebyshev.analytic_integrate(limits=obs1, norm_range=False)
-    numerical_integral = chebyshev.numeric_integrate(limits=obs1, norm_range=False)
-    assert pytest.approx(zfit.run(integral), rel=rel_integral) == zfit.run(numerical_integral)
+    integral = polynomial.analytic_integrate(limits=obs1, norm_range=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs1, norm_range=False)
+    analytic_integral = zfit.run(integral)
+    assert pytest.approx(analytic_integral, rel=rel_integral) == zfit.run(numerical_integral)
 
-
-@pytest.mark.parametrize("coeffs", coeffs_parametrization)
-def test_chebyshev2(coeffs):
-    coeffs = copy.copy(coeffs)
-
-    chebyshev2 = zfit.pdf.Chebyshev2(obs=obs1, coeffs=coeffs)
-
-    integral = chebyshev2.analytic_integrate(limits=obs1, norm_range=False)
-    numerical_integral = chebyshev2.numeric_integrate(limits=obs1, norm_range=False)
-    assert pytest.approx(zfit.run(integral), rel=rel_integral) == zfit.run(numerical_integral)
-
-
-@pytest.mark.parametrize("coeffs", coeffs_parametrization)
-def test_laguerre(coeffs):
-    coeffs = copy.copy(coeffs)
-
-    laguerre = zfit.pdf.Laguerre(obs=obs1, coeffs=coeffs)
-
-    integral = laguerre.analytic_integrate(limits=obs1, norm_range=False)
-    numerical_integral = laguerre.numeric_integrate(limits=obs1, norm_range=False)
-    assert pytest.approx(zfit.run(integral), rel=rel_integral) == zfit.run(numerical_integral)
-
-
-@pytest.mark.parametrize("coeffs", coeffs_parametrization)
-def test_hermite(coeffs):
-    coeffs = copy.copy(coeffs)
-
-    hermite = zfit.pdf.Laguerre(obs=obs1, coeffs=coeffs)
-
-    integral = hermite.analytic_integrate(limits=obs1, norm_range=False)
-    numerical_integral = hermite.numeric_integrate(limits=obs1, norm_range=False)
-    assert pytest.approx(zfit.run(integral), rel=rel_integral) == zfit.run(numerical_integral)
+    # test_integral =

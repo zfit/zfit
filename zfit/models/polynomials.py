@@ -140,7 +140,9 @@ class Legendre(RecursivePolynomial):
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
                  name: str = "Legendre"):  # noqa
-        """Sum of Legendre polynomials
+        """Linear combination of Legendre polynomials of order len(coeffs), the coeffs are overall scaling factors.
+
+        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*.
 
         The recursive definition of the polynomial is
 
@@ -148,6 +150,13 @@ class Legendre(RecursivePolynomial):
             (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
 
             apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+
+        Args:
+            obs: The default space the PDF is defined in.
+            coeffs (list[params]): A list of the coefficients for the 1th+ polynomial
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            coeff0: The scaling factor of the 0th order polynomial
+            name: Human readable name of the polynomial
         """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, apply_scaling=apply_scaling, coeff0=coeff0)
@@ -401,14 +410,15 @@ def func_integral_hermite(limits, norm_range, params, model):
     upper = ztf.convert_to_tensor(upper_rescaled)
 
     # the integral of hermite is a hermite_ni. We add the ni to the coeffs.
-    coeffs_cheby1 = {'c_0': ztf.constant(0., dtype=model.dtype)}
+    coeffs = {'c_0': ztf.constant(0., dtype=model.dtype)}
 
     for name, coeff in params.items():
-        i_coeff = int(name.split("_", 1)[-1])
-        coeffs_cheby1[f'c_{i_coeff + 1}'] = coeff / ztf.convert_to_tensor(i_coeff, dtype=model.dtype)
+        ip1_coeff = int(name.split("_", 1)[-1]) + 1
+        coeffs[f'c_{ip1_coeff}'] = coeff / ztf.convert_to_tensor(ip1_coeff * 2., dtype=model.dtype)
+    coeffs = convert_coeffs_dict_to_list(coeffs)
 
     def indefinite_integral(limits):
-        return hermite_shape(x=limits, coeffs=coeffs_cheby1)
+        return hermite_shape(x=limits, coeffs=coeffs)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = tf.reshape(integral, shape=())
