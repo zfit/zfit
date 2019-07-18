@@ -101,8 +101,8 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
-    if np.allclose((lower_rescaled, upper_rescaled), (-1, 1)):
-        return ztf.constant(2.)  #
+    # if np.allclose((lower_rescaled, upper_rescaled), (-1, 1)):
+    #     return ztf.constant(2.)  #
 
     lower = ztf.convert_to_tensor(lower_rescaled)
     upper = ztf.convert_to_tensor(upper_rescaled)
@@ -125,6 +125,7 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = tf.reshape(integral, shape=())
+    integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
 
@@ -227,7 +228,7 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = tf.reshape(integral, shape=())
-
+    integral *= 0.5 * model.space.area()  # rescale back to whole width
     return integral
 
 
@@ -276,6 +277,7 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = tf.reshape(integral, shape=())
+    integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
 
@@ -365,7 +367,7 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = tf.reshape(integral, shape=())
-
+    integral *= 0.5 * model.space.area()  # rescale back to whole width
     return integral
 
 
@@ -422,6 +424,7 @@ def func_integral_hermite(limits, norm_range, params, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = tf.reshape(integral, shape=())
+    integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
 
