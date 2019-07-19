@@ -79,6 +79,6 @@ def test_polynomials(poly_pdf, coeffs):
     assert pytest.approx(analytic_integral, rel=rel_integral) == zfit.run(numerical_integral)
 
     lower, upper = obs1_random.limit1d
-    test_integral = np.average(zfit.run(polynomial.unnormalized_pdf(tf.random.uniform((60000,), lower, upper)))) \
+    test_integral = np.average(zfit.run(polynomial.unnormalized_pdf(tf.random.uniform((100000,), lower, upper)))) \
                     * obs1_random.area()
     assert pytest.approx(analytic_integral, rel=rel_integral) == test_integral
