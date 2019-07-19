@@ -25,12 +25,13 @@ coeffs_parametrization = [
 ]
 
 rel_integral = 6e-2
+default_sampling = 60000
 
-poly_pdfs = [zfit.pdf.Legendre,
-             zfit.pdf.Chebyshev,
-             zfit.pdf.Chebyshev2,
-             zfit.pdf.Hermite,
-             zfit.pdf.Laguerre]
+poly_pdfs = [(zfit.pdf.Legendre, default_sampling),
+             (zfit.pdf.Chebyshev, default_sampling),
+             (zfit.pdf.Chebyshev2, default_sampling),
+             (zfit.pdf.Hermite, default_sampling * 20),
+             (zfit.pdf.Laguerre, default_sampling)]
 
 
 @pytest.mark.parametrize("coeffs", coeffs_parametrization)
@@ -50,10 +51,11 @@ def test_legendre_polynomial(coeffs):
     # assert pytest.approx(zfit.run(numerical_integral2), rel=1e-2) == zfit.run(integral2)
 
 
-@pytest.mark.parametrize("poly_pdf", poly_pdfs)
+@pytest.mark.parametrize("poly_cfg", poly_pdfs)
 @pytest.mark.parametrize("coeffs", coeffs_parametrization)
-def test_polynomials(poly_pdf, coeffs):
+def test_polynomials(poly_cfg, coeffs):
     coeffs = copy.copy(coeffs)
+    poly_pdf, n_sampling = poly_cfg
     polynomial = poly_pdf(obs=obs1, coeffs=coeffs)
 
     # test 1 to 1 range
@@ -79,6 +81,6 @@ def test_polynomials(poly_pdf, coeffs):
     assert pytest.approx(analytic_integral, rel=rel_integral) == zfit.run(numerical_integral)
 
     lower, upper = obs1_random.limit1d
-    test_integral = np.average(zfit.run(polynomial.unnormalized_pdf(tf.random.uniform((100000,), lower, upper)))) \
+    test_integral = np.average(zfit.run(polynomial.unnormalized_pdf(tf.random.uniform((n_sampling,), lower, upper)))) \
                     * obs1_random.area()
     assert pytest.approx(analytic_integral, rel=rel_integral) == test_integral
