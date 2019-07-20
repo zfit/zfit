@@ -130,34 +130,36 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
     return integral
 
 
-"""Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
-
-Args:
-    coeffs (list): Coefficients for each polynomial. Used to calculate the degree.
-    """
-
-
 class Legendre(RecursivePolynomial):
 
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
+    def __init__(self, obs: ztyping.ObsTypeInput, coeffs: List[ztyping.ParamTypeInput],
+                 apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
                  name: str = "Legendre"):  # noqa
         """Linear combination of Legendre polynomials of order len(coeffs), the coeffs are overall scaling factors.
 
-        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*.
+        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
+        removes a degree of freedom, the 0th coefficient is redundant and leads to an arbitrary overall scaling of all
+        parameters.
 
-        The recursive definition of the polynomial is
+        Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
+        polynomials.
+
+        The recursive definition of _a single order_ of the polynomial is
 
         .. math::
             (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
 
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            with
+            P_0 = 1
+            P_1 = x
+
 
         Args:
             obs: The default space the PDF is defined in.
-            coeffs (list[params]): A list of the coefficients for the 1th+ polynomial
+            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
             apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            coeff0: The scaling factor of the 0th order polynomial
-            name: Human readable name of the polynomial
+            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name (str): Name of the polynomial
         """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, apply_scaling=apply_scaling, coeff0=coeff0)
@@ -187,10 +189,36 @@ def chebyshev_shape(x, coeffs):
 
 
 class Chebyshev(RecursivePolynomial):
-    """Chebyshev polynomials."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
                  name: str = "Chebyshev"):  # noqa
+        """Linear combination of Chebyshev (first kind) polynomials of order len(coeffs), coeffs are scaling factors.
+
+        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
+        removes a degree of freedom, the 0th coefficient is redundant and leads to an arbitrary overall scaling of all
+        parameters.
+
+        Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
+        polynomials.
+
+        The recursive definition of _a single order_ of the polynomial is
+
+        .. math::
+            T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
+
+            with
+            T_{0} = 1
+            T_{1} = x
+
+        Notice that :math:`T_1` is x as opposed to 2x in Chebyshev polynomials of the second kind.
+
+        Args:
+            obs: The default space the PDF is defined in.
+            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name (str): Name of the polynomial
+        """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, coeff0=coeff0,
                          apply_scaling=apply_scaling)
@@ -243,10 +271,38 @@ def chebyshev2_shape(x, coeffs):
 
 
 class Chebyshev2(RecursivePolynomial):
-    """Chebyshev polynomials of the second kind."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
                  name: str = "Chebyshev2"):  # noqa
+        """Linear combination of Chebyshev (second kind) polynomials of order len(coeffs), coeffs are scaling factors.
+
+        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
+        removes a degree of freedom, the 0th coefficient is redundant and leads to an arbitrary overall scaling of all
+        parameters.
+
+        Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
+        polynomials.
+
+        The recursive definition of _a single order_ of the polynomial is
+
+        .. math::
+            T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
+
+            with
+            T_{0} = 1
+            T_{1} = 2x
+
+        Notice that :math:`T_1` is 2x as opposed to x in Chebyshev polynomials of the first kind.
+
+
+
+        Args:
+            obs: The default space the PDF is defined in.
+            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name (str): Name of the polynomial
+        """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, coeff0=coeff0, apply_scaling=apply_scaling)
 
@@ -323,10 +379,32 @@ laguerre_shape_alpha_minusone = generalized_laguerre_shape_factory(alpha=-1.)  #
 
 
 class Laguerre(RecursivePolynomial):
-    """Laguerre polynomials."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
                  name: str = "Laguerre"):  # noqa
+        """Linear combination of Laguerre polynomials of order len(coeffs), the coeffs are overall scaling factors.
+
+        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
+        removes a degree of freedom, the 0th coefficient is redundant and leads to an arbitrary overall scaling of all
+        parameters.
+
+        Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
+        polynomials.
+
+        The recursive definition of _a single order_ of the polynomial is
+
+        .. math::
+
+            :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
+
+
+        Args:
+            obs: The default space the PDF is defined in.
+            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name (str): Name of the polynomial
+        """
         super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
                          apply_scaling=apply_scaling)
 
@@ -391,10 +469,32 @@ def hermite_shape(x, coeffs):
 
 
 class Hermite(RecursivePolynomial):
-    """Hermite polynomials as defined for Physics."""
 
     def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
                  name: str = "Hermite"):  # noqa
+        """Linear combination of Hermite polynomials (for physics) of order len(coeffs), with coeffs as scaling factors.
+
+        The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
+        removes a degree of freedom, the 0th coefficient is redundant and leads to an arbitrary overall scaling of all
+        parameters.
+
+        Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
+        polynomials.
+
+        The recursive definition of _a single order_ of the polynomial is
+
+        .. math::
+
+            :math:`H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)`
+
+
+        Args:
+            obs: The default space the PDF is defined in.
+            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name (str): Name of the polynomial
+        """
         super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
                          apply_scaling=apply_scaling)
 

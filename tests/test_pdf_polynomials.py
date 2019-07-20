@@ -46,9 +46,6 @@ def test_legendre_polynomial(coeffs):
     integral = legendre.integrate(limits=obs1, norm_range=False)
     numerical_integral = legendre.numeric_integrate(limits=obs1, norm_range=False)
     assert pytest.approx(zfit.run(numerical_integral), rel=1e-2) == zfit.run(integral)
-    integral2 = legendre.integrate(limits=obs1_random, norm_range=False)
-    numerical_integral2 = legendre.numeric_integrate(limits=obs1_random, norm_range=False)
-    # assert pytest.approx(zfit.run(numerical_integral2), rel=1e-2) == zfit.run(integral2)
 
 
 @pytest.mark.parametrize("poly_cfg", poly_pdfs)
