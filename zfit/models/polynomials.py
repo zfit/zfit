@@ -395,7 +395,11 @@ class Laguerre(RecursivePolynomial):
 
         .. math::
 
-            :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
+            (n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)
+
+        with
+        P_0 = 1
+        P_1 = 1 - x
 
 
         Args:
@@ -485,8 +489,11 @@ class Hermite(RecursivePolynomial):
 
         .. math::
 
-            :math:`H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)`
+            H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)
 
+        with
+        P_0 = 1
+        P_1 = 2x
 
         Args:
             obs: The default space the PDF is defined in.
