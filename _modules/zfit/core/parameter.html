@@ -140,7 +140,8 @@
 
 
 <span class="c1"># drop-in replacement for ResourceVariable</span>
-<div class="viewcode-block" id="ZfitBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">ZfitBaseVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">TFBaseVariable</span><span class="p">)):</span>
+<span class="c1"># class ZfitBaseVariable(metaclass=type(TFBaseVariable)):</span>
+<div class="viewcode-block" id="ZfitBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">ZfitBaseVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="n">variable</span>
@@ -233,7 +234,7 @@
 
 <span class="c1"># class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):</span>
 <span class="c1"># class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):</span>
-<div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">)):</span>
+<div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># super().__init__(initial_value=initial_value, **kwargs, use_resource=True)</span>
@@ -400,6 +401,11 @@
             <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">operations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__rmul__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+
+
+<span class="c1"># solve metaclass confict</span>
+<div class="viewcode-block" id="TFBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.TFBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">TFBaseVariable</span><span class="p">(</span><span class="n">TFBaseVariable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">SessionHolderMixin</span><span class="p">,</span> <span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">TFBaseVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
@@ -606,7 +612,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">independent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div>
-
 
 
 <div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>

@@ -121,7 +121,7 @@
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitPDF</span>
 <span class="kn">from</span> <span class="nn">..models.functions</span> <span class="k">import</span> <span class="n">SimpleFunc</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span><span class="p">,</span> <span class="n">is_container</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">,</span> <span class="n">NotExtendedPDFError</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">,</span> <span class="n">NotExtendedPDFError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">zfit.settings</span> <span class="k">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">.constraint</span> <span class="k">import</span> <span class="n">BaseConstraint</span><span class="p">,</span> <span class="n">SimpleConstraint</span>
 
@@ -444,7 +444,10 @@
 
     <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">IntentionNotUnambiguousError</span><span class="p">(</span><span class="s2">&quot;Cannot add a SimpleLoss, &#39;addition&#39; of losses can mean anything.&quot;</span>
-                                           <span class="s2">&quot;Add them manually&quot;</span><span class="p">)</span></div>
+                                           <span class="s2">&quot;Add them manually&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cache_add_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DueToLazynessNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Needed? will probably provided in future&quot;</span><span class="p">)</span></div>
 </pre></div>
 
     </div>
