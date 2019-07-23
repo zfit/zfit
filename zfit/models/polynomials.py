@@ -1,19 +1,33 @@
 #  Copyright (c) 2019 zfit
 """Recurrent polynomials."""
 import abc
-from typing import Callable, List, Dict, Optional, Mapping
+from typing import List, Dict, Optional, Mapping
 
 import tensorflow as tf
-import numpy as np
 from zfit import ztf
 from ..util import ztyping
 from ..util.container import convert_to_container
-
+from ..settings import ztypes
 from ..core.limits import Space
 from ..core.basepdf import BasePDF
 
 
-class RecursivePolynomial(BasePDF, metaclass=abc.ABCMeta):
+def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
+    """Rescale and shift *x* as *limits* were rescaled and shifted to be in (-1, 1). Useful for orthogonal polynomials.
+
+    Args:
+        x: Array like data
+        limits: 1-D limits
+
+    Returns:
+        tf.Tensor: the rescaled tensor.
+    """
+    lim_low, lim_high = limits.limit1d
+    x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)
+    return x
+
+
+class RecursivePolynomial(BasePDF):
     """1D polynomial generated via three-term recurrence.
 
 
@@ -33,8 +47,8 @@ class RecursivePolynomial(BasePDF, metaclass=abc.ABCMeta):
 
         """
         # 0th coefficient set to 1 by default
-        coeffs = convert_to_container(coeffs)
-        coeff0 = ztf.constant(1.) if coeff0 is None else coeff0
+        coeff0 = ztf.constant(1.) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
+        coeffs = convert_to_container(coeffs).copy()
         coeffs.insert(0, coeff0)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
@@ -45,8 +59,7 @@ class RecursivePolynomial(BasePDF, metaclass=abc.ABCMeta):
 
     def _polynomials_rescale(self, x):
         if self._do_scale:
-            lim_low, lim_high = self.space.limit1d
-            x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)
+            x = rescale_minus_plus_one(x, limits=self.space)
         return x
 
     @property
