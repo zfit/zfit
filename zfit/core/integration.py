@@ -131,7 +131,6 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                     value_list.append(tf.expand_dims(x[:, index_values], axis=1))
                     index_values += 1
             value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-            x = value_list
             x = PartialIntegralSampleData(sample=value_list,
                                           space=Space(obs=new_obs))
         else:
@@ -327,6 +326,10 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
         self._space = space
         self._sample = sample
         self._reorder_indices_list = list(range(len(sample)))
+
+    @property
+    def weights(self):
+        raise NotImplementedError("Weights for PartialIntegralsampleData are not implemented. Are they needed?")
 
     @property
     def space(self) -> "zfit.Space":

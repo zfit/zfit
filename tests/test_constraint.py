@@ -24,9 +24,8 @@ def true_nll_gaussian(params, mu, sigma):
 
 
 def test_base_constraint():
-    constr = BaseConstraint()
-    with pytest.raises(NotImplementedError):
-        constr.value()
+    with pytest.raises(TypeError):
+        _ = BaseConstraint()
 
 
 def test_gaussian_constraint_shape_errors():

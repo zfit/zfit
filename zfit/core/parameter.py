@@ -33,7 +33,8 @@ class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)): 
 
 
 # drop-in replacement for ResourceVariable
-class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
+# class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
+class ZfitBaseVariable(metaclass=MetaBaseParameter):
 
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
@@ -126,7 +127,7 @@ class ComposedResourceVariable(ResourceVariable):
 
 # class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 # class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
-class ComposedVariable(metaclass=type(tf.Variable)):
+class ComposedVariable(metaclass=MetaBaseParameter):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
@@ -293,6 +294,11 @@ class ZfitParameterMixin(BaseNumeric):
             with suppress(NotImplementedError):
                 return operations.multiply(other, self)
         return super().__rmul__(other)
+
+
+# solve metaclass confict
+class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
+    pass
 
 
 class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter):
@@ -499,7 +505,6 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
     @property
     def independent(self):
         return False
-
 
 
 class ComposedParameter(BaseComposedParameter):

@@ -14,7 +14,7 @@ from .baseobject import BaseObject, BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..models.functions import SimpleFunc
 from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError
+from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
 from zfit.settings import ztypes
 from .constraint import BaseConstraint, SimpleConstraint
 
@@ -338,3 +338,6 @@ class SimpleLoss(CachedLoss):
     def __add__(self, other):
         raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
                                            "Add them manually")
+
+    def _cache_add_constraints(self, constraints):
+        raise DueToLazynessNotImplementedError("Needed? will probably provided in future")
