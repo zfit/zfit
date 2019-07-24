@@ -21,13 +21,12 @@ zfit: scalable pythonic fitting
 
 | Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
 | Read the `Documentation <https://zfit.github.io/zfit>`_ and `API <https://zfit.github.io/zfit/API.html>`_
+| For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_, post on StackOverflow with the 'zfit' tag
 
-The zfit package is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
+zfit is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
 
-Detailed documentation, including the API, can be found in https://zfit.github.io/zfit.
-
-It is released as free software following the BSD-3-Clause License.
+If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
 
 *N.B.*: zfit is currently in beta stage, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
@@ -49,40 +48,20 @@ These core ideas are supported by two basic pillars:
   The use of TensorFlow provides crucial features in the context of model fitting like taking care of the parallelisation and analytic derivatives.
 
 
-Installing
-----------
-
-To install zfit, run this command in your terminal:
-
-.. code-block:: console
-
-    $ pip install zfit
-
-
-For the newest development version, you can install the version from git with
-
-.. code-block:: console
-
-   $ pip install git+https://github.com/zfit/zfit
-
 
 How to use
 ----------
 
 While the zfit library provides a simple model fitting and sampling framework for a broad list of applications, we will illustrate its main features by generating, fitting and ploting a Gaussian distribution.
 
-.. code-block:: python
-
-    import zfit
-
-The domain of the PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
+The default space (e.g. normalization range) of a PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
 
 .. code-block:: python
 
     obs = zfit.Space('x', limits=(-10, 10))
 
 
-Using this domain, we can now create a simple Gaussian PDF. To do this, we define its parameters and their limits using the ``zfit.Parameter`` class and we instantiate the PDF from the zfit library:
+To create a simple Gaussian PDF, we define its parameters and their limits using the ``zfit.Parameter`` class.
 
 .. code-block:: python
 
@@ -90,7 +69,6 @@ Using this domain, we can now create a simple Gaussian PDF. To do this, we defin
     mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
     sigma = zfit.Parameter("sigma", 1.3,  0, 5)
     gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
-
 
 For simplicity, we create the dataset to be fitted starting from a numpy array, but zfit allows for the use of other sources such as ROOT files:
 
@@ -142,7 +120,21 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
 And that's it!
 For more details and information of what you can do with zfit, please see the `documentation page <https://zfit.github.io/zfit>`_.
 
+Installing
+----------
 
+To install zfit, run this command in your terminal:
+
+.. code-block:: console
+
+    $ pip install zfit
+
+
+For the newest development version, you can install the version from git with
+
+.. code-block:: console
+
+   $ pip install git+https://github.com/zfit/zfit
 
 Contributing
 ------------
