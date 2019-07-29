@@ -48,7 +48,7 @@ setup(
 
     maintainer="zfit",
     maintainer_email='zfit@physik.uzh.ch',
-    description="scalable pythonic fitting for high energy physics",
+    description="scalable pythonic model fitting for high energy physics",
     install_requires=requirements,
     license="BSD 3-Clause",
     long_description=readme + '\n\n' + history,
@@ -62,6 +62,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/zfit/zfit',
-    version='0.3.3',
+    version='0.3.4',
     zip_safe=False,
     )

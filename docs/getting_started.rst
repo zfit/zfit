@@ -42,13 +42,8 @@ The next stage is to create a dataset to be fitted. There are several ways of pr
 
 .. code-block:: pycon
 
-    >>> import numpy as np
-    >>> mu_true = 0
-    >>> sigma_true = 1
-    >>> data_np = np.random.normal(mu_true, sigma_true, size=10000)
+    >>> data_np = np.random.normal(0, 1, size=10000)
     >>> data = zfit.data.Data.from_numpy(obs=obs, array=data_np)
-    >>> print(data)
-    <zfit.core.data.Data object at 0x7f90537f4748>
 
 Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:
 
@@ -152,7 +147,7 @@ One example is the Gauss PDF that has been shown above. The object ``gauss`` con
 
     >>> from zfit import ztf
     >>> consts = [-1, 0, 1]
-    >>> probs = gauss.pdf(ztf.constant(consts), norm_range=(-np.infty, np.infty))
+    >>> probs = gauss.pdf(consts, norm_range=(-np.infty, np.infty))
 
     >>> # And now execute the tensorflow graph
     >>> result = zfit.run(probs)
