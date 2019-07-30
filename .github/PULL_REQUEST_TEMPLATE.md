@@ -1,5 +1,6 @@
 Fixes #
 
+
 ## Proposed Changes
 
   -
@@ -11,4 +12,12 @@ Fixes #
   -
   -
   -
+  
+## Checklist
+
+ - [ ] change approved
+ - [ ] implementation finished
+ - [ ] correct namespace imported
+ - [ ] tests added
+ - [ ] CHANGELOG updated
 
