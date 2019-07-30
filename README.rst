@@ -21,7 +21,8 @@ zfit: scalable pythonic fitting
 
 | Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
 | Read the `Documentation <https://zfit.github.io/zfit>`_ and `API <https://zfit.github.io/zfit/API.html>`_
-| For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_, post on StackOverflow with the 'zfit' tag
+| For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_ or
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag
 
 zfit is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
