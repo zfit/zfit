@@ -489,7 +489,7 @@ class AnalyticIntegral:
         integral_holder = self._integrals.get(axes)
         # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
-            raise NotImplementedError("Integral is not available for axes {}".format(axes))
+            raise NotImplementedError("Analytic integral is not available for axes {}".format(axes))
         integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
             raise NotImplementedError(
