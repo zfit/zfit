@@ -32,7 +32,7 @@ def create_data1():
 #
 #     branches = ['pt1', 'pt2']
 #
-#     data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches)
+#     data = zfit.Data.from_root(path=path_root, treepath='events', branches=branches)
 #
 #     x = data.value()
 
@@ -54,7 +54,7 @@ def test_from_root(weights_factory):
 
     true_data = tree.pandas.df()
 
-    data = zfit.data.Data.from_root(path=path_root, treepath='events', branches=branches, weights=weights)
+    data = zfit.Data.from_root(path=path_root, treepath='events', branches=branches, weights=weights)
     x = data.value()
     x_np = zfit.run(x)
     if weights is not None:
@@ -78,7 +78,7 @@ def test_from_numpy(weights_factory):
     weights = weights_factory()
 
     example_data = np.random.random(size=(1000, len(obs1)))
-    data = zfit.data.Data.from_numpy(obs=obs1, array=example_data, weights=weights)
+    data = zfit.Data.from_numpy(obs=obs1, array=example_data, weights=weights)
     x = data.value()
     weights_from_data = data.weights
     if weights_from_data is not None:
@@ -97,7 +97,7 @@ def test_from_to_pandas():
     dtype = np.float32
     example_data_np = np.random.random(size=(1000, len(obs1)))
     example_data = pd.DataFrame(data=example_data_np, columns=obs1)
-    data = zfit.data.Data.from_pandas(obs=obs1, df=example_data, dtype=dtype)
+    data = zfit.Data.from_pandas(obs=obs1, df=example_data, dtype=dtype)
     x = data.value()
     assert x.dtype == dtype
     x_np = zfit.run(x)
@@ -106,7 +106,7 @@ def test_from_to_pandas():
 
     # test auto obs retreavel
     example_data2 = pd.DataFrame(data=example_data_np, columns=obs1)
-    data2 = zfit.data.Data.from_pandas(df=example_data2)
+    data2 = zfit.Data.from_pandas(df=example_data2)
     assert data2.obs == obs1
     x2 = data2.value()
     x_np2 = zfit.run(x2)
@@ -122,7 +122,7 @@ def test_from_to_pandas():
 def test_from_tensors(weights_factory):
     weights = weights_factory()
     true_tensor = 42. * tf.ones(shape=(1000, 1), dtype=tf.float64)
-    data = zfit.data.Data.from_tensor(obs='obs1', tensor=true_tensor,
+    data = zfit.Data.from_tensor(obs='obs1', tensor=true_tensor,
                                       weights=weights)
 
     weights_data = data.weights
@@ -208,7 +208,7 @@ def test_data_range():
     data_range = zfit.Space(obs=obs, limits=(lower, upper))
     cut_data1 = data1[np.array((0, 2)), :]
 
-    dataset = zfit.data.Data.from_tensor(obs=obs, tensor=data1)
+    dataset = zfit.Data.from_tensor(obs=obs, tensor=data1)
     value_uncut = dataset.value()
     np.testing.assert_equal(data1, zfit.run(value_uncut))
     with dataset.set_data_range(data_range):

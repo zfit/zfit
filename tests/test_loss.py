@@ -77,7 +77,7 @@ def create_gauss3ext():
 @pytest.mark.flaky(2)  # minimization can fail
 def test_extended_unbinned_nll():
     test_values = ztf.constant(test_values_np)
-    test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)
+    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
     gaussian3, mu3, sigma3, yield3 = create_gauss3ext()
     nll_object = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
                                                data=test_values,
@@ -92,9 +92,9 @@ def test_extended_unbinned_nll():
 
 def test_unbinned_simultaneous_nll():
     test_values = tf.constant(test_values_np)
-    test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values)
+    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
     test_values2 = tf.constant(test_values_np2)
-    test_values2 = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values2)
+    test_values2 = zfit.Data.from_tensor(obs=obs1, tensor=test_values2)
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
     nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
@@ -118,7 +118,7 @@ def test_unbinned_nll(weights, sigma):
     gaussian2, mu2, sigma2 = create_gauss2()
 
     test_values = tf.constant(test_values_np)
-    test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
+    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
     minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
@@ -203,9 +203,9 @@ def test_gradients(chunksize):
     gauss2 = Gauss(param2, 5, obs=obs1)
     gauss2.set_norm_range((-5, 5))
 
-    data1 = zfit.data.Data.from_tensor(obs=obs1, tensor=ztf.constant(1., shape=(100,)))
+    data1 = zfit.Data.from_tensor(obs=obs1, tensor=ztf.constant(1., shape=(100,)))
     data1.set_data_range((-5, 5))
-    data2 = zfit.data.Data.from_tensor(obs=obs1, tensor=ztf.constant(1., shape=(100,)))
+    data2 = zfit.Data.from_tensor(obs=obs1, tensor=ztf.constant(1., shape=(100,)))
     data2.set_data_range((-5, 5))
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])

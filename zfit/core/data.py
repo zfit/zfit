@@ -210,7 +210,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             root_dir_options ():
 
         Returns:
-            `zfit.data.Data`:
+            `zfit.Data`:
         """
         if branches_alias is None and branches is None:
             raise ValueError("Either branches or branches_alias has to be specified.")
@@ -302,7 +302,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             name (str):
 
         Returns:
-            zfit.core.data.Data:
+            zfit.core.Data:
         """
         dataset = LightDataset.from_tensor(tensor=tensor)
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
@@ -691,7 +691,7 @@ if __name__ == '__main__':
 
     branches = ['B_PT', 'B_P']  # b needed currently -> uproot
 
-    data = zfit.data.Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
+    data = zfit.Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
     import time
 
     with tf.Session() as sess:

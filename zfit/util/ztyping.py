@@ -32,11 +32,11 @@ SpaceType = "zfit.Space"
 
 # Data
 XType = Union[float, tf.Tensor]
-XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.data.Data"]
-XTypeReturn = Union[tf.Tensor, "zfit.data.Data"]
+XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.Data"]
+XTypeReturn = Union[tf.Tensor, "zfit.Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
 
-DataInputType = Union["zfit.data.Data", Iterable["zfit.data.Data"]]
+DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]

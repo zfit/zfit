@@ -84,7 +84,7 @@ For simplicity, we create the dataset to be fitted starting from a numpy array, 
 Fits are performed in three steps:
 
 1. Creation of a loss function, in our case a negative log-likelihood.
-2. Instantiation of our minimiser of choice, in the example the ``MinuitMinimizer``.
+2. Instantiation of our minimiser of choice, in the example the ``Minuit``.
 3. Minimisation of the loss function.
 
 .. code-block:: python
@@ -93,7 +93,7 @@ Fits are performed in three steps:
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
     # Stage 2: instantiate a minimiser (in this case a basic minuit)
-    minimizer = zfit.minimize.MinuitMinimizer()
+    minimizer = zfit.minimize.Minuit()
 
     # Stage 3: minimise the given negative log-likelihood
     result = minimizer.minimize(nll)

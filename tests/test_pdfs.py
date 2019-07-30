@@ -199,7 +199,7 @@ def normalization_testing(pdf):
     with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
-        samples = zfit.data.Data.from_tensor(obs=pdf.obs, tensor=samples)
+        samples = zfit.Data.from_tensor(obs=pdf.obs, tensor=samples)
         probs = pdf.pdf(samples)
         result = zfit.run(probs)
         result = np.average(result) * (high - low)
