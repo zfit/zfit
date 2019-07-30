@@ -32,12 +32,15 @@ import zfit
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+
 # build the API documentation
-cmd_autodoc = "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
-              "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
-os.system(cmd_autodoc)
-cmd_customize = "python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
-os.system(cmd_customize)
+def setup(app):
+    cmd_autodoc = "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
+                  "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
+    os.system(cmd_autodoc)
+    cmd_customize = "python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
+    os.system(cmd_customize)
+
 
 # -- General configuration ---------------------------------------------
 
@@ -158,7 +161,7 @@ html_theme_options = {
         ("Minimize", "minimize"),
         ("API", "API"),
         # ("Link", "http://example.com", True),
-        ],
+    ],
 
     # Render the next and previous page links in navbar. (Default: true)
     'navbar_sidebarrel': False,
@@ -212,7 +215,7 @@ html_theme_options = {
     # Choose Bootstrap version.
     # Values: "3" (default) or "2" (in quotes)
     'bootstrap_version': "4",
-    }
+}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -241,7 +244,7 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-    }
+}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
@@ -250,7 +253,7 @@ latex_documents = [
     (master_doc, 'zfit.tex',
      u'zfit Documentation',
      u'zfit', 'manual'),
-    ]
+]
 
 # -- Options for manual page output ------------------------------------
 
@@ -260,7 +263,7 @@ man_pages = [
     (master_doc, 'zfit',
      u'zfit Documentation',
      [author], 1)
-    ]
+]
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -274,8 +277,7 @@ texinfo_documents = [
      'zfit',
      'One line description of project.',
      'Miscellaneous'),
-    ]
+]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-
