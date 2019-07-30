@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2019 zfit
+
 #
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
@@ -28,6 +31,13 @@ sys.path.insert(0, os.path.abspath('..'))
 import zfit
 
 here = os.path.abspath(os.path.dirname(__file__))
+
+# build the API documentation
+cmd_autodoc = "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
+              "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
+os.system(cmd_autodoc)
+cmd_customize = "python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
+os.system(cmd_customize)
 
 # -- General configuration ---------------------------------------------
 
