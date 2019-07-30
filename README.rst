@@ -21,8 +21,9 @@ zfit: scalable pythonic fitting
 
 | Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
 | Read the `Documentation <https://zfit.github.io/zfit>`_ and `API <https://zfit.github.io/zfit/API.html>`_
-| For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_ or
-  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag
+| For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact us`_ directly.
+  via `Gitter channel <https://gitter.im/zfit/zfit>`_
 
 zfit is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
@@ -31,7 +32,7 @@ If you use zfit in research, please consider `citing <https://zenodo.org/badge/l
 
 *N.B.*: zfit is currently in beta stage, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
-If you want to use it for your project and you are not sure if all the needed functionality is there, feel free contact us in our `Gitter channel <https://gitter.im/zfit/zfit>`_.
+If you want to use it for your project and you are not sure if all the needed functionality is there, feel free to `contact us`_.
 
 
 Why?
@@ -144,6 +145,16 @@ Any idea of how to improve the library? Or interested to write some code?
 Contributions are always welcome, please have a look at the `Contributing guide`_.
 
 .. _Contributing guide: CONTRIBUTING.rst
+
+
+Contact
+-------
+
+.. _contact us:
+
+You can contact us directly, for any matter:
+ - via e-mail: zfit@physik.uzh.ch
+ - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
 Acknowledgements
 ----------------
