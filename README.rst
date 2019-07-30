@@ -156,6 +156,21 @@ You can contact us directly, for any matter:
  - via e-mail: zfit@physik.uzh.ch
  - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
+Prerequisites
+-------------
+
+``zfit`` works with Python versions 3.6 and 3.7.
+The following main packages are required:
+
+- `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
+- `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
+- `scipy <https://www.scipy.org/>`_ >=1.2
+- `uproot <https://github.com/scikit-hep/uproot>`_
+- `iminuit <https://github.com/scikit-hep/iminuit>`_
+
+... and some minor packages. For a full list, check the `requirements <requirements.txt>`_.
+
+
 Acknowledgements
 ----------------
 
