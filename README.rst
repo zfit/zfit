@@ -58,9 +58,37 @@ These core ideas are supported by two basic pillars:
 How to use
 ----------
 
-While the zfit library provides a simple model fitting and sampling framework for a broad list of applications, we will illustrate its main features by generating, fitting and ploting a Gaussian distribution.
+While the zfit library provides a model fitting and sampling framework for a broad list of applications,
+we will illustrate its main features with a simple example by fitting a Gaussian distribution with an unbinned
+likelihood fit and a parameter uncertainty estimation.
+
+
+Example in short
+`````````````````
+.. code-block:: python
+
+    obs = zfit.Space('x', limits=(-10, 10))
+
+    mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
+    sigma = zfit.Parameter("sigma", 1.3,  0, 5)
+    gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
+
+    data_np = np.random.normal(size=10000)
+    data = zfit.Data.from_numpy(obs=obs, array=data_np)
+
+    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(nll)
+
+    param_errors = result.error()
+
+
+Full explanation
+``````````````````````
 
 The default space (e.g. normalization range) of a PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
+
 
 .. code-block:: python
 
