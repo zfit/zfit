@@ -212,7 +212,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         with tf.control_dependencies([print_op] if do_print else []):
             n_to_produce = tf.identity(n_to_produce)
         if dynamic_array_shape:
-            n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * 1.01) + 10  # just to make sure
+            n_to_produce = tf.to_int32(ztf.to_real(n_to_produce) / eff * (1.1)) + 10  # just to make sure
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.to_int32(8e5)
             safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
@@ -287,15 +287,16 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
-        if run.numeric_checks:  # HACK, deactivated
+        if run.numeric_checks:
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
             failed_weights = tf.boolean_mask(weights_scaled, mask=invalid_probs_weights)
             failed_probs = tf.boolean_mask(probabilities, mask=invalid_probs_weights)
 
             print_op = tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
                                 " Failed weights:", failed_weights, " failed probs", failed_probs)
-            assert_op = [print_op]
-            # TODO: allow to have not right cut in sample by ignoring the illegal ones. We guarantee that this only happens
+            assert_no_failed_probs = tf.assert_equal(tf.shape(failed_weights), [0])
+            # assert_op = [print_op]
+            assert_op = [assert_no_failed_probs]
             # for weights scaled more then ratio_threshold
             # assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
             #                                      data=[tf.shape(failed_weights), failed_weights, failed_probs],
@@ -304,8 +305,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             #                                              "was used, make sure that either the shape of the "
             #                                              "custom sampler (resp. it's weights) overlap better "
             #                                              "or decrease the `max_weight`")]
-
-            # check disabled (below not added to deps)
+            #
+            # # check disabled (below not added to deps)
             # assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),
             #                                    data=[weights_scaling, min_prob_weights_ratio],
             #                                    message="The ratio between the probabilities from the pdf and the"
@@ -358,7 +359,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
         new_sample = new_sample[:n, :]  # cutting away to many produced
 
-    # TODO(Mayou36): uncomment below. Why was set_shape needed? leave away to catch failure over time
     # if no failure, uncomment both for improvement of shape inference
     # with suppress(AttributeError):  # if n_samples_int is not a numpy object
     #     new_sample.set_shape((n_samples_int, n_dims))
