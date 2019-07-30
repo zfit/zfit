@@ -19,10 +19,12 @@ zfit: scalable pythonic fitting
    :target: https://www.codefactor.io/repository/github/zfit/zfit
    :alt: CodeFactor
 
+
 | Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
 | Read the documentation_ and API_
 | For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
   `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
+
 
 zfit is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_
 and optimised for simple and direct manipulation of probability density functions.
