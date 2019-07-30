@@ -20,19 +20,19 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 | Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
-| Read the `Documentation <https://zfit.github.io/zfit>`_ and `API <https://zfit.github.io/zfit/API.html>`_
+| Read the documentation_ and API_
 | For questions, read the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
-  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact us`_ directly.
-  via `Gitter channel <https://gitter.im/zfit/zfit>`_
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
 
-zfit is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
+zfit is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_
+and optimised for simple and direct manipulation of probability density functions.
 Its main focus is on scalability, parallelisation and user friendly experience.
 
 If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
 
-*N.B.*: zfit is currently in beta stage, so while most core parts are established, some may still be missing and bugs may be encountered.
+*N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
-If you want to use it for your project and you are not sure if all the needed functionality is there, feel free to `contact us`_.
+If you want to use it for your project and you are not sure if all the needed functionality is there, feel free to `contact`_.
 
 
 Why?
@@ -120,7 +120,7 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
     print("mu={}".format(params[mu]['value']))
 
 And that's it!
-For more details and information of what you can do with zfit, please see the `documentation page <https://zfit.github.io/zfit>`_.
+For more details and information of what you can do with zfit, checkout the documentation_.
 
 Installing
 ----------
@@ -150,9 +150,7 @@ Contributions are always welcome, please have a look at the `Contributing guide`
 Contact
 -------
 
-.. _contact us:
-
-You can contact us directly, for any matter:
+You can contact us directly:
  - via e-mail: zfit@physik.uzh.ch
  - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
@@ -160,7 +158,7 @@ Prerequisites
 -------------
 
 ``zfit`` works with Python versions 3.6 and 3.7.
-The following main packages are required:
+The following packages (amongst others) are required:
 
 - `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
 - `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
@@ -178,3 +176,5 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
+.. _documentation: https://zfit.readthedocs.io/en/latest/
+.. _API: https://zfit.github.io/zfit/API.html#
