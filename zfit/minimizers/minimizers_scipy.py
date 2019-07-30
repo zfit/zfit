@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 import copy
 
@@ -9,7 +11,7 @@ from .tf_external_optimizer import ScipyOptimizerInterface
 from .baseminimizer import BaseMinimizer
 
 
-class ScipyMinimizer(BaseMinimizer):
+class Scipy(BaseMinimizer):
 
     def __init__(self, minimizer='L-BFGS-B', tolerance=None, verbosity=5, name=None, **minimizer_options):
         if name is None:

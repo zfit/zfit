@@ -64,7 +64,7 @@ plt.legend()
 nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 
 # create a minimizer
-minimizer = zfit.minimize.MinuitMinimizer()
+minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
 
 # do the error calculations, here with minos

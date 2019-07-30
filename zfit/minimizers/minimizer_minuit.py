@@ -16,7 +16,7 @@ from ..core.parameter import Parameter
 from .baseminimizer import BaseMinimizer, ZfitStrategy
 
 
-class MinuitMinimizer(BaseMinimizer, Cachable):
+class Minuit(BaseMinimizer, Cachable):
     _DEFAULT_name = "MinuitMinimizer"
 
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,

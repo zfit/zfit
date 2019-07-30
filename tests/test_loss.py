@@ -7,7 +7,7 @@ import numpy as np
 from zfit import ztf
 import zfit.core.basepdf
 from zfit.core.limits import Space
-from zfit.minimizers.minimizer_minuit import MinuitMinimizer
+from zfit.minimizers.minimizer_minuit import Minuit
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
 from zfit.core.parameter import Parameter
@@ -82,7 +82,7 @@ def test_extended_unbinned_nll():
     nll_object = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
                                                data=test_values,
                                                fit_range=(-20, 20))
-    minimizer = MinuitMinimizer()
+    minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object)
     params = status.params
     assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
@@ -101,7 +101,7 @@ def test_unbinned_simultaneous_nll():
                                        data=[test_values, test_values2],
                                        fit_range=[(-np.infty, np.infty), (-np.infty, np.infty)]
                                        )
-    minimizer = MinuitMinimizer()
+    minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
@@ -120,7 +120,7 @@ def test_unbinned_nll(weights, sigma):
     test_values = tf.constant(test_values_np)
     test_values = zfit.data.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
-    minimizer = MinuitMinimizer()
+    minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
     rel_error = 0.005 if weights is None else 0.1  # more fluctuating with weights
@@ -134,7 +134,7 @@ def test_unbinned_nll(weights, sigma):
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                              constraints=constraints)
 
-    minimizer = MinuitMinimizer()
+    minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
     params = status.params
     if weights is None:
@@ -250,7 +250,7 @@ def test_simple_loss():
     with pytest.raises(IntentionNotUnambiguousError):
         _ = loss + loss_deps
 
-    minimizer = zfit.minimize.MinuitMinimizer()
+    minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(loss=loss)
 
     assert true_a == pytest.approx(result.params[a_param]['value'], rel=0.03)
