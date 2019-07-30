@@ -21,7 +21,8 @@ __all__ = ["ztf", "constraint", "pdf", "minimize", "loss", "core", "data", "func
 
 #  Copyright (c) 2019 zfit
 
-from . import ztf
+from . import ztf  # legacy
+from . import ztf as z
 from .settings import ztypes
 
 import tensorflow as tf
