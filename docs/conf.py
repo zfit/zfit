@@ -32,15 +32,13 @@ import zfit
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-
 # build the API documentation
-def setup(app):
-    cmd_autodoc = "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
-                  "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
-    os.system(cmd_autodoc)
-    cmd_customize = "python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
-    os.system(cmd_customize)
-
+cmd_autodoc = 'pushd `dirname $0` > /dev/null && MAKE_DOCS_PATH="$( cd "$(dirname "$0")" ; pwd -P )" && popd > /dev/null'
+cmd_autodoc += "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
+               "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
+os.system(cmd_autodoc)
+cmd_customize = "python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
+os.system(cmd_customize)
 
 # -- General configuration ---------------------------------------------
 
@@ -281,3 +279,4 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
