@@ -18,4 +18,5 @@ Submodules
    zfit.models.functions
    zfit.models.functor
    zfit.models.physics
+   zfit.models.polynomials
    zfit.models.special

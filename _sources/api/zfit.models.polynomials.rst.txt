@@ -1,0 +1,8 @@
+polynomials
+===========
+
+.. automodule:: zfit.models.polynomials
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
