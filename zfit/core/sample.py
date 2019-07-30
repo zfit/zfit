@@ -359,7 +359,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
         new_sample = new_sample[:n, :]  # cutting away to many produced
 
-    # if no failure, uncomment both for improvement of shape inference
+    # if no failure, uncomment both for improvement of shape inference, but what if n is tensor?
     # with suppress(AttributeError):  # if n_samples_int is not a numpy object
     #     new_sample.set_shape((n_samples_int, n_dims))
     return new_sample
