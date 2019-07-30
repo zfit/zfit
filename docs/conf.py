@@ -33,11 +33,12 @@ import zfit
 here = os.path.abspath(os.path.dirname(__file__))
 
 # build the API documentation
-cmd_autodoc = 'MAKE_DOCS_PATH="$(pwd -P)" &&'
-cmd_autodoc += "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
-               "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
-cmd_customize = " && python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
-os.system(cmd_autodoc + cmd_customize)
+def setup(app):
+    cmd_autodoc = 'MAKE_DOCS_PATH="$(pwd -P)" &&'
+    cmd_autodoc += "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
+                   "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
+    cmd_customize = " && python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
+    os.system(cmd_autodoc + cmd_customize)
 
 # -- General configuration ---------------------------------------------
 
