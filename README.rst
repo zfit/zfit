@@ -69,23 +69,32 @@ Example in short
 
     obs = zfit.Space('x', limits=(-10, 10))
 
+    # create the model
     mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
     sigma = zfit.Parameter("sigma", 1.3,  0, 5)
     gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
 
+    # load the data
     data_np = np.random.normal(size=10000)
     data = zfit.Data.from_numpy(obs=obs, array=data_np)
 
+    # build the loss
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
+    # minimize
     minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(nll)
 
+    # calculate errors
     param_errors = result.error()
+
+This follows the zfit workflow
+
+.. image:: docs/images/zfit_workflow_v1.png
 
 
 Full explanation
-``````````````````````
+````````````````
 
 The default space (e.g. normalization range) of a PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
 
