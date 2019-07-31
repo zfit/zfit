@@ -91,6 +91,8 @@ Example in short
 This follows the zfit workflow
 
 .. image:: docs/images/zfit_workflow_v1.png
+   :scale: 30 %
+
 
 
 Full explanation
