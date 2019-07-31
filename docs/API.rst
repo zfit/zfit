@@ -17,4 +17,4 @@ Most classes and functions are documented with docstrings, but don't hesitate to
     api/zfit.minimize
     api/zfit.minimizers.fitresult
     api/zfit.settings
-    api/zfit.ztf
+    api/zfit.z

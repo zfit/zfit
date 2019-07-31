@@ -27,10 +27,10 @@ def _hesse_minuit(result: "FitResult", params, sigma=1.0):
         raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
 
     minimizer = fitresult.minimizer
-    from zfit.minimizers.minimizer_minuit import MinuitMinimizer
-    if not isinstance(minimizer, MinuitMinimizer):
+    from zfit.minimizers.minimizer_minuit import Minuit
+    if not isinstance(minimizer, Minuit):
         raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
-                        "`MinuitMinimizer`.")
+                        "`Minuit`.")
     params_name = OrderedDict((param.name, param) for param in params)
     result_hesse = minimizer._minuit_minimizer.hesse()
     result_hesse = OrderedDict((res['name'], res) for res in result_hesse)
@@ -43,10 +43,10 @@ def _hesse_minuit(result: "FitResult", params, sigma=1.0):
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
     minimizer = fitresult.minimizer
-    from zfit.minimizers.minimizer_minuit import MinuitMinimizer
-    if not isinstance(minimizer, MinuitMinimizer):
+    from zfit.minimizers.minimizer_minuit import Minuit
+    if not isinstance(minimizer, Minuit):
         raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer then"
-                        "`MinuitMinimizer`.")
+                        "`Minuit`.")
     result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
               for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
@@ -260,7 +260,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
             covariance_dict = self.minimizer._minuit_minimizer.covariance
         except AttributeError:
             raise DueToLazynessNotImplementedError("Currently, only covariance from minuit is available. "
-                                                   "Use `MinuitMinimizer` or open an issue on GitHub.")
+                                                   "Use `Minuit` or open an issue on GitHub.")
 
         cov = {}
         for p1 in params:

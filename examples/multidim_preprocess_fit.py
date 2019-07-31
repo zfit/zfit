@@ -38,7 +38,7 @@ data = zfit.Data.from_pandas(df, obs=obs)
 nll = zfit.loss.UnbinnedNLL(model=product_gauss, data=data)
 
 # create a minimizer
-minimizer = zfit.minimize.MinuitMinimizer()
+minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
 print(result.params)
 

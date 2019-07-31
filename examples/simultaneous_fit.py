@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 # create space
 import zfit
 import numpy as np
@@ -15,11 +17,11 @@ gauss2 = zfit.pdf.Gauss(mu=mu_shared, sigma=sigma2, obs=obs)
 
 # data
 normal_np = np.random.normal(loc=2., scale=3., size=10000)
-data1 = zfit.data.Data.from_numpy(obs=obs, array=normal_np)
+data1 = zfit.Data.from_numpy(obs=obs, array=normal_np)
 
 # data
 normal_np = np.random.normal(loc=2., scale=4., size=10000)
-data2 = zfit.data.Data.from_numpy(obs=obs, array=normal_np)
+data2 = zfit.Data.from_numpy(obs=obs, array=normal_np)
 
 # create simultaenous loss, two possibilities
 nll_simultaneous = zfit.loss.UnbinnedNLL(model=[gauss1, gauss2],

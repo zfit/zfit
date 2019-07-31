@@ -1,6 +1,13 @@
-# from .minimizers.optimizers_tf import RMSPropMinimizer, GradientDescentMinimizer, AdagradMinimizer, AdadeltaMinimizer,
-from .minimizers.optimizers_tf import AdamMinimizer, WrapOptimizer
-from .minimizers.minimizer_minuit import MinuitMinimizer
-from .minimizers.minimizers_scipy import ScipyMinimizer
+#  Copyright (c) 2019 zfit
 
-__all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer', "WrapOptimizer"]
+# from .minimizers.optimizers_tf import RMSPropMinimizer, GradientDescentMinimizer, AdagradMinimizer, AdadeltaMinimizer,
+from .minimizers.optimizers_tf import Adam, WrapOptimizer
+from .minimizers.minimizer_minuit import Minuit
+from .minimizers.minimizers_scipy import Scipy
+
+AdamMinimizer = Adam  # legacy
+MinuitMinimizer = Minuit  # legacy
+ScipyMinimizer = Scipy  # legacy
+__all__ = ['Minuit', 'Scipy', 'Adam',
+           "WrapOptimizer",
+           "Adam", "Minuit", "Scipy"]

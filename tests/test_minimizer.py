@@ -119,9 +119,9 @@ def minimize_func(minimizer_class_and_kwargs):
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
-    (zfit.minimizers.optimizers_tf.AdamMinimizer, dict(learning_rate=0.5), False),
-    (zfit.minimize.MinuitMinimizer, {}, True),
-    (zfit.minimize.ScipyMinimizer, {}, False),
+    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
+    (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.Scipy, {}, False),
 ]
 
 

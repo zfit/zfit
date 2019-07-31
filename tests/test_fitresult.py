@@ -64,9 +64,9 @@ def create_fitresult(minimizer_class_and_kwargs):
 
 minimizers = [
     # (zfit.minimize.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
-    # (zfit.minimize.AdamMinimizer, dict(learning_rate=0.5), False),
-    (zfit.minimize.MinuitMinimizer, {}, True),
-    # (zfit.minimize.ScipyMinimizer, {}, False),
+    # (zfit.minimize.Adam, dict(learning_rate=0.5), False),
+    (zfit.minimize.Minuit, {}, True),
+    # (zfit.minimize.Scipy, {}, False),
 ]
 
 

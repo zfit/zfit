@@ -63,7 +63,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
             kwargs = kwargs()
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
-    def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
+    def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
         value = x.value()
         return tf.reshape(self.distribution.prob(value=value, name="unnormalized_pdf"),
                           shape=(-1,))  # TODO batch shape just removed
@@ -118,7 +118,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         super().__init__(distribution=kernel, dist_params=dist_params, obs=obs, params=params, dtype=ztypes.float,
 #                          name=name)
 #
-#     def _unnormalized_pdf(self, x: "zfit.data.Data", norm_range=False):
+#     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
 #         value = tf.expand_dims(x.value(), -2)
 #         new_shape = tf.concat([tf.shape(value)[:2], [tf.shape(self._latent_loc)[0], 4]], axis=0)
 #         value = tf.broadcast_to(value, new_shape)

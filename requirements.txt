@@ -1,8 +1,8 @@
 tensorflow>=1.10.0,<2.0.0
 tensorflow_probability>=0.6.0
 scipy>=1.2
-pandas  # temporary, upstream bug in keras-preprocessing
 uproot
+pandas
 numpy
 iminuit
 typing

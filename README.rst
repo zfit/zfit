@@ -19,19 +19,28 @@ zfit: scalable pythonic fitting
    :target: https://www.codefactor.io/repository/github/zfit/zfit
    :alt: CodeFactor
 
-| Quick start with `Interactive Tutorials <https://github.com/zfit/zfit-tutorials>`_
-| Read the `Documentation <https://zfit.github.io/zfit>`_ and `API <https://zfit.github.io/zfit/API.html>`_
 
-The zfit package is a model manipulation and fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions.
-Its main focus is on scalability, parallelisation and user friendly experience.
+|
 
-Detailed documentation, including the API, can be found in https://zfit.github.io/zfit.
 
-It is released as free software following the BSD-3-Clause License.
+zfit is a highly scalable and customizable model manipulation and fitting library. It uses
+`TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
+and is optimised for simple and direct manipulation of probability density functions.
 
-*N.B.*: zfit is currently in beta stage, so while most core parts are established, some may still be missing and bugs may be encountered.
+- **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
+- **Quick start**: `Example scripts <examples>`_
+- **Documentation**: Full documentation_ and API_
+- **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
+- **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
+  related content
+
+
+If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
+
+*N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
-If you want to use it for your project and you are not sure if all the needed functionality is there, feel free contact us in our `Gitter channel <https://gitter.im/zfit/zfit>`_.
+If you want to use it for your project and you are not sure if all the needed functionality is there, feel free to `contact`_.
 
 
 Why?
@@ -49,40 +58,59 @@ These core ideas are supported by two basic pillars:
   The use of TensorFlow provides crucial features in the context of model fitting like taking care of the parallelisation and analytic derivatives.
 
 
-Installing
-----------
-
-To install zfit, run this command in your terminal:
-
-.. code-block:: console
-
-    $ pip install zfit
-
-
-For the newest development version, you can install the version from git with
-
-.. code-block:: console
-
-   $ pip install git+https://github.com/zfit/zfit
-
 
 How to use
 ----------
 
-While the zfit library provides a simple model fitting and sampling framework for a broad list of applications, we will illustrate its main features by generating, fitting and ploting a Gaussian distribution.
+While the zfit library provides a model fitting and sampling framework for a broad list of applications,
+we will illustrate its main features with a simple example by fitting a Gaussian distribution with an unbinned
+likelihood fit and a parameter uncertainty estimation.
 
+
+Example in short
+`````````````````
 .. code-block:: python
 
-    import zfit
+    obs = zfit.Space('x', limits=(-10, 10))
 
-The domain of the PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
+    # create the model
+    mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
+    sigma = zfit.Parameter("sigma", 1.3,  0, 5)
+    gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
+
+    # load the data
+    data_np = np.random.normal(size=10000)
+    data = zfit.Data.from_numpy(obs=obs, array=data_np)
+
+    # build the loss
+    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+
+    # minimize
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(nll)
+
+    # calculate errors
+    param_errors = result.error()
+
+This follows the zfit workflow
+
+.. image:: docs/images/zfit_workflow_v1.png
+
+
+
+
+Full explanation
+````````````````
+
+The default space (e.g. normalization range) of a PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
+
 
 .. code-block:: python
 
     obs = zfit.Space('x', limits=(-10, 10))
 
 
-Using this domain, we can now create a simple Gaussian PDF. To do this, we define its parameters and their limits using the ``zfit.Parameter`` class and we instantiate the PDF from the zfit library:
+To create a simple Gaussian PDF, we define its parameters and their limits using the ``zfit.Parameter`` class.
 
 .. code-block:: python
 
@@ -90,7 +118,6 @@ Using this domain, we can now create a simple Gaussian PDF. To do this, we defin
     mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
     sigma = zfit.Parameter("sigma", 1.3,  0, 5)
     gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
-
 
 For simplicity, we create the dataset to be fitted starting from a numpy array, but zfit allows for the use of other sources such as ROOT files:
 
@@ -104,7 +131,7 @@ For simplicity, we create the dataset to be fitted starting from a numpy array, 
 Fits are performed in three steps:
 
 1. Creation of a loss function, in our case a negative log-likelihood.
-2. Instantiation of our minimiser of choice, in the example the ``MinuitMinimizer``.
+2. Instantiation of our minimiser of choice, in the example the ``Minuit``.
 3. Minimisation of the loss function.
 
 .. code-block:: python
@@ -113,7 +140,7 @@ Fits are performed in three steps:
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
     # Stage 2: instantiate a minimiser (in this case a basic minuit)
-    minimizer = zfit.minimize.MinuitMinimizer()
+    minimizer = zfit.minimize.Minuit()
 
     # Stage 3: minimise the given negative log-likelihood
     result = minimizer.minimize(nll)
@@ -140,8 +167,37 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
     print("mu={}".format(params[mu]['value']))
 
 And that's it!
-For more details and information of what you can do with zfit, please see the `documentation page <https://zfit.github.io/zfit>`_.
+For more details and information of what you can do with zfit, checkout the documentation_.
 
+Prerequisites
+-------------
+
+``zfit`` works with Python versions 3.6 and 3.7.
+The following packages (amongst others) are required:
+
+- `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
+- `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
+- `scipy <https://www.scipy.org/>`_ >=1.2
+- `uproot <https://github.com/scikit-hep/uproot>`_
+- `iminuit <https://github.com/scikit-hep/iminuit>`_
+
+... and some minor packages. For a full list, check the `requirements <requirements.txt>`_.
+
+Installing
+----------
+
+To install zfit, run this command in your terminal:
+
+.. code-block:: console
+
+    $ pip install zfit
+
+
+For the newest development version, you can install the version from git with
+
+.. code-block:: console
+
+   $ pip install git+https://github.com/zfit/zfit
 
 
 Contributing
@@ -152,6 +208,24 @@ Contributions are always welcome, please have a look at the `Contributing guide`
 
 .. _Contributing guide: CONTRIBUTING.rst
 
+
+Contact
+-------
+
+You can contact us directly:
+ - via e-mail: zfit@physik.uzh.ch
+ - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
+
+
+Main Authors
+------------
+
+| Jonas Eschle <jonas.eschle@cern.ch>
+| Albert Puig <albert.puig@cern.ch>
+| Rafael Silva Coutinho <rsilvaco@cern.ch>
+
+
+
 Acknowledgements
 ----------------
 
@@ -159,3 +233,5 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
+.. _documentation: https://zfit.readthedocs.io/en/latest/
+.. _API: https://zfit.readthedocs.io/en/latest/API.html

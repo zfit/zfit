@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
@@ -14,14 +14,15 @@ __credits__ = ["Jonas Eschle <jonas.eschle@cern.ch>",
                "Albert Puig <albert.puig@cern.ch",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
-__all__ = ["ztf", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
+__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
 
 #  Copyright (c) 2019 zfit
 
-from . import ztf
+from . import ztf  # legacy
+from . import ztf as z
 from .settings import ztypes
 
 import tensorflow as tf

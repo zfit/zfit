@@ -229,9 +229,6 @@ def test_importance_sampling_uniform():
             return sample, thresholds, weights, None, n_to_produce
 
     uniform._sample_and_weights = GaussianSampleAndWeights
-    # HACK
-    zfit.settings.set_verbosity(10)
-    # HACK END
     n_sample = 10000
     sample = uniform.sample(n=n_sample)
     assert importance_sampling_called[0]
@@ -253,7 +250,6 @@ def test_sampling_fixed_eventlimits():
     n_samples_tot = n_samples1 + n_samples2 + n_samples3
 
     obs1 = "obs1"
-    zfit.settings.set_verbosity(6)
     lower1, upper1 = -10, -9
     lower2, upper2 = 0, 1
     lower3, upper3 = 10, 11
