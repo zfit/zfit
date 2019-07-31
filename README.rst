@@ -169,6 +169,20 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
 And that's it!
 For more details and information of what you can do with zfit, checkout the documentation_.
 
+Prerequisites
+-------------
+
+``zfit`` works with Python versions 3.6 and 3.7.
+The following packages (amongst others) are required:
+
+- `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
+- `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
+- `scipy <https://www.scipy.org/>`_ >=1.2
+- `uproot <https://github.com/scikit-hep/uproot>`_
+- `iminuit <https://github.com/scikit-hep/iminuit>`_
+
+... and some minor packages. For a full list, check the `requirements <requirements.txt>`_.
+
 Installing
 ----------
 
@@ -184,6 +198,7 @@ For the newest development version, you can install the version from git with
 .. code-block:: console
 
    $ pip install git+https://github.com/zfit/zfit
+
 
 Contributing
 ------------
@@ -201,19 +216,14 @@ You can contact us directly:
  - via e-mail: zfit@physik.uzh.ch
  - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
-Prerequisites
--------------
 
-``zfit`` works with Python versions 3.6 and 3.7.
-The following packages (amongst others) are required:
+Main Authors
+------------
 
-- `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
-- `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
-- `scipy <https://www.scipy.org/>`_ >=1.2
-- `uproot <https://github.com/scikit-hep/uproot>`_
-- `iminuit <https://github.com/scikit-hep/iminuit>`_
+| Jonas Eschle <jonas.eschle@cern.ch>
+| Albert Puig <albert.puig@cern.ch>
+| Rafael Silva Coutinho <rsilvaco@cern.ch>
 
-... and some minor packages. For a full list, check the `requirements <requirements.txt>`_.
 
 
 Acknowledgements
