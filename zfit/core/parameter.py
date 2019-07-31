@@ -1,4 +1,6 @@
 """Define Parameter which holds the value."""
+#  Copyright (c) 2019 zfit
+
 from contextlib import suppress
 
 import numpy as np
@@ -31,7 +33,8 @@ class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)): 
 
 
 # drop-in replacement for ResourceVariable
-class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
+# class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
+class ZfitBaseVariable(metaclass=MetaBaseParameter):
 
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
@@ -123,17 +126,18 @@ class ComposedResourceVariable(ResourceVariable):
 
 
 # class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
-class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
+# class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
+class ComposedVariable(metaclass=MetaBaseParameter):
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
-        super().__init__(initial_value=initial_value, **kwargs)
+        super().__init__(name=name, **kwargs)
         self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
         # self._name = name
 
     @property
     def name(self):
-        return self.op.name
+        return self.name
 
     @property
     def dtype(self):
@@ -292,6 +296,11 @@ class ZfitParameterMixin(BaseNumeric):
         return super().__rmul__(other)
 
 
+# solve metaclass confict
+class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
+    pass
+
+
 class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
@@ -386,10 +395,12 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         step_size = self._step_size
         if step_size is None:
             # auto-infer from limits
-            step_splits = 1e4
-            # step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            # step_splits = 1e4
+            # if self.has_limits:
+            #     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            # else:
             step_size = 0.001
-            if step_size == np.nan:
+            if np.isnan(step_size):
                 if self.lower_limit == -np.infty or self.upper_limit == np.infty:
                     step_size = 0.001
                 else:
@@ -403,7 +414,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
     @step_size.setter
     def step_size(self, value):
         if value is not None:
-            value = ztf.convert_to_tensor(value)
+            value = ztf.convert_to_tensor(value, preferred_dtype=ztypes.float)
+            value = tf.cast(value, dtype=ztypes.float)
         self._step_size = value
 
     def load(self, value: ztyping.NumericalScalarType):
@@ -462,6 +474,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         self.load(value=value)
         return value
 
+    def __repr__(self):
+        return f"<zfit.Parameter '{self.name}' floating={self.floating}>"
+
 
 class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
@@ -501,6 +516,9 @@ class ComposedParameter(BaseComposedParameter):
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
         super().__init__(params=params, value=tensor, name=name, dtype=dtype, **kwargs)
+
+    def __repr__(self):
+        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name}>"
 
 
 class ComplexParameter(ComposedParameter):
@@ -546,14 +564,14 @@ class ComplexParameter(ComposedParameter):
     def real(self):
         real = self._real
         if real is None:
-            real = tf.real(self)
+            real = ztf.to_real(self)
         return real
 
     @property
     def imag(self):
         imag = self._imag
         if imag is None:
-            imag = tf.imag(self)
+            imag = tf.imag(tf.convert_to_tensor(self, preferred_dtype=self.dtype))  # HACK tf bug #30029
         return imag
 
     @property

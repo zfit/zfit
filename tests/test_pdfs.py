@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import List
 
 import pytest
@@ -179,7 +181,7 @@ def test_normalization_prod_gauss():
 
 
 def test_exp():
-    lambda_true = 3.1
+    lambda_true = 0.31
     lambda_ = zfit.Parameter('lambda1', lambda_true)
     exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
     sample = exp1.sample(n=1000, limits=(-10, 10))
@@ -197,7 +199,7 @@ def normalization_testing(pdf):
     with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
         samples = tf.cast(np.random.uniform(low=low, high=high, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
-        samples = zfit.data.Data.from_tensor(obs=pdf.obs, tensor=samples)
+        samples = zfit.Data.from_tensor(obs=pdf.obs, tensor=samples)
         probs = pdf.pdf(samples)
         result = zfit.run(probs)
         result = np.average(result) * (high - low)

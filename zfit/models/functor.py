@@ -241,7 +241,9 @@ class SumPDF(BaseFunctor):
             yields = [pdf.get_yield() for pdf in pdfs]
 
         if extended:
-            yield_fracs = [yield_ / tf.reduce_sum(yields) for yield_ in yields]
+            # TODO(Mayou36): convert to correct dtype
+            sum_yields = tf.reduce_sum([tf.convert_to_tensor(y, preferred_dtype=ztypes.float) for y in yields])
+            yield_fracs = [yield_ / sum_yields for yield_ in yields]
             self.fracs = yield_fracs
             # self.fracs = yield_fracs
             set_yield_at_end = True
@@ -257,7 +259,7 @@ class SumPDF(BaseFunctor):
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if set_yield_at_end:
-            self._set_yield_inplace(tf.reduce_sum(yields))
+            self._set_yield_inplace(sum_yields)
 
     @property
     def fracs(self):

@@ -131,7 +131,6 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                     value_list.append(tf.expand_dims(x[:, index_values], axis=1))
                     index_values += 1
             value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-            x = value_list
             x = PartialIntegralSampleData(sample=value_list,
                                           space=Space(obs=new_obs))
         else:
@@ -148,6 +147,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     # return ztf.to_real(integral, dtype=dtype)
 
 
+# TODO(Mayou36): Make more flexible for sampling
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
     lower = ztf.convert_to_tensor(lower, dtype=dtype)
@@ -328,6 +328,10 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
         self._reorder_indices_list = list(range(len(sample)))
 
     @property
+    def weights(self):
+        raise NotImplementedError("Weights for PartialIntegralsampleData are not implemented. Are they needed?")
+
+    @property
     def space(self) -> "zfit.Space":
         return self._space
 
@@ -485,7 +489,7 @@ class AnalyticIntegral:
         integral_holder = self._integrals.get(axes)
         # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
-            raise NotImplementedError("Integral is not available for axes {}".format(axes))
+            raise NotImplementedError("Analytic integral is not available for axes {}".format(axes))
         integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
             raise NotImplementedError(

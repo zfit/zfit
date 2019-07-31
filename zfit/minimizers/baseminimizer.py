@@ -93,12 +93,14 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
         self.minimizer_options = minimizer_options
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
-        if isinstance(params, (str, tf.Variable)) or (not hasattr(params, "__len__") and params is not None):
+        if isinstance(params, (str, ZfitParameter)) or (not hasattr(params, "__len__") and params is not None):
             params = [params, ]
             params = self._filter_floating_params(params)
         if params is None or isinstance(params[0], str):
             params = loss.get_dependents(only_floating=only_floating)
             params = list(params)
+        if not params:
+            raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
         return params
 
     @staticmethod

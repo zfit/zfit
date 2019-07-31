@@ -10,8 +10,8 @@ import zfit
 from ..util import ztyping
 
 
-class ZfitObject:  # __init_subclass__ backport
-
+class ZfitObject(metaclass=abc.ABCMeta):
+    # class ZfitObject:
     @property
     # @abc.abstractmethod
     def name(self) -> str:
@@ -210,7 +210,7 @@ class ZfitDependentsMixin:
         raise NotImplementedError
 
 
-class ZfitNumeric(ZfitDependentsMixin):
+class ZfitNumeric(ZfitDependentsMixin, ZfitObject):
     @abc.abstractmethod
     def get_params(self, only_floating: bool = False,
                    names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:

@@ -1,4 +1,6 @@
-from typing import Callable, Any, Iterable
+#  Copyright (c) 2019 zfit
+
+from typing import Callable, Any, Iterable, Union
 
 import tensorflow as tf
 
@@ -12,7 +14,7 @@ class DotDict(dict):
 
 
 def convert_to_container(value: Any, container: Callable = list, non_containers=None,
-                         convert_none=False) -> Iterable:
+                         convert_none=False) -> Union[None, Iterable]:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:
@@ -44,16 +46,13 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
     return value
 
 
-def is_container(object):
+def is_container(obj):
     """Check if `object` is a list or a tuple.
 
     Args:
-        object ():
+        obj ():
 
     Returns:
-
+        bool: True if it is a *container*, otherwise False
     """
-    if isinstance(object, (list, tuple)):
-        return True
-    else:
-        return False
+    return isinstance(obj, (list, tuple))

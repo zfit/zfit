@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import tensorflow as tf
 
 from .base_tf import WrapOptimizer
@@ -23,7 +25,7 @@ from .base_tf import WrapOptimizer
 #         raise NotImplementedError("Currently a placeholder, has to be implemented (with WrapOptimizer")
 
 
-class AdamMinimizer(WrapOptimizer):
+class Adam(WrapOptimizer):
     _DEFAULT_name = 'Adam'
 
     def __init__(self, tolerance=None,

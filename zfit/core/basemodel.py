@@ -71,7 +71,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    _DEFAULTS_integration.draws_per_dim = 20000
+    _DEFAULTS_integration.draws_per_dim = 40000
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None
@@ -161,7 +161,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self, x: ztyping.XTypeInput) -> Data:
+    def _convert_sort_x(self, x: ztyping.XTypeInput, partial: bool = False) -> Data:
         if isinstance(x, ZfitData):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs, allow_superset=True):
@@ -180,7 +180,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             # check dimension
             x = self._add_dim_to_x(x=x)
             x_shape = x.shape.as_list()[-1]
-            if x_shape != self.n_obs:
+            if not partial and x_shape != self.n_obs:
                 raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
                                              "match the shape (={})of the model".format(x_shape, self.n_obs))
             x = Data.from_tensor(obs=self.obs, tensor=x)
@@ -553,7 +553,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x, partial=True) as x:
             return self._single_hook_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _single_hook_partial_integrate(self, x, limits, norm_range, name):
@@ -641,7 +641,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x, partial=True) as x:
             return self._single_hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name):
@@ -714,7 +714,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits, caller_name=name)
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x, partial=True) as x:
             return self._single_hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name):
@@ -810,19 +810,25 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.
             # Or not: refactor that variable can be given due to no variable creation policy!
             n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+
+        limits = self._check_input_limits(limits=limits)
+
+        if limits.limits is None:
+            limits = self.space  # TODO(Mayou36): clean up, better norm_range?
+            if limits.limits in (None, False):
+                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         fixed_params, n, sample = self._create_sampler_tensor(fixed_params=fixed_params,
                                                               limits=limits, n=n, name=name)
-
-        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=self.obs, fixed_params=fixed_params,
+        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=limits, fixed_params=fixed_params,
                                           name=name)
 
         return sample_data
 
     def _create_sampler_tensor(self, fixed_params, limits, n, name):
-        if limits is None:
-            limits = self.space  # TODO(Mayou36): clean up, better norm_range?
-            if limits.limits in (None, False):
-                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+        # if limits is None:
+        #     limits = self.space  # TODO(Mayou36): clean up, better norm_range?
+        #     if limits.limits in (None, False):
+        #         raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
         elif fixed_params is False:
@@ -863,7 +869,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
-        if limits is None:
+        limits = self._check_input_limits(limits=limits)
+        if limits.limits is None:
             limits = self.space
             if limits.limits in (None, False):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
@@ -884,7 +891,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self._limits_sample(n=n, limits=limits, name=name)
 
     def _limits_sample(self, n, limits, name):
-        return self._call_sample(n=n, limits=limits, name=name)
         try:
             return self._call_sample(n=n, limits=limits, name=name)
         except MultipleLimitsNotImplementedError:
@@ -892,8 +898,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
     def _call_sample(self, n, limits, name):
         with self._name_scope(name, values=[n, limits]):
-            # n = ztf.convert_to_tensor(n, dtype=ztypes.int, name="n")
-
             with suppress(NotImplementedError):
                 return self._sample(n=n, limits=limits)
             with suppress(NotImplementedError):

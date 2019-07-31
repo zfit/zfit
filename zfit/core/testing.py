@@ -2,6 +2,8 @@
 Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let
 them be tested.
 """
+#  Copyright (c) 2019 zfit
+
 from collections import OrderedDict
 
 import scipy.stats
@@ -19,7 +21,8 @@ def setup_function():
 
 
 def teardown_function():
-    pass
+    import zfit
+    zfit.run.chunking.active = False  # not yet integrated
 
 
 class BaseTester:

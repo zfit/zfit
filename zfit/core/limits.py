@@ -724,7 +724,7 @@ class Space(ZfitSpace, BaseObject):
                     raise ValueError("subset not allowed but `obs` is only a subset of `self.obs`")
                 permutation_index = tuple(
                     self.obs.index(o) for o in obs_axes if o in self_obs_set)  # the future index of the space
-                self_axes_set = set(obs_axes[o] for o in self.obs)
+                self_axes_set = set(obs_axes[o] for o in self.obs if o in obs_axes)
             elif self.axes is not None:
                 if not frozenset(obs_axes.values()) <= self_axes_set:
                     raise ValueError("TODO axes not contained")
@@ -761,9 +761,9 @@ class Space(ZfitSpace, BaseObject):
         def setter(arguments):
             limits, obs, axes = arguments
 
-            self._check_set_limits(limits=limits)
             self._obs = obs
             self._axes = axes
+            self._check_set_limits(limits=limits)
 
         def getter():
             return self.limits, self.obs, self.axes

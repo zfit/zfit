@@ -1,22 +1,28 @@
-from zfit import ztf
-from .util.container import convert_to_container
+#  Copyright (c) 2019 zfit
 
-__all__ = ["nll_gaussian"]
+from .util import ztyping
+from .core.constraint import SimpleConstraint, GaussianConstraint
+import tensorflow as tf
 
-def nll_gaussian(params, mu, sigma):
-    params = convert_to_container(params, container=tuple)
-    mu = convert_to_container(mu, container=tuple)
-    sigma = convert_to_container(sigma, container=tuple)
-    constraint = ztf.constant(0.)
-    if not len(params) == len(mu) == len(sigma):
-        raise ValueError("params, mu and sigma have to have the same length.")
-    for param, mean, sig in zip(params, mu, sigma):
-        mean = ztf.convert_to_tensor(mean)
-        sig = ztf.convert_to_tensor(sig)
-        constraint += ztf.reduce_sum(ztf.square(param - mean) / (2. * ztf.square(sig)))
+__all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 
-    return constraint
 
+def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
+                 sigma: ztyping.NumericalScalarType) -> tf.Tensor:
+    """Return negative log likelihood graph for gaussian constraints on a list of parameters.
+
+    Args:
+        params (list(zfit.Parameter)): The parameters to constraint
+        mu (numerical, list(numerical)): The central value of the constraint
+        sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
+            matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
+    Returns:
+        `GaussianConstraint`: the constraint object
+    Raises:
+        ShapeIncompatibleError: if params, mu and sigma don't have the same size
+    """
+
+    return GaussianConstraint(params=params, mu=mu, sigma=sigma)
 
 # def nll_pdf(constraints: dict):
 #     if not constraints:
