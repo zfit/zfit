@@ -1,6 +1,6 @@
-===============================
+*******************************
 zfit: scalable pythonic fitting
-===============================
+*******************************
 
 
 .. image:: https://zenodo.org/badge/126311570.svg
@@ -44,7 +44,7 @@ If you want to use it for your project and you are not sure if all the needed fu
 
 
 Why?
-----
+====
 
 The basic idea behind zfit is to offer a Python oriented alternative to the very successful RooFit library from the `ROOT <https://root.cern.ch/>`_ data analysis package that can integrate with the other packages that are part if the scientific Python ecosystem.
 Contrary to the monolithic approach of ROOT/RooFit, the aim of zfit is to be light and flexible enough to integrate with any state-of-art tools and to allow scalability going to larger datasets.
@@ -60,7 +60,7 @@ These core ideas are supported by two basic pillars:
 
 
 How to use
-----------
+==========
 
 While the zfit library provides a model fitting and sampling framework for a broad list of applications,
 we will illustrate its main features with a simple example by fitting a Gaussian distribution with an unbinned
@@ -68,7 +68,7 @@ likelihood fit and a parameter uncertainty estimation.
 
 
 Example in short
-`````````````````
+----------------
 .. code-block:: python
 
     obs = zfit.Space('x', limits=(-10, 10))
@@ -100,7 +100,7 @@ This follows the zfit workflow
 
 
 Full explanation
-````````````````
+----------------
 
 The default space (e.g. normalization range) of a PDF is defined by an *observable space*, which is created using the ``zfit.Space`` class:
 
@@ -170,7 +170,7 @@ And that's it!
 For more details and information of what you can do with zfit, checkout the documentation_.
 
 Prerequisites
--------------
+=============
 
 ``zfit`` works with Python versions 3.6 and 3.7.
 The following packages (amongst others) are required:
@@ -184,7 +184,7 @@ The following packages (amongst others) are required:
 ... and some minor packages. For a full list, check the `requirements <requirements.txt>`_.
 
 Installing
-----------
+==========
 
 To install zfit, run this command in your terminal:
 
@@ -201,7 +201,7 @@ For the newest development version, you can install the version from git with
 
 
 Contributing
-------------
+============
 
 Any idea of how to improve the library? Or interested to write some code?
 Contributions are always welcome, please have a look at the `Contributing guide`_.
@@ -210,7 +210,7 @@ Contributions are always welcome, please have a look at the `Contributing guide`
 
 
 Contact
--------
+=======
 
 You can contact us directly:
  - via e-mail: zfit@physik.uzh.ch
@@ -218,7 +218,7 @@ You can contact us directly:
 
 
 Main Authors
-------------
+============
 
 | Jonas Eschle <jonas.eschle@cern.ch>
 | Albert Puig <albert.puig@cern.ch>
@@ -227,7 +227,7 @@ Main Authors
 
 
 Acknowledgements
-----------------
+================
 
 zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNSF) under contracts 168169 and 174182.
 
