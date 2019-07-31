@@ -8,6 +8,7 @@ include requirements_dev.txt
 
 recursive-include tests *
 recursive-include docs/images *
+recursive-include docs *.rst *.py make_docs.sh Makefile
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
