@@ -30,6 +30,8 @@ and is optimised for simple and direct manipulation of probability density funct
 - **Documentation**: Full documentation_ and API_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
   `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
+- **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
+  related content
 
 
 If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
