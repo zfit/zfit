@@ -19,7 +19,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
 with open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf-8') as changelog_file:
-    history = changelog_file.read()
+    changelog = changelog_file.read()
 
 # split the developer requirements into setup and test requirements
 if not requirements_dev.count("") == 1 or requirements_dev.index("") == 0:
@@ -51,7 +51,7 @@ setup(
     description="scalable pythonic model fitting for high energy physics",
     install_requires=requirements,
     license="BSD 3-Clause",
-    long_description=readme + '\n\n' + history,
+    long_description=readme + '\n\n' + changelog,
     include_package_data=True,
     keywords='TensorFlow, model, fitting, scalable, HEP',
     name='zfit',
