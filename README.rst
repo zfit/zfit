@@ -20,6 +20,8 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
+|
+
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
 `TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
