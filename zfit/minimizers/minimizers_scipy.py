@@ -4,7 +4,9 @@ from collections import OrderedDict
 import copy
 
 from scipy.optimize import SR1, BFGS
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from zfit.minimizers.fitresult import FitResult
 from .tf_external_optimizer import ScipyOptimizerInterface

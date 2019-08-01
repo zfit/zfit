@@ -5,7 +5,9 @@ from contextlib import ExitStack
 from typing import List, Tuple, Union, Dict, Mapping
 import warnings
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 import uproot
@@ -464,7 +466,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     @staticmethod
     def _OverloadAllOperators():  # pylint: disable=invalid-name
         """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             Data._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
@@ -479,7 +481,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
           operator: string. The operator name.
         """
 
-        tensor_oper = getattr(ops.Tensor, operator)
+        tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args):
             # pylint: disable=protected-access

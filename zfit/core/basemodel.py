@@ -10,7 +10,9 @@ from contextlib import suppress
 from typing import Dict, Type, Union, Callable, List, Tuple
 import warnings
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf

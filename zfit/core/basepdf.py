@@ -56,7 +56,9 @@ from contextlib import suppress
 from typing import Union, Any, Type, Dict
 import warnings
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from zfit import ztf
 from zfit.core.sample import extended_sampling

@@ -7,7 +7,9 @@ This module contains functions for the numeric as well as the analytic (partial)
 import collections
 import numpy as np
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 

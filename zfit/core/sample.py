@@ -3,7 +3,9 @@
 from contextlib import suppress
 from typing import Callable, Union, Iterable, List, Optional, Tuple
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 import tensorflow_probability as tfp
 import numpy as np
 

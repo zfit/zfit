@@ -1,6 +1,10 @@
+#  Copyright (c) 2019 zfit
+
 from typing import List
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 
 # TODO(Mayou36): make not recursive

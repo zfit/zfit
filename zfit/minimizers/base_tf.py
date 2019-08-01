@@ -1,4 +1,8 @@
-import tensorflow as tf
+#  Copyright (c) 2019 zfit
+
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from .baseminimizer import BaseMinimizer
 

@@ -1,7 +1,11 @@
+#  Copyright (c) 2019 zfit
+
 import itertools
 from typing import Dict, Union, Callable, Iterable
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from zfit.core.basefunc import BaseFunc
 from zfit.core.basemodel import SimpleModelSubclassMixin

@@ -3,10 +3,14 @@ Special PDFs are provided in this module. One example is a normal function `Func
 simply define a non-normalizable function.
 """
 
+#  Copyright (c) 2019 zfit
+
 import functools
 from types import MethodType
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF

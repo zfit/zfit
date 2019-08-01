@@ -4,7 +4,9 @@ from collections import OrderedDict, defaultdict
 from typing import Dict, Union, Callable, Optional
 import warnings
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 import numpy as np
 
 import zfit

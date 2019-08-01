@@ -14,7 +14,9 @@ import numpy as np
 
 import tensorflow_probability as tfp
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from zfit import ztf
 from zfit.util.exception import OverdefinedError

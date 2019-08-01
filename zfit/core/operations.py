@@ -1,6 +1,10 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Optional, Tuple, Callable, Union
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter, ZfitData
 from .parameter import convert_to_parameter, ComposedParameter

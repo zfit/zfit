@@ -7,7 +7,9 @@ from typing import List
 import iminuit
 import numpy as np
 import texttable as tt
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from zfit.core.interfaces import ZfitLoss
 from .fitresult import FitResult

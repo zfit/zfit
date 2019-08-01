@@ -2,7 +2,9 @@
 
 from .util import ztyping
 from .core.constraint import SimpleConstraint, GaussianConstraint
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 __all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 

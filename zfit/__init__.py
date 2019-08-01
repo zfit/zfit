@@ -25,7 +25,9 @@ from . import ztf  # legacy
 from . import ztf as z
 from .settings import ztypes
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 tf.get_variable_scope().set_use_resource(True)
 tf.get_variable_scope().set_dtype(ztypes.float)

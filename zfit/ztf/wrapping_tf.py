@@ -1,8 +1,12 @@
+#  Copyright (c) 2019 zfit
+
 import functools
 from typing import Any
 
-from tensorflow import DType
-import tensorflow as tf
+from tensorflow.compat.v1 import DType
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from .tools import _auto_upcast
 from . import zextension

@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 import contextlib
 import copy
 import multiprocessing
@@ -6,7 +8,9 @@ import sys
 from typing import List
 import warnings
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 import zfit
 from .temporary import TemporarilySet

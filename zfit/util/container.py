@@ -2,7 +2,9 @@
 
 from typing import Callable, Any, Iterable, Union
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 
 class DotDict(dict):

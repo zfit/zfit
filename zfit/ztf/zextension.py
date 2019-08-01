@@ -7,7 +7,9 @@ from typing import Any, Callable
 import numpy as np
 from math import inf as _inf
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 from ..settings import ztypes
 
 inf = tf.constant(_inf, dtype=ztypes.float)

@@ -1,10 +1,14 @@
 """Baseclass for most objects appearing in zfit."""
+#  Copyright (c) 2019 zfit
+
 import abc
 from collections import OrderedDict
 import itertools
 from typing import List, Set
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 import zfit
 from ..util.cache import Cachable

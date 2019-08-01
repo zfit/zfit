@@ -4,7 +4,9 @@
 from contextlib import suppress
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 # TF backwards compatibility
 from tensorflow.python import ops, array_ops
@@ -34,7 +36,8 @@ class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)): 
 
 # drop-in replacement for ResourceVariable
 # class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
-class ZfitBaseVariable(metaclass=MetaBaseParameter):
+# class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class ZfitBaseVariable:
 
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
@@ -127,7 +130,8 @@ class ComposedResourceVariable(ResourceVariable):
 
 # class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 # class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
-class ComposedVariable(metaclass=MetaBaseParameter):
+# class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class ComposedVariable:
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
@@ -226,7 +230,8 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 ComposedVariable._OverloadAllOperators()
 
 
-class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
+# class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class BaseParameter(ZfitParameter):
     pass
 
 
@@ -297,7 +302,8 @@ class ZfitParameterMixin(BaseNumeric):
 
 
 # solve metaclass confict
-class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
+# class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):    # TODO(Mayou36): upgrade to tf2
+class TFBaseVariable(TFBaseVariable):
     pass
 
 

@@ -4,7 +4,9 @@ import abc
 from collections import OrderedDict
 from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 import zfit
 from ..util import ztyping

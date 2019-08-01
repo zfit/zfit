@@ -3,7 +3,9 @@
 from typing import Union, Iterable, Sized
 
 import tensorflow_probability as tfp
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from .wrapping_tf import convert_to_tensor
 from ..util.container import convert_to_container

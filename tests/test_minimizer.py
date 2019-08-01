@@ -20,17 +20,16 @@ true_c = -0.3
 
 
 def create_loss():
-    with tf.variable_scope("func1"):
-        a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
-                                 step_size=ztf.constant(0.1))
-        b_param = zfit.Parameter("variable_b15151", 3.5)
-        c_param = zfit.Parameter("variable_c15151", -0.04)
-        obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
+    a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
+                             step_size=ztf.constant(0.1))
+    b_param = zfit.Parameter("variable_b15151", 3.5)
+    c_param = zfit.Parameter("variable_c15151", -0.04)
+    obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
-        # load params for sampling
-        a_param.load(true_a)
-        b_param.load(true_b)
-        c_param.load(true_c)
+    # load params for sampling
+    a_param.load(true_a)
+    b_param.load(true_b)
+    c_param.load(true_c)
 
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
@@ -118,7 +117,7 @@ def minimize_func(minimizer_class_and_kwargs):
 
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
+    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.5)), False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
     (zfit.minimize.Minuit, {}, True),
     (zfit.minimize.Scipy, {}, False),
