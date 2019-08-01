@@ -4,7 +4,9 @@ import copy
 import pytest
 import zfit
 from zfit import ztf
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 from zfit.core.testing import setup_function, teardown_function, tester
 

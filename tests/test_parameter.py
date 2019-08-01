@@ -1,9 +1,13 @@
+#  Copyright (c) 2019 zfit
+
 from math import pi, cos
 
 import numpy as np
 import pytest
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 
 import zfit
 from zfit import Parameter, ztf

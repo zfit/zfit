@@ -3,7 +3,9 @@
 from typing import Dict, Type
 
 import pytest
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 import numpy as np
 
 import zfit.core.basepdf
@@ -151,7 +153,7 @@ def test_normalization(pdf_factory):
         probs, log_probs = zfit.run([probs, log_probs])
         probs = np.average(probs) * (high - low)
         assert probs == pytest.approx(1., rel=0.05)
-        assert log_probs == pytest.approx(zfit.run(tf.log(probs_small)), rel=0.05)
+        assert log_probs == pytest.approx(zfit.run(tf.math.log(probs_small)), rel=0.05)
         dist = dist.create_extended(ztf.constant(test_yield))
         probs_extended = dist.pdf(samples)
         result_extended = zfit.run(probs_extended)
@@ -265,7 +267,9 @@ def test_projection_pdf():
     gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
     gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
-    import tensorflow as tf
+    import tensorflow.compat.v1 as tf
+    # gauss_xy = ProductPDF([gauss_x, gauss_y])
+    tf.disable_v2_behavior()
 
     def correlated_func(self, x):
         x, y = x.unstack_x()

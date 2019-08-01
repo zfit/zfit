@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 # deactivating CUDA capable gpus
 from zfit.ztf.tools import _auto_upcast
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -10,7 +12,9 @@ if suppress_gpu:
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import pytest
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
+tf.disable_v2_behavior()
 import numpy as np
 
 import zfit.core.math
