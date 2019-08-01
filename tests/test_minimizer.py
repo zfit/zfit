@@ -5,11 +5,9 @@ import functools
 import time
 
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 from zfit.core.loss import SimpleLoss
@@ -121,7 +119,8 @@ def minimize_func(minimizer_class_and_kwargs):
 
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
+    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=0.5)),
+     False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
     (zfit.minimize.Minuit, {}, True),
     (zfit.minimize.Scipy, {}, False),

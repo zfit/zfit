@@ -3,11 +3,9 @@
 import itertools
 from typing import Dict, Union, Callable, Iterable
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from zfit.core.basefunc import BaseFunc
 from zfit.core.basemodel import SimpleModelSubclassMixin
@@ -65,7 +63,7 @@ class SumFunc(BaseFunctorFunc):
     def _func(self, x):
         # sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
         funcs = [func.func(x) for func in self.funcs]
-        sum_funcs = tf.accumulate_n(funcs)
+        sum_funcs = tf.math.accumulate_n(funcs)
         return sum_funcs
 
 

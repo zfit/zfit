@@ -3,11 +3,9 @@
 from typing import List
 
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 from zfit import ztf
@@ -149,8 +147,8 @@ def test_prod_gauss_nd_mixed():
     true_unnormalized_probs = probs_4d(values=test_values)
 
     normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(40 ** 4, 4)))
-    true_probs = true_unnormalized_probs / tf.reduce_mean(normalization_probs)
-    grad = tf.gradients(probs, list(prod_gauss_4d.get_dependents()))
+    true_probs = true_unnormalized_probs / tf.reduce_mean(input_tensor=normalization_probs)
+    grad = tf.gradients(ys=probs, xs=list(prod_gauss_4d.get_dependents()))
     probs_np = zfit.run(probs)
     grad_np = zfit.run(grad)
     print("Gradients", grad_np)
@@ -211,7 +209,7 @@ def normalization_testing(pdf):
 
 
 def test_extended_gauss():
-    with tf.name_scope("gauss_params2"):
+    with tf.compat.v1.name_scope("gauss_params2"):
         mu1 = Parameter("mu11", 1.)
         mu2 = Parameter("mu21", 12.)
         mu3 = Parameter("mu31", 3.)

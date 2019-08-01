@@ -2,11 +2,9 @@
 import pytest
 from zfit.core.testing import setup_function, teardown_function, tester
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import zfit
 from zfit import ztf
 import numpy as np
@@ -17,7 +15,7 @@ true_c = -0.3
 
 
 def create_loss():
-    with tf.variable_scope("func1"):
+    with tf.compat.v1.variable_scope("func1"):
         a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
                                  step_size=ztf.constant(0.1))
         b_param = zfit.Parameter("variable_b15151", 3.5)

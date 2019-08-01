@@ -9,11 +9,9 @@ import pytest
 
 import numpy as np
 import pandas as pd
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import uproot
 
 import zfit
@@ -150,7 +148,7 @@ def test_overloaded_operators():
     np.testing.assert_array_equal(example_data1, zfit.run(data1))
     data_squared = data1 * data1
     np.testing.assert_allclose(example_data1 ** 2, zfit.run(data_squared), rtol=1e-8)
-    np.testing.assert_allclose(np.log(example_data1), zfit.run(tf.log(data1)), rtol=1e-8)
+    np.testing.assert_allclose(np.log(example_data1), zfit.run(tf.math.log(data1)), rtol=1e-8)
 
 
 def test_sort_by_obs():

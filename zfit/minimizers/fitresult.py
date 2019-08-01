@@ -4,11 +4,9 @@ from collections import OrderedDict, defaultdict
 from typing import Dict, Union, Callable, Optional
 import warnings
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 import zfit

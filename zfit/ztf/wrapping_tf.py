@@ -4,11 +4,9 @@ import functools
 from typing import Any
 
 from tensorflow.compat.v1 import DType
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from .tools import _auto_upcast
 from . import zextension
@@ -17,7 +15,7 @@ from ..settings import ztypes
 
 def log(x, name=None):
     x = _auto_upcast(x)
-    return _auto_upcast(tf.log(x=x, name=name))
+    return _auto_upcast(tf.math.log(x=x, name=name))
 
 
 def exp(x, name=None):
@@ -26,19 +24,19 @@ def exp(x, name=None):
 
 @functools.wraps(tf.convert_to_tensor)
 def convert_to_tensor(value, dtype=ztypes.float, name=None, preferred_dtype=ztypes.float):
-    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
+    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
 
 
 def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
-    return tf.random_normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
+    return tf.random.normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
 
 
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
-    return tf.random_uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+    return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
 
 def random_poisson(lam: Any, shape: Any, dtype: DType = ztypes.float, seed: Any = None, name: Any = None):
-    return tf.random_poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
+    return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
 
 
 def square(x, name=None):
@@ -71,11 +69,11 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
         tensorflow.python.framework.ops.Tensor:
     """
     if tensor.dtype in (tf.complex64, tf.complex128):
-        real_check = tf.check_numerics(tensor=tf.real(tensor), message=message, name=name)
-        imag_check = tf.check_numerics(tensor=tf.imag(tensor), message=message, name=name)
+        real_check = tf.debugging.check_numerics(tensor=tf.math.real(tensor), message=message, name=name)
+        imag_check = tf.debugging.check_numerics(tensor=tf.math.imag(tensor), message=message, name=name)
         check_op = tf.group(real_check, imag_check)
     else:
-        check_op = tf.check_numerics(tensor=tensor, message=message, name=name)
+        check_op = tf.debugging.check_numerics(tensor=tensor, message=message, name=name)
     return check_op
 
 

@@ -8,11 +8,9 @@ import sys
 from typing import List
 import warnings
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 import zfit
 from .temporary import TemporarilySet
@@ -91,7 +89,7 @@ class RunManager:
     def reset(self):
         if self._sess is not None:
             self.sess.close()
-        tf.reset_default_graph()
+        tf.compat.v1.reset_default_graph()
 
     def create_session(self, *args, close_current=True, reset_graph=False, **kwargs):
         """Create a new session (or replace the current one). Arguments will overwrite the already set arguments.
@@ -99,26 +97,26 @@ class RunManager:
         Args:
             close_current (bool): Closes the current open session before replacement. Has no effect if
                 no session was created before.
-            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.Session`.
+            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.compat.v1.Session`.
             *args ():
             **kwargs ():
 
         Returns:
-            :py:class:`tf.Session`
+            :py:class:`tf.compat.v1.Session`
         """
         sess_kwargs = copy.deepcopy(self._sess_kwargs)
         sess_kwargs.update(kwargs)
         if close_current and self._sess is not None:
             self.sess.close()
         if reset_graph:
-            tf.reset_default_graph()
+            tf.compat.v1.reset_default_graph()
             from zfit.core.parameter import ZfitParameterMixin
             ZfitParameterMixin._existing_names = set()  # TODO(Mayou36): better hook for reset?
-        self.sess = tf.Session(*args, **sess_kwargs)
+        self.sess = tf.compat.v1.Session(*args, **sess_kwargs)
 
         from ..settings import ztypes
-        tf.get_variable_scope().set_use_resource(True)
-        tf.get_variable_scope().set_dtype(ztypes.float)
+        tf.compat.v1.get_variable_scope().set_use_resource(True)
+        tf.compat.v1.get_variable_scope().set_dtype(ztypes.float)
 
         return self.sess
 
@@ -140,13 +138,13 @@ class SessionHolderMixin:
         super().__init__(*args, **kwargs)
         self._sess = None
 
-    def set_sess(self, sess: tf.Session):
+    def set_sess(self, sess: tf.compat.v1.Session):
         """Set the session (temporarily) for this instance. If None, the auto-created default is taken.
 
         Args:
-            sess (tf.Session):
+            sess (tf.compat.v1.Session):
         """
-        if not isinstance(sess, tf.Session):
+        if not isinstance(sess, tf.compat.v1.Session):
             raise TypeError("`sess` has to be a TensorFlow Session but is {}".format(sess))
 
         def getter():
@@ -165,5 +163,5 @@ class SessionHolderMixin:
         return sess
 
     @sess.setter
-    def sess(self, sess: tf.Session):
+    def sess(self, sess: tf.compat.v1.Session):
         self._sess = sess

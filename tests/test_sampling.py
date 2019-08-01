@@ -2,11 +2,9 @@
 
 import numpy as np
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 import zfit
 from zfit import ztf
@@ -62,8 +60,7 @@ def test_sampling_fixed(gauss_factory):
 
     n_draws = 1000
     n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
-                                name='n_draws',
-                                use_resource=True)  # variable to have something changeable, predictable
+                                name='n_draws')  # variable to have something changeable, predictable
     zfit.run(n_draws_param.initializer)
     sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
     sample_tensor.resample()
@@ -191,7 +188,7 @@ def test_importance_sampling():
                                                                    fixed_params=False, name='asdf')[2]
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
-            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
@@ -229,7 +226,7 @@ def test_importance_sampling_uniform():
                                            low=low, high=high)
             sample = gaussian.sample(sample_shape=(n_to_produce, 1))
             weights = gaussian.prob(sample)[:, 0]
-            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return sample, thresholds, weights, None, n_to_produce
 
     uniform._sample_and_weights = GaussianSampleAndWeights
@@ -257,8 +254,8 @@ def test_sampling_fixed_eventlimits():
     lower1, upper1 = -10, -9
     lower2, upper2 = 0, 1
     lower3, upper3 = 10, 11
-    lower = tf.convert_to_tensor(tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
-    upper = tf.convert_to_tensor(tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
+    lower = tf.convert_to_tensor(value=tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
+    upper = tf.convert_to_tensor(value=tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
     lower = ((lower,),)
     upper = ((upper,),)
     limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))

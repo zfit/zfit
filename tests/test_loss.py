@@ -1,11 +1,9 @@
 #  Copyright (c) 2019 zfit
 
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 from zfit import ztf
@@ -215,9 +213,9 @@ def test_gradients(chunksize):
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
     gradient1 = nll.gradients(params=param1)
-    assert zfit.run(gradient1) == zfit.run(tf.gradients(nll.value(), param1))
+    assert zfit.run(gradient1) == zfit.run(tf.gradients(ys=nll.value(), xs=param1))
     gradient2 = nll.gradients(params=[param2, param1])
-    both_gradients_true = zfit.run(tf.gradients(nll.value(), [param2, param1]))
+    both_gradients_true = zfit.run(tf.gradients(ys=nll.value(), xs=[param2, param1]))
     assert zfit.run(gradient2) == both_gradients_true
     gradient3 = nll.gradients()
     assert frozenset(zfit.run(gradient3)) == frozenset(both_gradients_true)
@@ -237,7 +235,7 @@ def test_simple_loss():
         probs = ztf.convert_to_tensor((a_param - true_a) ** 2
                                       + (b_param - true_b) ** 2
                                       + (c_param - true_c) ** 4) + 0.42
-        return tf.reduce_sum(tf.log(probs))
+        return tf.reduce_sum(input_tensor=tf.math.log(probs))
 
     loss_deps = zfit.loss.SimpleLoss(func=loss_func, dependents=param_list)
     loss = zfit.loss.SimpleLoss(func=loss_func)

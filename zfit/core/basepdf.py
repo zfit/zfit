@@ -56,11 +56,9 @@ from contextlib import suppress
 from typing import Union, Any, Type, Dict
 import warnings
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from zfit import ztf
 from zfit.core.sample import extended_sampling
@@ -382,11 +380,11 @@ class BasePDF(ZfitPDF, BaseModel):
             with suppress(NotImplementedError):
                 return self._log_pdf(x=x, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return tf.log(self._pdf(x=x, norm_range=norm_range))
+                return tf.math.log(self._pdf(x=x, norm_range=norm_range))
             return self._fallback_log_pdf(x=x, norm_range=norm_range)
 
     def _fallback_log_pdf(self, x, norm_range):
-        return tf.log(self._hook_pdf(x=x, norm_range=norm_range))
+        return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
 
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
@@ -397,13 +395,13 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs, always_list=True)]
+        gradients = [tf.gradients(ys=prob, xs=params) for prob in ztf.unstack_x(probs, always_list=True)]
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and norm_range.limits is not False:
             if log:
-                value += tf.log(self.get_yield())
+                value += tf.math.log(self.get_yield())
             else:
                 value *= self.get_yield()
         return value

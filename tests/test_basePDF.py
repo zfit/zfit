@@ -3,11 +3,9 @@
 from typing import Dict, Type
 
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 import zfit.core.basepdf
@@ -25,9 +23,7 @@ from zfit.core.testing import setup_function, teardown_function, tester
 # from zfit.ztf import
 from zfit.util import ztyping
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -91,7 +87,7 @@ def create_mu_sigma_2(nameadd=""):
 def create_wrapped_gauss(nameadd=""):
     mu2, sigma2 = create_mu_sigma_2(nameadd)
     gauss_params = dict(loc=mu2, scale=sigma2)
-    tf_gauss = tf.distributions.Normal
+    tf_gauss = tf.compat.v1.distributions.Normal
     return zfit.models.dist_tfp.WrapDistribution(tf_gauss, dist_params=gauss_params, obs=obs1, name="tf_gauss1")
 
 
@@ -273,7 +269,7 @@ def test_projection_pdf():
     gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
     gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
-    import tensorflow.compat.v1 as tf
+    import tensorflow as tf
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
 
     def correlated_func(self, x):

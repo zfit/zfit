@@ -12,11 +12,9 @@ if suppress_gpu:
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 import zfit.core.math
@@ -27,7 +25,7 @@ prec = 0.00001
 
 def test_polynomial():
     coeffs = [5.3, 1.2, complex(1.3, 0.4), -42, 32.4, 529.3, -0.93]
-    x = tf.placeholder(tf.complex128)
+    x = tf.compat.v1.placeholder(tf.complex128)
     true_dict = {'x': 5.}
     feed_dict = {x: true_dict['x']}
     polynom_tf = zfit.core.math.poly_complex(*(coeffs + [x]))  # py34 comp: *x, y does not work

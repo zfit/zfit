@@ -11,11 +11,9 @@ from collections import OrderedDict
 import itertools
 from typing import Union, List, Optional
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 from zfit import ztf
@@ -246,7 +244,8 @@ class SumPDF(BaseFunctor):
 
         if extended:
             # TODO(Mayou36): convert to correct dtype
-            sum_yields = tf.reduce_sum([tf.convert_to_tensor(y, preferred_dtype=ztypes.float) for y in yields])
+            sum_yields = tf.reduce_sum(
+                input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
             yield_fracs = [yield_ / sum_yields for yield_ in yields]
             self.fracs = yield_fracs
             # self.fracs = yield_fracs
@@ -305,7 +304,7 @@ class SumPDF(BaseFunctor):
             # beginning
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
         elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
-            reciprocal_yield = tf.reciprocal(self.get_yield())
+            reciprocal_yield = tf.math.reciprocal(self.get_yield())
             self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
         else:
             super()._set_yield(value=value)
@@ -317,7 +316,7 @@ class SumPDF(BaseFunctor):
         assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [pdf.integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
         integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
-        integral = tf.reduce_sum(integrals)
+        integral = tf.reduce_sum(input_tensor=integrals)
         return integral
 
     @supports(norm_range=True, multiple_limits=True)
@@ -334,7 +333,7 @@ class SumPDF(BaseFunctor):
                                                                           error=original_error))
 
         integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
-        integral = tf.reduce_sum(integrals)
+        integral = tf.reduce_sum(input_tensor=integrals)
         return integral
 
     @supports(norm_range=True, multiple_limits=True)
@@ -371,6 +370,6 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
         if all(not dep for dep in self._model_same_obs):
 
             probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in self.pdfs]
-            return tf.reduce_prod(probs, axis=0)
+            return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
             raise NotImplementedError

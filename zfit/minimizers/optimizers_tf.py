@@ -1,10 +1,8 @@
 #  Copyright (c) 2019 zfit
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from .base_tf import WrapOptimizer
 
@@ -39,8 +37,8 @@ class Adam(WrapOptimizer):
                  epsilon=1e-08,
                  use_locking=False,
                  name='Adam', **kwargs):
-        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
-                                           beta1=beta1, beta2=beta2,
-                                           epsilon=epsilon, use_locking=use_locking,
-                                           name=name)
+        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate,
+                                                     beta1=beta1, beta2=beta2,
+                                                     epsilon=epsilon, use_locking=use_locking,
+                                                     name=name)
         super().__init__(optimizer=optimizer, tolerance=tolerance, **kwargs)

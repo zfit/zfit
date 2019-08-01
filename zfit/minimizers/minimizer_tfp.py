@@ -1,10 +1,8 @@
 #  Copyright (c) 2019 zfit
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import tensorflow_probability as tfp
 
 from .baseminimizer import BaseMinimizer
@@ -17,7 +15,7 @@ class BFGSMinimizer(BaseMinimizer):
 
     def minimize(self, sess=None, params=None):
         # with tf.device("/cpu:0"):
-        with tf.name_scope("inside_minimization") as scope:
+        with tf.compat.v1.name_scope("inside_minimization") as scope:
             # var_a = tf.get_variable
             sess = sess or self.sess
             minimizer_fn = tfp.optimizer.bfgs_minimize
@@ -30,27 +28,27 @@ class BFGSMinimizer(BaseMinimizer):
                 #     param, value = param_value
                 #     param.update(value=value, session=sess)
                 # print("============one param", params[0])
-                tf.get_variable_scope().reuse_variables()
-                params = [p for p in tf.trainable_variables() if p.floating]
+                tf.compat.v1.get_variable_scope().reuse_variables()
+                params = [p for p in tf.compat.v1.trainable_variables() if p.floating]
                 # params = [g_v[1] for g_v in tfe.implicit_gradients(func)]
                 # params = var_list
-                tf.get_variable_scope().reuse_variables()
-                printed = tf.Print(params, [params], "parameters")
+                tf.compat.v1.get_variable_scope().reuse_variables()
+                printed = tf.compat.v1.Print(params, [params], "parameters")
 
                 with tf.control_dependencies([values, printed]):
                     updated_values = []
                     for param, val in zip(params, ztf.unstack_x(values)):
-                        updated_values.append(tf.assign(param, value=val))
+                        updated_values.append(tf.compat.v1.assign(param, value=val))
                     with tf.control_dependencies(updated_values):
                         func_graph = func()
                         # func_graph = tf.identity(func)
                         # tf.get_variable_scope().reuse_variables()
                         with tf.control_dependencies([func_graph]):
-                            printed2 = tf.Print(func_graph, [func_graph], "parameters")
+                            printed2 = tf.compat.v1.Print(func_graph, [func_graph], "parameters")
                             with tf.control_dependencies([printed2, func_graph]):
-                                return func_graph, tf.stack(tf.gradients(func_graph, params))
+                                return func_graph, tf.stack(tf.gradients(ys=func_graph, xs=params))
 
-            params = [p for p in tf.trainable_variables() if p.floating]
+            params = [p for p in tf.compat.v1.trainable_variables() if p.floating]
             result = minimizer_fn(to_minimize_func,
                                   initial_position=self._extract_start_values(params),
                                   tolerance=self.tolerance, parallel_iterations=1)

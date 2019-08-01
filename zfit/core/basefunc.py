@@ -7,11 +7,9 @@ TODO(Mayou36): subclassing?
 import abc
 import typing
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 import zfit
 from zfit.util.exception import ShapeIncompatibleError

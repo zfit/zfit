@@ -7,11 +7,9 @@ This module contains functions for the numeric as well as the analytic (partial)
 import collections
 import numpy as np
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 
@@ -142,7 +140,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
         # convert rnd samples with value to feedable vector
         reduce_axis = 1 if partial else None
-        avg = tf.reduce_mean(func(x), axis=reduce_axis)
+        avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
         # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
         # TODO: importance sampling?
         # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
@@ -177,11 +175,11 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
             reduce_axis = 1
             if len(func_vals.shape) == 1:
                 func_vals = tf.expand_dims(func_vals, -1)
-        batch_mean = tf.reduce_mean(func_vals, axis=reduce_axis)  # if there are gradients
+        batch_mean = tf.reduce_mean(input_tensor=func_vals, axis=reduce_axis)  # if there are gradients
         # batch_mean = tf.reduce_mean(sample)
         # batch_mean = tf.guarantee_const(batch_mean)
         # with tf.control_dependencies([batch_mean]):
-        err_weight = 1 / tf.to_double(batch_num + 1)
+        err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
         # err_weight /= err_weight + 1
         # print_op = tf.print(batch_mean)
         do_print = False
@@ -196,7 +194,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
 
     initial_mean = tf.constant(0, shape=shape_after, dtype=dtype)
     initial_body_args = (0, initial_mean)
-    _, final_mean = tf.while_loop(cond, body, initial_body_args, parallel_iterations=1,
+    _, final_mean = tf.while_loop(cond=cond, body=body, loop_vars=initial_body_args, parallel_iterations=1,
                                   swap_memory=False, back_prop=True)
     # def normalization_grad(x):
     return final_mean
@@ -216,7 +214,7 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
         def grad_fn(dy, variables=None):
             if variables is None:
                 return dy, None
-            normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(func(x), variables)),
+            normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
                                                n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
                                                dtype=dtype,
                                                space=space,
@@ -237,8 +235,8 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 
-    fake_resource_var = tf.get_variable("fake_hack_ResVar_for_custom_gradient",
-                                        initializer=ztf.constant(4242.))
+    fake_resource_var = tf.compat.v1.get_variable("fake_hack_ResVar_for_custom_gradient",
+                                                  initializer=ztf.constant(4242.))
     fake_x = ztf.constant(42.) * fake_resource_var
 
     @tf.custom_gradient
@@ -257,14 +255,14 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
                 sample = mc_sampler(shape=(batch_size, space.n_obs), dtype=ztypes.float)
             sample = tf.guarantee_const(sample)
             sample = (np.array(upper[0]) - np.array(lower[0])) * sample + lower[0]
-            sample = tf.transpose(sample)
+            sample = tf.transpose(a=sample)
             sample = func(sample)
             sample = tf.guarantee_const(sample)
 
-            batch_mean = tf.reduce_mean(sample)
+            batch_mean = tf.reduce_mean(input_tensor=sample)
             batch_mean = tf.guarantee_const(batch_mean)
             # with tf.control_dependencies([batch_mean]):
-            err_weight = 1 / tf.to_double(batch_num + 1)
+            err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
             # err_weight /= err_weight + 1
             # print_op = tf.print(batch_mean)
             do_print = False
@@ -278,8 +276,8 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
 
         cond = lambda batch_num, _: batch_num < num_batches
 
-        initial_mean = tf.convert_to_tensor(0, dtype=ztypes.float)
-        _, final_mean = tf.while_loop(cond, body, (0, initial_mean), parallel_iterations=1,
+        initial_mean = tf.convert_to_tensor(value=0, dtype=ztypes.float)
+        _, final_mean = tf.while_loop(cond=cond, body=body, loop_vars=(0, initial_mean), parallel_iterations=1,
                                       swap_memory=False, back_prop=False, maximum_iterations=num_batches)
 
         def dummy_grad_with_var(dy, variables=None):
@@ -290,7 +288,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
             def dummy_grad_func(x):
                 values = func(x)
                 if variables:
-                    gradients = tf.gradients(values, variables, grad_ys=dy)
+                    gradients = tf.gradients(ys=values, xs=variables, grad_ys=dy)
                 else:
                     gradients = None
                 return gradients

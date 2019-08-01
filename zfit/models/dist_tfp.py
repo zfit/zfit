@@ -14,11 +14,9 @@ import numpy as np
 
 import tensorflow_probability as tfp
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from zfit import ztf
 from zfit.util.exception import OverdefinedError

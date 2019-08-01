@@ -1,11 +1,9 @@
 #  Copyright (c) 2019 zfit
 
 import numpy as np
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from .util.container import DotDict
 from .util.execution import RunManager
@@ -18,7 +16,7 @@ def set_seed(seed):
       Set random seed for numpy
     """
     np.random.seed(seed)
-    tf.random.set_random_seed(seed)
+    tf.compat.v1.random.set_random_seed(seed)
 
 _verbosity = 5
 

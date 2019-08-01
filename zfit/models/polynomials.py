@@ -3,11 +3,9 @@
 import abc
 from typing import List, Dict, Optional, Mapping
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 from zfit import ztf
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -84,7 +82,7 @@ class RecursivePolynomial(BasePDF):
 def create_poly(x, polys, coeffs, recurrence):
     degree = len(coeffs) - 1
     polys = do_recurrence(x, polys=polys, degree=degree, recurrence=recurrence)
-    sum_polys = tf.reduce_sum([coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
+    sum_polys = tf.reduce_sum(input_tensor=[coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
     return sum_polys
 
 

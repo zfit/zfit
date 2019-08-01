@@ -3,11 +3,9 @@
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 
 import numpy as np
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 # space
 
@@ -68,7 +66,7 @@ ParametersType = Dict[str, "zfit.core.interfaces.ZfitParameter"]
 ParamTypeInput = Union['zfit.core.interfaces.ZfitParameter', NumericalScalarType]
 
 # TensorFlow specific
-SessionType = Optional[tf.Session]
+SessionType = Optional[tf.compat.v1.Session]
 
 # Zfit Structure
 BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',

@@ -5,11 +5,9 @@ from zfit.core.testing import setup_function, teardown_function
 
 import pytest
 import numpy as np
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 import zfit
 from zfit import ztf
@@ -19,7 +17,7 @@ from zfit import ztf
 def test_counts_multinomial():
     probs = [0.1, 0.3, 0.6]
     total_count = 1000.
-    total_count_var = tf.Variable(total_count, use_resource=True, trainable=False)
+    total_count_var = tf.Variable(total_count, trainable=False)
     zfit.run(total_count_var.initializer)
     counts = ztf.random.counts_multinomial(total_count=total_count_var, probs=probs)
 

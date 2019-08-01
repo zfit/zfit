@@ -4,11 +4,9 @@
 from contextlib import suppress
 
 import numpy as np
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 # TF backwards compatibility
 from tensorflow.python import ops, array_ops
@@ -138,7 +136,7 @@ class ComposedVariable:
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
-        self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
+        self._value_tensor = tf.convert_to_tensor(value=initial_value, dtype_hint=ztypes.float)
         # self._name = name
 
     @property
@@ -344,9 +342,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
         if self.independent:
-            tf.add_to_collection("zfit_independent", self)
+            tf.compat.v1.add_to_collection("zfit_independent", self)
         else:
-            tf.add_to_collection("zfit_dependent", self)
+            tf.compat.v1.add_to_collection("zfit_dependent", self)
         # value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.step_size = step_size
@@ -518,7 +516,7 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
 class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
         tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
-        independent_params = tf.get_collection("zfit_independent")
+        independent_params = tf.compat.v1.get_collection("zfit_independent")
         params = get_dependents_auto(tensor=tensor, candidates=independent_params)
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
@@ -579,7 +577,7 @@ class ComplexParameter(ComposedParameter):
     def imag(self):
         imag = self._imag
         if imag is None:
-            imag = tf.imag(tf.convert_to_tensor(self, preferred_dtype=self.dtype))  # HACK tf bug #30029
+            imag = tf.math.imag(tf.convert_to_tensor(value=self, dtype_hint=self.dtype))  # HACK tf bug #30029
         return imag
 
     @property
@@ -645,7 +643,7 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
         if is_python:
             params = {}
         else:
-            independend_params = tf.get_collection("zfit_independent")
+            independend_params = tf.compat.v1.get_collection("zfit_independent")
             params = get_dependents_auto(tensor=value, candidates=independend_params)
         if params:
             if name is None:

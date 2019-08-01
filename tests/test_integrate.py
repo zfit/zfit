@@ -4,11 +4,9 @@ from contextlib import suppress
 import math as mt
 
 import pytest
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 import numpy as np
 
 import zfit
@@ -242,7 +240,7 @@ def test_mc_partial_integration():
 
     vals_tensor = ztf.convert_to_tensor(func4_2values)
 
-    vals_reshaped = tf.transpose(vals_tensor)
+    vals_reshaped = tf.transpose(a=vals_tensor)
     data2 = zfit.Data.from_tensor(obs=['obs1', 'obs3'], tensor=vals_reshaped)
 
     limits2 = Space(limits=limits4_1dim, obs=['obs2'])

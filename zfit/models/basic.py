@@ -10,11 +10,9 @@ from typing import Type, Any
 import warnings
 
 import numpy as np
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+
 
 from zfit import ztf
 from ..util.exception import DueToLazynessNotImplementedError
