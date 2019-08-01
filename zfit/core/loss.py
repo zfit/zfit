@@ -5,7 +5,6 @@ from collections import OrderedDict
 
 import tensorflow as tf
 
-
 from typing import Optional, Union, List, Callable
 
 from zfit import ztf
@@ -19,6 +18,8 @@ from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
 from zfit.settings import ztypes
 from .constraint import BaseConstraint, SimpleConstraint
+
+func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
 
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
@@ -196,6 +197,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def _loss_func(self, model, data, fit_range, constraints):
         raise NotImplementedError
 
+    # @func_simple
     def value(self):
         return self._value()
 

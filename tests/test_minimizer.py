@@ -123,7 +123,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
      False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.Scipy, {}, False),
+    # (zfit.minimize.Scipy, {}, False),
 ]
 
 
