@@ -5,7 +5,9 @@ from typing import Union, Iterable, Sized
 import tensorflow_probability as tfp
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 from .wrapping_tf import convert_to_tensor
 from ..util.container import convert_to_container

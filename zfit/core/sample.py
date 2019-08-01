@@ -5,7 +5,9 @@ from typing import Callable, Union, Iterable, List, Optional, Tuple
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 import tensorflow_probability as tfp
 import numpy as np
 

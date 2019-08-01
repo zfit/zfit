@@ -9,7 +9,9 @@ import numpy as np
 import texttable as tt
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 from zfit.core.interfaces import ZfitLoss
 from .fitresult import FitResult

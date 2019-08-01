@@ -5,7 +5,9 @@ from typing import Dict, Type
 import pytest
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 import numpy as np
 
 import zfit.core.basepdf
@@ -22,6 +24,10 @@ from zfit.core.testing import setup_function, teardown_function, tester
 
 # from zfit.ztf import
 from zfit.util import ztyping
+
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -269,7 +275,6 @@ def test_projection_pdf():
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
     import tensorflow.compat.v1 as tf
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
-    tf.disable_v2_behavior()
 
     def correlated_func(self, x):
         x, y = x.unstack_x()

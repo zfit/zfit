@@ -27,7 +27,9 @@ from .settings import ztypes
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 tf.get_variable_scope().set_use_resource(True)
 tf.get_variable_scope().set_dtype(ztypes.float)

@@ -9,7 +9,9 @@ from math import inf as _inf
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 from ..settings import ztypes
 
 inf = tf.constant(_inf, dtype=ztypes.float)

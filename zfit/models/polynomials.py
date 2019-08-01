@@ -5,7 +5,9 @@ from typing import List, Dict, Optional, Mapping
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 from zfit import ztf
 from ..util import ztyping
 from ..util.container import convert_to_container

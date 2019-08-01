@@ -9,7 +9,9 @@ import numpy as np
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 
@@ -123,7 +125,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             index_values = 0
             if len(x.shape) == 1:
                 x = tf.expand_dims(x, axis=1)
-            for i in range(n_axes + x.shape[-1].value):
+            for i in range(n_axes + x.shape[-1]):
                 if i in axes:
                     new_obs.append(limits.obs[index_samples])
                     value_list.append(samples[:, index_samples])

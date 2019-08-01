@@ -13,7 +13,9 @@ from typing import Union, List, Optional
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 import numpy as np
 
 from zfit import ztf

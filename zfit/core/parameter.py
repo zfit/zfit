@@ -6,7 +6,9 @@ from contextlib import suppress
 import numpy as np
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 # TF backwards compatibility
 from tensorflow.python import ops, array_ops

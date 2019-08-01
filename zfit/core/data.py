@@ -7,7 +7,9 @@ import warnings
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 import uproot

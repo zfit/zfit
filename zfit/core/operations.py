@@ -4,7 +4,9 @@ from typing import Optional, Tuple, Callable, Union
 
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter, ZfitData
 from .parameter import convert_to_parameter, ComposedParameter

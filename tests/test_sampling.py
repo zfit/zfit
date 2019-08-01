@@ -4,7 +4,9 @@ import numpy as np
 import pytest
 import tensorflow.compat.v1 as tf
 
-tf.disable_v2_behavior()
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 import zfit
 from zfit import ztf
@@ -57,8 +59,7 @@ gaussian_dists = [lambda: create_gauss1(), lambda: create_test_gauss1()]
 @pytest.mark.parametrize('gauss_factory', gaussian_dists)
 def test_sampling_fixed(gauss_factory):
     gauss, mu, sigma = gauss_factory()
-    import tensorflow.compat.v1 as tf
-    tf.disable_v2_behavior()
+
     n_draws = 1000
     n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
                                 name='n_draws',
