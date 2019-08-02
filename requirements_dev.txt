@@ -8,10 +8,9 @@ coverage>=4.5.1
 Sphinx>=1.7.1
 sphinx_bootstrap_theme
 twine>=1.10.0
-pytest-xdist
-pytest-rerunfailures
 
 pytest>=3.4.2
 pytest-runner>=2.11.1
 pytest-rerunfailures>=6
+pytest-xdist
 scikit-hep-testdata
