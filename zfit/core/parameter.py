@@ -635,6 +635,9 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
 
     Args:
         value ():
+        name ():
+        prefer_floating: If True, create a Parameter instead of a FixedParameter _if possible_.
+
     """
     floating = False
     is_python = False
