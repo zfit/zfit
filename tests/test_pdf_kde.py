@@ -1,4 +1,7 @@
+#  Copyright (c) 2019 zfit
+
 import pytest
+import numpy as np
 import zfit
 import zfit.models.dist_tfp
 
