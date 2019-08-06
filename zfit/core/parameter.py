@@ -484,7 +484,11 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         return f"<zfit.Parameter '{self.name}' floating={self.floating}>"
 
 
-class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
+class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
+    pass
+
+
+class BaseComposedParameter(BaseZParameter):
 
     def __init__(self, params, value, name="BaseComposedParameter", **kwargs):
         super().__init__(initial_value=value, name=name, params=params, **kwargs)
@@ -513,10 +517,25 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
         return False
 
 
-class FixedParameter(BaseComposedParameter):
+class FixedParameter(BaseZParameter):
 
-    def __init__(self, value, name="FixedParameter"):
-        super().__init__(params={}, value=value, name=name)
+    def __init__(self, name, value):
+        super().__init__(name=name, initial_value=value, dtype=ztypes.float, params={})
+
+    @property
+    def floating(self):
+        return False
+
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set a fixed parameter.")
+
+    @property
+    def independent(self) -> bool:
+        return False
+
+    def _get_dependents(self) -> ztyping.DependentsType:
+        return set()
 
 
 class ComposedParameter(BaseComposedParameter):
@@ -656,9 +675,12 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
                 name = "composite_autoparam_" + str(get_auto_number())
             value = ComposedParameter(name, tensor=value)
         else:
-            if name is None:
-                name = "FIXED_autoparam_" + str(get_auto_number())
-            value = Parameter(name, value=value, floating=floating)
+            if prefer_floating:
+                name = "autoparam_" + str(get_auto_number()) if name is None else name
+                value = Parameter(name=name, value=value)
+            else:
+                if name is None:
+                    name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
+                value = FixedParameter(name, value=value)
 
-    # value.floating = False
     return value
