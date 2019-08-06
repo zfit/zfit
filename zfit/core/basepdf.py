@@ -58,8 +58,6 @@ import warnings
 
 import tensorflow as tf
 
-
-
 from zfit import ztf
 from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
@@ -74,6 +72,8 @@ from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
+
+func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -287,18 +287,19 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
-            try:
+            # try:
                 return self._unnormalized_pdf(x)
-            except ValueError as error:
-                raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
-                                             "does not coincide with the `n_obs` from the `space`/`obs`"
-                                             "it received on initialization."
-                                             "Original Error: {}".format(error))
+        # except ValueError as error:
+        #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
+        #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
+        #                                  "it received on initialization."
+        #                                  "Original Error: {}".format(error))
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
+    @func_simple
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
             name: str = "model") -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.

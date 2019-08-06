@@ -283,14 +283,18 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         """
         if not isinstance(array, np.ndarray):
             raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
-        np_placeholder = tf.compat.v1.placeholder(dtype=array.dtype, shape=array.shape)
-        iterator_feed_dict = {np_placeholder: array}
-        dataset = tf.data.Dataset.from_tensors(np_placeholder)
-
+        if dtype is None:
+            dtype = array.dtype
+        tensor = tf.cast(array, dtype=dtype)
+        return cls.from_tensor(obs=obs, tensor=tensor, weights=weights, name=name, dtype=dtype)
+        # np_placeholder = tf.compat.v1.placeholder(dtype=array.dtype, shape=array.shape)
+        # iterator_feed_dict = {np_placeholder: array}
+        # dataset = tf.data.Dataset.from_tensors(np_placeholder)
+        #
         # dataset = dataset.batch(len(array))
-        dataset = dataset.repeat()
-        return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype,
-                    iterator_feed_dict=iterator_feed_dict)
+        # dataset = dataset.repeat()
+        # return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype,
+        #             iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
     def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, weights: ztyping.WeightsInputType = None,

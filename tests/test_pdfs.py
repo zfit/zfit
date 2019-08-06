@@ -107,7 +107,8 @@ def test_prod_gauss_nd():
     obs1 = ['a', 'b', 'c']
     norm_range_3d = Space(obs=obs1, limits=(lower, upper))
     test_values_data = Data.from_tensor(obs=obs1, tensor=test_values)
-    probs = product_gauss_3d().pdf(x=test_values_data, norm_range=norm_range_3d)
+    product_pdf = product_gauss_3d()
+    probs = product_pdf.pdf(x=test_values_data, norm_range=norm_range_3d)
     true_probs = np.prod(
         [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())])
     probs_np = zfit.run(probs)

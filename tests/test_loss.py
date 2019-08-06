@@ -12,7 +12,6 @@ from zfit.core.limits import Space
 from zfit.minimizers.minimizer_minuit import Minuit
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
-from zfit.core.parameter import Parameter
 import zfit.settings
 from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
 from zfit.util.exception import IntentionNotUnambiguousError
@@ -31,21 +30,21 @@ low, high = -24.3, 28.6
 
 
 def create_params1(nameadd=""):
-    mu1 = Parameter("mu1" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-    sigma1 = Parameter("sigma1" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    mu1 = zfit.Parameter("mu1" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma1 = zfit.Parameter("sigma1" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
     return mu1, sigma1
 
 
 def create_params2(nameadd=""):
-    mu2 = Parameter("mu25" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-    sigma2 = Parameter("sigma25" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    mu2 = zfit.Parameter("mu25" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma2 = zfit.Parameter("sigma25" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
     return mu2, sigma2
 
 
 def create_params3(nameadd=""):
-    mu3 = Parameter("mu35" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-    sigma3 = Parameter("sigma35" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-    yield3 = Parameter("yield35" + nameadd, yield_true + 300, 0, yield_true + 20000)
+    mu3 = zfit.Parameter("mu35" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma3 = zfit.Parameter("sigma35" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    yield3 = zfit.Parameter("yield35" + nameadd, yield_true + 300, 0, yield_true + 20000)
     return mu3, sigma3, yield3
 
 
@@ -145,8 +144,8 @@ def test_unbinned_nll(weights, sigma):
 
 
 def test_add():
-    param1 = Parameter("param1", 1.)
-    param2 = Parameter("param2", 2.)
+    param1 = zfit.Parameter("param1", 1.)
+    param2 = zfit.Parameter("param2", 2.)
 
     pdfs = [0] * 4
     pdfs[0] = Gauss(param1, 4, obs=obs1)
@@ -197,8 +196,8 @@ def test_gradients(chunksize):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
 
-    param1 = Parameter("param1", 1.)
-    param2 = Parameter("param2", 2.)
+    param1 = zfit.Parameter("param1", 1.)
+    param2 = zfit.Parameter("param2", 2.)
 
     gauss1 = Gauss(param1, 4, obs=obs1)
     gauss1.set_norm_range((-5, 5))

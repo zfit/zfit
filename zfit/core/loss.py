@@ -22,6 +22,7 @@ from .constraint import BaseConstraint, SimpleConstraint
 func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
 
+# @func_simple
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
