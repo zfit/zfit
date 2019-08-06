@@ -513,6 +513,12 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
         return False
 
 
+class FixedParameter(BaseComposedParameter):
+
+    def __init__(self, value, name="FixedParameter"):
+        super().__init__(params={}, value=value, name=name)
+
+
 class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
         tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
