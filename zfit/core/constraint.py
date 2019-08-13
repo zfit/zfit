@@ -122,7 +122,7 @@ class DistributionConstraint(BaseConstraint):
         self._distribution = distribution
         self.dist_params = dist_params
         self.dist_kwargs = dist_kwargs if dist_kwargs is not None else {}
-        self._tparams = ztf.convert_to_tensor(self.get_params())
+        self._tparams = tf.stack(self.get_params())
 
     @property
     def distribution(self):
@@ -163,8 +163,8 @@ class GaussianConstraint(DistributionConstraint):
 
         params_dict = {p.name: p for p in params}
 
-        mu = ztf.convert_to_tensor(mu)
-        sigma = ztf.convert_to_tensor(sigma)
+        mu = tf.stack([ztf.convert_to_tensor(m) for m in mu])
+        sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
         params = ztf.convert_to_tensor(params)
 
         if sigma.shape.ndims > 1:
