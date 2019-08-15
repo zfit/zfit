@@ -3,7 +3,7 @@
 # get current directory name
 #pushd `dirname $0` > /dev/null
 #MAKE_DOCS_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
-MAKE_DOCS_PATH="pwd -P"
+MAKE_DOCS_PATH=$(pwd -P)
 #popd > /dev/null
 
 # generate the ReST files
