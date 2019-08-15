@@ -37,7 +37,7 @@ parameter evaluated with the new value at run-time:
 
 .. code:: pycon
 
-    >>> mu = zfit.Parameter("mu_one", 1)  # no limits
+    >>> mu = zfit.Parameter("mu_one", 1)  # no limits, but FLOATING (!)
     >>> with mu.set_value(3):
     ...    # in here, mu has the value 3
     ...    mu_val = zfit.run(mu)  # 3
@@ -61,7 +61,7 @@ and the dependency will be detected automatically. They can be used equivalently
     >>> dependent_tensor = mu * 5 + mu2  # or any kind of computation
     >>> dep_param = zfit.ComposedParameter("dependent_param", dependent_tensor)
 
-    >>> dependents = dep_param.get_dependents_auto()  # returns set(mu, mu2)
+    >>> dependents = dep_param.get_dependents()  # returns set(mu, mu2)
 
 
 A special case of the above is :py:class:`~zfit.ComplexParameter`: it takes a complex :py:class:`tf.Tensor` as input and provides a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.) to easier deal with them.

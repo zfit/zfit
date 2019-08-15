@@ -245,7 +245,7 @@ A typical example of toys would therefore look like
     >>> sampler = model.create_sampler(n=1000, fixed_params=True)
     >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
 
-    >>> minimizer = zfit.minimize.MinuitMinimizer()
+    >>> minimizer = zfit.minimize.Minuit()
 
     >>> for run_number in n_runs:
     ...    # initialize the parameters randomly

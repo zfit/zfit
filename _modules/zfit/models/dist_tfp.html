@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.dist_tfp &#8212; zfit 0.3.3 documentation</title>
+    <title>zfit.models.dist_tfp &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -170,7 +170,7 @@
             <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribution</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_tfp&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;zfit.data.Data&quot;</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;zfit.Data&quot;</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">prob</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unnormalized_pdf&quot;</span><span class="p">),</span>
                           <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1"># TODO batch shape just removed</span>
@@ -225,7 +225,7 @@
 <span class="c1">#         super().__init__(distribution=kernel, dist_params=dist_params, obs=obs, params=params, dtype=ztypes.float,</span>
 <span class="c1">#                          name=name)</span>
 <span class="c1">#</span>
-<span class="c1">#     def _unnormalized_pdf(self, x: &quot;zfit.data.Data&quot;, norm_range=False):</span>
+<span class="c1">#     def _unnormalized_pdf(self, x: &quot;zfit.Data&quot;, norm_range=False):</span>
 <span class="c1">#         value = tf.expand_dims(x.value(), -2)</span>
 <span class="c1">#         new_shape = tf.concat([tf.shape(value)[:2], [tf.shape(self._latent_loc)[0], 4]], axis=0)</span>
 <span class="c1">#         value = tf.broadcast_to(value, new_shape)</span>

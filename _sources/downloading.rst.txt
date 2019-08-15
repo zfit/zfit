@@ -10,13 +10,11 @@ The following packages are required:
 
 - `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
 - `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
-- `scipy <https://www.scipy.org/>`_>=1.2
-- `pandas <https://pandas.pydata.org>`_, temporarily
+- `scipy <https://www.scipy.org/>`_ >=1.2
 - `numpy <http://www.numpy.org/>`_
 - `uproot <https://github.com/scikit-hep/uproot>`_
 - `iminuit <https://github.com/scikit-hep/iminuit>`_
 - `typing <https://docs.python.org/3/library/typing.html>`_
-- `pep487 <https://github.com/zaehlwerk/pep487>`_
 - `colorlog <https://github.com/borntyping/python-colorlog>`_
 - `texttable <https://github.com/bufordtaylor/python-texttable>`_
 

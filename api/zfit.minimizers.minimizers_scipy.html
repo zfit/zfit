@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>minimizers_scipy &#8212; zfit 0.3.3 documentation</title>
+    <title>minimizers_scipy &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -109,17 +109,17 @@
   <div class="section" id="module-zfit.minimizers.minimizers_scipy">
 <span id="minimizers-scipy"></span><h1>minimizers_scipy<a class="headerlink" href="#module-zfit.minimizers.minimizers_scipy" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizers_scipy.</code><code class="sig-name descname">ScipyMinimizer</code><span class="sig-paren">(</span><em class="sig-param">minimizer='L-BFGS-B'</em>, <em class="sig-param">tolerance=None</em>, <em class="sig-param">verbosity=5</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**minimizer_options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizers_scipy.html#ScipyMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizers_scipy.</code><code class="sig-name descname">Scipy</code><span class="sig-paren">(</span><em class="sig-param">minimizer='L-BFGS-B'</em>, <em class="sig-param">tolerance=None</em>, <em class="sig-param">verbosity=5</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**minimizer_options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizers_scipy.html#Scipy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a></p>
 <dl class="method">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer.copy" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss</em>, <em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy.minimize">
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss</em>, <em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -139,13 +139,13 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer.sess">
-<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer.sess" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy.sess">
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer.set_sess">
-<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer.set_sess" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy.set_sess">
+<code class="sig-name descname">set_sess</code><span class="sig-paren">(</span><em class="sig-param">sess: tensorflow.python.client.session.Session</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.set_sess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -155,8 +155,8 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer.step">
-<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer.step" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy.step">
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a single step in the minimization (if implemented).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -172,8 +172,8 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.minimizers.minimizers_scipy.ScipyMinimizer.tolerance">
-<em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.ScipyMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.minimizers.minimizers_scipy.Scipy.tolerance">
+<em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

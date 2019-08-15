@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Loss &#8212; zfit 0.3.3 documentation</title>
+    <title>Loss &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -113,10 +113,10 @@ To some extent it can be visualised as a metric of the goodness of a given predi
 For example, in a general linear model the loss function is essentially the sum of squared deviations from the fitted line or plane.
 A more useful application in the context of High Energy Physics (HEP) is the Maximum Likelihood Estimator (MLE).
 The MLE is a specific type of probability model estimation, where the loss function is the negative log-likelihood (NLL).</p>
-<p>In zfit, loss functions inherit from the <a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLoss</span></code></a> class and they follow a common interface, in which the model,
+<p>In zfit, loss functions inherit from the <a class="reference internal" href="api/zfit.loss.html#zfit.loss.BaseLoss" title="zfit.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLoss</span></code></a> class and they follow a common interface, in which the model,
 the dataset and the fit range (which internally sets <code class="docutils literal notranslate"><span class="pre">norm_range</span></code> in the PDF and makes sure data only within that range are used) <strong>must</strong> be given, and
 where parameter constraints in form of a dictionary <cite>{param: constraint}</cite> <strong>may</strong> be given.
-As an example, we can create an unbinned negative log-likelihood loss (<a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a>) from the model described in the <span class="xref std std-ref">Basic model section</span> and the data from the <a class="reference internal" href="data.html#data-section"><span class="std std-ref">Data section</span></a>:</p>
+As an example, we can create an unbinned negative log-likelihood loss (<a class="reference internal" href="api/zfit.loss.html#zfit.loss.UnbinnedNLL" title="zfit.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a>) from the model described in the <span class="xref std std-ref">Basic model section</span> and the data from the <a class="reference internal" href="data.html#data-section"><span class="std std-ref">Data section</span></a>:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model_cb</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>                                <span class="n">data</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>                                <span class="n">fit_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
@@ -124,8 +124,8 @@ As an example, we can create an unbinned negative log-likelihood loss (<a class=
 </div>
 <div class="section" id="adding-constraints">
 <h2>Adding constraints<a class="headerlink" href="#adding-constraints" title="Permalink to this headline">¶</a></h2>
-<p>Constraints (or, in general, penalty terms) can be added to the loss function either by using the <code class="docutils literal notranslate"><span class="pre">constraints</span></code> keyword when creating the loss object or by using the <a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.BaseLoss.add_constraints" title="zfit.core.loss.BaseLoss.add_constraints"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_constraints()</span></code></a> method.
-These constraints are specified as a list of penalty terms, which can be any object inheriting from <a class="reference internal" href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint" title="zfit.core.constraint.BaseConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConstraint</span></code></a> that is simply added to the calculation of the loss.</p>
+<p>Constraints (or, in general, penalty terms) can be added to the loss function either by using the <code class="docutils literal notranslate"><span class="pre">constraints</span></code> keyword when creating the loss object or by using the <a class="reference internal" href="api/zfit.loss.html#zfit.loss.BaseLoss.add_constraints" title="zfit.loss.BaseLoss.add_constraints"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_constraints()</span></code></a> method.
+These constraints are specified as a list of penalty terms, which can be any object inheriting from <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConstraint</span></code> that is simply added to the calculation of the loss.</p>
 <p>Useful implementations of penalties can be found in the <a class="reference internal" href="api/zfit.constraint.html#module-zfit.constraint" title="zfit.constraint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">zfit.constraint</span></code></a> module.
 For example, if we wanted to add a gaussian constraint on the <code class="docutils literal notranslate"><span class="pre">mu</span></code> parameter of the previous model, we would write:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mf">5279.</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">10.</span><span class="p">))</span>
@@ -155,7 +155,7 @@ driving it away from the minimum.</p>
 </div>
 <div class="section" id="simultaneous-fits">
 <h2>Simultaneous fits<a class="headerlink" href="#simultaneous-fits" title="Permalink to this headline">¶</a></h2>
-<p>There are currently two loss functions implementations in the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library, the <a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a> and <a class="reference internal" href="api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL" title="zfit.core.loss.ExtendedUnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtendedUnbinnedNLL</span></code></a> classes, which cover non-extended and extended negative log-likelihoods.</p>
+<p>There are currently two loss functions implementations in the <code class="docutils literal notranslate"><span class="pre">zfit</span></code> library, the <a class="reference internal" href="api/zfit.loss.html#zfit.loss.UnbinnedNLL" title="zfit.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnbinnedNLL</span></code></a> and <a class="reference internal" href="api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL" title="zfit.loss.ExtendedUnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtendedUnbinnedNLL</span></code></a> classes, which cover non-extended and extended negative log-likelihoods.</p>
 <p>A very common use case of likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated).
 To build loss functions for simultaneous fits, the addition operator can be used (the particular combination that is performed depends on the type of loss function):</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>

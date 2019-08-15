@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>History &#8212; zfit 0.3.3 documentation</title>
+    <title>Changelog &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -104,14 +104,93 @@
   <div class="row">
     <div class="body span12 content" role="main">
       
-  <div class="section" id="history">
-<h1>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>0.3.0 (2019-03-20)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>Beta stage and first pip release</p>
+<h2>0.3.4 (30-07-19)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><strong>This is the last release before breaking changes occur</strong></p>
+<div class="section" id="major-features-and-improvements">
+<h3>Major Features and Improvements<a class="headerlink" href="#major-features-and-improvements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>create <cite>Constraint</cite> class which allows for more fine grained control and information on the applied constraints.</p></li>
+<li><p>Added Polynomial models</p></li>
+<li><p>Improved and fixed sampling (can still be slightly biased)</p></li>
+</ul>
+</div>
+<div class="section" id="behavioral-changes">
+<h3>Behavioral changes<a class="headerlink" href="#behavioral-changes" title="Permalink to this headline">¶</a></h3>
+<p>None</p>
+</div>
+<div class="section" id="bug-fixes-and-other-changes">
+<h3>Bug fixes and other changes<a class="headerlink" href="#bug-fixes-and-other-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>fixed various small bugs</p></li>
+</ul>
+</div>
+<div class="section" id="thanks">
+<h3>Thanks<a class="headerlink" href="#thanks" title="Permalink to this headline">¶</a></h3>
+<p>for the contribution of the Constraints to Matthieu Marinangeli &lt;<a class="reference external" href="mailto:matthieu&#46;marinangeli&#37;&#52;&#48;cern&#46;ch">matthieu<span>&#46;</span>marinangeli<span>&#64;</span>cern<span>&#46;</span>ch</a>&gt;</p>
+</div>
 </div>
 <div class="section" id="id2">
-<h2>0.0.1 (2018-03-22)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>0.3.3 (15-05-19)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Fixed Partial numeric integration</p>
+<p>Bugfixes mostly, a few major fixes. Partial numeric integration works now.</p>
+<dl class="simple">
+<dt>Bugfixes</dt><dd><ul class="simple">
+<li><p>data_range cuts are now applied correctly, also in several dimensions when a subset is selected
+(which happens internally of some Functors, e.g. ProductPDF). Before, only the selected obs was respected for cuts.</p></li>
+<li><p>parital integration had a wrong take on checking limits (now uses supports).</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="id3">
+<h2>0.3.2 (01-05-19)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>With 0.3.2, bugfixes and three changes in the API/behavior</p>
+<div class="section" id="breaking-changes">
+<h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>tfp distributions wrapping is now different with dist_kwargs allowing for non-Parameter arguments (like other dists)</p></li>
+<li><p>sampling allows now for importance sampling (sampler in Model specified differently)</p></li>
+<li><p><cite>model.sample</cite> now also returns a tensor, being consistent with <cite>pdf</cite> and <cite>integrate</cite></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bugfixes">
+<h3>Bugfixes<a class="headerlink" href="#bugfixes" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>shape handling of tfp dists was “wrong” (though not producing wrong results!), fixed. TFP distributions now get a tensor with shape (nevents, nobs) instead of a list of tensors with (nevents,)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="improvements">
+<h3>Improvements<a class="headerlink" href="#improvements" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>refactor the sampling for more flexibility and performance (less graph constructed)</p></li>
+<li><p>allow to use more sophisticated importance sampling (e.g. phasespace)</p></li>
+<li><p>on-the-fly normalization (experimentally) implemented with correct gradient</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>0.3.1 (30-04-19)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>Minor improvements and bugfixes including:</p>
+<ul class="simple">
+<li><p>improved importance sampling allowing to preinstantiate objects before it’s called inside the while loop</p></li>
+<li><p>fixing a problem with <cite>ztf.sqrt</cite></p></li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>0.3.0 (2019-03-20)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>Beta stage and first pip release</p>
+</div>
+<div class="section" id="id6">
+<h2>0.0.1 (2018-03-22)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>First creation of the package.</p></li>
 </ul>

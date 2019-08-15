@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.optimizers_tf &#8212; zfit 0.3.3 documentation</title>
+    <title>zfit.minimizers.optimizers_tf &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -105,7 +105,9 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.minimizers.optimizers_tf</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">.base_tf</span> <span class="k">import</span> <span class="n">WrapOptimizer</span>
 
@@ -130,7 +132,7 @@
 <span class="c1">#         raise NotImplementedError(&quot;Currently a placeholder, has to be implemented (with WrapOptimizer&quot;)</span>
 
 
-<div class="viewcode-block" id="AdamMinimizer"><a class="viewcode-back" href="../../../api/zfit.minimizers.optimizers_tf.html#zfit.minimize.AdamMinimizer">[docs]</a><span class="k">class</span> <span class="nc">AdamMinimizer</span><span class="p">(</span><span class="n">WrapOptimizer</span><span class="p">):</span>
+<div class="viewcode-block" id="Adam"><a class="viewcode-back" href="../../../api/zfit.minimizers.optimizers_tf.html#zfit.minimize.Adam">[docs]</a><span class="k">class</span> <span class="nc">Adam</span><span class="p">(</span><span class="n">WrapOptimizer</span><span class="p">):</span>
     <span class="n">_DEFAULT_name</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

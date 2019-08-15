@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>physics &#8212; zfit 0.3.3 documentation</title>
+    <title>physics &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -530,7 +530,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.partial_analytic_integrate">
-<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -562,7 +562,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.partial_integrate">
-<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -610,7 +610,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.pdf">
-<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1233,7 +1233,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.partial_analytic_integrate">
-<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -1265,7 +1265,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.partial_integrate">
-<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.data.Data]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -1313,7 +1313,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.pdf">
-<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.data.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability density function, normalized over <cite>norm_range</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

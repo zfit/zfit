@@ -32,7 +32,7 @@ with or without limits.
 
 **Limit** The range on a certain axis. Typically defines an interval.
 
-Since every object has a well defined domain, it is possible to combine them in an unambiguous way 
+Since every object has a well defined domain, it is possible to combine them in an unambiguous way
 
 .. code:: python
 
@@ -47,7 +47,7 @@ Since every object has a well defined domain, it is possible to combine them in 
     # OR, equivalently
     product = zfit.pdf.ProductPDF([model1, model2])
 
-The ``product`` is now defined in the space with observables `['x', 'y', 'z']`. Any :py:class:`~zfit.data.Data` object 
+The ``product`` is now defined in the space with observables `['x', 'y', 'z']`. Any :py:class:`~zfit.Data` object
 to be combined with ``product`` has to be specified in the same space.
 
 .. code:: python
@@ -57,7 +57,7 @@ to be combined with ``product`` has to be specified in the same space.
 
     data = zfit.Data.from_numpy(obs=combined_obs, ...)
 
-Now we have a :py:class:`~zfit.data.Data` object that is defined in the same domain as `product` and can be used to build a loss function.
+Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as `product` and can be used to build a loss function.
 
 Limits
 ------

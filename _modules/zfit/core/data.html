@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.data &#8212; zfit 0.3.3 documentation</title>
+    <title>zfit.core.data &#8212; zfit 0.3.5 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.3</b></span>
+        <span class="navbar-text pull-left"><b>0.3.5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -317,7 +317,7 @@
 <span class="sd">            root_dir_options ():</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            `zfit.data.Data`:</span>
+<span class="sd">            `zfit.Data`:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">branches_alias</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">branches</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either branches or branches_alias has to be specified.&quot;</span><span class="p">)</span>
@@ -409,7 +409,7 @@
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            zfit.core.data.Data:</span>
+<span class="sd">            zfit.core.Data:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tensor</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
@@ -798,7 +798,7 @@
 
     <span class="n">branches</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;B_PT&#39;</span><span class="p">,</span> <span class="s1">&#39;B_P&#39;</span><span class="p">]</span>  <span class="c1"># b needed currently -&gt; uproot</span>
 
-    <span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_root</span><span class="p">,</span> <span class="n">treepath</span><span class="o">=</span><span class="s1">&#39;DecayTree&#39;</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="n">branches</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path_root</span><span class="p">,</span> <span class="n">treepath</span><span class="o">=</span><span class="s1">&#39;DecayTree&#39;</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="n">branches</span><span class="p">)</span>
     <span class="kn">import</span> <span class="nn">time</span>
 
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
