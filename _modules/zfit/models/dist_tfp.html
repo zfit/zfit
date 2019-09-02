@@ -120,7 +120,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
-
+<span class="kn">import</span> <span class="nn">tensorflow_probability.python.distributions</span> <span class="k">as</span> <span class="nn">tfd</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
@@ -133,6 +133,30 @@
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="k">import</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span>
 <span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="k">import</span> <span class="n">convert_to_parameter</span>
+<span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">Space</span>
+
+
+<div class="viewcode-block" id="tfd_analytic_sample"><a class="viewcode-back" href="../../../api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.tfd_analytic_sample">[docs]</a><span class="k">def</span> <span class="nf">tfd_analytic_sample</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="n">tfd</span><span class="o">.</span><span class="n">Distribution</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n: Number of samples to get</span>
+<span class="sd">        dist: Distribution to sample from</span>
+<span class="sd">        limits: Limits to sample from within</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        `tf.Tensor` (n, n_obs): The sampled data with the number of samples and the number of observables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="p">(</span><span class="n">lower_bound</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper_bound</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
+    <span class="n">lower_prob_lim</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">)</span>
+    <span class="n">upper_prob_lim</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">)</span>
+
+    <span class="n">prob_sample</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="n">lower_prob_lim</span><span class="p">,</span>
+                                     <span class="n">maxval</span><span class="o">=</span><span class="n">upper_prob_lim</span><span class="p">)</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">prob_sample</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sample</span></div>
 
 
 <div class="viewcode-block" id="WrapDistribution"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.dist_tfp.WrapDistribution">[docs]</a><span class="k">class</span> <span class="nc">WrapDistribution</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>  <span class="c1"># TODO: extend functionality of wrapper, like icdf</span>
@@ -160,6 +184,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_distribution</span> <span class="o">=</span> <span class="n">distribution</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span> <span class="o">=</span> <span class="n">dist_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_kwargs</span> <span class="o">=</span> <span class="n">dist_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -186,7 +211,10 @@
         <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">integral</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">integral</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_analytic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tfd_analytic_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span></div>
 
 
 <span class="c1"># class KernelDensity(WrapDistribution):</span>
@@ -248,7 +276,6 @@
 <span class="c1">#         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)</span>
 <span class="c1">#         integral = ztf.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum</span>
 <span class="c1">#         return integral  # TODO: generalize for VectorSpaces</span>
-
 
 
 <div class="viewcode-block" id="Gauss"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.dist_tfp.Gauss">[docs]</a><span class="k">class</span> <span class="nc">Gauss</span><span class="p">(</span><span class="n">WrapDistribution</span><span class="p">):</span>

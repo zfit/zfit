@@ -3530,6 +3530,27 @@ or a valid string. Currently implemented:</p>
 
 </dd></dl>
 
+<dl class="function">
+<dt id="zfit.models.dist_tfp.tfd_analytic_sample">
+<code class="sig-prename descclassname">zfit.models.dist_tfp.</code><code class="sig-name descname">tfd_analytic_sample</code><span class="sig-paren">(</span><em class="sig-param">n: int, dist: tensorflow_probability.python.distributions.distribution.Distribution, limits: Union[str, Iterable[str], zfit.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/dist_tfp.html#tfd_analytic_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.dist_tfp.tfd_analytic_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample analytically with a <cite>tfd.Distribution</cite> within the limits. No preprocessing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> – Number of samples to get</p></li>
+<li><p><strong>dist</strong> – Distribution to sample from</p></li>
+<li><p><strong>limits</strong> – Limits to sample from within</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The sampled data with the number of samples and the number of observables.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>tf.Tensor</cite> (n, n_obs)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
