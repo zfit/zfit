@@ -4,6 +4,8 @@ from typing import List
 
 import pytest
 import tensorflow as tf
+
+
 import numpy as np
 
 from zfit import ztf
@@ -105,7 +107,8 @@ def test_prod_gauss_nd():
     obs1 = ['a', 'b', 'c']
     norm_range_3d = Space(obs=obs1, limits=(lower, upper))
     test_values_data = Data.from_tensor(obs=obs1, tensor=test_values)
-    probs = product_gauss_3d().pdf(x=test_values_data, norm_range=norm_range_3d)
+    product_pdf = product_gauss_3d()
+    probs = product_pdf.pdf(x=test_values_data, norm_range=norm_range_3d)
     true_probs = np.prod(
         [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())])
     probs_np = zfit.run(probs)
@@ -145,8 +148,8 @@ def test_prod_gauss_nd_mixed():
     true_unnormalized_probs = probs_4d(values=test_values)
 
     normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(40 ** 4, 4)))
-    true_probs = true_unnormalized_probs / tf.reduce_mean(normalization_probs)
-    grad = tf.gradients(probs, list(prod_gauss_4d.get_dependents()))
+    true_probs = true_unnormalized_probs / tf.reduce_mean(input_tensor=normalization_probs)
+    grad = tf.gradients(ys=probs, xs=list(prod_gauss_4d.get_dependents()))
     probs_np = zfit.run(probs)
     grad_np = zfit.run(grad)
     print("Gradients", grad_np)
@@ -207,7 +210,7 @@ def normalization_testing(pdf):
 
 
 def test_extended_gauss():
-    with tf.name_scope("gauss_params2"):
+    with tf.compat.v1.name_scope("gauss_params2"):
         mu1 = Parameter("mu11", 1.)
         mu2 = Parameter("mu21", 12.)
         mu3 = Parameter("mu31", 3.)

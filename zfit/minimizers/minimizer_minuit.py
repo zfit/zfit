@@ -9,6 +9,8 @@ import numpy as np
 import texttable as tt
 import tensorflow as tf
 
+
+
 from zfit.core.interfaces import ZfitLoss
 from .fitresult import FitResult
 from ..util.cache import Cachable

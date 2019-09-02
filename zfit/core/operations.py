@@ -1,6 +1,10 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Optional, Tuple, Callable, Union
 
 import tensorflow as tf
+
+
 
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter, ZfitData
 from .parameter import convert_to_parameter, ComposedParameter

@@ -8,13 +8,18 @@ import numpy as np
 from math import inf as _inf
 
 import tensorflow as tf
+
+
 from ..settings import ztypes
 
 inf = tf.constant(_inf, dtype=ztypes.float)
 
 
-def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=False):
-    return tf.constant(value, dtype=dtype, shape=shape, name=name, verify_shape=verify_shape)
+def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
+    # TODO(tf2): remove this legacy thing below
+    if verify_shape is not None:
+        raise RuntimeError("'verify_shape' is not a valid argument anymore. It's always true. Please remove.")
+    return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
 pi = np.float64(_mt.pi)
@@ -29,7 +34,7 @@ def to_real(x, dtype=ztypes.float):
 
 
 def abs_square(x):
-    return tf.real(x * tf.conj(x))
+    return tf.math.real(x * tf.math.conj(x))
 
 
 def nth_pow(x, n, name=None):
@@ -83,7 +88,7 @@ def stack_x(values, axis: int = -1, name: str = "stack_x"):
 
 
 def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
-    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, preferred_dtype=preferred_dtype)
+    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
 
 
 def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values: tf.Tensor,
@@ -105,8 +110,8 @@ def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values
     Returns:
         :py:class:`tf.Tensor`:
     """
-    safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
-    result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
+    safe_x = tf.compat.v1.where(condition=condition, x=values, y=value_safer(values))
+    result = tf.compat.v1.where(condition=condition, x=func(safe_x), y=safe_func(values))
     return result
 
 
@@ -115,14 +120,14 @@ def run_no_nan(func, x):
 
     value_with_nans = func(x=x)
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
-        value_with_nans = tf.real(value_with_nans) + tf.imag(value_with_nans)  # we care only about NaN or not
-    finite_bools = tf.debugging.is_finite(tf.cast(value_with_nans, dtype=tf.float64))
-    finite_indices = tf.where(finite_bools)
+        value_with_nans = tf.math.real(value_with_nans) + tf.math.imag(value_with_nans)  # we care only about NaN or not
+    finite_bools = tf.math.is_finite(tf.cast(value_with_nans, dtype=tf.float64))
+    finite_indices = tf.compat.v1.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
     vals_no_nan = func(x=new_x)
     result = tf.scatter_nd(indices=finite_indices, updates=vals_no_nan,
-                           shape=tf.shape(value_with_nans, out_type=finite_indices.dtype))
+                           shape=tf.shape(input=value_with_nans, out_type=finite_indices.dtype))
     return result
 
 # reduce functions

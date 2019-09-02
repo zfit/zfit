@@ -5,6 +5,8 @@ from typing import Union, Iterable, Sized
 import tensorflow_probability as tfp
 import tensorflow as tf
 
+
+
 from .wrapping_tf import convert_to_tensor
 from ..util.container import convert_to_container
 
@@ -30,7 +32,7 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
             probs = convert_to_container(probs)
             if len(probs) < 2:
                 raise ValueError("`probs` has to have length 2 at least.")
-            probs = tf.convert_to_tensor(probs)
+            probs = tf.convert_to_tensor(value=probs)
         probs = tf.cast(probs, tf.float32)
         control_deps.append(probs)
         # probs_logits_shape = tf.shape(probs)
@@ -40,7 +42,7 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
             logits = convert_to_container(logits)
             if len(logits) < 2:
                 raise ValueError("`logits` has to have length 2 at least.")
-            logits = tf.convert_to_tensor(logits, dtype=None)
+            logits = tf.convert_to_tensor(value=logits, dtype=None)
         logits = tf.cast(logits, tf.float32)
         control_deps.append(logits)
         # probs_logits_shape = tf.shape(logits)

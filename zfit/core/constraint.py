@@ -16,6 +16,8 @@ from zfit import ztf
 import zfit
 
 import tensorflow as tf
+
+
 import numpy as np
 import tensorflow_probability as tfp
 
@@ -89,7 +91,7 @@ class SimpleConstraint(BaseConstraint):
     def _get_dependents(self):
         dependents = self._simple_func_dependents
         if dependents is None:
-            independent_params = tf.get_collection("zfit_independent")
+            independent_params = tf.compat.v1.get_collection("zfit_independent")
             dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
             self._simple_func_dependents = dependents
         return dependents
@@ -170,10 +172,10 @@ class GaussianConstraint(DistributionConstraint):
         if sigma.shape.ndims > 1:
             covariance = sigma
         elif sigma.shape.ndims == 1:
-            covariance = tf.diag(ztf.pow(sigma, 2.))
+            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
         else:
             sigma = tf.reshape(sigma, [1])
-            covariance = tf.diag(ztf.pow(sigma, 2.))
+            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
 
         if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
             raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"

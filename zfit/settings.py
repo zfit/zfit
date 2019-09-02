@@ -1,5 +1,9 @@
+#  Copyright (c) 2019 zfit
+
 import numpy as np
 import tensorflow as tf
+
+
 
 from .util.container import DotDict
 from .util.execution import RunManager
@@ -12,7 +16,7 @@ def set_seed(seed):
       Set random seed for numpy
     """
     np.random.seed(seed)
-    tf.random.set_random_seed(seed)
+    tf.compat.v1.random.set_random_seed(seed)
 
 _verbosity = 5
 

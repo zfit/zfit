@@ -1,6 +1,10 @@
+#  Copyright (c) 2019 zfit
+
 from typing import List
 
 import tensorflow as tf
+
+
 
 
 # TODO(Mayou36): make not recursive
@@ -31,10 +35,10 @@ def get_dependents_auto(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[
 
 
 if __name__ == '__main__':
-    a = tf.distributions.Normal(1., 3.).sample() * 5.
-    var1 = tf.get_variable('a1', 1.)
-    var2 = tf.get_variable('a2', 2.)
-    var3 = tf.get_variable('a3', 3.)
+    a = tf.compat.v1.distributions.Normal(1., 3.).sample() * 5.
+    var1 = tf.compat.v1.get_variable('a1', 1.)
+    var2 = tf.compat.v1.get_variable('a2', 2.)
+    var3 = tf.compat.v1.get_variable('a3', 3.)
     b = tf.constant(3.) + 4 * var1
     c = 5. * b
     d = c + b * var2

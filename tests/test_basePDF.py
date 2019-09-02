@@ -4,6 +4,8 @@ from typing import Dict, Type
 
 import pytest
 import tensorflow as tf
+
+
 import numpy as np
 
 import zfit.core.basepdf
@@ -20,6 +22,8 @@ from zfit.core.testing import setup_function, teardown_function, tester
 
 # from zfit.ztf import
 from zfit.util import ztyping
+
+
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -83,7 +87,7 @@ def create_mu_sigma_2(nameadd=""):
 def create_wrapped_gauss(nameadd=""):
     mu2, sigma2 = create_mu_sigma_2(nameadd)
     gauss_params = dict(loc=mu2, scale=sigma2)
-    tf_gauss = tf.distributions.Normal
+    tf_gauss = tf.compat.v1.distributions.Normal
     return zfit.models.dist_tfp.WrapDistribution(tf_gauss, dist_params=gauss_params, obs=obs1, name="tf_gauss1")
 
 
@@ -151,7 +155,7 @@ def test_normalization(pdf_factory):
         probs, log_probs = zfit.run([probs, log_probs])
         probs = np.average(probs) * (high - low)
         assert probs == pytest.approx(1., rel=0.05)
-        assert log_probs == pytest.approx(zfit.run(tf.log(probs_small)), rel=0.05)
+        assert log_probs == pytest.approx(zfit.run(tf.math.log(probs_small)), rel=0.05)
         dist = dist.create_extended(ztf.constant(test_yield))
         probs_extended = dist.pdf(samples)
         result_extended = zfit.run(probs_extended)
@@ -266,6 +270,7 @@ def test_projection_pdf():
     gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
     import tensorflow as tf
+    # gauss_xy = ProductPDF([gauss_x, gauss_y])
 
     def correlated_func(self, x):
         x, y = x.unstack_x()

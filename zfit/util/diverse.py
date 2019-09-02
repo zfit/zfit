@@ -1,5 +1,9 @@
+#  Copyright (c) 2019 zfit
+
 import numpy as np
 import tensorflow as tf
+
+
 
 from zfit import ztf
 from ..core.parameter import Parameter
@@ -20,7 +24,7 @@ def gauss_2d(x, norm, xmean, ymean, xsigma, ysigma, corr):
     array = [[xsigma ** 2, offdiag], [offdiag, ysigma ** 2]]
     cov = tf.stack(array)
     mean = tf.stack([xmean, ymean])
-    invcov = tf.matrix_inverse(cov)
+    invcov = tf.linalg.inv(cov)
     return multivariate_gauss(x, norm, mean, invcov)
 
 
@@ -34,7 +38,7 @@ def gauss_4d(x, params):
                      [params[11], params[13], params[14], ztf.constant(1.)]])
 
     cov = tf.einsum("i,ij,j->ij", sigma, corr, sigma)
-    invcov = tf.matrix_inverse(cov)
+    invcov = tf.linalg.inv(cov)
     return multivariate_gauss(x, norm, mean, invcov)
 
 

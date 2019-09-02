@@ -11,6 +11,8 @@ from typing import Dict, Type, Union, Callable, List, Tuple
 import warnings
 
 import tensorflow as tf
+
+
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
@@ -809,7 +811,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         # if not isinstance(n, tf.Variable):
         with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.
             # Or not: refactor that variable can be given due to no variable creation policy!
-            n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64, use_resource=True)
+            n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64)
 
         limits = self._check_input_limits(limits=limits)
 
@@ -943,7 +945,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """Helper function to standardize op scope."""
 
         # with tf.name_scope(self.name):
-        with tf.name_scope(name, values=([] if values is None else values)) as scope:
+        with tf.compat.v1.name_scope(name, values=([] if values is None else values)) as scope:
             yield scope
 
     @classmethod

@@ -1,9 +1,13 @@
+#  Copyright (c) 2019 zfit
+
 from math import pi, cos
 
 import numpy as np
 import pytest
 
 import tensorflow as tf
+
+
 
 import zfit
 from zfit import Parameter, ztf

@@ -5,6 +5,8 @@ from typing import Callable, Any, Iterable, Union
 import tensorflow as tf
 
 
+
+
 class DotDict(dict):
     """dot.notation access to dictionary attributes"""
 

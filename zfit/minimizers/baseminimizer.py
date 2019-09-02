@@ -4,7 +4,7 @@ Definition of minimizers, wrappers etc.
 """
 
 #  Copyright (c) 2019 zfit
-
+import abc
 import collections
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
@@ -14,6 +14,8 @@ from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
+
+
 
 from ..settings import run
 from .interface import ZfitMinimizer
@@ -27,7 +29,7 @@ class FailMinimizeNaN(Exception):
     pass
 
 
-class ZfitStrategy(metaclass=ABCMeta):
+class ZfitStrategy(abc.ABC):
 
     @abstractmethod
     def minimize_nan(self, loss, loss_value, params):
