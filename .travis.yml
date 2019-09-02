@@ -10,7 +10,7 @@ env:
 install:
     - pip install -U tox-travis
     - pip install -U .
-    - if [ $TF_VERSION == 2 ]; then pip install -U tensorflow --pre; fi
+    - if [ $TF_VERSION == 1 ]; then  pip install -U "tensorflow<2"; else pip install -U tensorflow --pre; fi
 
 script:
     - tox
