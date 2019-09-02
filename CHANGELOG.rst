@@ -3,6 +3,23 @@ Changelog
 *********
 
 
+Develop
+=======
+
+Major Features and Improvements
+-------------------------------
+ - full TF 2.0 compatibility, tests against 1.x and 2.x
+
+Behavioral changes
+------------------
+
+Bug fixes and other changes
+---------------------------
+
+Thanks
+------
+
+
 
 0.3.4 (30-07-19)
 ================
