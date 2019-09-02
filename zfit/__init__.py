@@ -26,8 +26,9 @@ __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", 
 #  Copyright (c) 2019 zfit
 import tensorflow.compat.v1 as tf
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
+# tf.enable_resource_variables()  # forward compat
+# tf.enable_v2_tensorshape()  # forward compat
+tf.enable_v2_behavior()
 tf.disable_eager_execution()
 
 from . import ztf  # legacy
