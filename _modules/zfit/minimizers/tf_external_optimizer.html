@@ -105,7 +105,7 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.minimizers.tf_external_optimizer</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright 2016 The TensorFlow Authors. All Rights Reserved.</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
 <span class="c1">#</span>
 <span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
@@ -402,7 +402,7 @@
 
 
 <div class="viewcode-block" id="ScipyOptimizerInterface"><a class="viewcode-back" href="../../../api/zfit.minimizers.tf_external_optimizer.html#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface">[docs]</a><span class="k">class</span> <span class="nc">ScipyOptimizerInterface</span><span class="p">(</span><span class="n">ExternalOptimizerInterface</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Wrapper allowing `scipy.optimize.minimize` to operate a `tf.Session`.</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper allowing `scipy.optimize.minimize` to operate a `tf.compat.v1.Session`.</span>
 
 <span class="sd">    Example:</span>
 
@@ -414,7 +414,7 @@
 
 <span class="sd">    optimizer = ScipyOptimizerInterface(loss, options={&#39;maxiter&#39;: 100})</span>
 
-<span class="sd">    with tf.Session() as session:</span>
+<span class="sd">    with tf.compat.v1.Session() as session:</span>
 <span class="sd">      optimizer.minimize(session)</span>
 
 <span class="sd">    # The value of vector should now be [0., 0.].</span>
@@ -431,7 +431,7 @@
 <span class="sd">    optimizer = ScipyOptimizerInterface(</span>
 <span class="sd">        loss, var_to_bounds={vector: ([1, 2], np.infty)})</span>
 
-<span class="sd">    with tf.Session() as session:</span>
+<span class="sd">    with tf.compat.v1.Session() as session:</span>
 <span class="sd">      optimizer.minimize(session)</span>
 
 <span class="sd">    # The value of vector should now be [1., 2.].</span>
@@ -454,7 +454,7 @@
 <span class="sd">    optimizer = ScipyOptimizerInterface(</span>
 <span class="sd">        loss, equalities=equalities, inequalities=inequalities, method=&#39;SLSQP&#39;)</span>
 
-<span class="sd">    with tf.Session() as session:</span>
+<span class="sd">    with tf.compat.v1.Session() as session:</span>
 <span class="sd">      optimizer.minimize(session)</span>
 
 <span class="sd">    # The value of vector should now be [1., 1.].</span>
@@ -565,7 +565,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

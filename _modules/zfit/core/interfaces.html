@@ -113,11 +113,14 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+
+
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 
 
-<div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.dimension.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+<span class="c1"># class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2</span>
+<div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.dimension.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">:</span>
     <span class="c1"># class ZfitObject:</span>
     <span class="nd">@property</span>
     <span class="c1"># @abc.abstractmethod</span>
@@ -544,7 +547,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

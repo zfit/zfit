@@ -105,7 +105,11 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.minimizers.minimizer_tfp</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
 
 <span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="k">import</span> <span class="n">BaseMinimizer</span>
@@ -118,7 +122,7 @@
 
 <div class="viewcode-block" id="BFGSMinimizer.minimize"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.minimize">[docs]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># with tf.device(&quot;/cpu:0&quot;):</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s2">&quot;inside_minimization&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s2">&quot;inside_minimization&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
             <span class="c1"># var_a = tf.get_variable</span>
             <span class="n">sess</span> <span class="o">=</span> <span class="n">sess</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span>
             <span class="n">minimizer_fn</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">bfgs_minimize</span>
@@ -131,27 +135,27 @@
                 <span class="c1">#     param, value = param_value</span>
                 <span class="c1">#     param.update(value=value, session=sess)</span>
                 <span class="c1"># print(&quot;============one param&quot;, params[0])</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">reuse_variables</span><span class="p">()</span>
-                <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">reuse_variables</span><span class="p">()</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
                 <span class="c1"># params = [g_v[1] for g_v in tfe.implicit_gradients(func)]</span>
                 <span class="c1"># params = var_list</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">reuse_variables</span><span class="p">()</span>
-                <span class="n">printed</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="n">params</span><span class="p">],</span> <span class="s2">&quot;parameters&quot;</span><span class="p">)</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">reuse_variables</span><span class="p">()</span>
+                <span class="n">printed</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="n">params</span><span class="p">],</span> <span class="s2">&quot;parameters&quot;</span><span class="p">)</span>
 
                 <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">values</span><span class="p">,</span> <span class="n">printed</span><span class="p">]):</span>
                     <span class="n">updated_values</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">values</span><span class="p">)):</span>
-                        <span class="n">updated_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">val</span><span class="p">))</span>
+                        <span class="n">updated_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">val</span><span class="p">))</span>
                     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">updated_values</span><span class="p">):</span>
                         <span class="n">func_graph</span> <span class="o">=</span> <span class="n">func</span><span class="p">()</span>
                         <span class="c1"># func_graph = tf.identity(func)</span>
                         <span class="c1"># tf.get_variable_scope().reuse_variables()</span>
                         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">func_graph</span><span class="p">]):</span>
-                            <span class="n">printed2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">func_graph</span><span class="p">,</span> <span class="p">[</span><span class="n">func_graph</span><span class="p">],</span> <span class="s2">&quot;parameters&quot;</span><span class="p">)</span>
+                            <span class="n">printed2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">func_graph</span><span class="p">,</span> <span class="p">[</span><span class="n">func_graph</span><span class="p">],</span> <span class="s2">&quot;parameters&quot;</span><span class="p">)</span>
                             <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">printed2</span><span class="p">,</span> <span class="n">func_graph</span><span class="p">]):</span>
-                                <span class="k">return</span> <span class="n">func_graph</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">func_graph</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
+                                <span class="k">return</span> <span class="n">func_graph</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">ys</span><span class="o">=</span><span class="n">func_graph</span><span class="p">,</span> <span class="n">xs</span><span class="o">=</span><span class="n">params</span><span class="p">))</span>
 
-            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_fn</span><span class="p">(</span><span class="n">to_minimize_func</span><span class="p">,</span>
                                   <span class="n">initial_position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_extract_start_values</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
                                   <span class="n">tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -171,7 +175,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

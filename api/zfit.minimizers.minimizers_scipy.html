@@ -112,6 +112,7 @@
 <dt id="zfit.minimizers.minimizers_scipy.Scipy">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizers_scipy.</code><code class="sig-name descname">Scipy</code><span class="sig-paren">(</span><em class="sig-param">minimizer='L-BFGS-B'</em>, <em class="sig-param">tolerance=None</em>, <em class="sig-param">verbosity=5</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**minimizer_options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizers_scipy.html#Scipy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a></p>
+<p>Creates a <cite>self.sess</cite> attribute, a setter <cite>set_sess</cite> (with a fallback to the zfit default session).</p>
 <dl class="method">
 <dt id="zfit.minimizers.minimizers_scipy.Scipy.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.copy" title="Permalink to this definition">¶</a></dt>
@@ -149,7 +150,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.compat.v1.Session</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -193,7 +194,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

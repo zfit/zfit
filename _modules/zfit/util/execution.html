@@ -105,7 +105,9 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.util.execution</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">contextlib</span>
+<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -114,6 +116,8 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
 
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
@@ -192,7 +196,7 @@
 <div class="viewcode-block" id="RunManager.reset"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.RunManager.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">reset_default_graph</span><span class="p">()</span></div>
+        <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">reset_default_graph</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="RunManager.create_session"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.RunManager.create_session">[docs]</a>    <span class="k">def</span> <span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">close_current</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reset_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new session (or replace the current one). Arguments will overwrite the already set arguments.</span>
@@ -200,26 +204,26 @@
 <span class="sd">        Args:</span>
 <span class="sd">            close_current (bool): Closes the current open session before replacement. Has no effect if</span>
 <span class="sd">                no session was created before.</span>
-<span class="sd">            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.Session`.</span>
+<span class="sd">            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.compat.v1.Session`.</span>
 <span class="sd">            *args ():</span>
 <span class="sd">            **kwargs ():</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`tf.Session`</span>
+<span class="sd">            :py:class:`tf.compat.v1.Session`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sess_kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sess_kwargs</span><span class="p">)</span>
         <span class="n">sess_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">close_current</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">reset_graph</span><span class="p">:</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">reset_default_graph</span><span class="p">()</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">reset_default_graph</span><span class="p">()</span>
             <span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="k">import</span> <span class="n">ZfitParameterMixin</span>
             <span class="n">ZfitParameterMixin</span><span class="o">.</span><span class="n">_existing_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># TODO(Mayou36): better hook for reset?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">sess_kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">sess_kwargs</span><span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">set_use_resource</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">set_dtype</span><span class="p">(</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">set_use_resource</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">set_dtype</span><span class="p">(</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span></div>
 
@@ -241,13 +245,13 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="SessionHolderMixin.set_sess"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.SessionHolderMixin.set_sess">[docs]</a>    <span class="k">def</span> <span class="nf">set_sess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+<div class="viewcode-block" id="SessionHolderMixin.set_sess"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.SessionHolderMixin.set_sess">[docs]</a>    <span class="k">def</span> <span class="nf">set_sess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the session (temporarily) for this instance. If None, the auto-created default is taken.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sess (tf.Session):</span>
+<span class="sd">            sess (tf.compat.v1.Session):</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`sess` has to be a TensorFlow Session but is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sess</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">getter</span><span class="p">():</span>
@@ -266,7 +270,7 @@
         <span class="k">return</span> <span class="n">sess</span>
 
     <span class="nd">@sess</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">sess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span> <span class="o">=</span> <span class="n">sess</span></div>
 </pre></div>
 
@@ -282,7 +286,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

@@ -137,13 +137,13 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>close_current</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Closes the current open session before replacement. Has no effect if
 no session was created before.</p></li>
-<li><p><strong>reset_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Resets the current (default) graph before creating a new <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Session</span></code>.</p></li>
+<li><p><strong>reset_graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Resets the current (default) graph before creating a new <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.compat.v1.Session</span></code>.</p></li>
 <li><p><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Session</span></code></p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.compat.v1.Session</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -186,7 +186,7 @@ no session was created before.</p></li>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.compat.v1.Session</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -208,7 +208,7 @@ no session was created before.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

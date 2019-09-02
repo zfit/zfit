@@ -111,6 +111,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
@@ -187,7 +189,7 @@
 <div class="viewcode-block" id="create_poly"><a class="viewcode-back" href="../../../api/zfit.models.polynomials.html#zfit.models.polynomials.create_poly">[docs]</a><span class="k">def</span> <span class="nf">create_poly</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">polys</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">recurrence</span><span class="p">):</span>
     <span class="n">degree</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">polys</span> <span class="o">=</span> <span class="n">do_recurrence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">polys</span><span class="o">=</span><span class="n">polys</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">,</span> <span class="n">recurrence</span><span class="o">=</span><span class="n">recurrence</span><span class="p">)</span>
-    <span class="n">sum_polys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">([</span><span class="n">coeff</span> <span class="o">*</span> <span class="n">poly</span> <span class="k">for</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">polys</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sum_polys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="p">[</span><span class="n">coeff</span> <span class="o">*</span> <span class="n">poly</span> <span class="k">for</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">polys</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sum_polys</span></div>
 
 
@@ -678,7 +680,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

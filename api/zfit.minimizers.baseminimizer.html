@@ -116,6 +116,7 @@
 <p>Minimizer for loss functions.</p>
 <p>Additional <cite>minimizer_options</cite> (given as <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs) can be accessed and changed via the
 attribute (dict) <cite>minimizer.minimizer_options</cite></p>
+<p>Creates a <cite>self.sess</cite> attribute, a setter <cite>set_sess</cite> (with a fallback to the zfit default session).</p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.copy" title="Permalink to this definition">¶</a></dt>
@@ -153,7 +154,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.compat.v1.Session</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -236,7 +237,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="class">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">ZfitStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan">
 <em class="property">abstract </em><code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">loss_value</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
@@ -259,7 +260,7 @@ set self.__traceback__ to tb and return self.</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

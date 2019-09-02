@@ -113,6 +113,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+
+
 <span class="c1"># TF backwards compatibility</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">ops</span><span class="p">,</span> <span class="n">array_ops</span>
 
@@ -141,7 +143,8 @@
 
 <span class="c1"># drop-in replacement for ResourceVariable</span>
 <span class="c1"># class ZfitBaseVariable(metaclass=type(TFBaseVariable)):</span>
-<div class="viewcode-block" id="ZfitBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">ZfitBaseVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<span class="c1"># class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2</span>
+<div class="viewcode-block" id="ZfitBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">ZfitBaseVariable</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="n">variable</span>
@@ -234,12 +237,13 @@
 
 <span class="c1"># class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):</span>
 <span class="c1"># class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):</span>
-<div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<span class="c1"># class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2</span>
+<div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># super().__init__(initial_value=initial_value, **kwargs, use_resource=True)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">dtype_hint</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="c1"># self._name = name</span>
 
     <span class="nd">@property</span>
@@ -333,7 +337,8 @@
 <span class="n">ComposedVariable</span><span class="o">.</span><span class="n">_OverloadAllOperators</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="BaseParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseParameter</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<span class="c1"># class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2</span>
+<div class="viewcode-block" id="BaseParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseParameter</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
@@ -404,7 +409,8 @@
 
 
 <span class="c1"># solve metaclass confict</span>
-<div class="viewcode-block" id="TFBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.TFBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">TFBaseVariable</span><span class="p">(</span><span class="n">TFBaseVariable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<span class="c1"># class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):    # TODO(Mayou36): upgrade to tf2</span>
+<div class="viewcode-block" id="TFBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.TFBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">TFBaseVariable</span><span class="p">(</span><span class="n">TFBaseVariable</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
@@ -443,9 +449,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">upper_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent</span><span class="p">:</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s2">&quot;zfit_dependent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s2">&quot;zfit_dependent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="c1"># value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="n">floating</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size</span>
@@ -617,7 +623,7 @@
 <div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">tensor</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="n">independent_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
+        <span class="n">independent_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">get_dependents_auto</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">candidates</span><span class="o">=</span><span class="n">independent_params</span><span class="p">)</span>
         <span class="c1"># params_init_op = [param.initializer for param in params]</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">}</span>
@@ -678,7 +684,7 @@
     <span class="k">def</span> <span class="nf">imag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">imag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imag</span>
         <span class="k">if</span> <span class="n">imag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">imag</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>  <span class="c1"># HACK tf bug #30029</span>
+            <span class="n">imag</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype_hint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>  <span class="c1"># HACK tf bug #30029</span>
         <span class="k">return</span> <span class="n">imag</span>
 
     <span class="nd">@property</span>
@@ -744,7 +750,7 @@
         <span class="k">if</span> <span class="n">is_python</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">independend_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
+            <span class="n">independend_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">get_dependents_auto</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">candidates</span><span class="o">=</span><span class="n">independend_params</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -771,7 +777,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

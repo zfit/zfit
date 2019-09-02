@@ -235,6 +235,20 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dt id="zfit.core.loss.CachedLoss">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">CachedLoss</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#CachedLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.CachedLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.BaseLoss</span></code></a></p>
+<p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
+to the loss. The length of each has to match the length of the others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -345,6 +359,20 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">ExtendedUnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#ExtendedUnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.UnbinnedNLL</span></code></a></p>
 <p>An Unbinned Negative Log Likelihood with an additional poisson term for the</p>
+<p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
+to the loss. The length of each has to match the length of the others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -576,6 +604,20 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">UnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#UnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.CachedLoss" title="zfit.core.loss.CachedLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.CachedLoss</span></code></a></p>
 <p>The Unbinned Negative Log Likelihood.</p>
+<p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
+to the loss. The length of each has to match the length of the others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -696,7 +738,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

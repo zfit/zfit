@@ -123,6 +123,8 @@
 <span class="kn">import</span> <span class="nn">zfit</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
 
@@ -196,7 +198,7 @@
     <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span>
         <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">independent_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
+            <span class="n">independent_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
             <span class="n">dependents</span> <span class="o">=</span> <span class="n">get_dependents_auto</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="n">candidates</span><span class="o">=</span><span class="n">independent_params</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">dependents</span>
         <span class="k">return</span> <span class="n">dependents</span>
@@ -277,10 +279,10 @@
         <span class="k">if</span> <span class="n">sigma</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">covariance</span> <span class="o">=</span> <span class="n">sigma</span>
         <span class="k">elif</span> <span class="n">sigma</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">covariance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">2.</span><span class="p">))</span>
+            <span class="n">covariance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">tensor_diag</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">2.</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sigma</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">covariance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">2.</span><span class="p">))</span>
+            <span class="n">covariance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">tensor_diag</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">2.</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;params, mu and sigma have to have the same length. Currently&quot;</span>
@@ -310,7 +312,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>

@@ -591,6 +591,78 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dt id="zfit.core.parameter.ComposedResourceVariable">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComposedResourceVariable</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">initial_value</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedResourceVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.resource_variable_ops.ResourceVariable</span></code></p>
+<p>Creates a variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_value</strong> – <p>A <cite>Tensor</cite>, or Python object convertible to a <cite>Tensor</cite>,
+which is the initial value for the Variable. Can also be a
+callable with no argument that returns the initial value when called.
+(Note that initializer functions from init_ops.py must first be bound</p>
+<blockquote>
+<div><p>to a shape before being used here.)</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>trainable</strong> – <p>If <cite>True</cite>, the default, also adds the variable to the graph
+collection <cite>GraphKeys.TRAINABLE_VARIABLES</cite>. This collection is used as
+the default list of variables to use by the <cite>Optimizer</cite> classes.</p>
+<blockquote>
+<div><p>Defaults to <cite>True</cite> unless <cite>synchronization</cite> is set to <cite>ON_READ</cite>.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>collections</strong> – List of graph collections keys. The new variable is added to
+these collections. Defaults to <cite>[GraphKeys.GLOBAL_VARIABLES]</cite>.</p></li>
+<li><p><strong>validate_shape</strong> – Ignored. Provided for compatibility with tf.Variable.</p></li>
+<li><p><strong>caching_device</strong> – Optional device string or function describing where the
+Variable should be cached for reading.  Defaults to the Variable’s
+device.  If not <cite>None</cite>, caches on another device.  Typical use is to
+cache on the device where the Ops using the Variable reside, to
+deduplicate copying through <cite>Switch</cite> and other conditional statements.</p></li>
+<li><p><strong>name</strong> – Optional name for the variable. Defaults to <cite>‘Variable’</cite> and gets
+uniquified automatically.</p></li>
+<li><p><strong>dtype</strong> – If set, initial_value will be converted to the given type.
+If None, either the datatype will be kept (if initial_value is
+a Tensor) or float32 will be used (if it is a Python object convertible
+to a Tensor).</p></li>
+<li><p><strong>variable_def</strong> – <cite>VariableDef</cite> protocol buffer. If not None, recreates the
+<cite>ResourceVariable</cite> object with its contents. <cite>variable_def</cite> and other
+arguments (except for import_scope) are mutually exclusive.</p></li>
+<li><p><strong>import_scope</strong> – Optional <cite>string</cite>. Name scope to add to the
+ResourceVariable. Only used when <cite>variable_def</cite> is provided.</p></li>
+<li><p><strong>constraint</strong> – An optional projection function to be applied to the variable
+after being updated by an <cite>Optimizer</cite> (e.g. used to implement norm
+constraints or value constraints for layer weights). The function must
+take as input the unprojected Tensor representing the value of the
+variable and return the Tensor for the projected value
+(which must have the same shape). Constraints are not safe to
+use when doing asynchronous distributed training.</p></li>
+<li><p><strong>distribute_strategy</strong> – The tf.distribute.Strategy this variable is being
+created inside of.</p></li>
+<li><p><strong>synchronization</strong> – Indicates when a distributed a variable will be
+aggregated. Accepted values are constants defined in the class
+<cite>tf.VariableSynchronization</cite>. By default the synchronization is set to
+<cite>AUTO</cite> and the current <cite>DistributionStrategy</cite> chooses
+when to synchronize. If <cite>synchronization</cite> is set to <cite>ON_READ</cite>,
+<cite>trainable</cite> must not be set to <cite>True</cite>.</p></li>
+<li><p><strong>aggregation</strong> – Indicates how a distributed variable will be aggregated.
+Accepted values are constants defined in the class
+<cite>tf.VariableAggregation</cite>.</p></li>
+<li><p><strong>shape</strong> – (optional) The shape of this variable. If None, the shape of
+<cite>initial_value</cite> will be used. When setting this argument to
+<cite>tf.TensorShape(None)</cite> (representing an unspecified shape), the variable
+can be assigned with values of different shapes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the initial value is not specified, or does not have a
+    shape and <cite>validate_shape</cite> is <cite>True</cite>.</p>
+</dd>
+</dl>
+<p>&#64;compatibility(eager)
+When Eager Execution is enabled, the default for the <cite>collections</cite> argument
+is <cite>None</cite>, which signifies that this <cite>Variable</cite> will not be added to any
+collections.
+&#64;end_compatibility</p>
 <dl class="class">
 <dt id="zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo">
 <em class="property">class </em><code class="sig-name descname">SaveSliceInfo</code><span class="sig-paren">(</span><em class="sig-param">full_name=None</em>, <em class="sig-param">full_shape=None</em>, <em class="sig-param">var_offset=None</em>, <em class="sig-param">var_shape=None</em>, <em class="sig-param">save_slice_info_def=None</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo" title="Permalink to this definition">¶</a></dt>
@@ -1314,30 +1386,11 @@ in the specified name scope.</p>
 <dl class="class">
 <dt id="zfit.core.parameter.MetaBaseParameter">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">MetaBaseParameter</code><a class="reference internal" href="../_modules/zfit/core/parameter.html#MetaBaseParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.variables.VariableMetaclass</span></code>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABCMeta" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABCMeta</span></code></a></p>
-<dl class="method">
-<dt id="zfit.core.parameter.MetaBaseParameter.__instancecheck__">
-<code class="sig-name descname">__instancecheck__</code><span class="sig-paren">(</span><em class="sig-param">instance</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter.__instancecheck__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Override for isinstance(instance, cls).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.MetaBaseParameter.__subclasscheck__">
-<code class="sig-name descname">__subclasscheck__</code><span class="sig-paren">(</span><em class="sig-param">subclass</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter.__subclasscheck__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Override for issubclass(subclass, cls).</p>
-</dd></dl>
-
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.variables.VariableMetaclass</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.parameter.MetaBaseParameter.mro">
 <code class="sig-name descname">mro</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter.mro" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a type’s method resolution order.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.MetaBaseParameter.register">
-<code class="sig-name descname">register</code><span class="sig-paren">(</span><em class="sig-param">subclass</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter.register" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a virtual subclass of an ABC.</p>
-<p>Returns the subclass, to allow usage as a class decorator.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2083,7 +2136,7 @@ the scattered subtraction has completed.</p>
 <dd><p>Set the session (temporarily) for this instance. If None, the auto-created default is taken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sess</strong> (<em>tf.Session</em>) – </p>
+<dd class="field-odd"><p><strong>sess</strong> (<em>tf.compat.v1.Session</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -3095,7 +3148,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
     </p>
   </div>
 </footer>
