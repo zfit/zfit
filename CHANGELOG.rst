@@ -13,8 +13,9 @@ Major Features and Improvements
 Behavioral changes
 ------------------
 
-Bug fixes and other changes
+Bug fixes and small changes
 ---------------------------
+ - added native support TFP distributions for analytic sampling
 
 Thanks
 ------
@@ -36,7 +37,7 @@ Behavioral changes
 ------------------
 None
 
-Bug fixes and other changes
+Bug fixes and small changes
 ---------------------------
 
 - fixed various small bugs
