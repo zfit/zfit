@@ -46,8 +46,8 @@ class Minuit(BaseMinimizer, Cachable):
         self._use_tfgrad = True
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
-        gradients = loss.gradients(params)
         loss_val = loss.value()
+        gradients = loss.gradients(params)
         self._check_gradients(params=params, gradients=gradients)
 
         # load_params = self._extract_load_method(params=params)  REMOVE
@@ -75,7 +75,11 @@ class Minuit(BaseMinimizer, Cachable):
         # create Minuit compatible names
         limits = tuple(tuple((param.lower_limit, param.upper_limit)) for param in params)
         errors = tuple(param.step_size for param in params)
-        start_values, limits, errors = self.sess.run([params, limits, errors])
+        # start_values, limits, errors = self.sess.run([params, limits, errors])
+        start_values = [p.numpy() for p in params]
+        limits = [(low.numpy(), up.numpy()) for low, up in limits]
+        errors = [err.numpy() for err in errors]
+
 
         multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
         if multiparam:
@@ -99,7 +103,8 @@ class Minuit(BaseMinimizer, Cachable):
                     table.add_row([param.name, value])
                 print(table.draw())
 
-            loss_evaluated = self.sess.run(loss_val)
+            # loss_evaluated = self.sess.run(loss_val)
+            loss_evaluated = loss.value().numpy()
             if np.isnan(loss_evaluated):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
             return loss_evaluated
@@ -114,7 +119,9 @@ class Minuit(BaseMinimizer, Cachable):
                     table.add_row([param.name, value])
                 print(table.draw())
 
-            gradients_values = self.sess.run(gradients)
+            # gradients_values = self.sess.run(gradients)
+            gradients = loss.gradients(params=params)
+            gradients_values = [g.numpy() for g in gradients]
             if any(np.isnan(gradients_values)):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
             return gradients_values

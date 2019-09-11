@@ -356,7 +356,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         # value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.step_size = step_size
-        zfit.run.auto_initialize(self)
+        # zfit.run.auto_initialize(self)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -459,7 +459,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         super_load = super().load
 
         def getter():
-            return self.sess.run(self)
+            # return self.sess.run(self)
+            return self.numpy()
 
         def setter(value):
             super_load(value=value, session=self.sess)

@@ -93,6 +93,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__)
+        self.computed_gradients = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
         self._data = data
@@ -227,7 +228,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return loss
 
     def _gradients(self, params):
-        return tf.gradients(ys=self.value(), xs=params)
+        # tf.gradients(ys=self.value(), xs=params)
+        return [self.computed_gradients[param] for param in params]
 
 
 class CachedLoss(BaseLoss):
@@ -267,7 +269,8 @@ class CachedLoss(BaseLoss):
         return param_gradients
 
 
-class UnbinnedNLL(CachedLoss):
+# class UnbinnedNLL(CachedLoss):
+class UnbinnedNLL(BaseLoss):
     """The Unbinned Negative Log Likelihood."""
 
     _name = "UnbinnedNLL"
@@ -277,6 +280,19 @@ class UnbinnedNLL(CachedLoss):
         self._errordef = 0.5
 
     def _loss_func(self, model, data, fit_range, constraints):
+        with tf.GradientTape(persistent=True) as tape:
+            nll = self._loss_func_watched(constraints, data, fit_range, model)
+
+        variables = tape.watched_variables()
+        gradients = tape.gradient(nll, sources=variables)
+        for param, grad in zip(variables, gradients):
+            # if param in self.computed_gradients:
+            #     continue
+            self.computed_gradients[param] = grad
+        return nll
+
+    @tf.function(autograph=False)
+    def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
             constraints = ztf.reduce_sum([c.value() for c in constraints])
