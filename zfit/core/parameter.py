@@ -517,7 +517,7 @@ class BaseComposedParameter(BaseZParameter):
         return False
 
 
-class FixedParameter(BaseZParameter):
+class ConstantParameter(BaseZParameter):
 
     def __init__(self, name, value):
         super().__init__(name=name, initial_value=value, dtype=ztypes.float, params={})
@@ -684,6 +684,6 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
             else:
                 if name is None:
                     name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
-                value = FixedParameter(name, value=value)
+                value = ConstantParameter(name, value=value)
 
     return value
