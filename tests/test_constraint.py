@@ -63,16 +63,30 @@ def test_gaussian_constraint():
     param_vals = [5, 6, 3]
     mu = [3, 6.1, 4.3]
     sigma = [1, 0.3, 0.7]
-    true_val = -sum(np.log(scipy.stats.norm.pdf(x, loc=mu, scale=sigma)) for x, mu, sigma in zip(param_vals,
-                                                                                                 mu,
-                                                                                                 sigma))
+    true_val = true_value(param_vals, mu, sigma)
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
     constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
-    constr_np = zfit.run(constr.value())
+    value_tensor = constr.value()
+    constr_np = zfit.run(value_tensor)
     assert constr_np == pytest.approx(true_val)
-
     assert constr.get_dependents() == set(params)
+
+    param_vals[0] = 2
+    params[0].set_value(param_vals[0])
+
+    constr2_np = zfit.run(value_tensor)
+    constr2_newtensor_np = zfit.run(constr.value())
+    assert constr2_newtensor_np == pytest.approx(constr2_np)
+
+    true_val2 = true_value(param_vals, mu, sigma)
+    assert constr2_np == pytest.approx(true_val2)
+
+
+def true_value(param_vals, mu, sigma):
+    return -sum(np.log(scipy.stats.norm.pdf(x, loc=mu, scale=sigma)) for x, mu, sigma in zip(param_vals,
+                                                                                             mu,
+                                                                                             sigma))
 
 
 @pytest.mark.flaky(3)
