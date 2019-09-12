@@ -1,6 +1,7 @@
 #  Copyright (c) 2019 zfit
 import pytest
 import numpy as np
+import scipy.stats
 
 import zfit
 from zfit import ztf
@@ -43,7 +44,7 @@ def test_gaussian_constraint_shape_errors():
         GaussianConstraint(param1, mu=[4, 2], sigma=[2, 3])
 
 
-def test_gaussian_constraint():
+def test_gaussian_constraint_matrix():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
     params = [param1, param2]
@@ -54,6 +55,22 @@ def test_gaussian_constraint():
     constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
     constr_np = zfit.run(constr.value())
     assert constr_np == pytest.approx(3.989638)
+
+    assert constr.get_dependents() == set(params)
+
+
+def test_gaussian_constraint():
+    param_vals = [5, 6, 3]
+    mu = [3, 6.1, 4.3]
+    sigma = [1, 0.3, 0.7]
+    true_val = -sum(np.log(scipy.stats.norm.pdf(x, loc=mu, scale=sigma)) for x, mu, sigma in zip(param_vals,
+                                                                                                 mu,
+                                                                                                 sigma))
+    params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
+
+    constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
+    constr_np = zfit.run(constr.value())
+    assert constr_np == pytest.approx(true_val)
 
     assert constr.get_dependents() == set(params)
 
@@ -74,7 +91,6 @@ def test_gaussian_constraint_sampling():
 
 
 def test_simple_constraint():
-
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
     params = [param1, param2]
@@ -84,6 +100,7 @@ def test_simple_constraint():
 
     def func():
         return true_nll_gaussian(params=params, mu=mu, sigma=sigma)
+
     constr = SimpleConstraint(func=func)
 
     constr_np = zfit.run(constr.value())

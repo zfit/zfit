@@ -152,7 +152,7 @@ class GaussianConstraint(DistributionConstraint):
         """Gaussian constraints on a list of parameters.
 
         Args:
-            params (list(1zfit.Parameter1)): The parameters to constraint
+            params (list(zfit.Parameter)): The parameters to constraint
             mu (numerical, list(numerical)): The central value of the constraint
             sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
