@@ -158,7 +158,7 @@ class GaussianConstraint(DistributionConstraint):
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
 
         Raises:
-            ShapeIncompatibleError: if params, mu and sigma don't have the same size
+            ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
         """
         mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
         params = convert_to_container(params, tuple)
