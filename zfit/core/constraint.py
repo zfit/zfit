@@ -165,7 +165,7 @@ class GaussianConstraint(DistributionConstraint):
 
         params_dict = {p.name: p for p in params}
 
-        mu = tf.stack([ztf.convert_to_tensor(m) for m in mu])
+        mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
         sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
         params = ztf.convert_to_tensor(params)
 
@@ -187,7 +187,7 @@ class GaussianConstraint(DistributionConstraint):
 
         distribution = tfd.MultivariateNormalFullCovariance
         dist_params = dict(loc=mu, covariance_matrix=covariance)
-        dist_kwargs = dict(validate_args=True)
+        dist_kwargs = dict(validate_args=False)
 
         super().__init__(name="GaussianConstraint", params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)

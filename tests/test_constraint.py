@@ -63,7 +63,7 @@ def test_gaussian_constraint():
     param_vals = [5, 6, 3]
     mu = [3, 6.1, 4.3]
     sigma = [1, 0.3, 0.7]
-    true_val = true_value(param_vals, mu, sigma)
+    true_val = true_gauss_constr_value(param_vals, mu, sigma)
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
     constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
@@ -79,14 +79,54 @@ def test_gaussian_constraint():
     constr2_newtensor_np = zfit.run(constr.value())
     assert constr2_newtensor_np == pytest.approx(constr2_np)
 
-    true_val2 = true_value(param_vals, mu, sigma)
+    true_val2 = true_gauss_constr_value(param_vals, mu, sigma)
     assert constr2_np == pytest.approx(true_val2)
 
 
-def true_value(param_vals, mu, sigma):
-    return -sum(np.log(scipy.stats.norm.pdf(x, loc=mu, scale=sigma)) for x, mu, sigma in zip(param_vals,
-                                                                                             mu,
-                                                                                             sigma))
+def test_gaussian_constraint_bug():
+    param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
+    params = [zfit.Parameter(f"param{i}", val) for i, val in enumerate(param_vals)]
+
+    mu = param_vals
+    sigma = [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]
+    true_val = true_gauss_constr_value(params=param_vals, mu=mu, sigma=sigma)
+
+    constr1 = zfit.constraint.GaussianConstraint(params=params, mu=mu, sigma=sigma)
+
+    value_tensor = constr1.value()
+    constr_np = zfit.run(value_tensor)
+    assert constr_np == pytest.approx(true_val)
+    assert true_val < 10000
+
+
+def test_gaussian_constraint_bug2():
+    luminosity = zfit.Parameter("lumi", 1500)
+    efficiency = zfit.Parameter("eff", 0.5)
+
+    syst1 = zfit.Parameter("syst1", 1.0)
+    syst2 = zfit.Parameter("syst2", 1.0)
+    syst3 = zfit.Parameter("syst3", 1.0)
+
+    constraint = {"params": [luminosity, syst1, syst2, syst3, efficiency],
+                  "mu": [1500, 1.0, 1.0, 1.0, 0.5],
+                  "sigma": [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]}
+
+    constr1 = zfit.constraint.GaussianConstraint(**constraint)
+    # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
+    constraint['params'] = zfit.run(constraint['params'])
+
+    true_val = true_gauss_constr_value(**constraint)
+
+    value_tensor = constr1.value()
+    constr_np = zfit.run(value_tensor)
+    assert constr_np == pytest.approx(true_val)
+    assert true_val < 10000
+
+
+def true_gauss_constr_value(params, mu, sigma):
+    return -np.sum(np.log(scipy.stats.norm.pdf(x, loc=mu, scale=sigma)) for x, mu, sigma in zip(params,
+                                                                                                mu,
+                                                                                                sigma))
 
 
 @pytest.mark.flaky(3)
