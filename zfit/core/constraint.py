@@ -187,7 +187,7 @@ class GaussianConstraint(DistributionConstraint):
 
         distribution = tfd.MultivariateNormalFullCovariance
         dist_params = dict(loc=mu, covariance_matrix=covariance)
-        dist_kwargs = dict(validate_args=False)
+        dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
