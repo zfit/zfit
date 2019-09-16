@@ -8,6 +8,6 @@ from .minimizers.minimizers_scipy import Scipy
 AdamMinimizer = Adam  # legacy
 MinuitMinimizer = Minuit  # legacy
 ScipyMinimizer = Scipy  # legacy
-__all__ = ['Minuit', 'Scipy', 'Adam',
+__all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "WrapOptimizer",
            "Adam", "Minuit", "Scipy"]
