@@ -83,7 +83,7 @@ def test_gaussian_constraint():
     assert constr2_np == pytest.approx(true_val2)
 
 
-def test_gaussian_constraint_bug():
+def test_gaussian_constraint_orderbug():  # as raised in #162
     param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
     params = [zfit.Parameter(f"param{i}", val) for i, val in enumerate(param_vals)]
 
@@ -99,15 +99,15 @@ def test_gaussian_constraint_bug():
     assert true_val < 10000
 
 
-def test_gaussian_constraint_bug2():
-    luminosity = zfit.Parameter("lumi", 1500)
-    efficiency = zfit.Parameter("eff", 0.5)
+def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fixing
+    param1 = zfit.Parameter("param1", 1500)
+    param5 = zfit.Parameter("param2", 0.5)
 
-    syst1 = zfit.Parameter("syst1", 1.0)
-    syst2 = zfit.Parameter("syst2", 1.0)
-    syst3 = zfit.Parameter("syst3", 1.0)
+    param2 = zfit.Parameter("param3", 1.0)
+    param3 = zfit.Parameter("param4", 1.0)
+    param4 = zfit.Parameter("param5", 1.0)
 
-    constraint = {"params": [luminosity, syst1, syst2, syst3, efficiency],
+    constraint = {"params": [param1, param2, param3, param4, param5],
                   "mu": [1500, 1.0, 1.0, 1.0, 0.5],
                   "sigma": [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]}
 
@@ -120,7 +120,8 @@ def test_gaussian_constraint_bug2():
     value_tensor = constr1.value()
     constr_np = zfit.run(value_tensor)
     assert constr_np == pytest.approx(true_val)
-    assert true_val < 10000
+    assert true_val < 1000
+    assert true_val == pytest.approx(-8.592, abs=0.1)  # if failing, change value. Hardcoded for additional layer
 
 
 def true_gauss_constr_value(params, mu, sigma):
