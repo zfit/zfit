@@ -16,6 +16,7 @@ Behavioral changes
 Bug fixes and small changes
 ---------------------------
  - added native support TFP distributions for analytic sampling
+ - fix Gaussian (TFP Distribution) Constraint with mixed up order of parameters
 
 Thanks
 ------
