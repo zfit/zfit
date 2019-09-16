@@ -274,14 +274,14 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><em>1zfit.Parameter1</em><em>)</em>) – The parameters to constraint</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><em>zfit.Parameter</em></a><em>)</em>) – The parameters to constraint</p></li>
 <li><p><strong>mu</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><em>numerical</em><em>)</em>) – The central value of the constraint</p></li>
 <li><p><strong>sigma</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em>(</em><em>numerical</em><em>) or </em><em>array/tensor</em>) – The standard deviations or covariance
 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError" title="zfit.util.exception.ShapeIncompatibleError"><strong>ShapeIncompatibleError</strong></a> – if params, mu and sigma don’t have the same size</p>
+<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError" title="zfit.util.exception.ShapeIncompatibleError"><strong>ShapeIncompatibleError</strong></a> – if params, mu and sigma don’t have incompatible shapes</p>
 </dd>
 </dl>
 <dl class="method">

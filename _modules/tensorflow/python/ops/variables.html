@@ -133,7 +133,8 @@
 
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">attr_value_pb2</span>
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">variable_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">pywrap_tensorflow</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">pywrap_tensorflow</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.compat</span> <span class="k">import</span> <span class="n">compat</span> <span class="k">as</span> <span class="n">fwd_compat</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="k">import</span> <span class="n">context</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">dtypes</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
@@ -141,8 +142,8 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">array_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">control_flow_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_array_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_math_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_math_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">math_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">state_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="k">import</span> <span class="n">tf_logging</span> <span class="k">as</span> <span class="n">logging</span>
@@ -1198,7 +1199,10 @@
   <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
-      <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
       <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span>
@@ -1207,7 +1211,11 @@
   <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
-      <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
       <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">other</span>
