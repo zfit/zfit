@@ -21,6 +21,10 @@ Bug fixes and small changes
  - `from_numpy` automatically converts to default float regardless the original numpy dtype,
    `dtype` has to be used as an explicit argument
 
+Requirement changes
+-------------------
+ - TensorFlow >= 1.14 is required
+
 
 Thanks
 ------
