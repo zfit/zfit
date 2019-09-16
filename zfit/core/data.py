@@ -284,7 +284,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if not isinstance(array, np.ndarray):
             raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
         if dtype is None:
-            dtype = array.dtype
+            dtype = ztypes.float
         tensor = tf.cast(array, dtype=dtype)
         return cls.from_tensor(obs=obs, tensor=tensor, weights=weights, name=name, dtype=dtype)
         # np_placeholder = tf.compat.v1.placeholder(dtype=array.dtype, shape=array.shape)

@@ -18,6 +18,10 @@ Bug fixes and small changes
  - added native support TFP distributions for analytic sampling
  - fix Gaussian (TFP Distribution) Constraint with mixed up order of parameters
 
+ - `from_numpy` automatically converts to default float regardless the original numpy dtype,
+   `dtype` has to be used as an explicit argument
+
+
 Thanks
 ------
 
