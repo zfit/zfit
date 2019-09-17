@@ -27,7 +27,9 @@ if not requirements_dev.count("") == 1 or requirements_dev.index("") == 0:
                       "requirements have to be separated by one blank line.")
 requirements_dev_split = requirements_dev.index("")
 
-setup_requirements = "pip>9"
+setup_requirements = ["pip>9",
+                      "setuptools_scm",
+                      "setuptools_scm_git_archive"]
 test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip empty line
 
 setup(
@@ -62,6 +64,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/zfit/zfit',
-    version='0.3.5',
+    use_scm_version=True,
+    # version='0.3.5',
     zip_safe=False,
     )
