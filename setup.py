@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """The setup script."""
 #  Copyright (c) 2019 zfit
 
