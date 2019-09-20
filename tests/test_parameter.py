@@ -7,8 +7,6 @@ import pytest
 
 import tensorflow as tf
 
-
-
 import zfit
 from zfit import Parameter, ztf
 from zfit.core.parameter import ComposedParameter, ComplexParameter
@@ -138,3 +136,15 @@ def test_set_value():
             assert zfit.run(param1) == value4
         assert zfit.run(param1) == value3
     assert zfit.run(param1) == value1
+
+
+def test_fixed_param():
+    obs = zfit.Space("obs1", (-1, 2))
+    sigma = zfit.param.ConstantParameter('const1', 5)
+    gauss = zfit.pdf.Gauss(1., sigma, obs=obs)
+    mu = gauss.params['mu']
+    assert isinstance(mu, zfit.param.ConstantParameter)
+    assert isinstance(sigma, zfit.param.ConstantParameter)
+    assert not sigma.floating
+    assert not sigma.independent
+    assert sigma.get_dependents() == set()

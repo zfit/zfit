@@ -37,7 +37,7 @@ from .settings import ztypes
 # tf.get_variable_scope().set_use_resource(True)
 # tf.get_variable_scope().set_dtype(ztypes.float)
 
-from . import constraint, pdf, minimize, loss, core, data, func
+from . import constraint, pdf, minimize, loss, core, data, func, param
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
 from .core.limits import Space, convert_to_space, supports
 from .core.data import Data
