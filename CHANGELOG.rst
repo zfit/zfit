@@ -9,9 +9,13 @@ Develop
 Major Features and Improvements
 -------------------------------
  - full TF 2.0 compatibility, tests against 1.x and 2.x
+ - added ConstantParameter and `zfit.param` namespace
 
 Behavioral changes
 ------------------
+ - an implicitly created parameter with a Python numerical (e.g. when instantiating a model)
+   will be converted to a ConstantParameter instead of a fixed Parameter and therefore
+   cannot be set to floating later on.
 
 Bug fixes and small changes
 ---------------------------
@@ -20,6 +24,7 @@ Bug fixes and small changes
 
  - `from_numpy` automatically converts to default float regardless the original numpy dtype,
    `dtype` has to be used as an explicit argument
+
 
 Requirement changes
 -------------------
