@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.1.dev207+g5998c20 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.1.dev207+g074af62 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev207+g5998c20</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev207+g074af62</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -591,7 +591,11 @@
         <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;&lt;zfit.Parameter &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; floating=</span><span class="si">{self.floating}</span><span class="s2">&gt;&quot;</span></div>
 
 
-<div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">ComposedVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseZParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseZParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseZParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">ComposedVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">BaseZParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseComposedParameter&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -618,6 +622,27 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">independent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ConstantParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ConstantParameter">[docs]</a><span class="k">class</span> <span class="nc">ConstantParameter</span><span class="p">(</span><span class="n">BaseZParameter</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{})</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">floating</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@floating</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">floating</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">(</span><span class="s2">&quot;Cannot set a fixed parameter.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">independent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
@@ -717,6 +742,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        value ():</span>
+<span class="sd">        name ():</span>
+<span class="sd">        prefer_floating: If True, create a Parameter instead of a FixedParameter _if possible_.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">floating</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">is_python</span> <span class="o">=</span> <span class="kc">False</span>
@@ -757,11 +785,14 @@
                 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;composite_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">())</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">ComposedParameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;FIXED_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">())</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefer_floating</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">())</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;FIXED_autoparam_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_auto_number</span><span class="p">())</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">ConstantParameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
 
-    <span class="c1"># value.floating = False</span>
     <span class="k">return</span> <span class="n">value</span></div>
 </pre></div>
 

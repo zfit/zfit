@@ -1,0 +1,8 @@
+param
+=====
+
+.. automodule:: zfit.param
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
