@@ -51,7 +51,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
         with data.set_data_range(data_range):
             with model.set_norm_range(norm_range):
                 probs = model.pdf(data)
-        log_probs = tf.log(probs)
+        log_probs = tf.math.log(probs)
         if data.weights is not None:
             log_probs *= data.weights  # because it's prob ** weights
         nll = -tf.reduce_sum(log_probs)
@@ -322,7 +322,7 @@ class BinnedNLL(CachedLoss):
     def _loss_func(self, model, data, fit_range, constraints):
         nll = _binned_nll_tf(model=model, data=data, fit_range=fit_range, hist_to_probs=self.hist_to_probs)
         if constraints:
-            constraints = ztf.reduce_sum(constraints)
+            constraints = ztf.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
 

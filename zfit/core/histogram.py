@@ -14,7 +14,7 @@ def histogramdd(sample, bins=10, range=None, weights=None,
         n_obs = sample.n_obs
     else:
         sample = ztf.convert_to_tensor(sample)
-        n_obs = sample.shape[-1].value
+        n_obs = sample.shape[-1]
 
     none_tensor = tf.constant("NONE_TENSOR", shape=(), name="none_tensor")
     inputs = [sample, bins, range, weights]

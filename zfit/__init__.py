@@ -18,7 +18,7 @@ __credits__ = ["Jonas Eschle <jonas.eschle@cern.ch>",
                "Albert Puig <albert.puig@cern.ch",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
-__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
+__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", 'hist',
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
@@ -37,7 +37,7 @@ from .settings import ztypes
 # tf.get_variable_scope().set_use_resource(True)
 # tf.get_variable_scope().set_dtype(ztypes.float)
 
-from . import constraint, pdf, minimize, loss, core, data, func, param
+from . import constraint, pdf, minimize, loss, core, data, func, param, hist
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
 from .core.limits import Space, convert_to_space, supports
 from .core.data import Data

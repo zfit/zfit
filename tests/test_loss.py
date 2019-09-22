@@ -161,7 +161,7 @@ def test_binned_nll(weights):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     test_values_binned = test_values.create_hist(converter=zfit.hist.histogramdd, bin_kwargs={"bins": 100})
     nll_object = zfit.loss.BinnedNLL(model=gaussian1, data=test_values_binned)
-    minimizer = MinuitMinimizer()
+    minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
     rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
@@ -175,7 +175,7 @@ def test_binned_nll(weights):
     nll_object = zfit.loss.BinnedNLL(model=gaussian2, data=test_values_binned, fit_range=(-np.infty, np.infty),
                                      constraints=constraints)
 
-    minimizer = MinuitMinimizer()
+    minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
     params = status.params
     if weights is None:
