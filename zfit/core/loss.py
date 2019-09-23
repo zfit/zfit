@@ -328,7 +328,7 @@ class BinnedNLL(CachedLoss):
 
     def _cache_add_constraints(self, constraints):
         if self._cache.get('loss') is not None:
-            self._cache['loss'] += ztf.reduce_sum(constraints)
+            self._cache['loss'] += ztf.reduce_sum([c.value() for c in constraints])
 
     @property
     def errordef(self) -> Union[float, int]:
