@@ -6,8 +6,6 @@ from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
 import tensorflow as tf
 
-
-
 import zfit
 from ..util import ztyping
 
@@ -425,4 +423,34 @@ class ZfitFunctorMixin:
 
     @abc.abstractmethod
     def get_models(self) -> List[ZfitModel]:
+        raise NotImplementedError
+
+
+# binned
+
+class ZfitHistData(ZfitData):
+    @property
+    @abc.abstractmethod
+    def binning(self):
+        raise NotImplementedError
+
+
+class ZfitBinnedModel(ZfitPDF):
+
+    @abc.abstractmethod
+    def extended_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, name: str = "extended_pdf"):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def binning(self):
+        raise NotImplementedError
+
+
+class ZfitBinning:
+
+    def compatible(self, binning):
+        raise NotImplementedError
+
+    def edges(self):
         raise NotImplementedError

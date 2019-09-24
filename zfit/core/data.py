@@ -17,7 +17,7 @@ import pandas as pd
 import zfit
 from zfit import ztf
 from .histogram import histogramdd, midpoints_from_hist
-from .interfaces import ZfitSpace
+from .interfaces import ZfitSpace, ZfitHistData
 from ..util.cache import Cachable, invalidates_cache
 from ..util.execution import SessionHolderMixin
 from .baseobject import BaseObject
@@ -719,12 +719,12 @@ class LightDataset:
         return self.tensor
 
 
-class HistData(Data):  # TODO: add weights (not 1D!)
+class HistData(Data, ZfitHistData):  # TODO: add weights (not 1D!)
 
     def __init__(self, bincounts, edges, obs, value_converter=None, name="HistData"):
         dummy_dataset = LightDataset(tensor=tf.constant("DUMMY"))
         # TODO: add numerical cache?
-        super().__init__(dataset=dummy_dataset, obs=obs)
+        super().__init__(dataset=dummy_dataset, obs=obs, name=name)
         self._value_bincounts = None
         self._value_indices = None
         self._bincounts = bincounts
