@@ -51,7 +51,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             name = "Data"
         if dtype is None:
             dtype = ztypes.float
-        super().__init__(name=name)
+        super().__init__(name=name, obs=obs)
         if iterator_feed_dict is None:
             iterator_feed_dict = {}
         self._permutation_indices_data = None
@@ -61,7 +61,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         self._weights = None
 
         self._data_range = None
-        self._set_space(obs)
+        # self._set_space(obs)
         self._original_obs = self.space.obs
         self._data_range = self.space  # TODO proper data cuts: currently set so that the cuts in all dims are applied
         self.dataset = dataset
@@ -81,11 +81,12 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     def dtype(self):
         return self._dtype
 
-    def _set_space(self, obs: Space):
-        obs = convert_to_space(obs)
-        self._check_n_obs(space=obs)
-        obs = obs.with_autofill_axes(overwrite=True)
-        self._space = obs
+    #
+    # def _set_space(self, obs: Space):
+    #     obs = convert_to_space(obs)
+    #     self._check_n_obs(space=obs)
+    #     obs = obs.with_autofill_axes(overwrite=True)
+    #     self._space = obs
 
     @property
     def data_range(self):
@@ -135,13 +136,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         return TemporarilySet(value=weights, getter=getter, setter=setter)
 
-    @property
-    def space(self) -> "ZfitSpace":
-        space = self._space
-        # if space.limits is None:
-        #     if self._data_range is not None:
-        #         space = self._data_range
-        return space
+    # @property
+    # def space(self) -> "ZfitSpace":
+    #     space = self._space
+    #     if space.limits is None:
+    #         if self._data_range is not None:
+    #             space = self._data_range
+    # return space
 
     @property
     def iterator(self):

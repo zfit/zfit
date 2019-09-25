@@ -324,8 +324,8 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
         """
         if not isinstance(sample, list):
             raise TypeError("Sample has to be a list of tf.Tensors")
-        super().__init__()
-        self._space = space
+        super().__init__(obs=space)
+        # self._space = space
         self._sample = sample
         self._reorder_indices_list = list(range(len(sample)))
 
@@ -333,9 +333,9 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
     def weights(self):
         raise NotImplementedError("Weights for PartialIntegralsampleData are not implemented. Are they needed?")
 
-    @property
-    def space(self) -> "zfit.Space":
-        return self._space
+    # @property
+    # def space(self) -> "zfit.Space":
+    #     return self._space
 
     def sort_by_axes(self, axes, allow_superset: bool = False):
         axes = convert_to_container(axes)

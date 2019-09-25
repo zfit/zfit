@@ -91,8 +91,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the parameter and
                 the parameters itself the model depends on
         """
-        super().__init__(name=name, dtype=dtype, params=params, **kwargs)
-        self._check_set_space(obs)
+        super().__init__(name=name, dtype=dtype, params=params, obs=obs, **kwargs)
+        # self._check_set_space(obs)
 
         self._integration = zcontainer.DotDict()
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
@@ -151,16 +151,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     @abc.abstractmethod
     def _func_to_sample_from(self, x: ztyping.XType) -> Data:
         raise NotImplementedError
-
-    @property
-    def space(self) -> "zfit.Space":
-        return self._space
-
-    def _check_set_space(self, obs):
-        if not isinstance(obs, Space):
-            obs = Space(obs=obs)
-        self._check_n_obs(space=obs)
-        self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
     def _convert_sort_x(self, x: ztyping.XTypeInput, partial: bool = False) -> Data:

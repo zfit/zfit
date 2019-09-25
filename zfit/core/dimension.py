@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Iterable, Union, List
 from contextlib import ExitStack
 import functools
@@ -13,6 +15,10 @@ from ..util import ztyping
 
 
 class BaseDimensional(ZfitDimensional):
+
+    def __init__(self, obs, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.space = obs
 
     def _check_n_obs(self, space):
         if self._N_OBS is not None:
@@ -36,6 +42,31 @@ class BaseDimensional(ZfitDimensional):
     @property
     def n_obs(self) -> int:
         return self.space.n_obs
+
+    @property
+    def space(self) -> "zfit.Space":
+        return self._space
+
+    @space.setter
+    def space(self, space):
+        space = self._check_convert_input_space(space)
+        self._space = space
+
+    def _check_convert_obs(self, obs):
+        obs = convert_to_container(obs)
+        wrong_type_obs = tuple(o for o in obs if not isinstance(o, str))
+        if wrong_type_obs:
+            raise TypeError(f"The observable(s) {wrong_type_obs} are not strings.")
+        return obs
+
+    def _check_convert_input_space(self, space, allow_no_limits=True, autofill_axes=True):
+        from .limits import Space
+
+        if not isinstance(space, Space) and self._check_convert_obs(space) and allow_no_limits:
+            space = Space(obs=space)
+        self._check_n_obs(space=space)
+        space = space.with_autofill_axes(overwrite=autofill_axes)
+        return space
 
 
 @functools.lru_cache(maxsize=500)
