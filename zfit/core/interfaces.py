@@ -4,6 +4,7 @@ import abc
 from collections import OrderedDict
 from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
+import numpy as np
 import tensorflow as tf
 
 import zfit
@@ -447,10 +448,11 @@ class ZfitBinnedModel(ZfitPDF):
         raise NotImplementedError
 
 
-class ZfitBinning:
+class ZfitBinningScheme:
 
-    def compatible(self, binning):
+    def compatible(self, binning: "ZfitBinningScheme") -> bool:
         raise NotImplementedError
 
-    def edges(self):
+    @property
+    def edges(self) -> np.ndarray:
         raise NotImplementedError

@@ -9,7 +9,6 @@ import numpy as np
 
 import tensorflow as tf
 
-
 import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 
@@ -525,3 +524,14 @@ class Integration:
     def __init__(self, mc_sampler, draws_per_dim):
         self.mc_sampler = mc_sampler
         self.draws_per_dim = draws_per_dim
+
+
+def binned_rect_integration(bincount: tf.Tensor, edges: np.ndarray, limits: ZfitSpace) -> tf.Tensor:
+    # HACK
+    limits.inside = lambda x: x.astype(bool)
+    print("HACK ACTIVE in integration.py, binned_integration, limits not working")
+    # HACK END
+    # bincount_cut = bincount[limits.inside(edges)]
+    bincount_cut = bincount
+    integral = tf.reduce_sum(bincount_cut, axis=limits.axes)
+    return integral
