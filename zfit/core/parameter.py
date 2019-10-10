@@ -6,8 +6,6 @@ from contextlib import suppress
 import numpy as np
 import tensorflow as tf
 
-
-
 # TF backwards compatibility
 from tensorflow.python import ops, array_ops
 
@@ -324,10 +322,12 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         """
 
         # TODO: sanitize input
+        self._lower_limit_neg_inf = None
+        self._upper_limit_neg_inf = None
         if lower_limit is None:
-            lower_limit = -np.infty
+            self._lower_limit_neg_inf = tf.cast(-np.infty, dtype)
         if upper_limit is None:
-            upper_limit = np.infty
+            self._upper_limit_neg_inf = tf.cast(np.infty, dtype)
         # no_limits = -lower_limit == upper_limit == np.infty
         value = tf.cast(value, dtype=ztypes.float)
 
@@ -339,8 +339,9 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
-        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
-        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
+
+        self.lower_limit = tf.cast(lower_limit, dtype=dtype) if lower_limit is not None else lower_limit
+        self.upper_limit = tf.cast(upper_limit, dtype=dtype) if upper_limit is not None else upper_limit
         if self.independent:
             tf.compat.v1.add_to_collection("zfit_independent", self)
         else:
@@ -356,25 +357,35 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
     @property
     def lower_limit(self):
-        return self._lower_limit
+        limit = self._lower_limit
+        if limit is None:
+            limit = self._lower_limit_neg_inf
+        return limit
 
     @lower_limit.setter
     @invalidates_cache
     def lower_limit(self, value):
+        if value is None and self._lower_limit_neg_inf is None:
+            self._lower_limit_neg_inf = tf.cast(-np.infty, self.dtype)
         self._lower_limit = value
 
     @property
     def upper_limit(self):
-        return self._upper_limit
+        limit = self._upper_limit
+        if limit is None:
+            limit = self._upper_limit_neg_inf
+        return limit
 
     @upper_limit.setter
     @invalidates_cache
     def upper_limit(self, value):
+        if value is None and self._upper_limit_neg_inf is None:
+            self._upper_limit_neg_inf = tf.cast(np.infty, self.dtype)
         self._upper_limit = value
 
     @property
     def has_limits(self):
-        no_limits = -self.lower_limit == self.upper_limit == np.infty
+        no_limits = self._lower_limit is None and self._upper_limit is None
         return not no_limits
 
     def value(self):
