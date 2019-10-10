@@ -533,5 +533,17 @@ def binned_rect_integration(bincount: tf.Tensor, edges: np.ndarray, limits: Zfit
     # HACK END
     # bincount_cut = bincount[limits.inside(edges)]
     bincount_cut = bincount
+    binwidths = [(edge[1:] - edge[:-1]) for edge in edges]
+
+    def outer_tensordot_recursive(tensors):
+        """Outer product of the tensors."""
+        if len(tensors) > 1:
+            return tf.tensordot(tensors[0], outer_tensordot_recursive(tensors[1:]), axes=0)
+        else:
+            return tensors[0]
+
+    areas = outer_tensordot_recursive(binwidths)
+
+    bincount_cut *= areas
     integral = tf.reduce_sum(bincount_cut, axis=limits.axes)
     return integral
