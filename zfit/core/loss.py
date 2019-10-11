@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import tensorflow as tf
 
-from typing import Optional, Union, List, Callable
+from typing import Optional, Union, List, Callable, Iterable
 
 from zfit import ztf
 from zfit.util import ztyping
@@ -302,7 +302,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(CachedLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Optional[ztyping.ParametersType] = None,
+    def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = None,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a ) Tensor.
 

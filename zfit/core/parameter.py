@@ -340,8 +340,8 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
 
-        self.lower_limit = tf.cast(lower_limit, dtype=dtype) if lower_limit is not None else lower_limit
-        self.upper_limit = tf.cast(upper_limit, dtype=dtype) if upper_limit is not None else upper_limit
+        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
+        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
         if self.independent:
             tf.compat.v1.add_to_collection("zfit_independent", self)
         else:
@@ -366,7 +366,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
     @invalidates_cache
     def lower_limit(self, value):
         if value is None and self._lower_limit_neg_inf is None:
-            self._lower_limit_neg_inf = tf.cast(-np.infty, self.dtype)
+            self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
         self._lower_limit = value
 
     @property
@@ -380,7 +380,7 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
     @invalidates_cache
     def upper_limit(self, value):
         if value is None and self._upper_limit_neg_inf is None:
-            self._upper_limit_neg_inf = tf.cast(np.infty, self.dtype)
+            self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
         self._upper_limit = value
 
     @property

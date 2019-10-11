@@ -601,8 +601,8 @@ class Sampler(Data):
 
         if fixed_params is None:
             fixed_params = []
-
-        sample_holder = tf.Variable(initial_value=sample, trainable=False,
+        from tensorflow.python.ops.variables import VariableV1
+        sample_holder = VariableV1(initial_value=sample, trainable=False,
                                     name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
