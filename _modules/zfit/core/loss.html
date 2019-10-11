@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.loss &#8212; zfit 0.1.dev207+g074af62 documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.1.dev193+g56eefed documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev207+g074af62</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev193+g56eefed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -112,7 +112,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
 <span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
@@ -409,7 +409,7 @@
 <div class="viewcode-block" id="SimpleLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.SimpleLoss">[docs]</a><span class="k">class</span> <span class="nc">SimpleLoss</span><span class="p">(</span><span class="n">CachedLoss</span><span class="p">):</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;SimpleLoss&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">dependents</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ParametersType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">dependents</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">errordef</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Loss from a (function returning a ) Tensor.</span>
 

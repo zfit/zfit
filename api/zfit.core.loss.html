@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>loss &#8212; zfit 0.1.dev207+g074af62 documentation</title>
+    <title>loss &#8212; zfit 0.1.dev193+g56eefed documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev207+g074af62</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev193+g56eefed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -480,7 +480,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="class">
 <dt id="zfit.core.loss.SimpleLoss">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">SimpleLoss</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em>, <em class="sig-param">dependents: Optional[Dict[str</em>, <em class="sig-param">zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">errordef: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">SimpleLoss</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em>, <em class="sig-param">dependents: Optional[Iterable[zfit.Parameter]] = None</em>, <em class="sig-param">errordef: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.loss.CachedLoss" title="zfit.core.loss.CachedLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.CachedLoss</span></code></a></p>
 <p>Loss from a (function returning a ) Tensor.</p>
 <dl class="field-list simple">

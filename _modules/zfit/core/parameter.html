@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.1.dev207+g074af62 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.1.dev193+g56eefed documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev207+g074af62</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev193+g56eefed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -112,8 +112,6 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-
-
 
 <span class="c1"># TF backwards compatibility</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">ops</span><span class="p">,</span> <span class="n">array_ops</span>
@@ -431,10 +429,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: sanitize input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit_neg_inf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit_neg_inf</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">lower_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">lower_limit</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit_neg_inf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">upper_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">upper_limit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit_neg_inf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
         <span class="c1"># no_limits = -lower_limit == upper_limit == np.infty</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
 
@@ -446,8 +446,9 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
                          <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">upper_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lower_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="k">if</span> <span class="n">lower_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lower_limit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">upper_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="k">if</span> <span class="n">upper_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">upper_limit</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent</span><span class="p">:</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">add_to_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -463,25 +464,35 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">lower_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit</span>
+        <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit_neg_inf</span>
+        <span class="k">return</span> <span class="n">limit</span>
 
     <span class="nd">@lower_limit</span><span class="o">.</span><span class="n">setter</span>
     <span class="nd">@invalidates_cache</span>
     <span class="k">def</span> <span class="nf">lower_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit_neg_inf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit_neg_inf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">upper_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit</span>
+        <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit_neg_inf</span>
+        <span class="k">return</span> <span class="n">limit</span>
 
     <span class="nd">@upper_limit</span><span class="o">.</span><span class="n">setter</span>
     <span class="nd">@invalidates_cache</span>
     <span class="k">def</span> <span class="nf">upper_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit_neg_inf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit_neg_inf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">no_limits</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span>
+        <span class="n">no_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_limit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_limit</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="n">no_limits</span>
 
 <div class="viewcode-block" id="Parameter.value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.Parameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

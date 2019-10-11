@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.data &#8212; zfit 0.1.dev207+g074af62 documentation</title>
+    <title>zfit.core.data &#8212; zfit 0.1.dev193+g56eefed documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev207+g074af62</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev193+g56eefed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -708,8 +708,8 @@
 
         <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">sample_holder</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="kn">from</span> <span class="nn">tensorflow.python.ops.variables</span> <span class="k">import</span> <span class="n">VariableV1</span>
+        <span class="n">sample_holder</span> <span class="o">=</span> <span class="n">VariableV1</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sample_data_holder_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_cache_counting</span><span class="p">()))</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">sample_holder</span><span class="p">)</span>
 
