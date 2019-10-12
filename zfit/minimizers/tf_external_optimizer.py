@@ -1,4 +1,4 @@
-# Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+#  Copyright (c) 2019 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -295,7 +295,7 @@ class ExternalOptimizerInterface:  # COPYRIGHT: remove explicit `object` inherit
 
 
 class ScipyOptimizerInterface(ExternalOptimizerInterface):
-    """Wrapper allowing `scipy.optimize.minimize` to operate a `tf.Session`.
+    """Wrapper allowing `scipy.optimize.minimize` to operate a `tf.compat.v1.Session`.
 
     Example:
 
@@ -307,7 +307,7 @@ class ScipyOptimizerInterface(ExternalOptimizerInterface):
 
     optimizer = ScipyOptimizerInterface(loss, options={'maxiter': 100})
 
-    with tf.Session() as session:
+    with tf.compat.v1.Session() as session:
       optimizer.minimize(session)
 
     # The value of vector should now be [0., 0.].
@@ -324,7 +324,7 @@ class ScipyOptimizerInterface(ExternalOptimizerInterface):
     optimizer = ScipyOptimizerInterface(
         loss, var_to_bounds={vector: ([1, 2], np.infty)})
 
-    with tf.Session() as session:
+    with tf.compat.v1.Session() as session:
       optimizer.minimize(session)
 
     # The value of vector should now be [1., 2.].
@@ -347,7 +347,7 @@ class ScipyOptimizerInterface(ExternalOptimizerInterface):
     optimizer = ScipyOptimizerInterface(
         loss, equalities=equalities, inequalities=inequalities, method='SLSQP')
 
-    with tf.Session() as session:
+    with tf.compat.v1.Session() as session:
       optimizer.minimize(session)
 
     # The value of vector should now be [1., 1.].

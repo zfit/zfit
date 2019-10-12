@@ -2,6 +2,63 @@
 Changelog
 *********
 
+Develop
+=======
+
+Major Features and Improvements
+-------------------------------
+ - full TF 2.0 compatibility, tests against 1.x and 2.x
+
+Behavioral changes
+------------------
+
+Bug fixes and small changes
+---------------------------
+
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
+0.3.6 (12.10.19)
+================
+
+**Special relese for conda deployment and version fix (TF 2.0 is out)**
+
+**This is the last release before breaking changes occur**
+
+
+Major Features and Improvements
+-------------------------------
+ - added ConstantParameter and `zfit.param` namespace
+ - Available on conda-forge
+
+Behavioral changes
+------------------
+ - an implicitly created parameter with a Python numerical (e.g. when instantiating a model)
+   will be converted to a ConstantParameter instead of a fixed Parameter and therefore
+   cannot be set to floating later on.
+
+Bug fixes and small changes
+---------------------------
+ - added native support TFP distributions for analytic sampling
+ - fix Gaussian (TFP Distribution) Constraint with mixed up order of parameters
+
+ - `from_numpy` automatically converts to default float regardless the original numpy dtype,
+   `dtype` has to be used as an explicit argument
+
+
+Requirement changes
+-------------------
+ - TensorFlow >= 1.14 is required
+
+
+Thanks
+------
+ - Chris Burr for the conda-forge deployment
 
 
 0.3.4 (30-07-19)
@@ -19,7 +76,7 @@ Behavioral changes
 ------------------
 None
 
-Bug fixes and other changes
+Bug fixes and small changes
 ---------------------------
 
 - fixed various small bugs

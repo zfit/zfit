@@ -16,6 +16,8 @@ from zfit import ztf
 import zfit
 
 import tensorflow as tf
+
+
 import numpy as np
 import tensorflow_probability as tfp
 
@@ -89,7 +91,7 @@ class SimpleConstraint(BaseConstraint):
     def _get_dependents(self):
         dependents = self._simple_func_dependents
         if dependents is None:
-            independent_params = tf.get_collection("zfit_independent")
+            independent_params = tf.compat.v1.get_collection("zfit_independent")
             dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
             self._simple_func_dependents = dependents
         return dependents
@@ -122,7 +124,6 @@ class DistributionConstraint(BaseConstraint):
         self._distribution = distribution
         self.dist_params = dist_params
         self.dist_kwargs = dist_kwargs if dist_kwargs is not None else {}
-        self._tparams = ztf.convert_to_tensor(self.get_params())
 
     @property
     def distribution(self):
@@ -135,7 +136,7 @@ class DistributionConstraint(BaseConstraint):
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
     def _value(self):
-        value = -self.distribution.log_prob(self._tparams)
+        value = -self.distribution.log_prob(self._params_array)
         return value
 
     def _sample(self, n):
@@ -150,30 +151,30 @@ class GaussianConstraint(DistributionConstraint):
         """Gaussian constraints on a list of parameters.
 
         Args:
-            params (list(1zfit.Parameter1)): The parameters to constraint
+            params (list(zfit.Parameter)): The parameters to constraint
             mu (numerical, list(numerical)): The central value of the constraint
             sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
 
         Raises:
-            ShapeIncompatibleError: if params, mu and sigma don't have the same size
+            ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
         """
         mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
         params = convert_to_container(params, tuple)
 
-        params_dict = {p.name: p for p in params}
+        params_dict = {f"param_{i}": p for i, p in enumerate(params)}
 
-        mu = ztf.convert_to_tensor(mu)
-        sigma = ztf.convert_to_tensor(sigma)
+        mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
+        sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
         params = ztf.convert_to_tensor(params)
 
         if sigma.shape.ndims > 1:
             covariance = sigma
         elif sigma.shape.ndims == 1:
-            covariance = tf.diag(ztf.pow(sigma, 2.))
+            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
         else:
             sigma = tf.reshape(sigma, [1])
-            covariance = tf.diag(ztf.pow(sigma, 2.))
+            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
 
         if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
             raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
@@ -182,6 +183,7 @@ class GaussianConstraint(DistributionConstraint):
 
         self._covariance = covariance
         self._mu = mu
+        self._params_array = params
 
         distribution = tfd.MultivariateNormalFullCovariance
         dist_params = dict(loc=mu, covariance_matrix=covariance)

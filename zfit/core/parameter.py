@@ -34,7 +34,8 @@ class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)): 
 
 # drop-in replacement for ResourceVariable
 # class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
-class ZfitBaseVariable(metaclass=MetaBaseParameter):
+# class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class ZfitBaseVariable:
 
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
@@ -127,12 +128,13 @@ class ComposedResourceVariable(ResourceVariable):
 
 # class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 # class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
-class ComposedVariable(metaclass=MetaBaseParameter):
+# class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class ComposedVariable:
 
     def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
-        self._value_tensor = tf.convert_to_tensor(initial_value, preferred_dtype=ztypes.float)
+        self._value_tensor = tf.convert_to_tensor(value=initial_value, dtype_hint=ztypes.float)
         # self._name = name
 
     @property
@@ -226,7 +228,8 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 ComposedVariable._OverloadAllOperators()
 
 
-class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
+# class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class BaseParameter(ZfitParameter):
     pass
 
 
@@ -297,7 +300,8 @@ class ZfitParameterMixin(BaseNumeric):
 
 
 # solve metaclass confict
-class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
+# class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):    # TODO(Mayou36): upgrade to tf2
+class TFBaseVariable(TFBaseVariable):
     pass
 
 
@@ -318,10 +322,12 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         """
 
         # TODO: sanitize input
+        self._lower_limit_neg_inf = None
+        self._upper_limit_neg_inf = None
         if lower_limit is None:
-            lower_limit = -np.infty
+            self._lower_limit_neg_inf = tf.cast(-np.infty, dtype)
         if upper_limit is None:
-            upper_limit = np.infty
+            self._upper_limit_neg_inf = tf.cast(np.infty, dtype)
         # no_limits = -lower_limit == upper_limit == np.infty
         value = tf.cast(value, dtype=ztypes.float)
 
@@ -333,12 +339,13 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
-        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float)
-        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float)
+
+        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
+        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
         if self.independent:
-            tf.add_to_collection("zfit_independent", self)
+            tf.compat.v1.add_to_collection("zfit_independent", self)
         else:
-            tf.add_to_collection("zfit_dependent", self)
+            tf.compat.v1.add_to_collection("zfit_dependent", self)
         # value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.step_size = step_size
@@ -350,25 +357,35 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
 
     @property
     def lower_limit(self):
-        return self._lower_limit
+        limit = self._lower_limit
+        if limit is None:
+            limit = self._lower_limit_neg_inf
+        return limit
 
     @lower_limit.setter
     @invalidates_cache
     def lower_limit(self, value):
+        if value is None and self._lower_limit_neg_inf is None:
+            self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
         self._lower_limit = value
 
     @property
     def upper_limit(self):
-        return self._upper_limit
+        limit = self._upper_limit
+        if limit is None:
+            limit = self._upper_limit_neg_inf
+        return limit
 
     @upper_limit.setter
     @invalidates_cache
     def upper_limit(self, value):
+        if value is None and self._upper_limit_neg_inf is None:
+            self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
         self._upper_limit = value
 
     @property
     def has_limits(self):
-        no_limits = -self.lower_limit == self.upper_limit == np.infty
+        no_limits = self._lower_limit is None and self._upper_limit is None
         return not no_limits
 
     def value(self):
@@ -478,7 +495,11 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
         return f"<zfit.Parameter '{self.name}' floating={self.floating}>"
 
 
-class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
+class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
+    pass
+
+
+class BaseComposedParameter(BaseZParameter):
 
     def __init__(self, params, value, name="BaseComposedParameter", **kwargs):
         super().__init__(initial_value=value, name=name, params=params, **kwargs)
@@ -507,10 +528,31 @@ class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter)
         return False
 
 
+class ConstantParameter(BaseZParameter):
+
+    def __init__(self, name, value):
+        super().__init__(name=name, initial_value=value, dtype=ztypes.float, params={})
+
+    @property
+    def floating(self):
+        return False
+
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set a fixed parameter.")
+
+    @property
+    def independent(self) -> bool:
+        return False
+
+    def _get_dependents(self) -> ztyping.DependentsType:
+        return set()
+
+
 class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
         tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
-        independent_params = tf.get_collection("zfit_independent")
+        independent_params = tf.compat.v1.get_collection("zfit_independent")
         params = get_dependents_auto(tensor=tensor, candidates=independent_params)
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
@@ -571,7 +613,7 @@ class ComplexParameter(ComposedParameter):
     def imag(self):
         imag = self._imag
         if imag is None:
-            imag = tf.imag(tf.convert_to_tensor(self, preferred_dtype=self.dtype))  # HACK tf bug #30029
+            imag = tf.math.imag(tf.convert_to_tensor(value=self, dtype_hint=self.dtype))  # HACK tf bug #30029
         return imag
 
     @property
@@ -604,6 +646,9 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
 
     Args:
         value ():
+        name ():
+        prefer_floating: If True, create a Parameter instead of a FixedParameter _if possible_.
+
     """
     floating = False
     is_python = False
@@ -637,16 +682,19 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
         if is_python:
             params = {}
         else:
-            independend_params = tf.get_collection("zfit_independent")
+            independend_params = tf.compat.v1.get_collection("zfit_independent")
             params = get_dependents_auto(tensor=value, candidates=independend_params)
         if params:
             if name is None:
                 name = "composite_autoparam_" + str(get_auto_number())
             value = ComposedParameter(name, tensor=value)
         else:
-            if name is None:
-                name = "FIXED_autoparam_" + str(get_auto_number())
-            value = Parameter(name, value=value, floating=floating)
+            if prefer_floating:
+                name = "autoparam_" + str(get_auto_number()) if name is None else name
+                value = Parameter(name=name, value=value)
+            else:
+                if name is None:
+                    name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
+                value = ConstantParameter(name, value=value)
 
-    # value.floating = False
     return value

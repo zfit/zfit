@@ -6,6 +6,7 @@ from typing import List, Tuple, Union, Dict, Mapping
 import warnings
 
 import tensorflow as tf
+
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 import uproot
@@ -282,14 +283,18 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         """
         if not isinstance(array, np.ndarray):
             raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
-        np_placeholder = tf.placeholder(dtype=array.dtype, shape=array.shape)
-        iterator_feed_dict = {np_placeholder: array}
-        dataset = tf.data.Dataset.from_tensors(np_placeholder)
-
+        if dtype is None:
+            dtype = ztypes.float
+        tensor = tf.cast(array, dtype=dtype)
+        return cls.from_tensor(obs=obs, tensor=tensor, weights=weights, name=name, dtype=dtype)
+        # np_placeholder = tf.compat.v1.placeholder(dtype=array.dtype, shape=array.shape)
+        # iterator_feed_dict = {np_placeholder: array}
+        # dataset = tf.data.Dataset.from_tensors(np_placeholder)
+        #
         # dataset = dataset.batch(len(array))
-        dataset = dataset.repeat()
-        return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype,
-                    iterator_feed_dict=iterator_feed_dict)
+        # dataset = dataset.repeat()
+        # return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype,
+        #             iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
     def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, weights: ztyping.WeightsInputType = None,
@@ -325,7 +330,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return df
 
     def initialize(self):
-        iterator = self.dataset.make_initializable_iterator()
+        iterator = tf.compat.v1.data.make_initializable_iterator(self.dataset)
 
         self.sess.run(iterator.initializer, self.iterator_feed_dict)
         self.iterator = iterator
@@ -359,10 +364,10 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             inside_limits = []
             # value = tf.transpose(value)
             for lower, upper in data_range.iter_limits():
-                above_lower = tf.reduce_all(tf.less_equal(value, upper), axis=1)
-                below_upper = tf.reduce_all(tf.greater_equal(value, lower), axis=1)
+                above_lower = tf.reduce_all(input_tensor=tf.less_equal(value, upper), axis=1)
+                below_upper = tf.reduce_all(input_tensor=tf.greater_equal(value, lower), axis=1)
                 inside_limits.append(tf.logical_and(above_lower, below_upper))
-            inside_any_limit = tf.reduce_any(inside_limits, axis=0)  # has to be inside one limit
+            inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
 
             value = tf.boolean_mask(tensor=value, mask=inside_any_limit)
             # value = tf.transpose(value)
@@ -464,7 +469,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
     @staticmethod
     def _OverloadAllOperators():  # pylint: disable=invalid-name
         """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             Data._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
@@ -479,7 +484,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
           operator: string. The operator name.
         """
 
-        tensor_oper = getattr(ops.Tensor, operator)
+        tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args):
             # pylint: disable=protected-access
@@ -525,7 +530,7 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         return space
 
     def _get_nevents(self):
-        nevents = tf.shape(self.value())[0]
+        nevents = tf.shape(input=self.value())[0]
         return nevents
 
 
@@ -596,10 +601,9 @@ class Sampler(Data):
 
         if fixed_params is None:
             fixed_params = []
-
-        sample_holder = tf.Variable(initial_value=sample, trainable=False, collections=("zfit_sample_cache",),
-                                    name="sample_data_holder_{}".format(cls.get_cache_counting()),
-                                    use_resource=True)
+        from tensorflow.python.ops.variables import VariableV1
+        sample_holder = VariableV1(initial_value=sample, trainable=False,
+                                    name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
         return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
@@ -694,16 +698,17 @@ if __name__ == '__main__':
     data = zfit.Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
     import time
 
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
         # data.initialize()
         x = data.value()
 
         for i in range(1):
             print(i)
             try:
-                func = tf.log(x) * tf.sin(x) * tf.reduce_mean(x ** 2 - tf.cos(x) ** 2) / tf.reduce_sum(x)
+                func = tf.math.log(x) * tf.sin(x) * tf.reduce_mean(
+                    input_tensor=x ** 2 - tf.cos(x) ** 2) / tf.reduce_sum(input_tensor=x)
                 start = time.time()
-                result_grad = sess.run(tf.gradients(func, x))
+                result_grad = sess.run(tf.gradients(ys=func, xs=x))
                 result = sess.run(func)
                 end = time.time()
                 print("time needed", (end - start))

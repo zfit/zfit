@@ -4,6 +4,8 @@ from .util import ztyping
 from .core.constraint import SimpleConstraint, GaussianConstraint
 import tensorflow as tf
 
+
+
 __all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 
 

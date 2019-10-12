@@ -4,8 +4,10 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
+
+
 import zfit
-from zfit import ztf
+from zfit import ztf, Space
 from zfit.core.sample import accept_reject_sample
 from zfit.util.execution import SessionHolderMixin
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -15,6 +17,18 @@ sigma_true = 1.2
 low, high = -3.8, 2.9
 
 obs1 = 'obs1'
+
+
+class GaussNoAnalyticSampling(zfit.pdf.Gauss):
+
+    def _analytic_sample(self, n, limits: Space):
+        raise NotImplementedError  # HACK do make importance sampling work
+
+
+class UniformNoAnalyticSampling(zfit.pdf.Uniform):
+
+    def _analytic_sample(self, n, limits: Space):
+        raise NotImplementedError  # HACK do make importance sampling work
 
 
 def create_gauss1():
@@ -55,11 +69,10 @@ gaussian_dists = [lambda: create_gauss1(), lambda: create_test_gauss1()]
 @pytest.mark.parametrize('gauss_factory', gaussian_dists)
 def test_sampling_fixed(gauss_factory):
     gauss, mu, sigma = gauss_factory()
-    import tensorflow as tf
+
     n_draws = 1000
     n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
-                                name='n_draws',
-                                use_resource=True)  # variable to have something changeable, predictable
+                                name='n_draws')  # variable to have something changeable, predictable
     zfit.run(n_draws_param.initializer)
     sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
     sample_tensor.resample()
@@ -163,8 +176,9 @@ def test_importance_sampling():
 
     obs_sampler = zfit.Space(obs='obs1', limits=(4.5, 5.5))  # smaller, so pdf is bigger
     obs_pdf = zfit.Space(obs='obs1', limits=(1, 7))
-    gauss_sampler = zfit.pdf.Gauss(mu=mu_sampler, sigma=sigma_sampler, obs=obs_sampler)
-    gauss_pdf = zfit.pdf.Gauss(mu=mu_pdf, sigma=sigma_pdf, obs=obs_pdf)
+
+    gauss_sampler = GaussNoAnalyticSampling(mu=mu_sampler, sigma=sigma_sampler, obs=obs_sampler)
+    gauss_pdf = GaussNoAnalyticSampling(mu=mu_pdf, sigma=sigma_pdf, obs=obs_pdf)
 
     importance_sampling_called = [False]
 
@@ -187,7 +201,7 @@ def test_importance_sampling():
                                                                    fixed_params=False, name='asdf')[2]
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
-            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(prob=gauss_pdf.unnormalized_pdf, n=30000, limits=obs_pdf)
@@ -211,7 +225,7 @@ def test_importance_sampling_uniform():
     low = -3.
     high = 7.
     obs = zfit.Space("obs1", (low, high))
-    uniform = zfit.pdf.Uniform(obs=obs, low=low, high=high)
+    uniform = UniformNoAnalyticSampling(obs=obs, low=low, high=high)
     importance_sampling_called = [False]
 
     class GaussianSampleAndWeights(SessionHolderMixin):
@@ -225,7 +239,7 @@ def test_importance_sampling_uniform():
                                            low=low, high=high)
             sample = gaussian.sample(sample_shape=(n_to_produce, 1))
             weights = gaussian.prob(sample)[:, 0]
-            thresholds = tf.random_uniform(shape=(n_to_produce,), dtype=dtype)
+            thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return sample, thresholds, weights, None, n_to_produce
 
     uniform._sample_and_weights = GaussianSampleAndWeights
@@ -243,6 +257,7 @@ def test_importance_sampling_uniform():
     # plt.hist(sample_np, bins=40)
     # plt.show()
 
+
 def test_sampling_fixed_eventlimits():
     n_samples1 = 500
     n_samples2 = 400  # just to make sure
@@ -253,12 +268,12 @@ def test_sampling_fixed_eventlimits():
     lower1, upper1 = -10, -9
     lower2, upper2 = 0, 1
     lower3, upper3 = 10, 11
-    lower = tf.convert_to_tensor(tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
-    upper = tf.convert_to_tensor(tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
+    lower = tf.convert_to_tensor(value=tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
+    upper = tf.convert_to_tensor(value=tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
     lower = ((lower,),)
     upper = ((upper,),)
     limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
-    gauss1 = zfit.pdf.Gauss(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-7, 8)))
+    gauss1 = GaussNoAnalyticSampling(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-7, 8)))
 
     sample = gauss1.sample(n=n_samples_tot, limits=limits)
     sample_np = zfit.run(sample)
@@ -271,4 +286,4 @@ def test_sampling_fixed_eventlimits():
     assert all(sample_np[n_samples2:n_samples3] <= upper3)
     with pytest.raises(ValueError,
                        match="are incompatible"):  # cannot use the exact message, () are regex syntax... bug in pytest
-        _ = gauss1.sample(n=n_samples_tot + 1, limits=limits)
+        _ = gauss1.sample(n=n_samples_tot + 1, limits=limits)  # TODO(Mayou36): catch analytic integral

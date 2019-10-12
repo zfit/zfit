@@ -4,7 +4,8 @@ import abc
 from collections import OrderedDict
 
 import tensorflow as tf
-from typing import Optional, Union, List, Callable
+
+from typing import Optional, Union, List, Callable, Iterable
 
 from zfit import ztf
 from zfit.util import ztyping
@@ -18,7 +19,10 @@ from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, 
 from zfit.settings import ztypes
 from .constraint import BaseConstraint, SimpleConstraint
 
+func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
+
+# @func_simple
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
@@ -37,14 +41,14 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
     if is_container(model):
         nlls = [_unbinned_nll_tf(model=p, data=d, fit_range=r)
                 for p, d, r in zip(model, data, fit_range)]
-        nll_finished = tf.reduce_sum(nlls)
+        nll_finished = tf.reduce_sum(input_tensor=nlls)
     else:
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
-        log_probs = tf.log(probs)
+        log_probs = tf.math.log(probs)
         if data.weights is not None:
             log_probs *= data.weights  # because it's prob ** weights
-        nll = -tf.reduce_sum(log_probs)
+        nll = -tf.reduce_sum(input_tensor=log_probs)
         nll_finished = nll
     return nll_finished
 
@@ -56,7 +60,7 @@ def _nll_constraints_tf(constraints):
     for param, dist in constraints.items():
         probs.append(dist.pdf(param))
     # probs = [dist.pdf(param) for param, dist in constraints.items()]
-    constraints_neg_log_prob = -tf.reduce_sum(tf.log(probs))
+    constraints_neg_log_prob = -tf.reduce_sum(input_tensor=tf.math.log(probs))
     return constraints_neg_log_prob
 
 
@@ -194,6 +198,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def _loss_func(self, model, data, fit_range, constraints):
         raise NotImplementedError
 
+    # @func_simple
     def value(self):
         return self._value()
 
@@ -217,7 +222,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return loss
 
     def _gradients(self, params):
-        return tf.gradients(self.value(), params)
+        return tf.gradients(ys=self.value(), xs=params)
 
 
 class CachedLoss(BaseLoss):
@@ -289,15 +294,15 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
             nevents = dat.nevents if dat.weights is None else ztf.reduce_sum(dat.weights)
-            poisson_terms.append(-mod.get_yield() + ztf.to_real(nevents) * tf.log(mod.get_yield()))
-        nll -= tf.reduce_sum(poisson_terms)
+            poisson_terms.append(-mod.get_yield() + ztf.to_real(nevents) * tf.math.log(mod.get_yield()))
+        nll -= tf.reduce_sum(input_tensor=poisson_terms)
         return nll
 
 
 class SimpleLoss(CachedLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Optional[ztyping.ParametersType] = None,
+    def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = None,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a ) Tensor.
 
@@ -317,7 +322,7 @@ class SimpleLoss(CachedLoss):
     def _get_dependents(self):
         dependents = self._simple_func_dependents
         if dependents is None:
-            independent_params = tf.get_collection("zfit_independent")
+            independent_params = tf.compat.v1.get_collection("zfit_independent")
             dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
             self._simple_func_dependents = dependents
         return dependents

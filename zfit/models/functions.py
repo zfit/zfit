@@ -1,7 +1,11 @@
+#  Copyright (c) 2019 zfit
+
 import itertools
 from typing import Dict, Union, Callable, Iterable
 
 import tensorflow as tf
+
+
 
 from zfit.core.basefunc import BaseFunc
 from zfit.core.basemodel import SimpleModelSubclassMixin
@@ -59,7 +63,7 @@ class SumFunc(BaseFunctorFunc):
     def _func(self, x):
         # sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
         funcs = [func.func(x) for func in self.funcs]
-        sum_funcs = tf.accumulate_n(funcs)
+        sum_funcs = tf.math.accumulate_n(funcs)
         return sum_funcs
 
 

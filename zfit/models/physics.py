@@ -3,6 +3,8 @@
 from typing import Type, Any
 
 import tensorflow as tf
+
+
 import tensorflow_probability.python.distributions as tfd
 import numpy as np
 
@@ -35,9 +37,9 @@ def crystalball_func(x, mu, sigma, alpha, n):
 
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
-    func = tf.where(cond,
-                    crystalball_func(x, mu, sigma, alphal, nl),
-                    crystalball_func(x, mu, sigma, -alphar, nr))
+    func = tf.compat.v1.where(cond,
+                              crystalball_func(x, mu, sigma, alphal, nl),
+                              crystalball_func(x, mu, sigma, -alphar, nr))
 
     return func
 
@@ -126,11 +128,11 @@ def crystalball_integral(limits, params, model):
     def if_false():
         return tmax, tmin
 
-    tmax, tmin = tf.cond(tf.less(alpha, 0), if_true, if_false)
+    tmax, tmin = tf.cond(pred=tf.less(alpha, 0), true_fn=if_true, false_fn=if_false)
 
     def if_true_4():
         result_5, = result,
-        result_5 += abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2) - tf.erf(tmin / sqrt2))
+        result_5 += abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
         return result_5
 
     def if_false_4():
@@ -143,7 +145,7 @@ def crystalball_integral(limits, params, model):
 
             def if_true_1():
                 result_1, = result_3,
-                result_1 += a * abs_sigma * (tf.log(b - tmin) - tf.log(b - tmax))
+                result_1 += a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(b - tmax))
                 return result_1
 
             def if_false_1():
@@ -152,7 +154,7 @@ def crystalball_integral(limits, params, model):
                     1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(b - tmax, n - 1.0))
                 return result_2
 
-            result_3 = tf.cond(use_log, if_true_1, if_false_1)
+            result_3 = tf.cond(pred=use_log, true_fn=if_true_1, false_fn=if_false_1)
             return result_3
 
         def if_false_3():
@@ -161,7 +163,7 @@ def crystalball_integral(limits, params, model):
             b = n / abs_alpha - abs_alpha
 
             def if_true_2():
-                term1 = a * abs_sigma * (tf.log(b - tmin) - tf.log(n / abs_alpha))
+                term1 = a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(n / abs_alpha))
                 return term1
 
             def if_false_2():
@@ -169,17 +171,17 @@ def crystalball_integral(limits, params, model):
                     1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(n / abs_alpha, n - 1.0))
                 return term1
 
-            term1 = tf.cond(use_log, if_true_2, if_false_2)
+            term1 = tf.cond(pred=use_log, true_fn=if_true_2, false_fn=if_false_2)
             term2 = abs_sigma * sqrt_pi_over_two * (
-                tf.erf(tmax / sqrt2) - tf.erf(-abs_alpha / sqrt2))
+                tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
             result_4 += term1 + term2
             return result_4
 
-        result_6 = tf.cond(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
+        result_6 = tf.cond(pred=tf.less_equal(tmax, -abs_alpha), true_fn=if_true_3, false_fn=if_false_3)
         return result_6
 
     # if_false_4()
-    result = tf.cond(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
+    result = tf.cond(pred=tf.greater_equal(tmin, -abs_alpha), true_fn=if_true_4, false_fn=if_false_4)
     return result
 
 
@@ -198,8 +200,8 @@ def double_crystalball_integral(limits, params, model):
     params_right = dict(mu=mu, sigma=sigma, alpha=-params["alphar"],
                         n=params["nr"])
 
-    left = tf.cond(tf.less(mu, lower), 0., crystalball_integral(limits_left, params_left))
-    right = tf.cond(tf.greater(mu, upper), 0., crystalball_integral(limits_right, params_right))
+    left = tf.cond(pred=tf.less(mu, lower), true_fn=0., false_fn=crystalball_integral(limits_left, params_left))
+    right = tf.cond(pred=tf.greater(mu, upper), true_fn=0., false_fn=crystalball_integral(limits_right, params_right))
 
     return left + right
 

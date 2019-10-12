@@ -5,6 +5,8 @@ from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
 import numpy as np
 import tensorflow as tf
 
+
+
 # space
 
 LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
@@ -64,7 +66,7 @@ ParametersType = Dict[str, "zfit.core.interfaces.ZfitParameter"]
 ParamTypeInput = Union['zfit.core.interfaces.ZfitParameter', NumericalScalarType]
 
 # TensorFlow specific
-SessionType = Optional[tf.Session]
+SessionType = Optional[tf.compat.v1.Session]
 
 # Zfit Structure
 BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',

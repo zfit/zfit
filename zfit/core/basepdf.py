@@ -73,6 +73,8 @@ from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
 
+func_simple = tf.function(autograph=False)  # TODO: how to properly?
+
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
 
@@ -285,18 +287,19 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
-            try:
+            # try:
                 return self._unnormalized_pdf(x)
-            except ValueError as error:
-                raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
-                                             "does not coincide with the `n_obs` from the `space`/`obs`"
-                                             "it received on initialization."
-                                             "Original Error: {}".format(error))
+        # except ValueError as error:
+        #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
+        #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
+        #                                  "it received on initialization."
+        #                                  "Original Error: {}".format(error))
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
         raise NotImplementedError
 
+    # @func_simple
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
             name: str = "model") -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.
@@ -378,11 +381,11 @@ class BasePDF(ZfitPDF, BaseModel):
             with suppress(NotImplementedError):
                 return self._log_pdf(x=x, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return tf.log(self._pdf(x=x, norm_range=norm_range))
+                return tf.math.log(self._pdf(x=x, norm_range=norm_range))
             return self._fallback_log_pdf(x=x, norm_range=norm_range)
 
     def _fallback_log_pdf(self, x, norm_range):
-        return tf.log(self._hook_pdf(x=x, norm_range=norm_range))
+        return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
 
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
@@ -393,13 +396,13 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(prob, params) for prob in ztf.unstack_x(probs, always_list=True)]
+        gradients = [tf.gradients(ys=prob, xs=params) for prob in ztf.unstack_x(probs, always_list=True)]
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and norm_range.limits is not False:
             if log:
-                value += tf.log(self.get_yield())
+                value += tf.math.log(self.get_yield())
             else:
                 value *= self.get_yield()
         return value

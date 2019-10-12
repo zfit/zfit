@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-__version__ = '0.3.5'
+#  Copyright (c) 2019 zfit
+
+from pkg_resources import get_distribution
+
+__version__ = get_distribution(__name__).version
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
@@ -20,17 +24,20 @@ __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", 
            "run", "settings"]
 
 #  Copyright (c) 2019 zfit
+import tensorflow.compat.v1 as tf
+
+tf.enable_resource_variables()  # forward compat
+tf.enable_v2_tensorshape()  # forward compat
+tf.disable_eager_execution()
 
 from . import ztf  # legacy
 from . import ztf as z
 from .settings import ztypes
 
-import tensorflow as tf
+# tf.get_variable_scope().set_use_resource(True)
+# tf.get_variable_scope().set_dtype(ztypes.float)
 
-tf.get_variable_scope().set_use_resource(True)
-tf.get_variable_scope().set_dtype(ztypes.float)
-
-from . import constraint, pdf, minimize, loss, core, data, func
+from . import constraint, pdf, minimize, loss, core, data, func, param
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
 from .core.limits import Space, convert_to_space, supports
 from .core.data import Data

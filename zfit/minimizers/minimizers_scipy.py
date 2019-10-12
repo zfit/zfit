@@ -6,6 +6,8 @@ import copy
 from scipy.optimize import SR1, BFGS
 import tensorflow as tf
 
+
+
 from zfit.minimizers.fitresult import FitResult
 from .tf_external_optimizer import ScipyOptimizerInterface
 from .baseminimizer import BaseMinimizer

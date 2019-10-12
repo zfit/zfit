@@ -6,11 +6,14 @@ from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
 import tensorflow as tf
 
+
+
 import zfit
 from ..util import ztyping
 
 
-class ZfitObject(metaclass=abc.ABCMeta):
+# class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
+class ZfitObject:
     # class ZfitObject:
     @property
     # @abc.abstractmethod
