@@ -2,14 +2,39 @@
 Changelog
 *********
 
-
 Develop
 =======
 
 Major Features and Improvements
 -------------------------------
  - full TF 2.0 compatibility, tests against 1.x and 2.x
+
+Behavioral changes
+------------------
+
+Bug fixes and small changes
+---------------------------
+
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
+0.3.6 (12.10.19)
+================
+
+**Special relese for conda deployment and version fix (TF 2.0 is out)**
+
+**This is the last release before breaking changes occur**
+
+
+Major Features and Improvements
+-------------------------------
  - added ConstantParameter and `zfit.param` namespace
+ - Available on conda-forge
 
 Behavioral changes
 ------------------
@@ -33,7 +58,7 @@ Requirement changes
 
 Thanks
 ------
-
+ - Chris Burr for the conda-forge deployment
 
 
 0.3.4 (30-07-19)
