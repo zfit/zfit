@@ -26,7 +26,7 @@ Thanks
 0.3.6 (12.10.19)
 ================
 
-**Special relese for conda deployment and version fix (TF 2.0 is out)**
+**Special release for conda deployment and version fix (TF 2.0 is out)**
 
 **This is the last release before breaking changes occur**
 
