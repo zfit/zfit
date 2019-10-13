@@ -11,8 +11,8 @@ Development Lead
 Authors
 ------------
 
-| Jonas Eschle <jonas.eschle@cern.ch>
-| Albert Puig <albert.puig@cern.ch>
+| Jonas Eschle <Jonas.Eschle@cern.ch>
+| Albert Puig <apuignav@gmail.com>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
 
