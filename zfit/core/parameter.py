@@ -299,6 +299,12 @@ class ZfitParameterMixin(BaseNumeric):
                 return operations.multiply(other, self)
         return super().__rmul__(other)
 
+    def __eq__(self, other):
+        return id(self) == id(other)
+
+    def __hash__(self):
+        return super().__hash__()
+
 
 # solve metaclass confict
 # class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):    # TODO(Mayou36): upgrade to tf2
