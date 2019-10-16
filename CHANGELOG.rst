@@ -14,6 +14,8 @@ Behavioral changes
 
 Bug fixes and small changes
 ---------------------------
+ - `get_depentents` returns now an OrderedSet
+ - errordef is now a (hidden) attribute and can be changed
 
 
 Requirement changes

@@ -287,6 +287,12 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
     def add_constraints(self, constraints: List[tf.Tensor]):
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def errordef(self) -> float:
+        raise NotImplementedError
+
+
 
 class ZfitModel(ZfitNumeric, ZfitDimensional):
 
