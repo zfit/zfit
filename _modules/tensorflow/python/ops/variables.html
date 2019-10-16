@@ -126,12 +126,15 @@
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">enum</span>  <span class="c1"># pylint: disable=g-bad-import-order</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">attr_value_pb2</span>
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">variable_pb2</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">pywrap_tensorflow</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.compat</span> <span class="k">import</span> <span class="n">compat</span> <span class="k">as</span> <span class="n">fwd_compat</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="k">import</span> <span class="n">context</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">dtypes</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
@@ -140,11 +143,13 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">control_flow_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_array_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_math_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">math_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">state_ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="k">import</span> <span class="n">tf_logging</span> <span class="k">as</span> <span class="n">logging</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="k">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">trackable</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">compat</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">object_identity</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">tf_should_use</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="k">import</span> <span class="n">deprecated</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="k">import</span> <span class="n">tf_export</span>
@@ -162,8 +167,10 @@
 
 <span class="k">def</span> <span class="nf">_make_getter</span><span class="p">(</span><span class="n">captured_getter</span><span class="p">,</span> <span class="n">captured_previous</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;To avoid capturing loop variables.&quot;&quot;&quot;</span>
+
   <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">captured_getter</span><span class="p">(</span><span class="n">captured_previous</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
   <span class="k">return</span> <span class="n">getter</span>
 
 
@@ -234,6 +241,8 @@
 
   <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+
 <span class="c1"># LINT.ThenChange(//tensorflow/core/framework/variable.proto)</span>
 <span class="c1">#</span>
 <span class="c1"># Note that we are currently relying on the integer values of the Python enums</span>
@@ -244,8 +253,8 @@
     <span class="s2">&quot;* `ONLY_FIRST_TOWER`: Deprecated alias for `ONLY_FIRST_REPLICA`.</span><span class="se">\n</span><span class="s2">  &quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">validate_synchronization_aggregation_trainable</span><span class="p">(</span>
-    <span class="n">synchronization</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">trainable</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">validate_synchronization_aggregation_trainable</span><span class="p">(</span><span class="n">synchronization</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span>
+                                                   <span class="n">trainable</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Given user-provided variable properties, sets defaults and validates.&quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">aggregation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">aggregation</span> <span class="o">=</span> <span class="n">VariableAggregation</span><span class="o">.</span><span class="n">NONE</span>
@@ -267,18 +276,8 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
           <span class="s2">&quot;Invalid variable synchronization mode: </span><span class="si">{}</span><span class="s2"> for variable: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
               <span class="n">synchronization</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
-  <span class="k">if</span> <span class="n">synchronization</span> <span class="o">==</span> <span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">ON_READ</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">trainable</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-          <span class="s2">&quot;Synchronization value can be set to &quot;</span>
-          <span class="s2">&quot;VariableSynchronization.ON_READ only for non-trainable variables. &quot;</span>
-          <span class="s2">&quot;You have specified trainable=True and &quot;</span>
-          <span class="s2">&quot;synchronization=VariableSynchronization.ON_READ.&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="c1"># Set trainable to be false when variable is to be synced on read.</span>
-      <span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
-  <span class="k">elif</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">trainable</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="k">if</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">trainable</span> <span class="o">=</span> <span class="n">synchronization</span> <span class="o">!=</span> <span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">ON_READ</span>
   <span class="k">return</span> <span class="n">synchronization</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">trainable</span>
 
 
@@ -371,8 +370,7 @@
 
 
 <span class="nd">@tf_export</span><span class="p">(</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="p">[])</span>
-<span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">VariableMetaclass</span><span class="p">,</span>
-                                  <span class="n">trackable</span><span class="o">.</span><span class="n">Trackable</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">VariableMetaclass</span><span class="p">,</span> <span class="n">trackable</span><span class="o">.</span><span class="n">Trackable</span><span class="p">)):</span>
   <span class="sd">&quot;&quot;&quot;See the [Variables Guide](https://tensorflow.org/guide/variables).</span>
 
 <span class="sd">  A variable maintains state in the graph across calls to `run()`. You add a</span>
@@ -457,35 +455,6 @@
 <span class="sd">  `trainable_variables()` returns the contents of this collection. The</span>
 <span class="sd">  various `Optimizer` classes use this collection as the default list of</span>
 <span class="sd">  variables to optimize.</span>
-
-<span class="sd">  WARNING: tf.Variable objects by default have a non-intuitive memory model. A</span>
-<span class="sd">  Variable is represented internally as a mutable Tensor which can</span>
-<span class="sd">  non-deterministically alias other Tensors in a graph. The set of operations</span>
-<span class="sd">  which consume a Variable and can lead to aliasing is undetermined and can</span>
-<span class="sd">  change across TensorFlow versions. Avoid writing code which relies on the</span>
-<span class="sd">  value of a Variable either changing or not changing as other operations</span>
-<span class="sd">  happen. For example, using Variable objects or simple functions thereof as</span>
-<span class="sd">  predicates in a `tf.cond` is dangerous and error-prone:</span>
-
-<span class="sd">  ```</span>
-<span class="sd">  v = tf.Variable(True)</span>
-<span class="sd">  tf.cond(v, lambda: v.assign(False), my_false_fn)  # Note: this is broken.</span>
-<span class="sd">  ```</span>
-
-<span class="sd">  Here, adding `use_resource=True` when constructing the variable will</span>
-<span class="sd">  fix any nondeterminism issues:</span>
-
-<span class="sd">  ```</span>
-<span class="sd">  v = tf.Variable(True, use_resource=True)</span>
-<span class="sd">  tf.cond(v, lambda: v.assign(False), my_false_fn)</span>
-<span class="sd">  ```</span>
-
-<span class="sd">  To use the replacement for variables which does</span>
-<span class="sd">  not have these issues:</span>
-
-<span class="sd">  * Add `use_resource=True` when constructing `tf.Variable`;</span>
-<span class="sd">  * Call `tf.compat.v1.get_variable_scope().set_use_resource(True)` inside a</span>
-<span class="sd">    `tf.compat.v1.variable_scope` before the `tf.compat.v1.get_variable()` call.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -519,41 +488,40 @@
 <span class="sd">        callable with no argument that returns the initial value when called. In</span>
 <span class="sd">        that case, `dtype` must be specified. (Note that initializer functions</span>
 <span class="sd">        from init_ops.py must first be bound to a shape before being used here.)</span>
-<span class="sd">      trainable: If `True`, GradientTapes automatically watch uses</span>
-<span class="sd">        of this variable. Defaults to `True` unless `synchronization` is</span>
-<span class="sd">        set to `ON_READ`.</span>
+<span class="sd">      trainable: If `True`, GradientTapes automatically watch uses of this</span>
+<span class="sd">        variable. Defaults to `True`, unless `synchronization` is set to</span>
+<span class="sd">        `ON_READ`, in which case it defaults to `False`.</span>
 <span class="sd">      validate_shape: If `False`, allows the variable to be initialized with a</span>
 <span class="sd">        value of unknown shape. If `True`, the default, the shape of</span>
 <span class="sd">        `initial_value` must be known.</span>
 <span class="sd">      caching_device: Optional device string describing where the Variable</span>
-<span class="sd">        should be cached for reading.  Defaults to the Variable&#39;s device.</span>
-<span class="sd">        If not `None`, caches on another device.  Typical use is to cache</span>
-<span class="sd">        on the device where the Ops using the Variable reside, to deduplicate</span>
-<span class="sd">        copying through `Switch` and other conditional statements.</span>
+<span class="sd">        should be cached for reading.  Defaults to the Variable&#39;s device. If not</span>
+<span class="sd">        `None`, caches on another device.  Typical use is to cache on the device</span>
+<span class="sd">        where the Ops using the Variable reside, to deduplicate copying through</span>
+<span class="sd">        `Switch` and other conditional statements.</span>
 <span class="sd">      name: Optional name for the variable. Defaults to `&#39;Variable&#39;` and gets</span>
 <span class="sd">        uniquified automatically.</span>
-<span class="sd">      variable_def: `VariableDef` protocol buffer. If not `None`, recreates</span>
-<span class="sd">        the Variable object with its contents, referencing the variable&#39;s nodes</span>
-<span class="sd">        in the graph, which must already exist. The graph is not changed.</span>
+<span class="sd">      variable_def: `VariableDef` protocol buffer. If not `None`, recreates the</span>
+<span class="sd">        Variable object with its contents, referencing the variable&#39;s nodes in</span>
+<span class="sd">        the graph, which must already exist. The graph is not changed.</span>
 <span class="sd">        `variable_def` and the other arguments are mutually exclusive.</span>
-<span class="sd">      dtype: If set, initial_value will be converted to the given type.</span>
-<span class="sd">        If `None`, either the datatype will be kept (if `initial_value` is</span>
-<span class="sd">        a Tensor), or `convert_to_tensor` will decide.</span>
-<span class="sd">      import_scope: Optional `string`. Name scope to add to the</span>
-<span class="sd">        `Variable.` Only used when initializing from protocol buffer.</span>
+<span class="sd">      dtype: If set, initial_value will be converted to the given type. If</span>
+<span class="sd">        `None`, either the datatype will be kept (if `initial_value` is a</span>
+<span class="sd">        Tensor), or `convert_to_tensor` will decide.</span>
+<span class="sd">      import_scope: Optional `string`. Name scope to add to the `Variable.` Only</span>
+<span class="sd">        used when initializing from protocol buffer.</span>
 <span class="sd">      constraint: An optional projection function to be applied to the variable</span>
 <span class="sd">        after being updated by an `Optimizer` (e.g. used to implement norm</span>
 <span class="sd">        constraints or value constraints for layer weights). The function must</span>
 <span class="sd">        take as input the unprojected Tensor representing the value of the</span>
-<span class="sd">        variable and return the Tensor for the projected value</span>
-<span class="sd">        (which must have the same shape). Constraints are not safe to</span>
-<span class="sd">        use when doing asynchronous distributed training.</span>
+<span class="sd">        variable and return the Tensor for the projected value (which must have</span>
+<span class="sd">        the same shape). Constraints are not safe to use when doing asynchronous</span>
+<span class="sd">        distributed training.</span>
 <span class="sd">      synchronization: Indicates when a distributed a variable will be</span>
 <span class="sd">        aggregated. Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableSynchronization`. By default the synchronization is set to</span>
-<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses</span>
-<span class="sd">        when to synchronize. If `synchronization` is set to `ON_READ`,</span>
-<span class="sd">        `trainable` must not be set to `True`.</span>
+<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses when to</span>
+<span class="sd">        synchronize.</span>
 <span class="sd">      aggregation: Indicates how a distributed variable will be aggregated.</span>
 <span class="sd">        Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableAggregation`.</span>
@@ -647,8 +615,8 @@
 <span class="sd">    ```</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      session: The session to use to evaluate this variable. If</span>
-<span class="sd">        none, the default session is used.</span>
+<span class="sd">      session: The session to use to evaluate this variable. If none, the</span>
+<span class="sd">        default session is used.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A numpy `ndarray` with a copy of the value of this variable.</span>
@@ -656,8 +624,7 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
   <span class="nd">@deprecated</span><span class="p">(</span>
-      <span class="kc">None</span><span class="p">,</span>
-      <span class="s2">&quot;Use Variable.read_value. Variables in 2.X are initialized &quot;</span>
+      <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use Variable.read_value. Variables in 2.X are initialized &quot;</span>
       <span class="s2">&quot;automatically both in eager and graph (inside tf.defun) contexts.&quot;</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">initialized_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the value of the initialized variable.</span>
@@ -679,9 +646,9 @@
 <span class="sd">      has run.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
-      <span class="k">return</span> <span class="n">control_flow_ops</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">is_variable_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-                                   <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">,</span>
-                                   <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">control_flow_ops</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+          <span class="n">is_variable_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">,</span>
+          <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">initial_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -716,8 +683,8 @@
 <span class="sd">      value: A `Tensor`. The new value for this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the assignment.</span>
 <span class="sd">      name: The name of the operation to be created</span>
-<span class="sd">      read_value: if True, will return something which evaluates to the</span>
-<span class="sd">        new value of the variable; if False will return the assign op.</span>
+<span class="sd">      read_value: if True, will return something which evaluates to the new</span>
+<span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
@@ -734,8 +701,8 @@
 <span class="sd">      delta: A `Tensor`. The value to add to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: The name of the operation to be created</span>
-<span class="sd">      read_value: if True, will return something which evaluates to the</span>
-<span class="sd">        new value of the variable; if False will return the assign op.</span>
+<span class="sd">      read_value: if True, will return something which evaluates to the new</span>
+<span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
@@ -752,8 +719,8 @@
 <span class="sd">      delta: A `Tensor`. The value to subtract from this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: The name of the operation to be created</span>
-<span class="sd">      read_value: if True, will return something which evaluates to the</span>
-<span class="sd">        new value of the variable; if False will return the assign op.</span>
+<span class="sd">      read_value: if True, will return something which evaluates to the new</span>
+<span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
@@ -762,10 +729,10 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
   <span class="k">def</span> <span class="nf">scatter_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Subtracts `IndexedSlices` from this variable.</span>
+    <span class="sd">&quot;&quot;&quot;Subtracts `tf.IndexedSlices` from this variable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be subtracted from this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be subtracted from this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -774,15 +741,15 @@
 <span class="sd">      the scattered subtraction has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
   <span class="k">def</span> <span class="nf">scatter_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Adds `IndexedSlices` to this variable.</span>
+    <span class="sd">&quot;&quot;&quot;Adds `tf.IndexedSlices` to this variable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be assigned to this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be added to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -791,15 +758,85 @@
 <span class="sd">      the scattered addition has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+  <span class="k">def</span> <span class="nf">scatter_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the max of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to use as an argument of max with this</span>
+<span class="sd">        variable.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered maximization has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+  <span class="k">def</span> <span class="nf">scatter_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the min of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to use as an argument of min with this</span>
+<span class="sd">        variable.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered minimization has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+  <span class="k">def</span> <span class="nf">scatter_mul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Multiply this variable by `tf.IndexedSlices`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to multiply this variable by.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered multiplication has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+  <span class="k">def</span> <span class="nf">scatter_div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Divide this variable by `tf.IndexedSlices`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to divide this variable by.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered division has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
   <span class="k">def</span> <span class="nf">scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Assigns `IndexedSlices` to this variable.</span>
+    <span class="sd">&quot;&quot;&quot;Assigns `tf.IndexedSlices` to this variable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be assigned to this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be assigned to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -808,12 +845,12 @@
 <span class="sd">      the scattered assignment has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
   <span class="k">def</span> <span class="nf">batch_scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Assigns `IndexedSlices` to this variable batch-wise.</span>
+    <span class="sd">&quot;&quot;&quot;Assigns `tf.IndexedSlices` to this variable batch-wise.</span>
 
 <span class="sd">    Analogous to `batch_gather`. This assumes that this variable and the</span>
 <span class="sd">    sparse_delta IndexedSlices have a series of leading dimensions that are the</span>
@@ -846,7 +883,7 @@
 <span class="sd">    efficient than this implementation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be assigned to this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be assigned to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -855,7 +892,7 @@
 <span class="sd">      the scattered assignment has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -904,9 +941,6 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the scattered subtraction has completed.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -955,9 +989,6 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the scattered addition has completed.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -1006,9 +1037,6 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the scattered assignment has completed.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -1066,9 +1094,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-  <span class="nd">@deprecated</span><span class="p">(</span>
-      <span class="kc">None</span><span class="p">,</span>
-      <span class="s2">&quot;Prefer Variable.assign which has equivalent behavior in 2.X.&quot;</span><span class="p">)</span>
+  <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span>
+              <span class="s2">&quot;Prefer Variable.assign which has equivalent behavior in 2.X.&quot;</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Load new value into this variable.</span>
 
@@ -1096,8 +1123,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        value: New variable value</span>
-<span class="sd">        session: The session to use to evaluate this variable. If</span>
-<span class="sd">          none, the default session is used.</span>
+<span class="sd">        session: The session to use to evaluate this variable. If none, the</span>
+<span class="sd">          default session is used.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: Session is not passed and no default session</span>
@@ -1145,6 +1172,13 @@
 <span class="sd">    Args:</span>
 <span class="sd">      operator: string. The operator name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># We can&#39;t use the overload mechanism on __eq__ &amp; __ne__ since __eq__ is</span>
+    <span class="c1"># called when adding a variable to sets. As a result we call a.value() which</span>
+    <span class="c1"># causes infinite recursion when operating within a GradientTape</span>
+    <span class="c1"># TODO(gjn): Consider removing this</span>
+    <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;__eq__&quot;</span> <span class="ow">or</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;__ne__&quot;</span><span class="p">:</span>
+      <span class="k">return</span>
+
     <span class="n">tensor_oper</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">operator</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run_op</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1154,8 +1188,42 @@
     <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="n">_run_op</span><span class="p">,</span> <span class="n">tensor_oper</span><span class="p">)</span>
     <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">_run_op</span><span class="p">)</span>
 
+  <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Variable is unhashable if Tensor equality is enabled. &quot;</span>
+                      <span class="s2">&quot;Instead, use tensor.experimental_ref() as the key.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+  <span class="c1"># TODO(gjn): duplicate of math_ops.tensor_equals, consider removing</span>
+  <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
+      <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
+      <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span>
+
+  <span class="c1"># TODO(gjn): duplicate of math_ops.tensor_not_equals, consider removing</span>
+  <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
+      <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
+      <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">other</span>
+
   <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dummy method to prevent iteration. Do not call.</span>
+    <span class="sd">&quot;&quot;&quot;Dummy method to prevent iteration.</span>
+
+<span class="sd">    Do not call.</span>
 
 <span class="sd">    NOTE(mrry): If we register __getitem__ as an overloaded operator,</span>
 <span class="sd">    Python will valiantly attempt to iterate over the variable&#39;s Tensor from 0</span>
@@ -1249,8 +1317,7 @@
   <span class="nd">@staticmethod</span>
   <span class="k">def</span> <span class="nf">from_proto</span><span class="p">(</span><span class="n">variable_def</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a `Variable` object created from `variable_def`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">RefVariable</span><span class="p">(</span><span class="n">variable_def</span><span class="o">=</span><span class="n">variable_def</span><span class="p">,</span>
-                       <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">RefVariable</span><span class="p">(</span><span class="n">variable_def</span><span class="o">=</span><span class="n">variable_def</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_set_save_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_slice_info</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sets the slice info for this `Variable`.</span>
@@ -1262,6 +1329,59 @@
 
   <span class="k">def</span> <span class="nf">_get_save_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_slice_info</span>
+
+  <span class="k">def</span> <span class="nf">experimental_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># tf.Tensor also has the same experimental_ref() API.  If you update the</span>
+    <span class="c1"># documenation here, please update tf.Tensor.experimental_ref() as well.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a hashable reference object to this Variable.</span>
+
+<span class="sd">    Warning: Experimental API that could be changed or removed.</span>
+
+<span class="sd">    The primary usecase for this API is to put variables in a set/dictionary.</span>
+<span class="sd">    We can&#39;t put variables in a set/dictionary as `variable.__hash__()` is no</span>
+<span class="sd">    longer available starting Tensorflow 2.0.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    import tensorflow as tf</span>
+
+<span class="sd">    x = tf.Variable(5)</span>
+<span class="sd">    y = tf.Variable(10)</span>
+<span class="sd">    z = tf.Variable(10)</span>
+
+<span class="sd">    # The followings will raise an exception starting 2.0</span>
+<span class="sd">    # TypeError: Variable is unhashable if Variable equality is enabled.</span>
+<span class="sd">    variable_set = {x, y, z}</span>
+<span class="sd">    variable_dict = {x: &#39;five&#39;, y: &#39;ten&#39;}</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Instead, we can use `variable.experimental_ref()`.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    variable_set = {x.experimental_ref(),</span>
+<span class="sd">                    y.experimental_ref(),</span>
+<span class="sd">                    z.experimental_ref()}</span>
+
+<span class="sd">    print(x.experimental_ref() in variable_set)</span>
+<span class="sd">    ==&gt; True</span>
+
+<span class="sd">    variable_dict = {x.experimental_ref(): &#39;five&#39;,</span>
+<span class="sd">                     y.experimental_ref(): &#39;ten&#39;,</span>
+<span class="sd">                     z.experimental_ref(): &#39;ten&#39;}</span>
+
+<span class="sd">    print(variable_dict[y.experimental_ref()])</span>
+<span class="sd">    ==&gt; ten</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Also, the reference object provides `.deref()` function that returns the</span>
+<span class="sd">    original Variable.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    x = tf.Variable(5)</span>
+<span class="sd">    print(x.experimental_ref().deref())</span>
+<span class="sd">    ==&gt; &lt;tf.Variable &#39;Variable:0&#39; shape=() dtype=int32, numpy=5&gt;</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">object_identity</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
   <span class="k">class</span> <span class="nc">SaveSliceInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Information on how to save this Variable as a slice.</span>
@@ -1288,17 +1408,16 @@
 
 <span class="sd">      Args:</span>
 <span class="sd">        full_name: Name of the full variable of which this `Variable` is a</span>
-<span class="sd">            slice.</span>
+<span class="sd">          slice.</span>
 <span class="sd">        full_shape: Shape of the full variable, as a list of int.</span>
-<span class="sd">        var_offset: Offset of this `Variable` into the full variable, as a</span>
-<span class="sd">            list of int.</span>
+<span class="sd">        var_offset: Offset of this `Variable` into the full variable, as a list</span>
+<span class="sd">          of int.</span>
 <span class="sd">        var_shape: Shape of this `Variable`, as a list of int.</span>
 <span class="sd">        save_slice_info_def: `SaveSliceInfoDef` protocol buffer. If not `None`,</span>
-<span class="sd">          recreates the SaveSliceInfo object its contents.</span>
-<span class="sd">          `save_slice_info_def` and other arguments are mutually</span>
-<span class="sd">          exclusive.</span>
-<span class="sd">        import_scope: Optional `string`. Name scope to add. Only used</span>
-<span class="sd">          when initializing from protocol buffer.</span>
+<span class="sd">          recreates the SaveSliceInfo object its contents. `save_slice_info_def`</span>
+<span class="sd">          and other arguments are mutually exclusive.</span>
+<span class="sd">        import_scope: Optional `string`. Name scope to add. Only used when</span>
+<span class="sd">          initializing from protocol buffer.</span>
 <span class="sd">      &quot;&quot;&quot;</span>
       <span class="k">if</span> <span class="n">save_slice_info_def</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_slice_info_def</span><span class="p">,</span> <span class="n">variable_pb2</span><span class="o">.</span><span class="n">SaveSliceInfoDef</span><span class="p">)</span>
@@ -1317,9 +1436,8 @@
     <span class="k">def</span> <span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;Computes the spec string used for saving.&quot;&quot;&quot;</span>
       <span class="n">full_shape_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_shape</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
-      <span class="n">sl_spec</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
-          <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_shape</span><span class="p">)</span>
-      <span class="p">])</span>
+      <span class="n">sl_spec</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+          <span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_shape</span><span class="p">)])</span>
       <span class="k">return</span> <span class="n">full_shape_str</span> <span class="o">+</span> <span class="n">sl_spec</span>
 
     <span class="k">def</span> <span class="nf">to_proto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1332,8 +1450,7 @@
 <span class="sd">        A `SaveSliceInfoDef` protocol buffer, or None if the `Variable` is not</span>
 <span class="sd">        in the specified name scope.</span>
 <span class="sd">      &quot;&quot;&quot;</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">export_scope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">export_scope</span><span class="p">)):</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">export_scope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">export_scope</span><span class="p">)):</span>
         <span class="n">save_slice_info_def</span> <span class="o">=</span> <span class="n">variable_pb2</span><span class="o">.</span><span class="n">SaveSliceInfoDef</span><span class="p">()</span>
         <span class="n">save_slice_info_def</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">export_scope</span><span class="p">)</span>
@@ -1349,6 +1466,7 @@
 
 
 <span class="n">Variable</span><span class="o">.</span><span class="n">_OverloadAllOperators</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
+<span class="n">pywrap_tensorflow</span><span class="o">.</span><span class="n">RegisterType</span><span class="p">(</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">Variable</span><span class="p">)</span>
 
 
 <span class="nd">@tf_export</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">])</span>
@@ -1467,22 +1585,23 @@
 <span class="sd">    `tf.compat.v1.variable_scope` before the `tf.compat.v1.get_variable()` call.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
-               <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">collections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">validate_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-               <span class="n">caching_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">variable_def</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">expected_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">import_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">use_resource</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">synchronization</span><span class="o">=</span><span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">AUTO</span><span class="p">,</span>
-               <span class="n">aggregation</span><span class="o">=</span><span class="n">VariableAggregation</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
-               <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
+      <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">collections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">validate_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+      <span class="n">caching_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">variable_def</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">expected_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">import_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">use_resource</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">synchronization</span><span class="o">=</span><span class="n">VariableSynchronization</span><span class="o">.</span><span class="n">AUTO</span><span class="p">,</span>
+      <span class="n">aggregation</span><span class="o">=</span><span class="n">VariableAggregation</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+      <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a new variable with value `initial_value`.</span>
 
 <span class="sd">    The new variable is added to the graph collections listed in `collections`,</span>
@@ -1501,47 +1620,47 @@
 <span class="sd">        callable with no argument that returns the initial value when called. In</span>
 <span class="sd">        that case, `dtype` must be specified. (Note that initializer functions</span>
 <span class="sd">        from init_ops.py must first be bound to a shape before being used here.)</span>
-<span class="sd">      trainable: If `True`, also adds the variable to the graph</span>
-<span class="sd">        collection `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as</span>
-<span class="sd">        the default list of variables to use by the `Optimizer` classes.</span>
-<span class="sd">        Defaults to `True` unless `synchronization` is set to `ON_READ`.</span>
+<span class="sd">      trainable: If `True`, also adds the variable to the graph collection</span>
+<span class="sd">        `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as the default</span>
+<span class="sd">        list of variables to use by the `Optimizer` classes. Defaults to `True`,</span>
+<span class="sd">        unless `synchronization` is set to `ON_READ`, in which case it defaults</span>
+<span class="sd">        to `False`.</span>
 <span class="sd">      collections: List of graph collections keys. The new variable is added to</span>
 <span class="sd">        these collections. Defaults to `[GraphKeys.GLOBAL_VARIABLES]`.</span>
 <span class="sd">      validate_shape: If `False`, allows the variable to be initialized with a</span>
 <span class="sd">        value of unknown shape. If `True`, the default, the shape of</span>
 <span class="sd">        `initial_value` must be known.</span>
 <span class="sd">      caching_device: Optional device string describing where the Variable</span>
-<span class="sd">        should be cached for reading.  Defaults to the Variable&#39;s device.</span>
-<span class="sd">        If not `None`, caches on another device.  Typical use is to cache</span>
-<span class="sd">        on the device where the Ops using the Variable reside, to deduplicate</span>
-<span class="sd">        copying through `Switch` and other conditional statements.</span>
+<span class="sd">        should be cached for reading.  Defaults to the Variable&#39;s device. If not</span>
+<span class="sd">        `None`, caches on another device.  Typical use is to cache on the device</span>
+<span class="sd">        where the Ops using the Variable reside, to deduplicate copying through</span>
+<span class="sd">        `Switch` and other conditional statements.</span>
 <span class="sd">      name: Optional name for the variable. Defaults to `&#39;Variable&#39;` and gets</span>
 <span class="sd">        uniquified automatically.</span>
-<span class="sd">      variable_def: `VariableDef` protocol buffer. If not `None`, recreates</span>
-<span class="sd">        the Variable object with its contents, referencing the variable&#39;s nodes</span>
-<span class="sd">        in the graph, which must already exist. The graph is not changed.</span>
+<span class="sd">      variable_def: `VariableDef` protocol buffer. If not `None`, recreates the</span>
+<span class="sd">        Variable object with its contents, referencing the variable&#39;s nodes in</span>
+<span class="sd">        the graph, which must already exist. The graph is not changed.</span>
 <span class="sd">        `variable_def` and the other arguments are mutually exclusive.</span>
-<span class="sd">      dtype: If set, initial_value will be converted to the given type.</span>
-<span class="sd">        If `None`, either the datatype will be kept (if `initial_value` is</span>
-<span class="sd">        a Tensor), or `convert_to_tensor` will decide.</span>
-<span class="sd">      expected_shape: A TensorShape. If set, initial_value is expected</span>
-<span class="sd">        to have this shape.</span>
-<span class="sd">      import_scope: Optional `string`. Name scope to add to the</span>
-<span class="sd">        `Variable.` Only used when initializing from protocol buffer.</span>
+<span class="sd">      dtype: If set, initial_value will be converted to the given type. If</span>
+<span class="sd">        `None`, either the datatype will be kept (if `initial_value` is a</span>
+<span class="sd">        Tensor), or `convert_to_tensor` will decide.</span>
+<span class="sd">      expected_shape: A TensorShape. If set, initial_value is expected to have</span>
+<span class="sd">        this shape.</span>
+<span class="sd">      import_scope: Optional `string`. Name scope to add to the `Variable.` Only</span>
+<span class="sd">        used when initializing from protocol buffer.</span>
 <span class="sd">      constraint: An optional projection function to be applied to the variable</span>
 <span class="sd">        after being updated by an `Optimizer` (e.g. used to implement norm</span>
 <span class="sd">        constraints or value constraints for layer weights). The function must</span>
 <span class="sd">        take as input the unprojected Tensor representing the value of the</span>
-<span class="sd">        variable and return the Tensor for the projected value</span>
-<span class="sd">        (which must have the same shape). Constraints are not safe to</span>
-<span class="sd">        use when doing asynchronous distributed training.</span>
+<span class="sd">        variable and return the Tensor for the projected value (which must have</span>
+<span class="sd">        the same shape). Constraints are not safe to use when doing asynchronous</span>
+<span class="sd">        distributed training.</span>
 <span class="sd">      use_resource: whether to use resource variables.</span>
 <span class="sd">      synchronization: Indicates when a distributed a variable will be</span>
 <span class="sd">        aggregated. Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableSynchronization`. By default the synchronization is set to</span>
-<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses</span>
-<span class="sd">        when to synchronize. If `synchronization` is set to `ON_READ`,</span>
-<span class="sd">        `trainable` must not be set to `True`.</span>
+<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses when to</span>
+<span class="sd">        synchronize.</span>
 <span class="sd">      aggregation: Indicates how a distributed variable will be aggregated.</span>
 <span class="sd">        Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableAggregation`.</span>
@@ -1564,21 +1683,22 @@
 <span class="k">class</span> <span class="nc">RefVariable</span><span class="p">(</span><span class="n">VariableV1</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Ref-based implementation of variables.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
-               <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">collections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">validate_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-               <span class="n">caching_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">variable_def</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">expected_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">import_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">synchronization</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">aggregation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
+      <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">collections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">validate_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+      <span class="n">caching_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">variable_def</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">expected_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">import_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">synchronization</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">aggregation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a new variable with value `initial_value`.</span>
 
 <span class="sd">    The new variable is added to the graph collections listed in `collections`,</span>
@@ -1597,46 +1717,46 @@
 <span class="sd">        callable with no argument that returns the initial value when called. In</span>
 <span class="sd">        that case, `dtype` must be specified. (Note that initializer functions</span>
 <span class="sd">        from init_ops.py must first be bound to a shape before being used here.)</span>
-<span class="sd">      trainable: If `True`, also adds the variable to the graph</span>
-<span class="sd">        collection `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as</span>
-<span class="sd">        the default list of variables to use by the `Optimizer` classes.</span>
-<span class="sd">        Defaults to `True` unless `synchronization` is set to `ON_READ`.</span>
+<span class="sd">      trainable: If `True`, also adds the variable to the graph collection</span>
+<span class="sd">        `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as the default</span>
+<span class="sd">        list of variables to use by the `Optimizer` classes. Defaults to `True`,</span>
+<span class="sd">        unless `synchronization` is set to `ON_READ`, in which case it defaults</span>
+<span class="sd">        to `False`.</span>
 <span class="sd">      collections: List of graph collections keys. The new variable is added to</span>
 <span class="sd">        these collections. Defaults to `[GraphKeys.GLOBAL_VARIABLES]`.</span>
 <span class="sd">      validate_shape: If `False`, allows the variable to be initialized with a</span>
 <span class="sd">        value of unknown shape. If `True`, the default, the shape of</span>
 <span class="sd">        `initial_value` must be known.</span>
 <span class="sd">      caching_device: Optional device string describing where the Variable</span>
-<span class="sd">        should be cached for reading.  Defaults to the Variable&#39;s device.</span>
-<span class="sd">        If not `None`, caches on another device.  Typical use is to cache</span>
-<span class="sd">        on the device where the Ops using the Variable reside, to deduplicate</span>
-<span class="sd">        copying through `Switch` and other conditional statements.</span>
+<span class="sd">        should be cached for reading.  Defaults to the Variable&#39;s device. If not</span>
+<span class="sd">        `None`, caches on another device.  Typical use is to cache on the device</span>
+<span class="sd">        where the Ops using the Variable reside, to deduplicate copying through</span>
+<span class="sd">        `Switch` and other conditional statements.</span>
 <span class="sd">      name: Optional name for the variable. Defaults to `&#39;Variable&#39;` and gets</span>
 <span class="sd">        uniquified automatically.</span>
-<span class="sd">      variable_def: `VariableDef` protocol buffer. If not `None`, recreates</span>
-<span class="sd">        the Variable object with its contents, referencing the variable&#39;s nodes</span>
-<span class="sd">        in the graph, which must already exist. The graph is not changed.</span>
+<span class="sd">      variable_def: `VariableDef` protocol buffer. If not `None`, recreates the</span>
+<span class="sd">        Variable object with its contents, referencing the variable&#39;s nodes in</span>
+<span class="sd">        the graph, which must already exist. The graph is not changed.</span>
 <span class="sd">        `variable_def` and the other arguments are mutually exclusive.</span>
-<span class="sd">      dtype: If set, initial_value will be converted to the given type.</span>
-<span class="sd">        If `None`, either the datatype will be kept (if `initial_value` is</span>
-<span class="sd">        a Tensor), or `convert_to_tensor` will decide.</span>
-<span class="sd">      expected_shape: A TensorShape. If set, initial_value is expected</span>
-<span class="sd">        to have this shape.</span>
-<span class="sd">      import_scope: Optional `string`. Name scope to add to the</span>
-<span class="sd">        `Variable.` Only used when initializing from protocol buffer.</span>
+<span class="sd">      dtype: If set, initial_value will be converted to the given type. If</span>
+<span class="sd">        `None`, either the datatype will be kept (if `initial_value` is a</span>
+<span class="sd">        Tensor), or `convert_to_tensor` will decide.</span>
+<span class="sd">      expected_shape: A TensorShape. If set, initial_value is expected to have</span>
+<span class="sd">        this shape.</span>
+<span class="sd">      import_scope: Optional `string`. Name scope to add to the `Variable.` Only</span>
+<span class="sd">        used when initializing from protocol buffer.</span>
 <span class="sd">      constraint: An optional projection function to be applied to the variable</span>
 <span class="sd">        after being updated by an `Optimizer` (e.g. used to implement norm</span>
 <span class="sd">        constraints or value constraints for layer weights). The function must</span>
 <span class="sd">        take as input the unprojected Tensor representing the value of the</span>
-<span class="sd">        variable and return the Tensor for the projected value</span>
-<span class="sd">        (which must have the same shape). Constraints are not safe to</span>
-<span class="sd">        use when doing asynchronous distributed training.</span>
+<span class="sd">        variable and return the Tensor for the projected value (which must have</span>
+<span class="sd">        the same shape). Constraints are not safe to use when doing asynchronous</span>
+<span class="sd">        distributed training.</span>
 <span class="sd">      synchronization: Indicates when a distributed a variable will be</span>
 <span class="sd">        aggregated. Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableSynchronization`. By default the synchronization is set to</span>
-<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses</span>
-<span class="sd">        when to synchronize. If `synchronization` is set to `ON_READ`,</span>
-<span class="sd">        `trainable` must not be set to `True`.</span>
+<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses when to</span>
+<span class="sd">        synchronize.</span>
 <span class="sd">      aggregation: Indicates how a distributed variable will be aggregated.</span>
 <span class="sd">        Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableAggregation`.</span>
@@ -1703,12 +1823,13 @@
 <span class="sd">        which is the initial value for the Variable. The initial value must have</span>
 <span class="sd">        a shape specified unless `validate_shape` is set to False. Can also be a</span>
 <span class="sd">        callable with no argument that returns the initial value when called.</span>
-<span class="sd">        (Note that initializer functions from init_ops.py must first be bound</span>
-<span class="sd">         to a shape before being used here.)</span>
-<span class="sd">      trainable: If `True`, also adds the variable to the graph</span>
-<span class="sd">        collection `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as</span>
-<span class="sd">        the default list of variables to use by the `Optimizer` classes.</span>
-<span class="sd">        Defaults to `True` unless `synchronization` is set to `ON_READ`.</span>
+<span class="sd">        (Note that initializer functions from init_ops.py must first be bound to</span>
+<span class="sd">        a shape before being used here.)</span>
+<span class="sd">      trainable: If `True`, also adds the variable to the graph collection</span>
+<span class="sd">        `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as the default</span>
+<span class="sd">        list of variables to use by the `Optimizer` classes. Defaults to `True`,</span>
+<span class="sd">        unless `synchronization` is set to `ON_READ`, in which case it defaults</span>
+<span class="sd">        to `False`.</span>
 <span class="sd">      collections: List of graph collections keys. The new variable is added to</span>
 <span class="sd">        these collections. Defaults to `[GraphKeys.GLOBAL_VARIABLES]`.</span>
 <span class="sd">      validate_shape: If `False`, allows the variable to be initialized with a</span>
@@ -1721,24 +1842,22 @@
 <span class="sd">        deduplicate copying through `Switch` and other conditional statements.</span>
 <span class="sd">      name: Optional name for the variable. Defaults to `&#39;Variable&#39;` and gets</span>
 <span class="sd">        uniquified automatically.</span>
-<span class="sd">      dtype: If set, initial_value will be converted to the given type.</span>
-<span class="sd">        If None, either the datatype will be kept (if initial_value is</span>
-<span class="sd">       a Tensor) or float32 will be used (if it is a Python object convertible</span>
-<span class="sd">       to a Tensor).</span>
+<span class="sd">      dtype: If set, initial_value will be converted to the given type. If None,</span>
+<span class="sd">        either the datatype will be kept (if initial_value is a Tensor) or</span>
+<span class="sd">        float32 will be used (if it is a Python object convertible to a Tensor).</span>
 <span class="sd">      expected_shape: Deprecated. Ignored.</span>
 <span class="sd">      constraint: An optional projection function to be applied to the variable</span>
 <span class="sd">        after being updated by an `Optimizer` (e.g. used to implement norm</span>
 <span class="sd">        constraints or value constraints for layer weights). The function must</span>
 <span class="sd">        take as input the unprojected Tensor representing the value of the</span>
-<span class="sd">        variable and return the Tensor for the projected value</span>
-<span class="sd">        (which must have the same shape). Constraints are not safe to</span>
-<span class="sd">        use when doing asynchronous distributed training.</span>
+<span class="sd">        variable and return the Tensor for the projected value (which must have</span>
+<span class="sd">        the same shape). Constraints are not safe to use when doing asynchronous</span>
+<span class="sd">        distributed training.</span>
 <span class="sd">      synchronization: Indicates when a distributed a variable will be</span>
 <span class="sd">        aggregated. Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableSynchronization`. By default the synchronization is set to</span>
-<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses</span>
-<span class="sd">        when to synchronize. If `synchronization` is set to `ON_READ`,</span>
-<span class="sd">        `trainable` must not be set to `True`.</span>
+<span class="sd">        `AUTO` and the current `DistributionStrategy` chooses when to</span>
+<span class="sd">        synchronize.</span>
 <span class="sd">      aggregation: Indicates how a distributed variable will be aggregated.</span>
 <span class="sd">        Accepted values are constants defined in the class</span>
 <span class="sd">        `tf.VariableAggregation`.</span>
@@ -1775,8 +1894,9 @@
       <span class="n">initial_value</span> <span class="o">=</span> <span class="n">initial_value</span><span class="o">.</span><span class="n">wrapped_value</span>
 
     <span class="n">synchronization</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">trainable</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">validate_synchronization_aggregation_trainable</span><span class="p">(</span>
-            <span class="n">synchronization</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">trainable</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">validate_synchronization_aggregation_trainable</span><span class="p">(</span><span class="n">synchronization</span><span class="p">,</span>
+                                                       <span class="n">aggregation</span><span class="p">,</span> <span class="n">trainable</span><span class="p">,</span>
+                                                       <span class="n">name</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_synchronization</span> <span class="o">=</span> <span class="n">synchronization</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_aggregation</span> <span class="o">=</span> <span class="n">aggregation</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_trainable</span> <span class="o">=</span> <span class="n">trainable</span>
@@ -1787,8 +1907,8 @@
       <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
             <span class="s2">&quot;RefVariable not supported when eager execution is enabled. &quot;</span><span class="p">)</span>
-      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">init_from_fn</span> <span class="k">else</span>
-                          <span class="p">[</span><span class="n">initial_value</span><span class="p">])</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
+      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
+                          <span class="p">[]</span> <span class="k">if</span> <span class="n">init_from_fn</span> <span class="k">else</span> <span class="p">[</span><span class="n">initial_value</span><span class="p">])</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
 
         <span class="k">if</span> <span class="n">init_from_fn</span><span class="p">:</span>
           <span class="c1"># Use attr_scope and device(None) to simulate the behavior of</span>
@@ -1804,12 +1924,11 @@
               <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span>
                   <span class="n">initial_value</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;initial_value&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
               <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
-                         <span class="k">if</span> <span class="n">validate_shape</span> <span class="k">else</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">unknown_shape</span><span class="p">())</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">validate_shape</span> <span class="k">else</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">unknown_shape</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">variable_op_v2</span><span class="p">(</span>
-                <span class="n">shape</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
           <span class="c1"># pylint: enable=protected-access</span>
 
         <span class="c1"># Or get the initial value from a Tensor or Python object.</span>
@@ -1825,14 +1944,13 @@
                 <span class="s2">&quot;initializer.&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
           <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># pylint: enable=protected-access</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
-                     <span class="k">if</span> <span class="n">validate_shape</span> <span class="k">else</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">unknown_shape</span><span class="p">())</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">validate_shape</span> <span class="k">else</span> <span class="n">tensor_shape</span><span class="o">.</span><span class="n">unknown_shape</span><span class="p">())</span>
           <span class="c1"># In this case, the variable op can&#39;t be created until after the</span>
           <span class="c1"># initial_value has been converted to a Tensor with a known type.</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">variable_op_v2</span><span class="p">(</span>
-              <span class="n">shape</span><span class="p">,</span>
-              <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">,</span>
-              <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+              <span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
         <span class="c1"># Manually overrides the variable&#39;s shape with the initial value&#39;s.</span>
         <span class="k">if</span> <span class="n">validate_shape</span><span class="p">:</span>
@@ -1847,8 +1965,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_initializer_op</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
             <span class="n">_try_guard_against_uninitialized_dependencies</span><span class="p">(</span>
-                <span class="n">name</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="p">),</span>
+                <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="p">),</span>
             <span class="n">validate_shape</span><span class="o">=</span><span class="n">validate_shape</span><span class="p">)</span><span class="o">.</span><span class="n">op</span>
 
         <span class="c1"># TODO(vrv): Change this class to not take caching_device, but</span>
@@ -1870,39 +1987,37 @@
     <span class="sd">&quot;&quot;&quot;Recreates the Variable object from a `VariableDef` protocol buffer.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      variable_def: `VariableDef` protocol buffer, describing a variable</span>
-<span class="sd">          whose nodes already exists in the graph.</span>
+<span class="sd">      variable_def: `VariableDef` protocol buffer, describing a variable whose</span>
+<span class="sd">        nodes already exists in the graph.</span>
 <span class="sd">      import_scope: Optional `string`. Name scope to add.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable_def</span><span class="p">,</span> <span class="n">variable_pb2</span><span class="o">.</span><span class="n">VariableDef</span><span class="p">)</span>
     <span class="c1"># Create from variable_def.</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">as_graph_element</span><span class="p">(</span>
-        <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span><span class="n">variable_def</span><span class="o">.</span><span class="n">variable_name</span><span class="p">,</span>
-                               <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span>
+            <span class="n">variable_def</span><span class="o">.</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_initializer_op</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">as_graph_element</span><span class="p">(</span>
-        <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span><span class="n">variable_def</span><span class="o">.</span><span class="n">initializer_name</span><span class="p">,</span>
-                               <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span>
+            <span class="n">variable_def</span><span class="o">.</span><span class="n">initializer_name</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
     <span class="c1"># Tests whether initial_value_name exists first for backwards compatibility.</span>
     <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">variable_def</span><span class="p">,</span> <span class="s2">&quot;initial_value_name&quot;</span><span class="p">)</span> <span class="ow">and</span>
         <span class="n">variable_def</span><span class="o">.</span><span class="n">initial_value_name</span><span class="p">):</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">as_graph_element</span><span class="p">(</span>
-          <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span><span class="n">variable_def</span><span class="o">.</span><span class="n">initial_value_name</span><span class="p">,</span>
-                                 <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
+          <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span>
+              <span class="n">variable_def</span><span class="o">.</span><span class="n">initial_value_name</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">synchronization</span><span class="p">,</span> <span class="n">aggregation</span><span class="p">,</span> <span class="n">trainable</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">validate_synchronization_aggregation_trainable</span><span class="p">(</span>
-            <span class="n">variable_def</span><span class="o">.</span><span class="n">synchronization</span><span class="p">,</span>
-            <span class="n">variable_def</span><span class="o">.</span><span class="n">aggregation</span><span class="p">,</span>
-            <span class="n">variable_def</span><span class="o">.</span><span class="n">trainable</span><span class="p">,</span>
-            <span class="n">variable_def</span><span class="o">.</span><span class="n">variable_name</span><span class="p">))</span>
+            <span class="n">variable_def</span><span class="o">.</span><span class="n">synchronization</span><span class="p">,</span> <span class="n">variable_def</span><span class="o">.</span><span class="n">aggregation</span><span class="p">,</span>
+            <span class="n">variable_def</span><span class="o">.</span><span class="n">trainable</span><span class="p">,</span> <span class="n">variable_def</span><span class="o">.</span><span class="n">variable_name</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_synchronization</span> <span class="o">=</span> <span class="n">synchronization</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_aggregation</span> <span class="o">=</span> <span class="n">aggregation</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_trainable</span> <span class="o">=</span> <span class="n">trainable</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">as_graph_element</span><span class="p">(</span>
-        <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span><span class="n">variable_def</span><span class="o">.</span><span class="n">snapshot_name</span><span class="p">,</span>
-                               <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span>
+            <span class="n">variable_def</span><span class="o">.</span><span class="n">snapshot_name</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">variable_def</span><span class="o">.</span><span class="n">HasField</span><span class="p">(</span><span class="s2">&quot;save_slice_info_def&quot;</span><span class="p">):</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_save_slice_info</span> <span class="o">=</span> <span class="n">Variable</span><span class="o">.</span><span class="n">SaveSliceInfo</span><span class="p">(</span>
           <span class="n">save_slice_info_def</span><span class="o">=</span><span class="n">variable_def</span><span class="o">.</span><span class="n">save_slice_info_def</span><span class="p">,</span>
@@ -2007,8 +2122,8 @@
 <span class="sd">    ```</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      session: The session to use to evaluate this variable. If</span>
-<span class="sd">        none, the default session is used.</span>
+<span class="sd">      session: The session to use to evaluate this variable. If none, the</span>
+<span class="sd">        default session is used.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A numpy `ndarray` with a copy of the value of this variable.</span>
@@ -2048,15 +2163,15 @@
 <span class="sd">      value: A `Tensor`. The new value for this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the assignment.</span>
 <span class="sd">      name: The name of the operation to be created</span>
-<span class="sd">      read_value: if True, will return something which evaluates to the</span>
-<span class="sd">        new value of the variable; if False will return the assign op.</span>
+<span class="sd">      read_value: if True, will return something which evaluates to the new</span>
+<span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the assignment has completed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">assign</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
-                              <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">assign</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">read_value</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">assign</span>
     <span class="k">return</span> <span class="n">assign</span><span class="o">.</span><span class="n">op</span>
@@ -2070,8 +2185,8 @@
 <span class="sd">      delta: A `Tensor`. The value to add to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: The name of the operation to be created</span>
-<span class="sd">      read_value: if True, will return something which evaluates to the</span>
-<span class="sd">        new value of the variable; if False will return the assign op.</span>
+<span class="sd">      read_value: if True, will return something which evaluates to the new</span>
+<span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
@@ -2092,8 +2207,8 @@
 <span class="sd">      delta: A `Tensor`. The value to subtract from this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: The name of the operation to be created</span>
-<span class="sd">      read_value: if True, will return something which evaluates to the</span>
-<span class="sd">        new value of the variable; if False will return the assign op.</span>
+<span class="sd">      read_value: if True, will return something which evaluates to the new</span>
+<span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
@@ -2106,10 +2221,10 @@
     <span class="k">return</span> <span class="n">assign</span><span class="o">.</span><span class="n">op</span>
 
   <span class="k">def</span> <span class="nf">scatter_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Subtracts `IndexedSlices` from this variable.</span>
+    <span class="sd">&quot;&quot;&quot;Subtracts `tf.IndexedSlices` from this variable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be subtracted from this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be subtracted from this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -2118,10 +2233,10 @@
 <span class="sd">      the scattered subtraction has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_sub</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
         <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
@@ -2130,10 +2245,10 @@
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">scatter_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Adds `IndexedSlices` from this variable.</span>
+    <span class="sd">&quot;&quot;&quot;Adds `tf.IndexedSlices` to this variable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be added to this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be added to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -2142,10 +2257,10 @@
 <span class="sd">      the scattered addition has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_add</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
         <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
@@ -2153,11 +2268,109 @@
         <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Assigns `IndexedSlices` to this variable.</span>
+  <span class="k">def</span> <span class="nf">scatter_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the max of `tf.IndexedSlices` and itself.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be assigned to this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to use as an argument of max with this</span>
+<span class="sd">        variable.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered maximization has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_max</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the min of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to use as an argument of min with this</span>
+<span class="sd">        variable.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered minimization has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_min</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_mul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Multiply this variable by `tf.IndexedSlices`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to multiply this variable by.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered multiplication has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_mul</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Divide this variable by `tf.IndexedSlices`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to divide this variable by.</span>
+<span class="sd">      use_locking: If `True`, use locking during the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered division has completed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_div</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Assigns `tf.IndexedSlices` to this variable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be assigned to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -2166,10 +2379,10 @@
 <span class="sd">      the scattered assignment has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">IndexedSlices</span><span class="p">):</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sparse_delta is not IndexedSlices: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sparse_delta</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_update</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span>
         <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
@@ -2178,7 +2391,7 @@
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">batch_scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Assigns `IndexedSlices` to this variable batch-wise.</span>
+    <span class="sd">&quot;&quot;&quot;Assigns `tf.IndexedSlices` to this variable batch-wise.</span>
 
 <span class="sd">    Analogous to `batch_gather`. This assumes that this variable and the</span>
 <span class="sd">    sparse_delta IndexedSlices have a series of leading dimensions that are the</span>
@@ -2211,7 +2424,7 @@
 <span class="sd">    efficient than this implementation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      sparse_delta: `IndexedSlices` to be assigned to this variable.</span>
+<span class="sd">      sparse_delta: `tf.IndexedSlices` to be assigned to this variable.</span>
 <span class="sd">      use_locking: If `True`, use locking during the operation.</span>
 <span class="sd">      name: the name of the operation.</span>
 
@@ -2220,11 +2433,14 @@
 <span class="sd">      the scattered assignment has completed.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
+<span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">batch_scatter_update</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span>
+        <span class="n">sparse_delta</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">scatter_nd_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Applies sparse subtraction to individual values or slices in a Variable.</span>
@@ -2271,9 +2487,6 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the scattered subtraction has completed.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_nd_sub</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -2323,9 +2536,6 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the scattered addition has completed.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_nd_add</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -2375,35 +2585,25 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
 <span class="sd">      the scattered assignment has completed.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if `sparse_delta` is not an `IndexedSlices`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_nd_update</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_strided_slice_assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                            <span class="n">begin</span><span class="p">,</span>
-                            <span class="n">end</span><span class="p">,</span>
-                            <span class="n">strides</span><span class="p">,</span>
-                            <span class="n">value</span><span class="p">,</span>
-                            <span class="n">name</span><span class="p">,</span>
-                            <span class="n">begin_mask</span><span class="p">,</span>
-                            <span class="n">end_mask</span><span class="p">,</span>
-                            <span class="n">ellipsis_mask</span><span class="p">,</span>
-                            <span class="n">new_axis_mask</span><span class="p">,</span>
+  <span class="k">def</span> <span class="nf">_strided_slice_assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">begin_mask</span><span class="p">,</span>
+                            <span class="n">end_mask</span><span class="p">,</span> <span class="n">ellipsis_mask</span><span class="p">,</span> <span class="n">new_axis_mask</span><span class="p">,</span>
                             <span class="n">shrink_axis_mask</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">gen_array_ops</span><span class="o">.</span><span class="n">strided_slice_assign</span><span class="p">(</span><span class="n">ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref</span><span class="p">(),</span>
-                                              <span class="n">begin</span><span class="o">=</span><span class="n">begin</span><span class="p">,</span>
-                                              <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
-                                              <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
-                                              <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
-                                              <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                                              <span class="n">begin_mask</span><span class="o">=</span><span class="n">begin_mask</span><span class="p">,</span>
-                                              <span class="n">end_mask</span><span class="o">=</span><span class="n">end_mask</span><span class="p">,</span>
-                                              <span class="n">ellipsis_mask</span><span class="o">=</span><span class="n">ellipsis_mask</span><span class="p">,</span>
-                                              <span class="n">new_axis_mask</span><span class="o">=</span><span class="n">new_axis_mask</span><span class="p">,</span>
-                                              <span class="n">shrink_axis_mask</span><span class="o">=</span><span class="n">shrink_axis_mask</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gen_array_ops</span><span class="o">.</span><span class="n">strided_slice_assign</span><span class="p">(</span>
+        <span class="n">ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ref</span><span class="p">(),</span>
+        <span class="n">begin</span><span class="o">=</span><span class="n">begin</span><span class="p">,</span>
+        <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
+        <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">begin_mask</span><span class="o">=</span><span class="n">begin_mask</span><span class="p">,</span>
+        <span class="n">end_mask</span><span class="o">=</span><span class="n">end_mask</span><span class="p">,</span>
+        <span class="n">ellipsis_mask</span><span class="o">=</span><span class="n">ellipsis_mask</span><span class="p">,</span>
+        <span class="n">new_axis_mask</span><span class="o">=</span><span class="n">new_axis_mask</span><span class="p">,</span>
+        <span class="n">shrink_axis_mask</span><span class="o">=</span><span class="n">shrink_axis_mask</span><span class="p">)</span>
 
   <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Prefer Dataset.range instead.&quot;</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">count_up_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="p">):</span>
@@ -2484,7 +2684,7 @@
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">_distribute_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The `tf.distribute.Strategy` that this variable was created under.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">None</span>   <span class="c1"># Ref variables are never created inside a strategy.</span>
+    <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Ref variables are never created inside a strategy.</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2505,11 +2705,10 @@
 <span class="sd">      A `VariableDef` protocol buffer, or `None` if the `Variable` is not</span>
 <span class="sd">      in the specified name scope.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">export_scope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">export_scope</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">export_scope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">export_scope</span><span class="p">)):</span>
       <span class="n">var_def</span> <span class="o">=</span> <span class="n">variable_pb2</span><span class="o">.</span><span class="n">VariableDef</span><span class="p">()</span>
-      <span class="n">var_def</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">export_scope</span><span class="p">)</span>
+      <span class="n">var_def</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                   <span class="n">export_scope</span><span class="p">)</span>
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># For backwards compatibility.</span>
         <span class="n">var_def</span><span class="o">.</span><span class="n">initial_value_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span>
@@ -2517,29 +2716,27 @@
       <span class="n">var_def</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span>
       <span class="n">var_def</span><span class="o">.</span><span class="n">synchronization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">synchronization</span><span class="o">.</span><span class="n">value</span>
       <span class="n">var_def</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation</span><span class="o">.</span><span class="n">value</span>
-      <span class="n">var_def</span><span class="o">.</span><span class="n">initializer_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">initializer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">export_scope</span><span class="p">)</span>
-      <span class="n">var_def</span><span class="o">.</span><span class="n">snapshot_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">_snapshot</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">export_scope</span><span class="p">)</span>
+      <span class="n">var_def</span><span class="o">.</span><span class="n">initializer_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initializer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                      <span class="n">export_scope</span><span class="p">)</span>
+      <span class="n">var_def</span><span class="o">.</span><span class="n">snapshot_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">strip_name_scope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_snapshot</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                   <span class="n">export_scope</span><span class="p">)</span>
       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_slice_info</span><span class="p">:</span>
-        <span class="n">var_def</span><span class="o">.</span><span class="n">save_slice_info_def</span><span class="o">.</span><span class="n">MergeFrom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_slice_info</span><span class="o">.</span><span class="n">to_proto</span><span class="p">(</span>
-            <span class="n">export_scope</span><span class="o">=</span><span class="n">export_scope</span><span class="p">))</span>
+        <span class="n">var_def</span><span class="o">.</span><span class="n">save_slice_info_def</span><span class="o">.</span><span class="n">MergeFrom</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_slice_info</span><span class="o">.</span><span class="n">to_proto</span><span class="p">(</span><span class="n">export_scope</span><span class="o">=</span><span class="n">export_scope</span><span class="p">))</span>
       <span class="k">return</span> <span class="n">var_def</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="kc">None</span>
 
   <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
-        <span class="s2">&quot;Variable += will be deprecated. Use variable.assign_add&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span> <span class="s2">&quot;Variable += will be deprecated. Use variable.assign_add&quot;</span>
         <span class="s2">&quot; if you want assignment to the variable value or &#39;x = x + y&#39;&quot;</span>
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="n">other</span>
 
   <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
-        <span class="s2">&quot;Variable -= will be deprecated. Use variable.assign_sub&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span> <span class="s2">&quot;Variable -= will be deprecated. Use variable.assign_sub&quot;</span>
         <span class="s2">&quot; if you want assignment to the variable value or &#39;x = x - y&#39;&quot;</span>
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span> <span class="o">-</span> <span class="n">other</span>
@@ -2582,7 +2779,7 @@
         <span class="s2">&quot;Variable **= will be deprecated. Use `var.assign(var ** other)`&quot;</span>
         <span class="s2">&quot; if you want assignment to the variable value or `x = x ** y`&quot;</span>
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span> <span class="o">**</span> <span class="n">other</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">**</span><span class="n">other</span>
 
 
 <span class="k">def</span> <span class="nf">_try_guard_against_uninitialized_dependencies</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">):</span>
@@ -2606,6 +2803,7 @@
 <span class="sd">  Args:</span>
 <span class="sd">    name: Variable name.</span>
 <span class="sd">    initial_value: `Tensor`. The initial value.</span>
+
 <span class="sd">  Returns:</span>
 <span class="sd">    A `Tensor` suitable to initialize a variable.</span>
 <span class="sd">  Raises:</span>
@@ -2615,23 +2813,27 @@
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;initial_value needs to be a Tensor: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">initial_value</span><span class="p">)</span>
 
   <span class="c1"># Don&#39;t modify initial_value if it contains any cyclic dependencies.</span>
-  <span class="k">if</span> <span class="n">_has_cycle</span><span class="p">(</span><span class="n">initial_value</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">set</span><span class="p">()):</span>
+  <span class="k">if</span> <span class="n">_has_cycle</span><span class="p">(</span><span class="n">initial_value</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="p">{}):</span>
     <span class="k">return</span> <span class="n">initial_value</span>
   <span class="k">return</span> <span class="n">_safe_initial_value_from_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="n">op_cache</span><span class="o">=</span><span class="p">{})</span>
 
 
-<span class="k">def</span> <span class="nf">_has_cycle</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="n">_UNKNOWN</span><span class="p">,</span> <span class="n">_STARTED</span><span class="p">,</span> <span class="n">_FINISHED</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_has_cycle</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Detect cycles in the dependencies of `initial_value`.&quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+  <span class="n">op_state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_UNKNOWN</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">op_state</span> <span class="o">==</span> <span class="n">_STARTED</span><span class="p">:</span>
     <span class="k">return</span> <span class="kc">True</span>
-  <span class="n">path</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-  <span class="k">for</span> <span class="n">op_input</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">_has_cycle</span><span class="p">(</span><span class="n">op_input</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">op_state</span> <span class="o">==</span> <span class="n">_FINISHED</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+  <span class="n">state</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_STARTED</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">((</span><span class="n">i</span><span class="o">.</span><span class="n">op</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">inputs</span><span class="p">),</span> <span class="n">op</span><span class="o">.</span><span class="n">control_inputs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">_has_cycle</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
       <span class="k">return</span> <span class="kc">True</span>
-  <span class="k">for</span> <span class="n">op_control_input</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">control_inputs</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">_has_cycle</span><span class="p">(</span><span class="n">op_control_input</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-      <span class="k">return</span> <span class="kc">True</span>
-  <span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  <span class="n">state</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_FINISHED</span>
   <span class="k">return</span> <span class="kc">False</span>
 
 
@@ -2643,6 +2845,7 @@
 <span class="sd">    tensor: A `Tensor`. The tensor to replace.</span>
 <span class="sd">    op_cache: A dict mapping operation names to `Operation`s. Used to memoize</span>
 <span class="sd">      the results so as to avoid creating redundant operations.</span>
+
 <span class="sd">  Returns:</span>
 <span class="sd">    A `Tensor` compatible with `tensor`. Any inputs that lead to variable</span>
 <span class="sd">    values will be replaced with a corresponding graph that uses the</span>
@@ -2665,6 +2868,7 @@
 <span class="sd">    op: An `Operation`. The operation to replace.</span>
 <span class="sd">    op_cache: A dict mapping operation names to `Operation`s. Used to memoize</span>
 <span class="sd">      the results so as to avoid creating redundant operations.</span>
+
 <span class="sd">  Returns:</span>
 <span class="sd">    An `Operation` compatible with `op`. Any inputs that lead to variable</span>
 <span class="sd">    values will be replaced with a corresponding graph that uses the</span>
@@ -2673,7 +2877,7 @@
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">op_type</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">node_def</span><span class="o">.</span><span class="n">op</span>
   <span class="k">if</span> <span class="n">op_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;IsVariableInitialized&quot;</span><span class="p">,</span> <span class="s2">&quot;VarIsInitializedOp&quot;</span><span class="p">,</span>
-                 <span class="s2">&quot;ReadVariableOp&quot;</span><span class="p">):</span>
+                 <span class="s2">&quot;ReadVariableOp&quot;</span><span class="p">,</span> <span class="s2">&quot;If&quot;</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">op</span>
 
   <span class="c1"># Attempt to find the initialized_value of any variable reference / handles.</span>
@@ -2698,9 +2902,11 @@
     <span class="n">new_op_name</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">node_def</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">name</span>
     <span class="n">new_op_name</span> <span class="o">=</span> <span class="n">new_op_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">create_op</span><span class="p">(</span>
-        <span class="n">new_op_type</span><span class="p">,</span> <span class="n">new_op_inputs</span><span class="p">,</span>
+        <span class="n">new_op_type</span><span class="p">,</span>
+        <span class="n">new_op_inputs</span><span class="p">,</span>
         <span class="n">op</span><span class="o">.</span><span class="n">_output_types</span><span class="p">,</span>  <span class="c1"># pylint: disable=protected-access</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">new_op_name</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">node_def</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">new_op_name</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">node_def</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">op</span>
 
@@ -2712,6 +2918,7 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    variable_op: A variable `Operation`.</span>
+
 <span class="sd">  Returns:</span>
 <span class="sd">    A `Tensor` representing the initialized value for the variable or `None`</span>
 <span class="sd">    if the initialized value could not be found.</span>
@@ -2763,8 +2970,8 @@
 <span class="sd">        information does not match `shape`, or `partitions` has invalid values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable_list</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-          <span class="s2">&quot;variable_list is not a list or tuple: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">variable_list</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;variable_list is not a list or tuple: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                      <span class="n">variable_list</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partitions</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
       <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;partitions is not a list or tuple: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">partitions</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">partitions</span><span class="p">):</span>
@@ -2776,16 +2983,15 @@
       <span class="c1"># Sort the variable_list lexicographically according to var offset value.</span>
       <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">_get_save_slice_info</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variable_list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;All variables must have a save_slice_info available: </span><span class="si">%s</span><span class="s2">&quot;</span>
-            <span class="o">%</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variable_list</span><span class="p">])</span>
+            <span class="s2">&quot;All variables must have a save_slice_info available: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+            <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variable_list</span><span class="p">])</span>
       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;len(shape) != len(partitions): </span><span class="si">%s</span><span class="s2"> vs. </span><span class="si">%s</span><span class="s2">&quot;</span>
-                         <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">partitions</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;len(shape) != len(partitions): </span><span class="si">%s</span><span class="s2"> vs. </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">partitions</span><span class="p">))</span>
       <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">_get_save_slice_info</span><span class="p">()</span><span class="o">.</span><span class="n">full_shape</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;All variables&#39; full shapes must match shape: </span><span class="si">%s</span><span class="s2">; &quot;</span>
-            <span class="s2">&quot;but full shapes were: </span><span class="si">%s</span><span class="s2">&quot;</span>
-            <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="nb">str</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">_get_save_slice_info</span><span class="p">()</span><span class="o">.</span><span class="n">full_shape</span><span class="p">])))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All variables&#39; full shapes must match shape: </span><span class="si">%s</span><span class="s2">; &quot;</span>
+                         <span class="s2">&quot;but full shapes were: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="nb">str</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">_get_save_slice_info</span><span class="p">()</span><span class="o">.</span><span class="n">full_shape</span><span class="p">])))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_variable_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">variable_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">_get_save_slice_info</span><span class="p">()</span><span class="o">.</span><span class="n">var_offset</span><span class="p">)</span>
     <span class="c1"># pylint: enable=protected-access</span>
@@ -2803,8 +3009,8 @@
   <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">num_partition_axes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_partition_axes</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">num_partition_axes</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a length for </span><span class="si">%d</span><span class="s2"> &gt; 1 partition axes&quot;</span>
-                       <span class="o">%</span> <span class="n">num_partition_axes</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a length for </span><span class="si">%d</span><span class="s2"> &gt; 1 partition axes&quot;</span> <span class="o">%</span>
+                       <span class="n">num_partition_axes</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_list</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_partition_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2923,8 +3129,7 @@
 
   <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">assign_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">var</span><span class="p">,</span> <span class="n">r_value</span><span class="p">:</span> <span class="n">var</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">r_value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span>
+        <span class="n">r_value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span>
     <span class="n">assign_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_assign_fn</span><span class="p">(</span><span class="n">assign_fn</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">read_value</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">assign_list</span>
@@ -2932,8 +3137,7 @@
 
   <span class="k">def</span> <span class="nf">assign_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">assign_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">var</span><span class="p">,</span> <span class="n">r_value</span><span class="p">:</span> <span class="n">var</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span>
-        <span class="n">r_value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span>
+        <span class="n">r_value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span>
     <span class="n">assign_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_assign_fn</span><span class="p">(</span><span class="n">assign_fn</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">read_value</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">assign_list</span>
@@ -2941,8 +3145,7 @@
 
   <span class="k">def</span> <span class="nf">assign_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">assign_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">var</span><span class="p">,</span> <span class="n">r_value</span><span class="p">:</span> <span class="n">var</span><span class="o">.</span><span class="n">assign_sub</span><span class="p">(</span>
-        <span class="n">r_value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span>
+        <span class="n">r_value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span>
     <span class="n">assign_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_assign_fn</span><span class="p">(</span><span class="n">assign_fn</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">read_value</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">assign_list</span>
@@ -2951,9 +3154,8 @@
 
 <span class="c1"># Register a conversion function which reads the value of the variable,</span>
 <span class="c1"># allowing instances of the class to be used as tensors.</span>
-<span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span>
-    <span class="n">RefVariable</span><span class="p">,</span>
-    <span class="n">RefVariable</span><span class="o">.</span><span class="n">_TensorConversionFunction</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+<span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span><span class="n">RefVariable</span><span class="p">,</span>
+                                        <span class="n">RefVariable</span><span class="o">.</span><span class="n">_TensorConversionFunction</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
 <span class="n">ops</span><span class="o">.</span><span class="n">register_dense_tensor_like_type</span><span class="p">(</span><span class="n">RefVariable</span><span class="p">)</span>
 
 
@@ -2971,11 +3173,11 @@
 <span class="sd">  `tf.compat.v1.local_variables`</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered</span>
-<span class="sd">      to include only items whose `name` attribute matches `scope` using</span>
-<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a</span>
-<span class="sd">      scope is supplied. The choice of `re.match` means that a `scope` without</span>
-<span class="sd">      special tokens filters by prefix.</span>
+<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered to</span>
+<span class="sd">      include only items whose `name` attribute matches `scope` using</span>
+<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a scope</span>
+<span class="sd">      is supplied. The choice of `re.match` means that a `scope` without special</span>
+<span class="sd">      tokens filters by prefix.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of `Variable` objects.</span>
@@ -2994,11 +3196,11 @@
   <span class="sd">&quot;&quot;&quot;Returns all variables and `SaveableObject`s that must be checkpointed.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered</span>
-<span class="sd">      to include only items whose `name` attribute matches `scope` using</span>
-<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a</span>
-<span class="sd">      scope is supplied. The choice of `re.match` means that a `scope` without</span>
-<span class="sd">      special tokens filters by prefix.</span>
+<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered to</span>
+<span class="sd">      include only items whose `name` attribute matches `scope` using</span>
+<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a scope</span>
+<span class="sd">      is supplied. The choice of `re.match` means that a `scope` without special</span>
+<span class="sd">      tokens filters by prefix.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of `Variable` and `SaveableObject` to be checkpointed</span>
@@ -3024,11 +3226,11 @@
 <span class="sd">  `tf.compat.v1.global_variables`</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered</span>
-<span class="sd">      to include only items whose `name` attribute matches `scope` using</span>
-<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a</span>
-<span class="sd">      scope is supplied. The choice of `re.match` means that a `scope` without</span>
-<span class="sd">      special tokens filters by prefix.</span>
+<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered to</span>
+<span class="sd">      include only items whose `name` attribute matches `scope` using</span>
+<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a scope</span>
+<span class="sd">      is supplied. The choice of `re.match` means that a `scope` without special</span>
+<span class="sd">      tokens filters by prefix.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of local `Variable` objects.</span>
@@ -3041,11 +3243,11 @@
   <span class="sd">&quot;&quot;&quot;Returns all variables in the MODEL_VARIABLES collection.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered</span>
-<span class="sd">      to include only items whose `name` attribute matches `scope` using</span>
-<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a</span>
-<span class="sd">      scope is supplied. The choice of `re.match` means that a `scope` without</span>
-<span class="sd">      special tokens filters by prefix.</span>
+<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered to</span>
+<span class="sd">      include only items whose `name` attribute matches `scope` using</span>
+<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a scope</span>
+<span class="sd">      is supplied. The choice of `re.match` means that a `scope` without special</span>
+<span class="sd">      tokens filters by prefix.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of local Variable objects.</span>
@@ -3063,11 +3265,11 @@
 <span class="sd">  contents of that collection.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered</span>
-<span class="sd">      to include only items whose `name` attribute matches `scope` using</span>
-<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a</span>
-<span class="sd">      scope is supplied. The choice of `re.match` means that a `scope` without</span>
-<span class="sd">      special tokens filters by prefix.</span>
+<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered to</span>
+<span class="sd">      include only items whose `name` attribute matches `scope` using</span>
+<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a scope</span>
+<span class="sd">      is supplied. The choice of `re.match` means that a `scope` without special</span>
+<span class="sd">      tokens filters by prefix.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of Variable objects.</span>
@@ -3085,11 +3287,11 @@
 <span class="sd">  This convenience function returns the contents of that collection.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered</span>
-<span class="sd">      to include only items whose `name` attribute matches `scope` using</span>
-<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a</span>
-<span class="sd">      scope is supplied. The choice of `re.match` means that a `scope` without</span>
-<span class="sd">      special tokens filters by prefix.</span>
+<span class="sd">    scope: (Optional.) A string. If supplied, the resulting list is filtered to</span>
+<span class="sd">      include only items whose `name` attribute matches `scope` using</span>
+<span class="sd">      `re.match`. Items without a `name` attribute are never returned if a scope</span>
+<span class="sd">      is supplied. The choice of `re.match` means that a `scope` without special</span>
+<span class="sd">      tokens filters by prefix.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of Variable objects.</span>
@@ -3206,8 +3408,8 @@
 <span class="sd">  logged by the C++ runtime. This is expected.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    var_list: List of `Variable` objects to check. Defaults to the</span>
-<span class="sd">      value of `global_variables().`</span>
+<span class="sd">    var_list: List of `Variable` objects to check. Defaults to the value of</span>
+<span class="sd">      `global_variables().`</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    An Op, or None if there are no variables.</span>
@@ -3243,8 +3445,8 @@
 <span class="sd">  variables if there are any, or an empty array if there are none.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    var_list: List of `Variable` objects to check. Defaults to the</span>
-<span class="sd">      value of `global_variables() + local_variables()`</span>
+<span class="sd">    var_list: List of `Variable` objects to check. Defaults to the value of</span>
+<span class="sd">      `global_variables() + local_variables()`</span>
 <span class="sd">    name: Optional name of the `Operation`.</span>
 
 <span class="sd">  Returns:</span>
@@ -3282,8 +3484,7 @@
 
 
 <span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span>
-    <span class="n">PartitionedVariable</span><span class="p">,</span>
-    <span class="n">PartitionedVariable</span><span class="o">.</span><span class="n">_TensorConversionFunction</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+    <span class="n">PartitionedVariable</span><span class="p">,</span> <span class="n">PartitionedVariable</span><span class="o">.</span><span class="n">_TensorConversionFunction</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
 
 
 <span class="k">class</span> <span class="nc">AbstractVariableMetaclass</span><span class="p">(</span><span class="n">VariableMetaclass</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
