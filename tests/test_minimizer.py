@@ -60,6 +60,20 @@ obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(1.3, 2.1))
               + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
 
+def test_floating_flag():
+    obs = zfit.Space("x", limits=(-2, 3))
+    mu = zfit.Parameter("mu", 1.2, -4, 6)
+    sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
+    sigma.floating = False
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    normal_np = np.random.normal(loc=2., scale=3., size=10000)
+    data = zfit.Data.from_numpy(obs=obs, array=normal_np)
+    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(nll, params=[mu, sigma])
+    assert list(result.params.keys()) == [mu]
+    assert sigma not in result.params
+
 
 # @pytest.mark.run(order=4)
 @pytest.mark.parametrize("chunksize", [3000, 100000])
