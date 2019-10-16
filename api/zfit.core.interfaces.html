@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>interfaces &#8212; zfit 0.1.dev180+ge3a150e documentation</title>
+    <title>interfaces &#8212; zfit 0.1.dev174+ged7f0ed documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev180+ge3a150e</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev174+ged7f0ed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -172,7 +172,7 @@
 <dl class="class">
 <dt id="zfit.core.interfaces.ZfitDependentsMixin">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.interfaces.</code><code class="sig-name descname">ZfitDependentsMixin</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitDependentsMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitDependentsMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitDependentsMixin.get_dependents">
 <em class="property">abstract </em><code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True</em><span class="sig-paren">)</span> &#x2192; Set[zfit.core.parameter.Parameter]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitDependentsMixin.get_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitDependentsMixin.get_dependents" title="Permalink to this definition">¶</a></dt>
@@ -272,7 +272,7 @@
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
 unnormalized probability</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -319,7 +319,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -340,9 +340,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – <a href="#id1"><span class="problematic" id="id2">|limits_arg_descr|</span></a></p></li>
-<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
-<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
-<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -367,9 +367,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of samples to be generated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -394,7 +394,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dl class="class">
 <dt id="zfit.core.interfaces.ZfitFunctorMixin">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.interfaces.</code><code class="sig-name descname">ZfitFunctorMixin</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitFunctorMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitFunctorMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitFunctorMixin.get_models">
 <em class="property">abstract </em><code class="sig-name descname">get_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitModel]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitFunctorMixin.get_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitFunctorMixin.get_models" title="Permalink to this definition">¶</a></dt>
@@ -459,7 +459,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitLoss.value">
-<em class="property">abstract </em><code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitLoss.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.value" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.core.multiarray.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitLoss.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -505,7 +505,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
 unnormalized probability</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -552,7 +552,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -573,9 +573,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – <a href="#id3"><span class="problematic" id="id4">|limits_arg_descr|</span></a></p></li>
-<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
-<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
-<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -600,9 +600,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of samples to be generated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -665,7 +665,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dl class="class">
 <dt id="zfit.core.interfaces.ZfitObject">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.interfaces.</code><code class="sig-name descname">ZfitObject</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitObject" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitObject.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitObject.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitObject.copy" title="Permalink to this definition">¶</a></dt>
@@ -735,7 +735,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
 unnormalized probability</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -766,7 +766,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.normalization">
-<em class="property">abstract </em><code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.normalization" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.core.multiarray.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.normalization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -792,7 +792,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -818,9 +818,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – <a href="#id5"><span class="problematic" id="id6">|limits_arg_descr|</span></a></p></li>
-<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – </p></li>
-<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
-<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – </p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -845,9 +845,9 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of samples to be generated</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of samples to be generated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1023,7 +1023,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd><p>Return a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with filled axes corresponding to range(len(n_obs)).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>self.axes</cite> is not None, replace the axes with the autofilled ones.
+<dd class="field-odd"><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>self.axes</cite> is not None, replace the axes with the autofilled ones.
 If axes is already set, don’t do anything if <cite>overwrite</cite> is False.</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1054,7 +1054,7 @@ If axes is already set, don’t do anything if <cite>overwrite</cite> is False.<
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>baseminimizer &#8212; zfit 0.1.dev180+ge3a150e documentation</title>
+    <title>baseminimizer &#8212; zfit 0.1.dev174+ged7f0ed documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev180+ge3a150e</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev174+ged7f0ed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -171,7 +171,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <p>Returns:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – if the <cite>step</cite> method is not implemented in the minimizer.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – if the <cite>step</cite> method is not implemented in the minimizer.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -208,7 +208,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dl class="exception">
 <dt id="zfit.minimizers.baseminimizer.FailMinimizeNaN">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">FailMinimizeNaN</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#FailMinimizeNaN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.FailMinimizeNaN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <dl class="attribute">
 <dt id="zfit.minimizers.baseminimizer.FailMinimizeNaN.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#zfit.minimizers.baseminimizer.FailMinimizeNaN.args" title="Permalink to this definition">¶</a></dt>
@@ -237,7 +237,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="class">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">ZfitStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan">
 <em class="property">abstract </em><code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">loss_value</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>

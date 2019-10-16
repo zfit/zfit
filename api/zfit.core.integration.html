@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>integration &#8212; zfit 0.1.dev180+ge3a150e documentation</title>
+    <title>integration &#8212; zfit 0.1.dev174+ged7f0ed documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev180+ge3a150e</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev174+ged7f0ed</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -112,7 +112,7 @@
 <dl class="class">
 <dt id="zfit.core.integration.AnalyticIntegral">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">AnalyticIntegral</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#AnalyticIntegral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.AnalyticIntegral" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Hold analytic integrals and manage their dimensions, limits etc.</p>
 <dl class="method">
 <dt id="zfit.core.integration.AnalyticIntegral.get_max_axes">
@@ -122,14 +122,14 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The integral function will be able to integrate over this limits</p></li>
-<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – The axes over which (or over a subset) it will integrate</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – The axes over which (or over a subset) it will integrate</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>]</p>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -142,14 +142,14 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
-<li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – </p></li>
+<li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Return a callable that integrated over the given limits.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference internal" href="#zfit.core.integration.Integral" title="zfit.core.integration.Integral">Integral</a>]</p>
+<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>, <a class="reference internal" href="#zfit.core.integration.Integral" title="zfit.core.integration.Integral">Integral</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -164,19 +164,19 @@
 <li><p><strong>x</strong> (<em>numeric</em>) – If a partial integration is made, x are the value to be evaluated for the partial
 integrated function. If a full integration is performed, this should be <cite>None</cite>.</p></li>
 <li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to integrate</p></li>
-<li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – The dimensions to integrate over</p></li>
-<li><p><strong>norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – <a href="#id1"><span class="problematic" id="id2">|norm_range_arg_descr|</span></a></p></li>
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The parameters of the function</p></li>
+<li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – The dimensions to integrate over</p></li>
+<li><p><strong>norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – <a href="#id1"><span class="problematic" id="id2">|norm_range_arg_descr|</span></a></p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – The parameters of the function</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Union[tf.Tensor, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>]</p>
+<dd class="field-odd"><p>Union[tf.Tensor, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>]</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If the requested integral is not available.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – If the requested integral is not available.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -189,13 +189,13 @@ integrated function. If a full integration is performed, this should be <cite>No
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>callable</em>) – The integral function. Takes 1 argument.</p></li>
-<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – <a href="#id3"><span class="problematic" id="id4">|dims_arg_descr|</span></a></p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – <a href="#id3"><span class="problematic" id="id4">|dims_arg_descr|</span></a></p></li>
 <li><p><strong>limits</strong> (<em>possible</em>) – <a href="#id5"><span class="problematic" id="id6">|limits_arg_descr|</span></a> <cite>Limits</cite> can be None if <cite>func</cite> works for any</p></li>
 <li><p><strong>limits</strong> – </p></li>
-<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – If two or more integrals can integrate over certain limits, the one with the higher
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – If two or more integrals can integrate over certain limits, the one with the higher
 priority is taken (usually around 0-100).</p></li>
-<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, norm_range will (if needed) be given to <cite>func</cite> as an argument.</p></li>
-<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True, multiple limits may be given as an argument to <cite>func</cite>.</p></li>
+<li><p><strong>supports_norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True, norm_range will (if needed) be given to <cite>func</cite> as an argument.</p></li>
+<li><p><strong>supports_multiple_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True, multiple limits may be given as an argument to <cite>func</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -206,14 +206,14 @@ priority is taken (usually around 0-100).</p></li>
 <dl class="class">
 <dt id="zfit.core.integration.Integral">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">Integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: zfit.core.limits.Space, priority: Union[int, float]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integral" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A lightweight holder for the integral function.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="zfit.core.integration.Integration">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">Integration</code><span class="sig-paren">(</span><em class="sig-param">mc_sampler</em>, <em class="sig-param">draws_per_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 </dd></dl>
 
 <dl class="class">
@@ -310,11 +310,11 @@ priority is taken (usually around 0-100).</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>callable</em>) – The function to be integrated over</p></li>
 <li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits of the integral</p></li>
-<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>)</em>) – The row to integrate over. None means integration over all value</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>)</em>) – The row to integrate over. None means integration over all value</p></li>
 <li><p><strong>x</strong> (<em>numeric</em>) – If a partial integration is performed, this are the value where x will be evaluated.</p></li>
-<li><p><strong>n_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of total dimensions (old?)</p></li>
-<li><p><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – How many random points to draw per dimensions</p></li>
-<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which integration method to use</p></li>
+<li><p><strong>n_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – the number of total dimensions (old?)</p></li>
+<li><p><strong>draws_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – How many random points to draw per dimensions</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Which integration method to use</p></li>
 <li><p><strong>dtype</strong> (<em>dtype</em>) – <a href="#id7"><span class="problematic" id="id8">|dtype_arg_descr|</span></a></p></li>
 <li><p><strong>mc_sampler</strong> (<em>callable</em>) – A function that takes one argument (<cite>n_draws</cite> or similar) and returns
 random value between 0 and 1.</p></li>
