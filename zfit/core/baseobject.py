@@ -7,8 +7,7 @@ import itertools
 from typing import List, Set
 
 import tensorflow as tf
-
-
+from ordered_set import OrderedSet
 
 import zfit
 from ..util.cache import Cachable
@@ -94,11 +93,11 @@ class BaseDependentsMixin(ZfitDependentsMixin):
         """
         dependents = self._get_dependents()
         if only_floating:
-            dependents = set(filter(lambda p: p.floating, dependents))
+            dependents = OrderedSet(filter(lambda p: p.floating, dependents))
         return dependents
 
     @staticmethod
-    def _extract_dependents(zfit_objects: List[ZfitObject]) -> Set["zfit.Parameters"]:
+    def _extract_dependents(zfit_objects: List[ZfitObject]) -> ztyping.DependentsType:
         """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
 
         Args:
@@ -109,7 +108,7 @@ class BaseDependentsMixin(ZfitDependentsMixin):
         """
         zfit_objects = convert_to_container(zfit_objects)
         dependents = (obj.get_dependents(only_floating=False) for obj in zfit_objects)
-        dependents_set = set(itertools.chain.from_iterable(dependents))  # flatten
+        dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
         return dependents_set
 
 

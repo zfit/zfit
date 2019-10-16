@@ -8,6 +8,7 @@ import tensorflow as tf
 
 
 # space
+from ordered_set import OrderedSet
 
 LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
 LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
@@ -72,7 +73,7 @@ SessionType = Optional[tf.compat.v1.Session]
 BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',
                        'zfit.core.interfaces.ZfitFunction',
                        'zfit.core.interfaces.ZfitPDF']
-DependentsType = Set['zfit.Parameter']
+DependentsType = OrderedSet('zfit.Parameter')
 
 # Caching
 CacherOrCachersType = Union['zfit.core.interfaces.ZfitCachable',

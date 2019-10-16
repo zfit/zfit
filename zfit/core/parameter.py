@@ -7,6 +7,7 @@ import numpy as np
 import tensorflow as tf
 
 # TF backwards compatibility
+from ordered_set import OrderedSet
 from tensorflow.python import ops, array_ops
 
 import zfit
@@ -546,7 +547,7 @@ class ConstantParameter(BaseZParameter):
         return False
 
     def _get_dependents(self) -> ztyping.DependentsType:
-        return set()
+        return OrderedSet()
 
 
 class ComposedParameter(BaseComposedParameter):

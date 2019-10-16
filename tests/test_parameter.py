@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 import tensorflow as tf
+from ordered_set import OrderedSet
 
 import zfit
 from zfit import Parameter, ztf
@@ -75,7 +76,7 @@ def test_composed_param():
     param4 = Parameter('param4', 4.)
     a = ztf.log(3. * param1) * tf.square(param2) - param3
     param_a = ComposedParameter('param_as', tensor=a)
-    assert isinstance(param_a.get_dependents(only_floating=True), set)
+    assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
     a_unchanged = zfit.run(a)
