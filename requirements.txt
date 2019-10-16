@@ -8,3 +8,4 @@ iminuit
 typing
 colorlog
 texttable
+ordered-set
