@@ -303,7 +303,7 @@ class ZfitParameterMixin(BaseNumeric):
         return id(self) == id(other)
 
     def __hash__(self):
-        return super().__hash__()
+        return id(self)
 
 
 # solve metaclass confict
