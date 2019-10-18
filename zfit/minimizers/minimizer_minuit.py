@@ -46,9 +46,9 @@ class Minuit(BaseMinimizer, Cachable):
         self._use_tfgrad = True
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
-        loss_val = loss.value()
-        gradients = loss.gradients(params)
-        self._check_gradients(params=params, gradients=gradients)
+        # loss_val = loss.value()
+        # gradients = loss.gradients(params)
+        # self._check_gradients(params=params, gradients=gradients)
 
         # load_params = self._extract_load_method(params=params)  REMOVE
 

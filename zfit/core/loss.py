@@ -320,7 +320,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         return nll
 
 
-class SimpleLoss(CachedLoss):
+class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
     def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = None,
@@ -334,9 +334,11 @@ class SimpleLoss(CachedLoss):
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
-        self._simple_func = func
+        # self._simple_func = tf.function(func, autograph=False)
+        self._simple_func = tf.function(func, autograph=True)
         self._simple_errordef = errordef
         self._errordef = errordef
+        self.computed_gradients = {}
         self._simple_func_dependents = convert_to_container(dependents, container=set)
 
         super().__init__(model=[], data=[], fit_range=[])
@@ -359,8 +361,18 @@ class SimpleLoss(CachedLoss):
             return errordef
 
     def _loss_func(self, model, data, fit_range, constraints=None):
-        loss = self._simple_func
-        return loss()
+        # return self._simple_func()
+        # with tf.GradientTape(persistent=False) as tape:
+        loss, gradients = self._simple_func()
+
+        # variables = tape.watched_variables()
+        # gradients = tape.gradient(loss, sources=variables)
+        variables = self._simple_func_dependents
+        for param, grad in zip(variables, gradients):
+            # if param in self.computed_gradients:
+            #     continue
+            self.computed_gradients[param] = grad
+        return loss
 
     def __add__(self, other):
         raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
