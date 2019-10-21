@@ -34,7 +34,9 @@ class Minuit(BaseMinimizer, Cachable):
             verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
             name (): Name of the minimizer
             ncall (): Maximum number of minimization steps.
-            **minimizer_options (): Options for the minimizer internally used.
+            **minimizer_options (): Options for the minimizer internally used. Due to a nameclash, the following
+                arguments for iminuit have been renamed:
+                 - `strategy` -> `minuit_strategy`
         """
         minimizer_options['ncall'] = ncall
         if not minimize_strategy in range(3):
@@ -69,7 +71,7 @@ class Minuit(BaseMinimizer, Cachable):
         minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
 
         minimizer_setter = {}
-        minimizer_setter['strategy'] = minimizer_options.pop('strategy')
+        minimizer_setter['strategy'] = minimizer_options.pop('minuit_strategy')
         if minimizer_options:
             raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
 
