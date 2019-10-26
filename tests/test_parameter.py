@@ -92,6 +92,11 @@ def test_composed_param():
         param_a.load(value=5., session=zfit.run.sess)
 
 
+def test_floating_behavior():
+    param1 = zfit.Parameter('param1', 1.0)
+    assert param1.floating
+
+
 def test_param_limits():
     lower, upper = -4., 3.
     param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
