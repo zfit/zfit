@@ -141,3 +141,7 @@ class MultipleLimitsNotImplementedError(Exception):
 class DueToLazynessNotImplementedError(Exception):
     """Only for developing purpose! Does not serve as a 'real' Exception."""
     pass
+
+
+class BreakingAPIChangeError(Exception):
+    pass

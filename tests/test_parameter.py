@@ -75,7 +75,7 @@ def test_composed_param():
     param3 = Parameter('param3', 3., floating=False)
     param4 = Parameter('param4', 4.)  # needed to make sure it does not only take all params as deps
     a = ztf.log(3. * param1) * tf.square(param2) - param3
-    param_a = ComposedParameter('param_as', tensor=a)
+    param_a = ComposedParameter('param_as', value_fn=a)
     assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}

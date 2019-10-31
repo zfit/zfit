@@ -9,6 +9,7 @@ import tensorflow as tf
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from tensorflow.python import ops, array_ops
+from typing import Callable
 
 import zfit
 from zfit import ztf
@@ -23,7 +24,7 @@ from ..util import ztyping
 from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents_auto
-from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
+from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
 from ..settings import ztypes, run
@@ -132,10 +133,12 @@ class ComposedResourceVariable(ResourceVariable):
 # class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
 class ComposedVariable:
 
-    def __init__(self, name: str, initial_value: tf.Tensor, **kwargs):
+    def __init__(self, name: str, value_fn: Callable, dtype, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
-        self._value_tensor = tf.convert_to_tensor(value=initial_value, dtype_hint=ztypes.float)
+        self._dtype = dtype
+        self._value_fn = value_fn
+
         # self._name = name
 
     @property
@@ -144,10 +147,10 @@ class ComposedVariable:
 
     @property
     def dtype(self):
-        return self._value_tensor.dtype
+        return self._dtype
 
     def value(self):
-        return self._value_tensor
+        return self._value_fn()
 
     def read_value(self):
         return self.value()
@@ -166,10 +169,10 @@ class ComposedVariable:
             # return "NEVER READ THIS"
             raise LogicalUndefinedOperationError("There is no ref for the fixed/composed parameter")
         else:
-            return self._value_tensor
+            return self.value()
 
     def _AsTensor(self):
-        return self._value_tensor
+        return self.value()
 
     @staticmethod
     def _OverloadAllOperators():  # pylint: disable=invalid-name
@@ -509,8 +512,10 @@ class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
 class BaseComposedParameter(BaseZParameter):
 
-    def __init__(self, params, value, name="BaseComposedParameter", **kwargs):
-        super().__init__(initial_value=value, name=name, params=params, **kwargs)
+    def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
+        if 'value' in kwargs:
+            raise BreakingAPIChangeError("'value' cannot be provided any longer, `value_fn` is needed.")
+        super().__init__(value_fn=value_fn, name=name, params=params, **kwargs)
         # self.params = params
 
     def _get_dependents(self):
@@ -558,14 +563,14 @@ class ConstantParameter(BaseZParameter):
 
 
 class ComposedParameter(BaseComposedParameter):
-    def __init__(self, name, tensor, dtype=ztypes.float, **kwargs):
-        tensor = ztf.convert_to_tensor(tensor, dtype=dtype)
+    def __init__(self, name, value_fn, dependents, dtype=ztypes.float, **kwargs):  # TODO: automatize dependents
         independent_params = tf.compat.v1.get_collection("zfit_independent")
-        params = get_dependents_auto(tensor=tensor, candidates=independent_params)
+        # params = get_dependents_auto(tensor=value_fn, candidates=independent_params)
+        params = dependents
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
-        super().__init__(params=params, value=tensor, name=name, dtype=dtype, **kwargs)
+        super().__init__(params=params, value_fn=value_fn, name=name, dtype=dtype, **kwargs)
 
     def __repr__(self):
         return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name}>"
@@ -695,7 +700,7 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
         if params:
             if name is None:
                 name = "composite_autoparam_" + str(get_auto_number())
-            value = ComposedParameter(name, tensor=value)
+            value = ComposedParameter(name, value_fn=value)
         else:
             if prefer_floating:
                 name = "autoparam_" + str(get_auto_number()) if name is None else name
