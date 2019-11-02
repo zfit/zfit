@@ -1,19 +1,16 @@
 """Baseclass for most objects appearing in zfit."""
 #  Copyright (c) 2019 zfit
 
-import abc
 from collections import OrderedDict
-import itertools
-from typing import List, Set
+from typing import List
 
 import tensorflow as tf
-from ordered_set import OrderedSet
 
-import zfit
+from zfit.core.dependents import BaseDependentsMixin
 from ..util.cache import Cachable
 from ..util import ztyping
-from .interfaces import ZfitObject, ZfitNumeric, ZfitDependentsMixin
-from ..util.container import convert_to_container, DotDict
+from .interfaces import ZfitObject, ZfitNumeric
+from ..util.container import DotDict
 
 _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
 
@@ -78,38 +75,6 @@ class BaseObject(ZfitObject):
 
     def __hash__(self):
         return object.__hash__(self)
-
-
-class BaseDependentsMixin(ZfitDependentsMixin):
-    @abc.abstractmethod
-    def _get_dependents(self) -> ztyping.DependentsType:
-        raise NotImplementedError
-
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
-        """Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.
-
-        Args:
-            only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`
-        """
-        dependents = self._get_dependents()
-        if only_floating:
-            dependents = OrderedSet(filter(lambda p: p.floating, dependents))
-        return dependents
-
-    @staticmethod
-    def _extract_dependents(zfit_objects: List[ZfitObject]) -> ztyping.DependentsType:
-        """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
-
-        Args:
-            zfit_objects ():
-
-        Returns:
-            set(zfit.Parameter): A set of independent Parameters
-        """
-        zfit_objects = convert_to_container(zfit_objects)
-        dependents = (obj.get_dependents(only_floating=False) for obj in zfit_objects)
-        dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
-        return dependents_set
 
 
 class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumeric, BaseObject):

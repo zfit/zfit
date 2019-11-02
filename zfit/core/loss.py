@@ -11,7 +11,8 @@ from zfit import ztf
 from zfit.util import ztyping
 from zfit.util.cache import Cachable
 from zfit.util.graph import get_dependents_auto
-from .baseobject import BaseObject, BaseDependentsMixin
+from .baseobject import BaseObject
+from zfit.core.dependents import BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..models.functions import SimpleFunc
 from ..util.container import convert_to_container, is_container

@@ -17,6 +17,7 @@ from zfit import ztf
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from zfit.util.container import convert_to_container
 from ..util.temporary import TemporarilySet
 from ..core.baseobject import BaseNumeric, BaseObject
 from ..util.cache import Cachable, invalidates_cache
@@ -566,7 +567,8 @@ class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, value_fn, dependents, dtype=ztypes.float, **kwargs):  # TODO: automatize dependents
         independent_params = tf.compat.v1.get_collection("zfit_independent")
         # params = get_dependents_auto(tensor=value_fn, candidates=independent_params)
-        params = dependents
+        dependents = convert_to_container(dependents)
+        params = self._extract_dependents(dependents)
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
@@ -577,21 +579,22 @@ class ComposedParameter(BaseComposedParameter):
 
 
 class ComplexParameter(ComposedParameter):
-    def __init__(self, name, value, dtype=ztypes.complex, **kwargs):
+    def __init__(self, name, value_fn, dependents, dtype=ztypes.complex, **kwargs):
+        super().__init__(name, value_fn=value_fn, dependents=dependents, dtype=dtype, **kwargs)
         self._conj = None
         self._mod = None
         self._arg = None
         self._imag = None
         self._real = None
 
-        super().__init__(name, value, dtype, **kwargs)
 
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
                        **kwargs):  # TODO: correct dtype handling, also below
         real = convert_to_parameter(real, name=name + "_real", prefer_floating=floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_floating=floating)
-        param = ComplexParameter(name=name, value=tf.cast(tf.complex(real, imag), dtype=dtype),
+        param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
+                                 dependents=[real, imag],
                                  **kwargs)
         param._real = real
         param._imag = imag
@@ -601,9 +604,9 @@ class ComplexParameter(ComposedParameter):
     def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_floating=floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_floating=floating)
-        param = ComplexParameter(name=name, value=tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                     mod * tf.math.sin(arg)),
-                                                          dtype=dtype), **kwargs)
+        param = ComplexParameter(name=name, value_fn=tf.cast(tf.complex(mod * tf.math.cos(arg),
+                                                                        mod * tf.math.sin(arg)),
+                                                             dtype=dtype), **kwargs)
         param._mod = mod
         param._arg = arg
         return param
@@ -611,7 +614,7 @@ class ComplexParameter(ComposedParameter):
     @property
     def conj(self):
         if self._conj is None:
-            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value=tf.math.conj(self),
+            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=tf.math.conj(self),
                                           dtype=self.dtype)
         return self._conj
 
@@ -654,8 +657,8 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParameter":
-    """Convert a *numerical* to a fixed parameter or return if already a parameter.
+def convert_to_parameter(value, name=None, prefer_floating=False, allow_tensor=False) -> "ZfitParameter":
+    """Convert a *numerical* to a fixed/floating parameter or return if already a parameter.
 
     Args:
         value ():
@@ -673,8 +676,9 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
     elif isinstance(value, tf.Variable):
         raise TypeError("Currently, cannot autoconvert tf.Variable to zfit.Parameter.")
 
-    # convert to Tensor if not yet
-    if not isinstance(value, tf.Tensor):
+    # convert to Tensor
+    if isinstance(value, tf.Tensor):
+        raise TypeError(f"`allow_tensor` is False but value {value} is a tf.Tensor")  # TODO: LEFTHERE
         is_python = True
         if isinstance(value, complex):
             value = ztf.to_complex(value)
@@ -688,7 +692,7 @@ def convert_to_parameter(value, name=None, prefer_floating=False) -> "ZfitParame
     if value.dtype.is_complex:
         if name is None:
             name = "FIXED_complex_autoparam_" + str(get_auto_number())
-        value = ComplexParameter(name, value=value, floating=False)
+        value = ComplexParameter(name, value_fn=value, floating=False)
 
     else:
         # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
