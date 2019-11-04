@@ -3,11 +3,13 @@
 import abc
 from collections import OrderedDict
 
+import numdifftools
 import tensorflow as tf
+import numpy as np
 
 from typing import Optional, Union, List, Callable, Iterable
 
-from zfit import ztf
+from zfit import ztf, settings
 from zfit.util import ztyping
 from zfit.util.cache import Cachable
 from zfit.util.graph import get_dependents_auto
@@ -228,9 +230,31 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
         return loss
 
+    # def _gradients(self, params):
+    #     tf.gradients(ys=self.value(), xs=params)
+    #     return [self.computed_gradients[param] for param in params]
     def _gradients(self, params):
-        # tf.gradients(ys=self.value(), xs=params)
-        return [self.computed_gradients[param] for param in params]
+        if settings.options['numerical_grad']:
+            def loss_func(param_values):
+                for param, value in zip(params, param_values):
+                    param.assign(value)
+                # return run(self.value())
+                return self.value().numpy()
+
+            param_vals = tf.stack(params)
+            original_vals = param_vals.numpy()
+            grad_func = numdifftools.Gradient(loss_func)
+            gradients = tf.py_function(grad_func, inp=[param_vals],
+                                       Tout=tf.float64)
+            gradients.set_shape((len(param_vals),))
+            for param, val in zip(params, original_vals):
+                param.set_value(val)
+            # gradients = grad_func(param_vals)
+
+        else:
+            # gradients = tf.gradients(ys=self.value(), xs=params)
+            gradients = [self.computed_gradients[param] for param in params]
+        return gradients
 
 
 class CachedLoss(BaseLoss):
