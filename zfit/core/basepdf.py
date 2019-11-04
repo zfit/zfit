@@ -288,7 +288,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _call_unnormalized_pdf(self, x, name):
         with self._name_scope(name, values=[x]):
             # try:
-                return self._unnormalized_pdf(x)
+            return self._unnormalized_pdf(x)
         # except ValueError as error:
         #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
         #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
@@ -553,6 +553,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
+        from ..models.polynomials import RecursivePolynomial
 
         if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(distribution=self._distribution, dist_params=self.dist_params)
@@ -563,6 +564,23 @@ class BasePDF(ZfitPDF, BaseModel):
             lambda_ = parameters.pop('lambda', None)
             if lambda_ is not None:
                 parameters['lambda_'] = lambda_
+
+        # HACK(Mayou36): copy the polynomial correct, replace 'c_0' with coeff0/coeff_0 or similar
+        if isinstance(self, RecursivePolynomial):
+            parameters['coeff0'] = parameters.pop('c_0', None)
+            coeffs = []
+            i_coeff = 1
+            # collect coeffs and convert to 'coeff' list
+            while True:
+                coeff_name = f'c_{i_coeff}'
+                try:
+                    coeff = parameters.pop(coeff_name)
+                except KeyError:
+                    break
+                else:
+                    coeffs.append(coeff)
+            parameters['coeffs'] = coeffs
+
         from zfit.models.functor import BaseFunctor, SumPDF
         if isinstance(self, BaseFunctor):
             parameters = {}
