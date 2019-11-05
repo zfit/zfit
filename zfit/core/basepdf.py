@@ -579,6 +579,7 @@ class BasePDF(ZfitPDF, BaseModel):
                     break
                 else:
                     coeffs.append(coeff)
+                i_coeff += 1
             parameters['coeffs'] = coeffs
 
         from zfit.models.functor import BaseFunctor, SumPDF
