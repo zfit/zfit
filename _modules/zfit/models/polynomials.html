@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.polynomials &#8212; zfit 0.1.dev142+g08bea05 documentation</title>
+    <title>zfit.models.polynomials &#8212; zfit 0.1.dev143+g33b685a documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev142+g08bea05</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev143+g33b685a</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -663,7 +663,14 @@
 
 
 <div class="viewcode-block" id="convert_coeffs_dict_to_list"><a class="viewcode-back" href="../../../api/zfit.models.polynomials.html#zfit.models.polynomials.convert_coeffs_dict_to_list">[docs]</a><span class="k">def</span> <span class="nf">convert_coeffs_dict_to_list</span><span class="p">(</span><span class="n">coeffs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">coeffs</span><span class="p">[</span><span class="n">f</span><span class="s2">&quot;c_</span><span class="si">{i}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">))]</span></div>
+    <span class="c1"># HACK(Mayou36): how to solve elegantly? yield not a param, only a dependent?</span>
+    <span class="n">coeffs_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coeffs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="n">f</span><span class="s2">&quot;c_</span><span class="si">{i}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  <span class="c1"># happens, if there are other parameters in there, such as a yield</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">coeffs_list</span></div>
 
 <span class="c1"># EOF</span>
 </pre></div>
