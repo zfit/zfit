@@ -162,6 +162,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._gradients(params=params)
 
     def add_constraints(self, constraints):
+        constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
 
     def _add_constraints(self, constraints):
