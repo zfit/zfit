@@ -9,3 +9,4 @@ typing
 colorlog
 texttable
 ordered-set
+numdifftools
