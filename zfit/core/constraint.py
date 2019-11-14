@@ -15,10 +15,8 @@ from ..settings import ztypes
 from zfit import ztf
 import zfit
 
-import tensorflow as tf
-
-
 import numpy as np
+import tensorflow as tf
 import tensorflow_probability as tfp
 
 tfd = tfp.distributions
@@ -74,7 +72,7 @@ class SimpleConstraint(BaseConstraint):
 
         Args:
             func: Callable that constructs the constraint and returns a tensor.
-            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the
+            params: The dependents (independent `zfit.Parameter`) of the loss. If not given, the
                 dependents are figured out automatically.
         """
         self._simple_func = func
@@ -152,16 +150,17 @@ class GaussianConstraint(DistributionConstraint):
 
         Args:
             params (list(zfit.Parameter)): The parameters to constraint
-            mu (numerical, list(numerical)): The central value of the constraint
+            mu (numerical, list(numerical)): The central values of the constraint
             sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
 
         Raises:
             ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
         """
-        mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
-        params = convert_to_container(params, tuple)
 
+        mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
+        self._mu = mu
+        params = convert_to_container(params, tuple)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
 
         mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
@@ -178,11 +177,10 @@ class GaussianConstraint(DistributionConstraint):
 
         if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
             raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
-                                         f"param: {params.shape[0]}, mu: {mu.shape[0]}, "
+                                         f"params: {params.shape[0]}, mu: {mu.shape[0]}, "
                                          f"covariance (from sigma): {covariance.shape[0:2]}")
 
         self._covariance = covariance
-        self._mu = mu
         self._params_array = params
 
         distribution = tfd.MultivariateNormalFullCovariance
@@ -191,3 +189,17 @@ class GaussianConstraint(DistributionConstraint):
 
         super().__init__(name="GaussianConstraint", params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+
+    @property
+    def mu(self):
+        """
+        Return the central values of the constraint.
+        """
+        return self._mu
+
+    @property
+    def covariance(self):
+        """
+        Return the covariance matrix of the constraint.
+        """
+        return self._covariance
