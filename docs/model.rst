@@ -305,8 +305,8 @@ the central values of those constraints might be needed to obtain an unbiased sa
     >>> mu_sigma1 = zfit.param.ConstantParameter("mu_sigma1", 1.0)
     >>> mu_sigma2 = zfit.param.ConstantParameter("mu_sigma1", 0.5)
     >>> constraint = zfit.constraint.GaussianConstraint(params=[sigma1, sigma2],
-                                                        mu=[mu_sigma1, mu_sigma2],
-                                                        sigma=[0.1, 0.05])
+    ...                                                 mu=[mu_sigma1, mu_sigma2],
+    ...                                                 sigma=[0.1, 0.05])
 
     >>> n_samples = 1000
 
@@ -316,9 +316,9 @@ the central values of those constraints might be needed to obtain an unbiased sa
     >>> constr_values = constraint.sample(n=n_samples)
 
     >>> for i in range(n_samples):
-    >>>     sampler.resample()
-    >>>     # do something with nll
-    >>>     with ExitStack() as stack:
-    >>>         stack.enter_context(mu_sigma1.set_value(constr_values[sigma1][i]))
-    >>>         stack.enter_context(mu_sigma2.set_value(constr_values[sigma2][i]))
-    >>>         minimizer.minimize(nll)  # minimize
+    ...     sampler.resample()
+    ...     # do something with nll
+    ...     with ExitStack() as stack:
+    ...         stack.enter_context(mu_sigma1.set_value(constr_values[sigma1][i]))
+    ...         stack.enter_context(mu_sigma2.set_value(constr_values[sigma2][i]))
+    ...         minimizer.minimize(nll)  # minimize
