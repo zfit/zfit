@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 class NotSpecified:
     _singleton_instance = None
 
@@ -17,3 +19,8 @@ class NotSpecified:
 
 
 NOT_SPECIFIED = NotSpecified()
+
+
+class ZfitNotImplemented():
+    def __new__(cls, *args, **kwargs):
+        raise RuntimeError("Cannot create an instance of it, meant to be used as a single object reference.")

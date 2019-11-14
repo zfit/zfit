@@ -13,7 +13,7 @@ from zfit.minimizers.minimizer_minuit import Minuit
 import zfit.models.dist_tfp
 from zfit.models.dist_tfp import Gauss
 import zfit.settings
-from zfit.core.loss import _unbinned_nll_tf, UnbinnedNLL
+from zfit.core.loss import UnbinnedNLL
 from zfit.util.exception import IntentionNotUnambiguousError
 from zfit.core.testing import setup_function, teardown_function, tester
 

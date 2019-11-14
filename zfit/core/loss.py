@@ -12,6 +12,7 @@ from typing import Optional, Union, List, Callable, Iterable
 from zfit import ztf, settings
 from zfit.util import ztyping
 from zfit.util.cache import Cachable
+from zfit.util.checks import ZfitNotImplemented
 from zfit.util.graph import get_dependents_auto
 from .baseobject import BaseObject
 from zfit.core.dependents import BaseDependentsMixin
@@ -252,9 +253,42 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             # gradients = grad_func(param_vals)
 
         else:
-            # gradients = tf.gradients(ys=self.value(), xs=params)
-            gradients = [self.computed_gradients[param] for param in params]
+            with tf.GradientTape(persistent=False) as tape:
+                loss = self.value()
+
+            # variables = tape.watched_variables()
+            gradients = tape.gradient(loss, sources=params)
+            # gradients = [self.computed_gradients[param] for param in params]
         return gradients
+
+    def value_gradients(self, params):
+        return self._value_gradients(params=params)
+
+    def _value_gradients(self, params):
+
+        with tf.GradientTape(persistent=False) as tape:
+            loss = self.value()
+
+        # variables = tape.watched_variables()
+        gradients = tape.gradient(loss, sources=params)
+        return loss, gradients
+
+    def value_gradients_hessian(self, params):
+        vals = self._value_gradients_hessian(params=params)
+        if vals is ZfitNotImplemented:
+            vals = self._value_gradients_hessian_fallback(params=params)
+        return vals
+
+    def _value_gradients_hessian_fallback(self, params):
+        with tf.GradientTape(persistent=False) as tape:
+            loss, gradients = self.value_gradients(params=params)
+
+        # variables = tape.watched_variables()
+        hesse = tape.gradient(gradients, sources=params)
+        return loss, gradients, hesse
+
+    def _value_gradients_hessian(self, params):
+        return ZfitNotImplemented
 
 
 class CachedLoss(BaseLoss):
@@ -386,18 +420,7 @@ class SimpleLoss(BaseLoss):
             return errordef
 
     def _loss_func(self, model, data, fit_range, constraints=None):
-        # return self._simple_func()
-        # with tf.GradientTape(persistent=False) as tape:
-        loss, gradients = self._simple_func()
-
-        # variables = tape.watched_variables()
-        # gradients = tape.gradient(loss, sources=variables)
-        variables = self._simple_func_dependents
-        for param, grad in zip(variables, gradients):
-            # if param in self.computed_gradients:
-            #     continue
-            self.computed_gradients[param] = grad
-        return loss
+        return self._simple_func()
 
     def __add__(self, other):
         raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."

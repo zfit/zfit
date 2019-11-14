@@ -2,11 +2,13 @@
 
 import itertools
 
+import numdifftools
 import tensorflow as tf
+from typing import Iterable, Callable
 
-
-
-from zfit import ztf
+from zfit.util.container import convert_to_container
+from .. import ztf
+from .parameter import Parameter
 from ..settings import ztypes
 
 
@@ -51,3 +53,57 @@ def interpolate(t, c):
         wts += [weight * wt]
     interp = tf.reduce_sum(input_tensor=tf.stack(wts), axis=0)
     return interp
+
+
+def numerical_hessian():
+    pass
+
+
+def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    """
+
+    Returns:
+        Tensor: Gradients
+    """
+    params = convert_to_container(params)
+
+    def wrapped_func(param_values):
+        for param, value in zip(params, param_values):
+            param.assign(value)
+        return func().numpy()
+
+    param_vals = tf.stack(params)
+    original_vals = [param.read_value() for param in params]
+    grad_func = numdifftools.Gradient(wrapped_func)
+    gradients = tf.py_function(grad_func, inp=[param_vals],
+                               Tout=tf.float64)
+    if gradients.shape == ():
+        gradients = tf.reshape(gradients, shape=(1,))
+    gradients.set_shape((len(param_vals),))
+    for param, val in zip(params, original_vals):
+        param.set_value(val)
+    return gradients
+
+
+def automatic_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    """
+
+    Returns:
+        Tensor: Gradients
+    """
+
+    with tf.GradientTape(persistent=False) as tape:
+        value = func()
+
+    gradients = tape.gradient(value, sources=params)
+    return gradients
+
+
+if __name__ == '__main__':
+    import zfit
+
+    param1 = zfit.Parameter('param1', 4.)
+
+
+    def func1():
+        return param1 ** 2
