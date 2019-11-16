@@ -19,10 +19,12 @@ def test_complex_param():
     real_part = 1.3
     imag_part = 0.3
     # Constant complex
-    complex_value = real_part + imag_part * 1.j
-    param1 = ComplexParameter("param1_compl", complex_value)
+    def complex_value():
+        return real_part + imag_part * 1.j
+
+    param1 = ComplexParameter("param1_compl", complex_value, dependents=None)
     some_value = 3. * param1 ** 2 - 1.2j
-    true_value = 3. * complex_value ** 2 - 1.2j
+    true_value = 3. * complex_value() ** 2 - 1.2j
     assert true_value == pytest.approx(zfit.run(some_value), rel=1e-8)
     assert not param1.get_dependents()
     # Cartesian complex
@@ -74,15 +76,18 @@ def test_composed_param():
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
     param4 = Parameter('param4', 4.)  # needed to make sure it does not only take all params as deps
-    a = ztf.log(3. * param1) * tf.square(param2) - param3
-    param_a = ComposedParameter('param_as', value_fn=a)
+
+    def a():
+        return ztf.log(3. * param1) * tf.square(param2) - param3
+
+    param_a = ComposedParameter('param_as', value_fn=a, dependents=(param1, param2, param3))
     assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
-    a_unchanged = zfit.run(a)
+    a_unchanged = a().numpy()
     assert a_unchanged == zfit.run(param_a)
     assert zfit.run(param2.assign(3.5))
-    a_changed = zfit.run(a)
+    a_changed = a().numpy()
     assert a_changed == zfit.run(param_a)
     assert a_changed != a_unchanged
 

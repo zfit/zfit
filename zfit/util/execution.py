@@ -82,7 +82,12 @@ class RunManager:
             self._cpu.extend(cpu)
 
     def __call__(self, *args, **kwargs):
-        return self.sess.run(*args, **kwargs)
+        if kwargs:
+            raise RuntimeError("Why kwargs provided? Still under conversion from TF 1.x to 2.x")
+        values = [arg.numpy() for arg in args]
+        if len(args) == 1:
+            values = values[0]
+        return values
 
     # def close(self):
     #     """Closes the current session."""

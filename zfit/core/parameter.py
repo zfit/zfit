@@ -25,7 +25,8 @@ from ..util import ztyping
 from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents_auto
-from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError
+from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
+    DueToLazynessNotImplementedError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
 from ..settings import ztypes, run
@@ -138,6 +139,8 @@ class ComposedVariable:
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
         self._dtype = dtype
+        if not callable(value_fn):
+            raise TypeError("`value_fn` is not callable.")
         self._value_fn = value_fn
 
         # self._name = name
@@ -155,6 +158,9 @@ class ComposedVariable:
 
     def read_value(self):
         return self.value()
+
+    def numpy(self):
+        return self.value().numpy()
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
@@ -241,13 +247,13 @@ class BaseParameter(ZfitParameter):
 class ZfitParameterMixin(BaseNumeric):
     _existing_names = set()
 
-    def __init__(self, name, initial_value, **kwargs):
+    def __init__(self, name, **kwargs):
         if name in self._existing_names:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
         self._existing_names.update((name,))
         self._name = name
-        super().__init__(initial_value=initial_value, name=name, **kwargs)
+        super().__init__(name=name, **kwargs)
         # try:
         #     new_name = self.op.name
         # except AttributeError:  # no `op` attribute -> take normal name
@@ -544,8 +550,8 @@ class BaseComposedParameter(BaseZParameter):
 
 class ConstantParameter(BaseZParameter):
 
-    def __init__(self, name, value):
-        super().__init__(name=name, initial_value=value, dtype=ztypes.float, params={})
+    def __init__(self, name, value, dtype=ztypes.float):
+        super().__init__(name=name, value_fn=lambda: value, params={}, dtype=dtype)
 
     @property
     def floating(self):
@@ -568,7 +574,10 @@ class ComposedParameter(BaseComposedParameter):
         independent_params = tf.compat.v1.get_collection("zfit_independent")
         # params = get_dependents_auto(tensor=value_fn, candidates=independent_params)
         dependents = convert_to_container(dependents)
-        params = self._extract_dependents(dependents)
+        if dependents is None:
+            params = OrderedSet()
+        else:
+            params = self._extract_dependents(dependents)
         # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
         # with tf.control_dependencies(params_init_op):
@@ -657,7 +666,7 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_floating=False, allow_tensor=False) -> "ZfitParameter":
+def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=False) -> "ZfitParameter":
     """Convert a *numerical* to a fixed/floating parameter or return if already a parameter.
 
     Args:
@@ -666,7 +675,6 @@ def convert_to_parameter(value, name=None, prefer_floating=False, allow_tensor=F
         prefer_floating: If True, create a Parameter instead of a FixedParameter _if possible_.
 
     """
-    floating = False
     is_python = False
     if name is not None:
         name = str(name)
@@ -678,13 +686,14 @@ def convert_to_parameter(value, name=None, prefer_floating=False, allow_tensor=F
 
     # convert to Tensor
     if isinstance(value, tf.Tensor):
-        raise TypeError(f"`allow_tensor` is False but value {value} is a tf.Tensor")  # TODO: LEFTHERE
-        is_python = True
-        if isinstance(value, complex):
-            value = ztf.to_complex(value)
-        else:
-            floating = prefer_floating
-            value = ztf.to_real(value)
+        if not graph_mode:
+            value = value.numpy()  # make it save; this fails if in graph mode
+            is_python = True
+    if isinstance(value, complex):
+        value = ztf.to_complex(value)
+    else:
+        floating = prefer_floating
+        value = ztf.to_real(value)
 
     if not run._enable_parameter_autoconversion:
         return value
@@ -692,15 +701,18 @@ def convert_to_parameter(value, name=None, prefer_floating=False, allow_tensor=F
     if value.dtype.is_complex:
         if name is None:
             name = "FIXED_complex_autoparam_" + str(get_auto_number())
-        value = ComplexParameter(name, value_fn=value, floating=False)
+        if not prefer_floating:
+            raise DueToLazynessNotImplementedError("Constant complex param not here yet, complex Mixin?")
+        value = ComplexParameter(name, value_fn=value, floating=prefer_floating)
 
     else:
         # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
         if is_python:
             params = {}
         else:
-            independend_params = tf.compat.v1.get_collection("zfit_independent")
-            params = get_dependents_auto(tensor=value, candidates=independend_params)
+            raise RuntimeError("Why needed?")
+            # independend_params = tf.compat.v1.get_collection("zfit_independent")
+            # params = get_dependents_auto(tensor=value, candidates=independend_params)
         if params:
             if name is None:
                 name = "composite_autoparam_" + str(get_auto_number())

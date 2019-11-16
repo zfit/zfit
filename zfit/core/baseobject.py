@@ -79,11 +79,15 @@ class BaseObject(ZfitObject):
 
 class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumeric, BaseObject):
 
-    def __init__(self, name, dtype, params, **kwargs):
+    def __init__(self, name, params, **kwargs):
+        # if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
+        #     self._dtype = kwargs.pop('dtype')
         super().__init__(name=name, **kwargs)
         from zfit.core.parameter import convert_to_parameter
 
-        self._dtype = dtype
+        if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
+            self._dtype = kwargs['dtype']
+
         params = params or OrderedDict()
         params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         self.add_cache_dependents(params.values())
