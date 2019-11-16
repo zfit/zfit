@@ -113,7 +113,7 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
 
     constr1 = zfit.constraint.GaussianConstraint(**constraint)
     # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
-    constraint['params'] = zfit.run(constraint['params'])
+    # constraint['params'] = constraint['params']
 
     true_val = true_gauss_constr_value(**constraint)
 
@@ -156,7 +156,7 @@ def test_simple_constraint():
     def func():
         return true_nll_gaussian(params=params, mu=mu, sigma=sigma)
 
-    constr = SimpleConstraint(func=func)
+    constr = SimpleConstraint(func=func, params=params)
 
     constr_np = zfit.run(constr.value())
     assert constr_np == pytest.approx(2.02)

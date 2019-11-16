@@ -5,6 +5,8 @@ from collections import OrderedDict
 
 from typing import Dict, Union, Callable, Optional
 
+from ordered_set import OrderedSet
+
 from .baseobject import BaseNumeric
 from .interfaces import ZfitParameter
 from ..util import ztyping
@@ -67,7 +69,7 @@ class BaseConstraint(BaseNumeric):
 
 class SimpleConstraint(BaseConstraint):
 
-    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType] = None, sampler: Callable = None):
+    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType], sampler: Callable = None):
         """Constraint from a (function returning a) Tensor.
 
         The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
@@ -79,22 +81,20 @@ class SimpleConstraint(BaseConstraint):
         """
         self._simple_func = func
         self._sampler = sampler
-        self._simple_func_dependents = convert_to_container(params, container=set)
-        if params is None:
-            params = self.get_dependents()
+        self._simple_func_dependents = convert_to_container(params, container=OrderedSet)
 
         params = convert_to_container(params, container=list)
         params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
 
         super().__init__(name="SimpleConstraint", params=params)
 
-    def _get_dependents(self):
-        dependents = self._simple_func_dependents
-        if dependents is None:
-            independent_params = tf.compat.v1.get_collection("zfit_independent")
-            dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-            self._simple_func_dependents = dependents
-        return dependents
+    # def _get_dependents(self):
+    #     dependents = self._simple_func_dependents
+    #     if dependents is None:
+    #         independent_params = tf.compat.v1.get_collection("zfit_independent")
+    #         dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
+    #         self._simple_func_dependents = dependents
+    #     return dependents
 
     def _value(self):
         return self._simple_func()

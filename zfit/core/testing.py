@@ -9,7 +9,7 @@ from collections import OrderedDict
 import scipy.stats
 from typing import Callable, Tuple, List, Union, Iterable
 
-from ..settings import run
+from .parameter import ZfitParameterMixin
 from .interfaces import ZfitPDF
 from ..util.container import convert_to_container
 
@@ -17,7 +17,7 @@ __all__ = ["tester", "setup_function", "teardown_function"]
 
 
 def setup_function():
-    run.create_session(reset_graph=True)
+    ZfitParameterMixin._existing_names = OrderedDict()
 
 
 def teardown_function():

@@ -1,6 +1,6 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2019 zfit
-
+from collections import OrderedDict
 from contextlib import suppress
 
 import numpy as np
@@ -22,7 +22,6 @@ from ..util.temporary import TemporarilySet
 from ..core.baseobject import BaseNumeric, BaseObject
 from ..util.cache import Cachable, invalidates_cache
 from ..util import ztyping
-from ..util.execution import SessionHolderMixin
 from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents_auto
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
@@ -110,7 +109,6 @@ def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
 
 
 ops.register_tensor_conversion_function(ZfitBaseVariable, _dense_var_to_tensor)
-# ops.register_session_run_conversion_functions()
 
 ZfitBaseVariable._OverloadAllOperators()
 
@@ -164,9 +162,6 @@ class ComposedVariable:
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
-
-    def load(self, value, session=None):
-        raise LogicalUndefinedOperationError("Cannot load to a fixed/composed parameter")
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
@@ -245,13 +240,13 @@ class BaseParameter(ZfitParameter):
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_names = set()
+    _existing_names = OrderedDict()
 
     def __init__(self, name, **kwargs):
         if name in self._existing_names:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
-        self._existing_names.update((name,))
+        self._existing_names.update({name: self})
         self._name = name
         super().__init__(name=name, **kwargs)
         # try:
@@ -280,6 +275,10 @@ class ZfitParameterMixin(BaseNumeric):
         if not isinstance(value, bool):
             raise TypeError("floating has to be a boolean.")
         self._floating = value
+
+    def __del__(self):
+        del self._existing_names[self.name]
+        super().__del__(self)
 
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
@@ -322,7 +321,7 @@ class TFBaseVariable(TFBaseVariable):
     pass
 
 
-class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BaseParameter):
+class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -452,28 +451,19 @@ class Parameter(SessionHolderMixin, ZfitParameterMixin, TFBaseVariable, BasePara
             value = tf.cast(value, dtype=ztypes.float)
         self._step_size = value
 
-    def load(self, value: ztyping.NumericalScalarType):
-        """:py:class:`~zfit.Parameter` takes on the `value`. Is not part of the graph, does a session run.
-
-        Args:
-            value (numerical):
-        """
-        return super().load(value=value, session=self.sess)
-
     def set_value(self, value: ztyping.NumericalScalarType):
         """Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).
 
         Args:
             value (float): The value the parameter will take on.
         """
-        super_load = super().load
+        super_assign = super().assign
 
         def getter():
-            # return self.sess.run(self)
             return self.numpy()
 
         def setter(value):
-            super_load(value=value, session=self.sess)
+            super_assign(value=value)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
@@ -596,7 +586,6 @@ class ComplexParameter(ComposedParameter):
         self._imag = None
         self._real = None
 
-
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
                        **kwargs):  # TODO: correct dtype handling, also below
@@ -685,15 +674,12 @@ def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=Fal
         raise TypeError("Currently, cannot autoconvert tf.Variable to zfit.Parameter.")
 
     # convert to Tensor
-    if isinstance(value, tf.Tensor):
-        if not graph_mode:
-            value = value.numpy()  # make it save; this fails if in graph mode
-            is_python = True
-    if isinstance(value, complex):
-        value = ztf.to_complex(value)
-    else:
-        floating = prefer_floating
-        value = ztf.to_real(value)
+    if not isinstance(value, tf.Tensor):
+        is_python = True
+        if isinstance(value, complex):
+            value = ztf.to_complex(value)
+        else:
+            value = ztf.to_real(value)
 
     if not run._enable_parameter_autoconversion:
         return value
@@ -706,24 +692,12 @@ def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=Fal
         value = ComplexParameter(name, value_fn=value, floating=prefer_floating)
 
     else:
-        # value = Parameter("FIXED_autoparam_" + str(get_auto_number()), value=value, floating=False)
-        if is_python:
-            params = {}
+        if prefer_floating:
+            name = "autoparam_" + str(get_auto_number()) if name is None else name
+            value = Parameter(name=name, value=value)
         else:
-            raise RuntimeError("Why needed?")
-            # independend_params = tf.compat.v1.get_collection("zfit_independent")
-            # params = get_dependents_auto(tensor=value, candidates=independend_params)
-        if params:
             if name is None:
-                name = "composite_autoparam_" + str(get_auto_number())
-            value = ComposedParameter(name, value_fn=value)
-        else:
-            if prefer_floating:
-                name = "autoparam_" + str(get_auto_number()) if name is None else name
-                value = Parameter(name=name, value=value)
-            else:
-                if name is None:
-                    name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
-                value = ConstantParameter(name, value=value)
+                name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
+            value = ConstantParameter(name, value=value)
 
     return value

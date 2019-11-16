@@ -18,7 +18,6 @@ import zfit
 from zfit import ztf
 from zfit.core.interfaces import ZfitSpace
 from ..util.cache import Cachable, invalidates_cache
-from ..util.execution import SessionHolderMixin
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
@@ -31,7 +30,7 @@ from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedE
 from ..util.temporary import TemporarilySet
 
 
-class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
+class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
                  name: str = None, weights=None, iterator_feed_dict: Dict = None,
@@ -325,13 +324,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if obs is None:
             obs = self.obs
         obs_str = convert_to_obs_str(obs)
-        values = self.sess.run(values)
+        values = values.numpy()
         df = pd.DataFrame(data=values, columns=obs_str)
         return df
 
     def initialize(self):
         iterator = tf.compat.v1.data.make_initializable_iterator(self.dataset)
-
+        # TODO(Mayou36): TF2 convert correct
         self.sess.run(iterator.initializer, self.iterator_feed_dict)
         self.iterator = iterator
 
@@ -356,6 +355,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         return self._value_internal(obs=obs)
+
+    def numpy(self):
+        return self.value().numpy()
 
     def _cut_data(self, value, obs=None):
         if self.data_range.limits is not None:
@@ -603,7 +605,7 @@ class Sampler(Data):
             fixed_params = []
         from tensorflow.python.ops.variables import VariableV1
         sample_holder = VariableV1(initial_value=sample, trainable=False,
-                                    name="sample_data_holder_{}".format(cls.get_cache_counting()))
+                                   name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
         return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,

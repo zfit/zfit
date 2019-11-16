@@ -19,7 +19,6 @@ import tensorflow as tf
 
 from ..settings import run
 from .interface import ZfitMinimizer
-from ..util.execution import SessionHolderMixin
 from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util import ztyping
@@ -67,7 +66,7 @@ class DefaultStrategy(BaseStrategy):
         pass  # nothing to do here
 
 
-class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
+class BaseMinimizer(ZfitMinimizer):
     """Minimizer for loss functions.
 
     Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
@@ -186,10 +185,8 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             NotImplementedError: if the `step` method is not implemented in the minimizer.
         """
         params = self._check_input_params(params)
-        with ExitStack() as stack:
-            tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
 
-            return self._step(params=params)
+        return self._step(params=params)
 
     def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params`.
@@ -203,16 +200,14 @@ class BaseMinimizer(SessionHolderMixin, ZfitMinimizer):
             `FitResult`: The fit result.
         """
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
-        with ExitStack() as stack:
-            tuple(stack.enter_context(param.set_sess(self.sess)) for param in params)
-            try:
-                return self._hook_minimize(loss=loss, params=params)
-            except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
-                fail_result = self.strategy.fit_result
-                if fail_result is not None:
-                    return fail_result
-                else:
-                    raise
+        try:
+            return self._hook_minimize(loss=loss, params=params)
+        except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
+            fail_result = self.strategy.fit_result
+            if fail_result is not None:
+                return fail_result
+            else:
+                raise
 
     def _hook_minimize(self, loss, params):
         return self._call_minimize(loss=loss, params=params)

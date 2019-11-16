@@ -75,7 +75,6 @@ class Minuit(BaseMinimizer, Cachable):
         # create Minuit compatible names
         limits = tuple(tuple((param.lower_limit, param.upper_limit)) for param in params)
         errors = tuple(param.step_size for param in params)
-        # start_values, limits, errors = self.sess.run([params, limits, errors])
         start_values = [p.numpy() for p in params]
         limits = [(low.numpy(), up.numpy()) for low, up in limits]
         errors = [err.numpy() for err in errors]
@@ -103,7 +102,6 @@ class Minuit(BaseMinimizer, Cachable):
                     table.add_row([param.name, value])
                 print(table.draw())
 
-            # loss_evaluated = self.sess.run(loss_val)
             loss_evaluated = loss.value().numpy()
             if np.isnan(loss_evaluated):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
@@ -119,7 +117,6 @@ class Minuit(BaseMinimizer, Cachable):
                     table.add_row([param.name, value])
                 print(table.draw())
 
-            # gradients_values = self.sess.run(gradients)
             gradients = loss.gradients(params=params)
             gradients_values = [g.numpy() for g in gradients]
             if any(np.isnan(gradients_values)):

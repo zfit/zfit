@@ -9,7 +9,6 @@ import tensorflow as tf
 import zfit
 from zfit import ztf, Space
 from zfit.core.sample import accept_reject_sample
-from zfit.util.execution import SessionHolderMixin
 from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.5
@@ -73,7 +72,6 @@ def test_sampling_fixed(gauss_factory):
     n_draws = 1000
     n_draws_param = tf.Variable(initial_value=n_draws, trainable=False, dtype=tf.int64,
                                 name='n_draws')  # variable to have something changeable, predictable
-    zfit.run(n_draws_param.initializer)
     sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
     sample_tensor.resample()
     sampled_from_gauss1 = zfit.run(sample_tensor)
@@ -82,12 +80,12 @@ def test_sampling_fixed(gauss_factory):
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
     new_n_draws = 867
-    n_draws_param.load(new_n_draws, session=zfit.run.sess)
+    n_draws_param.assign(new_n_draws)
     sample_tensor.resample()
     sampled_from_gauss1_small = zfit.run(sample_tensor)
     assert new_n_draws == len(sampled_from_gauss1_small[:, 0])
     assert not np.allclose(sampled_from_gauss1[:new_n_draws], sampled_from_gauss1_small)
-    n_draws_param.load(n_draws, session=zfit.run.sess)
+    n_draws_param.assign(n_draws)
 
     gauss_full_sample = gauss.create_sampler(n=10000,
                                              limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3))
@@ -182,21 +180,13 @@ def test_importance_sampling():
 
     importance_sampling_called = [False]
 
-    class GaussianSampleAndWeights(SessionHolderMixin):
+    class GaussianSampleAndWeights:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            # self.n_to_produce = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True,
-            #                                 trainable=False, validate_shape=False)
-            # self.sess.run(self.n_to_produce.initializer)
-            # self.dtype = dtype
-            # self.limits = limits
-
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            # assign_op = self.n_to_produce.assign(n_to_produce)
-            # with tf.control_dependencies([assign_op]):
             gaussian_sample = gauss_sampler._create_sampler_tensor(n=n_to_produce, limits=limits,
                                                                    fixed_params=False, name='asdf')[2]
             weights = gauss_sampler.pdf(gaussian_sample)
@@ -228,7 +218,7 @@ def test_importance_sampling_uniform():
     uniform = UniformNoAnalyticSampling(obs=obs, low=low, high=high)
     importance_sampling_called = [False]
 
-    class GaussianSampleAndWeights(SessionHolderMixin):
+    class GaussianSampleAndWeights:
 
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True

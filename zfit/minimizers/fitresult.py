@@ -11,7 +11,6 @@ import numpy as np
 
 import zfit
 from zfit.util.exception import WeightsNotImplementedError, DueToLazynessNotImplementedError
-from zfit.util.execution import SessionHolderMixin
 from .interface import ZfitMinimizer, ZfitResult
 from ..util.ztyping import ParamsTypeOpt
 from ..core.interfaces import ZfitLoss, ZfitParameter
@@ -55,7 +54,7 @@ def _minos_minuit(result, params, sigma=1.0):
     return result
 
 
-class FitResult(SessionHolderMixin, ZfitResult):
+class FitResult(ZfitResult):
     _default_hesse = 'minuit_hesse'
     _hesse_methods = {'minuit_hesse': _hesse_minuit}
     _default_error = 'minuit_minos'

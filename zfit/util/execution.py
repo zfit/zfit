@@ -14,7 +14,7 @@ import tensorflow as tf
 
 import zfit
 from .temporary import TemporarilySet
-from .container import DotDict
+from .container import DotDict, is_container, convert_to_container
 
 
 class RunManager:
@@ -22,8 +22,6 @@ class RunManager:
     def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
         self.MAX_CHUNK_SIZE = sys.maxsize
-        self.sess = None
-        self._sess_kwargs = {}
         self.chunking = DotDict()
         self._cpu = []
         self.numeric_checks = True
@@ -39,7 +37,7 @@ class RunManager:
         self.chunking.max_n_points = 1000000
 
     def auto_initialize(self, variable: tf.Variable):
-        self(variable.initializer)
+        pass
 
     @property
     def chunksize(self):
@@ -84,89 +82,9 @@ class RunManager:
     def __call__(self, *args, **kwargs):
         if kwargs:
             raise RuntimeError("Why kwargs provided? Still under conversion from TF 1.x to 2.x")
-        values = [arg.numpy() for arg in args]
-        if len(args) == 1:
+        was_container = is_container(args[0])
+        to_convert = convert_to_container(args[0])
+        values = [arg.numpy() for arg in to_convert if isinstance(arg, (tf.Tensor, tf.Variable))]
+        if not was_container and values:
             values = values[0]
         return values
-
-    # def close(self):
-    #     """Closes the current session."""
-    def reset(self):
-        if self._sess is not None:
-            self.sess.close()
-        tf.compat.v1.reset_default_graph()
-
-    def create_session(self, *args, close_current=True, reset_graph=False, **kwargs):
-        """Create a new session (or replace the current one). Arguments will overwrite the already set arguments.
-
-        Args:
-            close_current (bool): Closes the current open session before replacement. Has no effect if
-                no session was created before.
-            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.compat.v1.Session`.
-            *args ():
-            **kwargs ():
-
-        Returns:
-            :py:class:`tf.compat.v1.Session`
-        """
-        sess_kwargs = copy.deepcopy(self._sess_kwargs)
-        sess_kwargs.update(kwargs)
-        if close_current and self._sess is not None:
-            self.sess.close()
-        if reset_graph:
-            tf.compat.v1.reset_default_graph()
-            from zfit.core.parameter import ZfitParameterMixin
-            ZfitParameterMixin._existing_names = set()  # TODO(Mayou36): better hook for reset?
-        self.sess = tf.compat.v1.Session(*args, **sess_kwargs)
-
-        from ..settings import ztypes
-        tf.compat.v1.get_variable_scope().set_use_resource(True)
-        tf.compat.v1.get_variable_scope().set_dtype(ztypes.float)
-
-        return self.sess
-
-    @property
-    def sess(self):
-        if self._sess is None:
-            self.create_session()
-        return self._sess
-
-    @sess.setter
-    def sess(self, value):
-        self._sess = value
-
-
-class SessionHolderMixin:
-
-    def __init__(self, *args, **kwargs):
-        """Creates a `self.sess` attribute, a setter `set_sess` (with a fallback to the zfit default session)."""
-        super().__init__(*args, **kwargs)
-        self._sess = None
-
-    def set_sess(self, sess: tf.compat.v1.Session):
-        """Set the session (temporarily) for this instance. If None, the auto-created default is taken.
-
-        Args:
-            sess (tf.compat.v1.Session):
-        """
-        if not isinstance(sess, tf.compat.v1.Session):
-            raise TypeError("`sess` has to be a TensorFlow Session but is {}".format(sess))
-
-        def getter():
-            return self._sess  # use private attribute! self.sess creates default session
-
-        def setter(value):
-            self.sess = value
-
-        return TemporarilySet(value=sess, setter=setter, getter=getter)
-
-    @property
-    def sess(self):
-        sess = self._sess
-        if sess is None:
-            sess = zfit.run.sess
-        return sess
-
-    @sess.setter
-    def sess(self, sess: tf.compat.v1.Session):
-        self._sess = sess
