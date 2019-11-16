@@ -34,12 +34,12 @@ tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory()
 
 def sample_testing(pdf):
     sample = pdf.sample(n=1000, limits=(-0.5, 1.5))
-    sample_np = (sample.numpy()
+    sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))
 
 
 def eval_testing(pdf, x):
-    probs = (pdf.pdf(x).numpy()
+    probs = pdf.pdf(x).numpy()
     assert not any(np.isnan(probs))
     return probs
 
