@@ -18,7 +18,6 @@ def test_counts_multinomial():
     probs = [0.1, 0.3, 0.6]
     total_count = 1000.
     total_count_var = tf.Variable(total_count, trainable=False)
-    zfit.run(total_count_var.initializer)
     counts = ztf.random.counts_multinomial(total_count=total_count_var, probs=probs)
 
     counts_np = [zfit.run(counts) for _ in range(20)]

@@ -135,10 +135,10 @@ class ComposedResourceVariable(ResourceVariable):
 # class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
 class ComposedVariable:
 
-    def __init__(self, name: str, value_fn: Callable, dtype, **kwargs):
+    def __init__(self, name: str, value_fn: Callable, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
-        self._dtype = dtype
+        # self._dtype = dtype
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
         self._value_fn = value_fn

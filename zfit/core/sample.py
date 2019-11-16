@@ -5,7 +5,6 @@ from typing import Callable, Union, Iterable, List, Optional, Tuple
 
 import tensorflow as tf
 
-
 import tensorflow_probability as tfp
 import numpy as np
 
@@ -329,10 +328,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if not dynamic_array_shape:
             indices = tf.boolean_mask(tensor=draw_indices, mask=take_or_not)
             current_sampled = tf.sparse.to_dense(tf.SparseTensor(indices=indices,
-                                                                        values=tf.broadcast_to(input=(True,),
-                                                                                               shape=(n_accepted,)),
-                                                                        dense_shape=(tf.cast(n, dtype=tf.int64),)),
-                                                        default_value=False)
+                                                                 values=tf.broadcast_to(input=(True,),
+                                                                                        shape=(n_accepted,)),
+                                                                 dense_shape=(tf.cast(n, dtype=tf.int64),)),
+                                                 default_value=False)
             is_sampled = tf.logical_or(is_sampled, current_sampled)
             indices = indices[:, 0]
         else:
@@ -420,41 +419,3 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
 
     samples = tf.concat(samples, axis=0)
     return samples
-
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-    import time
-
-    with tf.compat.v1.Session() as sess:
-        dist = tfp.distributions.Normal(loc=1.5, scale=5.)
-        log_prob_fn = dist.log_prob
-        hmc = tfp.mcmc.HamiltonianMonteCarlo(target_log_prob_fn=log_prob_fn, step_size=0.1,
-                                             num_leapfrog_steps=2)
-        samples, kernel_results = tfp.mcmc.sample_chain(num_results=int(2),
-                                                        num_burnin_steps=int(3),
-                                                        num_steps_between_results=int(3),
-                                                        current_state=0.3, kernel=hmc,
-                                                        parallel_iterations=80)
-
-        result = sess.run(samples)
-        print(np.average(result), np.std(result))
-        # maximum = 1.1 * tf.reduce_max(dist.model(tf.random_uniform((10000,), -100, 100)))
-        maximum = 0.1
-        # maximum = None
-        list1 = []
-
-        sampled_dist_ar = accept_reject_sample(prob=dist.prob, n=100000000, limits=(-13.5, 16.5), sampler=None,
-                                               prob_max=maximum)
-
-        start = time.time()
-        for _ in range(40):
-            _ = sess.run(sampled_dist_ar)
-        end = time.time()
-        print("Time needed for normalization:", end - start)
-        # plt.hist(sampled_dist_ar, bins=40)
-
-        plt.figure()
-        # plt.hist(result, bins=40)
-        plt.show()
