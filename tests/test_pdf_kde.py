@@ -10,4 +10,4 @@
 #     kde = zfit.models.dist_tfp.KernelDensity(loc=data, scale=h, obs=zfit.Space("obs1", limits=(-5, 5)))
 #
 #     integral = kde.integrate(limits=(-5, 5))
-#     assert zfit.run(integral) == pytest.approx(1., rel=0.01)
+#     assert integral.numpy() == pytest.approx(1., rel=0.01)

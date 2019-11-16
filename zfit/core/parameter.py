@@ -5,6 +5,7 @@ from contextlib import suppress
 
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 # TF backwards compatibility
 from ordered_set import OrderedSet
@@ -136,6 +137,7 @@ class ComposedVariable:
     def __init__(self, name: str, value_fn: Callable, **kwargs):
         # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
+
         # self._dtype = dtype
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
@@ -325,19 +327,19 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
+    _independent_params = []
 
     def __init__(self, name, value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
                  dtype=ztypes.float, **kwargs):
         """
-          Constructor.
             name : name of the parameter,
             value : starting value
             lower_limit : lower limit
             upper_limit : upper limit
             step_size : step size (set to 0 for fixed parameters)
         """
-
-        # TODO: sanitize input
+        self._independent_params.append(self)
+        # TODO: sanitize input for TF2
         self._lower_limit_neg_inf = None
         self._upper_limit_neg_inf = None
         if lower_limit is None:
@@ -348,8 +350,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         value = tf.cast(value, dtype=ztypes.float)
 
         def constraint(x):
-            return tf.clip_by_value(x, clip_value_min=self.lower_limit,
-                                    clip_value_max=self.upper_limit)
+            return tfp.math.clip_by_value_preserve_gradient(x, clip_value_min=self.lower_limit,
+                                                            clip_value_max=self.upper_limit)
 
         # self.constraint = constraint
 
@@ -358,10 +360,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
 
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
-        if self.independent:
-            tf.compat.v1.add_to_collection("zfit_independent", self)
-        else:
-            tf.compat.v1.add_to_collection("zfit_dependent", self)
         # value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?
         self.floating = floating
         self.step_size = step_size
@@ -499,6 +497,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         self.load(value=value)
         return value
 
+    def __del__(self):
+        self._independent_params.remove(self)
+        super().__del__()
+
     def __repr__(self):
         return f"<zfit.Parameter '{self.name}' floating={self.floating}>"
 
@@ -561,8 +563,6 @@ class ConstantParameter(BaseZParameter):
 
 class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, value_fn, dependents, dtype=ztypes.float, **kwargs):  # TODO: automatize dependents
-        independent_params = tf.compat.v1.get_collection("zfit_independent")
-        # params = get_dependents_auto(tensor=value_fn, candidates=independent_params)
         dependents = convert_to_container(dependents)
         if dependents is None:
             params = OrderedSet()

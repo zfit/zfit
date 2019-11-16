@@ -9,18 +9,19 @@ import numpy as np
 
 from typing import Optional, Union, List, Callable, Iterable
 
+from ordered_set import OrderedSet
+
 from zfit import ztf, settings
-from zfit.util import ztyping
-from zfit.util.cache import Cachable
-from zfit.util.checks import ZfitNotImplemented
-from zfit.util.graph import get_dependents_auto
+from .math import numerical_gradient, automatic_gradient
+from ..util import ztyping
+from ..util.cache import Cachable
+from ..util.checks import ZfitNotImplemented
+from ..util.graph import get_dependents_auto
 from .baseobject import BaseObject
-from zfit.core.dependents import BaseDependentsMixin
+from .dependents import BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
-from ..models.functions import SimpleFunc
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
-from zfit.settings import ztypes
 from .constraint import BaseConstraint, SimpleConstraint
 
 func_simple = tf.function(autograph=False)  # TODO: how to properly?
@@ -231,34 +232,13 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
         return loss
 
-    # def _gradients(self, params):
-    #     tf.gradients(ys=self.value(), xs=params)
-    #     return [self.computed_gradients[param] for param in params]
+
     def _gradients(self, params):
         if settings.options['numerical_grad']:
-            def loss_func(param_values):
-                for param, value in zip(params, param_values):
-                    param.assign(value)
-                # return run(self.value())
-                return self.value().numpy()
-
-            param_vals = tf.stack(params)
-            original_vals = param_vals.numpy()
-            grad_func = numdifftools.Gradient(loss_func)
-            gradients = tf.py_function(grad_func, inp=[param_vals],
-                                       Tout=tf.float64)
-            gradients.set_shape((len(param_vals),))
-            for param, val in zip(params, original_vals):
-                param.set_value(val)
-            # gradients = grad_func(param_vals)
+            gradients = numerical_gradient(self.value, params=params)
 
         else:
-            with tf.GradientTape(persistent=False) as tape:
-                loss = self.value()
-
-            # variables = tape.watched_variables()
-            gradients = tape.gradient(loss, sources=params)
-            # gradients = [self.computed_gradients[param] for param in params]
+            gradients = automatic_gradient(self.value, params=params)
         return gradients
 
     def value_gradients(self, params):
@@ -394,20 +374,20 @@ class SimpleLoss(BaseLoss):
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
         # self._simple_func = tf.function(func, autograph=False)
-        self._simple_func = tf.function(func, autograph=True)
+        self._simple_func = tf.function(func, autograph=False)
         self._simple_errordef = errordef
         self._errordef = errordef
         self.computed_gradients = {}
-        self._simple_func_dependents = convert_to_container(dependents, container=set)
+        self._simple_func_dependents = convert_to_container(dependents, container=OrderedSet)
 
         super().__init__(model=[], data=[], fit_range=[])
 
     def _get_dependents(self):
         dependents = self._simple_func_dependents
-        if dependents is None:
-            independent_params = tf.compat.v1.get_collection("zfit_independent")
-            dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-            self._simple_func_dependents = dependents
+        # if dependents is None:
+        #     independent_params = tf.compat.v1.get_collection("zfit_independent")
+        #     dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
+        #     self._simple_func_dependents = dependents
         return dependents
 
     @property

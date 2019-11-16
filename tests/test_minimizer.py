@@ -49,20 +49,20 @@ def create_loss():
 def minimize_func(minimizer_class_and_kwargs):
     loss, (a_param, b_param, c_param) = create_loss()
 
-    true_minimum = zfit.run(loss.value())
+    true_minimum = loss.value().numpy()
 
     parameter_tolerance = 0.25  # percent
     max_distance_to_min = 10.
 
     for param in [a_param, b_param, c_param]:
-        zfit.run(param.initializer)  # reset the value
+        param.assign(param.initial_value)  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
-    cur_val = zfit.run(loss.value())
-    aval, bval, cval = zfit.run([v for v in (a_param, b_param, c_param)])
+    cur_val = loss.value().numpy()
+    aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
 
     assert true_a == pytest.approx(aval, abs=parameter_tolerance)
     assert true_b == pytest.approx(bval, abs=parameter_tolerance)

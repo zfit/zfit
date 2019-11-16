@@ -49,14 +49,14 @@ def test_gauss1():
 
     probs1 = gauss1.pdf(x=test_values, norm_range=norm_range1)
     probs1_tfp = normal1.pdf(x=test_values, norm_range=norm_range1)
-    probs1 = zfit.run(probs1)
-    probs1_tfp = zfit.run(probs1_tfp)
+    probs1 = probs1.numpy()
+    probs1_tfp = probs1_tfp.numpy()
     np.testing.assert_allclose(probs1, probs1_tfp, rtol=1e-2)
 
     probs1_unnorm = gauss1.pdf(x=test_values, norm_range=False)
     probs1_tfp_unnorm = normal1.pdf(x=test_values, norm_range=False)
-    probs1_unnorm = zfit.run(probs1_unnorm)
-    probs1_tfp_unnorm = zfit.run(probs1_tfp_unnorm)
+    probs1_unnorm = probs1_unnorm.numpy()
+    probs1_tfp_unnorm = probs1_tfp_unnorm.numpy()
     assert not np.allclose(probs1_tfp, probs1_tfp_unnorm, rtol=1e-2)
     assert not np.allclose(probs1, probs1_unnorm, rtol=1e-2)
     # np.testing.assert_allclose(probs1_unnorm, probs1_tfp_unnorm, rtol=1e-2)
@@ -71,7 +71,7 @@ def test_truncated_gauss():
     probs_truncated = truncated_gauss.pdf(test_values)
     probs_gauss = gauss.pdf(test_values)
 
-    probs_truncated_np, probs_gauss_np = zfit.run([probs_truncated, probs_gauss])
+    probs_truncated_np, probs_gauss_np = [probs_truncated.numpy(), probs_gauss.numpy()]
 
     bool_index_inside = np.logical_and(low < test_values, test_values < high)
     inside_probs_truncated = probs_truncated_np[bool_index_inside]

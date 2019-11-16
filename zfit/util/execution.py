@@ -8,6 +8,7 @@ import sys
 from typing import List
 import warnings
 
+import numpy as np
 import tensorflow as tf
 
 
@@ -80,9 +81,10 @@ class RunManager:
             self._cpu.extend(cpu)
 
     def __call__(self, *args, **kwargs):
+        raise RuntimeError("Remove and replace by `.numpy()`")
         if kwargs:
             raise RuntimeError("Why kwargs provided? Still under conversion from TF 1.x to 2.x")
-        was_container = is_container(args[0])
+        was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )
         to_convert = convert_to_container(args[0])
         values = [arg.numpy() for arg in to_convert if isinstance(arg, (tf.Tensor, tf.Variable))]
         if not was_container and values:

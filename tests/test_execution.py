@@ -2,7 +2,6 @@
 
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
 import copy
 
 import pytest
@@ -10,12 +9,6 @@ import pytest
 import zfit
 from zfit import ztf
 from zfit.core.testing import setup_function, teardown_function, tester
-
-
-def test_run():
-    a = ztf.constant(4.)
-    b = 5 * a
-    assert zfit.run(b) == pytest.approx(20)
 
 
 @pytest.mark.parametrize(["n_cpu", 'taken', 'left'], [[3, 5, 0], [0, -1, 0], [10, 3, 7],

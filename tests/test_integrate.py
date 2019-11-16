@@ -6,7 +6,6 @@ import math as mt
 import pytest
 import tensorflow as tf
 
-
 import numpy as np
 
 import zfit
@@ -214,9 +213,9 @@ def test_mc_integration(chunksize):
                                                                    axes=tuple(range(2))),
                                             n_axes=2)
 
-    integral = zfit.run(num_integral)
-    integral2 = zfit.run(num_integral2)
-    integral3 = zfit.run(num_integral3)
+    integral = num_integral.numpy()
+    integral2 = num_integral2.numpy()
+    integral3 = num_integral3.numpy()
 
     assert not hasattr(integral, "__len__")
     assert not hasattr(integral2, "__len__")
@@ -250,9 +249,9 @@ def test_mc_partial_integration():
                                             limits=limits2,
                                             draws_per_dim=100)
 
-    integral = zfit.run(num_integral)
-    integral2 = zfit.run(num_integral2)
-    # print("DEBUG", value:", zfit.run(vals_reshaped))
+    integral = num_integral.numpy()
+    integral2 = num_integral2.numpy()
+    # print("DEBUG", value:", vals_reshaped)
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[0])
     assert func4_3deps_0and2_integrated(x=func4_values,
@@ -286,12 +285,11 @@ def test_analytic_integral():
                                          limits=Space.from_axes(limits=limits3, axes=(0, 1)))
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
-    gauss_integral_infs = zfit.run(gauss_integral_infs)
-    normal_integral_infs = zfit.run(normal_integral_infs)
-    func3_integrated = zfit.run(
-        ztf.convert_to_tensor(
-            dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
-            dtype=tf.float64))
+    gauss_integral_infs = gauss_integral_infs
+    normal_integral_infs = normal_integral_infs
+    func3_integrated = ztf.convert_to_tensor(
+        dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
+        dtype=tf.float64).numpy()
     assert func3_integrated == func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1)))
     assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert normal_integral_infs == pytest.approx(1, rel=0.0001)

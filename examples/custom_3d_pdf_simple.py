@@ -37,4 +37,4 @@ integral = custom_pdf.integrate(limits=obs)  # = 1 since normalized
 sample = custom_pdf.sample(n=1000)  # DO NOT USE THIS FOR TOYS!
 prob = custom_pdf.pdf(sample)  # DO NOT USE THIS FOR TOYS!
 
-integral_np, sample_np, prob_np = zfit.run([integral, sample, prob])
+integral_np, sample_np, prob_np = [integral.numpy(), sample.numpy(), prob.numpy()]

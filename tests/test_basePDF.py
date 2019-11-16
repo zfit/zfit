@@ -119,7 +119,7 @@ def test_gradient():
     # gauss3 = create_gauss3()
     # random_vals = np.random.normal(4., 2., size=5)
     # tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
-    # random_vals_eval = zfit.run(tensor_grad)
+    # random_vals_eval = tensor_grad.numpy()
     # np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
 
 
@@ -134,7 +134,7 @@ def test_func():
     gauss_func = gauss_params1.as_func(norm_range=limits)
     vals = gauss_func.func(test_values)
     vals_pdf = gauss_params1.pdf(x=test_values, norm_range=limits)
-    vals, vals_pdf = zfit.run([vals, vals_pdf])
+    vals, vals_pdf = [vals.numpy(), vals_pdf.numpy()]
     np.testing.assert_allclose(vals_pdf, vals, rtol=1e-3)  # better assertion?
 
 
@@ -156,10 +156,10 @@ def test_normalization(pdf_factory):
         probs, log_probs = probs.numpy(), log_probs.numpy()
         probs = np.average(probs) * (high - low)
         assert probs == pytest.approx(1., rel=0.05)
-        assert log_probs == pytest.approx(zfit.run(tf.math.log(probs_small)), rel=0.05)
+        assert log_probs == pytest.approx(tf.math.log(probs_small).numpy(), rel=0.05)
         dist = dist.create_extended(ztf.constant(test_yield))
         probs_extended = dist.pdf(samples)
-        result_extended = zfit.run(probs_extended)
+        result_extended = probs_extended.numpy()
         result_extended = np.average(result_extended) * (high - low)
         assert result_extended == pytest.approx(1, rel=0.05)
 
@@ -169,19 +169,19 @@ def test_sampling_simple(gauss_factory):
     gauss = gauss_factory()
     n_draws = 1000
     sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
-    sampled_from_gauss1 = zfit.run(sample_tensor)
+    sampled_from_gauss1 = sample_tensor.numpy()
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
     if gauss.params:
-        mu_true1 = zfit.run(gauss.params['mu'])
-        sigma_true1 = zfit.run(gauss.params['sigma'])
+        mu_true1 = gauss.params['mu'].numpy()
+        sigma_true1 = gauss.params['sigma'].numpy()
     else:
         mu_true1 = mu_true
         sigma_true1 = sigma_true
     sampled_gauss1_full = gauss.sample(n=10000,
                                        limits=(mu_true1 - abs(sigma_true1) * 3, mu_true1 + abs(sigma_true1) * 3))
-    sampled_gauss1_full = zfit.run(sampled_gauss1_full)
+    sampled_gauss1_full = sampled_gauss1_full.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
     assert mu_sampled == pytest.approx(mu_true1, rel=0.07)
@@ -196,15 +196,15 @@ def test_sampling_multiple_limits():
     low2, up2 = 1, 2
     upper_interval = zfit.Space(obs=obs1, limits=(low2, up2))
     sample_tensor = gauss_params1.sample(n=n_draws, limits=lower_interval + upper_interval)
-    sampled_from_gauss1 = zfit.run(sample_tensor)
+    sampled_from_gauss1 = sample_tensor.numpy()
     between_samples = np.logical_and(sampled_from_gauss1 < up1, sampled_from_gauss1 > low2)
     assert not any(between_samples)
     assert max(sampled_from_gauss1[:, 0]) <= up2
     assert min(sampled_from_gauss1[:, 0]) >= low1
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
-    mu_true = zfit.run(gauss_params1.params['mu'])
-    sigma_true = zfit.run(gauss_params1.params['sigma'])
+    mu_true = gauss_params1.params['mu'].numpy()
+    sigma_true = gauss_params1.params['sigma'].numpy()
     low1, up1 = mu_true - abs(sigma_true) * 4, mu_true
     lower_interval = zfit.Space(obs=obs1, limits=(low1, up1))
     low2, up2 = mu_true, mu_true + abs(sigma_true) * 4
@@ -212,7 +212,7 @@ def test_sampling_multiple_limits():
     one_interval = zfit.Space(obs=obs1, limits=(low1, up2))
 
     sample_tensor5 = gauss_params1.sample(n=10000, limits=lower_interval + upper_interval)
-    sampled_gauss1_full = zfit.run(sample_tensor5)
+    sampled_gauss1_full = sample_tensor5.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
@@ -232,7 +232,7 @@ def test_analytic_sampling():
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2., 5.))
 
-    sample = zfit.run(sample)
+    sample = sample.numpy()
 
     assert 1004. <= min(sample[0])
     assert 10010. >= max(sample[0])
@@ -250,8 +250,8 @@ def test_multiple_limits():
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)
     integral_mult_num = gauss_params1.numeric_integrate(limits=multiple_limits_range, norm_range=False)
 
-    integral_simp, integral_mult = zfit.run([integral_simp, integral_mult])
-    integral_simp_num, integral_mult_num = zfit.run([integral_simp_num, integral_mult_num])
+    integral_simp, integral_mult = [integral_simp.numpy(), integral_mult.numpy()]
+    integral_simp_num, integral_mult_num = [integral_simp_num.numpy(), integral_mult_num.numpy()]
     assert integral_simp == pytest.approx(integral_mult, rel=1e-2)  # big tolerance as mc is used
     assert integral_simp == pytest.approx(integral_simp_num, rel=1e-2)  # big tolerance as mc is used
     assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-2)  # big tolerance as mc is used
@@ -290,7 +290,7 @@ def test_projection_pdf():
                            0.58296759, 0.00447878, 0.01517764, 0.59553535, 0.00943439, 0.59838703,
                            0.56315399, 0.00312496])
     probs = proj_pdf.pdf(x=test_values)
-    probs = zfit.run(probs)
+    probs = probs.numpy()
     np.testing.assert_allclose(probs, true_probs, rtol=1e-5)  # MC normalization
 
 

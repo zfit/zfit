@@ -25,14 +25,14 @@ def test_complex_param():
     param1 = ComplexParameter("param1_compl", complex_value, dependents=None)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value() ** 2 - 1.2j
-    assert true_value == pytest.approx(zfit.run(some_value), rel=1e-8)
+    assert true_value == pytest.approx(some_value.numpy(), rel=1e-8)
     assert not param1.get_dependents()
     # Cartesian complex
     real_part_param = Parameter("real_part_param", real_part)
     imag_part_param = Parameter("imag_part_param", imag_part)
     param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
     part1, part2 = param2.get_dependents()
-    part1_val, part2_val = zfit.run([part1.value(), part2.value()])
+    part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(real_part):
         assert part2_val == pytest.approx(imag_part)
     elif part2_val == pytest.approx(real_part):
@@ -46,7 +46,7 @@ def test_complex_param():
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
     part1, part2 = param3.get_dependents()
-    part1_val, part2_val = zfit.run([part1.value(), part2.value()])
+    part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(mod_val):
         assert part2_val == pytest.approx(arg_val)
     elif part1_val == pytest.approx(arg_val):
@@ -64,11 +64,11 @@ def test_complex_param():
     assert param4.arg.name == param4_name + "_arg"
 
     # Test properties (1e-8 is too precise)
-    assert real_part == pytest.approx(zfit.run(param1.real), rel=1e-6)
-    assert imag_part == pytest.approx(zfit.run(param2.imag), rel=1e-6)
-    assert mod_val == pytest.approx(zfit.run(param3.mod), rel=1e-6)
-    assert arg_val == pytest.approx(zfit.run(param3.arg), rel=1e-6)
-    assert cos(arg_val) == pytest.approx(zfit.run(param3.real), rel=1e-6)
+    assert real_part == pytest.approx(param1.real.numpy(), rel=1e-6)
+    assert imag_part == pytest.approx(param2.imag.numpy(), rel=1e-6)
+    assert mod_val == pytest.approx(param3.mod.numpy(), rel=1e-6)
+    assert arg_val == pytest.approx(param3.arg.numpy(), rel=1e-6)
+    assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
 
 
 def test_composed_param():
@@ -85,10 +85,10 @@ def test_composed_param():
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
     a_unchanged = a().numpy()
-    assert a_unchanged == zfit.run(param_a)
-    assert zfit.run(param2.assign(3.5))
+    assert a_unchanged == param_a.numpy()
+    assert param2.assign(3.5).numpy()
     a_changed = a().numpy()
-    assert a_changed == zfit.run(param_a)
+    assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
 
     with pytest.raises(LogicalUndefinedOperationError):
@@ -108,22 +108,22 @@ def test_param_limits():
     param2 = Parameter('param2', 2.)
 
     param1.load(upper + 0.5)
-    assert upper == zfit.run(param1.value())
+    assert upper == param1.value().numpy()
     param1.load(lower - 1.1)
-    assert lower == zfit.run(param1.value())
+    assert lower == param1.value().numpy()
     param2.lower_limit = lower
     param2.load(lower - 1.1)
-    assert lower == zfit.run(param2.value())
+    assert lower == param2.value().numpy()
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_a', 5 * 4)
-    param_b = ComposedParameter('param_b', 3)
+    param_a = ComposedParameter('param_a', 5 * 4, dependents=None)
+    param_b = ComposedParameter('param_b', 3, dependents=None)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_d", param_a + param_a * param_b ** 2)
-    param_d_val = zfit.run(param_d)
-    assert param_d_val == zfit.run(param_a + param_a * param_b ** 2)
+    param_d = ComposedParameter("param_d", param_a + param_a * param_b ** 2, dependents=[param_a, param_b])
+    param_d_val = param_d.numpy()
+    assert param_d_val == (param_a + param_a * param_b ** 2).numpy()
 
 
 def test_equal_naming():
@@ -138,15 +138,15 @@ def test_set_value():
     value3 = 3.
     value4 = 4.
     param1 = zfit.Parameter(name="test_set_value15", value=value1)
-    assert zfit.run(param1) == value1
+    assert param1.numpy() == value1
     with param1.set_value(value2):
-        assert zfit.run(param1) == value2
+        assert param1.numpy() == value2
         param1.set_value(value3)
-        assert zfit.run(param1) == value3
+        assert param1.numpy() == value3
         with param1.set_value(value4):
-            assert zfit.run(param1) == value4
-        assert zfit.run(param1) == value3
-    assert zfit.run(param1) == value1
+            assert param1.numpy() == value4
+        assert param1.numpy() == value3
+    assert param1.numpy() == value1
 
 
 def test_fixed_param():

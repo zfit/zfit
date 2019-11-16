@@ -186,7 +186,7 @@ def test_add():
     assert simult_nll.fit_range == ranges
 
     def eval_constraint(constraints):
-        return zfit.run(ztf.reduce_sum([c.value() for c in constraints]))
+        return ztf.reduce_sum([c.value() for c in constraints]).numpy()
 
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
 
@@ -212,12 +212,12 @@ def test_gradients(chunksize):
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
     gradient1 = nll.gradients(params=param1)
-    assert zfit.run(gradient1) == zfit.run(tf.gradients(ys=nll.value(), xs=param1))
+    assert gradient1.numpy() == tf.gradients(ys=nll.value(), xs=param1)
     gradient2 = nll.gradients(params=[param2, param1])
-    both_gradients_true = zfit.run(tf.gradients(ys=nll.value(), xs=[param2, param1]))
-    assert zfit.run(gradient2) == both_gradients_true
+    both_gradients_true = tf.gradients(ys=nll.value(), xs=[param2, param1]).numpy()
+    assert gradient2.numpy() == both_gradients_true
     gradient3 = nll.gradients()
-    assert frozenset(zfit.run(gradient3)) == frozenset(both_gradients_true)
+    assert frozenset(gradient3.numpy()) == frozenset(both_gradients_true)
 
 
 def test_simple_loss():
@@ -243,10 +243,10 @@ def test_simple_loss():
     assert loss.get_dependents() == set(param_list)
 
     loss_tensor = loss_func()
-    loss_value_np = zfit.run(loss_tensor)
+    loss_value_np = loss_tensor.numpy()
 
-    assert zfit.run(loss.value()) == loss_value_np
-    assert zfit.run(loss_deps.value()) == loss_value_np
+    assert loss.value().numpy() == loss_value_np
+    assert loss_deps.value().numpy() == loss_value_np
 
     with pytest.raises(IntentionNotUnambiguousError):
         _ = loss + loss_deps

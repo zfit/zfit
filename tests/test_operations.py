@@ -62,9 +62,9 @@ def test_param_func():
 
     new_func_equivalent = func * param4
 
-    result1 = zfit.run(new_func.func(x=rnd_test_values))
-    result1_equivalent = zfit.run(new_func_equivalent.func(x=rnd_test_values))
-    result2 = zfit.run(func.func(x=rnd_test_values) * param4)
+    result1 = new_func.func(x=rnd_test_values).numpy()
+    result1_equivalent = new_func_equivalent.func(x=rnd_test_values).numpy()
+    result2 = func.func(x=rnd_test_values) * param4
     np.testing.assert_array_equal(result1, result2)
     np.testing.assert_array_equal(result1_equivalent, result2)
 
@@ -94,10 +94,10 @@ def test_func_func():
     prod_values = prod_func.func(rnd_test_values)
     true_prod_values = func1_pure(None, rnd_test_values) * func2_pure(None, rnd_test_values)
 
-    added_values = zfit.run(added_values)
-    true_added_values = zfit.run(true_added_values)
-    prod_values = zfit.run(prod_values)
-    true_prod_values = zfit.run(true_prod_values)
+    added_values = added_values.numpy()
+    true_added_values = true_added_values.numpy()
+    prod_values = prod_values.numpy()
+    true_prod_values = true_prod_values.numpy()
     np.testing.assert_allclose(true_added_values, added_values)
     np.testing.assert_allclose(true_prod_values, prod_values)
 
@@ -164,14 +164,14 @@ def test_implicit_sumpdf():
     assert isinstance(sum_pdf, SumPDF)
     assert not sum_pdf.is_extended
 
-    assert zfit.run(sum(sum_pdf._maybe_extended_fracs)) == 1.
-    true_values = zfit.run(true_values)
-    test_values = zfit.run(sum_pdf.pdf(rnd_test_values, norm_range=norm_range))
+    assert sum(sum_pdf._maybe_extended_fracs).numpy() == 1.
+    true_values = true_values.numpy()
+    test_values = sum_pdf.pdf(rnd_test_values, norm_range=norm_range).numpy()
     np.testing.assert_allclose(true_values, test_values, rtol=5e-2)  # it's MC normalized
 
     # sugar 2
     sum_pdf2_part1 = frac1 * pdf1 + frac2 * pdf3
     # sum_pdf2 = sum_pdf2_part1 + pdf2  # TODO(Mayou36): deps copy
 
-    # test_values2 = zfit.run(sum_pdf2.pdf(rnd_test_values, norm_range=norm_range))  # TODO(Mayou36): deps copy
+    # test_values2 = sum_pdf2.pdf(rnd_test_values, norm_range=norm_range)  # TODO(Mayou36): deps copy
     # np.testing.assert_allclose(true_values, test_values2, rtol=1e-2)  # it's MC normalized  # TODO(Mayou36): deps copy

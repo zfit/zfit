@@ -348,10 +348,10 @@ if __name__ == '__main__':
 
     x = np.linspace(-5, 1, num=1000)
     vals = cb1.pdf(x=x)
-    y = zfit.run(vals)[0]
+    y = vals.numpy()[0]
     plt.plot(x, y)
     plt.show()
 
     # print(new_code)
-    print(zfit.run(res))
-    print(zfit.run(int1))
+    print(res.numpy())
+    print(int1.numpy())
