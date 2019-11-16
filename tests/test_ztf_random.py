@@ -20,7 +20,7 @@ def test_counts_multinomial():
     total_count_var = tf.Variable(total_count, trainable=False)
     counts = ztf.random.counts_multinomial(total_count=total_count_var, probs=probs)
 
-    counts_np = [zfit.run(counts) for _ in range(20)]
+    counts_np = [counts.numpy() for _ in range(20)]
     mean = np.mean(counts_np, axis=0)
     std = np.std(counts_np, axis=0)
 
@@ -32,7 +32,7 @@ def test_counts_multinomial():
 
     total_count2 = 5000
     total_count_var.load(total_count2, session=zfit.run.sess)
-    counts_np2 = [zfit.run(counts) for _ in range(3)]
+    counts_np2 = [counts.numpy() for _ in range(3)]
     mean2 = np.mean(counts_np2, axis=0)
 
     assert all(total_count2 == np.sum(counts_np2, axis=1))
@@ -43,6 +43,6 @@ def test_counts_multinomial():
     counts3 = ztf.random.counts_multinomial(total_count=total_count3,
                                             logits=probs * 30)  # sigmoid: inverse of logits (softmax)
 
-    counts_np3 = [zfit.run(counts3) for _ in range(5)]
+    counts_np3 = [counts3.numpy() for _ in range(5)]
 
     assert all(total_count3 == np.sum(counts_np3, axis=1))

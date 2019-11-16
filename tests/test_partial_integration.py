@@ -55,7 +55,7 @@ def test_partial_integral():
     data_np = np.linspace((1, 1), (4, 4), 4000)
     data = zfit.Data.from_numpy(obs=obs, array=data_np)
     probs = cosxy2.pdf(data)
-    probs_np = zfit.run(probs)
+    probs_np = probs.numpy()
     x = data_np[:, 0]
     y = data_np[:, 1]
     probs_func = func_cosxy2_np(x=x, y=y)
@@ -65,8 +65,8 @@ def test_partial_integral():
 
     integral_x_tf = cosxy2.partial_integrate(x=data, limits=xspace)
     integral_y_tf = cosxy2.partial_integrate(x=data, limits=yspace)
-    integral_x_np = zfit.run(integral_x_tf)
-    integral_y_np = zfit.run(integral_y_tf)
+    integral_x_np = integral_x_tf.numpy()
+    integral_y_np = integral_y_tf.numpy()
 
     lowerx, upperx = xspace.limit1d
     lowery, uppery = yspace.limit1d

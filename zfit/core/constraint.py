@@ -141,7 +141,7 @@ class DistributionConstraint(BaseConstraint):
 
     def _sample(self, n):
         # TODO cache: add proper caching
-        return zfit.run(self.distribution.sample(n))
+        return self.distribution.sample(n)
 
 
 class GaussianConstraint(DistributionConstraint):

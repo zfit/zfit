@@ -26,7 +26,7 @@ def test_pdf_simple_subclass():
     gauss1 = SimpleGauss(obs='obs1', mu=3, sigma=5)
 
     prob = gauss1.pdf(np.random.random(size=(10, 1)), norm_range=(-4, 5))
-    zfit.run(prob)
+    prob.numpy()
 
     with pytest.raises(ValueError):
         gauss2 = SimpleGauss('obs1', 1., sigma=5.)
@@ -53,7 +53,7 @@ def test_func_simple_subclass():
     gauss1 = SimpleGaussFunc(obs='obs1', mu=3, sigma=5)
 
     value = gauss1.func(np.random.random(size=(10, 1)))
-    zfit.run(value)
+    value.numpy()
 
     with pytest.raises(ValueError):
         gauss2 = SimpleGaussFunc('obs1', 1., sigma=5.)
