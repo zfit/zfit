@@ -53,7 +53,7 @@ def test_gaussian_constraint_matrix():
     sigma = np.array([[1, 0.3],
                       [0.3, 0.5]])
     constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
-    constr_np = zfit.run(constr.value())
+    constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(3.989638)
 
     assert constr.get_dependents() == set(params)
@@ -67,16 +67,15 @@ def test_gaussian_constraint():
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
     constr = GaussianConstraint(params=params, mu=mu, sigma=sigma)
-    value_tensor = constr.value()
-    constr_np = zfit.run(value_tensor)
+    constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(true_val)
     assert constr.get_dependents() == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
 
-    constr2_np = zfit.run(value_tensor)
-    constr2_newtensor_np = zfit.run(constr.value())
+    constr2_np = constr.value().numpy()
+    constr2_newtensor_np = constr.value().numpy()
     assert constr2_newtensor_np == pytest.approx(constr2_np)
 
     true_val2 = true_gauss_constr_value(param_vals, mu, sigma)
@@ -94,7 +93,7 @@ def test_gaussian_constraint_orderbug():  # as raised in #162
     constr1 = zfit.constraint.GaussianConstraint(params=params, mu=mu, sigma=sigma)
 
     value_tensor = constr1.value()
-    constr_np = zfit.run(value_tensor)
+    constr_np = value_tensor.numpy()
     assert constr_np == pytest.approx(true_val)
     assert true_val < 10000
 
@@ -113,12 +112,12 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
 
     constr1 = zfit.constraint.GaussianConstraint(**constraint)
     # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
-    # constraint['params'] = constraint['params']
+    constraint['params'] = [param.numpy() for param in constraint['params']]
 
     true_val = true_gauss_constr_value(**constraint)
 
     value_tensor = constr1.value()
-    constr_np = zfit.run(value_tensor)
+    constr_np = value_tensor.numpy()
     assert constr_np == pytest.approx(true_val)
     assert true_val < 1000
     assert true_val == pytest.approx(-8.592, abs=0.1)  # if failing, change value. Hardcoded for additional layer
@@ -158,7 +157,7 @@ def test_simple_constraint():
 
     constr = SimpleConstraint(func=func, params=params)
 
-    constr_np = zfit.run(constr.value())
+    constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(2.02)
 
     assert constr.get_dependents() == set(params)

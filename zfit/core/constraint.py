@@ -166,7 +166,7 @@ class GaussianConstraint(DistributionConstraint):
 
         mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
         sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
-        params = ztf.convert_to_tensor(params)
+        params_tensor = ztf.convert_to_tensor(params)
 
         if sigma.shape.ndims > 1:
             covariance = sigma
@@ -176,18 +176,21 @@ class GaussianConstraint(DistributionConstraint):
             sigma = tf.reshape(sigma, [1])
             covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
 
-        if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
-            raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
-                                         f"param: {params.shape[0]}, mu: {mu.shape[0]}, "
+        if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
+            raise ShapeIncompatibleError(f"params_tensor, mu and sigma have to have the same length. Currently"
+                                         f"param: {params_tensor.shape[0]}, mu: {mu.shape[0]}, "
                                          f"covariance (from sigma): {covariance.shape[0:2]}")
 
         self._covariance = covariance
         self._mu = mu
-        self._params_array = params
-
+        self._ordered_params = params
         distribution = tfd.MultivariateNormalFullCovariance
         dist_params = dict(loc=mu, covariance_matrix=covariance)
         dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+
+    @property
+    def _params_array(self):
+        return ztf.convert_to_tensor(self._ordered_params)
