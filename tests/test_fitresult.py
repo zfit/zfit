@@ -43,7 +43,7 @@ def create_loss():
 def create_fitresult(minimizer_class_and_kwargs):
     loss, (a_param, b_param, c_param) = create_loss()
 
-    true_minimum = zfit.run(loss.value())
+    true_minimum = loss.value().numpy()
 
     parameter_tolerance = 0.25  # percent
     max_distance_to_min = 10.
@@ -55,8 +55,8 @@ def create_fitresult(minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
-    cur_val = zfit.run(loss.value())
-    aval, bval, cval = zfit.run([v for v in (a_param, b_param, c_param)])
+    cur_val = loss.value().numpy()
+    aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
 
     ret = {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval,
            'a_param': a_param, 'b_param': b_param, 'c_param': c_param}

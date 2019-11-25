@@ -29,9 +29,9 @@ def create_loss():
     obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
     # load params for sampling
-    a_param.load(true_a)
-    b_param.load(true_b)
-    c_param.load(true_c)
+    a_param.set_value(true_a)
+    b_param.set_value(true_b)
+    c_param.set_value(true_c)
 
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)

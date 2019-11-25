@@ -110,9 +110,9 @@ def test_prod_gauss_nd():
     product_pdf = product_gauss_3d()
     probs = product_pdf.pdf(x=test_values_data, norm_range=norm_range_3d)
     true_probs = np.prod(
-        [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())])
+        [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())], axis=0)
     probs_np = probs.numpy()
-    np.testing.assert_allclose(true_probs.numpy(), probs_np, rtol=1e-2)
+    np.testing.assert_allclose(true_probs, probs_np, rtol=1e-2)
 
 
 @pytest.mark.flaky(reruns=3)

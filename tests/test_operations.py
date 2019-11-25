@@ -40,9 +40,9 @@ def test_not_allowed():
 
     with pytest.raises(ModelIncompatibleError):
         pdf1 + pdf2
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         param1 + func1
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         func1 + param1
     with pytest.raises(ModelIncompatibleError):
         func1 * pdf2

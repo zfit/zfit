@@ -570,7 +570,7 @@ class Sampler(Data):
         if fixed_params is None:
             fixed_params = OrderedDict()
         if isinstance(fixed_params, (list, tuple)):
-            fixed_params = OrderedDict((param, self.sess.run(param)) for param in fixed_params)
+            fixed_params = OrderedDict((param, param.numpy()) for param in fixed_params)
 
         self._initial_resampled = False
 

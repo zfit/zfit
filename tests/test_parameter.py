@@ -94,7 +94,7 @@ def test_composed_param():
     with pytest.raises(LogicalUndefinedOperationError):
         param_a.assign(value=5.)
     with pytest.raises(LogicalUndefinedOperationError):
-        param_a.load(value=5., session=zfit.run.sess)
+        param_a.assign(value=5.)
 
 
 def test_floating_behavior():
@@ -117,8 +117,8 @@ def test_param_limits():
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_a', 5 * 4, dependents=None)
-    param_b = ComposedParameter('param_b', 3, dependents=None)
+    param_a = ComposedParameter('param_a', lambda: 5 * 4, dependents=None)
+    param_b = ComposedParameter('param_b', lambda: 3, dependents=None)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
     param_d = ComposedParameter("param_d", param_a + param_a * param_b ** 2, dependents=[param_a, param_b])
