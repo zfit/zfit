@@ -172,7 +172,7 @@ Let's consider a simplified implementation
     ...    _PARAMS = ['mean', 'std']  # the name of the parameters
 
     >>> def _unnormalized_pdf(self, x):
-    ...    x = ztf.unstack_x()
+    ...    x = ztf.unstack_x(x)
     ...    mean = self.params['mean']
     ...    std  = self.params['std']
     ...    return ztf.exp(- ((x - mean)/std)**2)
