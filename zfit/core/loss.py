@@ -206,6 +206,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         raise NotImplementedError
 
     # @func_simple
+    # @tf.function(autograph=False)
     def value(self):
         return self._value()
 

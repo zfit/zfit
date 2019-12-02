@@ -300,7 +300,7 @@ class BasePDF(ZfitPDF, BaseModel):
         raise NotImplementedError
 
     # @func_simple
-    # @tf.function(autograph=False)
+    @tf.function(autograph=False)
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
             name: str = "model") -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.

@@ -283,6 +283,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
+    @tf.function(autograph=False)
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
@@ -826,11 +827,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         return sample_data
 
+    @tf.function(autograph=False)
     def _create_sampler_tensor(self, fixed_params, limits, n, name):
-        # if limits is None:
-        #     limits = self.space  # TODO(Mayou36): clean up, better norm_range?
-        #     if limits.limits in (None, False):
-        #         raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
         elif fixed_params is False:
