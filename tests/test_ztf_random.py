@@ -1,4 +1,3 @@
-
 #  Copyright (c) 2019 zfit
 
 from zfit.core.testing import setup_function, teardown_function
@@ -6,8 +5,6 @@ from zfit.core.testing import setup_function, teardown_function
 import pytest
 import numpy as np
 import tensorflow as tf
-
-
 
 import zfit
 from zfit import ztf
@@ -18,9 +15,7 @@ def test_counts_multinomial():
     probs = [0.1, 0.3, 0.6]
     total_count = 1000.
     total_count_var = tf.Variable(total_count, trainable=False)
-    counts = ztf.random.counts_multinomial(total_count=total_count_var, probs=probs)
-
-    counts_np = [counts.numpy() for _ in range(20)]
+    counts_np = [ztf.random.counts_multinomial(total_count=total_count_var, probs=probs).numpy() for _ in range(20)]
     mean = np.mean(counts_np, axis=0)
     std = np.std(counts_np, axis=0)
 
@@ -31,8 +26,7 @@ def test_counts_multinomial():
     assert [9, 14, 16] == pytest.approx(std, rel=0.5)  # flaky
 
     total_count2 = 5000
-    total_count_var.load(total_count2, session=zfit.run.sess)
-    counts_np2 = [counts.numpy() for _ in range(3)]
+    counts_np2 = [ztf.random.counts_multinomial(total_count=total_count2, probs=probs).numpy() for _ in range(3)]
     mean2 = np.mean(counts_np2, axis=0)
 
     assert all(total_count2 == np.sum(counts_np2, axis=1))
@@ -40,9 +34,8 @@ def test_counts_multinomial():
     assert pytest.approx(mean2, rel=0.15) == probs_scaled2
 
     total_count3 = 3000.
-    counts3 = ztf.random.counts_multinomial(total_count=total_count3,
-                                            logits=probs * 30)  # sigmoid: inverse of logits (softmax)
 
-    counts_np3 = [counts3.numpy() for _ in range(5)]
+    counts_np3 = [ztf.random.counts_multinomial(total_count=total_count3,  # sigmoid: inverse of logits (softmax)
+                                                logits=probs * 30).numpy() for _ in range(5)]
 
     assert all(total_count3 == np.sum(counts_np3, axis=1))
