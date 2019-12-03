@@ -12,7 +12,6 @@ import warnings
 
 import tensorflow as tf
 
-
 from tensorflow_probability.python import mcmc as mc
 
 from zfit import ztf
@@ -809,37 +808,40 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
-        # if not isinstance(n, tf.Variable):
-        with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.
-            # Or not: refactor that variable can be given due to no variable creation policy!
-            n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64)
+        # # if not isinstance(n, tf.Variable):
+        # with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.
+        #     # Or not: refactor that variable can be given due to no variable creation policy!
+        #     n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64)
 
-        limits = self._check_input_limits(limits=limits)
+        limits = self._check_input_limits(limits=limits, none_is_error=True)
 
         if limits.limits is None:
             limits = self.space  # TODO(Mayou36): clean up, better norm_range?
             if limits.limits in (None, False):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
-        fixed_params, n, sample = self._create_sampler_tensor(fixed_params=fixed_params,
-                                                              limits=limits, n=n, name=name)
-        sample_data = Sampler.from_sample(sample=sample, n_holder=n, obs=limits, fixed_params=fixed_params,
-                                          name=name)
 
-        return sample_data
-
-    @tf.function(autograph=False)
-    def _create_sampler_tensor(self, fixed_params, limits, n, name):
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
         elif fixed_params is False:
             fixed_params = []
         elif not isinstance(fixed_params, (list, tuple)):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
-        limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
+
+        def sample_func(n=n):
+            self._create_sampler_tensor(limits=limits, n=n, name=name)
+
+        sample_data = Sampler.from_sample(sample_func=sample_func, n=n, obs=limits, fixed_params=fixed_params,
+                                          name=name)
+
+        return sample_data
+
+    @tf.function(autograph=False)
+    def _create_sampler_tensor(self, limits, n, name):
+        # limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         # needed to be able to change the number of events in resampling
 
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
-        return fixed_params, n, sample
+        return n, sample
 
     @_BaseModel_register_check_support(True)
     def _sample(self, n, limits):
@@ -869,14 +871,19 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
-        limits = self._check_input_limits(limits=limits)
-        if limits.limits is None:
-            limits = self.space
-            if limits.limits in (None, False):
-                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
-        limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
-        sample = self._single_hook_sample(n=n, limits=limits, name=name)
-        sample_data = SampleData.from_sample(sample=sample, obs=self.space.obs)
+        n = tf.convert_to_tensor(n) if not isinstance(n, str) else n
+
+        def run_tf(n, limits, name):
+            limits = self._check_input_limits(limits=limits)
+            if limits.limits is None:
+                limits = self.space
+                if limits.limits in (None, False):
+                    raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+            limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
+            sample = self._single_hook_sample(n=n, limits=limits, name=name)
+            return sample
+
+        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits, name=name), obs=self.space.obs)
 
         return sample_data
 

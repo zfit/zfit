@@ -483,7 +483,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _hook_sample(self, limits, n, name='hook_sample'):
         if n is None and self.is_extended:
             n = 'extended'
-        if n == 'extended':
+        if isinstance(n, str) and n == 'extended':
             if not self.is_extended:
                 raise NotExtendedPDFError("Cannot use 'extended' as value for `n` on a non-extended pdf.")
             samples = extended_sampling(pdfs=self, limits=limits)

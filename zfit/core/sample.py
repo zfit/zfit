@@ -197,6 +197,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
         return tf.greater(n, n_produced)
 
+    @tf.function(autograph=False)
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 
@@ -228,7 +229,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             lower = tuple(tf.boolean_mask(tensor=low, mask=is_not_sampled) for low in lower)
             upper = tuple(tf.boolean_mask(tensor=up, mask=is_not_sampled) for up in upper)
             new_limits = limits.with_limits(limits=((lower,), (upper,)))
-            draw_indices = tf.compat.v1.where(is_not_sampled)
+            draw_indices = tf.where(is_not_sampled)
 
         with tf.control_dependencies([n_to_produce]):
             rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(

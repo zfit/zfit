@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import List, Tuple, Union, Dict, Mapping
+from typing import List, Tuple, Union, Dict, Mapping, Callable
 import warnings
 
 import tensorflow as tf
@@ -560,13 +560,13 @@ class SampleData(Data):
 class Sampler(Data):
     _cache_counting = 0
 
-    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
-                 n_holder: tf.Variable, weights=None,
+    def __init__(self, dataset: "LightDataset", sample_func: Callable, sample_holder: tf.Variable,
+                 n: Union[ztyping.NumericalScalarType, Callable], weights=None,
                  fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
                  obs: ztyping.ObsTypeInput = None, name: str = None,
                  dtype: tf.DType = ztypes.float):
 
-        super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
+        super().__init__(dataset=dataset, obs=obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
         if fixed_params is None:
             fixed_params = OrderedDict()
         if isinstance(fixed_params, (list, tuple)):
@@ -574,11 +574,11 @@ class Sampler(Data):
 
         self._initial_resampled = False
 
-        # self.sess.run(sample_holder.initializer)
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
+        self.sample_func = sample_func
         self.n = None
-        self._n_holder = n_holder
+        self._n_holder = n
 
     @property
     def n_samples(self):
@@ -598,18 +598,18 @@ class Sampler(Data):
         return counting
 
     @classmethod
-    def from_sample(cls, sample: tf.Tensor, n_holder: tf.Variable, obs: ztyping.ObsTypeInput, fixed_params=None,
-                    name: str = None, weights=None):
+    def from_sample(cls, sample_func: Callable, n: ztyping.NumericalScalarType, obs: ztyping.ObsTypeInput,
+                    fixed_params=None, name: str = None, weights=None):
 
         if fixed_params is None:
             fixed_params = []
-        from tensorflow.python.ops.variables import VariableV1
-        sample_holder = VariableV1(initial_value=sample, trainable=False,
-                                   name="sample_data_holder_{}".format(cls.get_cache_counting()))
+        # from tensorflow.python.ops.variables import VariableV1
+        sample_holder = tf.Variable(initial_value=sample_func, trainable=False,
+                                    name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
-        return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
-                       n_holder=n_holder, obs=obs, name=name, weights=weights)
+        return Sampler(dataset=dataset, sample_holder=sample_holder, sample_func=sample_func, fixed_params=fixed_params,
+                       n=n, obs=obs, name=name, weights=weights)
 
     def resample(self, param_values: Mapping = None, n: Union[int, tf.Tensor] = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
@@ -635,17 +635,19 @@ class Sampler(Data):
 
             _ = [stack.enter_context(param.set_value(val)) for param, val in temp_param_values.items()]
 
-            if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
-                # means it's handled inside the function
-                # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
-                # fixed with self.n, needs cleanup
-                if not (isinstance(self.n_samples, str) or self.n_samples is None):
-                    self.sess.run(self.n_samples.initializer)
-            if n:
-                if not isinstance(self.n_samples, tf.Variable):
-                    raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
-                self.n_samples.load(value=n, session=self.sess)
-            self.sess.run(self.sample_holder.initializer)
+            # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
+            #     # means it's handled inside the function
+            #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
+            #     # fixed with self.n, needs cleanup
+            #     if not (isinstance(self.n_samples, str) or self.n_samples is None):
+            #         self.sess.run(self.n_samples.initializer)
+            # if n:
+            #     if not isinstance(self.n_samples, tf.Variable):
+            #         raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
+            # self.n_samples.assign(n)
+
+            new_sample = self.sample_func(n)
+            self.sample_holder.assign(new_sample)
             self._initial_resampled = True
 
 
@@ -683,44 +685,3 @@ class LightDataset:
 
     def value(self):
         return self.tensor
-
-
-if __name__ == '__main__':
-
-    # from skhep_testdata import data_path
-
-    path_root = "/data/uni/b2k1ee/classification_new/2012/"
-    small_root = 'small.root'
-    #
-    path_root += small_root
-    # path_root = data_path("uproot-Zmumu.root")
-
-    branches = ['B_PT', 'B_P']  # b needed currently -> uproot
-
-    data = zfit.Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
-    import time
-
-    with tf.compat.v1.Session() as sess:
-        # data.initialize()
-        x = data.value()
-
-        for i in range(1):
-            print(i)
-            try:
-                func = tf.math.log(x) * tf.sin(x) * tf.reduce_mean(
-                    input_tensor=x ** 2 - tf.cos(x) ** 2) / tf.reduce_sum(input_tensor=x)
-                start = time.time()
-                result_grad = sess.run(tf.gradients(ys=func, xs=x))
-                result = sess.run(func)
-                end = time.time()
-                print("time needed", (end - start))
-            except tf.errors.OutOfRangeError:
-                print("finished at i = ", i)
-                break
-            print(np.shape(result))
-            print(result[:, :10])
-            print(result_grad)
-
-    # directory = open_tree[]
-    # directory = directory['DecayTree']
-    # directory = directory['B_P']
