@@ -41,7 +41,7 @@ def create_loss():
     sampled_data = sum_pdf1.create_sampler(n=15000)
     sampled_data.resample()
 
-    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, fit_range=obs1)
+    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
 
     return loss, (a_param, b_param, c_param)
 
@@ -55,7 +55,7 @@ def minimize_func(minimizer_class_and_kwargs):
     max_distance_to_min = 10.
 
     for param in [a_param, b_param, c_param]:
-        param.assign(param.initial_value)  # reset the value
+        param.assign(param.initialized_value())  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
@@ -119,9 +119,9 @@ def minimize_func(minimizer_class_and_kwargs):
 
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=0.5)),
-     False),
-    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
+    # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=0.5)),
+    #  False),
+    # (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
     (zfit.minimize.Minuit, {}, True),
     # (zfit.minimize.Scipy, {}, False),
 ]

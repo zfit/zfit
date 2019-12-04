@@ -154,7 +154,7 @@ class ComposedVariable:
         return self._dtype
 
     def value(self):
-        return self._value_fn()
+        return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
 
     def read_value(self):
         return self.value()

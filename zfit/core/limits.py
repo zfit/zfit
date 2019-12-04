@@ -239,7 +239,7 @@ class Space(ZfitSpace, BaseObject):
                              "\nlower = {l}"
                              "\nupper = {u}".format(l=lower, u=upper))
         if lower_is_iterable and upper_is_iterable:
-            if not np.shape(lower) == np.shape(upper) or len(np.shape(lower)) != 2:
+            if not np.shape(lower) == np.shape(upper) or (len(np.shape(lower)) not in (2, 3)):  # 3 for EventSpace eager
                 raise ValueError("Lower and/or upper limits invalid:"
                                  "\nlower: {lower}"
                                  "\nupper: {upper}".format(lower=lower, upper=upper))

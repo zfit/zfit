@@ -577,7 +577,7 @@ class Sampler(Data):
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
         self.sample_func = sample_func
-        self.n = None
+        self.n = n
         self._n_holder = n
 
     @property
@@ -599,12 +599,15 @@ class Sampler(Data):
 
     @classmethod
     def from_sample(cls, sample_func: Callable, n: ztyping.NumericalScalarType, obs: ztyping.ObsTypeInput,
-                    fixed_params=None, name: str = None, weights=None):
+                    fixed_params=None, name: str = None, weights=None, dtype=None):
 
         if fixed_params is None:
             fixed_params = []
+        if dtype is None:
+            dtype = ztypes.float
         # from tensorflow.python.ops.variables import VariableV1
-        sample_holder = tf.Variable(initial_value=sample_func, trainable=False,
+        sample_holder = tf.Variable(initial_value=sample_func(), dtype=dtype, trainable=False,  # HACK: sample_func
+                                    validate_shape=False,
                                     name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
@@ -647,7 +650,8 @@ class Sampler(Data):
             # self.n_samples.assign(n)
 
             new_sample = self.sample_func(n)
-            self.sample_holder.assign(new_sample)
+            # self.sample_holder.assign(new_sample)
+            tf.compat.v1.assign(self.sample_holder, new_sample, validate_shape=False)
             self._initial_resampled = True
 
 
@@ -675,7 +679,7 @@ Data._OverloadAllOperators()
 class LightDataset:
 
     def __init__(self, tensor):
-        if not isinstance(tensor, tf.Tensor):
+        if not isinstance(tensor, (tf.Tensor, tf.Variable)):
             tensor = ztf.convert_to_tensor(tensor)
         self.tensor = tensor
 

@@ -813,7 +813,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         #     # Or not: refactor that variable can be given due to no variable creation policy!
         #     n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64)
 
-        limits = self._check_input_limits(limits=limits, none_is_error=True)
+        limits = self._check_input_limits(limits=limits)
 
         if limits.limits is None:
             limits = self.space  # TODO(Mayou36): clean up, better norm_range?
@@ -828,10 +828,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
 
         def sample_func(n=n):
-            self._create_sampler_tensor(limits=limits, n=n, name=name)
+            return self._create_sampler_tensor(limits=limits, n=n, name=name)
 
         sample_data = Sampler.from_sample(sample_func=sample_func, n=n, obs=limits, fixed_params=fixed_params,
-                                          name=name)
+                                          name=name, dtype=self.dtype)
 
         return sample_data
 
@@ -841,7 +841,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         # needed to be able to change the number of events in resampling
 
         sample = self._single_hook_sample(n=n, limits=limits, name=name)
-        return n, sample
+        return sample
 
     @_BaseModel_register_check_support(True)
     def _sample(self, n, limits):

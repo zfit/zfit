@@ -121,7 +121,7 @@ def test_overloaded_operators():
     param_b = ComposedParameter('param_b', lambda: 3, dependents=None)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_d", param_a + param_a * param_b ** 2, dependents=[param_a, param_b])
+    param_d = ComposedParameter("param_d", lambda: param_a + param_a * param_b ** 2, dependents=[param_a, param_b])
     param_d_val = param_d.numpy()
     assert param_d_val == (param_a + param_a * param_b ** 2).numpy()
 

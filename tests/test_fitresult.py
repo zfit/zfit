@@ -49,7 +49,7 @@ def create_fitresult(minimizer_class_and_kwargs):
     max_distance_to_min = 10.
 
     for param in [a_param, b_param, c_param]:
-        zfit.run(param.initializer)  # reset the value
+        param.assign(param.initialized_value())  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)

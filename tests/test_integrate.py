@@ -286,12 +286,12 @@ def test_analytic_integral():
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     normal_integral_infs = normal_integral_infs
-    func3_integrated = ztf.convert_to_tensor(
-        dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
-        dtype=tf.float64).numpy()
-    assert func3_integrated == func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1)))
+    func3_integrated = dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)),
+                                            norm_range=False).numpy()
+    assert func3_integrated == pytest.approx(
+        func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1))))
     assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
-    assert normal_integral_infs == pytest.approx(1, rel=0.0001)
+    assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
 
 
 def test_analytic_integral_selection():

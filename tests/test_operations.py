@@ -42,7 +42,7 @@ def test_not_allowed():
         pdf1 + pdf2
     with pytest.raises(ValueError):
         param1 + func1
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         func1 + param1
     with pytest.raises(ModelIncompatibleError):
         func1 * pdf2
