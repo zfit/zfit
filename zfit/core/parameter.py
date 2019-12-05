@@ -602,9 +602,12 @@ class ComplexParameter(ComposedParameter):
     def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_floating=floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_floating=floating)
-        param = ComplexParameter(name=name, value_fn=tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                        mod * tf.math.sin(arg)),
-                                                             dtype=dtype), **kwargs)
+        param = ComplexParameter(name=name,
+                                 value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
+                                                                     mod * tf.math.sin(arg)),
+                                                          dtype=dtype),
+                                 dependents=[mod, arg],
+                                 **kwargs)
         param._mod = mod
         param._arg = arg
         return param
@@ -612,7 +615,8 @@ class ComplexParameter(ComposedParameter):
     @property
     def conj(self):
         if self._conj is None:
-            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=tf.math.conj(self),
+            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
+                                          dependents=self.get_dependents(),
                                           dtype=self.dtype)
         return self._conj
 

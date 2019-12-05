@@ -46,5 +46,5 @@ def test_extract_extended_pdfs():
     extended_sample_np = extended_sample.numpy()
     assert np.shape(extended_sample_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)
     samples_from_pdf = sum_all.sample(n='extended', limits=limits)
-    samples_from_pdf_np = samples_from_pdf
+    samples_from_pdf_np = samples_from_pdf.numpy()
     assert np.shape(samples_from_pdf_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)

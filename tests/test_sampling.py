@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-
-
 import zfit
 from zfit import ztf, Space
 from zfit.core.sample import accept_reject_sample
@@ -111,19 +109,19 @@ def test_sampling_fixed(gauss_factory):
 
     gauss_full_sample2 = gauss.create_sampler(n=10000, limits=(-10, 10))
 
-    gauss_full_sample2.resample(param_values={mu: mu_true-1.0})
+    gauss_full_sample2.resample(param_values={mu: mu_true - 1.0})
     sampled_gauss2_full = gauss_full_sample2.numpy()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
-    assert mu_sampled == pytest.approx(mu_true-1.0, rel=0.07)
+    assert mu_sampled == pytest.approx(mu_true - 1.0, rel=0.07)
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
-    gauss_full_sample2.resample(param_values={sigma: sigma_true+1.0})
+    gauss_full_sample2.resample(param_values={sigma: sigma_true + 1.0})
     sampled_gauss2_full = gauss_full_sample2.numpy()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true+1.0, rel=0.07)
+    assert sigma_sampled == pytest.approx(sigma_true + 1.0, rel=0.07)
 
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists)
@@ -184,11 +182,12 @@ def test_importance_sampling():
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
+
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            gaussian_sample = gauss_sampler._create_sampler_tensor(n=n_to_produce, limits=limits,
-                                                                   fixed_params=False, name='asdf')[2]
+            gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits,
+                                                   name='asdf')[2]
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
             thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
