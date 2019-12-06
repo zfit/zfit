@@ -172,10 +172,10 @@ Let's consider a simplified implementation
     ...    _PARAMS = ['mean', 'std']  # the name of the parameters
 
     >>> def _unnormalized_pdf(self, x):
-    ...    x = ztf.unstack_x(x)
+    ...    x = zfit.ztf.unstack_x(x)
     ...    mean = self.params['mean']
     ...    std  = self.params['std']
-    ...    return ztf.exp(- ((x - mean)/std)**2)
+    ...    return zfit.ztf.exp(- ((x - mean)/std)**2)
 
 This is the basic information required for this custom PDF.
 With this new PDF one can access the same feature of the predefined PDFs, e.g.
