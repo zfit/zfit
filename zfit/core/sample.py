@@ -235,11 +235,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             new_limits = limits.with_limits(limits=((lower,), (upper,)))
             draw_indices = tf.where(is_not_sampled)
 
-        with tf.control_dependencies([n_to_produce]):
-            rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(
-                n_to_produce=n_to_produce,
-                limits=new_limits,
-                dtype=dtype)
+        rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(
+            n_to_produce=n_to_produce,
+            limits=new_limits,
+            dtype=dtype)
 
         n_drawn = tf.cast(n_drawn, dtype=tf.int32)
         if run.numeric_checks:
