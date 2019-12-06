@@ -52,6 +52,11 @@ class BaseStrategy(ZfitStrategy):
 
 class ToyStrategyFail(BaseStrategy):
 
+    def __init__(self) -> None:
+        super().__init__()
+        self.fit_result = FitResult(params={}, edm=-999, fmin=-999, status=-999, converged=False, info={},
+                                    loss=None, minimizer=None)
+
     def _minimize_nan(self, loss, params, minimizer, loss_value, gradient_values):
         values = run(params)
         params = OrderedDict((param, value) for param, value in zip(params, values))

@@ -512,8 +512,9 @@ class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 class BaseComposedParameter(BaseZParameter):
 
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
+        # 0.4 breaking
         if 'value' in kwargs:
-            raise BreakingAPIChangeError("'value' cannot be provided any longer, `value_fn` is needed.")
+            raise BreakingAPIChangeError("'value' cannot be provided any longer, `value_fn` tois needed.")
         super().__init__(value_fn=value_fn, name=name, params=params, **kwargs)
         # self.params = params
 
@@ -568,9 +569,7 @@ class ComposedParameter(BaseComposedParameter):
             params = OrderedSet()
         else:
             params = self._extract_dependents(dependents)
-        # params_init_op = [param.initializer for param in params]
         params = {p.name: p for p in params}
-        # with tf.control_dependencies(params_init_op):
         super().__init__(params=params, value_fn=value_fn, name=name, dtype=dtype, **kwargs)
 
     def __repr__(self):
