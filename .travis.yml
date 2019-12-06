@@ -4,13 +4,9 @@ os:
 python:
     - "3.6"
     - "3.7"
-env:
-    - TF_VERSION=1
-    - TF_VERSION=2
 install:
     - pip install -U tox-travis
     - pip install -U .
-    - if [ $TF_VERSION == 1 ]; then  pip install -U "tensorflow<2"; else pip install -U tensorflow --pre; fi
 
 script:
     - tox
