@@ -90,3 +90,7 @@ class RunManager:
         if not was_container and values:
             values = values[0]
         return values
+
+
+def function():
+    pass

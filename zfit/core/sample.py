@@ -113,6 +113,10 @@ class EventSpace(Space):
         # TODO: return the area as a tensor?
         return (1.,)
 
+    def __hash__(self):
+        return id(self)
+
+
 @tf.function(autograph=False)
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,

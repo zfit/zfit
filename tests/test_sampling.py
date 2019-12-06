@@ -183,6 +183,7 @@ def test_importance_sampling():
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
+        @tf.function(autograph=False)
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
@@ -248,6 +249,7 @@ def test_importance_sampling_uniform():
 
 
 def test_sampling_fixed_eventlimits():
+    pass  # TODO(mayou36): hacked, EventSpace, needed for phasespace sampling
     n_samples1 = 500
     n_samples2 = 400  # just to make sure
     n_samples3 = 356  # just to make sure
