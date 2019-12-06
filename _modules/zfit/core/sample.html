@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -107,8 +107,8 @@
   <h1>Source code for zfit.core.sample</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
 
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -117,18 +117,18 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="k">import</span> <span class="n">ZfitPDF</span>
-<span class="kn">from</span> <span class="nn">zfit.util</span> <span class="k">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="k">import</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">settings</span>
-<span class="kn">from</span> <span class="nn">..util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">Space</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitPDF</span>
+<span class="kn">from</span> <span class="nn">zfit.util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 
 
 <div class="viewcode-block" id="UniformSampleAndWeights"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.UniformSampleAndWeights">[docs]</a><span class="k">class</span> <span class="nc">UniformSampleAndWeights</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
         <span class="n">rnd_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">thresholds_unscaled_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">,))</span>
@@ -165,7 +165,7 @@
 <div class="viewcode-block" id="EventSpace"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace">[docs]</a><span class="k">class</span> <span class="nc">EventSpace</span><span class="p">(</span><span class="n">Space</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;EXPERIMENTAL SPACE CLASS!&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Space&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Limits cannot be None for EventSpaces (currently)&quot;</span><span class="p">)</span>
@@ -483,7 +483,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        List[pdfs]:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">..models.functor</span> <span class="k">import</span> <span class="n">BaseFunctor</span>
+    <span class="kn">from</span> <span class="nn">..models.functor</span> <span class="kn">import</span> <span class="n">BaseFunctor</span>
 
     <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
     <span class="n">indep_pdfs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -579,7 +579,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tensorflow.python.ops.variables &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>tensorflow.python.ops.variables &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -120,9 +120,9 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1"># ==============================================================================</span>
 <span class="sd">&quot;&quot;&quot;Variable class.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">enum</span>  <span class="c1"># pylint: disable=g-bad-import-order</span>
@@ -131,28 +131,28 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">attr_value_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">variable_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">pywrap_tensorflow</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.compat</span> <span class="k">import</span> <span class="n">compat</span> <span class="k">as</span> <span class="n">fwd_compat</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="k">import</span> <span class="n">context</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">dtypes</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">tensor_shape</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">array_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">control_flow_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_array_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_state_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_math_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">math_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">state_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="k">import</span> <span class="n">tf_logging</span> <span class="k">as</span> <span class="n">logging</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="k">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">trackable</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">compat</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">object_identity</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">tf_should_use</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="k">import</span> <span class="n">deprecated</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="k">import</span> <span class="n">tf_export</span>
+<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">attr_value_pb2</span>
+<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">variable_pb2</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">pywrap_tensorflow</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.compat</span> <span class="kn">import</span> <span class="n">compat</span> <span class="k">as</span> <span class="n">fwd_compat</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">context</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">tensor_shape</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">control_flow_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="kn">import</span> <span class="n">tf_logging</span> <span class="k">as</span> <span class="n">logging</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">trackable</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">compat</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">object_identity</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">tf_should_use</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="kn">import</span> <span class="n">tf_export</span>
 
 
 <span class="k">def</span> <span class="nf">default_variable_creator</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
@@ -219,10 +219,10 @@
   <span class="n">MEAN</span> <span class="o">=</span> <span class="mi">2</span>
   <span class="n">ONLY_FIRST_REPLICA</span> <span class="o">=</span> <span class="mi">3</span>
 
-  <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
       <span class="k">return</span> <span class="kc">True</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">VariableAggregation</span><span class="p">):</span>
@@ -239,7 +239,7 @@
   <span class="n">ONLY_FIRST_REPLICA</span> <span class="o">=</span> <span class="mi">3</span>
   <span class="n">ONLY_FIRST_TOWER</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># DEPRECATED</span>
 
-  <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 
@@ -360,7 +360,7 @@
         <span class="n">aggregation</span><span class="o">=</span><span class="n">aggregation</span><span class="p">,</span>
         <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">VariableV1</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_variable_v1_call</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">Variable</span><span class="p">:</span>
@@ -457,7 +457,7 @@
 <span class="sd">  variables to optimize.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">validate_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -538,7 +538,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
   <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1188,7 +1188,7 @@
     <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="n">_run_op</span><span class="p">,</span> <span class="n">tensor_oper</span><span class="p">)</span>
     <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">_run_op</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
       <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Variable is unhashable if Tensor equality is enabled. &quot;</span>
                       <span class="s2">&quot;Instead, use tensor.experimental_ref() as the key.&quot;</span><span class="p">)</span>
@@ -1196,7 +1196,7 @@
       <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
   <span class="c1"># TODO(gjn): duplicate of math_ops.tensor_equals, consider removing</span>
-  <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
       <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
@@ -1208,7 +1208,7 @@
       <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span>
 
   <span class="c1"># TODO(gjn): duplicate of math_ops.tensor_not_equals, consider removing</span>
-  <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
       <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
@@ -1220,7 +1220,7 @@
       <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
       <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">other</span>
 
-  <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Dummy method to prevent iteration.</span>
 
 <span class="sd">    Do not call.</span>
@@ -1397,7 +1397,7 @@
 <span class="sd">    * var_shape</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">full_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">full_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">var_offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1585,7 +1585,7 @@
 <span class="sd">    `tf.compat.v1.variable_scope` before the `tf.compat.v1.get_variable()` call.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
       <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
       <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1683,7 +1683,7 @@
 <span class="k">class</span> <span class="nc">RefVariable</span><span class="p">(</span><span class="n">VariableV1</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Ref-based implementation of variables.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
       <span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
       <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1794,7 +1794,7 @@
           <span class="n">aggregation</span><span class="o">=</span><span class="n">aggregation</span><span class="p">,</span>
           <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span><span class="p">:</span>
       <span class="k">return</span> <span class="s2">&quot;&lt;tf.Variable &#39;</span><span class="si">%s</span><span class="s2">&#39; shape=</span><span class="si">%s</span><span class="s2"> dtype=</span><span class="si">%s</span><span class="s2">, numpy=</span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -2727,21 +2727,21 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="kc">None</span>
 
-  <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span> <span class="s2">&quot;Variable += will be deprecated. Use variable.assign_add&quot;</span>
         <span class="s2">&quot; if you want assignment to the variable value or &#39;x = x + y&#39;&quot;</span>
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="n">other</span>
 
-  <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span> <span class="s2">&quot;Variable -= will be deprecated. Use variable.assign_sub&quot;</span>
         <span class="s2">&quot; if you want assignment to the variable value or &#39;x = x - y&#39;&quot;</span>
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span> <span class="o">-</span> <span class="n">other</span>
 
-  <span class="k">def</span> <span class="nf">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
         <span class="s2">&quot;Variable *= will be deprecated. Use `var.assign(var * other)`&quot;</span>
@@ -2757,7 +2757,7 @@
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">other</span>
 
-  <span class="k">def</span> <span class="nf">__itruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__itruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
         <span class="s2">&quot;Variable /= will be deprecated. Use `var.assign(var / other)`&quot;</span>
@@ -2773,7 +2773,7 @@
         <span class="s2">&quot; if you want a new python Tensor object.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">other</span>
 
-  <span class="k">def</span> <span class="nf">__ipow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__ipow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">log_first_n</span><span class="p">(</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span>
         <span class="s2">&quot;Variable **= will be deprecated. Use `var.assign(var ** other)`&quot;</span>
@@ -2949,7 +2949,7 @@
 <span class="sd">  @end_compatibility</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">variable_list</span><span class="p">,</span> <span class="n">partitions</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">variable_list</span><span class="p">,</span> <span class="n">partitions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a new partitioned variable wrapper.</span>
 
 <span class="sd">    Variables passed via the variable_list must contain a save_slice_info</span>
@@ -3002,11 +3002,11 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_partitions</span> <span class="o">=</span> <span class="n">partitions</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_as_tensor</span> <span class="o">=</span> <span class="kc">None</span>
 
-  <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return an iterable for accessing the underlying partition Variables.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_list</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">num_partition_axes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_partition_axes</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">num_partition_axes</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a length for </span><span class="si">%d</span><span class="s2"> &gt; 1 partition axes&quot;</span> <span class="o">%</span>
@@ -3510,7 +3510,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

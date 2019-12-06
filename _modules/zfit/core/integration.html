@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.integration &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.core.integration &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -118,18 +118,18 @@
 
 
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.core.dimension</span> <span class="k">import</span> <span class="n">BaseDimensional</span>
-<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="k">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitModel</span>
-<span class="kn">from</span> <span class="nn">zfit.util.container</span> <span class="k">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">zfit.util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">DueToLazynessNotImplementedError</span>
-<span class="kn">from</span> <span class="nn">.limits</span> <span class="k">import</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">Space</span><span class="p">,</span> <span class="n">supports</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit.core.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
+<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitModel</span>
+<span class="kn">from</span> <span class="nn">zfit.util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">zfit.util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">DueToLazynessNotImplementedError</span>
+<span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">Space</span><span class="p">,</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 
 
 <div class="viewcode-block" id="auto_integrate"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.auto_integrate">[docs]</a><span class="nd">@supports</span><span class="p">()</span>
@@ -422,7 +422,7 @@
 
 <div class="viewcode-block" id="PartialIntegralSampleData"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData">[docs]</a><span class="k">class</span> <span class="nc">PartialIntegralSampleData</span><span class="p">(</span><span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">space</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">space</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Takes a list of tensors and &quot;fakes&quot; a dataset. Useful for tensors with non-matching shapes.</span>
 
 <span class="sd">        Args:</span>
@@ -480,7 +480,7 @@
 
 
 <div class="viewcode-block" id="AnalyticIntegral"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral">[docs]</a><span class="k">class</span> <span class="nc">AnalyticIntegral</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Hold analytic integrals and manage their dimensions, limits etc.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AnalyticIntegral</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_integrals</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
@@ -615,21 +615,21 @@
 
 
 <div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">:</span>  <span class="c1"># TODO analytic integral</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;A lightweight holder for the integral function.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">axes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">priority</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <span class="c1"># to be &quot;the&quot; future integral class</span>
 <div class="viewcode-block" id="Integration"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.Integration">[docs]</a><span class="k">class</span> <span class="nc">Integration</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mc_sampler</span> <span class="o">=</span> <span class="n">mc_sampler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">draws_per_dim</span> <span class="o">=</span> <span class="n">draws_per_dim</span></div>
 </pre></div>
@@ -646,7 +646,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

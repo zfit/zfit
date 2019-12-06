@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.ztf.zextension &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.ztf.zextension &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -109,15 +109,15 @@
 
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">_mt</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">inf</span> <span class="k">as</span> <span class="n">_inf</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">inf</span> <span class="k">as</span> <span class="n">_inf</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 
 <span class="n">inf</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">_inf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
 
@@ -223,7 +223,7 @@
 
 
 <div class="viewcode-block" id="run_no_nan"><a class="viewcode-back" href="../../../api/zfit.ztf.zextension.html#zfit.ztf.zextension.run_no_nan">[docs]</a><span class="k">def</span> <span class="nf">run_no_nan</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">zfit.core.data</span> <span class="k">import</span> <span class="n">Data</span>
+    <span class="kn">from</span> <span class="nn">zfit.core.data</span> <span class="kn">import</span> <span class="n">Data</span>
 
     <span class="n">value_with_nans</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value_with_nans</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex128</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">complex64</span><span class="p">):</span>
@@ -252,7 +252,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

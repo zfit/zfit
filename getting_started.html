@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Getting started with zfit &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>Getting started with zfit &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -110,9 +110,9 @@
 <h1>Getting started with zfit<a class="headerlink" href="#getting-started-with-zfit" title="Permalink to this headline">¶</a></h1>
 <p>The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a <em>crash course</em> manner. The simplest example is to generate, fit and plot a Gaussian distribution.</p>
 <p>The first step is to naturally import <code class="docutils literal notranslate"><span class="pre">zfit</span></code> and verify if the installation has been done successfully:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">zfit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow version:&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow version:&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 <span class="go">TensorFlow version: 1.12.0</span>
 </pre></div>
 </div>
@@ -164,18 +164,18 @@ Most minimisers will implement their CPU-intensive error calculating with the <c
 As an example, with the <a class="reference internal" href="api/zfit.minimize.html#zfit.minimize.Minuit" title="zfit.minimize.Minuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Minuit</span></code></a> one can calculate the <code class="docutils literal notranslate"><span class="pre">MINOS</span></code> with:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param_errors</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">errors</span> <span class="ow">in</span> <span class="n">param_errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;{}: ^{{+{}}}_{{{}}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]))</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: ^{{+</span><span class="si">{}</span><span class="s1">}}_{{</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]))</span>
 <span class="go">mu: ^{+0.00998104141841555}_{-0.009981515893414316}</span>
 <span class="go">sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}</span>
 </pre></div>
 </div>
 <p>Once we’ve performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
 The object <code class="docutils literal notranslate"><span class="pre">result</span></code> (<a class="reference internal" href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitResult</span></code></a>) has all the relevant information we need:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Function minimum:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Function minimum:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span><span class="p">)</span>
 <span class="go">Function minimum: 14170.396450111948</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Converged:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converged:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
 <span class="go">Converged: True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;Full minimizer information:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Full minimizer information:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
 <span class="go">Full minimizer information: {&#39;n_eval&#39;: 56, &#39;original&#39;: {&#39;fval&#39;: 14170.396450111948, &#39;edm&#39;: 2.8519671693442587e-10,</span>
 <span class="go">&#39;nfcn&#39;: 56, &#39;up&#39;: 0.5, &#39;is_valid&#39;: True, &#39;has_valid_parameters&#39;: True, &#39;has_accurate_covar&#39;: True, &#39;has_posdef_covar&#39;: True,</span>
 <span class="go">&#39;has_made_posdef_covar&#39;: False, &#39;hesse_failed&#39;: False, &#39;has_covariance&#39;: True, &#39;is_above_max_edm&#39;: False, &#39;has_reached_call_limit&#39;: False}}</span>
@@ -186,13 +186,13 @@ The object <code class="docutils literal notranslate"><span class="pre">result</
 <span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Printing information on specific parameters, e.g. mu</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;mu={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">mu</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mu=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">mu</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]))</span>
 <span class="go">mu=0.012464509810750313</span>
 </pre></div>
 </div>
 <p>As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, to do the job:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Some simple matplotlib configurations</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">limits</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data_np</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">data_np</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
@@ -224,16 +224,16 @@ To obtain the value of these PDFs, we need to execute the graph by using <code c
 
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># And now execute the tensorflow graph</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;x values: {}</span><span class="se">\n</span><span class="s2">result:   {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">consts</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x values: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">result:   </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">consts</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
 <span class="go">x values: [-1, 0, 1]</span>
 <span class="go">result:   [0.24262615 0.39670691 0.24130008]</span>
 </pre></div>
 </div>
 <p>Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using <code class="docutils literal notranslate"><span class="pre">zfit.run</span></code>:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">gauss</span><span class="o">.</span><span class="n">set_norm_range</span><span class="p">((</span><span class="o">-</span><span class="mf">1e6</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)):</span>
-<span class="gp">... </span>   <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">))))</span>
-<span class="gp">... </span>   <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))))</span>
-<span class="gp">... </span>   <span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">))))</span>
+<span class="gp">... </span>   <span class="nb">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">))))</span>
+<span class="gp">... </span>   <span class="nb">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))))</span>
+<span class="gp">... </span>   <span class="nb">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">((</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">))))</span>
 <span class="go">0.4492509559828224</span>
 <span class="go">0.9971473939649167</span>
 <span class="go">1.0</span>
@@ -255,7 +255,7 @@ To obtain the value of these PDFs, we need to execute the graph by using <code c
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

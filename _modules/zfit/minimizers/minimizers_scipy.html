@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizers_scipy &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.minimizers.minimizers_scipy &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -107,22 +107,22 @@
   <h1>Source code for zfit.minimizers.minimizers_scipy</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">SR1</span><span class="p">,</span> <span class="n">BFGS</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">SR1</span><span class="p">,</span> <span class="n">BFGS</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 
 
-<span class="kn">from</span> <span class="nn">zfit.minimizers.fitresult</span> <span class="k">import</span> <span class="n">FitResult</span>
-<span class="kn">from</span> <span class="nn">.tf_external_optimizer</span> <span class="k">import</span> <span class="n">ScipyOptimizerInterface</span>
-<span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="k">import</span> <span class="n">BaseMinimizer</span>
+<span class="kn">from</span> <span class="nn">zfit.minimizers.fitresult</span> <span class="kn">import</span> <span class="n">FitResult</span>
+<span class="kn">from</span> <span class="nn">.tf_external_optimizer</span> <span class="kn">import</span> <span class="n">ScipyOptimizerInterface</span>
+<span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="kn">import</span> <span class="n">BaseMinimizer</span>
 
 
 <div class="viewcode-block" id="Scipy"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizers_scipy.html#zfit.minimize.Scipy">[docs]</a><span class="k">class</span> <span class="nc">Scipy</span><span class="p">(</span><span class="n">BaseMinimizer</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="s1">&#39;L-BFGS-B&#39;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="s1">&#39;L-BFGS-B&#39;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">minimizer</span>
         <span class="n">minimizer_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">minimizer</span><span class="p">)</span>  <span class="c1"># named method in ScipyOptimizerInterface</span>
@@ -184,7 +184,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

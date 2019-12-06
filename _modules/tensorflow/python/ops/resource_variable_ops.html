@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tensorflow.python.ops.resource_variable_ops &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>tensorflow.python.ops.resource_variable_ops &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -122,39 +122,39 @@
 <span class="sd">&quot;&quot;&quot;Ops to use variables as resources.&quot;&quot;&quot;</span>
 
 <span class="c1"># pylint: disable=g-bad-name</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">attr_value_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="k">import</span> <span class="n">variable_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">pywrap_tensorflow</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="k">import</span> <span class="n">context</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="k">import</span> <span class="n">tape</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">constant_op</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">cpp_shape_inference_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">dtypes</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="k">import</span> <span class="n">tensor_shape</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">array_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_array_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_logging_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_resource_variable_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">gen_state_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">math_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">state_ops</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="k">import</span> <span class="n">variables</span>
+<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">attr_value_pb2</span>
+<span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">variable_pb2</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">pywrap_tensorflow</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">context</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">tape</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">constant_op</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">cpp_shape_inference_pb2</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">dtypes</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">tensor_shape</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_logging_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_resource_variable_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">gen_state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">math_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">state_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">variables</span>
 <span class="c1"># go/tf-wildcard-import</span>
 <span class="c1"># pylint: disable=wildcard-import</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops.gen_resource_variable_ops</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.gen_resource_variable_ops</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="c1"># pylint: enable=wildcard-import</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="k">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">trackable</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="k">import</span> <span class="n">compat</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="k">import</span> <span class="n">deprecated</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="k">import</span> <span class="n">deprecated_args</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">trackable</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">compat</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated_args</span>
 
 
 <span class="k">def</span> <span class="nf">get_resource_handle_data</span><span class="p">(</span><span class="n">graph_op</span><span class="p">):</span>
@@ -355,7 +355,7 @@
 <span class="sd">  the cycle will be collectable.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">handle_device</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">handle_device</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
           <span class="p">(</span><span class="s2">&quot;Passed handle=</span><span class="si">%s</span><span class="s2"> to EagerResourceDeleter. Was expecting a handle &quot;</span>
@@ -367,7 +367,7 @@
     <span class="c1"># op.</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context</span><span class="p">()</span>
 
-  <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Resources follow object-identity when executing eagerly, so it is safe to</span>
     <span class="c1"># delete the resource we have a handle to.</span>
     <span class="k">try</span><span class="p">:</span>
@@ -428,7 +428,7 @@
       <span class="kc">None</span><span class="p">,</span>
       <span class="s2">&quot;If using Keras pass *_constraint arguments to layers.&quot;</span><span class="p">,</span>
       <span class="s2">&quot;constraint&quot;</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
       <span class="bp">self</span><span class="p">,</span>
       <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -526,7 +526,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_handle_deleter</span> <span class="o">=</span> <span class="n">handle_deleter</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_cached_shape_as_list</span> <span class="o">=</span> <span class="kc">None</span>
 
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span><span class="p">:</span>
       <span class="k">return</span> <span class="s2">&quot;&lt;tf.Variable &#39;</span><span class="si">%s</span><span class="s2">&#39; shape=</span><span class="si">%s</span><span class="s2"> dtype=</span><span class="si">%s</span><span class="s2">, numpy=</span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -553,7 +553,7 @@
   <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__bool__</span><span class="p">()</span>
 
-  <span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">())</span>
 
   <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1304,7 +1304,7 @@
               <span class="n">new_axis_mask</span><span class="o">=</span><span class="n">new_axis_mask</span><span class="p">,</span>
               <span class="n">shrink_axis_mask</span><span class="o">=</span><span class="n">shrink_axis_mask</span><span class="p">))</span>
 
-  <span class="k">def</span> <span class="nf">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">int32</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Non-integer variable can&#39;t be converted to integer.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
@@ -1320,19 +1320,19 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
 
-  <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Variable += value not supported. Use &quot;</span>
                        <span class="s2">&quot;variable.assign_add(value) to modify the variable &quot;</span>
                        <span class="s2">&quot;value and variable = variable + value to get a new &quot;</span>
                        <span class="s2">&quot;Tensor object.&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Variable -= value not supported. Use &quot;</span>
                        <span class="s2">&quot;variable.assign_sub(value) to modify the variable &quot;</span>
                        <span class="s2">&quot;value and variable = variable - value to get a new &quot;</span>
                        <span class="s2">&quot;Tensor object.&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Variable *= value not supported. Use &quot;</span>
                        <span class="s2">&quot;`var.assign(var * value)` to modify the variable or &quot;</span>
                        <span class="s2">&quot;`var = var * value` to get a new Tensor object.&quot;</span><span class="p">)</span>
@@ -1342,7 +1342,7 @@
                        <span class="s2">&quot;`var.assign(var / value)` to modify the variable or &quot;</span>
                        <span class="s2">&quot;`var = var / value` to get a new Tensor object.&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__itruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__itruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Variable /= value not supported. Use &quot;</span>
                        <span class="s2">&quot;`var.assign(var / value)` to modify the variable or &quot;</span>
                        <span class="s2">&quot;`var = var / value` to get a new Tensor object.&quot;</span><span class="p">)</span>
@@ -1352,7 +1352,7 @@
                        <span class="s2">&quot;`var.assign(var / value)` to modify the variable or &quot;</span>
                        <span class="s2">&quot;`var = var / value` to get a new Tensor object.&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">__ipow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__ipow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused_other</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Variable **= value not supported. Use &quot;</span>
                        <span class="s2">&quot;`var.assign(var ** value)` to modify the variable or &quot;</span>
                        <span class="s2">&quot;`var = var ** value` to get a new Tensor object.&quot;</span><span class="p">)</span>
@@ -1411,7 +1411,7 @@
 <span class="sd">  ```</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
                <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">collections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1805,7 +1805,7 @@
 <span class="k">class</span> <span class="nc">UninitializedVariable</span><span class="p">(</span><span class="n">BaseResourceVariable</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A variable with no initializer.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
       <span class="bp">self</span><span class="p">,</span>
       <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="n">caching_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1909,7 +1909,7 @@
 <span class="sd">  Pretends to be the tensor if anyone looks.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">in_graph_mode</span><span class="p">,</span> <span class="n">deleter</span><span class="p">,</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">in_graph_mode</span><span class="p">,</span> <span class="n">deleter</span><span class="p">,</span>
                <span class="n">parent_op</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">EagerTensor</span><span class="p">):</span>
       <span class="n">handle_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -2081,7 +2081,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

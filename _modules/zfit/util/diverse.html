@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.diverse &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.util.diverse &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -112,8 +112,8 @@
 
 
 
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="k">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
 
 
 <div class="viewcode-block" id="multivariate_gauss"><a class="viewcode-back" href="../../../api/zfit.util.diverse.html#zfit.util.diverse.multivariate_gauss">[docs]</a><span class="k">def</span> <span class="nf">multivariate_gauss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">inv_cov</span><span class="p">):</span>
@@ -150,7 +150,7 @@
 
 
 <div class="viewcode-block" id="GaussianMixture2D"><a class="viewcode-back" href="../../../api/zfit.util.diverse.html#zfit.util.diverse.GaussianMixture2D">[docs]</a><span class="k">class</span> <span class="nc">GaussianMixture2D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
             <span class="n">norm</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;n</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">)</span>
@@ -174,7 +174,7 @@
 
 
 <div class="viewcode-block" id="GaussianMixture4D"><a class="viewcode-back" href="../../../api/zfit.util.diverse.html#zfit.util.diverse.GaussianMixture4D">[docs]</a><span class="k">class</span> <span class="nc">GaussianMixture4D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">ranges</span><span class="p">):</span>  <span class="c1"># TODO: ranges? x_range, y_range?</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">ranges</span><span class="p">):</span>  <span class="c1"># TODO: ranges? x_range, y_range?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
             <span class="n">norm</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;n</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">)</span>
@@ -209,7 +209,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

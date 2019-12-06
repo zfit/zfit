@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.physics &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.models.physics &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -107,7 +107,7 @@
   <h1>Source code for zfit.models.physics</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -116,11 +116,11 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="k">import</span> <span class="n">BasePDF</span>
-<span class="kn">from</span> <span class="nn">..core.limits</span> <span class="k">import</span> <span class="n">ANY_UPPER</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">Space</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="kn">import</span> <span class="n">BasePDF</span>
+<span class="kn">from</span> <span class="nn">..core.limits</span> <span class="kn">import</span> <span class="n">ANY_UPPER</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">Space</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 
 
 <span class="k">def</span> <span class="nf">_powerlaw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
@@ -315,7 +315,7 @@
 
 <div class="viewcode-block" id="CrystalBall"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.physics.CrystalBall">[docs]</a><span class="k">class</span> <span class="nc">CrystalBall</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
     <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">alpha</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CrystalBall&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;`Crystal Ball shaped PDF`__. A combination of a Gaussian with an powerlaw tail.</span>
@@ -372,7 +372,7 @@
 <div class="viewcode-block" id="DoubleCB"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.physics.DoubleCB">[docs]</a><span class="k">class</span> <span class="nc">DoubleCB</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
     <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">alphal</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">nl</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">alphar</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">nr</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DoubleCB&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
@@ -443,7 +443,7 @@
     <span class="c1"># res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)</span>
     <span class="c1"># int1 = crystalball_integral(limits=zfit.Space(obs=&#39;obs1&#39;, limits=(-3, 5)),</span>
     <span class="c1">#                             params={&#39;mu&#39;: mu, &quot;sigma&quot;: sigma, &quot;alpha&quot;: alpha, &quot;n&quot;: n})</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.contrib</span> <span class="k">import</span> <span class="n">autograph</span>
+    <span class="kn">from</span> <span class="nn">tensorflow.contrib</span> <span class="kn">import</span> <span class="n">autograph</span>
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
     <span class="n">new_code</span> <span class="o">=</span> <span class="n">autograph</span><span class="o">.</span><span class="n">to_code</span><span class="p">(</span><span class="n">crystalball_integral</span><span class="p">)</span>
@@ -476,7 +476,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

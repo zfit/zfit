@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -108,32 +108,32 @@
 <span></span><span class="sd">&quot;&quot;&quot;Define Parameter which holds the value.&quot;&quot;&quot;</span>
 <span class="c1">#  Copyright (c) 2019 zfit</span>
 
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">suppress</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="c1"># TF backwards compatibility</span>
-<span class="kn">from</span> <span class="nn">ordered_set</span> <span class="k">import</span> <span class="n">OrderedSet</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="k">import</span> <span class="n">ops</span><span class="p">,</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">ops</span><span class="p">,</span> <span class="n">array_ops</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="k">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="k">import</span> <span class="n">ResourceVariable</span> <span class="k">as</span> <span class="n">TFBaseVariable</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="k">import</span> <span class="n">ResourceVariable</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="kn">import</span> <span class="n">ResourceVariable</span> <span class="k">as</span> <span class="n">TFBaseVariable</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.resource_variable_ops</span> <span class="kn">import</span> <span class="n">ResourceVariable</span>
 
-<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="k">import</span> <span class="n">TemporarilySet</span>
-<span class="kn">from</span> <span class="nn">..core.baseobject</span> <span class="k">import</span> <span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">BaseObject</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="k">import</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">invalidates_cache</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.execution</span> <span class="k">import</span> <span class="n">SessionHolderMixin</span>
-<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="k">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span>
-<span class="kn">from</span> <span class="nn">..util.graph</span> <span class="k">import</span> <span class="n">get_dependents_auto</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="k">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">NameAlreadyTakenError</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">baseobject</span> <span class="k">as</span> <span class="n">zbaseobject</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">interfaces</span> <span class="k">as</span> <span class="n">zinterfaces</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="k">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
+<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
+<span class="kn">from</span> <span class="nn">..core.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">BaseObject</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">invalidates_cache</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.execution</span> <span class="kn">import</span> <span class="n">SessionHolderMixin</span>
+<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span>
+<span class="kn">from</span> <span class="nn">..util.graph</span> <span class="kn">import</span> <span class="n">get_dependents_auto</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">NameAlreadyTakenError</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">baseobject</span> <span class="k">as</span> <span class="n">zbaseobject</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">interfaces</span> <span class="k">as</span> <span class="n">zinterfaces</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 
 
 <div class="viewcode-block" id="MetaBaseParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.MetaBaseParameter">[docs]</a><span class="k">class</span> <span class="nc">MetaBaseParameter</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">TFBaseVariable</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">zinterfaces</span><span class="o">.</span><span class="n">ZfitParameter</span><span class="p">)):</span>  <span class="c1"># resolve metaclasses</span>
@@ -145,7 +145,7 @@
 <span class="c1"># class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2</span>
 <div class="viewcode-block" id="ZfitBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">ZfitBaseVariable</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="n">variable</span>
 
     <span class="c1"># @property</span>
@@ -220,7 +220,7 @@
 
 
 <div class="viewcode-block" id="ComposedResourceVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedResourceVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedResourceVariable</span><span class="p">(</span><span class="n">ResourceVariable</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value_tensor</span> <span class="o">=</span> <span class="n">initial_value</span>
 
@@ -239,7 +239,7 @@
 <span class="c1"># class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2</span>
 <div class="viewcode-block" id="ComposedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedVariable">[docs]</a><span class="k">class</span> <span class="nc">ComposedVariable</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># super().__init__(initial_value=initial_value, **kwargs, use_resource=True)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">dtype_hint</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
@@ -322,7 +322,7 @@
 <span class="n">feed_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feed</span><span class="p">,</span> <span class="n">feed_val</span><span class="p">:</span> <span class="p">[(</span><span class="n">feed</span><span class="o">.</span><span class="n">read_value</span><span class="p">(),</span> <span class="n">feed_val</span><span class="p">)]</span>
 <span class="n">feed_function_for_partial_run</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feed</span><span class="p">:</span> <span class="p">[</span><span class="n">feed</span><span class="o">.</span><span class="n">read_value</span><span class="p">()]</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.python.client.session</span> <span class="k">import</span> <span class="n">register_session_run_conversion_functions</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.client.session</span> <span class="kn">import</span> <span class="n">register_session_run_conversion_functions</span>
 
 <span class="c1"># ops.register_dense_tensor_like_type()</span>
 <span class="n">register_session_run_conversion_functions</span><span class="p">(</span><span class="n">tensor_type</span><span class="o">=</span><span class="n">ComposedResourceVariable</span><span class="p">,</span> <span class="n">fetch_function</span><span class="o">=</span><span class="n">fetch_function</span><span class="p">,</span>
@@ -344,7 +344,7 @@
 <div class="viewcode-block" id="ZfitParameterMixin"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitParameterMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitParameterMixin</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">):</span>
     <span class="n">_existing_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_existing_names</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NameAlreadyTakenError</span><span class="p">(</span><span class="s2">&quot;Another parameter is already named </span><span class="si">{}</span><span class="s2">. &quot;</span>
                                         <span class="s2">&quot;Use a different, unique one.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
@@ -378,38 +378,38 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;floating has to be a boolean.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_floating</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)):</span>
-            <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">operations</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">operations</span>
             <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">operations</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__add__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)):</span>
-            <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">operations</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">operations</span>
             <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">operations</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__radd__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)):</span>
-            <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">operations</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">operations</span>
             <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">operations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">)):</span>
-            <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">operations</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">operations</span>
             <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">operations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__rmul__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span></div>
 
 
@@ -424,7 +424,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_independent</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">lower_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">lower_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">          Constructor.</span>
@@ -605,8 +605,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;&lt;zfit.Parameter &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; floating=</span><span class="si">{self.floating}</span><span class="s2">&gt;&quot;</span></div>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;zfit.Parameter &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; floating=</span><span class="si">{self.floating}</span><span class="s2">&gt;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BaseZParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseZParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseZParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">ComposedVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
@@ -615,7 +615,7 @@
 
 <div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">BaseZParameter</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseComposedParameter&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseComposedParameter&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># self.params = params</span>
 
@@ -644,7 +644,7 @@
 
 <div class="viewcode-block" id="ConstantParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ConstantParameter">[docs]</a><span class="k">class</span> <span class="nc">ConstantParameter</span><span class="p">(</span><span class="n">BaseZParameter</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{})</span>
 
     <span class="nd">@property</span>
@@ -664,7 +664,7 @@
 
 
 <div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">tensor</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">independent_params</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s2">&quot;zfit_independent&quot;</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">get_dependents_auto</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">candidates</span><span class="o">=</span><span class="n">independent_params</span><span class="p">)</span>
@@ -673,12 +673,12 @@
         <span class="c1"># with tf.control_dependencies(params_init_op):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;&lt;zfit.</span><span class="si">{self.__class__.__name__}</span><span class="s2"> &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; dtype=</span><span class="si">{self.dtype.name}</span><span class="s2">&gt;&quot;</span></div>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;zfit.</span><span class="si">{self.__class__.__name__}</span><span class="s2"> &#39;</span><span class="si">{self.name}</span><span class="s2">&#39; dtype=</span><span class="si">{self.dtype.name}</span><span class="s2">&gt;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conj</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="kc">None</span>
@@ -826,7 +826,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

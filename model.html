@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Building a model &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>Building a model &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -120,7 +120,7 @@ In zfit these distinctions are respected, <em>i.e.</em>, a function can be conve
 <div class="section" id="predefined-pdfs-and-basic-properties">
 <h2>Predefined PDFs and basic properties<a class="headerlink" href="#predefined-pdfs-and-basic-properties" title="Permalink to this headline">¶</a></h2>
 <p>A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
 <span class="go">[&#39;BasePDF&#39;, &#39;Exponential&#39;, &#39;CrystalBall&#39;, &#39;Gauss&#39;, &#39;Uniform&#39;, &#39;WrapDistribution&#39;, &#39;ProductPDF&#39;, &#39;SumPDF&#39;, &#39;ZPDF&#39;, &#39;SimplePDF&#39;, &#39;SimpleFunctorPDF&#39;]</span>
 </pre></div>
 </div>
@@ -144,7 +144,7 @@ to set a temporary normalisation range can be given as</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span> <span class="o">=</span> <span class="n">model_cb</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="mi">5100</span><span class="p">,</span> <span class="mi">5400</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># And now execute the tensorflow graph</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 <span class="go">[3.34187765e-05 3.34196917e-05 3.34202989e-05 3.34181458e-05</span>
 <span class="go"> 3.34172973e-05 3.34209238e-05 3.34164538e-05 3.34210950e-05</span>
 <span class="go"> 3.34201199e-05 3.34209360e-05]</span>
@@ -208,9 +208,9 @@ Alternatively one could consider having PDFs for different axis, which would the
 </div>
 <p>The new PDF is now in two dimensions.
 The order of the observables follows the order of the PDFs given.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;python syntax product obs&quot;</span><span class="p">,</span> <span class="n">prod_gauss</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;python syntax product obs&quot;</span><span class="p">,</span> <span class="n">prod_gauss</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
 <span class="go">[python syntax product obs (&#39;obs1&#39;, &#39;obs2&#39;)]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;class API product obs&quot;</span><span class="p">,</span> <span class="n">prod_gauss_class</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;class API product obs&quot;</span><span class="p">,</span> <span class="n">prod_gauss_class</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
 <span class="go">[class API product obs (&#39;obs2&#39;, &#39;obs1&#39;)]</span>
 </pre></div>
 </div>
@@ -245,10 +245,10 @@ Let’s consider a simplified implementation</p>
 <span class="gp">... </span>   <span class="n">_PARAMS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">]</span>  <span class="c1"># the name of the parameters</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-<span class="gp">... </span>   <span class="n">x</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>   <span class="n">x</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="gp">... </span>   <span class="n">mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span>
 <span class="gp">... </span>   <span class="n">std</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;std&#39;</span><span class="p">]</span>
-<span class="gp">... </span>   <span class="k">return</span> <span class="n">ztf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span><span class="o">/</span><span class="n">std</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ztf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span><span class="o">/</span><span class="n">std</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This is the basic information required for this custom PDF.
@@ -303,7 +303,7 @@ will take which value via <cite>param_values</cite> or by changing the attribute
 <p>A typical example of toys would therefore look like</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu, sigma</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
@@ -386,7 +386,7 @@ those parameters might be needed to obtain an unbiased sample from the model. Ex
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>

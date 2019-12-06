@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Data &#8212; zfit 0.1.dev135+g62cfc95 documentation</title>
+    <title>Data &#8212; zfit 0.3.8.dev1+gc222e40 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev135+g62cfc95</b></span>
+        <span class="navbar-text pull-left"><b>0.3.8.dev1+gc222e40</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -123,8 +123,8 @@
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_root</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span>
 <span class="gp">... </span>                               <span class="n">root_tree</span><span class="p">,</span>
 <span class="gp">... </span>                               <span class="n">branches</span><span class="p">,</span>
-<span class="gp">... </span>                               <span class="n">branches_alias</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-<span class="gp">... </span>                               <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">... </span>                               <span class="n">branches_alias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">branches_alias</span></code> can be seen as a list of strings that renames the original <code class="docutils literal notranslate"><span class="pre">branches</span></code>. The <code class="docutils literal notranslate"><span class="pre">weights</span></code> has two different implementations: (1) either a 1-D column is provided with shape equals to the data (nevents) or (2) a column of the ROOT file by using a string corresponding to a column. Note that in case of multiple weights are required, the weight manipulation has to be performed by the user beforehand, e.g. using Numpy/pandas or similar.</p>
@@ -141,14 +141,14 @@ and it is the advised implementation of this.</p>
 <h2>Import dataset from a pandas DataFrame or Numpy ndarray<a class="headerlink" href="#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray" title="Permalink to this headline">¶</a></h2>
 <p>A very simple manipulation of the dataset is provided via the pandas DataFrame. Naturally this is simplified since the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (observable) is not mandatory, and can be obtained directly from the columns:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pandas_DataFrame</span><span class="p">,</span>
-<span class="gp">... </span>                                  <span class="n">obs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-<span class="gp">... </span>                                  <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">... </span>                                  <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In the case of Numpy, the only difference is that as input is required a numpy ndarray and the <a class="reference internal" href="api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (obs) is mandatory:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">numpy_ndarray</span><span class="p">,</span>
 <span class="gp">... </span>                                 <span class="n">obs</span><span class="p">,</span>
-<span class="gp">... </span>                                 <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">... </span>                                 <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -167,7 +167,7 @@ and it is the advised implementation of this.</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
     </p>
   </div>
 </footer>
