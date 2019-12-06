@@ -162,6 +162,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._gradients(params=params)
 
     def add_constraints(self, constraints):
+        constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
 
     def _add_constraints(self, constraints):
@@ -201,6 +202,10 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     # @func_simple
     def value(self):
         return self._value()
+
+    @property
+    def errordef(self) -> Union[float, int]:
+        return self._errordef
 
     def _value(self):
         try:
@@ -267,6 +272,10 @@ class UnbinnedNLL(CachedLoss):
 
     _name = "UnbinnedNLL"
 
+    def __init__(self, model, data, fit_range=None, constraints=None):
+        super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
+        self._errordef = 0.5
+
     def _loss_func(self, model, data, fit_range, constraints):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
@@ -278,10 +287,6 @@ class UnbinnedNLL(CachedLoss):
         if self._cache.get('loss') is not None:
             constraints = [c.value() for c in constraints]
             self._cache['loss'] += ztf.reduce_sum(constraints)
-
-    @property
-    def errordef(self) -> Union[float, int]:
-        return 0.5
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
@@ -315,6 +320,7 @@ class SimpleLoss(CachedLoss):
         """
         self._simple_func = func
         self._simple_errordef = errordef
+        self._errordef = errordef
         self._simple_func_dependents = convert_to_container(dependents, container=set)
 
         super().__init__(model=[], data=[], fit_range=[])

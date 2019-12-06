@@ -11,14 +11,15 @@ Development Lead
 Authors
 ------------
 
-| Jonas Eschle <jonas.eschle@cern.ch>
-| Albert Puig <albert.puig@cern.ch>
+| Jonas Eschle <Jonas.Eschle@cern.ch>
+| Albert Puig <apuignav@gmail.com>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
+| Matthieu Marinangeli <matthieu.marinangeli@cern.ch>
+
 
 
 Contributors
 ------------
 | Chris Burr <christopher.burr@cern.ch>
-| Matthieu Marinangeli <matthieu.marinangeli@cern.ch>
 | Abhijit Mathad <amathad@cern.ch>
 | Oliver Lantwin <oliver.lantwin@cern.ch>

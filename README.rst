@@ -187,7 +187,15 @@ The following packages (amongst others) are required:
 Installing
 ==========
 
-To install zfit, run this command in your terminal:
+zfit is available on conda-forge and pip. If possible, use a conda or virtual environment and do:
+
+For conda:
+
+.. code-block:: console
+
+    $ conda install zfit -c conda-forge
+
+For pip (if you don't use conda):
 
 .. code-block:: console
 

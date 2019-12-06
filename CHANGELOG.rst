@@ -5,16 +5,15 @@ Changelog
 Develop
 =======
 
+
 Major Features and Improvements
 -------------------------------
- - full TF 2.0 compatibility, tests against 1.x and 2.x
 
 Behavioral changes
 ------------------
 
 Bug fixes and small changes
 ---------------------------
-
 
 Requirement changes
 -------------------
@@ -23,10 +22,34 @@ Requirement changes
 Thanks
 ------
 
+0.3.7 (6.12.19)
+================
+
+This is a legacy release to add some fixes, next release is TF 2 eager mode only release.
+
+
+Major Features and Improvements
+-------------------------------
+ - mostly TF 2.0 compatibility in graph mode, tests against 1.x and 2.x
+
+Behavioral changes
+------------------
+
+Bug fixes and small changes
+---------------------------
+ - `get_depentents` returns now an OrderedSet
+ - errordef is now a (hidden) attribute and can be changed
+ - fix bug in polynomials
+
+
+Requirement changes
+-------------------
+ - added ordered-set
+
 0.3.6 (12.10.19)
 ================
 
-**Special relese for conda deployment and version fix (TF 2.0 is out)**
+**Special release for conda deployment and version fix (TF 2.0 is out)**
 
 **This is the last release before breaking changes occur**
 

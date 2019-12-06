@@ -158,7 +158,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         return params
 
     def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_hesse',
-              error_name: Optional[str] = None) -> OrderedDict:
+              error_name: Optional[str] = None, sigma=1.) -> OrderedDict:
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
         Args:
@@ -182,7 +182,7 @@ class FitResult(SessionHolderMixin, ZfitResult):
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
         if uncached_params:
-            error_dict = self._hesse(params=uncached_params, method=method)
+            error_dict = self._hesse(params=uncached_params, method=method, sigma=sigma)
             self._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
@@ -191,13 +191,13 @@ class FitResult(SessionHolderMixin, ZfitResult):
         for param, errors in errors.items():
             self.params[param][error_name] = errors
 
-    def _hesse(self, params, method):
+    def _hesse(self, params, method, sigma):
         if not callable(method):
             try:
                 method = self._hesse_methods[method]
             except KeyError:
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
-        return method(result=self, params=params)
+        return method(result=self, params=params, sigma=sigma)
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_minos', error_name: str = None,
               sigma: float = 1.) -> OrderedDict:

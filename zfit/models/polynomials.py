@@ -556,6 +556,13 @@ Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_li
 
 
 def convert_coeffs_dict_to_list(coeffs: Mapping) -> List:
-    return [coeffs[f"c_{i}"] for i in range(len(coeffs))]
+    # HACK(Mayou36): how to solve elegantly? yield not a param, only a dependent?
+    coeffs_list = []
+    for i in range(len(coeffs)):
+        try:
+            coeffs_list.append(coeffs[f"c_{i}"])
+        except KeyError:  # happens, if there are other parameters in there, such as a yield
+            break
+    return coeffs_list
 
 # EOF

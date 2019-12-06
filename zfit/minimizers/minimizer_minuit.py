@@ -34,7 +34,6 @@ class Minuit(BaseMinimizer, Cachable):
             verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
             name (): Name of the minimizer
             ncall (): Maximum number of minimization steps.
-            **minimizer_options (): Options for the minimizer internally used.
         """
         minimizer_options['ncall'] = ncall
         if not minimize_strategy in range(3):

@@ -14,8 +14,8 @@ __status__ = "Beta"
 __author__ = "Jonas Eschle"
 __maintainer__ = "zfit"
 __email__ = 'zfit@physik.uzh.ch'
-__credits__ = ["Jonas Eschle <jonas.eschle@cern.ch>",
-               "Albert Puig <albert.puig@cern.ch",
+__credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
+               "Albert Puig <apuignav@gmail.com",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
 __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
