@@ -6,7 +6,7 @@ from zfit.core.testing import setup_function, teardown_function, tester
 import sys
 
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.util.graph import get_dependents_auto
 from zfit.core.testing import setup_function, teardown_function, tester
 
@@ -20,7 +20,7 @@ def test_get_dependents():
     var2 = zfit.Parameter('var2', 2.)
     var3 = zfit.Parameter('var3', 3.)
     a = zfit.pdf.Gauss(var1, var2, obs='obs1').sample(n=500, limits=(-5, 5)) * 5.
-    b = ztf.constant(3.) + 4 * var1
+    b = z.constant(3.) + 4 * var1
     c = 5. * b * var3
     d = b * var2 + a
     e = d * 3.

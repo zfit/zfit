@@ -6,7 +6,7 @@ import tensorflow as tf
 
 import numpy as np
 
-from zfit import ztf
+from zfit import z
 import zfit.core.basepdf
 from zfit.core.limits import Space
 from zfit.minimizers.minimizer_minuit import Minuit
@@ -30,20 +30,20 @@ low, high = -24.3, 28.6
 
 
 def create_params1(nameadd=""):
-    mu1 = zfit.Parameter("mu1" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-    sigma1 = zfit.Parameter("sigma1" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    mu1 = zfit.Parameter("mu1" + nameadd, z.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma1 = zfit.Parameter("sigma1" + nameadd, z.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
     return mu1, sigma1
 
 
 def create_params2(nameadd=""):
-    mu2 = zfit.Parameter("mu25" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-    sigma2 = zfit.Parameter("sigma25" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    mu2 = zfit.Parameter("mu25" + nameadd, z.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma2 = zfit.Parameter("sigma25" + nameadd, z.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
     return mu2, sigma2
 
 
 def create_params3(nameadd=""):
-    mu3 = zfit.Parameter("mu35" + nameadd, ztf.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
-    sigma3 = zfit.Parameter("sigma35" + nameadd, ztf.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
+    mu3 = zfit.Parameter("mu35" + nameadd, z.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
+    sigma3 = zfit.Parameter("sigma35" + nameadd, z.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
     yield3 = zfit.Parameter("yield35" + nameadd, yield_true + 300, 0, yield_true + 20000)
     return mu3, sigma3, yield3
 
@@ -53,9 +53,9 @@ obs1 = 'obs1'
 mu_constr = [1.6, 0.2]  # mu, sigma
 sigma_constr = [3.8, 0.2]
 constr = lambda: [mu_constr[1], sigma_constr[1]]
-constr_tf = lambda: ztf.convert_to_tensor(constr())
+constr_tf = lambda: z.convert_to_tensor(constr())
 covariance = lambda: np.array([[mu_constr[1] ** 0.5, -0.05], [-0.05, sigma_constr[1] ** 0.5]])
-covariance_tf = lambda: ztf.convert_to_tensor(covariance())
+covariance_tf = lambda: z.convert_to_tensor(covariance())
 
 
 def create_gauss1():
@@ -77,7 +77,7 @@ def create_gauss3ext():
 
 @pytest.mark.flaky(2)  # minimization can fail
 def test_extended_unbinned_nll():
-    test_values = ztf.constant(test_values_np)
+    test_values = z.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
     gaussian3, mu3, sigma3, yield3 = create_gauss3ext()
     nll_object = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
@@ -154,10 +154,10 @@ def test_add():
     pdfs[3] = Gauss(4, 7, obs=obs1)
 
     datas = [0] * 4
-    datas[0] = ztf.constant(1.)
-    datas[1] = ztf.constant(2.)
-    datas[2] = ztf.constant(3.)
-    datas[3] = ztf.constant(4.)
+    datas[0] = z.constant(1.)
+    datas[1] = z.constant(2.)
+    datas[2] = z.constant(3.)
+    datas[3] = z.constant(4.)
 
     ranges = [0] * 4
     ranges[0] = (1, 4)
@@ -186,7 +186,7 @@ def test_add():
     assert simult_nll.fit_range == ranges
 
     def eval_constraint(constraints):
-        return ztf.reduce_sum([c.value() for c in constraints]).numpy()
+        return z.reduce_sum([c.value() for c in constraints]).numpy()
 
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
 
@@ -205,9 +205,9 @@ def test_gradients(chunksize):
     gauss2 = Gauss(param2, 5, obs=obs1)
     gauss2.set_norm_range((-5, 5))
 
-    data1 = zfit.Data.from_tensor(obs=obs1, tensor=ztf.constant(1., shape=(100,)))
+    data1 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1., shape=(100,)))
     data1.set_data_range((-5, 5))
-    data2 = zfit.Data.from_tensor(obs=obs1, tensor=ztf.constant(1., shape=(100,)))
+    data2 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1., shape=(100,)))
     data2.set_data_range((-5, 5))
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
@@ -226,15 +226,15 @@ def test_simple_loss():
     true_b = 4.
     true_c = -0.3
     a_param = zfit.Parameter("variable_a15151loss", 1.5, -1., 20.,
-                             step_size=ztf.constant(0.1))
+                             step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151loss", 3.5)
     c_param = zfit.Parameter("variable_c15151loss", -0.23)
     param_list = [a_param, b_param, c_param]
 
     def loss_func():
-        probs = ztf.convert_to_tensor((a_param - true_a) ** 2
-                                      + (b_param - true_b) ** 2
-                                      + (c_param - true_c) ** 4) + 0.42
+        probs = z.convert_to_tensor((a_param - true_a) ** 2
+                                    + (b_param - true_b) ** 2
+                                    + (c_param - true_c) ** 4) + 0.42
         return tf.reduce_sum(input_tensor=tf.math.log(probs))
 
     loss_deps = zfit.loss.SimpleLoss(func=loss_func, dependents=param_list)

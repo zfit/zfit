@@ -8,7 +8,7 @@ import tensorflow as tf
 
 
 import zfit
-from zfit import Parameter, ztf
+from zfit import Parameter, z
 from zfit.models.functions import SimpleFunc
 from zfit.models.functor import SumPDF
 from zfit.models.special import SimplePDF
@@ -55,7 +55,7 @@ def test_param_func():
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
     param4 = Parameter('param4', 4.)
-    a = ztf.log(3. * param1) * tf.square(param2) - param3
+    a = z.log(3. * param1) * tf.square(param2) - param3
     func = SimpleFunc(func=lambda self, x: a * x, obs=obs1)
 
     new_func = param4 * func
@@ -76,11 +76,11 @@ def test_func_func():
     param4 = Parameter('param4', 4.)
 
     def func1_pure(self, x):
-        x = ztf.unstack_x(x)
+        x = z.unstack_x(x)
         return param1 * x
 
     def func2_pure(self, x):
-        x = ztf.unstack_x(x)
+        x = z.unstack_x(x)
         return param2 * x + param3
 
     func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
@@ -159,7 +159,7 @@ def test_implicit_sumpdf():
     true_values = pdf1.pdf(rnd_test_values, norm_range=norm_range)
     true_values *= frac1_param
     true_values += pdf2.pdf(rnd_test_values, norm_range=norm_range) * frac2_param
-    true_values += pdf3.pdf(rnd_test_values, norm_range=norm_range) * ztf.constant(frac3)
+    true_values += pdf3.pdf(rnd_test_values, norm_range=norm_range) * z.constant(frac3)
 
     assert isinstance(sum_pdf, SumPDF)
     assert not sum_pdf.is_extended

@@ -1,7 +1,7 @@
 #  Copyright (c) 2019 zfit
 
 # deactivating CUDA capable gpus
-from zfit.ztf.tools import _auto_upcast
+from zfit.z.tools import _auto_upcast
 from zfit.core.testing import setup_function, teardown_function, tester
 
 suppress_gpu = False
@@ -18,7 +18,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit.core.math
-from zfit import ztf
+from zfit import z
 
 prec = 0.00001
 

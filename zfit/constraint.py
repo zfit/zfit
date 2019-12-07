@@ -28,7 +28,7 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
 
 # def nll_pdf(constraints: dict):
 #     if not constraints:
-#         return ztf.constant(0.)  # adding 0 to nll
+#         return z.constant(0.)  # adding 0 to nll
 #     probs = []
 #     for param, dist in constraints.items():
 #         probs.append(dist.pdf(param))

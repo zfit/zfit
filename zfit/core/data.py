@@ -15,7 +15,7 @@ import pandas as pd
 
 # from ..settings import types as ztypes
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core.interfaces import ZfitSpace
 from ..util.cache import Cachable, invalidates_cache
 from .baseobject import BaseObject
@@ -119,8 +119,8 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
         """
         if weights is not None:
-            weights = ztf.convert_to_tensor(weights)
-            weights = ztf.to_real(weights)
+            weights = z.convert_to_tensor(weights)
+            weights = z.to_real(weights)
             if weights.shape.ndims != 1:
                 raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
 
@@ -351,7 +351,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             List(tf.Tensor)
         """
-        return ztf.unstack_x(self._value_internal(obs=obs))
+        return z.unstack_x(self._value_internal(obs=obs))
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         return self._value_internal(obs=obs)
@@ -410,9 +410,9 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             perm_indices = self.space.get_axes(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
-            value = ztf.unstack_x(value)
+            value = z.unstack_x(value)
             value = list(value[i] for i in perm_indices)
-            value = ztf.stack_x(value)
+            value = z.stack_x(value)
 
         return value
 
@@ -680,7 +680,7 @@ class LightDataset:
 
     def __init__(self, tensor):
         if not isinstance(tensor, (tf.Tensor, tf.Variable)):
-            tensor = ztf.convert_to_tensor(tensor)
+            tensor = z.convert_to_tensor(tensor)
         self.tensor = tensor
 
     @classmethod

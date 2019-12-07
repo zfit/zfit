@@ -9,7 +9,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core import basepdf as zbasepdf
 import zfit.core.integration as zintegrate
 from zfit.core.limits import Space
@@ -30,7 +30,7 @@ obs1 = 'obs1'
 
 
 def func1_5deps(x):
-    a, b, c, d, e = ztf.unstack_x(x)
+    a, b, c, d, e = z.unstack_x(x)
     return a + b * c ** 2 + d ** 2 * e ** 3
 
 
@@ -134,7 +134,7 @@ limits3 = [((-1., -4.3),), ((2.3, -1.2),)]
 
 
 def func3_2deps(x):
-    a, b = ztf.unstack_x(x)
+    a, b = z.unstack_x(x)
     return a ** 2 + b ** 2
 
 
@@ -163,7 +163,7 @@ def func4_3deps(x):
     if isinstance(x, np.ndarray):
         a, b, c = x
     else:
-        a, b, c = ztf.unstack_x(x)
+        a, b, c = z.unstack_x(x)
 
     return a ** 2 + b ** 3 + 0.5 * c
 
@@ -229,7 +229,7 @@ def test_mc_integration(chunksize):
 
 @pytest.mark.flaky(2)
 def test_mc_partial_integration():
-    values = ztf.convert_to_tensor(func4_values)
+    values = z.convert_to_tensor(func4_values)
     data1 = zfit.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))
     limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'])
     limits1._set_obs_axes({'obs1': 0, 'obs3': 2})
@@ -237,7 +237,7 @@ def test_mc_partial_integration():
                                            func=func4_3deps,
                                            limits=limits1)
 
-    vals_tensor = ztf.convert_to_tensor(func4_2values)
+    vals_tensor = z.convert_to_tensor(func4_2values)
 
     vals_reshaped = tf.transpose(a=vals_tensor)
     data2 = zfit.Data.from_tensor(obs=['obs1', 'obs3'], tensor=vals_reshaped)

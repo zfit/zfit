@@ -6,7 +6,7 @@ import tensorflow as tf
 
 
 import zfit
-from zfit import ztf
+from zfit import z
 import numpy as np
 
 true_a = 1.
@@ -17,7 +17,7 @@ true_c = -0.3
 def create_loss():
     with tf.compat.v1.variable_scope("func1"):
         a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
-                                 step_size=ztf.constant(0.1))
+                                 step_size=z.constant(0.1))
         b_param = zfit.Parameter("variable_b15151", 3.5)
         c_param = zfit.Parameter("variable_c15151", -0.04)
         obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))

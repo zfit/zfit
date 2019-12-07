@@ -14,7 +14,7 @@ import tensorflow as tf
 
 
 
-from zfit import ztf
+from zfit import z
 from ..util.exception import DueToLazynessNotImplementedError
 from ..util.temporary import TemporarilySet
 from ..settings import ztypes
@@ -40,7 +40,7 @@ class CustomGaussOLD(BasePDF):
 
 
 def _gauss_integral_from_inf_to_inf(limits, params, model):
-    return tf.sqrt(2 * ztf.pi) * params['sigma']
+    return tf.sqrt(2 * z.pi) * params['sigma']
 
 
 CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
@@ -73,7 +73,7 @@ class Exponential(BasePDF):
         return self._numerics_shifted_exp(x=x, lambda_=lambda_)  # Don't use exp! will overflow.
 
     def _numerics_shifted_exp(self, x, lambda_):  # needed due to overflow in exp otherwise, prevents by shift
-        return ztf.exp(lambda_ * (x - self._numerics_data_shift))
+        return z.exp(lambda_ * (x - self._numerics_data_shift))
 
     def _set_numerics_data_shift(self, limits):
         lower, upper = limits.limits
@@ -148,7 +148,7 @@ class Exponential(BasePDF):
 
     # def _log_pdf(self, x, norm_range: Space):
     #     lambda_ = self.params['lambda']
-    #     x = ztf.unstack_x(x)
+    #     x = z.unstack_x(x)
     #     func = x * lambda_
     #     if norm_range.n_limits > 1:
     #         raise DueToLazynessNotImplementedError(
@@ -170,8 +170,8 @@ def _exp_integral_from_any_to_any(limits, params, model):
     (lower,), (upper,) = limits.limits
     if lower[0] == - upper[0] == np.inf:
         raise NotImplementedError
-    lower_int = raw_integral(x=ztf.constant(lower))
-    upper_int = raw_integral(x=ztf.constant(upper))
+    lower_int = raw_integral(x=z.constant(lower))
+    upper_int = raw_integral(x=z.constant(upper))
     return (upper_int - lower_int)[0]
 
 

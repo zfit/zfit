@@ -14,7 +14,7 @@ from ..util.graph import get_dependents_auto
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError, LogicalUndefinedOperationError
 from ..settings import ztypes
-from zfit import ztf
+from zfit import z
 import zfit
 
 import tensorflow as tf
@@ -164,17 +164,17 @@ class GaussianConstraint(DistributionConstraint):
 
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
 
-        mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
-        sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
-        params_tensor = ztf.convert_to_tensor(params)
+        mu = z.convert_to_tensor([z.convert_to_tensor(m) for m in mu])
+        sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
+        params_tensor = z.convert_to_tensor(params)
 
         if sigma.shape.ndims > 1:
             covariance = sigma
         elif sigma.shape.ndims == 1:
-            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
+            covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
         else:
             sigma = tf.reshape(sigma, [1])
-            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
+            covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
 
         if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
             raise ShapeIncompatibleError(f"params_tensor, mu and sigma have to have the same length. Currently"
@@ -193,4 +193,4 @@ class GaussianConstraint(DistributionConstraint):
 
     @property
     def _params_array(self):
-        return ztf.convert_to_tensor(self._ordered_params)
+        return z.convert_to_tensor(self._ordered_params)

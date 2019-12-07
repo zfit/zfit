@@ -8,7 +8,7 @@ import tensorflow as tf
 
 import numpy as np
 
-from zfit import ztf
+from zfit import z
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
 from zfit.core.limits import Space
@@ -140,14 +140,14 @@ def test_prod_gauss_nd_mixed():
         true_prob = [gauss1.pdf(values[:, 3])]
         true_prob += [gauss2.pdf(values[:, 0])]
         true_prob += [gauss3.pdf(values[:, 2])]
-        true_prob += [prod_gauss_3d.pdf(values[:, (0, 1, 2)],
+        true_prob += [prod_gauss_3d.pdf(values[:, 0:3],
                                         norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
                                                          obs=['a', 'b', 'c']))]
-        return np.prod(true_prob, axis=0)
+        return tf.math.reduce_prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
 
-    normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(40 ** 4, 4)))
+    normalization_probs = limits_4d.area() * probs_4d(tf.random.uniform(minval=low, maxval=high, shape=(40 ** 4, 4)))
     true_probs = true_unnormalized_probs / tf.reduce_mean(input_tensor=normalization_probs)
     probs_np = probs.numpy()
     true_probs_np = true_probs.numpy()

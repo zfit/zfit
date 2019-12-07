@@ -55,7 +55,7 @@ setup(
     keywords='TensorFlow, model, fitting, scalable, HEP',
     name='zfit',
     python_requires=">=3.6",
-    packages=find_packages(include=['zfit', 'zfit.ztf',
+    packages=find_packages(include=['zfit', 'zfit.z',
                                     'zfit.util', 'zfit.core', "zfit.minimizers", 'zfit.models']),
     setup_requires=setup_requirements,
     test_suite='tests',

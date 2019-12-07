@@ -3,7 +3,7 @@ import copy
 
 import pytest
 import zfit
-from zfit import ztf
+from zfit import z
 import tensorflow as tf
 
 

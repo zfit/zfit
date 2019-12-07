@@ -4,7 +4,7 @@ import numpy as np
 import scipy.stats
 
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import ShapeIncompatibleError
 from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
@@ -15,11 +15,11 @@ def true_nll_gaussian(params, mu, sigma):
     params = convert_to_container(params, container=tuple)
     mu = convert_to_container(mu, container=tuple)
     sigma = convert_to_container(sigma, container=tuple)
-    constraint = ztf.constant(0.)
+    constraint = z.constant(0.)
     if not len(params) == len(mu) == len(sigma):
         raise ValueError("params, mu and sigma have to have the same length.")
     for param, mean, sig in zip(params, mu, sigma):
-        constraint += ztf.reduce_sum(ztf.square(param - mean) / (2. * ztf.square(sig)))
+        constraint += z.reduce_sum(z.square(param - mean) / (2. * z.square(sig)))
 
     return constraint
 

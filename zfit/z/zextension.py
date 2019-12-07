@@ -131,3 +131,4 @@ def run_no_nan(func, x):
     return result
 
 # reduce functions
+tf_function = tf.function(autograph=False, experimental_relax_shapes=True)

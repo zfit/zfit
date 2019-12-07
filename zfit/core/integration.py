@@ -14,7 +14,7 @@ import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
@@ -89,8 +89,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
                          "\nlower: {}, upper: {}".format(lower, upper))
 
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)
-    upper = ztf.convert_to_tensor(upper, dtype=dtype)
+    lower = z.convert_to_tensor(lower, dtype=dtype)
+    upper = z.convert_to_tensor(upper, dtype=dtype)
 
     n_samples = draws_per_dim
 
@@ -144,16 +144,16 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
         # TODO: importance sampling?
         # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    integral = avg * tf.cast(ztf.convert_to_tensor(limits.area()), dtype=avg.dtype)
+    integral = avg * tf.cast(z.convert_to_tensor(limits.area()), dtype=avg.dtype)
     return integral
-    # return ztf.to_real(integral, dtype=dtype)
+    # return z.to_real(integral, dtype=dtype)
 
 
 # TODO(Mayou36): Make more flexible for sampling
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)
-    upper = ztf.convert_to_tensor(upper, dtype=dtype)
+    lower = z.convert_to_tensor(lower, dtype=dtype)
+    upper = z.convert_to_tensor(upper, dtype=dtype)
 
     def body(batch_num, mean):
         start_idx = batch_num * batch_size
@@ -236,8 +236,8 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 
     fake_resource_var = tf.compat.v1.get_variable("fake_hack_ResVar_for_custom_gradient",
-                                                  initializer=ztf.constant(4242.))
-    fake_x = ztf.constant(42.) * fake_resource_var
+                                                  initializer=z.constant(4242.))
+    fake_x = z.constant(42.) * fake_resource_var
 
     @tf.custom_gradient
     def dummy_func(fake_x):  # to make working with custom_gradient

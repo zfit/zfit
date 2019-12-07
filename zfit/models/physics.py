@@ -9,7 +9,7 @@ import tensorflow_probability.python.distributions as tfd
 import numpy as np
 
 import zfit
-from zfit import ztf
+from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.limits import ANY_UPPER, ANY_LOWER, Space
 from ..settings import ztypes
@@ -27,10 +27,10 @@ def crystalball_func(x, mu, sigma, alpha, n):
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
     # func = tf.where(cond, tf.exp(-0.5 * tf.square(t)), _powerlaw(b - t, a, -n))
-    func = ztf.safe_where(cond,
-                          lambda t: _powerlaw(b - t, a, -n),
-                          lambda t: tf.exp(-0.5 * tf.square(t)),
-                          values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
+    func = z.safe_where(cond,
+                        lambda t: _powerlaw(b - t, a, -n),
+                        lambda t: tf.exp(-0.5 * tf.square(t)),
+                        values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
 
     return func
 
@@ -329,10 +329,10 @@ class DoubleCB(BasePDF):
 
 
 if __name__ == '__main__':
-    mu = ztf.constant(0)
-    sigma = ztf.constant(0.5)
-    alpha = ztf.constant(3)
-    n = ztf.constant(1)
+    mu = z.constant(0)
+    sigma = z.constant(0.5)
+    alpha = z.constant(3)
+    n = z.constant(1)
     # res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)
     # int1 = crystalball_integral(limits=zfit.Space(obs='obs1', limits=(-3, 5)),
     #                             params={'mu': mu, "sigma": sigma, "alpha": alpha, "n": n})

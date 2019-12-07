@@ -9,7 +9,9 @@ import tensorflow_probability as tfp
 import numpy as np
 
 import zfit
-from zfit import ztf
+from zfit import z
+
+ztf = z
 from zfit.core.interfaces import ZfitPDF
 from zfit.util import ztyping
 from zfit.util.exception import ShapeIncompatibleError, DueToLazynessNotImplementedError
@@ -117,7 +119,7 @@ class EventSpace(Space):
         return id(self)
 
 
-@tf.function(autograph=False)
+@z.function
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
@@ -201,7 +203,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
         return tf.greater(n, n_produced)
 
-    @tf.function(autograph=False)
+    @z.function
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 
@@ -312,7 +314,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             #                                              "or decrease the `max_weight`")]
             #
             # # check disabled (below not added to deps)
-            # assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),
+            # assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, z.constant(ratio_threshold),
             #                                    data=[weights_scaling, min_prob_weights_ratio],
             #                                    message="The ratio between the probabilities from the pdf and the"
             #                                    f"probability from the sampler is higher "

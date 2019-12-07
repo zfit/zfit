@@ -1,7 +1,7 @@
 #  Copyright (c) 2019 zfit
 
 import zfit
-from zfit import ztf
+from zfit import z
 import tensorflow as tf
 
 

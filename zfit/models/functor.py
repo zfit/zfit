@@ -16,7 +16,7 @@ import tensorflow as tf
 
 import numpy as np
 
-from zfit import ztf
+from zfit import z
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
 from ..core.limits import no_norm_range, supports
 from ..core.basepdf import BasePDF

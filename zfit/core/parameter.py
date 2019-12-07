@@ -13,7 +13,7 @@ from tensorflow.python import ops, array_ops
 from typing import Callable
 
 import zfit
-from zfit import ztf
+from zfit import z
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
@@ -279,8 +279,10 @@ class ZfitParameterMixin(BaseNumeric):
         self._floating = value
 
     def __del__(self):
-        del self._existing_names[self.name]
-        super().__del__(self)
+        if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
+            del self._existing_names[self.name]
+        with suppress(AttributeError):  # if super does not have a __del__
+            super().__del__(self)
 
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
@@ -437,7 +439,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
                 else:
                     raise ValueError("Could not set step size. Is NaN.")
             # TODO: how to deal with infinities?
-            step_size = ztf.to_real(step_size)
+            step_size = z.to_real(step_size)
             self.step_size = step_size
 
         return step_size
@@ -445,7 +447,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     @step_size.setter
     def step_size(self, value):
         if value is not None:
-            value = ztf.convert_to_tensor(value, preferred_dtype=ztypes.float)
+            value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
             value = tf.cast(value, dtype=ztypes.float)
         self._step_size = value
 
@@ -483,7 +485,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         # else:
         #     maxval = tf.cast(maxval, dtype=self.dtype)
 
-        # value = ztf.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype)
+        # value = z.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype)
         shape = self.shape.as_list()
         # if shape == []:
         #     size = 1
@@ -623,7 +625,7 @@ class ComplexParameter(ComposedParameter):
     def real(self):
         real = self._real
         if real is None:
-            real = ztf.to_real(self)
+            real = z.to_real(self)
         return real
 
     @property
@@ -680,9 +682,9 @@ def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=Fal
     if not isinstance(value, tf.Tensor):
         is_python = True
         if isinstance(value, complex):
-            value = ztf.to_complex(value)
+            value = z.to_complex(value)
         else:
-            value = ztf.to_real(value)
+            value = z.to_real(value)
 
     if not run._enable_parameter_autoconversion:
         return value

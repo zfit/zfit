@@ -17,10 +17,10 @@ from zfit.core.parameter import Parameter
 from zfit.models.functor import ProductPDF
 from zfit.models.special import SimplePDF
 import zfit.settings
-from zfit import ztf
+from zfit import z
 from zfit.core.testing import setup_function, teardown_function, tester  # needed
 
-# from zfit.ztf import
+# from zfit.z import
 from zfit.util import ztyping
 
 
@@ -157,7 +157,7 @@ def test_normalization(pdf_factory):
         probs = np.average(probs) * (high - low)
         assert probs == pytest.approx(1., rel=0.05)
         assert log_probs == pytest.approx(tf.math.log(probs_small).numpy(), rel=0.05)
-        dist = dist.create_extended(ztf.constant(test_yield))
+        dist = dist.create_extended(z.constant(test_yield))
         probs_extended = dist.pdf(samples)
         result_extended = probs_extended.numpy()
         result_extended = np.average(result_extended) * (high - low)

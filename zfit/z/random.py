@@ -4,6 +4,7 @@ from typing import Union, Iterable, Sized
 
 import tensorflow_probability as tfp
 import tensorflow as tf
+from .zextension import tf_function as function
 
 from .wrapping_tf import convert_to_tensor
 from ..util.container import convert_to_container
@@ -58,7 +59,7 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     # needed since otherwise shape of sample will be (1, n_probs)
     # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
 
-    @tf.function(autograph=False)
+    @function
     def wrapped_func(control_deps, dtype, logits, probs, total_count):
         with tf.control_dependencies(control_deps):
             dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)

@@ -14,7 +14,7 @@ import tensorflow as tf
 
 from tensorflow_probability.python import mcmc as mc
 
-from zfit import ztf
+from zfit import z
 from zfit.core.sample import UniformSampleAndWeights
 from ..core.integration import Integration
 from ..util.cache import Cachable
@@ -175,7 +175,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         else:
             if not isinstance(x, (tf.Tensor, tf.Variable)):
                 try:
-                    x = ztf.convert_to_tensor(value=x)
+                    x = z.convert_to_tensor(value=x)
                 except TypeError:
                     raise TypeError(f"Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor")
             # check dimension
@@ -282,7 +282,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
-    @tf.function(autograph=False)
+    @z.function
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
@@ -331,7 +331,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_integrate(limits=sub_limits, norm_range=norm_range, name=name))
-            integral = ztf.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(tf.stack(integrals), axis=0)
         return integral
 
     def _call_integrate(self, limits, norm_range, name):
@@ -460,7 +460,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_analytic_integrate(limits=sub_limits, norm_range=norm_range, name=name))
-            integral = ztf.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(tf.stack(integrals), axis=0)
         return integral
 
     def _call_analytic_integrate(self, limits, norm_range, name):
@@ -519,7 +519,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range, name=name))
-            integral = ztf.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(tf.stack(integrals), axis=0)
 
         return integral
 
@@ -582,7 +582,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limit in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range, name=name))
-            integral = ztf.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(tf.stack(integrals), axis=0)
 
         return integral
 
@@ -679,7 +679,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range,
                                                                        name=name))
-            integral = ztf.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(tf.stack(integrals), axis=0)
 
         return integral
 
@@ -745,7 +745,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             for sub_limits in limits.iter_limits(as_tuple=False):
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range,
                                                                       name=name))
-            integral = ztf.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(tf.stack(integrals), axis=0)
         return integral
 
     def _call_partial_numeric_integrate(self, x, limits, norm_range, name):
@@ -835,7 +835,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         return sample_data
 
-    @tf.function(autograph=False)
+    @z.function
     def _create_sampler_tensor(self, limits, n, name):
         # limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         # needed to be able to change the number of events in resampling
@@ -873,7 +873,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         n = tf.convert_to_tensor(n) if not isinstance(n, str) else n
 
-        @tf.function(autograph=False)
+        @z.function
         def run_tf(n, limits):
             limits = self._check_input_limits(limits=limits)
             if limits.limits is None:
@@ -933,8 +933,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         except NotImplementedError:
             raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                       " implemented for the boundaries:".format(limits.limits))
-        prob_sample = ztf.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
-                                         maxval=upper_prob_lim)
+        prob_sample = z.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
+                                       maxval=upper_prob_lim)
         # with self._convert_sort_x(prob_sample) as x:
         x = prob_sample
         sample = self._inverse_analytic_integrate(x=x)  # TODO(Mayou36): switch (n, n_obs) shape order
@@ -1047,8 +1047,8 @@ class SimpleModelSubclassMixin:
             def _unnormalized_pdf(self, x):
                 mu = self.params['mu']
                 sigma = self.params['sigma']
-                x = ztf.unstack_x(x)
-                return ztf.exp(-ztf.square((x - mu) / sigma))
+                x = z.unstack_x(x)
+                return z.exp(-z.square((x - mu) / sigma))
         """
 
     def __init__(self, *args, **kwargs):

@@ -9,7 +9,7 @@ import tensorflow as tf
 from ordered_set import OrderedSet
 
 import zfit
-from zfit import Parameter, ztf
+from zfit import Parameter, z
 from zfit.core.parameter import ComposedParameter, ComplexParameter
 from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -78,7 +78,7 @@ def test_composed_param():
     param4 = Parameter('param4', 4.)  # needed to make sure it does not only take all params as deps
 
     def a():
-        return ztf.log(3. * param1) * tf.square(param2) - param3
+        return z.log(3. * param1) * tf.square(param2) - param3
 
     param_a = ComposedParameter('param_as', value_fn=a, dependents=(param1, param2, param3))
     assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)

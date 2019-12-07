@@ -92,5 +92,3 @@ class RunManager:
         return values
 
 
-def function():
-    pass

@@ -12,7 +12,7 @@ import numpy as np
 
 from zfit.core.loss import SimpleLoss
 import zfit.minimizers.baseminimizer as zmin
-from zfit import ztf
+from zfit import z
 import zfit.minimizers.optimizers_tf
 from zfit.core.testing import setup_function, teardown_function, tester
 
@@ -23,7 +23,7 @@ true_c = -0.3
 
 def create_loss():
     a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
-                             step_size=ztf.constant(0.1))
+                             step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151", 3.5)
     c_param = zfit.Parameter("variable_c15151", -0.04)
     obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))

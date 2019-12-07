@@ -11,7 +11,9 @@ from typing import Optional, Union, List, Callable, Iterable
 
 from ordered_set import OrderedSet
 
-from zfit import ztf, settings
+from zfit import z, settings
+
+ztf = z
 from .math import numerical_gradient, automatic_gradient
 from ..util import ztyping
 from ..util.cache import Cachable
@@ -23,8 +25,6 @@ from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
 from .constraint import BaseConstraint, SimpleConstraint
-
-func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
 
 # @func_simple
@@ -205,8 +205,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def _loss_func(self, model, data, fit_range, constraints):
         raise NotImplementedError
 
-    # @func_simple
-    # @tf.function(autograph=False)
     def value(self):
         return self._value()
 
@@ -232,7 +230,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         constraints = self.constraints + other.constraints
         loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
         return loss
-
 
     def _gradients(self, params):
         if settings.options['numerical_grad']:
@@ -331,7 +328,7 @@ class UnbinnedNLL(BaseLoss):
             self.computed_gradients[param] = grad
         return nll
 
-    @tf.function(autograph=False)
+    @z.function
     def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
@@ -374,7 +371,6 @@ class SimpleLoss(BaseLoss):
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
-        # self._simple_func = tf.function(func, autograph=False)
         self._simple_func = tf.function(func, autograph=False)
         self._simple_errordef = errordef
         self._errordef = errordef

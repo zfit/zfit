@@ -58,7 +58,7 @@ import warnings
 
 import tensorflow as tf
 
-from zfit import ztf
+from zfit import z
 from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
 from .interfaces import ZfitPDF, ZfitParameter
@@ -73,7 +73,6 @@ from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
 
-func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -300,7 +299,7 @@ class BasePDF(ZfitPDF, BaseModel):
         raise NotImplementedError
 
     # @func_simple
-    @tf.function(autograph=False)
+    @z.function
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
             name: str = "model") -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.
@@ -317,12 +316,12 @@ class BasePDF(ZfitPDF, BaseModel):
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
             if run.numeric_checks:
-                assert_op = ztf.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
+                assert_op = z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
                 assert_op = [assert_op]
             else:
                 assert_op = []
             with tf.control_dependencies(assert_op):
-                return ztf.to_real(value)
+                return z.to_real(value)
 
     def _single_hook_pdf(self, x, norm_range, name):
         return self._hook_pdf(x=x, norm_range=norm_range, name=name)
@@ -397,7 +396,7 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(ys=prob, xs=params) for prob in ztf.unstack_x(probs, always_list=True)]
+        gradients = [tf.gradients(ys=prob, xs=params) for prob in z.unstack_x(probs, always_list=True)]
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:

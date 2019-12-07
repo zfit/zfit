@@ -31,8 +31,8 @@ import tensorflow.compat.v1 as _tfv1
 _tfv1.enable_v2_behavior()
 # _tfv1.disable_eager_execution()
 
-from . import ztf  # legacy
-from . import ztf as z
+from . import z  # legacy
+from . import z as z
 from .settings import ztypes
 
 # tf.get_variable_scope().set_use_resource(True)
