@@ -460,7 +460,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         super_assign = super().assign
 
         def getter():
-            return self.numpy()
+            return self.value()
 
         def setter(value):
             super_assign(value=value)

@@ -3,7 +3,6 @@
 import pytest
 import tensorflow as tf
 
-
 import numpy as np
 
 from zfit import z
@@ -75,7 +74,7 @@ def create_gauss3ext():
     return gaussian3, mu, sigma, yield3
 
 
-@pytest.mark.flaky(2)  # minimization can fail
+@pytest.mark.flaky(3)  # minimization can fail
 def test_extended_unbinned_nll():
     test_values = z.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
@@ -191,14 +190,17 @@ def test_add():
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
 
 
+# @pytest.mark.xfail  # TODO(TF2): grads not supported, use numerical ones? Or calculate on the fly?
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
 def test_gradients(chunksize):
-    return  # TODO(TF2): grads not supported, use numerical ones? Or calculate on the fly?
+    from numdifftools import Gradient
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
 
-    param1 = zfit.Parameter("param1", 1.)
-    param2 = zfit.Parameter("param2", 2.)
+    initial1 = 1.
+    initial2 = 2;
+    param1 = zfit.Parameter("param1", initial1)
+    param2 = zfit.Parameter("param2", initial2)
 
     gauss1 = Gauss(param1, 4, obs=obs1)
     gauss1.set_norm_range((-5, 5))
@@ -212,13 +214,27 @@ def test_gradients(chunksize):
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
+    def loss_func(values):
+        for val, param in zip(values, nll.get_dependents(only_floating=True)):
+            param.set_value(val)
+        return nll.value().numpy()
+
+    # theoretical, numerical = tf.test.compute_gradient(loss_func, list(params))
     gradient1 = nll.gradients(params=param1)
-    assert [g.numpy() for g in gradient1] == tf.gradients(ys=nll.value(), xs=param1)
-    gradient2 = nll.gradients(params=[param2, param1])
-    both_gradients_true = tf.gradients(ys=nll.value(), xs=[param2, param1]).numpy()
-    assert [g.numpy() for g in gradient2] == both_gradients_true
+    gradient_func = Gradient(loss_func)
+    # gradient_func = lambda *args, **kwargs: list(gradient_func_numpy(*args, **kwargs))
+    assert gradient1[0].numpy() == pytest.approx(gradient_func([param1.numpy()]))
+    param1.set_value(initial1)
+    param2.set_value(initial2)
+    params = [param2, param1]
+    gradient2 = nll.gradients(params=params)
+    both_gradients_true = list(reversed(list(gradient_func([initial1, initial2]))))  # because param2, then param1
+    assert [g.numpy() for g in gradient2] == pytest.approx(both_gradients_true)
+
+    param1.set_value(initial1)
+    param2.set_value(initial2)
     gradient3 = nll.gradients()
-    assert frozenset([g.numpy() for g in gradient3]) == frozenset(both_gradients_true)
+    assert frozenset([g.numpy() for g in gradient3]) == pytest.approx(frozenset(both_gradients_true))
 
 
 def test_simple_loss():
