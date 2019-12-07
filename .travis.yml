@@ -10,11 +10,12 @@ install:
     - pip install -U .
 
 script:
+    - pip install -r requirements_dev.txt
+    - pip install coverage
     - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
     - coverage report
     - bash utils/ci/test_examples.sh
     - bash utils/ci/test_tutorials.sh
-    - pip install -r requirements_dev.txt
     - bash docs/make_docs.sh
 
 after_success:
