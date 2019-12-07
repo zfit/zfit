@@ -25,9 +25,8 @@ def true_nll_gaussian(params, mu, sigma):
 
 
 def test_base_constraint():  # TODO(Mayou36): upgrade to tf2, use ABC again
-    # with pytest.raises(TypeError):
-    #     _ = BaseConstraint()
-    pass
+    with pytest.raises(TypeError):
+        _ = BaseConstraint()
 
 
 def test_gaussian_constraint_shape_errors():

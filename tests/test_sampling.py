@@ -165,7 +165,7 @@ def test_sampling_floating(gauss_factory):
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
 
-@pytest.mark.skip  # currently, importance sampling is not working, odd lock in TF
+@pytest.mark.skip  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
     mu_sampler = 5.

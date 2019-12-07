@@ -32,14 +32,14 @@ from . import interfaces as zinterfaces
 from ..settings import ztypes, run
 
 
-class MetaBaseParameter(type(TFBaseVariable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
+class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
     pass
 
 
 # drop-in replacement for ResourceVariable
 # class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
-# class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
-class ZfitBaseVariable:
+class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+    # class ZfitBaseVariable:
 
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
@@ -236,8 +236,8 @@ register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_fu
 ComposedVariable._OverloadAllOperators()
 
 
-# class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
-class BaseParameter(ZfitParameter):
+class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+    # class BaseParameter(ZfitParameter):
     pass
 
 
@@ -320,8 +320,8 @@ class ZfitParameterMixin(BaseNumeric):
 
 
 # solve metaclass confict
-# class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):    # TODO(Mayou36): upgrade to tf2
-class TFBaseVariable(TFBaseVariable):
+class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+    # class TFBaseVariable(TFBaseVariable):
     pass
 
 

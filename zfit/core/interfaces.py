@@ -12,8 +12,8 @@ import zfit
 from ..util import ztyping
 
 
-# class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
-class ZfitObject:
+class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
+    # class ZfitObject:
     # class ZfitObject:
     @property
     # @abc.abstractmethod

@@ -114,13 +114,13 @@ def create_gaussian_dists():
 
 # starting tests
 # ===============================
+@pytest.mark.skip  # TODO: should we have gradients in PDFs?
 def test_gradient():
-    pass  # TODO: should we have gradients in PDFs?
-    # gauss3 = create_gauss3()
-    # random_vals = np.random.normal(4., 2., size=5)
-    # tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
-    # random_vals_eval = tensor_grad.numpy()
-    # np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
+    gauss3 = create_gauss3()
+    random_vals = np.random.normal(4., 2., size=5)
+    tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
+    random_vals_eval = tensor_grad.numpy()
+    np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
 
 
 def test_func():

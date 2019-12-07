@@ -5,8 +5,6 @@ import pytest
 
 import tensorflow as tf
 
-
-
 import zfit
 from zfit import Parameter, z
 from zfit.models.functions import SimpleFunc
@@ -103,7 +101,6 @@ def test_func_func():
 
 
 def test_param_pdf():
-    # return  # TODO(Mayou36): deps: impl_copy,
     param1 = Parameter('param1', 12.)
     param2 = Parameter('param2', 22.)
     yield1 = Parameter('yield1', 21.)
@@ -120,8 +117,6 @@ def test_param_pdf():
 
 
 def test_implicit_extended():
-    # return  # TODO(Mayou36): deps: impl_copy,
-
     param1 = Parameter('param1', 12.)
     yield1 = Parameter('yield1', 21.)
     param2 = Parameter('param2', 13., floating=False)
@@ -136,8 +131,6 @@ def test_implicit_extended():
 
 
 def test_implicit_sumpdf():
-    # return  # TODO(Mayou36): deps: impl_copy, (mostly for Simple{PDF,Func})
-
     norm_range = (-5.7, 13.6)
     param1 = Parameter('param13s', 1.1)
     frac1 = 0.11
