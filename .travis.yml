@@ -5,11 +5,13 @@ python:
     - "3.6"
     - "3.7"
 install:
+    - pip install -U pip
     - pip install -U tox-travis
     - pip install -U .
 
 script:
-    - tox
+    - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
+    - coverage report
     - bash utils/ci/test_examples.sh
     - bash utils/ci/test_tutorials.sh
     - pip install -r requirements_dev.txt
