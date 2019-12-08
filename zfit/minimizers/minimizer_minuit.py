@@ -110,15 +110,17 @@ class Minuit(BaseMinimizer, Cachable):
         def grad_func(values):
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
+
+            gradients = loss.gradients(params=params)
+            gradients_values = [float(g.numpy()) for g in gradients]
+
             if do_print:
                 table = tt.Texttable()
-                table.header(['Parameter', 'Gradient'])
-                for param, value in zip(params, values):
+                table.header(['Parameter', 'Value', 'Gradient'])
+                for param, value in zip(params, values, gradients_values):
                     table.add_row([param.name, value])
                 print(table.draw())
 
-            gradients = loss.gradients(params=params)
-            gradients_values = [g.numpy() for g in gradients]
             if any(np.isnan(gradients_values)):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
             return gradients_values

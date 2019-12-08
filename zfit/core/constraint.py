@@ -6,16 +6,15 @@ from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
 
 from ordered_set import OrderedSet
+from .interfaces import ZfitConstraint
 
 from .baseobject import BaseNumeric
 from .interfaces import ZfitParameter
 from ..util import ztyping
-from ..util.graph import get_dependents_auto
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError, LogicalUndefinedOperationError
 from ..settings import ztypes
 from zfit import z
-import zfit
 
 import tensorflow as tf
 
@@ -26,7 +25,7 @@ import tensorflow_probability as tfp
 tfd = tfp.distributions
 
 
-class BaseConstraint(BaseNumeric):
+class BaseConstraint(ZfitConstraint, BaseNumeric):
 
     def __init__(self, params: Union[Dict[str, ZfitParameter]] = None,
                  name: str = "BaseConstraint", dtype=ztypes.float,

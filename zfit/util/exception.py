@@ -38,7 +38,6 @@ class BasePDFSubclassingError(SubclassingError):
 class IntentionNotUnambiguousError(Exception):
     pass
 
-
 class UnderdefinedError(IntentionNotUnambiguousError):
     pass
 

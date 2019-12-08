@@ -21,9 +21,10 @@ from ..util.checks import ZfitNotImplemented
 from ..util.graph import get_dependents_auto
 from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF, ZfitConstraint
 from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError
+from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
+    LogicalUndefinedOperationError
 from .constraint import BaseConstraint, SimpleConstraint
 
 
@@ -81,7 +82,9 @@ def _constraint_check_convert(constraints):
 
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
-    def __init__(self, model, data, fit_range: ztyping.LimitsTypeInput = None, constraints: List[tf.Tensor] = None):
+    def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
+                 fit_range: ztyping.LimitsTypeInput = None,
+                 constraints: Iterable[Union[ZfitConstraint, Callable]] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
 
@@ -324,6 +327,10 @@ class UnbinnedNLL(BaseLoss):
 
         variables = tape.watched_variables()
         gradients = tape.gradient(nll, sources=variables)
+        if any(grad is None for grad in tf.unstack(gradients, axis=0)):
+            none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}
+            raise LogicalUndefinedOperationError(f"One or more gradients are None:"
+                                                 f" {none_dict}")
         for param, grad in zip(variables, gradients):
             # if param in self.computed_gradients:
             #     continue

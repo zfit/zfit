@@ -6,8 +6,6 @@ from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
 
 import tensorflow as tf
 
-
-
 import zfit
 from ..util import ztyping
 
@@ -293,7 +291,6 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
         raise NotImplementedError
 
 
-
 class ZfitModel(ZfitNumeric, ZfitDimensional):
 
     @abc.abstractmethod
@@ -431,4 +428,10 @@ class ZfitFunctorMixin:
 
     @abc.abstractmethod
     def get_models(self) -> List[ZfitModel]:
+        raise NotImplementedError
+
+
+class ZfitConstraint(abc.ABC):
+    @abc.abstractmethod
+    def value(self):
         raise NotImplementedError
