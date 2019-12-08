@@ -3,7 +3,7 @@ tensorflow_probability>=0.8
 scipy>=1.2
 uproot
 pandas
-numpy
+numpy>=1.16
 iminuit
 typing
 colorlog

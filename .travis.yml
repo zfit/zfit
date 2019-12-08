@@ -10,7 +10,8 @@ install:
     - pip install -U .
 
 script:
-    - pip install -r requirements_dev.txt
+    - pip install -U -r requirements_dev.txt
+    - pip install -U numpy  # needed for linspace with vectors
     - pip install coverage
     - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
     - coverage report
