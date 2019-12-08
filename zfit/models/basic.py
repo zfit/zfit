@@ -15,7 +15,7 @@ import tensorflow as tf
 
 
 from zfit import z
-from ..util.exception import DueToLazynessNotImplementedError
+from ..util.exception import WorkInProgressError
 from ..util.temporary import TemporarilySet
 from ..settings import ztypes
 from ..util import ztyping

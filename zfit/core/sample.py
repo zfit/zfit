@@ -14,7 +14,7 @@ from zfit import z
 ztf = z
 from zfit.core.interfaces import ZfitPDF
 from zfit.util import ztyping
-from zfit.util.exception import ShapeIncompatibleError, DueToLazynessNotImplementedError
+from zfit.util.exception import ShapeIncompatibleError, WorkInProgressError
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space
@@ -229,7 +229,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
             if multiple_limits:
-                raise DueToLazynessNotImplementedError("Multiple limits for fixed event space not yet implemented")
+                raise WorkInProgressError("Multiple limits for fixed event space not yet implemented")
             is_not_sampled = tf.logical_not(is_sampled)
             (lower,), (upper,) = limits.limits
             lower = tuple(tf.boolean_mask(tensor=low, mask=is_not_sampled) for low in lower)

@@ -20,7 +20,7 @@ from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
 from ..util import ztyping
-from ..util.exception import DueToLazynessNotImplementedError
+from ..util.exception import WorkInProgressError
 from .limits import convert_to_space, Space, supports
 from ..settings import ztypes
 
@@ -98,7 +98,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     # chunked_normalization = True
     if chunked_normalization:
         if partial:
-            raise DueToLazynessNotImplementedError("This feature is not yet implemented: needs new Datasets")
+            raise WorkInProgressError("This feature is not yet implemented: needs new Datasets")
         n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
         chunksize = int(np.ceil(n_samples / n_chunks))
         print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
@@ -242,7 +242,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     @tf.custom_gradient
     def dummy_func(fake_x):  # to make working with custom_gradient
         if x is not None:
-            raise DueToLazynessNotImplementedError("partial not yet implemented")
+            raise WorkInProgressError("partial not yet implemented")
 
         def body(batch_num, mean):
             if mc_sampler == tfp.mcmc.sample_halton_sequence:
@@ -281,9 +281,9 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
                                       swap_memory=False, back_prop=False, maximum_iterations=num_batches)
 
         def dummy_grad_with_var(dy, variables=None):
-            raise DueToLazynessNotImplementedError("Who called me? Mayou36")
+            raise WorkInProgressError("Who called me? Mayou36")
             if variables is None:
-                raise DueToLazynessNotImplementedError("Is this needed? Why? It's not a NN. Please make an issue.")
+                raise WorkInProgressError("Is this needed? Why? It's not a NN. Please make an issue.")
 
             def dummy_grad_func(x):
                 values = func(x)

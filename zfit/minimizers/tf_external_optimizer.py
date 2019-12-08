@@ -133,7 +133,6 @@ class ExternalOptimizerInterface:  # COPYRIGHT: remove explicit `object` inherit
             ]
 
     def minimize(self,
-                 session=None,
                  feed_dict=None,
                  fetches=None,
                  step_callback=None,
@@ -160,7 +159,6 @@ class ExternalOptimizerInterface:  # COPYRIGHT: remove explicit `object` inherit
             are computed, with evaluated fetches supplied as positional arguments.
           **run_kwargs: kwargs to pass to `session.run`.
         """
-        session = session or ops.get_default_session()
         feed_dict = feed_dict or {}
         fetches = fetches or []
 

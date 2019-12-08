@@ -117,12 +117,13 @@ def minimize_func(minimizer_class_and_kwargs):
         with pytest.raises(TypeError):
             _ = result.error(params=a_param)
 
-
+from zfit.minimizers.minimizer_tfp import BFGSMinimizer
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=0.5)),
-    #  False),
-    # (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
+    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.5)),
+     False),
+    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
     (zfit.minimize.Minuit, {}, True),
+    # (BFGSMinimizer, {}, False),
     # (zfit.minimize.Scipy, {}, False),
 ]
 

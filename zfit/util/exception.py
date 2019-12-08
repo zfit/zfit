@@ -138,7 +138,7 @@ class MultipleLimitsNotImplementedError(Exception):
 
 # Developer verbose messages
 
-class DueToLazynessNotImplementedError(Exception):
+class WorkInProgressError(Exception):
     """Only for developing purpose! Does not serve as a 'real' Exception."""
     pass
 

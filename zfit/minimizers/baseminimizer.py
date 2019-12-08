@@ -10,12 +10,10 @@ from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from contextlib import ExitStack
 import copy
-from typing import List, Union
+from typing import List, Union, Iterable
 
 import numpy as np
 import tensorflow as tf
-
-
 
 from ..settings import run
 from .interface import ZfitMinimizer
@@ -153,30 +151,24 @@ class BaseMinimizer(ZfitMinimizer):
         return values
 
     @staticmethod
-    def _update_params(params: Union[List[ZfitParameter]], values: Union[List[float], np.ndarray],
-                       use_op: bool = False) -> List[tf.Operation]:
+    def _update_params(params: Union[Iterable[ZfitParameter]], values: Union[Iterable[float], np.ndarray]) -> List[
+        ZfitParameter]:
         """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
 
         Args:
             params (list(`ZfitParameter`)): The parameters to be updated
             values (list(float, `np.ndarray`)): New values for the parameters.
-            use_op (bool): Use the :py:meth:`~tf.Variable.assign` operation and return a list of them. If
-                False, use  :py:meth:`~tf.Variable.load` and a session to load the values
 
         Returns:
             list(empty, :py:class:`~tf.Operation`): List of assign operations if `use_op`, otherwise empty. The output
                 can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
         """
-        new_params_op = []
         if len(params) == 1 and len(values) > 1:
             values = (values,)  # iteration will be correctly
         for param, value in zip(params, values):
-            if use_op:
-                new_params_op.append(param.assign(value))
-            else:
-                param.set_value(value)
+            param.set_value(value)
 
-        return new_params_op
+        return params
 
     def step(self, loss, params: ztyping.ParamsOrNameType = None):
         """Perform a single step in the minimization (if implemented).
@@ -230,16 +222,16 @@ class BaseMinimizer(ZfitMinimizer):
         n_old_vals = 10
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
-        try:
-            step = self._step_tf(loss=loss, params=params)
-        except NotImplementedError:
-            step_fn = self.step
-        else:
-            def step_fn(loss, params):
-                return self.sess.run([step, loss.value()])
+
+        def step_fn(loss, params):
+            try:
+                self._step_tf(loss=loss.value, params=params)
+            except NotImplementedError:
+                self.step(loss, params)
+            return loss.value()
 
         while sum(sorted(changes)[-3:]) > self.tolerance:  # TODO: improve condition
-            _, cur_val = step_fn(loss=loss, params=params)
+            cur_val = step_fn(loss=loss, params=params)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
@@ -248,7 +240,7 @@ class BaseMinimizer(ZfitMinimizer):
 
         # compose fit result
         message = "successful finished"
-        are_unique = len(set(changes)) > 1  # values didn't change...
+        are_unique = len(set([float(change.numpy()) for change in changes])) > 1  # values didn't change...
         if not are_unique:
             message = "Loss unchanged for last {} steps".format(n_old_vals)
 
@@ -256,7 +248,7 @@ class BaseMinimizer(ZfitMinimizer):
         status = 0 if success else 10
 
         info = {'success': success, 'message': message}  # TODO: create status
-        param_values = self.sess.run(params)
+        param_values = [float(p.numpy()) for p in params]
         params = OrderedDict((p, val) for p, val in zip(params, param_values))
 
         return FitResult(params=params, edm=edm, fmin=fmin, info=info,

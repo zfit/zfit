@@ -10,47 +10,41 @@ from .baseminimizer import BaseMinimizer
 
 class BFGSMinimizer(BaseMinimizer):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, tolerance=1e-5, verbosity=5, name="BFGS_TFP", **minimizer_options):
+        super().__init__(tolerance=tolerance, verbosity=verbosity, name=name, minimizer_options=minimizer_options)
 
-    def minimize(self, sess=None, params=None):
-        # with tf.device("/cpu:0"):
-        with tf.compat.v1.name_scope("inside_minimization") as scope:
-            # var_a = tf.get_variable
-            sess = sess or self.sess
-            minimizer_fn = tfp.optimizer.bfgs_minimize
+    def _minimize(self, loss, params):
+        minimizer_fn = tfp.optimizer.bfgs_minimize
+        params = tuple(params)
 
-            def to_minimize_func(values):
-                # tf.Print(value, [value])
-                # print("============value", value)
+        @tf.function(autograph=True)
+        def to_minimize_func(values):
+            for param, value in zip(params, tf.unstack(values, axis=0)):
+                param.set_value(value)
+            with tf.GradientTape(watch_accessed_variables=False) as tape:
+                tape.watch(params)
+                value = loss.value()
+            gradients = tape.gradient(value, params)
+            return value, gradients
 
-                # def update_one(param_value):
-                #     param, value = param_value
-                #     param.update(value=value, session=sess)
-                # print("============one param", params[0])
-                tf.compat.v1.get_variable_scope().reuse_variables()
-                params = [p for p in tf.compat.v1.trainable_variables() if p.floating]
-                # params = [g_v[1] for g_v in tfe.implicit_gradients(func)]
-                # params = var_list
-                tf.compat.v1.get_variable_scope().reuse_variables()
-                printed = tf.compat.v1.Print(params, [params], "parameters")
+        result = minimizer_fn(to_minimize_func,
+                              initial_position=self._extract_start_values(params),
+                              tolerance=self.tolerance, parallel_iterations=1)
 
-                with tf.control_dependencies([values, printed]):
-                    updated_values = []
-                    for param, val in zip(params, ztf.unstack_x(values)):
-                        updated_values.append(tf.compat.v1.assign(param, value=val))
-                    with tf.control_dependencies(updated_values):
-                        func_graph = func()
-                        # func_graph = tf.identity(func)
-                        # tf.get_variable_scope().reuse_variables()
-                        with tf.control_dependencies([func_graph]):
-                            printed2 = tf.compat.v1.Print(func_graph, [func_graph], "parameters")
-                            with tf.control_dependencies([printed2, func_graph]):
-                                return func_graph, tf.stack(tf.gradients(ys=func_graph, xs=params))
+        # save result
+        self._update_params(params, values=result)
 
-            params = [p for p in tf.compat.v1.trainable_variables() if p.floating]
-            result = minimizer_fn(to_minimize_func,
-                                  initial_position=self._extract_start_values(params),
-                                  tolerance=self.tolerance, parallel_iterations=1)
-
+        info = {'n_eval': result[0]['nfcn'],
+                # 'n_iter': result['nit'],
+                # 'grad': result['jac'],
+                # 'message': result['message'],
+                'original': result[0]}
+        edm = result[0]['edm']
+        fmin = result[0]['fval']
+        status = -999
+        converged = result[0]['is_valid']
+        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+                           status=status, converged=converged,
+                           minimizer=self.copy())
         return result

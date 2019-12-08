@@ -10,7 +10,7 @@ import tensorflow as tf
 import numpy as np
 
 import zfit
-from zfit.util.exception import WeightsNotImplementedError, DueToLazynessNotImplementedError
+from zfit.util.exception import WeightsNotImplementedError, WorkInProgressError
 from .interface import ZfitMinimizer, ZfitResult
 from ..util.ztyping import ParamsTypeOpt
 from ..core.interfaces import ZfitLoss, ZfitParameter
@@ -260,8 +260,8 @@ class FitResult(ZfitResult):
         try:
             covariance_dict = self.minimizer._minuit_minimizer.covariance
         except AttributeError:
-            raise DueToLazynessNotImplementedError("Currently, only covariance from minuit is available. "
-                                                   "Use `Minuit` or open an issue on GitHub.")
+            raise WorkInProgressError("Currently, only covariance from minuit is available. "
+                                      "Use `Minuit` or open an issue on GitHub.")
 
         cov = {}
         for p1 in params:

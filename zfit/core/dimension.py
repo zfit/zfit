@@ -1,3 +1,5 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Iterable, Union, List
 from contextlib import ExitStack
 import functools
@@ -5,7 +7,7 @@ import functools
 import numpy as np
 
 import zfit
-from zfit.util.exception import (SpaceIncompatibleError, DueToLazynessNotImplementedError, LimitsIncompatibleError,
+from zfit.util.exception import (SpaceIncompatibleError, WorkInProgressError, LimitsIncompatibleError,
                                  LimitsNotSpecifiedError, )
 from ..util.container import convert_to_container
 from .interfaces import ZfitDimensional

@@ -26,7 +26,7 @@ from ..util import ztyping
 from .interfaces import ZfitModel, ZfitParameter
 from ..util.graph import get_dependents_auto
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    DueToLazynessNotImplementedError
+    WorkInProgressError
 from . import baseobject as zbaseobject
 from . import interfaces as zinterfaces
 from ..settings import ztypes, run
@@ -145,13 +145,13 @@ class ComposedVariable:
 
         # self._name = name
 
-    @property
-    def name(self):
-        return self.name
+    # @property
+    # def name(self):
+    #     return self._name
 
-    @property
-    def dtype(self):
-        return self._dtype
+    # @property
+    # def dtype(self):
+    #     return self._dtype
 
     def value(self):
         return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
@@ -262,9 +262,9 @@ class ZfitParameterMixin(BaseNumeric):
         #     raise NameAlreadyTakenError("Another parameter is already named {}. "
         #                                 "Use a different, unique one.".format(name))
 
-    @property
-    def name(self):
-        return self._name
+    # @property
+    # def name(self):
+    #     return self._name
 
     @property
     def floating(self):
@@ -319,9 +319,7 @@ class ZfitParameterMixin(BaseNumeric):
         return id(self)
 
 
-# solve metaclass confict
-class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
-    # class TFBaseVariable(TFBaseVariable):
+class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
     pass
 
 
@@ -359,6 +357,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
 
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
+        self._true_name = name
 
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
@@ -370,6 +369,19 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
+
+    @property
+    def name(self):
+        return self._true_name
+
+    def _hack_set_tf_name(self):
+        def setter(name):
+            self._true_name = name
+
+        def getter():
+            return self.name
+
+        return TemporarilySet(value=super().name, getter=getter, setter=setter)
 
     @property
     def lower_limit(self):
@@ -693,7 +705,7 @@ def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=Fal
         if name is None:
             name = "FIXED_complex_autoparam_" + str(get_auto_number())
         if not prefer_floating:
-            raise DueToLazynessNotImplementedError("Constant complex param not here yet, complex Mixin?")
+            raise WorkInProgressError("Constant complex param not here yet, complex Mixin?")
         value = ComplexParameter(name, value_fn=value, floating=prefer_floating)
 
     else:

@@ -65,7 +65,7 @@ from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError,
+from ..util.exception import (AlreadyExtendedPDFError, WorkInProgressError, IntentionNotUnambiguousError,
                               AlreadyExtendedPDFError,
                               NormRangeNotSpecifiedError, ShapeIncompatibleError, NotExtendedPDFError, )
 from ..util.temporary import TemporarilySet

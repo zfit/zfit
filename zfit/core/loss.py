@@ -23,7 +23,7 @@ from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
 from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
+from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError
 from .constraint import BaseConstraint, SimpleConstraint
 
 
@@ -272,6 +272,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 class CachedLoss(BaseLoss):
 
     def __init__(self, model, data, fit_range=None, constraints=None):
+        raise WorkInProgressError("Currently, caching is not implemented in the loss and does not make"
+                                  "sense, it is 'not yet upgraded to TF2'")
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
 
     @abc.abstractmethod
@@ -336,10 +338,10 @@ class UnbinnedNLL(BaseLoss):
             nll += constraints
         return nll
 
-    def _cache_add_constraints(self, constraints):
-        if self._cache.get('loss') is not None:
-            constraints = [c.value() for c in constraints]
-            self._cache['loss'] += ztf.reduce_sum(constraints)
+    # def _cache_add_constraints(self, constraints):
+    #     if self._cache.get('loss') is not None:
+    #         constraints = [c.value() for c in constraints]
+    #         self._cache['loss'] += ztf.reduce_sum(constraints)
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
@@ -404,4 +406,4 @@ class SimpleLoss(BaseLoss):
                                            "Add them manually")
 
     def _cache_add_constraints(self, constraints):
-        raise DueToLazynessNotImplementedError("Needed? will probably provided in future")
+        raise WorkInProgressError("Needed? will probably provided in future")

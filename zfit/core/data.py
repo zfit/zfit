@@ -652,6 +652,7 @@ class Sampler(Data):
             new_sample = self.sample_func(n)
             # self.sample_holder.assign(new_sample)
             tf.compat.v1.assign(self.sample_holder, new_sample, validate_shape=False)
+            self.sample_holder
             self._initial_resampled = True
 
 
