@@ -9,8 +9,6 @@ import numpy as np
 import texttable as tt
 import tensorflow as tf
 
-
-
 from zfit.core.interfaces import ZfitLoss
 from .fitresult import FitResult
 from ..util.cache import Cachable
@@ -79,7 +77,6 @@ class Minuit(BaseMinimizer, Cachable):
         limits = [(low.numpy(), up.numpy()) for low, up in limits]
         errors = [err.numpy() for err in errors]
 
-
         multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
         if multiparam:
             # TODO(Mayou36): multiparameter
@@ -94,15 +91,21 @@ class Minuit(BaseMinimizer, Cachable):
         def func(values):
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
-            if do_print:
-                table = tt.Texttable()
-                table.header(['Parameter', 'Value'])
 
-                for param, value in zip(params, values):
-                    table.add_row([param.name, value])
-                print(table.draw())
+            try:
+                loss_evaluated = loss.value().numpy()
+            except:
+                loss_evaluated = "invalid, error occured"
+                raise
+            finally:
+                if do_print:
+                    table = tt.Texttable()
+                    table.header(['Parameter', 'Value'])
 
-            loss_evaluated = loss.value().numpy()
+                    for param, value in zip(params, values):
+                        table.add_row([param.name, value])
+                    table.add_row(["Loss value:", loss_evaluated])
+                    print(table.draw())
             if np.isnan(loss_evaluated):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
             return loss_evaluated
@@ -111,15 +114,19 @@ class Minuit(BaseMinimizer, Cachable):
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
 
-            gradients = loss.gradients(params=params)
-            gradients_values = [float(g.numpy()) for g in gradients]
-
-            if do_print:
-                table = tt.Texttable()
-                table.header(['Parameter', 'Value', 'Gradient'])
-                for param, value in zip(params, values, gradients_values):
-                    table.add_row([param.name, value])
-                print(table.draw())
+            try:
+                gradients = loss.gradients(params=params)
+                gradients_values = [float(g.numpy()) for g in gradients]
+            except:
+                gradients_values = ["invalid"] * len(params)
+                raise
+            finally:
+                if do_print:
+                    table = tt.Texttable()
+                    table.header(['Parameter', 'Value', 'Gradient'])
+                    for param, value, grad in zip(params, values, gradients_values):
+                        table.add_row([param.name, value])
+                    print(table.draw())
 
             if any(np.isnan(gradients_values)):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
