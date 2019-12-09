@@ -125,7 +125,7 @@ class Minuit(BaseMinimizer, Cachable):
                     table = tt.Texttable()
                     table.header(['Parameter', 'Value', 'Gradient'])
                     for param, value, grad in zip(params, values, gradients_values):
-                        table.add_row([param.name, value])
+                        table.add_row([param.name, value, grad])
                     print(table.draw())
 
             if any(np.isnan(gradients_values)):
