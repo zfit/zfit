@@ -54,9 +54,11 @@ from collections import OrderedDict
 import copy
 import functools
 import inspect
+from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import tensorflow as tf
 
 from .dimension import add_spaces, combine_spaces
 from .baseobject import BaseObject
@@ -239,12 +241,12 @@ class Space(ZfitSpace, BaseObject):
                              "\nlower = {l}"
                              "\nupper = {u}".format(l=lower, u=upper))
         if lower_is_iterable and upper_is_iterable:
-            if not np.shape(lower) == np.shape(upper) or (len(np.shape(lower)) not in (2, 3)):  # 3 for EventSpace eager
+            if not shape_np_tf(lower) == shape_np_tf(upper) or (len(shape_np_tf(lower)) not in (2, 3)):  # 3 for EventSpace eager
                 raise ValueError("Lower and/or upper limits invalid:"
                                  "\nlower: {lower}"
                                  "\nupper: {upper}".format(lower=lower, upper=upper))
 
-            if not np.shape(lower)[1] == self.n_obs:
+            if not shape_np_tf(lower)[1] == self.n_obs:
                 raise ValueError("Limits shape not compatible with number of obs/axes"
                                  "\nlower: {lower}"
                                  "\nupper: {upper}"
@@ -266,9 +268,12 @@ class Space(ZfitSpace, BaseObject):
             return None
         if (isinstance(limit, tuple) and limit == ()) or (isinstance(limit, np.ndarray) and limit.size == 0):
             raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
-        if np.shape(limit) == ():
+        shape = shape_np_tf(limit)
+        if shape == ():
             limit = ((limit,),)
-        if np.shape(limit[0]) == ():
+
+        shape = shape_np_tf(limit[0])
+        if shape == ():
             raise ValueError("Shape of limit {} wrong.".format(limit))
 
         # replace
@@ -644,7 +649,6 @@ class Space(ZfitSpace, BaseObject):
     def _reorder_limits(self, indices: Tuple[int], inplace: bool = True) -> ztyping.LimitsTypeReturn:
         limits = self.limits
         if limits is not None and limits is not False:
-
             lower, upper = limits
             lower = tuple(tuple(lower[i] for i in indices) for lower in lower)
             upper = tuple(tuple(upper[i] for i in indices) for upper in upper)
@@ -1194,3 +1198,22 @@ def convert_to_obs_str(obs):
         else:
             new_obs.append(ob)
     return new_obs
+
+
+def contains_tensor(object):
+    tensor_found = isinstance(object, (tf.Tensor, tf.Variable))
+    with suppress(TypeError):
+
+        for obj in object:
+            if tensor_found:
+                break
+            tensor_found += contains_tensor(obj)
+    return tensor_found
+
+
+def shape_np_tf(object):
+    if contains_tensor(object):
+        shape = tuple(tf.convert_to_tensor(object).shape.as_list())
+    else:
+        shape = np.shape(object)
+    return shape
