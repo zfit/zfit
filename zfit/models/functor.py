@@ -13,14 +13,13 @@ from typing import Union, List, Optional
 
 import tensorflow as tf
 
-
 import numpy as np
 
 from zfit import z
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
 from ..core.limits import no_norm_range, supports
 from ..core.basepdf import BasePDF
-from ..core.parameter import Parameter, convert_to_parameter
+from ..core.parameter import Parameter, convert_to_parameter, ComposedParameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -209,28 +208,27 @@ class SumPDF(BaseFunctor):
                     not_extended_position = i
                 new_pdfs.append(pdf)
             pdfs = new_pdfs
-            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            remaining_frac = convert_to_parameter(remaining_frac_func, dependents=fracs)
             if run.numeric_checks:
                 assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                       data=[remaining_frac])  # check fractions
                 deps = [assert_op]
             else:
                 deps = []
-            with tf.control_dependencies(deps):
-                # TODO(Mayou36): always last position?
-                fracs[not_extended_position] = tf.identity(remaining_frac)
+            fracs[not_extended_position] = remaining_frac
             implicit = False  # now it's explicit
 
         elif not extended and not implicit:
-            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            remaining_frac = convert_to_parameter(remaining_frac_func, dependents=fracs)
             if run.numeric_checks:
                 assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                       data=[remaining_frac])  # check fractions
                 deps = [assert_op]
             else:
                 deps = []
-            with tf.control_dependencies(deps):
-                fracs.append(tf.identity(remaining_frac))
+            fracs.append(remaining_frac)
 
         # make extended
         elif extended and not implicit:
@@ -244,9 +242,15 @@ class SumPDF(BaseFunctor):
 
         if extended:
             # TODO(Mayou36): convert to correct dtype
-            sum_yields = tf.reduce_sum(
-                input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
-            yield_fracs = [yield_ / sum_yields for yield_ in yields]
+            def sum_yields_func():
+                return tf.reduce_sum(
+                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
+
+            sum_yields = convert_to_parameter(sum_yields_func(), dependents=yields)
+            TODO: yield_fracs
+            # def fracs():
+            #     return [yield_ / sum_yields for yield_ in yields]
+
             self.fracs = yield_fracs
             # self.fracs = yield_fracs
             set_yield_at_end = True

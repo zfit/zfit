@@ -9,7 +9,6 @@ import numpy as np
 
 import tensorflow as tf
 
-
 import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 
@@ -48,6 +47,7 @@ def numeric_integrate():
     return integral
 
 
+@z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
                  method: str = None,
@@ -150,6 +150,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
 
 # TODO(Mayou36): Make more flexible for sampling
+@z.function
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
     lower = z.convert_to_tensor(lower, dtype=dtype)
@@ -200,6 +201,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
     return final_mean
 
 
+@z.function
 def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     x_is_none = x is None
 
@@ -232,6 +234,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     avg = normalization_nograd()
 
 
+@z.function
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 

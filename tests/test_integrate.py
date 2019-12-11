@@ -143,13 +143,12 @@ def func3_2deps_fully_integrated(limits, params=None, model=None):
     with suppress(TypeError):
         lower, upper = lower[0], upper[0]
 
-    # print("DEBUG": lower, upper", lower, upper)
     lower_a, lower_b = lower
     upper_a, upper_b = upper
     integral = (lower_a ** 3 - upper_a ** 3) * (lower_b - upper_b)
     integral += (lower_a - upper_a) * (lower_b ** 3 - upper_b ** 3)
     integral /= 3
-    return integral
+    return z.convert_to_tensor(integral)
 
 
 limits4_2dim = [((-4., 1.),), ((-1., 4.5),)]
@@ -224,7 +223,7 @@ def test_mc_integration(chunksize):
                                                                               rel=0.1)
     assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
     assert func3_2deps_fully_integrated(
-        Space.from_axes(limits=limits3, axes=(0, 1))) == pytest.approx(integral3, rel=0.03)
+        Space.from_axes(limits=limits3, axes=(0, 1))).numpy() == pytest.approx(integral3, rel=0.03)
 
 
 @pytest.mark.flaky(2)
@@ -289,7 +288,7 @@ def test_analytic_integral():
     func3_integrated = dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)),
                                             norm_range=False).numpy()
     assert func3_integrated == pytest.approx(
-        func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1))))
+        func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1))).numpy())
     assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
 

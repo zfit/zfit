@@ -672,7 +672,7 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=False) -> "ZfitParameter":
+def convert_to_parameter(value, name=None, prefer_floating=False, dependents=None, graph_mode=False) -> "ZfitParameter":
     """Convert a *numerical* to a fixed/floating parameter or return if already a parameter.
 
     Args:
@@ -684,6 +684,11 @@ def convert_to_parameter(value, name=None, prefer_floating=False, graph_mode=Fal
     is_python = False
     if name is not None:
         name = str(name)
+
+    if callable(value):
+        if dependents is None:
+            raise ValueError("If the value is a callable, the dependents have to be specified as an empty list/tuple")
+        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, dependents=dependents)
 
     if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value

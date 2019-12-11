@@ -7,7 +7,6 @@ import time
 import pytest
 import tensorflow as tf
 
-
 import numpy as np
 
 from zfit.core.loss import SimpleLoss
@@ -117,7 +116,9 @@ def minimize_func(minimizer_class_and_kwargs):
         with pytest.raises(TypeError):
             _ = result.error(params=a_param)
 
+
 from zfit.minimizers.minimizer_tfp import BFGSMinimizer
+
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.5)),
      False),

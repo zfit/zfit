@@ -130,5 +130,7 @@ def run_no_nan(func, x):
                            shape=tf.shape(input=value_with_nans, out_type=finite_indices.dtype))
     return result
 
+
 # reduce functions
-tf_function = tf.function(autograph=False, experimental_relax_shapes=True)
+# tf_function = tf.function(autograph=False, experimental_relax_shapes=True)
+tf_function = lambda func: func
