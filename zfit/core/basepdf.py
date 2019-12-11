@@ -73,7 +73,6 @@ from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
 
-
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
 
@@ -423,7 +422,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
     @invalidates_cache
-    def _set_yield_inplace(self, value: Union[Parameter, float, None]):
+    def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
         """Make the model extended by (temporarily) setting a yield.
 
         This alters the behavior of `model` and similar and `integrate` and similar. If there is a

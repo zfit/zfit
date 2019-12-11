@@ -246,13 +246,10 @@ class SumPDF(BaseFunctor):
                 return tf.reduce_sum(
                     input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
 
-            sum_yields = convert_to_parameter(sum_yields_func(), dependents=yields)
-            TODO: yield_fracs
-            # def fracs():
-            #     return [yield_ / sum_yields for yield_ in yields]
+            sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
+            yield_fracs = [convert_to_parameter(lambda: yield_ / sum_yields, dependents=yield_) for yield_ in yields]
 
             self.fracs = yield_fracs
-            # self.fracs = yield_fracs
             set_yield_at_end = True
             self._maybe_extended_fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
         else:
@@ -308,7 +305,8 @@ class SumPDF(BaseFunctor):
             # beginning
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
         elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
-            reciprocal_yield = tf.math.reciprocal(self.get_yield())
+            reciprocal_yield = convert_to_parameter(lambda: tf.math.reciprocal(self.get_yield()),
+                                                    dependents=self.get_yield())
             self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
         else:
             super()._set_yield(value=value)
