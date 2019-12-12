@@ -96,9 +96,9 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
     chunked_normalization = zfit.run.chunksize < n_samples
     # chunked_normalization = True
-    if chunked_normalization:
-        if partial:
-            raise WorkInProgressError("This feature is not yet implemented: needs new Datasets")
+    if chunked_normalization and partial:
+        print("NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked.")
+    if chunked_normalization and not partial:
         n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
         chunksize = int(np.ceil(n_samples / n_chunks))
         print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
