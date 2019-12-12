@@ -320,7 +320,7 @@ class UnbinnedNLL(BaseLoss):
     def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
-
+    @z.function
     def _loss_func(self, model, data, fit_range, constraints):
         with tf.GradientTape(persistent=True) as tape:
             nll = self._loss_func_watched(constraints, data, fit_range, model)
