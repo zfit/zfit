@@ -134,3 +134,5 @@ def run_no_nan(func, x):
 # reduce functions
 tf_function = tf.function(autograph=False, experimental_relax_shapes=True)
 # tf_function = lambda func: func
+
+function_tf = tf_function  # for only tensorflow inside
