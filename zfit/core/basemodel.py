@@ -875,8 +875,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
-        n = tf.convert_to_tensor(n) if not isinstance(n, str) else n
-        n = tf.cast(n, dtype=tf.int32)
+        if not isinstance(n, str):
+            n = tf.convert_to_tensor(n) if not isinstance(n, str) else n
+            n = tf.cast(n, dtype=tf.int32)
 
         @z.function
         def run_tf(n, limits):

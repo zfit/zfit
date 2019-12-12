@@ -17,12 +17,11 @@ __all__ = ["tester", "setup_function", "teardown_function"]
 
 
 def setup_function():
-    ZfitParameterMixin._existing_names = OrderedDict()
+    pass
 
 
 def teardown_function():
-    import zfit
-    zfit.run.chunking.active = False  # not yet integrated
+    ZfitParameterMixin._existing_names.clear()
 
 
 class BaseTester:

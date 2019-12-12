@@ -72,7 +72,7 @@ def test_complex_param():
     assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
 
 
-@pytest.mark.skip  # TODO: segfaulting?
+# @pytest.mark.skip  # TODO: segfaulting?
 def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
@@ -98,13 +98,14 @@ def test_composed_param():
     with pytest.raises(LogicalUndefinedOperationError):
         param_a.assign(value=5.)
 
-@pytest.mark.skip  # TODO: segfaulting?
+
+# @pytest.mark.skip  # TODO: segfaulting?
 def test_floating_behavior():
     param1 = zfit.Parameter('param1', 1.0)
     assert param1.floating
 
 
-@pytest.mark.skip  # TODO: segfaulting?
+# @pytest.mark.skip  # TODO: segfaulting?
 def test_param_limits():
     lower, upper = -4., 3.
     param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
@@ -129,14 +130,14 @@ def test_overloaded_operators():
     assert param_d_val == (param_a + param_a * param_b ** 2).numpy()
 
 
-@pytest.mark.skip  # TODO: reactivate, causes segfault
+# @pytest.mark.skip  # TODO: reactivate, causes segfault
 def test_equal_naming():
     param_unique_name = zfit.Parameter('fafdsfds', 5.)
     with pytest.raises(NameAlreadyTakenError):
         param_unique_name2 = zfit.Parameter('fafdsfds', 3.)
 
 
-@pytest.mark.skip  # TODO: segfaulting?
+# @pytest.mark.skip  # TODO: segfaulting?
 def test_set_value():
     value1 = 1.
     value2 = 2.
