@@ -520,7 +520,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             value = self.numpy()
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value:.4g}>"
 
 
 class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
@@ -595,7 +595,7 @@ class ComposedParameter(BaseComposedParameter):
             value = self.numpy()
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
 class ComplexParameter(ComposedParameter):
