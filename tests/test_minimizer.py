@@ -128,7 +128,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.Scipy, {}, False),
 ]
 
-@pytest.mark.order10
+
+@pytest.mark.second
 @pytest.mark.parametrize("chunksize", [10000000, 3000])
 @pytest.mark.parametrize("minimizer_class", minimizers)
 @pytest.mark.flaky(reruns=3)

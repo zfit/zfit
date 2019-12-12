@@ -14,7 +14,7 @@ script:
     - pip install -U numpy  # needed for linspace with vectors
     - echo "TensorFlow version:" && pip install coverage 2>&1 | tail -n 11 && \
     - python -c 'import tensorflow as tf; print(tf.__version__)'
-    - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
+    - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test -n 3 --basetemp={envtmpdir}
     - coverage report
     - bash utils/ci/test_examples.sh
     - bash utils/ci/test_tutorials.sh
