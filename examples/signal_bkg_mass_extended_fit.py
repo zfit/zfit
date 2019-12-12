@@ -41,6 +41,6 @@ nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
-
+print(result.params)
 # do the error calculations, here with minos
 param_errors = result.error()

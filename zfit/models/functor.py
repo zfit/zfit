@@ -208,8 +208,10 @@ class SumPDF(BaseFunctor):
                     not_extended_position = i
                 new_pdfs.append(pdf)
             pdfs = new_pdfs
-            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
-            remaining_frac = convert_to_parameter(remaining_frac_func, dependents=fracs)
+            copied_fracs = fracs.copy()
+            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(copied_fracs)
+            remaining_frac = convert_to_parameter(remaining_frac_func,
+                                                  dependents=[convert_to_parameter(f) for f in copied_fracs])
             if run.numeric_checks:
                 assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                       data=[remaining_frac])  # check fractions
@@ -220,8 +222,14 @@ class SumPDF(BaseFunctor):
             implicit = False  # now it's explicit
 
         elif not extended and not implicit:
-            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
-            remaining_frac = convert_to_parameter(remaining_frac_func, dependents=fracs)
+            # remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            copied_fracs = fracs.copy()
+
+            def remaining_frac_func():
+                return tf.constant(1., dtype=ztypes.float) - tf.add_n(copied_fracs)
+
+            remaining_frac = convert_to_parameter(remaining_frac_func,
+                                                  dependents=[convert_to_parameter(f) for f in copied_fracs])
             if run.numeric_checks:
                 assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                       data=[remaining_frac])  # check fractions
@@ -296,7 +304,6 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.fracs
         prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
-        # prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
     def _set_yield(self, value: Union[Parameter, None]):
@@ -365,8 +372,8 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def _unnormalized_pdf(self, x: ztyping.XType):
 
         norm_range = self._get_component_norm_range()
-        return np.prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
-                        for pdf in self.pdfs])
+        return tf.math.reduce_prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
+                                    for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_obs):
