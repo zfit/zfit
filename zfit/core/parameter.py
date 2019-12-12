@@ -516,7 +516,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         super().__del__()
 
     def __repr__(self):
-        return f"<zfit.Parameter '{self.name}' floating={self.floating}>"
+        if hasattr(self, "numpy"):  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = self.numpy()
+        else:
+            value = "graph-node"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value}>"
 
 
 class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
@@ -587,7 +591,11 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params, value_fn=value_fn, name=name, dtype=dtype, **kwargs)
 
     def __repr__(self):
-        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name}>"
+        if hasattr(self, "numpy"):  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = self.numpy()
+        else:
+            value = "graph-node"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value}>"
 
 
 class ComplexParameter(ComposedParameter):

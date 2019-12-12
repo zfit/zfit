@@ -252,10 +252,11 @@ class SumPDF(BaseFunctor):
             # TODO(Mayou36): convert to correct dtype
             def sum_yields_func():
                 return tf.reduce_sum(
-                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
+                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields.copy()])
 
             sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
-            yield_fracs = [convert_to_parameter(lambda: yield_ / sum_yields, dependents=yield_) for yield_ in yields]
+            yield_fracs = [convert_to_parameter(lambda yield_=yield_: yield_ / sum_yields, dependents=yield_)
+                           for yield_ in yields]
 
             self.fracs = yield_fracs
             set_yield_at_end = True
@@ -266,6 +267,7 @@ class SumPDF(BaseFunctor):
         self.pdfs = pdfs
 
         params = OrderedDict()
+        # TODO(Mayou36): this is not right. Where to create the params if extended? The correct fracs?
         for i, frac in enumerate(self._maybe_extended_fracs):
             params['frac_{}'.format(i)] = frac
 

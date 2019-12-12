@@ -380,7 +380,12 @@ class SimpleLoss(BaseLoss):
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
-        self._simple_func = tf.function(func, autograph=False)
+
+        @z.function
+        def wrapped_func():
+            return func()
+
+        self._simple_func = wrapped_func
         self._simple_errordef = errordef
         self._errordef = errordef
         self.computed_gradients = {}
