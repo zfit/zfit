@@ -136,3 +136,4 @@ tf_function = tf.function(autograph=False, experimental_relax_shapes=True)
 # tf_function = lambda func: func
 
 function_tf = tf_function  # for only tensorflow inside
+function_sampling = tf_function

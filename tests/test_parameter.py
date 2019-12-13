@@ -72,7 +72,6 @@ def test_complex_param():
     assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
 
 
-# @pytest.mark.skip  # TODO: segfaulting?
 def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
@@ -99,13 +98,11 @@ def test_composed_param():
         param_a.assign(value=5.)
 
 
-# @pytest.mark.skip  # TODO: segfaulting?
 def test_floating_behavior():
     param1 = zfit.Parameter('param1', 1.0)
     assert param1.floating
 
 
-# @pytest.mark.skip  # TODO: segfaulting?
 def test_param_limits():
     lower, upper = -4., 3.
     param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
