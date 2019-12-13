@@ -1,4 +1,5 @@
 #  Copyright (c) 2019 zfit
+from collections import OrderedDict
 
 import tensorflow as tf
 
@@ -6,6 +7,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 from .baseminimizer import BaseMinimizer
+from .fitresult import FitResult
 
 
 class BFGSMinimizer(BaseMinimizer):
@@ -32,6 +34,7 @@ class BFGSMinimizer(BaseMinimizer):
                               tolerance=self.tolerance, parallel_iterations=1)
 
         # save result
+        # TODO
         self._update_params(params, values=result)
 
         info = {'n_eval': result[0]['nfcn'],

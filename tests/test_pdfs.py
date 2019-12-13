@@ -131,7 +131,7 @@ def test_prod_gauss_nd_mixed():
                               norm_range=limits_4d)
     gausses = create_gaussians()
 
-    for gauss in (gausses):
+    for gauss in gausses:
         gauss.set_norm_range(norm_range)
     gauss1, gauss2, gauss3 = gausses
     prod_gauss_3d = product_gauss_3d()

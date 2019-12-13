@@ -21,6 +21,6 @@ class NotSpecified:
 NOT_SPECIFIED = NotSpecified()
 
 
-class ZfitNotImplemented():
+class ZfitNotImplemented:
     def __new__(cls, *args, **kwargs):
         raise RuntimeError("Cannot create an instance of it, meant to be used as a single object reference.")
