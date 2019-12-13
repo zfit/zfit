@@ -600,6 +600,7 @@ class Sampler(Data):
     @classmethod
     def from_sample(cls, sample_func: Callable, n: ztyping.NumericalScalarType, obs: ztyping.ObsTypeInput,
                     fixed_params=None, name: str = None, weights=None, dtype=None):
+        obs = convert_to_space(obs)
 
         if fixed_params is None:
             fixed_params = []
@@ -607,7 +608,8 @@ class Sampler(Data):
             dtype = ztypes.float
         # from tensorflow.python.ops.variables import VariableV1
         sample_holder = tf.Variable(initial_value=sample_func(), dtype=dtype, trainable=False,  # HACK: sample_func
-                                    validate_shape=False,
+                                    # validate_shape=False,
+                                    shape=(None, obs.n_obs),
                                     name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
@@ -651,7 +653,7 @@ class Sampler(Data):
 
             new_sample = self.sample_func(n)
             # self.sample_holder.assign(new_sample)
-            tf.compat.v1.assign(self.sample_holder, new_sample, validate_shape=False)
+            self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
 
 
