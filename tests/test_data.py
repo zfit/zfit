@@ -2,7 +2,6 @@
 
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
 import copy
 
 import pytest
@@ -10,7 +9,6 @@ import pytest
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-
 
 import uproot
 
@@ -125,7 +123,7 @@ def test_from_tensors(weights_factory):
     weights = weights_factory()
     true_tensor = 42. * tf.ones(shape=(1000, 1), dtype=tf.float64)
     data = zfit.Data.from_tensor(obs='obs1', tensor=true_tensor,
-                                      weights=weights)
+                                 weights=weights)
 
     weights_data = data.weights
     x = data.value()
@@ -191,7 +189,7 @@ def test_subdata():
 
             with pytest.raises(ValueError):
                 with data1.sort_by_obs(obs=new_obs):
-                    print(data1.value().numpy())
+                    data1.value().numpy()
 
     assert data1.obs == obs1
     np.testing.assert_array_equal(example_data1, data1.value())

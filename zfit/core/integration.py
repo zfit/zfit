@@ -101,7 +101,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     if chunked_normalization and not partial:
         n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
         chunksize = int(np.ceil(n_samples / n_chunks))
-        print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
+        # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
         avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
                                     num_batches=n_chunks, batch_size=chunksize, space=limits)
 
