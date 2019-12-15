@@ -97,7 +97,7 @@ author = zfit.__author__
 # the built documents.
 #
 # The short X.Y version.
-version = zfit.__version__
+version = zfit.__version__.split(('+'))[0]
 # The full version, including alpha/beta/rc tags.
 release = zfit.__version__
 
@@ -140,7 +140,7 @@ html_theme_options = {
 
     # Tab name for entire site. (Default: "Site")
     # 'navbar_site_name': "Docs",
-    # 'navbar_site_name': "Overview",
+    'navbar_site_name': "Overview",
 
     # A list of tuples containing pages or urls to link to.
     # Valid tuples should be in the following forms:
@@ -151,12 +151,8 @@ html_theme_options = {
     # an arbitrary url.
     'navbar_links': [
         ("Getting started", "getting_started"),
-        ("Space", "space"),
-        ("Parameter", "parameter"),
-        ("Model", "model"),
-        ("Data", "data"),
-        ("Loss", "loss"),
-        ("Minimize", "minimize"),
+        ("Intro", "introduction"),
+        ("Project", "project"),
         ("API", "API"),
         # ("Link", "http://example.com", True),
     ],
@@ -165,14 +161,14 @@ html_theme_options = {
     'navbar_sidebarrel': False,
 
     # Render the current pages TOC in the navbar. (Default: true)
-    'navbar_pagenav': False,
+    'navbar_pagenav': True,
 
     # Tab name for the current pages TOC. (Default: "Page")
     # 'navbar_pagenav_name': "Page",
 
     # Global TOC depth for "site" navbar tab. (Default: 1)
     # Switching to -1 shows all levels.
-    'globaltoc_depth': 1,
+    'globaltoc_depth': -1,
 
     # Include hidden TOCs in Site navbar?
     #
@@ -195,7 +191,7 @@ html_theme_options = {
     # Location of link to source.
     # Options are "nav" (default), "footer" or anything else to exclude.
     # 'source_link_position': "nav",
-    'source_link_position': False,
+    'source_link_position': 'footer',
 
     # Bootswatch (http://bootswatch.com/) theme.
     #
