@@ -1,6 +1,7 @@
 #  Copyright (c) 2019 zfit
 
 import abc
+import warnings
 from collections import OrderedDict
 
 import numdifftools
@@ -17,14 +18,14 @@ ztf = z
 from .math import numerical_gradient, automatic_gradient
 from ..util import ztyping
 from ..util.cache import Cachable
-from ..util.checks import ZfitNotImplemented
+from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
 from ..util.graph import get_dependents_auto
 from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF, ZfitConstraint
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
-    LogicalUndefinedOperationError
+    LogicalUndefinedOperationError, BreakingAPIChangeError
 from .constraint import BaseConstraint, SimpleConstraint
 
 
@@ -83,7 +84,7 @@ def _constraint_check_convert(constraints):
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
-                 fit_range: ztyping.LimitsTypeInput = None,
+                 fit_range: ztyping.LimitsTypeInput = NOT_SPECIFIED,
                  constraints: Iterable[Union[ZfitConstraint, Callable]] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
@@ -101,6 +102,10 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__)
+        if fit_range is not NOT_SPECIFIED:  # depreceation
+            warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
+                          "It is preferred to define the range in the space"
+                          " when creating the data and the model.")
         self.computed_gradients = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
@@ -369,7 +374,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = None,
+    def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = NOT_SPECIFIED,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a ) Tensor.
 
@@ -380,6 +385,9 @@ class SimpleLoss(BaseLoss):
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
+        if dependents is NOT_SPECIFIED:  # depreceation
+            raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
+                                         "More information can be found in the upgrade guide on the website.")
 
         @z.function
         def wrapped_func():
