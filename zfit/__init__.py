@@ -2,6 +2,7 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2019 zfit
+import warnings
 
 from pkg_resources import get_distribution
 
@@ -23,6 +24,12 @@ __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", 
            "Space", "convert_to_space", "supports",
            "run", "settings"]
 
+warnings.warn(
+    "zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit"
+    " and minor ones on the user side. Be sure to read the upgrade guide (README on top) to have a seemless"
+    "transition. If that is an undoable problem (Upgrading is highly recommended though),"
+    " you can downgrade zfit to <0.4."
+    "Contact us in case of problems in order to tackle them ASAP.")
 #  Copyright (c) 2019 zfit
 import tensorflow.compat.v1 as _tfv1
 

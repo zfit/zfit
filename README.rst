@@ -20,7 +20,7 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-|
+**UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
@@ -36,7 +36,7 @@ and is optimised for simple and direct manipulation of probability density funct
   related content
 
 
-If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
+If you use zfit in research, please consider `citing <https://arxiv.org/abs/1910.13429>`_.
 
 *N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
