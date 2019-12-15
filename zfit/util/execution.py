@@ -13,7 +13,6 @@ import tensorflow as tf
 
 
 
-import zfit
 from .temporary import TemporarilySet
 from .container import DotDict, is_container, convert_to_container
 
@@ -81,14 +80,16 @@ class RunManager:
             self._cpu.extend(cpu)
 
     def __call__(self, *args, **kwargs):
-        raise RuntimeError("Remove and replace by `.numpy()`")
+        flattened_args = tf.nest.flatten(args)
+        evaluated_args = [arg.numpy() for arg in flattened_args]
+        values = tf.nest.pack_sequence_as(args, flat_sequence=evaluated_args)
+
+        # tf.nest.map_structure(lambda *args: [arg.numpy() for arg in args], *args)
         if kwargs:
             raise RuntimeError("Why kwargs provided? Still under conversion from TF 1.x to 2.x")
         was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )
-        to_convert = convert_to_container(args[0])
-        values = [arg.numpy() for arg in to_convert if isinstance(arg, (tf.Tensor, tf.Variable))]
+        # to_convert = convert_to_container(args[0])
+        # values = [arg.numpy() for arg in to_convert if isinstance(arg, (tf.Tensor, tf.Variable))]
         if not was_container and values:
             values = values[0]
         return values
-
-
