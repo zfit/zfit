@@ -11,15 +11,14 @@ A more useful application in the context of High Energy Physics (HEP) is the Max
 The MLE is a specific type of probability model estimation, where the loss function is the negative log-likelihood (NLL).
 
 In zfit, loss functions inherit from the :py:class:`~zfit.loss.BaseLoss` class and they follow a common interface, in which the model,
-the dataset and the fit range (which internally sets ``norm_range`` in the PDF and makes sure data only within that range are used) **must** be given, and
+the dataset **must** be given, and
 where parameter constraints in form of a dictionary `{param: constraint}` **may** be given.
 As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.loss.UnbinnedNLL`) from the model described in the :ref:`Basic model section <basic-model>` and the data from the :ref:`Data section <data-section>`:
 
 .. code-block:: pycon
 
     >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
-    >>>                                 data,
-    >>>                                 fit_range=(-10, 10))
+    >>>                                 data)
 
 Adding constraints
 ------------------
@@ -36,7 +35,6 @@ For example, if we wanted to add a gaussian constraint on the ``mu`` parameter o
 
     >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
     >>>                                 data,
-    >>>                                 fit_range=(-10, 10),
     >>>                                 constraints=constraint)
 
 Custom penalties can also be added to the loss function, for instance if you want to set limits on a parameter:

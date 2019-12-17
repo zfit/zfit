@@ -21,7 +21,7 @@ A series of predefined PDFs are available to the users and can be easily accesse
 .. code-block:: pycon
 
     >>> print(zfit.pdf.__all__)
-    ['BasePDF', 'Exponential', 'CrystalBall', 'Gauss', 'Uniform', 'WrapDistribution', 'ProductPDF', 'SumPDF', 'ZPDF', 'SimplePDF', 'SimpleFunctorPDF']
+    ['BasePDF', 'BaseFunctor', 'Exponential', 'CrystalBall', 'DoubleCB', 'Gauss', 'Uniform', 'TruncatedGauss', 'WrapDistribution', 'Chebyshev', 'Legendre', 'Chebyshev2', 'Hermite', 'Laguerre', 'RecursivePolynomial', 'ProductPDF', 'SumPDF', 'ZPDF', 'SimplePDF', 'SimpleFunctorPDF']
 
 These include the basic function but also some operations discussed below. Let's consider the simple example of a ``CrystalBall``.
 PDF objects must also be initialised giving their named parameters. For example:
@@ -45,7 +45,7 @@ to set a temporary normalisation range can be given as
 .. code-block:: pycon
 
     >>> # Get the probabilities of some random generated events
-    >>> probs = model_cb.pdf(x=np.random.random(10), norm_range=(5100, 5400))
+    >>> probs = model_cb.pdf(x=np.random.random(10))
     >>> # And now execute the tensorflow graph
     >>> result = zfit.run(probs)
     >>> print(result)
