@@ -137,3 +137,5 @@ tf_function = tf.function(autograph=False, experimental_relax_shapes=True)
 
 function_tf = tf_function  # for only tensorflow inside
 function_sampling = tf_function
+
+py_function = tf.py_function
