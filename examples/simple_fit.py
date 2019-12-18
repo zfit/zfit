@@ -3,7 +3,6 @@
 import numpy as np
 import zfit
 
-zfit.settings.options['numerical_grad'] = True
 # create space
 obs = zfit.Space("x", limits=(-2, 3))
 

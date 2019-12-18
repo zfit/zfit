@@ -102,10 +102,13 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__)
-        if fit_range is not NOT_SPECIFIED:  # depreceation
+        if fit_range is NOT_SPECIFIED:  # depreceation
+            fit_range = None
+        else:
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
                           " when creating the data and the model.")
+
         self.computed_gradients = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
@@ -250,6 +253,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def value_gradients(self, params):
         return self._value_gradients(params=params)
 
+    @z.function
     def _value_gradients(self, params):
 
         with tf.GradientTape(persistent=False) as tape:
@@ -265,6 +269,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             vals = self._value_gradients_hessian_fallback(params=params)
         return vals
 
+    @z.function
     def _value_gradients_hessian_fallback(self, params):
         with tf.GradientTape(persistent=False) as tape:
             loss, gradients = self.value_gradients(params=params)
@@ -322,9 +327,10 @@ class UnbinnedNLL(BaseLoss):
 
     _name = "UnbinnedNLL"
 
-    def __init__(self, model, data, fit_range=None, constraints=None):
+    def __init__(self, model, data, fit_range=NOT_SPECIFIED, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
+
     @z.function
     def _loss_func(self, model, data, fit_range, constraints):
         with tf.GradientTape(persistent=True) as tape:
@@ -359,6 +365,7 @@ class UnbinnedNLL(BaseLoss):
 class ExtendedUnbinnedNLL(UnbinnedNLL):
     """An Unbinned Negative Log Likelihood with an additional poisson term for the"""
 
+    @z.function
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
         poisson_terms = []

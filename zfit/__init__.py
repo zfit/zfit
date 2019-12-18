@@ -24,12 +24,6 @@ __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", 
            "Space", "convert_to_space", "supports",
            "run", "settings"]
 
-warnings.warn(
-    "zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit"
-    " and minor ones on the user side. Be sure to read the upgrade guide (README on top) to have a seemless"
-    "transition. If that is an undoable problem (Upgrading is highly recommended though),"
-    " you can downgrade zfit to <0.4."
-    "Contact us in case of problems in order to tackle them ASAP.")
 #  Copyright (c) 2019 zfit
 import tensorflow.compat.v1 as _tfv1
 
@@ -37,6 +31,12 @@ import tensorflow.compat.v1 as _tfv1
 # tf.enable_v2_tensorshape()  # forward compat
 _tfv1.enable_v2_behavior()
 # _tfv1.disable_eager_execution()
+
+warnings.warn(
+    """zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit
+     and minor ones on the user side. Be sure to read the upgrade guide (README on top) to have a seemless
+     transition. If this is currently not doable (upgrading is highly recommended though) you can downgrade zfit to <0.4.
+     Contact us in case of problems in order to tackle them ASAP.""")
 
 from . import z
 from . import z as ztf  # legacy

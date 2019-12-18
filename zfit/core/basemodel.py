@@ -890,7 +890,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             sample = self._single_hook_sample(n=n, limits=limits, name=name)
             return sample
 
-        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits), obs=self.space.obs)
+        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits), obs=self.space)
 
         return sample_data
 
