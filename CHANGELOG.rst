@@ -9,14 +9,15 @@ This release switched to TensorFlow 2.0 eager mode. In case this breaks things f
 a running version, install a version
 < 0.4.0. It is highly recommended to upgrade and make the small changes required.
 
-Please read the
+Please read the <
 
 TensorFlow 2.0 is eager executing and uses functions to abstract the performance critical parts away.
 
 
 Major Features and Improvements
 -------------------------------
- -
+ - Dependents (currently, and probably also in the future) need more manual tracking. This has mostly
+   an effect on CompositeParameters and SimpleLoss, which now require to specify the dependents.
 
 Behavioral changes
 ------------------

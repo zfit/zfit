@@ -381,7 +381,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = NOT_SPECIFIED,
+    def __init__(self, func: Callable, dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a ) Tensor.
 
@@ -404,7 +404,8 @@ class SimpleLoss(BaseLoss):
         self._simple_errordef = errordef
         self._errordef = errordef
         self.computed_gradients = {}
-        self._simple_func_dependents = convert_to_container(dependents, container=OrderedSet)
+        dependents = convert_to_container(dependents, container=OrderedSet)
+        self._simple_func_dependents = self._extract_dependents(dependents)
 
         super().__init__(model=[], data=[], fit_range=[])
 
