@@ -879,18 +879,19 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             n = tf.convert_to_tensor(n) if not isinstance(n, str) else n
             n = tf.cast(n, dtype=tf.int32)
 
+        limits = self._check_input_limits(limits=limits)
+        if limits.limits is None:
+            limits = self.space
+            if limits.limits in (None, False):
+                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+        limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
+
         @z.function
         def run_tf(n, limits):
-            limits = self._check_input_limits(limits=limits)
-            if limits.limits is None:
-                limits = self.space
-                if limits.limits in (None, False):
-                    raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
-            limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
             sample = self._single_hook_sample(n=n, limits=limits, name=name)
             return sample
 
-        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits), obs=self.space)
+        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits), obs=limits)
 
         return sample_data
 

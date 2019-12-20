@@ -17,6 +17,7 @@ import pandas as pd
 import zfit
 from zfit import z
 from zfit.core.interfaces import ZfitSpace
+from .sample import EventSpace
 from ..util.cache import Cachable, invalidates_cache
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
@@ -366,8 +367,12 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             inside_limits = []
             # value = tf.transpose(value)
             for lower, upper in data_range.iter_limits():
-                above_lower = tf.reduce_all(input_tensor=tf.less_equal(value, upper), axis=1)
-                below_upper = tf.reduce_all(input_tensor=tf.greater_equal(value, lower), axis=1)
+                if isinstance(data_range, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
+                    upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
+                    lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
+
+                below_upper = tf.reduce_all(input_tensor=tf.less_equal(value, upper), axis=1)  # if all obs inside
+                above_lower = tf.reduce_all(input_tensor=tf.greater_equal(value, lower), axis=1)
                 inside_limits.append(tf.logical_and(above_lower, below_upper))
             inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
 

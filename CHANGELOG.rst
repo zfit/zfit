@@ -35,6 +35,7 @@ Bug fixes and small changes
 
 Requirement changes
 -------------------
+ - added numdifftools (for numerical differentiation)
 
 
 Thanks

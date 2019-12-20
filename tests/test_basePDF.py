@@ -231,6 +231,7 @@ def test_analytic_sampling():
     mu, sigma = create_mu_sigma_true_params()
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2., 5.))
+    sample.set_data_range((1002, 1005))
 
     sample = sample.numpy()
 

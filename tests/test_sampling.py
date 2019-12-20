@@ -268,7 +268,7 @@ def test_sampling_fixed_eventlimits():
     lower = ((lower,),)
     upper = ((upper,),)
     limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
-    gauss1 = GaussNoAnalyticSampling(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-7, 8)))
+    gauss1 = GaussNoAnalyticSampling(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-12, 12)))
 
     sample = gauss1.sample(n=n_samples_tot, limits=limits)
     sample_np = sample.numpy()

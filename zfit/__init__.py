@@ -34,9 +34,9 @@ _tfv1.enable_v2_behavior()
 
 warnings.warn(
     """zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit
-     and minor ones on the user side. Be sure to read the upgrade guide (README on top) to have a seemless
-     transition. If this is currently not doable (upgrading is highly recommended though) you can downgrade zfit to <0.4.
-     Contact us in case of problems in order to tackle them ASAP.""")
+    and minor ones on the user side. Be sure to read the upgrade guide (can be found in the README at the top)
+     to have a seemless transition. If this is currently not doable (upgrading is highly recommended though)
+     you can downgrade zfit to <0.4. Feel free to contact us in case of problems in order to tackle them ASAP.""")
 
 from . import z
 from . import z as ztf  # legacy
