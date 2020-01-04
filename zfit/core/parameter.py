@@ -10,7 +10,7 @@ import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from tensorflow.python import ops, array_ops
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable
+from tensorflow.python.client.session import register_session_run_conversion_functions
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 
 from zfit import z
@@ -28,6 +28,24 @@ from ..util.temporary import TemporarilySet
 
 class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
     pass
+
+
+def register_tensor_conversion(convertable, overload_operators=True, priority=1):  # higher then any tf conversion
+    fetch_function = lambda variable: ([variable.read_value()],
+                                       lambda val: val[0])
+    feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
+    feed_function_for_partial_run = lambda feed: [feed.read_value()]
+
+    register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
+                                              feed_function=feed_function,
+                                              feed_function_for_partial_run=feed_function_for_partial_run)
+
+    def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
+        return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+
+    ops.register_tensor_conversion_function(convertable, _dense_var_to_tensor, priority=priority)
+    if overload_operators:
+        convertable._OverloadAllOperators()
 
 
 # drop-in replacement for ResourceVariable
@@ -99,53 +117,44 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade t
         setattr(ZfitBaseVariable, operator, _run_op)
 
 
-def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
-    return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+register_tensor_conversion(ZfitBaseVariable, overload_operators=True)
 
 
-ops.register_tensor_conversion_function(ZfitBaseVariable, _dense_var_to_tensor)
+# def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
+#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+#
+#
+# ops.register_tensor_conversion_function(ZfitBaseVariable, _dense_var_to_tensor)
+#
+# ZfitBaseVariable._OverloadAllOperators()
 
-ZfitBaseVariable._OverloadAllOperators()
 
-
-class ComposedResourceVariable(ResourceVariable):
-    def __init__(self, name, initial_value, **kwargs):
-        super().__init__(name=name, initial_value=initial_value, **kwargs)
-        self._value_tensor = initial_value
-
-    def value(self):
-        # with tf.control_dependencies([self._value_tensor]):
-        # return 5.
-        return self._value_tensor
-
-    def read_value(self):
-        # raise RuntimeError()
-        return self._value_tensor
+# class ComposedResourceVariable(ResourceVariable):
+#     def __init__(self, name, initial_value, **kwargs):
+#         super().__init__(name=name, initial_value=initial_value, **kwargs)
+#         self._value_tensor = initial_value
+#
+#     def value(self):
+#         # with tf.control_dependencies([self._value_tensor]):
+#         # return 5.
+#         return self._value_tensor
+#
+#     def read_value(self):
+#         # raise RuntimeError()
+#         return self._value_tensor
 
 
 # class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
 # class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
-# class ComposedVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+# class ComposedVariable(metaclass=MetaBaseParameter):
 class ComposedVariable:
 
     def __init__(self, name: str, value_fn: Callable, **kwargs):
-        # super().__init__(initial_value=initial_value, **kwargs, use_resource=True)
         super().__init__(name=name, **kwargs)
 
-        # self._dtype = dtype
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
         self._value_fn = value_fn
-
-        # self._name = name
-
-    # @property
-    # def name(self):
-    #     return self._name
-
-    # @property
-    # def dtype(self):
-    #     return self._dtype
 
     def value(self):
         return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
@@ -206,28 +215,7 @@ class ComposedVariable:
         setattr(ComposedVariable, operator, _run_op)
 
 
-def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
-    return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
-
-
-ops.register_tensor_conversion_function(ComposedVariable, _dense_var_to_tensor)
-fetch_function = lambda variable: ([variable.read_value()],
-                                   lambda val: val[0])
-feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
-feed_function_for_partial_run = lambda feed: [feed.read_value()]
-
-from tensorflow.python.client.session import register_session_run_conversion_functions
-
-# ops.register_dense_tensor_like_type()
-register_session_run_conversion_functions(tensor_type=ComposedResourceVariable, fetch_function=fetch_function,
-                                          feed_function=feed_function,
-                                          feed_function_for_partial_run=feed_function_for_partial_run)
-
-register_session_run_conversion_functions(tensor_type=ComposedVariable, fetch_function=fetch_function,
-                                          feed_function=feed_function,
-                                          feed_function_for_partial_run=feed_function_for_partial_run)
-
-ComposedVariable._OverloadAllOperators()
+register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 
 class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
@@ -245,20 +233,6 @@ class ZfitParameterMixin(BaseNumeric):
         self._existing_names.update({name: self})
         self._name = name
         super().__init__(name=name, **kwargs)
-        # try:
-        #     new_name = self.op.name
-        # except AttributeError:  # no `op` attribute -> take normal name
-        #     new_name = self.name
-        # new_name = self.name.rsplit(':', 1)[0]  # get rid of tf node
-        # new_name = self.name  # get rid of tf node
-        # new_name = new_name.rsplit('/', 1)[-1]  # get rid of the scope preceding the name
-        # if not new_name == name:  # name has been mangled because it already exists
-        #     raise NameAlreadyTakenError("Another parameter is already named {}. "
-        #                                 "Use a different, unique one.".format(name))
-
-    # @property
-    # def name(self):
-    #     return self._name
 
     @property
     def floating(self):
