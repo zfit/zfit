@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>parameter &#8212; zfit 0.1.dev567+g48c78ee documentation</title>
+    <title>parameter &#8212; zfit 0.1.dev556+g6bcd804 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev567</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev556</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -997,900 +997,6 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="class">
-<dt id="zfit.core.parameter.ComposedResourceVariable">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComposedResourceVariable</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">initial_value</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedResourceVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.resource_variable_ops.ResourceVariable</span></code></p>
-<p>Creates a variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>initial_value</strong> – <p>A <cite>Tensor</cite>, or Python object convertible to a <cite>Tensor</cite>,
-which is the initial value for the Variable. Can also be a
-callable with no argument that returns the initial value when called.
-(Note that initializer functions from init_ops.py must first be bound</p>
-<blockquote>
-<div><p>to a shape before being used here.)</p>
-</div></blockquote>
-</p></li>
-<li><p><strong>trainable</strong> – If <cite>True</cite>, the default, also adds the variable to the graph
-collection <cite>GraphKeys.TRAINABLE_VARIABLES</cite>. This collection is used as
-the default list of variables to use by the <cite>Optimizer</cite> classes.
-Defaults to <cite>True</cite>, unless <cite>synchronization</cite> is set to <cite>ON_READ</cite>, in
-which case it defaults to <cite>False</cite>.</p></li>
-<li><p><strong>collections</strong> – List of graph collections keys. The new variable is added to
-these collections. Defaults to <cite>[GraphKeys.GLOBAL_VARIABLES]</cite>.</p></li>
-<li><p><strong>validate_shape</strong> – Ignored. Provided for compatibility with tf.Variable.</p></li>
-<li><p><strong>caching_device</strong> – Optional device string or function describing where the
-Variable should be cached for reading.  Defaults to the Variable’s
-device.  If not <cite>None</cite>, caches on another device.  Typical use is to
-cache on the device where the Ops using the Variable reside, to
-deduplicate copying through <cite>Switch</cite> and other conditional statements.</p></li>
-<li><p><strong>name</strong> – Optional name for the variable. Defaults to <cite>‘Variable’</cite> and gets
-uniquified automatically.</p></li>
-<li><p><strong>dtype</strong> – If set, initial_value will be converted to the given type.
-If None, either the datatype will be kept (if initial_value is
-a Tensor) or float32 will be used (if it is a Python object convertible
-to a Tensor).</p></li>
-<li><p><strong>variable_def</strong> – <cite>VariableDef</cite> protocol buffer. If not None, recreates the
-<cite>ResourceVariable</cite> object with its contents. <cite>variable_def</cite> and other
-arguments (except for import_scope) are mutually exclusive.</p></li>
-<li><p><strong>import_scope</strong> – Optional <cite>string</cite>. Name scope to add to the
-ResourceVariable. Only used when <cite>variable_def</cite> is provided.</p></li>
-<li><p><strong>constraint</strong> – An optional projection function to be applied to the variable
-after being updated by an <cite>Optimizer</cite> (e.g. used to implement norm
-constraints or value constraints for layer weights). The function must
-take as input the unprojected Tensor representing the value of the
-variable and return the Tensor for the projected value
-(which must have the same shape). Constraints are not safe to
-use when doing asynchronous distributed training.</p></li>
-<li><p><strong>distribute_strategy</strong> – The tf.distribute.Strategy this variable is being
-created inside of.</p></li>
-<li><p><strong>synchronization</strong> – Indicates when a distributed a variable will be
-aggregated. Accepted values are constants defined in the class
-<cite>tf.VariableSynchronization</cite>. By default the synchronization is set to
-<cite>AUTO</cite> and the current <cite>DistributionStrategy</cite> chooses
-when to synchronize.</p></li>
-<li><p><strong>aggregation</strong> – Indicates how a distributed variable will be aggregated.
-Accepted values are constants defined in the class
-<cite>tf.VariableAggregation</cite>.</p></li>
-<li><p><strong>shape</strong> – (optional) The shape of this variable. If None, the shape of
-<cite>initial_value</cite> will be used. When setting this argument to
-<cite>tf.TensorShape(None)</cite> (representing an unspecified shape), the variable
-can be assigned with values of different shapes.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If the initial value is not specified, or does not have a
-    shape and <cite>validate_shape</cite> is <cite>True</cite>.</p>
-</dd>
-</dl>
-<p>&#64;compatibility(eager)
-When Eager Execution is enabled, the default for the <cite>collections</cite> argument
-is <cite>None</cite>, which signifies that this <cite>Variable</cite> will not be added to any
-collections.
-&#64;end_compatibility</p>
-<dl class="class">
-<dt id="zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo">
-<em class="property">class </em><code class="sig-name descname">SaveSliceInfo</code><span class="sig-paren">(</span><em class="sig-param">full_name=None</em>, <em class="sig-param">full_shape=None</em>, <em class="sig-param">var_offset=None</em>, <em class="sig-param">var_shape=None</em>, <em class="sig-param">save_slice_info_def=None</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Information on how to save this Variable as a slice.</p>
-<p>Provides internal support for saving variables as slices of a larger
-variable.  This API is not public and is subject to change.</p>
-<p>Available properties:</p>
-<ul class="simple">
-<li><p>full_name</p></li>
-<li><p>full_shape</p></li>
-<li><p>var_offset</p></li>
-<li><p>var_shape</p></li>
-</ul>
-<p>Create a <cite>SaveSliceInfo</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>full_name</strong> – Name of the full variable of which this <cite>Variable</cite> is a
-slice.</p></li>
-<li><p><strong>full_shape</strong> – Shape of the full variable, as a list of int.</p></li>
-<li><p><strong>var_offset</strong> – Offset of this <cite>Variable</cite> into the full variable, as a list
-of int.</p></li>
-<li><p><strong>var_shape</strong> – Shape of this <cite>Variable</cite>, as a list of int.</p></li>
-<li><p><strong>save_slice_info_def</strong> – <cite>SaveSliceInfoDef</cite> protocol buffer. If not <cite>None</cite>,
-recreates the SaveSliceInfo object its contents. <cite>save_slice_info_def</cite>
-and other arguments are mutually exclusive.</p></li>
-<li><p><strong>import_scope</strong> – Optional <cite>string</cite>. Name scope to add. Only used when
-initializing from protocol buffer.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo.spec">
-<em class="property">property </em><code class="sig-name descname">spec</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo.spec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the spec string used for saving.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.SaveSliceInfo.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a SaveSliceInfoDef() proto.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>export_scope</strong> – Optional <cite>string</cite>. Name scope to remove.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>SaveSliceInfoDef</cite> protocol buffer, or None if the <cite>Variable</cite> is not
-in the specified name scope.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.__eq__">
-<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.__eq__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compares two variables element-wise for equality.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.__iter__">
-<code class="sig-name descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.__iter__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dummy method to prevent iteration.</p>
-<p>Do not call.</p>
-<p>NOTE(mrry): If we register __getitem__ as an overloaded operator,
-Python will valiantly attempt to iterate over the variable’s Tensor from 0
-to infinity.  Declaring this method prevents this unintended behavior.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – when invoked.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.__ne__">
-<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.__ne__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compares two variables element-wise for equality.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.aggregation">
-<em class="property">property </em><code class="sig-name descname">aggregation</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.aggregation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.assign">
-<code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.assign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns a new value to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> – A <cite>Tensor</cite>. The new value for this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the assignment.</p></li>
-<li><p><strong>name</strong> – The name to use for the assignment.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.assign_add">
-<code class="sig-name descname">assign_add</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.assign_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a value to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> – A <cite>Tensor</cite>. The value to add to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – The name to use for the operation.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.assign_sub">
-<code class="sig-name descname">assign_sub</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.assign_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subtracts a value from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta</strong> – A <cite>Tensor</cite>. The value to subtract from this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – The name to use for the operation.</p></li>
-<li><p><strong>read_value</strong> – A <cite>bool</cite>. Whether to read and return the new value of the
-variable or not.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>If <cite>read_value</cite> is <cite>True</cite>, this method will return the new value of the
-variable after the assignment has completed. Otherwise, when in graph mode
-it will return the <cite>Operation</cite> that does the assignment, and when in eager
-mode it will return <cite>None</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.batch_scatter_update">
-<code class="sig-name descname">batch_scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.batch_scatter_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns <cite>tf.IndexedSlices</cite> to this variable batch-wise.</p>
-<p>Analogous to <cite>batch_gather</cite>. This assumes that this variable and the
-sparse_delta IndexedSlices have a series of leading dimensions that are the
-same for all of them, and the updates are performed on the last dimension of
-indices. In other words, the dimensions should be the following:</p>
-<p><cite>num_prefix_dims = sparse_delta.indices.ndims - 1</cite>
-<cite>batch_dim = num_prefix_dims + 1</cite>
-<a href="#id1"><span class="problematic" id="id2">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
-<blockquote>
-<div><p>batch_dim:]`</p>
-</div></blockquote>
-<p>where</p>
-<p><cite>sparse_delta.updates.shape[:num_prefix_dims]</cite>
-<cite>== sparse_delta.indices.shape[:num_prefix_dims]</cite>
-<cite>== var.shape[:num_prefix_dims]</cite></p>
-<p>And the operation performed can be expressed as:</p>
-<dl class="simple">
-<dt><a href="#id3"><span class="problematic" id="id4">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
-<dt>sparse_delta.indices[i_1, …, i_n, j]] = sparse_delta.updates[</dt><dd><p>i_1, …, i_n, j]`</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>When sparse_delta.indices is a 1D tensor, this operation is equivalent to
-<cite>scatter_update</cite>.</p>
-<p>To avoid this operation one can looping over the first <cite>ndims</cite> of the
-variable and using <cite>scatter_update</cite> on the subtensors that result of slicing
-the first dimension. This is a valid option for <cite>ndims = 1</cite>, but less
-efficient than this implementation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to be assigned to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.constraint">
-<em class="property">property </em><code class="sig-name descname">constraint</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the constraint function associated with this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The constraint function that was passed to the variable constructor.
-Can be <cite>None</cite> if no constraint was passed.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.count_up_to">
-<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param">limit</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.count_up_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Increments this variable until it reaches <cite>limit</cite>. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Prefer Dataset.range instead.</p>
-<p>When that Op is run it tries to increment the variable by <cite>1</cite>. If
-incrementing the variable would bring it above <cite>limit</cite> then the Op raises
-the exception <cite>OutOfRangeError</cite>.</p>
-<p>If no error is raised, the Op outputs the value of the variable before
-the increment.</p>
-<p>This is essentially a shortcut for <cite>count_up_to(self, limit)</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>limit</strong> – value at which incrementing the variable raises an error.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the variable value before the increment. If no
-other Op modifies this variable, the values produced will all be
-distinct.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.create">
-<em class="property">property </em><code class="sig-name descname">create</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op responsible for initializing this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.device">
-<em class="property">property </em><code class="sig-name descname">device</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.device" title="Permalink to this definition">¶</a></dt>
-<dd><p>The device this variable is on.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.dtype">
-<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.dtype" title="Permalink to this definition">¶</a></dt>
-<dd><p>The dtype of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.eval">
-<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.eval" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluates and returns the value of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.experimental_ref">
-<code class="sig-name descname">experimental_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.experimental_ref" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a hashable reference object to this Variable.</p>
-<p>Warning: Experimental API that could be changed or removed.</p>
-<p>The primary usecase for this API is to put variables in a set/dictionary.
-We can’t put variables in a set/dictionary as <cite>variable.__hash__()</cite> is no
-longer available starting Tensorflow 2.0.</p>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a>python
-import tensorflow as tf</p>
-<p>x = tf.Variable(5)
-y = tf.Variable(10)
-z = tf.Variable(10)</p>
-<p># The followings will raise an exception starting 2.0
-# TypeError: Variable is unhashable if Variable equality is enabled.
-variable_set = {x, y, z}
-variable_dict = {x: ‘five’, y: ‘ten’}
-<a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a></p>
-<p>Instead, we can use <cite>variable.experimental_ref()</cite>.</p>
-<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a>python
-variable_set = {x.experimental_ref(),</p>
-<blockquote>
-<div><p>y.experimental_ref(),
-z.experimental_ref()}</p>
-</div></blockquote>
-<p>print(x.experimental_ref() in variable_set)
-==&gt; True</p>
-<dl class="simple">
-<dt>variable_dict = {x.experimental_ref(): ‘five’,</dt><dd><p>y.experimental_ref(): ‘ten’,
-z.experimental_ref(): ‘ten’}</p>
-</dd>
-</dl>
-<p>print(variable_dict[y.experimental_ref()])
-==&gt; ten
-<a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a></p>
-<p>Also, the reference object provides <cite>.deref()</cite> function that returns the
-original Variable.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">x</span> <span class="pre">=</span> <span class="pre">tf.Variable(5)</span>
-<span class="pre">print(x.experimental_ref().deref())</span>
-<span class="pre">==&gt;</span> <span class="pre">&lt;tf.Variable</span> <span class="pre">'Variable:0'</span> <span class="pre">shape=()</span> <span class="pre">dtype=int32,</span> <span class="pre">numpy=5&gt;</span>
-<span class="pre">`</span></code></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.from_proto">
-<em class="property">static </em><code class="sig-name descname">from_proto</code><span class="sig-paren">(</span><em class="sig-param">variable_def</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.from_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <cite>Variable</cite> object created from <cite>variable_def</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.gather_nd">
-<code class="sig-name descname">gather_nd</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.gather_nd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the value of this variable sparsely, using <cite>gather_nd</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.get_shape">
-<code class="sig-name descname">get_shape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.get_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias of <cite>Variable.shape</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.graph">
-<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <cite>Graph</cite> of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.handle">
-<em class="property">property </em><code class="sig-name descname">handle</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.handle" title="Permalink to this definition">¶</a></dt>
-<dd><p>The handle by which this variable can be accessed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.initial_value">
-<em class="property">property </em><code class="sig-name descname">initial_value</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.initial_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the Tensor used as the initial value for the variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.initialized_value">
-<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.initialized_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the value of the initialized variable. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Use Variable.read_value. Variables in 2.X are initialized automatically both in eager and graph (inside tf.defun) contexts.</p>
-<p>You should use this instead of the variable itself to initialize another
-variable with a value that depends on the value of this variable.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">#</span> <span class="pre">Initialize</span> <span class="pre">'v'</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">random</span> <span class="pre">tensor.</span>
-<span class="pre">v</span> <span class="pre">=</span> <span class="pre">tf.Variable(tf.random.truncated_normal([10,</span> <span class="pre">40]))</span>
-<span class="pre">#</span> <span class="pre">Use</span> <span class="pre">`initialized_value`</span> <span class="pre">to</span> <span class="pre">guarantee</span> <span class="pre">that</span> <span class="pre">`v`</span> <span class="pre">has</span> <span class="pre">been</span>
-<span class="pre">#</span> <span class="pre">initialized</span> <span class="pre">before</span> <span class="pre">its</span> <span class="pre">value</span> <span class="pre">is</span> <span class="pre">used</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">`w`.</span>
-<span class="pre">#</span> <span class="pre">The</span> <span class="pre">random</span> <span class="pre">values</span> <span class="pre">are</span> <span class="pre">picked</span> <span class="pre">only</span> <span class="pre">once.</span>
-<span class="pre">w</span> <span class="pre">=</span> <span class="pre">tf.Variable(v.initialized_value()</span> <span class="pre">*</span> <span class="pre">2.0)</span>
-<span class="pre">`</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <cite>Tensor</cite> holding the value of this variable after its initializer
-has run.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.initializer">
-<em class="property">property </em><code class="sig-name descname">initializer</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.initializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op responsible for initializing this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.is_initialized">
-<code class="sig-name descname">is_initialized</code><span class="sig-paren">(</span><em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.is_initialized" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks whether a resource variable has been initialized.</p>
-<p>Outputs boolean scalar indicating whether the tensor has been initialized.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – A name for the operation (optional).</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> of type <cite>bool</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load new value into this variable. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Prefer Variable.assign which has equivalent behavior in 2.X.</p>
-<p>Writes new value to variable’s memory. Doesn’t add ops to the graph.</p>
-<p>This convenience method requires a session where the graph
-containing this variable has been launched. If no session is
-passed, the default session is used.  See <cite>tf.compat.v1.Session</cite> for more
-information on launching a graph and on sessions.</p>
-<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a>python
-v = tf.Variable([1, 2])
-init = tf.compat.v1.global_variables_initializer()</p>
-<dl class="simple">
-<dt>with tf.compat.v1.Session() as sess:</dt><dd><p>sess.run(init)
-# Usage passing the session explicitly.
-v.load([2, 3], sess)
-print(v.eval(sess)) # prints [2 3]
-# Usage with the default session.  The ‘with’ block
-# above makes ‘sess’ the default session.
-v.load([3, 4], sess)
-print(v.eval()) # prints [3 4]</p>
-</dd>
-</dl>
-<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> – New variable value</p></li>
-<li><p><strong>session</strong> – The session to use to evaluate this variable. If none, the
-default session is used.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – Session is not passed and no default session</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the handle for this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.numpy">
-<code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.numpy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.op">
-<em class="property">property </em><code class="sig-name descname">op</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.op" title="Permalink to this definition">¶</a></dt>
-<dd><p>The op for this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.read_value">
-<code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedResourceVariable.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.read_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructs an op which reads the value of this variable.</p>
-<p>Should be used when there are multiple reads, or when it is desirable to
-read the value only after some condition is true.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the read operation.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_add">
-<code class="sig-name descname">scatter_add</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds <cite>tf.IndexedSlices</cite> to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to be added to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered addition has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_div">
-<code class="sig-name descname">scatter_div</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_div" title="Permalink to this definition">¶</a></dt>
-<dd><p>Divide this variable by <cite>tf.IndexedSlices</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to divide this variable by.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered division has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_max">
-<code class="sig-name descname">scatter_max</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_max" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates this variable with the max of <cite>tf.IndexedSlices</cite> and itself.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to use as an argument of max
-with this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered maximization has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_min">
-<code class="sig-name descname">scatter_min</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_min" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates this variable with the min of <cite>tf.IndexedSlices</cite> and itself.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to use as an argument of min
-with this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered minimization has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_mul">
-<code class="sig-name descname">scatter_mul</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_mul" title="Permalink to this definition">¶</a></dt>
-<dd><p>Multiply this variable by <cite>tf.IndexedSlices</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to multiply this variable by.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered multiplication has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_nd_add">
-<code class="sig-name descname">scatter_nd_add</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_nd_add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse addition to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-add = ref.scatter_nd_add(indices, updates)
-with tf.compat.v1.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(add)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, 13, 3, 14, 14, 6, 7, 20]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_nd_sub">
-<code class="sig-name descname">scatter_nd_sub</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_nd_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse subtraction to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-op = ref.scatter_nd_sub(indices, updates)
-with tf.compat.v1.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(op)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, -9, 3, -6, -6, 6, 7, -4]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_nd_update">
-<code class="sig-name descname">scatter_nd_update</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_nd_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies sparse assignment to individual values or slices in a Variable.</p>
-<p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
-<p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
-It must be shape <cite>[d_0, …, d_{Q-2}, K]</cite> where <cite>0 &lt; K &lt;= P</cite>.</p>
-<p>The innermost dimension of <cite>indices</cite> (with length <cite>K</cite>) corresponds to
-indices into elements (if <cite>K = P</cite>) or slices (if <cite>K &lt; P</cite>) along the <cite>K`th
-dimension of `ref</cite>.</p>
-<p><cite>updates</cite> is <cite>Tensor</cite> of rank <cite>Q-1+P-K</cite> with shape:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">[d_0,</span> <span class="pre">...,</span> <span class="pre">d_{Q-2},</span> <span class="pre">ref.shape[K],</span> <span class="pre">...,</span> <span class="pre">ref.shape[P-1]].</span>
-<span class="pre">`</span></code></p>
-<p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
-8 elements. In Python, that update would look like this:</p>
-<dl>
-<dt><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
-indices = tf.constant([[4], [3], [1] ,[7]])
-updates = tf.constant([9, 10, 11, 12])
-op = ref.scatter_nd_update(indices, updates)
-with tf.compat.v1.Session() as sess:</p>
-<blockquote>
-<div><p>print sess.run(op)</p>
-</div></blockquote>
-</dd>
-</dl>
-<p><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a></p>
-<p>The resulting update to ref would look like this:</p>
-<blockquote>
-<div><p>[1, 11, 3, 10, 9, 6, 7, 12]</p>
-</div></blockquote>
-<p>See <cite>tf.scatter_nd</cite> for more details about how to make updates to
-slices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indices</strong> – The indices to be used in the operation.</p></li>
-<li><p><strong>updates</strong> – The values to be used in the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_sub">
-<code class="sig-name descname">scatter_sub</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_sub" title="Permalink to this definition">¶</a></dt>
-<dd><p>Subtracts <cite>tf.IndexedSlices</cite> from this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to be subtracted from this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.scatter_update">
-<code class="sig-name descname">scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.scatter_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns <cite>tf.IndexedSlices</cite> to this variable.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sparse_delta</strong> – <cite>tf.IndexedSlices</cite> to be assigned to this variable.</p></li>
-<li><p><strong>use_locking</strong> – If <cite>True</cite>, use locking during the operation.</p></li>
-<li><p><strong>name</strong> – the name of the operation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <cite>Tensor</cite> that will hold the new value of this variable after
-the scattered subtraction has completed.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if <cite>sparse_delta</cite> is not an <cite>IndexedSlices</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.set_shape">
-<code class="sig-name descname">set_shape</code><span class="sig-paren">(</span><em class="sig-param">shape</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.set_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unsupported.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.shape">
-<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>The shape of this variable.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.sparse_read">
-<code class="sig-name descname">sparse_read</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.sparse_read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the value of this variable sparsely, using <cite>gather</cite>.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.synchronization">
-<em class="property">property </em><code class="sig-name descname">synchronization</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.synchronization" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a <cite>ResourceVariable</cite> to a <cite>VariableDef</cite> protocol buffer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>export_scope</strong> – Optional <cite>string</cite>. Name scope to remove.</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.8)"><strong>RuntimeError</strong></a> – If run in EAGER mode.</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <cite>VariableDef</cite> protocol buffer, or <cite>None</cite> if the <cite>Variable</cite> is not
-in the specified name scope.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.trainable">
-<em class="property">property </em><code class="sig-name descname">trainable</code><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.trainable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.parameter.ComposedResourceVariable.value">
-<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedResourceVariable.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedResourceVariable.value" title="Permalink to this definition">¶</a></dt>
-<dd><p>A cached operation which reads the value of this variable.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="zfit.core.parameter.ComposedVariable">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComposedVariable</code><span class="sig-paren">(</span><em class="sig-param">name: str</em>, <em class="sig-param">value_fn: Callable</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -2276,7 +1382,7 @@ same for all of them, and the updates are performed on the last dimension of
 indices. In other words, the dimensions should be the following:</p>
 <p><cite>num_prefix_dims = sparse_delta.indices.ndims - 1</cite>
 <cite>batch_dim = num_prefix_dims + 1</cite>
-<a href="#id53"><span class="problematic" id="id54">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
+<a href="#id1"><span class="problematic" id="id2">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
 <blockquote>
 <div><p>batch_dim:]`</p>
 </div></blockquote>
@@ -2286,7 +1392,7 @@ indices. In other words, the dimensions should be the following:</p>
 <cite>== var.shape[:num_prefix_dims]</cite></p>
 <p>And the operation performed can be expressed as:</p>
 <dl class="simple">
-<dt><a href="#id55"><span class="problematic" id="id56">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
+<dt><a href="#id3"><span class="problematic" id="id4">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
 <dt>sparse_delta.indices[i_1, …, i_n, j]] = sparse_delta.updates[</dt><dd><p>i_1, …, i_n, j]`</p>
 </dd>
 </dl>
@@ -2390,7 +1496,7 @@ distinct.</p>
 <p>The primary usecase for this API is to put variables in a set/dictionary.
 We can’t put variables in a set/dictionary as <cite>variable.__hash__()</cite> is no
 longer available starting Tensorflow 2.0.</p>
-<p><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>python
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a>python
 import tensorflow as tf</p>
 <p>x = tf.Variable(5)
 y = tf.Variable(10)
@@ -2399,9 +1505,9 @@ z = tf.Variable(10)</p>
 # TypeError: Variable is unhashable if Variable equality is enabled.
 variable_set = {x, y, z}
 variable_dict = {x: ‘five’, y: ‘ten’}
-<a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
+<a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a></p>
 <p>Instead, we can use <cite>variable.experimental_ref()</cite>.</p>
-<p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>python
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a>python
 variable_set = {x.experimental_ref(),</p>
 <blockquote>
 <div><p>y.experimental_ref(),
@@ -2416,7 +1522,7 @@ z.experimental_ref(): ‘ten’}</p>
 </dl>
 <p>print(variable_dict[y.experimental_ref()])
 ==&gt; ten
-<a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
+<a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a></p>
 <p>Also, the reference object provides <cite>.deref()</cite> function that returns the
 original Variable.</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
@@ -2571,7 +1677,7 @@ Prefer Variable.assign which has equivalent behavior in 2.X.</p>
 containing this variable has been launched. If no session is
 passed, the default session is used.  See <cite>tf.compat.v1.Session</cite> for more
 information on launching a graph and on sessions.</p>
-<p><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>python
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a>python
 v = tf.Variable([1, 2])
 init = tf.compat.v1.global_variables_initializer()</p>
 <dl class="simple">
@@ -2585,7 +1691,7 @@ v.load([3, 4], sess)
 print(v.eval()) # prints [3 4]</p>
 </dd>
 </dl>
-<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
+<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -2811,7 +1917,7 @@ dimension of `ref</cite>.</p>
 <p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
 8 elements. In Python, that update would look like this:</p>
 <dl>
-<dt><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+<dt><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 add = ref.scatter_nd_add(indices, updates)
@@ -2821,7 +1927,7 @@ with tf.compat.v1.Session() as sess:</p>
 </div></blockquote>
 </dd>
 </dl>
-<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+<p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a></p>
 <p>The resulting update to ref would look like this:</p>
 <blockquote>
 <div><p>[1, 13, 3, 14, 14, 6, 7, 20]</p>
@@ -2860,7 +1966,7 @@ dimension of `ref</cite>.</p>
 <p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
 8 elements. In Python, that update would look like this:</p>
 <dl>
-<dt><a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+<dt><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 op = ref.scatter_nd_sub(indices, updates)
@@ -2870,7 +1976,7 @@ with tf.compat.v1.Session() as sess:</p>
 </div></blockquote>
 </dd>
 </dl>
-<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
+<p><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a></p>
 <p>The resulting update to ref would look like this:</p>
 <blockquote>
 <div><p>[1, -9, 3, -6, -6, 6, 7, -4]</p>
@@ -2909,7 +2015,7 @@ dimension of `ref</cite>.</p>
 <p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
 8 elements. In Python, that update would look like this:</p>
 <dl>
-<dt><a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+<dt><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 op = ref.scatter_nd_update(indices, updates)
@@ -2919,7 +2025,7 @@ with tf.compat.v1.Session() as sess:</p>
 </div></blockquote>
 </dd>
 </dl>
-<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
+<p><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a></p>
 <p>The resulting update to ref would look like this:</p>
 <blockquote>
 <div><p>[1, 11, 3, 10, 9, 6, 7, 12]</p>
@@ -3299,7 +2405,7 @@ same for all of them, and the updates are performed on the last dimension of
 indices. In other words, the dimensions should be the following:</p>
 <p><cite>num_prefix_dims = sparse_delta.indices.ndims - 1</cite>
 <cite>batch_dim = num_prefix_dims + 1</cite>
-<a href="#id105"><span class="problematic" id="id106">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
+<a href="#id53"><span class="problematic" id="id54">`</span></a>sparse_delta.updates.shape = sparse_delta.indices.shape + var.shape[</p>
 <blockquote>
 <div><p>batch_dim:]`</p>
 </div></blockquote>
@@ -3309,7 +2415,7 @@ indices. In other words, the dimensions should be the following:</p>
 <cite>== var.shape[:num_prefix_dims]</cite></p>
 <p>And the operation performed can be expressed as:</p>
 <dl class="simple">
-<dt><a href="#id107"><span class="problematic" id="id108">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
+<dt><a href="#id55"><span class="problematic" id="id56">`</span></a>var[i_1, …, i_n,</dt><dd><dl class="simple">
 <dt>sparse_delta.indices[i_1, …, i_n, j]] = sparse_delta.updates[</dt><dd><p>i_1, …, i_n, j]`</p>
 </dd>
 </dl>
@@ -3408,7 +2514,7 @@ distinct.</p>
 <p>The primary usecase for this API is to put variables in a set/dictionary.
 We can’t put variables in a set/dictionary as <cite>variable.__hash__()</cite> is no
 longer available starting Tensorflow 2.0.</p>
-<p><a href="#id109"><span class="problematic" id="id110">``</span></a><a href="#id111"><span class="problematic" id="id112">`</span></a>python
+<p><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>python
 import tensorflow as tf</p>
 <p>x = tf.Variable(5)
 y = tf.Variable(10)
@@ -3417,9 +2523,9 @@ z = tf.Variable(10)</p>
 # TypeError: Variable is unhashable if Variable equality is enabled.
 variable_set = {x, y, z}
 variable_dict = {x: ‘five’, y: ‘ten’}
-<a href="#id113"><span class="problematic" id="id114">``</span></a><a href="#id115"><span class="problematic" id="id116">`</span></a></p>
+<a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
 <p>Instead, we can use <cite>variable.experimental_ref()</cite>.</p>
-<p><a href="#id117"><span class="problematic" id="id118">``</span></a><a href="#id119"><span class="problematic" id="id120">`</span></a>python
+<p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>python
 variable_set = {x.experimental_ref(),</p>
 <blockquote>
 <div><p>y.experimental_ref(),
@@ -3434,7 +2540,7 @@ z.experimental_ref(): ‘ten’}</p>
 </dl>
 <p>print(variable_dict[y.experimental_ref()])
 ==&gt; ten
-<a href="#id121"><span class="problematic" id="id122">``</span></a><a href="#id123"><span class="problematic" id="id124">`</span></a></p>
+<a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
 <p>Also, the reference object provides <cite>.deref()</cite> function that returns the
 original Variable.</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
@@ -3538,7 +2644,7 @@ Prefer Variable.assign which has equivalent behavior in 2.X.</p>
 containing this variable has been launched. If no session is
 passed, the default session is used.  See <cite>tf.compat.v1.Session</cite> for more
 information on launching a graph and on sessions.</p>
-<p><a href="#id125"><span class="problematic" id="id126">``</span></a><a href="#id127"><span class="problematic" id="id128">`</span></a>python
+<p><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>python
 v = tf.Variable([1, 2])
 init = tf.compat.v1.global_variables_initializer()</p>
 <dl class="simple">
@@ -3552,7 +2658,7 @@ v.load([3, 4], sess)
 print(v.eval()) # prints [3 4]</p>
 </dd>
 </dl>
-<p><a href="#id129"><span class="problematic" id="id130">``</span></a><a href="#id131"><span class="problematic" id="id132">`</span></a></p>
+<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -3726,7 +2832,7 @@ dimension of `ref</cite>.</p>
 <p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
 8 elements. In Python, that update would look like this:</p>
 <dl>
-<dt><a href="#id133"><span class="problematic" id="id134">``</span></a><a href="#id135"><span class="problematic" id="id136">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+<dt><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 add = ref.scatter_nd_add(indices, updates)
@@ -3736,7 +2842,7 @@ with tf.compat.v1.Session() as sess:</p>
 </div></blockquote>
 </dd>
 </dl>
-<p><a href="#id137"><span class="problematic" id="id138">``</span></a><a href="#id139"><span class="problematic" id="id140">`</span></a></p>
+<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
 <p>The resulting update to ref would look like this:</p>
 <blockquote>
 <div><p>[1, 13, 3, 14, 14, 6, 7, 20]</p>
@@ -3775,7 +2881,7 @@ dimension of `ref</cite>.</p>
 <p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
 8 elements. In Python, that update would look like this:</p>
 <dl>
-<dt><a href="#id141"><span class="problematic" id="id142">``</span></a><a href="#id143"><span class="problematic" id="id144">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+<dt><a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 op = ref.scatter_nd_sub(indices, updates)
@@ -3785,7 +2891,7 @@ with tf.compat.v1.Session() as sess:</p>
 </div></blockquote>
 </dd>
 </dl>
-<p><a href="#id145"><span class="problematic" id="id146">``</span></a><a href="#id147"><span class="problematic" id="id148">`</span></a></p>
+<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
 <p>The resulting update to ref would look like this:</p>
 <blockquote>
 <div><p>[1, -9, 3, -6, -6, 6, 7, -4]</p>
@@ -3824,7 +2930,7 @@ dimension of `ref</cite>.</p>
 <p>For example, say we want to add 4 scattered elements to a rank-1 tensor to
 8 elements. In Python, that update would look like this:</p>
 <dl>
-<dt><a href="#id149"><span class="problematic" id="id150">``</span></a><a href="#id151"><span class="problematic" id="id152">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
+<dt><a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>python</dt><dd><p>ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])
 indices = tf.constant([[4], [3], [1] ,[7]])
 updates = tf.constant([9, 10, 11, 12])
 op = ref.scatter_nd_update(indices, updates)
@@ -3834,7 +2940,7 @@ with tf.compat.v1.Session() as sess:</p>
 </div></blockquote>
 </dd>
 </dl>
-<p><a href="#id153"><span class="problematic" id="id154">``</span></a><a href="#id155"><span class="problematic" id="id156">`</span></a></p>
+<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
 <p>The resulting update to ref would look like this:</p>
 <blockquote>
 <div><p>[1, 11, 3, 10, 9, 6, 7, 12]</p>
@@ -4099,30 +3205,20 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
-<li><p><strong>prefer_floating</strong> – If True, create a Parameter instead of a FixedParameter _if <a href="#id157"><span class="problematic" id="id158">possible_</span></a>.</p></li>
+<li><p><strong>prefer_floating</strong> – If True, create a Parameter instead of a FixedParameter _if <a href="#id105"><span class="problematic" id="id106">possible_</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="zfit.core.parameter.feed_function">
-<code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">feed_function</code><span class="sig-paren">(</span><em class="sig-param">feed</em>, <em class="sig-param">feed_val</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.feed_function" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zfit.core.parameter.feed_function_for_partial_run">
-<code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">feed_function_for_partial_run</code><span class="sig-paren">(</span><em class="sig-param">feed</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.feed_function_for_partial_run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zfit.core.parameter.fetch_function">
-<code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">fetch_function</code><span class="sig-paren">(</span><em class="sig-param">variable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.fetch_function" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="zfit.core.parameter.get_auto_number">
 <code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">get_auto_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#get_auto_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.get_auto_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.core.parameter.register_tensor_conversion">
+<code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">register_tensor_conversion</code><span class="sig-paren">(</span><em class="sig-param">convertable</em>, <em class="sig-param">overload_operators=True</em>, <em class="sig-param">priority=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#register_tensor_conversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.register_tensor_conversion" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
