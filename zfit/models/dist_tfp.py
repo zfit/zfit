@@ -18,7 +18,7 @@ import tensorflow as tf
 
 
 
-from zfit import ztf
+from zfit import z
 from zfit.util.exception import OverdefinedError
 from ..util import ztyping
 from ..settings import ztypes
@@ -46,8 +46,8 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 
-    prob_sample = ztf.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
-                                     maxval=upper_prob_lim)
+    prob_sample = z.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
+                                   maxval=upper_prob_lim)
     sample = dist.quantile(prob_sample)
     return sample
 
@@ -100,9 +100,9 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits.limits
         if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
-            return ztf.to_real(1.)  # tfp distributions are normalized to 1
-        lower = ztf.to_real(lower[0], dtype=self.dtype)
-        upper = ztf.to_real(upper[0], dtype=self.dtype)
+            return z.to_real(1.)  # tfp distributions are normalized to 1
+        lower = z.to_real(lower[0], dtype=self.dtype)
+        upper = z.to_real(upper[0], dtype=self.dtype)
         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
         return integral[0]
 
@@ -141,7 +141,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         if weights is None:
 #             weights = tf.ones_like(loc, dtype=tf.float64)
 #         self._weights_loc = weights
-#         self._weights_sum = ztf.reduce_sum(weights)
+#         self._weights_sum = z.reduce_sum(weights)
 #         self._latent_loc = loc
 #         params = {"scale": scale}
 #         dist_params = {"loc": loc, "scale": scale}
@@ -155,19 +155,19 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         probs = self.distribution.prob(value=value, name="unnormalized_pdf")
 #         # weights = tf.expand_dims(self._weights_loc, axis=-1)
 #         weights = self._weights_loc
-#         probs = ztf.reduce_sum(probs * weights, axis=-1) / self._weights_sum
+#         probs = z.reduce_sum(probs * weights, axis=-1) / self._weights_sum
 #         return probs
 #
 #     @supports()
 #     def _analytic_integrate(self, limits, norm_range):
 #         lower, upper = limits.limits
 #         if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
-#             return ztf.reduce_sum(self._weights_loc)  # tfp distributions are normalized to 1
-#         lower = ztf.to_real(lower[0], dtype=self.dtype)
+#             return z.reduce_sum(self._weights_loc)  # tfp distributions are normalized to 1
+#         lower = z.to_real(lower[0], dtype=self.dtype)
 #         # lower = tf.broadcast_to(lower, shape=(tf.shape(self._latent_loc)[0], limits.n_obs,))  # remove
-#         upper = ztf.to_real(upper[0], dtype=self.dtype)
+#         upper = z.to_real(upper[0], dtype=self.dtype)
 #         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
-#         integral = ztf.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum
+#         integral = z.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum
 #         return integral  # TODO: generalize for VectorSpaces
 
 

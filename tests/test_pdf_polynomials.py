@@ -1,16 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 import copy
 
+import numpy as np
 import pytest
-import zfit
-from zfit import ztf
 import tensorflow as tf
 
-
-
+import zfit
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-
-import numpy as np
 
 # obs1_random = zfit.Space(obs="obs1", limits=(-1.05, 1.05))
 obs1_random = zfit.Space(obs="obs1", limits=(-1.5, 1.2))
@@ -54,8 +51,8 @@ def test_polynomials(poly_cfg, coeffs):
     y_poly2_u = polynomial2.unnormalized_pdf(x)
     y_poly_coeff0 = polynomial_coeff0.pdf(x)
     y_poly_coeff0_u = polynomial_coeff0.unnormalized_pdf(x)
-    y_poly_np, y_poly2_np, y_poly_coeff0_np = zfit.run([y_poly, y_poly2, y_poly_coeff0])
-    y_polyu_np, y_poly2u_np, y_polyu_coeff0_np = zfit.run([y_poly_u, y_poly2_u, y_poly_coeff0_u])
+    y_poly_np, y_poly2_np, y_poly_coeff0_np = [y_poly.numpy(), y_poly2.numpy(), y_poly_coeff0.numpy()]
+    y_polyu_np, y_poly2u_np, y_polyu_coeff0_np = [y_poly_u.numpy(), y_poly2_u.numpy(), y_poly_coeff0_u.numpy()]
     np.testing.assert_allclose(y_polyu_np, y_poly2u_np)
     np.testing.assert_allclose(y_polyu_np, y_polyu_coeff0_np)
     np.testing.assert_allclose(y_poly_np, y_poly2_np)
@@ -64,8 +61,8 @@ def test_polynomials(poly_cfg, coeffs):
     # test 1 to 1 range
     integral = polynomial.analytic_integrate(limits=obs1, norm_range=False)
     numerical_integral = polynomial.numeric_integrate(limits=obs1, norm_range=False)
-    analytic_integral = zfit.run(integral)
-    assert pytest.approx(analytic_integral, rel=rel_integral) == zfit.run(numerical_integral)
+    analytic_integral = integral.numpy()
+    assert pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
 
     # test with different range scaling
     polynomial = poly_pdf(obs=obs1_random, coeffs=coeffs)
@@ -73,16 +70,16 @@ def test_polynomials(poly_cfg, coeffs):
     # test with limits != space
     integral = polynomial.analytic_integrate(limits=obs1, norm_range=False)
     numerical_integral = polynomial.numeric_integrate(limits=obs1, norm_range=False)
-    analytic_integral = zfit.run(integral)
-    assert pytest.approx(analytic_integral, rel=rel_integral) == zfit.run(numerical_integral)
+    analytic_integral = integral.numpy()
+    assert pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
 
     # test with limits == space
     integral = polynomial.analytic_integrate(limits=obs1_random, norm_range=False)
     numerical_integral = polynomial.numeric_integrate(limits=obs1_random, norm_range=False)
-    analytic_integral = zfit.run(integral)
-    assert pytest.approx(analytic_integral, rel=rel_integral) == zfit.run(numerical_integral)
+    analytic_integral = integral.numpy()
+    assert pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
 
     lower, upper = obs1_random.limit1d
-    test_integral = np.average(zfit.run(polynomial.unnormalized_pdf(tf.random.uniform((n_sampling,), lower, upper)))) \
+    test_integral = np.average(polynomial.unnormalized_pdf(tf.random.uniform((n_sampling,), lower, upper))) \
                     * obs1_random.area()
     assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral

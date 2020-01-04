@@ -5,18 +5,42 @@ Changelog
 Develop
 =======
 
+This release switched to TensorFlow 2.0 eager mode. In case this breaks things for you and you need **urgently**
+a running version, install a version
+< 0.4.0. It is highly recommended to upgrade and make the small changes required.
+
+Please read the :doc:`upgrade guide <docs/project/upgrade_guide.rst>` on a more detailed explanation how to upgrade.
+
+TensorFlow 2.0 is eager executing and uses functions to abstract the performance critical parts away.
+
 
 Major Features and Improvements
 -------------------------------
+ - Dependents (currently, and probably also in the future) need more manual tracking. This has mostly
+   an effect on CompositeParameters and SimpleLoss, which now require to specify the dependents by giving
+   the objects it depends (indirectly) on. For example, it is sufficient to give a `ComplexParameter` (which
+   itself is not independent but has dependents) to a `SimpleLoss` as dependents (assuming the loss
+   function depends on it).
+ - `ComposedParameter` does no longer allow to give a Tensor but requires a function that, when evaluated,
+   returns the value. It depends on the `dependents` that are now required.
+ - Added numerical differentiation, which allows now to wrap any function with `z.py_function` (`zfit.z`).
+   This can be switched on with `zfit.settings.options['numerical_grad'] = True
+ - Added gradient and hessian calculation options to the loss. Support numerical calculation as well.
+ - Add caching system for graph to prevent recursive graph building
+
 
 Behavioral changes
 ------------------
+ - known issue: the `projection_pdf` has troubles with the newest TF version and may not work properly (runs out of
+   memory)
+
 
 Bug fixes and small changes
 ---------------------------
 
 Requirement changes
 -------------------
+ - added numdifftools (for numerical differentiation)
 
 
 Thanks

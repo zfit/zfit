@@ -145,6 +145,28 @@ One example is the Gauss PDF that has been shown above. The object ``gauss`` con
 
 .. code-block:: pycon
 
+    >>> from zfit import z
+    >>> consts = [-1, 0, 1]
+    >>> probs = gauss.pdf(consts, norm_range=(-np.infty, np.infty))
+
+    >>> # And now execute the tensorflow graph
+    >>> result = zfit.run(probs)
+    >>> print("x values: {}\nresult:   {}".format(consts, result))
+    x values: [-1, 0, 1]
+    result:   [0.24262615 0.39670691 0.24130008]
+
+Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using
+    >>> from zfit import z
+    >>> consts = [-1, 0, 1]
+    >>> probs = gauss.pdf(consts, norm_range=(-np.infty, np.infty))
+
+    >>> # And now execute the tensorflow graph
+    >>> result = zfit.run(probs)
+    >>> print("x values: {}\nresult:   {}".format(consts, result))
+    x values: [-1, 0, 1]
+    result:   [0.24262615 0.39670691 0.24130008]
+
+Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using
     >>> from zfit import ztf
     >>> consts = [-1, 0, 1]
     >>> probs = gauss.pdf(consts, norm_range=(-np.infty, np.infty))

@@ -1,8 +1,9 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-# deactivating CUDA capable gpus
-from zfit.ztf.tools import _auto_upcast
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+# deactivating CUDA capable gpus
+from zfit.z.tools import _auto_upcast
 
 suppress_gpu = False
 if suppress_gpu:
@@ -14,24 +15,20 @@ if suppress_gpu:
 import pytest
 import tensorflow as tf
 
-
 import numpy as np
 
-import zfit.core.math
-from zfit import ztf
+import zfit.z.math
 
 prec = 0.00001
 
 
 def test_polynomial():
     coeffs = [5.3, 1.2, complex(1.3, 0.4), -42, 32.4, 529.3, -0.93]
-    x = tf.compat.v1.placeholder(tf.complex128)
-    true_dict = {'x': 5.}
-    feed_dict = {x: true_dict['x']}
-    polynom_tf = zfit.core.math.poly_complex(*(coeffs + [x]))  # py34 comp: *x, y does not work
-    polynom_np = np.polyval(coeffs[::-1], true_dict['x'])
+    x = tf.constant(5.)
+    polynom_tf = zfit.z.math.poly_complex(*(coeffs + [x]))  # py34 comp: *x, y does not work
+    polynom_np = np.polyval(coeffs[::-1], 5.)
 
-    result = zfit.run(polynom_tf, feed_dict=feed_dict)
+    result = polynom_tf.numpy()
     assert result == pytest.approx(polynom_np, rel=prec)
 
 

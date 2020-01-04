@@ -1,6 +1,8 @@
+#  Copyright (c) 2019 zfit
+
 from typing import Iterable
 
-from zfit import ztf
+from zfit import z
 from zfit.core.interfaces import ZfitModel, ZfitPDF
 from zfit.util.exception import NotExtendedPDFError
 from .util.container import convert_to_container
@@ -23,5 +25,5 @@ def poisson(n=None, pdfs: Iterable[ZfitPDF] = None):
     else:
         yield_ = n
 
-    poisson_term = ztf.random_poisson(lam=yield_)
+    poisson_term = z.random_poisson(lam=yield_)
     return poisson_term

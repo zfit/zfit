@@ -1,18 +1,18 @@
 """
-ztf is a zfit TensorFlow version, that wraps TF while adding some conveniences, basically using a different
+z is a zfit TensorFlow version, that wraps TF while adding some conveniences, basically using a different
 default dtype (`zfit.ztypes`). In addition, it expands TensorFlow by adding a few convenient functions
 helping to deal with `NaN`s and similar.
 
-Some function are already wrapped, others are not. Best practice is to use `ztf` whenever possible and
+Some function are already wrapped, others are not. Best practice is to use `z` whenever possible and
 `tf` for the rest.
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 # fill the following in to the namespace for (future) wrapping
 
 # doesn't work below because of autoimport... probably anytime in the Future :)
-# from tensorflow import *  # Yes, this is wanted. Yields an equivalent ztf BUT we COULD wrap it :)
+# from tensorflow import *  # Yes, this is wanted. Yields an equivalent z BUT we COULD wrap it :)
 # _module_dict = tensorflow.__dict__
 # try:
 #     _to_import = tensorflow.__all__
@@ -38,7 +38,8 @@ Some function are already wrapped, others are not. Best practice is to use `ztf`
 # same as in TensorFlow, wrapped
 
 from .zextension import (to_complex, to_real, constant, inf, pi, abs_square, nth_pow, unstack_x, stack_x, safe_where,
-                         run_no_nan, )
+                         run_no_nan, function_tf, function_sampling, py_function)
 from .wrapping_tf import (log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square,
                           sqrt, complex, check_numerics, pow)
+from .zextension import tf_function as function
 from . import random

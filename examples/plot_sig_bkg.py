@@ -21,9 +21,9 @@ model = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)
 # data
 n_sample = 10000
 
-exp_data = zfit.run(exponential.sample(n=n_sample * (1 - frac)))
+exp_data = exponential.sample(n=n_sample * (1 - frac)).numpy()
 
-gauss_data = zfit.run(gauss.sample(n=n_sample * frac))
+gauss_data = gauss.sample(n=n_sample * frac).numpy()
 
 data = model.create_sampler(n_sample, limits=obs)
 data.resample()
@@ -34,7 +34,7 @@ lambd.set_value(-0.05)
 frac.set_value(0.07)
 
 # plot the data
-data_np = zfit.run(data[:, 0])
+data_np = data[:, 0].numpy()
 color = 'black'
 n_bins = 50
 
@@ -50,9 +50,9 @@ plt.title("Before fitting")
 plt.hist(data_np, color=color, bins=n_bins, histtype="stepfilled", alpha=0.1)
 plt.hist(data_np, color=color, bins=n_bins, histtype="step")
 # plot the pdfs
-y = zfit.run(model.pdf(x))
-y_gauss = zfit.run(gauss.pdf(x) * frac)  # notice the frac!
-y_exp = zfit.run(exponential.pdf(x) * (1 - frac))  # notice the frac!
+y = model.pdf(x).numpy()
+y_gauss = (gauss.pdf(x) * frac).numpy()  # notice the frac!
+y_exp = (exponential.pdf(x) * (1 - frac)).numpy()  # notice the frac!
 
 plt.plot(x, y * plot_scaling, label="Sum - Model", linewidth=linewidth * 2)
 plt.plot(x, y_gauss * plot_scaling, '--', label="Gauss - Signal", linewidth=linewidth)
@@ -76,9 +76,9 @@ plt.title("After fitting")
 plt.hist(data_np, color=color, bins=n_bins, histtype="stepfilled", alpha=0.1)
 plt.hist(data_np, color=color, bins=n_bins, histtype="step")
 
-y = zfit.run(model.pdf(x))  # rerun now after the fitting
-y_gauss = zfit.run(gauss.pdf(x) * frac)
-y_exp = zfit.run(exponential.pdf(x) * (1 - frac))
+y = model.pdf(x).numpy()  # rerun now after the fitting
+y_gauss = (gauss.pdf(x) * frac).numpy()
+y_exp = (exponential.pdf(x) * (1 - frac)).numpy()
 
 plt.plot(x, y * plot_scaling, label="Sum - Model", linewidth=linewidth * 2)
 plt.plot(x, y_gauss * plot_scaling, '--', label="Gauss - Signal", linewidth=linewidth)

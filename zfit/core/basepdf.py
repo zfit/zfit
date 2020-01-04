@@ -49,31 +49,28 @@ For more advanced methods and ways to register analytic integrals or overwrite c
 also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
-from contextlib import suppress
-from typing import Union, Any, Type, Dict
 import warnings
+from contextlib import suppress
+from typing import Union, Type, Dict
 
 import tensorflow as tf
 
-from zfit import ztf
+from zfit import z
 from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
+from .basemodel import BaseModel
 from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
-from ..util import ztyping
-from ..util.container import convert_to_container
-from ..util.exception import (AlreadyExtendedPDFError, DueToLazynessNotImplementedError, IntentionNotUnambiguousError,
-                              AlreadyExtendedPDFError,
-                              NormRangeNotSpecifiedError, ShapeIncompatibleError, NotExtendedPDFError, )
-from ..util.temporary import TemporarilySet
-from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
-
-func_simple = tf.function(autograph=False)  # TODO: how to properly?
+from ..util import ztyping
+from ..util.container import convert_to_container
+from ..util.exception import (AlreadyExtendedPDFError,
+                              NotExtendedPDFError, )
+from ..util.temporary import TemporarilySet
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -300,6 +297,7 @@ class BasePDF(ZfitPDF, BaseModel):
         raise NotImplementedError
 
     # @func_simple
+    @z.function
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
             name: str = "model") -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.
@@ -316,12 +314,12 @@ class BasePDF(ZfitPDF, BaseModel):
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
             if run.numeric_checks:
-                assert_op = ztf.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
+                assert_op = z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
                 assert_op = [assert_op]
             else:
                 assert_op = []
             with tf.control_dependencies(assert_op):
-                return ztf.to_real(value)
+                return z.to_real(value)
 
     def _single_hook_pdf(self, x, norm_range, name):
         return self._hook_pdf(x=x, norm_range=norm_range, name=name)
@@ -396,7 +394,7 @@ class BasePDF(ZfitPDF, BaseModel):
             params = self.get_params(only_floating=False, names=params)
 
         probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(ys=prob, xs=params) for prob in ztf.unstack_x(probs, always_list=True)]
+        gradients = [tf.gradients(ys=prob, xs=params) for prob in z.unstack_x(probs, always_list=True)]
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
@@ -423,7 +421,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
     @invalidates_cache
-    def _set_yield_inplace(self, value: Union[Parameter, float, None]):
+    def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
         """Make the model extended by (temporarily) setting a yield.
 
         This alters the behavior of `model` and similar and `integrate` and similar. If there is a
@@ -482,7 +480,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _hook_sample(self, limits, n, name='hook_sample'):
         if n is None and self.is_extended:
             n = 'extended'
-        if n == 'extended':
+        if isinstance(n, str) and n == 'extended':
             if not self.is_extended:
                 raise NotExtendedPDFError("Cannot use 'extended' as value for `n` on a non-extended pdf.")
             samples = extended_sampling(pdfs=self, limits=limits)

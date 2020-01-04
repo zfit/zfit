@@ -1,37 +1,36 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
+import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import List, Tuple, Union, Dict, Mapping
-import warnings
+from typing import List, Tuple, Union, Dict, Mapping, Callable
 
-import tensorflow as tf
-
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import array_ops
-import uproot
 import numpy as np
 import pandas as pd
+import tensorflow as tf
+import uproot
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core.interfaces import ZfitSpace
-from ..util.cache import Cachable, invalidates_cache
-from ..util.execution import SessionHolderMixin
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
 from .limits import Space, convert_to_space, convert_to_obs_str
+from .sample import EventSpace
 from ..settings import ztypes
 from ..util import ztyping
+from ..util.cache import Cachable, invalidates_cache
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError, \
+from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
     ObsIncompatibleError
 from ..util.temporary import TemporarilySet
 
 
-class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
+class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
                  name: str = None, weights=None, iterator_feed_dict: Dict = None,
@@ -120,8 +119,8 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
 
         """
         if weights is not None:
-            weights = ztf.convert_to_tensor(weights)
-            weights = ztf.to_real(weights)
+            weights = z.convert_to_tensor(weights)
+            weights = z.to_real(weights)
             if weights.shape.ndims != 1:
                 raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
 
@@ -325,13 +324,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         if obs is None:
             obs = self.obs
         obs_str = convert_to_obs_str(obs)
-        values = self.sess.run(values)
+        values = values.numpy()
         df = pd.DataFrame(data=values, columns=obs_str)
         return df
 
     def initialize(self):
         iterator = tf.compat.v1.data.make_initializable_iterator(self.dataset)
-
+        # TODO(Mayou36): TF2 convert correct
         self.sess.run(iterator.initializer, self.iterator_feed_dict)
         self.iterator = iterator
 
@@ -352,10 +351,13 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             List(tf.Tensor)
         """
-        return ztf.unstack_x(self._value_internal(obs=obs))
+        return z.unstack_x(self._value_internal(obs=obs))
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         return self._value_internal(obs=obs)
+
+    def numpy(self):
+        return self.value().numpy()
 
     def _cut_data(self, value, obs=None):
         if self.data_range.limits is not None:
@@ -364,8 +366,12 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             inside_limits = []
             # value = tf.transpose(value)
             for lower, upper in data_range.iter_limits():
-                above_lower = tf.reduce_all(input_tensor=tf.less_equal(value, upper), axis=1)
-                below_upper = tf.reduce_all(input_tensor=tf.greater_equal(value, lower), axis=1)
+                if isinstance(data_range, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
+                    upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
+                    lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
+
+                below_upper = tf.reduce_all(input_tensor=tf.less_equal(value, upper), axis=1)  # if all obs inside
+                above_lower = tf.reduce_all(input_tensor=tf.greater_equal(value, lower), axis=1)
                 inside_limits.append(tf.logical_and(above_lower, below_upper))
             inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
 
@@ -408,9 +414,9 @@ class Data(SessionHolderMixin, Cachable, ZfitData, BaseDimensional, BaseObject):
             perm_indices = self.space.get_axes(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
-            value = ztf.unstack_x(value)
+            value = z.unstack_x(value)
             value = list(value[i] for i in perm_indices)
-            value = ztf.stack_x(value)
+            value = z.stack_x(value)
 
         return value
 
@@ -558,25 +564,25 @@ class SampleData(Data):
 class Sampler(Data):
     _cache_counting = 0
 
-    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Variable,
-                 n_holder: tf.Variable, weights=None,
+    def __init__(self, dataset: "LightDataset", sample_func: Callable, sample_holder: tf.Variable,
+                 n: Union[ztyping.NumericalScalarType, Callable], weights=None,
                  fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
                  obs: ztyping.ObsTypeInput = None, name: str = None,
                  dtype: tf.DType = ztypes.float):
 
-        super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
+        super().__init__(dataset=dataset, obs=obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
         if fixed_params is None:
             fixed_params = OrderedDict()
         if isinstance(fixed_params, (list, tuple)):
-            fixed_params = OrderedDict((param, self.sess.run(param)) for param in fixed_params)
+            fixed_params = OrderedDict((param, param.numpy()) for param in fixed_params)
 
         self._initial_resampled = False
 
-        # self.sess.run(sample_holder.initializer)
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
-        self.n = None
-        self._n_holder = n_holder
+        self.sample_func = sample_func
+        self.n = n
+        self._n_holder = n
 
     @property
     def n_samples(self):
@@ -596,18 +602,23 @@ class Sampler(Data):
         return counting
 
     @classmethod
-    def from_sample(cls, sample: tf.Tensor, n_holder: tf.Variable, obs: ztyping.ObsTypeInput, fixed_params=None,
-                    name: str = None, weights=None):
+    def from_sample(cls, sample_func: Callable, n: ztyping.NumericalScalarType, obs: ztyping.ObsTypeInput,
+                    fixed_params=None, name: str = None, weights=None, dtype=None):
+        obs = convert_to_space(obs)
 
         if fixed_params is None:
             fixed_params = []
-        from tensorflow.python.ops.variables import VariableV1
-        sample_holder = VariableV1(initial_value=sample, trainable=False,
+        if dtype is None:
+            dtype = ztypes.float
+        # from tensorflow.python.ops.variables import VariableV1
+        sample_holder = tf.Variable(initial_value=sample_func(), dtype=dtype, trainable=False,  # HACK: sample_func
+                                    # validate_shape=False,
+                                    shape=(None, obs.n_obs),
                                     name="sample_data_holder_{}".format(cls.get_cache_counting()))
         dataset = LightDataset.from_tensor(sample_holder)
 
-        return Sampler(dataset, fixed_params=fixed_params, sample_holder=sample_holder,
-                       n_holder=n_holder, obs=obs, name=name, weights=weights)
+        return Sampler(dataset=dataset, sample_holder=sample_holder, sample_func=sample_func, fixed_params=fixed_params,
+                       n=n, obs=obs, name=name, weights=weights)
 
     def resample(self, param_values: Mapping = None, n: Union[int, tf.Tensor] = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
@@ -633,17 +644,20 @@ class Sampler(Data):
 
             _ = [stack.enter_context(param.set_value(val)) for param, val in temp_param_values.items()]
 
-            if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
-                # means it's handled inside the function
-                # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
-                # fixed with self.n, needs cleanup
-                if not (isinstance(self.n_samples, str) or self.n_samples is None):
-                    self.sess.run(self.n_samples.initializer)
-            if n:
-                if not isinstance(self.n_samples, tf.Variable):
-                    raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
-                self.n_samples.load(value=n, session=self.sess)
-            self.sess.run(self.sample_holder.initializer)
+            # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
+            #     # means it's handled inside the function
+            #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
+            #     # fixed with self.n, needs cleanup
+            #     if not (isinstance(self.n_samples, str) or self.n_samples is None):
+            #         self.sess.run(self.n_samples.initializer)
+            # if n:
+            #     if not isinstance(self.n_samples, tf.Variable):
+            #         raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
+            # self.n_samples.assign(n)
+
+            new_sample = self.sample_func(n)
+            # self.sample_holder.assign(new_sample)
+            self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
 
 
@@ -671,8 +685,8 @@ Data._OverloadAllOperators()
 class LightDataset:
 
     def __init__(self, tensor):
-        if not isinstance(tensor, tf.Tensor):
-            tensor = ztf.convert_to_tensor(tensor)
+        if not isinstance(tensor, (tf.Tensor, tf.Variable)):
+            tensor = z.convert_to_tensor(tensor)
         self.tensor = tensor
 
     @classmethod
@@ -681,44 +695,3 @@ class LightDataset:
 
     def value(self):
         return self.tensor
-
-
-if __name__ == '__main__':
-
-    # from skhep_testdata import data_path
-
-    path_root = "/data/uni/b2k1ee/classification_new/2012/"
-    small_root = 'small.root'
-    #
-    path_root += small_root
-    # path_root = data_path("uproot-Zmumu.root")
-
-    branches = ['B_PT', 'B_P']  # b needed currently -> uproot
-
-    data = zfit.Data.from_root(path=path_root, treepath='DecayTree', branches=branches)
-    import time
-
-    with tf.compat.v1.Session() as sess:
-        # data.initialize()
-        x = data.value()
-
-        for i in range(1):
-            print(i)
-            try:
-                func = tf.math.log(x) * tf.sin(x) * tf.reduce_mean(
-                    input_tensor=x ** 2 - tf.cos(x) ** 2) / tf.reduce_sum(input_tensor=x)
-                start = time.time()
-                result_grad = sess.run(tf.gradients(ys=func, xs=x))
-                result = sess.run(func)
-                end = time.time()
-                print("time needed", (end - start))
-            except tf.errors.OutOfRangeError:
-                print("finished at i = ", i)
-                break
-            print(np.shape(result))
-            print(result[:, :10])
-            print(result_grad)
-
-    # directory = open_tree[]
-    # directory = directory['DecayTree']
-    # directory = directory['B_P']

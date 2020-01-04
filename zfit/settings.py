@@ -43,5 +43,5 @@ ztypes = DotDict({'float': tf.float64,
                  'auto_upcast': True,
                   })
 
-options = DotDict({'epsilon': 1e-8})
-
+options = DotDict({'epsilon': 1e-8,
+                   'numerical_grad': None})

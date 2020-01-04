@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
+import warnings
 
 from pkg_resources import get_distribution
 
@@ -24,18 +25,37 @@ __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", 
            "run", "settings"]
 
 #  Copyright (c) 2019 zfit
-import tensorflow.compat.v1 as tf
+warnings.warn(
+    """zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit
+    and minor ones on the user side. Be sure to read the upgrade guide (can be found in the README at the top)
+     to have a seemless transition. If this is currently not doable (upgrading is highly recommended though)
+     you can downgrade zfit to <0.4. Feel free to contact us in case of problems in order to fix them ASAP.""")
+import os
 
-tf.enable_resource_variables()  # forward compat
-tf.enable_v2_tensorshape()  # forward compat
-tf.disable_eager_execution()
+os.environ["KMP_AFFINITY"] = "noverbose"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import warnings
 
-from . import ztf  # legacy
-from . import ztf as z
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+import tensorflow as tf
+
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+import tensorflow.compat.v1 as _tfv1
+
+# tf.enable_resource_variables()  # forward compat
+# tf.enable_v2_tensorshape()  # forward compat
+_tfv1.enable_v2_behavior()
+# _tfv1.disable_eager_execution()
+import tensorflow as tf
+
+EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY = False
+tf.config.experimental_run_functions_eagerly(EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY)
+
+from . import z
+from . import z as ztf  # legacy
 from .settings import ztypes
 
-# tf.get_variable_scope().set_use_resource(True)
-# tf.get_variable_scope().set_dtype(ztypes.float)
 
 from . import constraint, pdf, minimize, loss, core, data, func, param
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter

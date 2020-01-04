@@ -1,12 +1,7 @@
-#  Copyright (c) 2019 zfit
-
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
-import pytest
+#  Copyright (c) 2020 zfit
 
 import zfit
-from zfit.util.exception import LimitsOverdefinedError
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
 limits1 = (-4, 3)

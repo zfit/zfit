@@ -1,19 +1,16 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-import abc
 from collections import OrderedDict
-import itertools
-from typing import List, Set
+from typing import List
 
 import tensorflow as tf
-from ordered_set import OrderedSet
 
-import zfit
-from ..util.cache import Cachable
+from zfit.core.dependents import BaseDependentsMixin
+from .interfaces import ZfitObject, ZfitNumeric
 from ..util import ztyping
-from .interfaces import ZfitObject, ZfitNumeric, ZfitDependentsMixin
-from ..util.container import convert_to_container, DotDict
+from ..util.cache import Cachable
+from ..util.container import DotDict
 
 _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
 
@@ -71,54 +68,26 @@ class BaseObject(ZfitObject):
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):
             return False
-        for key, own_element in self._repr.items():
-            if not own_element == other._repr.get(key):  # TODO: make repr better
-                return False
-        return True
+        try:
+            for key, own_element in self._repr.items():
+                if not own_element == other._repr.get(key):  # TODO: make repr better
+                    return False
+        except AttributeError:
+            return self is other
+        return True  # no break occurred
 
     def __hash__(self):
         return object.__hash__(self)
 
 
-class BaseDependentsMixin(ZfitDependentsMixin):
-    @abc.abstractmethod
-    def _get_dependents(self) -> ztyping.DependentsType:
-        raise NotImplementedError
-
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
-        """Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.
-
-        Args:
-            only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`
-        """
-        dependents = self._get_dependents()
-        if only_floating:
-            dependents = OrderedSet(filter(lambda p: p.floating, dependents))
-        return dependents
-
-    @staticmethod
-    def _extract_dependents(zfit_objects: List[ZfitObject]) -> ztyping.DependentsType:
-        """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
-
-        Args:
-            zfit_objects ():
-
-        Returns:
-            set(zfit.Parameter): A set of independent Parameters
-        """
-        zfit_objects = convert_to_container(zfit_objects)
-        dependents = (obj.get_dependents(only_floating=False) for obj in zfit_objects)
-        dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
-        return dependents_set
-
-
 class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumeric, BaseObject):
 
-    def __init__(self, name, dtype, params, **kwargs):
+    def __init__(self, name, params, **kwargs):
+        if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
+            self._dtype = kwargs.pop('dtype')
         super().__init__(name=name, **kwargs)
         from zfit.core.parameter import convert_to_parameter
 
-        self._dtype = dtype
         params = params or OrderedDict()
         params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         self.add_cache_dependents(params.values())

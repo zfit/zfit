@@ -1,15 +1,16 @@
-from typing import Iterable, Union, List
-from contextlib import ExitStack
+#  Copyright (c) 2020 zfit
+
 import functools
+from typing import Iterable, List
 
 import numpy as np
 
 import zfit
-from zfit.util.exception import (SpaceIncompatibleError, DueToLazynessNotImplementedError, LimitsIncompatibleError,
+from zfit.util.exception import (SpaceIncompatibleError, LimitsIncompatibleError,
                                  LimitsNotSpecifiedError, )
-from ..util.container import convert_to_container
 from .interfaces import ZfitDimensional
 from ..util import ztyping
+from ..util.container import convert_to_container
 
 
 class BaseDimensional(ZfitDimensional):

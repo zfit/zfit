@@ -1,11 +1,10 @@
-#  Copyright (c) 2019 zfit
-from zfit.core.testing import teardown_function, setup_function
-
+#  Copyright (c) 2020 zfit
 import math
 
 import pytest
 
 import zfit
+from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.baseminimizer import ToyStrategyFail
 
 

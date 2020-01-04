@@ -5,8 +5,7 @@ from typing import List, Dict, Optional, Mapping
 
 import tensorflow as tf
 
-
-from zfit import ztf
+from zfit import z
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..settings import ztypes
@@ -49,7 +48,7 @@ class RecursivePolynomial(BasePDF):
 
         """
         # 0th coefficient set to 1 by default
-        coeff0 = ztf.constant(1.) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
+        coeff0 = z.constant(1.) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
         coeffs = convert_to_container(coeffs).copy()
         coeffs.insert(0, coeff0)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
@@ -96,6 +95,7 @@ def do_recurrence(x, polys, degree, recurrence):
 legendre_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
+@z.function_tf
 def legendre_recurrence(p1, p2, n, x):
     """Recurrence relation for Legendre polynomials.
 
@@ -117,10 +117,10 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
     # if np.allclose((lower_rescaled, upper_rescaled), (-1, 1)):
-    #     return ztf.constant(2.)  #
+    #     return z.constant(2.)  #
 
-    lower = ztf.convert_to_tensor(lower_rescaled)
-    upper = ztf.convert_to_tensor(upper_rescaled)
+    lower = z.convert_to_tensor(lower_rescaled)
+    upper = z.convert_to_tensor(upper_rescaled)
 
     integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
     if model.degree == 0:
@@ -135,8 +135,8 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
             for degree in range(1, max_degree):
                 coeff = model.params[f"c_{degree}"]
                 one_limit_integrals.append(coeff * (polys[degree + 1] - polys[degree - 1]) /
-                                           (2. * (ztf.convert_to_tensor(degree)) + 1))
-            return ztf.reduce_sum(one_limit_integrals, axis=0)
+                                           (2. * (z.convert_to_tensor(degree)) + 1))
+            return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = tf.reshape(integral, shape=())
@@ -190,6 +190,7 @@ Legendre.register_analytic_integral(func=legendre_integral, limits=legendre_limi
 chebyshev_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
+@z.function_tf
 def chebyshev_recurrence(p1, p2, _, x):
     """Recurrence relation for Chebyshev polynomials.
 
@@ -248,8 +249,8 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
-    lower = ztf.convert_to_tensor(lower_rescaled)
-    upper = ztf.convert_to_tensor(upper_rescaled)
+    lower = z.convert_to_tensor(lower_rescaled)
+    upper = z.convert_to_tensor(upper_rescaled)
 
     integral = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 1:
@@ -263,11 +264,11 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
             one_limit_integrals = []
             for degree in range(2, max_degree):
                 coeff = model.params[f"c_{degree}"]
-                n_float = ztf.convert_to_tensor(degree)
-                integral = (n_float * polys[degree + 1] / (ztf.square(n_float) - 1)
+                n_float = z.convert_to_tensor(degree)
+                integral = (n_float * polys[degree + 1] / (z.square(n_float) - 1)
                             - limits * polys[degree] / (n_float - 1))
                 one_limit_integrals.append(coeff * integral)
-            return ztf.reduce_sum(one_limit_integrals, axis=0)
+            return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = tf.reshape(integral, shape=())
@@ -331,16 +332,16 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
-    lower = ztf.convert_to_tensor(lower_rescaled)
-    upper = ztf.convert_to_tensor(upper_rescaled)
+    lower = z.convert_to_tensor(lower_rescaled)
+    upper = z.convert_to_tensor(upper_rescaled)
 
     # the integral of cheby2_ni is a cheby1_ni+1/(n+1). We add the (n+1) to the coeffs. The cheby1 shape makes
     # the sum for us.
-    coeffs_cheby1 = {'c_0': ztf.constant(0., dtype=model.dtype)}
+    coeffs_cheby1 = {'c_0': z.constant(0., dtype=model.dtype)}
 
     for name, coeff in params.items():
         n_plus1 = int(name.split("_", 1)[-1]) + 1
-        coeffs_cheby1[f'c_{n_plus1}'] = coeff / ztf.convert_to_tensor(n_plus1, dtype=model.dtype)
+        coeffs_cheby1[f'c_{n_plus1}'] = coeff / z.convert_to_tensor(n_plus1, dtype=model.dtype)
     coeffs_cheby1 = convert_coeffs_dict_to_list(coeffs_cheby1)
 
     def indefinite_integral(limits):
@@ -365,6 +366,7 @@ laguerre_polys = generalized_laguerre_polys_factory(alpha=0.)
 
 
 def generalized_laguerre_recurrence_factory(alpha=0.):
+    @z.function_tf
     def generalized_laguerre_recurrence(p1, p2, n, x):
         """Recurrence relation for Laguerre polynomials.
 
@@ -450,8 +452,8 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
-    lower = ztf.convert_to_tensor(lower_rescaled)
-    upper = ztf.convert_to_tensor(upper_rescaled)
+    lower = z.convert_to_tensor(lower_rescaled)
+    upper = z.convert_to_tensor(upper_rescaled)
 
     # The laguerre shape makes the sum for us. setting the 0th coeff to 0, since no -1 term exists.
     coeffs_laguerre_nup = {f'c_{int(n.split("_", 1)[-1]) + 1}': c
@@ -474,6 +476,7 @@ Laguerre.register_analytic_integral(func=func_integral_laguerre, limits=laguerre
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
 
+@z.function_tf
 def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
@@ -530,15 +533,15 @@ def func_integral_hermite(limits, norm_range, params, model):
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
-    lower = ztf.convert_to_tensor(lower_rescaled)
-    upper = ztf.convert_to_tensor(upper_rescaled)
+    lower = z.convert_to_tensor(lower_rescaled)
+    upper = z.convert_to_tensor(upper_rescaled)
 
     # the integral of hermite is a hermite_ni. We add the ni to the coeffs.
-    coeffs = {'c_0': ztf.constant(0., dtype=model.dtype)}
+    coeffs = {'c_0': z.constant(0., dtype=model.dtype)}
 
     for name, coeff in params.items():
         ip1_coeff = int(name.split("_", 1)[-1]) + 1
-        coeffs[f'c_{ip1_coeff}'] = coeff / ztf.convert_to_tensor(ip1_coeff * 2., dtype=model.dtype)
+        coeffs[f'c_{ip1_coeff}'] = coeff / z.convert_to_tensor(ip1_coeff * 2., dtype=model.dtype)
     coeffs = convert_coeffs_dict_to_list(coeffs)
 
     def indefinite_integral(limits):

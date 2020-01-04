@@ -13,14 +13,13 @@ from typing import Union, List, Optional
 
 import tensorflow as tf
 
-
 import numpy as np
 
-from zfit import ztf
+from zfit import z
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
 from ..core.limits import no_norm_range, supports
 from ..core.basepdf import BasePDF
-from ..core.parameter import Parameter, convert_to_parameter
+from ..core.parameter import Parameter, convert_to_parameter, ComposedParameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -209,28 +208,35 @@ class SumPDF(BaseFunctor):
                     not_extended_position = i
                 new_pdfs.append(pdf)
             pdfs = new_pdfs
-            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            copied_fracs = fracs.copy()
+            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(copied_fracs)
+            remaining_frac = convert_to_parameter(remaining_frac_func,
+                                                  dependents=[convert_to_parameter(f) for f in copied_fracs])
             if run.numeric_checks:
                 assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                       data=[remaining_frac])  # check fractions
                 deps = [assert_op]
             else:
                 deps = []
-            with tf.control_dependencies(deps):
-                # TODO(Mayou36): always last position?
-                fracs[not_extended_position] = tf.identity(remaining_frac)
+            fracs[not_extended_position] = remaining_frac
             implicit = False  # now it's explicit
 
         elif not extended and not implicit:
-            remaining_frac = tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            # remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            copied_fracs = fracs.copy()
+
+            def remaining_frac_func():
+                return tf.constant(1., dtype=ztypes.float) - tf.add_n(copied_fracs)
+
+            remaining_frac = convert_to_parameter(remaining_frac_func,
+                                                  dependents=[convert_to_parameter(f) for f in copied_fracs])
             if run.numeric_checks:
                 assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
                                       data=[remaining_frac])  # check fractions
                 deps = [assert_op]
             else:
                 deps = []
-            with tf.control_dependencies(deps):
-                fracs.append(tf.identity(remaining_frac))
+            fracs.append(remaining_frac)
 
         # make extended
         elif extended and not implicit:
@@ -244,11 +250,15 @@ class SumPDF(BaseFunctor):
 
         if extended:
             # TODO(Mayou36): convert to correct dtype
-            sum_yields = tf.reduce_sum(
-                input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
-            yield_fracs = [yield_ / sum_yields for yield_ in yields]
+            def sum_yields_func():
+                return tf.reduce_sum(
+                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields.copy()])
+
+            sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
+            yield_fracs = [convert_to_parameter(lambda yield_=yield_: yield_ / sum_yields, dependents=yield_)
+                           for yield_ in yields]
+
             self.fracs = yield_fracs
-            # self.fracs = yield_fracs
             set_yield_at_end = True
             self._maybe_extended_fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
         else:
@@ -257,6 +267,7 @@ class SumPDF(BaseFunctor):
         self.pdfs = pdfs
 
         params = OrderedDict()
+        # TODO(Mayou36): this is not right. Where to create the params if extended? The correct fracs?
         for i, frac in enumerate(self._maybe_extended_fracs):
             params['frac_{}'.format(i)] = frac
 
@@ -295,7 +306,6 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.fracs
         prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
-        # prob = tf.accumulate_n([pdf.pdf(x, norm_range=norm_range) * scale for pdf, scale in zip(pdfs, fracs)])
         return prob
 
     def _set_yield(self, value: Union[Parameter, None]):
@@ -304,7 +314,8 @@ class SumPDF(BaseFunctor):
             # beginning
             raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
         elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
-            reciprocal_yield = tf.math.reciprocal(self.get_yield())
+            reciprocal_yield = convert_to_parameter(lambda: tf.math.reciprocal(self.get_yield()),
+                                                    dependents=self.get_yield())
             self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
         else:
             super()._set_yield(value=value)
@@ -363,8 +374,8 @@ class ProductPDF(BaseFunctor):  # TODO: unfinished
     def _unnormalized_pdf(self, x: ztyping.XType):
 
         norm_range = self._get_component_norm_range()
-        return np.prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
-                        for pdf in self.pdfs])
+        return tf.math.reduce_prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
+                                    for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_obs):
