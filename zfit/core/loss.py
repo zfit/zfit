@@ -10,7 +10,7 @@ from ordered_set import OrderedSet
 from zfit import z, settings
 
 ztf = z
-from zfit.z.math import numerical_gradient, automatic_gradient, automatic_value_gradients, numerical_value_gradients, \
+from zfit.z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 from ..util import ztyping
 from ..util.cache import Cachable
@@ -242,7 +242,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             gradients = numerical_gradient(self.value, params=params)
 
         else:
-            gradients = automatic_gradient(self.value, params=params)
+            gradients = autodiff_gradient(self.value, params=params)
         return gradients
 
     def value_gradients(self, params):
@@ -253,7 +253,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         if settings.options['numerical_grad']:
             value, gradients = numerical_value_gradients(self.value, params=params)
         else:
-            value, gradients = automatic_value_gradients(self.value, params=params)
+            value, gradients = autodiff_value_gradients(self.value, params=params)
         return value, gradients
 
     def value_gradients_hessian(self, params):

@@ -1,15 +1,15 @@
 #  Copyright (c) 2020 zfit
 
 import itertools
+from typing import Iterable, Callable
 
 import numdifftools
 import tensorflow as tf
-from typing import Iterable, Callable
 
-from zfit.util.container import convert_to_container
 from zfit import z
 from zfit.core.parameter import Parameter
 from zfit.settings import ztypes
+from zfit.util.container import convert_to_container
 
 
 def poly_complex(*args, real_x=False):
@@ -55,30 +55,16 @@ def interpolate(t, c):
     return interp
 
 
-def numerical_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
-    params = convert_to_container(params)
-
-    def wrapped_func(param_values):
-        for param, value in zip(params, param_values):
-            param.assign(value)
-        return func().numpy()
-
-    param_vals = tf.stack(params)
-    original_vals = [param.read_value() for param in params]
-    hesse_func = numdifftools.Hessian(wrapped_func)
-    hessian = tf.py_function(hesse_func, inp=[param_vals],
-                             Tout=tf.float64)
-    hessian.set_shape((len(param_vals), len(param_vals)))
-    for param, val in zip(params, original_vals):
-        param.set_value(val)
-    return hessian
-
-
 def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
-    """
+    """Calculate numerically the gradients of func() with respect to `params`.
+
+    Args:
+        func (Callable): Function without arguments that depends on `params`
+        params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            derivatives will be taken.
 
     Returns:
-        Tensor: Gradients
+        `tf.Tensor`: gradients
     """
     params = convert_to_container(params)
 
@@ -101,37 +87,98 @@ def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor
 
 
 def numerical_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
+    """Calculate numerically the gradients of `func()` with respect to `params`, also returns the value of `func()`.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            tuple(`tf.Tensor`, `tf.Tensor`): value, gradient
+    """
     return func(), numerical_gradient(func, params)
 
 
+def numerical_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    """Calculate numerically the hessian matrix of func() with respect to `params`.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            `tf.Tensor`: hessian matrix
+    """
+    params = convert_to_container(params)
+
+    def wrapped_func(param_values):
+        for param, value in zip(params, param_values):
+            param.assign(value)
+        return func().numpy()
+
+    param_vals = tf.stack(params)
+    original_vals = [param.read_value() for param in params]
+    hesse_func = numdifftools.Hessian(wrapped_func)
+    hessian = tf.py_function(hesse_func, inp=[param_vals],
+                             Tout=tf.float64)
+    hessian.set_shape((len(param_vals), len(param_vals)))
+    for param, val in zip(params, original_vals):
+        param.set_value(val)
+    return hessian
+
+
 def numerical_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+    """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
+    """
     value, gradients = numerical_value_gradients(func, params)
     hessian = numerical_hessian(func, params)
 
     return value, gradients, hessian
 
 
-def automatic_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+def autodiff_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    """Calculate using autodiff the gradients of `func()` wrt `params`.
+
+    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+    applying the chain rule. All that is needed is that every operation knows its own derivative.
+    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            `tf.Tensor`: gradient
     """
+    return autodiff_value_gradients(func, params)[1]
 
-    Returns:
-        Tensor: Gradients
+
+def autodiff_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
+    """Calculate using autodiff the gradients of `func()` wrt `params`; also return `func()`.
+
+    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+    applying the chain rule. All that is needed is that every operation knows its own derivative.
+    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            tuple(`tf.Tensor`, `tf.Tensor`): value and gradient
     """
-
-    return automatic_value_gradients(func, params)[1]
-
-
-def automatic_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
-    """
-
-    Returns:
-        Tensor: Gradients
-    """
-
-    return automatic_value_gradients_hessian(func, params)[2]
-
-
-def automatic_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
     with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
         tape.watch(params)
         value = func()
@@ -139,10 +186,43 @@ def automatic_value_gradients(func: Callable, params: Iterable[Parameter]) -> [t
     return value, gradients
 
 
+def autodiff_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    """Calculate using autodiff the hessian matrix of `func()` wrt `params`.
+
+    Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
+    applying the chain rule. All that is needed is that every operation knows its own derivative.
+    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            `tf.Tensor`: hessian matrix
+    """
+
+    return automatic_value_gradients_hessian(func, params)[2]
+
+
 def automatic_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+    """Calculate using autodiff the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
+
+    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+    applying the chain rule. All that is needed is that every operation knows its own derivative.
+    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+
+        Args:
+            func (Callable): Function without arguments that depends on `params`
+            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+                derivatives will be taken.
+
+        Returns:
+            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
+    """
     with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
         tape.watch(params)
-        loss, gradients = automatic_value_gradients(func=func, params=params)
+        loss, gradients = autodiff_value_gradients(func=func, params=params)
         gradients_tf = z.convert_to_tensor(gradients)
 
     hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params))

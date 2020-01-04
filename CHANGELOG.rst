@@ -27,6 +27,12 @@ Major Features and Improvements
    This can be switched on with `zfit.settings.options['numerical_grad'] = True
  - Added gradient and hessian calculation options to the loss. Support numerical calculation as well.
  - Add caching system for graph to prevent recursive graph building
+ - changed backend name to `z` and can be used as `zfit.z` or imported from it. Added:
+
+    - `function` decorator that can be used to trace a function. Respects dependencies of inputs and automatically
+      caches/invalidates the graph and recreates.
+    - `py_function`, same as `tf.py_function`, but checks and may extends in the future
+    - `math` module that contains autodiff and numerical differentiation methods, both working with tensors.
 
 
 Behavioral changes
