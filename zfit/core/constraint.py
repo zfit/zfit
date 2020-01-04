@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 from collections import OrderedDict
@@ -163,28 +163,30 @@ class GaussianConstraint(DistributionConstraint):
 
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
 
-        mu = z.convert_to_tensor([z.convert_to_tensor(m) for m in mu])
-        sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
-        params_tensor = z.convert_to_tensor(params)
+        def create_covariance(mu, sigma):
+            mu = z.convert_to_tensor([z.convert_to_tensor(m) for m in mu])
+            sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
+            params_tensor = z.convert_to_tensor(params)
 
-        if sigma.shape.ndims > 1:
-            covariance = sigma
-        elif sigma.shape.ndims == 1:
-            covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
-        else:
-            sigma = tf.reshape(sigma, [1])
-            covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
+            if sigma.shape.ndims > 1:
+                covariance = sigma
+            elif sigma.shape.ndims == 1:
+                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
+            else:
+                sigma = tf.reshape(sigma, [1])
+                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
 
-        if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
-            raise ShapeIncompatibleError(f"params_tensor, mu and sigma have to have the same length. Currently"
-                                         f"param: {params_tensor.shape[0]}, mu: {mu.shape[0]}, "
-                                         f"covariance (from sigma): {covariance.shape[0:2]}")
+            if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
+                raise ShapeIncompatibleError(f"params_tensor, mu and sigma have to have the same length. Currently"
+                                             f"param: {params_tensor.shape[0]}, mu: {mu.shape[0]}, "
+                                             f"covariance (from sigma): {covariance.shape[0:2]}")
+            return covariance
 
-        self._covariance = covariance
+        self._covariance = lambda: create_covariance(mu, sigma)
         self._mu = mu
         self._ordered_params = params
         distribution = tfd.MultivariateNormalFullCovariance
-        dist_params = dict(loc=mu, covariance_matrix=covariance)
+        dist_params = lambda: dict(loc=mu, covariance_matrix=create_covariance(mu, sigma))
         dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", params=params_dict,

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 import pytest
 import numpy as np
 import scipy.stats
@@ -34,13 +34,13 @@ def test_gaussian_constraint_shape_errors():
     param2 = zfit.Parameter("Param2", 6)
 
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint([param1, param2], mu=[4, 2, 3], sigma=5)
+        GaussianConstraint([param1, param2], mu=[4, 2, 3], sigma=5).value()
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint([param1, param2], mu=[4, 2], sigma=5)
+        GaussianConstraint([param1, param2], mu=[4, 2], sigma=5).value()
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint([param1, param2], mu=2, sigma=[1, 4])
+        GaussianConstraint([param1, param2], mu=2, sigma=[1, 4]).value()
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(param1, mu=[4, 2], sigma=[2, 3])
+        GaussianConstraint(param1, mu=[4, 2], sigma=[2, 3]).value()
 
 
 def test_gaussian_constraint_matrix():
