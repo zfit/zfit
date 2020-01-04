@@ -186,11 +186,30 @@ class FunctionCacheHolder(Cachable):
     def __init__(self, func, wrapped_func,
                  cachables: Union[ZfitCachable, object, Iterable[Union[ZfitCachable, object]]] = None,
                  cachables_mapping=None):
-        """
+        """`tf.function` decorated function holder with caching dependencies on inputs.
+
+        A `tf.function` creates a new graph for every signature that is encountered. It automatically caches them but
+        thereby assumes that Python objects are immutable. Any mutation won't be detected. Therefore, an extra wrapper
+        is needed. The input signature is compared with firstly checking whether the function is the same and then
+        doing an equal comparison of the arguments (maybe too costly?).
+
+        The `FunctionCacheHolder` holds the
+         - original python function which serves as the hash of the object
+         - wrapped python function, `wrapped_func`
+         - the (keyword-)arguments
+
+        If any of the keyword arguments changes in a way that the graph cache is invalid, this holder will have
+        `is_valid` set to False and the `wrapped_func` cannot be used anymore, instead a new `tf.function` should
+        be created as a call to the `wrapped_func` with the given arguments will result in an outdated graph.
+
         Args:
+            func (function): Python function that serves as a hash of the holder. Notice that equality is different
+                defined.
+            wrapped_func (tf.function wrapped): Wrapped `func` with `tf.function`. The holder signals via
+                `is_valid` whether this function is still valid to be used.
             cachables: objects that are cached. If they change, the cache is invalidated
-            cache: The cache where the objects are stored with the `cache_number`. If given, will delete itself from
-                the cache once invalidated.
+            cachables_mapping (Mapping): keyword arguments to the function. If the values change, the cache is
+                invalidated.
         """
         # cache = {} if cache is None else cache
         self.delete_from_cache = False
@@ -218,6 +237,15 @@ class FunctionCacheHolder(Cachable):
         #         del self.parent_cache[self.caching_func]
 
     def create_immutable(self, args, kwargs):
+        """Creates a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
+
+        Args:
+            args: list like
+            kwargs: dict-like
+
+        Returns:
+            tuple
+        """
         args = list(args)
         kwargs = list(kwargs.keys()) + list(kwargs.values())
         combined = []

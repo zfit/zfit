@@ -145,6 +145,11 @@ class FunctionWrapperRegistry:
         return all((func.zfit_graph_cache_registered for func in cls.wrapped_functions))
 
     def __init__(self, **kwargs_user) -> None:
+        """`tf.function`-like decorator with additional cache-invalidation functionality.
+
+        Args:
+            **kwargs_user: arguments to `tf.function`
+        """
         super().__init__()
         self._initial_user_kwargs = kwargs_user
         self.registries.append(self)
