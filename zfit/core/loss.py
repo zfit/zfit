@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 import warnings
@@ -29,7 +29,7 @@ from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, 
 from .constraint import BaseConstraint, SimpleConstraint
 
 
-# @func_simple
+# @z.function
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
@@ -254,7 +254,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._value_gradients(params=params)
 
     @z.function
-    def _value_gradients(self, params):
+    def _value_gradients(self, params):  # TODO(Mayou36): numerical gradient
 
         with tf.GradientTape(persistent=False) as tape:
             loss = self.value()
@@ -333,19 +333,20 @@ class UnbinnedNLL(BaseLoss):
 
     @z.function
     def _loss_func(self, model, data, fit_range, constraints):
-        with tf.GradientTape(persistent=True) as tape:
-            nll = self._loss_func_watched(constraints, data, fit_range, model)
+        # with tf.GradientTape(persistent=True) as tape:
+        nll = self._loss_func_watched(constraints, data, fit_range, model)
 
-        variables = tape.watched_variables()
-        gradients = tape.gradient(nll, sources=variables)
-        if any(grad is None for grad in tf.unstack(gradients, axis=0)):
-            none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}
-            raise LogicalUndefinedOperationError(f"One or more gradients are None:"
-                                                 f" {none_dict}")
-        for param, grad in zip(variables, gradients):
-            # if param in self.computed_gradients:
-            #     continue
-            self.computed_gradients[param] = grad
+        # variables = tape.watched_variables()
+        # gradients = tape.gradient(nll, sources=variables)
+        # if any(grad is None for grad in tf.unstack(gradients, axis=0)):
+        #     none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}
+        #     raise LogicalUndefinedOperationError(f"One or more gradients are None and therefore the function does not"
+        #                                          f" depend on them:"
+        #                                          f" {none_dict}")
+        # for param, grad in zip(variables, gradients):
+        # if param in self.computed_gradients:
+        #     continue
+        # self.computed_gradients[param] = grad
         return nll
 
     @z.function

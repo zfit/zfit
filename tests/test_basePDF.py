@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from typing import Dict, Type
 
@@ -258,8 +258,16 @@ def test_multiple_limits():
     assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-2)  # big tolerance as mc is used
 
 
+def test_copy():
+    gauss_params1 = create_gauss1()
+    new_gauss = gauss_params1.copy()
+    assert new_gauss == gauss_params1
+    assert new_gauss is not gauss_params1
+
+
+@pytest.mark.skip  # unsure why it does not fully work...
 def test_projection_pdf():
-    return  # HACK(Mayou36) check again on projection and dimensions. Why was there an expand_dims?
+    # return  # HACK(Mayou36) check again on projection and dimensions. Why was there an expand_dims?
     # x = zfit.Space("x", limits=(-5, 5))
     # y = zfit.Space("y", limits=(-5, 5))
     # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
@@ -268,8 +276,8 @@ def test_projection_pdf():
 
     x = zfit.Space("x", limits=(-1, 1))
     y = zfit.Space("y", limits=(-0.1, 1))
-    gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
-    gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
+    # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
+    # gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
     import tensorflow as tf
     # gauss_xy = ProductPDF([gauss_x, gauss_y])
@@ -293,10 +301,3 @@ def test_projection_pdf():
     probs = proj_pdf.pdf(x=test_values)
     probs = probs.numpy()
     np.testing.assert_allclose(probs, true_probs, rtol=1e-5)  # MC normalization
-
-
-def test_copy():
-    gauss_params1 = create_gauss1()
-    new_gauss = gauss_params1.copy()
-    assert new_gauss == gauss_params1
-    assert new_gauss is not gauss_params1

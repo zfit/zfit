@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 import warnings
 
 from pkg_resources import get_distribution
@@ -31,12 +31,16 @@ import tensorflow.compat.v1 as _tfv1
 # tf.enable_v2_tensorshape()  # forward compat
 _tfv1.enable_v2_behavior()
 # _tfv1.disable_eager_execution()
+import tensorflow as tf
+
+EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY = False
+tf.config.experimental_run_functions_eagerly(EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY)
 
 warnings.warn(
     """zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit
     and minor ones on the user side. Be sure to read the upgrade guide (can be found in the README at the top)
      to have a seemless transition. If this is currently not doable (upgrading is highly recommended though)
-     you can downgrade zfit to <0.4. Feel free to contact us in case of problems in order to tackle them ASAP.""")
+     you can downgrade zfit to <0.4. Feel free to contact us in case of problems in order to fix them ASAP.""")
 
 from . import z
 from . import z as ztf  # legacy

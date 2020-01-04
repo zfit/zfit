@@ -7,7 +7,7 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 `tf` for the rest.
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 # fill the following in to the namespace for (future) wrapping
 
@@ -38,7 +38,7 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 # same as in TensorFlow, wrapped
 
 from .zextension import (to_complex, to_real, constant, inf, pi, abs_square, nth_pow, unstack_x, stack_x, safe_where,
-                         run_no_nan, function_tf, function_sampling, py_function)
+                         run_no_nan, function_tf, function_no_cache_invalidation, function_sampling, py_function)
 from .wrapping_tf import (log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square,
                           sqrt, complex, check_numerics, pow)
 from .zextension import tf_function as function

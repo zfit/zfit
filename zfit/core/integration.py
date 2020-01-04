@@ -2,7 +2,7 @@
 This module contains functions for the numeric as well as the analytic (partial) integration.
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import collections
 import numpy as np
@@ -47,7 +47,7 @@ def numeric_integrate():
     return integral
 
 
-@z.function
+# @z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
                  method: str = None,
@@ -108,7 +108,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     else:
         # TODO: deal with n_obs properly?
 
-        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
+        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
+                                    dtype=dtype)
         # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
         # samples_normed = tf.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
@@ -150,7 +151,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
 
 # TODO(Mayou36): Make more flexible for sampling
-@z.function
+# @z.function
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
     lower = z.convert_to_tensor(lower, dtype=dtype)
@@ -201,7 +202,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
     return final_mean
 
 
-@z.function
+# @z.function
 def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     x_is_none = x is None
 
@@ -234,7 +235,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     avg = normalization_nograd()
 
 
-@z.function
+# @z.function
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 

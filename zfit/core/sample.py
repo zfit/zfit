@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from contextlib import suppress
 from typing import Callable, Union, Iterable, List, Optional, Tuple
@@ -119,7 +119,7 @@ class EventSpace(Space):
         return id(self)
 
 
-@z.function
+@z.function_no_cache_invalidation
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
@@ -131,7 +131,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             (or anything that is proportional to the probability).
         n (int): Number of samples to produce
         limits (:py:class:`~zfit.Space`): The limits to sample from
-        sample_and_weights_factory (Callable): A factory function that returns the following function:
+        sample_and_weights_factory (Callable): An (immutable!) factory function that returns the following function:
             A function that returns the sample to insert into `prob` and the weights
             (probability density) of each sample together with the random thresholds. The API looks as follows:
 
@@ -200,10 +200,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                                     clear_after_read=True,  # we read only once at end to tensor
                                     element_shape=(limits.n_obs,))
 
+    @z.function_no_cache_invalidation
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
         return tf.greater(n, n_produced)
 
-    @z.function
+    @z.function_no_cache_invalidation
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 
@@ -299,8 +300,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             failed_weights = tf.boolean_mask(tensor=weights_scaled, mask=invalid_probs_weights)
             failed_probs = tf.boolean_mask(tensor=probabilities, mask=invalid_probs_weights)
 
-            print_op = tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
-                                " Failed weights:", failed_weights, " failed probs", failed_probs)
+            def bias_print():
+                tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
+                         " Failed weights:", failed_weights, " failed probs", failed_probs)
+
+            # tf.cond(tf.not_equal(tf.shape(input=failed_weights), [0]), bias_print, lambda: None)
+
             assert_no_failed_probs = tf.compat.v1.assert_equal(tf.shape(input=failed_weights), [0])
             # assert_op = [print_op]
             assert_op = [assert_no_failed_probs]

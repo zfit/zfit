@@ -1,5 +1,5 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
 from typing import List
@@ -68,10 +68,13 @@ class BaseObject(ZfitObject):
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):
             return False
-        for key, own_element in self._repr.items():
-            if not own_element == other._repr.get(key):  # TODO: make repr better
-                return False
-        return True
+        try:
+            for key, own_element in self._repr.items():
+                if not own_element == other._repr.get(key):  # TODO: make repr better
+                    return False
+        except AttributeError:
+            return self is other
+        return True  # no break occurred
 
     def __hash__(self):
         return object.__hash__(self)

@@ -2,7 +2,7 @@
 Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let
 them be tested.
 """
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
 
@@ -22,6 +22,17 @@ def setup_function():
 
 def teardown_function():
     ZfitParameterMixin._existing_names.clear()
+
+    from zfit.z.zextension import FunctionWrapperRegistry
+    for registry in FunctionWrapperRegistry.registries:
+        registry.reset()
+    # for method in FunctionWrapperRegistry.wrapped_functions:
+    #     method._created_variables = None
+    #     method._stateful_fn = None
+    #     method._stateless_fn = None
+    #     method._descriptor_cache.clear()
+    # from zfit.util.cache import Cachable
+    # Cachable.old_graph_caching_methods.clear()
 
 
 class BaseTester:

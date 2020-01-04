@@ -1,6 +1,6 @@
 """Baseclass for a Model. Handle integration and sampling"""
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 import builtins
@@ -699,7 +699,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    @z.function
+    # @z.function
     def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
                                   norm_range: ztyping.LimitsType = None,
                                   name: str = "partial_numeric_integrate") -> ztyping.XType:
@@ -761,7 +761,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, norm_range=norm_range, x=x)
 
     @no_norm_range
-    @z.function
+    # @z.function
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
         integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x, norm_range=norm_range,
                                    # auto from self

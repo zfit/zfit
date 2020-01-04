@@ -49,15 +49,19 @@ Example with a pdf that caches the normalization:
 
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 from abc import abstractmethod
 import functools
+from contextlib import suppress
+from types import MethodType
+from typing import Iterable, Union, Mapping
 
+import tensorflow as tf
 
-from zfit.util import ztyping
-from zfit.util.container import convert_to_container
+from . import ztyping
+from .container import convert_to_container
 
 
 class ZfitCachable:
@@ -92,12 +96,26 @@ class ZfitCachable:
 
 
 class Cachable(ZfitCachable):
+    graph_caching_methods = []
+    old_graph_caching_methods = []
 
     def __init__(self, *args, **kwargs):
         self._cache = {}
         self._cachers = {}
         self.reset_cache_self()
         super().__init__(*args, **kwargs)
+
+    def __init_subclass__(cls) -> None:
+        super().__init_subclass__()
+        graph_caching_methods = []
+        for func_name in dir(cls):
+            if not func_name.startswith("__"):
+                func = getattr(cls, func_name)
+                if callable(func) and hasattr(func, 'zfit_graph_cache_registered'):
+                    assert hasattr(func, "_descriptor_cache"), "TensorFlow internals have changed. Need to update cache"
+                    func.zfit_graph_cache_registered = True
+                    graph_caching_methods.append(func)
+        cls.graph_caching_methods = graph_caching_methods
 
     def register_cacher(self, cacher: ztyping.CacherOrCachersType):
         """Register a `cacher` that caches values produces by this instance; a dependent.
@@ -140,7 +158,36 @@ class Cachable(ZfitCachable):
         self.reset_cache_self()
 
     def _clean_cache(self):
+        # pass
         self._cache = {}
+        return
+        for method in self.graph_caching_methods:
+            # on first run
+            if method._created_variables is None and method._stateful_fn is None and method._stateless_fn is None:
+                continue
+            method._created_variables = None
+            method._stateful_fn = None
+            method._stateless_fn = None
+            self.old_graph_caching_methods.append(method._descriptor_cache.copy())
+            method._descriptor_cache.clear()
+            # method._function_cache.clear()
+            continue
+
+            funcs = [method._stateful_fn, method._stateless_fn]
+            for func in funcs:
+                # funcs
+                if func is not None:
+                    for garbage_collector in funcs._function_cache._garbage_collectors:
+                        garbage_collector._cache.clear()
+            # continue
+            # from tensorflow_core.python.eager.function import FunctionCache
+            # method._function_cache = FunctionCache()
+        #     self.old_graph_caching_methods.append(method)  # to prevent graphs from being garbace collected
+        #     method_tf = method.zfit_func_to_graph(method.zfit_python_func)
+        #     bound_method = MethodType(method_tf, self)
+        #     setattr(self, method.__name__, bound_method)
+        # pass
+        # method._descriptor_cache.clear()
 
     def _inform_cachers(self):
         for cacher in self._cachers:
@@ -150,6 +197,8 @@ class Cachable(ZfitCachable):
 def invalidates_cache(func):
     @functools.wraps(func)
     def wrapped_func(*args, **kwargs):
+        print("DEBUG, invalidating cache, I am:", func)
+
         self = args[0]
         if not isinstance(self, ZfitCachable):
             raise TypeError("Decorator can only be used in a subclass of `ZfitCachable`")
@@ -158,3 +207,134 @@ def invalidates_cache(func):
         return func(*args, **kwargs)
 
     return wrapped_func
+
+
+# class MutableCacheHolder(Cachable):
+#     next_cache_number = 0
+#     IS_TENSOR = object()
+#
+#     def __init__(self, cachables: Union[ZfitCachable, object, Iterable[Union[ZfitCachable, object]]] = None,
+#                  cachables_mapping=None, cache: Mapping = None):
+#         """
+#         Args:
+#             cachables: objects that are cached. If they change, the cache is invalidated
+#             cache: The cache where the objects are stored with the `cache_number`. If given, will delete itself from
+#                 the cache once invalidated.
+#         """
+#         if cachables is None and cachables_mapping is None:
+#             raise ValueError("Both `cachables and `cachables_mapping` are None. One needs to be different from None.")
+#         if cachables is None:
+#             cachables = []
+#         if cachables_mapping is None:
+#             cachables_mapping = {}
+#         self.delete_from_cache = False
+#         self.parent_cache = cache
+#         self.is_valid = True
+#         self._cache_number = self.next_cache_number
+#         self.next_cache_number += 1
+#         cachables = convert_to_container(cachables, container=list)
+#         cachables_values = convert_to_container(cachables_mapping.values(), container=list)
+#         cachables_all = cachables + cachables_values
+#         self.immutable_representation = self.create_immutable(*cachables, **cachables_mapping)
+#
+#         self.hash_value = hash(self.immutable_representation)
+#         super().__init__()
+#         self.add_cache_dependents(cachables_all)
+#         self.delete_from_cache = True
+#
+#     @property
+#     def cache_number(self):
+#         return self._cache_number
+#
+#     def create_immutable(self, *args, **kwargs):
+#         args = list(args)
+#         kwargs = list(kwargs.keys()) + list(kwargs.values())
+#         combined = []
+#         if args != []:
+#             combined += args
+#         if kwargs != []:
+#             combined += args
+#         combined = [self.IS_TENSOR if isinstance(obj, (tf.Tensor, tf.Variable)) else obj for obj in combined]
+#         return tuple(combined)
+#
+#     def reset_cache_self(self):
+#         self.is_valid = False
+#         if self.parent_cache is not None and self.delete_from_cache:
+#             with suppress(KeyError):
+#                 del self.parent_cache[self]
+#
+#     def __hash__(self) -> int:
+#         return self.hash_value
+#
+#     def __eq__(self, other: object) -> bool:
+#         if not isinstance(other, MutableCacheHolder):
+#             return False
+#         return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
+#
+#     def __repr__(self) -> str:
+#         return f"<MutableCacheHolder: {self.immutable_representation}>"
+
+
+class FunctionCacheHolder(Cachable):
+    IS_TENSOR = object()
+
+    def __init__(self, func, wrapped_func,
+                 cachables: Union[ZfitCachable, object, Iterable[Union[ZfitCachable, object]]] = None,
+                 cachables_mapping=None):
+        """
+        Args:
+            cachables: objects that are cached. If they change, the cache is invalidated
+            cache: The cache where the objects are stored with the `cache_number`. If given, will delete itself from
+                the cache once invalidated.
+        """
+        # cache = {} if cache is None else cache
+        self.delete_from_cache = False
+        self.wrapped_func = wrapped_func
+        # self.parent_cache = cache
+        self.python_func = func
+        if cachables is None and cachables_mapping is None:
+            raise ValueError("Both `cachables and `cachables_mapping` are None. One needs to be different from None.")
+        if cachables is None:
+            cachables = []
+        if cachables_mapping is None:
+            cachables_mapping = {}
+        cachables = convert_to_container(cachables, container=list)
+        cachables_values = convert_to_container(cachables_mapping.values(), container=list)
+        cachables_all = cachables + cachables_values
+        self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
+        super().__init__()
+        self.add_cache_dependents(cachables_all)
+        self.is_valid = True
+
+    def reset_cache_self(self):
+        self.is_valid = False
+        # if self.parent_cache and self.delete_from_cache:
+        #     with suppress(KeyError):
+        #         del self.parent_cache[self.caching_func]
+
+    def create_immutable(self, args, kwargs):
+        args = list(args)
+        kwargs = list(kwargs.keys()) + list(kwargs.values())
+        combined = []
+        if args != []:
+            combined += args
+        if kwargs != []:
+            combined += args
+        combined = [self.IS_TENSOR if isinstance(obj, (tf.Tensor, tf.Variable)) else obj for obj in combined]
+        return tuple(combined)
+
+    def __hash__(self) -> int:
+        return hash(self.python_func)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FunctionCacheHolder):
+            return False
+        # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
+        import numpy as np
+        try:
+            return all(np.equal(self.immutable_representation, other.immutable_representation))
+        except ValueError:  # broadcasting does not work
+            return False
+
+    def __repr__(self) -> str:
+        return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import numpy as np
 import pytest
@@ -166,7 +166,7 @@ def test_sampling_floating(gauss_factory):
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
 
-@pytest.mark.skip  # currently, importance sampling is not working, odd deadlock in TF
+# @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
     mu_sampler = 5.
