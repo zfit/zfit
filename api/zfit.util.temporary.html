@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>temporary &#8212; zfit 0.1.dev571+g00eed81 documentation</title>
+    <title>temporary &#8212; zfit 0.1.dev564+gb5bbf58 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev571+g00eed81</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev564+gb5bbf58</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -116,7 +116,7 @@
 <blockquote>
 <div><p>This class can be used to have a setter that can permanently set a value <em>as well as</em> just
 for the time inside a context manager. The usage is as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SimpleX</span><span class="p">:</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SimpleX</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">_set_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
@@ -127,7 +127,7 @@ for the time inside a context manager. The usage is as follows:</p>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_x</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_x</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simple_x</span> <span class="o">=</span> <span class="n">SimpleX</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simple_x</span> <span class="o">=</span> <span class="n">SimpleX</span><span class="p">()</span>
 <span class="go">Now we can either set x permanently</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">simple_x</span><span class="o">.</span><span class="n">set_x</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">simple</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
@@ -176,7 +176,7 @@ for the time inside a context manager. The usage is as follows:</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.<br/>
     </p>
   </div>
 </footer>
