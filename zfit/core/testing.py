@@ -26,13 +26,13 @@ def teardown_function():
     from zfit.z.zextension import FunctionWrapperRegistry
     for registry in FunctionWrapperRegistry.registries:
         registry.reset()
-    # for method in FunctionWrapperRegistry.wrapped_functions:
-    #     method._created_variables = None
-    #     method._stateful_fn = None
-    #     method._stateless_fn = None
-    #     method._descriptor_cache.clear()
-    # from zfit.util.cache import Cachable
-    # Cachable.old_graph_caching_methods.clear()
+    for method in FunctionWrapperRegistry.wrapped_functions:
+        method._created_variables = None
+        method._stateful_fn = None
+        method._stateless_fn = None
+        method._descriptor_cache.clear()
+    from zfit.util.cache import Cachable
+    Cachable.old_graph_caching_methods.clear()
 
 
 class BaseTester:

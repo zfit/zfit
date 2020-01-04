@@ -133,75 +133,7 @@ def run_no_nan(func, x):
     return result
 
 
-tf_function_deco = tf.function(autograph=False, experimental_relax_shapes=True)
-
-
-# class FunctionWrapper:
-#
-#     def __init__(self, **kwargs_user) -> None:
-#         # super().__init__()
-#
-#         kwargs = dict(autograph=False, experimental_relax_shapes=True)
-#         kwargs.update(kwargs_user)
-#         self.kwargs = kwargs
-#
-#         self.python_func = None
-#         # self.func = tf_function(func)
-#         self.func = None
-#
-#     def __call__(self, func):
-#         tf_function = tf.function(**self.kwargs)
-#         func_wrapped = tf_function(func)
-#
-#         # func = self.tf_function(func)
-#
-#         # @functools.wraps(func)
-#         # @self.tf_function
-#         def wrapped_func(*args, func_wrapped=func_wrapped, **kwargs):
-#             # TODO: invalidate cache if needed
-#             # func_wrapped = tf_function(func)
-#             return func_wrapped(*args, **kwargs)
-#
-#         return wrapped_func
-
-# class FunctionWrapperRegistry:
-#     wrapped_functions = []
-#
-#     @classmethod
-#     def check_wrapped_functions_registered(cls):
-#         return all((func.zfit_graph_cache_registered for func in cls.wrapped_functions))
-#
-#     def __init__(self, **kwargs_user) -> None:
-#         # super().__init__()
-#
-#         kwargs = dict(autograph=False, experimental_relax_shapes=True)
-#         kwargs.update(kwargs_user)
-#         self.kwargs = kwargs
-#         self.tf_function = tf.function(**kwargs)
-#         self.function_cache = defaultdict(dict)
-#
-#     def __call__(self_outer, func):
-#
-#         wrapped_func = self_outer.tf_function(func)
-#         # method_name = func.__name__
-#         wrapped_func.zfit_graph_cache_registered = False
-#         wrapped_func.zfit_func_to_graph = self_outer.tf_function
-#         wrapped_func.zfit_python_func = func
-#         # def concrete_func(self, *args, **kwargs):
-#         #     from zfit.util.cache import ZfitCachable
-#         #     if not isinstance(self, ZfitCachable):
-#         #         raise TypeError("Function wrapped with auto cache invalidation has to be a ZfitCachable")
-#         #
-#         #     cached_signatures = self._cache.get(method_name, {})
-#         #     # if cached_func is None:
-#         #     func_tf = wrapped_func.get_concrete_function(self, *args, **kwargs)
-#         #     cached_signature = cached_signatures.get()
-#         #     cached_func = self_outer.tf_function(func)
-#         #     # self._cache[method_name] = func_tf
-#         #     self._cache[method_name] = cached_func
-#         #     return cached_func(self, *args, **kwargs)
-#         self_outer.wrapped_functions.append(wrapped_func)
-#         return wrapped_func
+# tf_function_deco = tf.function(autograph=False, experimental_relax_shapes=True)
 
 
 class FunctionWrapperRegistry:
@@ -266,32 +198,6 @@ class FunctionWrapperRegistry:
                     function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
                     cache[func_holder_index] = function_holder
             func_to_run = function_holder.wrapped_func
-
-            # if not valid:
-            #     cache[function_holder] = wrapped_func
-            #
-            # # concrete_func_old = call_correct_signature(wrapped_func.get_concrete_function, args, kwargs)
-            # results = call_correct_signature(wrapped_func, args, kwargs)
-            # func_holder_cached = cache.get(concrete_func_old)
-            # if func_holder_cached is None:
-            #     function_holder_old = FunctionCacheHolder(concrete_func_old, args, kwargs)
-            #     cache[concrete_func_old] = function_holder_old
-            #     concrete_func_new = concrete_func_old
-            # elif not func_holder_cached.is_valid:
-            #     wrapped_func = self.tf_function(func)
-            #     concrete_func_new = call_correct_signature(wrapped_func.get_concrete_func, args, kwargs)
-            #     function_holder = FunctionCacheHolder(concrete_func_new, args, kwargs)
-            #     cache[concrete_func_new] = function_holder
-            #
-            # elif func_holder_cached.is_valid:
-            #     concrete_func_new = concrete_func_old
-            # else:
-            #     assert False, "This should never be reached, bug! Please report the zfit developers."
-
-            # if func_tf is None:
-            #     func_tf = self.tf_function(func)
-            #     cache[signature] = func_tf
-            # result = call_correct_signature(func_tf, args, kwargs)
             result = call_correct_signature(func_to_run, args, kwargs)
             self.currently_traced.remove(func)
             return result
@@ -299,29 +205,9 @@ class FunctionWrapperRegistry:
         return concrete_func
 
 
-# def function_wrapper_factory(*)
-# reduce functions
 tf_function = FunctionWrapperRegistry()
-function_no_cache_invalidation = tf_function
-
-# tf_function = lambda func: tf_function_deco(func)
-# def tf_function(func):
-#     tf_function_deco = tf.function(autograph=False, experimental_relax_shapes=True)
-#     tf_wrapped_func = tf_function_deco(func)
-#
-#     def wrapped_func(*args, **kwargs):
-#         return tf_wrapped_func(*args, **kwargs)
-#
-#     return wrapped_func
-
-
-# tf_function = lambda func: func
 
 function_tf = tf_function  # for only tensorflow inside
 function_sampling = tf_function
 
 py_function = tf.py_function
-
-# def tf_function_wrapped(func):
-#     @wraps(func)
-#     def wrapped_func(*args, **kwargs)
