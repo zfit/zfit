@@ -1,19 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-import itertools
 from typing import Dict, Union, Callable, Iterable
 
 import tensorflow as tf
 
-
-
-from ..core.limits import supports
 from ..core.basefunc import BaseFunc
 from ..core.basemodel import SimpleModelSubclassMixin
-from ..util import ztyping
-
-from ..core.basefunc import BaseFunc
 from ..core.interfaces import ZfitModel, ZfitFunc
+from ..core.limits import supports
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
