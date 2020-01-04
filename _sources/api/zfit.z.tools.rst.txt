@@ -1,0 +1,8 @@
+tools
+=====
+
+.. automodule:: zfit.z.tools
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

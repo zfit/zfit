@@ -1,0 +1,8 @@
+math
+====
+
+.. automodule:: zfit.z.math
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basemodel &#8212; zfit 0.1.dev549+g3901963 documentation</title>
+    <title>zfit.core.basemodel &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,19 +37,15 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev549+g3901963</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
             <li class="divider-vertical"></li>
             
                 <li><a href="../../../getting_started.html">Getting started</a></li>
-                <li><a href="../../../space.html">Space</a></li>
-                <li><a href="../../../parameter.html">Parameter</a></li>
-                <li><a href="../../../model.html">Model</a></li>
-                <li><a href="../../../data.html">Data</a></li>
-                <li><a href="../../../loss.html">Loss</a></li>
-                <li><a href="../../../minimize.html">Minimize</a></li>
+                <li><a href="../../../introduction.html">Intro</a></li>
+                <li><a href="../../../project.html">Project</a></li>
                 <li><a href="../../../API.html">API</a></li>
             
             
@@ -58,24 +54,264 @@
      id="dLabelGlobalToc"
      data-toggle="dropdown"
      data-target="#"
-     href="../../../index.html">Site <b class="caret"></b></a>
+     href="../../../index.html">Overview <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../downloading.html">Downloading and Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../minimize.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with zfit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id3">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id8">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id19">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id22">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id23">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Credits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
 </li>
               
             
@@ -107,35 +343,33 @@
   <h1>Source code for zfit.core.basemodel</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Baseclass for a Model. Handle integration and sampling&quot;&quot;&quot;</span>
 
-<span class="c1">#  Copyright (c) 2019 zfit</span>
+<span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">builtins</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-
-
 <span class="kn">from</span> <span class="nn">tensorflow_probability.python</span> <span class="kn">import</span> <span class="n">mcmc</span> <span class="k">as</span> <span class="n">mc</span>
 
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
-<span class="kn">from</span> <span class="nn">zfit.core.sample</span> <span class="kn">import</span> <span class="n">UniformSampleAndWeights</span>
-<span class="kn">from</span> <span class="nn">..core.integration</span> <span class="kn">import</span> <span class="n">Integration</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
-<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
-<span class="kn">from</span> <span class="nn">.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
+<span class="kn">from</span> <span class="nn">.sample</span> <span class="kn">import</span> <span class="n">UniformSampleAndWeights</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">integration</span> <span class="k">as</span> <span class="n">zintegrate</span><span class="p">,</span> <span class="n">sample</span> <span class="k">as</span> <span class="n">zsample</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
+<span class="kn">from</span> <span class="nn">.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span>
-<span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">no_multiple_limits</span><span class="p">,</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">..core.integration</span> <span class="kn">import</span> <span class="n">Integration</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">container</span> <span class="k">as</span> <span class="n">zcontainer</span><span class="p">,</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BasePDFSubclassingError</span><span class="p">,</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">,</span> <span class="n">NormRangeNotImplementedError</span><span class="p">,</span>
-                              <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">SubclassingError</span><span class="p">,</span> <span class="n">LimitsNotSpecifiedError</span><span class="p">,</span> <span class="p">)</span>
+                              <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">SubclassingError</span><span class="p">,</span> <span class="p">)</span>
 
 <span class="n">_BaseModel_USER_IMPL_METHODS_TO_CHECK</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -283,7 +517,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">)):</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor&quot;</span><span class="p">)</span>
             <span class="c1"># check dimension</span>
@@ -390,7 +624,8 @@
     <span class="k">def</span> <span class="nf">_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="BaseModel.integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.integrate">[docs]</a>    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Integrate the function over `limits` (normalized over `norm_range` if not False).</span>
 
@@ -414,7 +649,7 @@
                                              <span class="s2">&quot;now, make sure to return a scalar and not a tensor &quot;</span>
                                              <span class="s2">&quot;(typically: shape is (1,) insead of () -&gt; return tensor[0] &quot;</span>
                                              <span class="s2">&quot;instead of tensor)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="n">integral</span></div>
+        <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -438,7 +673,7 @@
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -567,7 +802,7 @@
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -626,7 +861,7 @@
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">integral</span>
 
@@ -643,7 +878,8 @@
     <span class="k">def</span> <span class="nf">_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="BaseModel.partial_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.partial_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                           <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                           <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeReturn</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Partially integrate the function over the `limits` and evaluate it at `x`.</span>
@@ -663,7 +899,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -689,7 +925,7 @@
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">sub_limit</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sub_limit</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">integral</span>
 
@@ -724,7 +960,8 @@
     <span class="k">def</span> <span class="nf">_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="BaseModel.partial_analytic_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.partial_analytic_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                                    <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_analytic_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeReturn</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Do analytical partial integration of the function over the `limits` and evaluate it at `x`.</span>
@@ -751,7 +988,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -786,7 +1023,7 @@
             <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span>
                                                                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">integral</span>
 
@@ -804,6 +1041,7 @@
     <span class="k">def</span> <span class="nf">_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
+    <span class="c1"># @z.function</span>
 <div class="viewcode-block" id="BaseModel.partial_numeric_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.partial_numeric_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                                   <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_numeric_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
@@ -852,7 +1090,7 @@
             <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span>
                                                                       <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -865,6 +1103,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_numeric_integrate</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_func_to_integrate</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
 
     <span class="nd">@no_norm_range</span>
+    <span class="c1"># @z.function</span>
     <span class="k">def</span> <span class="nf">_auto_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_options</span><span class="p">):</span>
         <span class="n">integration_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n_axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span>
                                    <span class="c1"># auto from self</span>
@@ -915,10 +1154,10 @@
 <span class="sd">            ValueError: if n is an invalid string option.</span>
 <span class="sd">            InvalidArgumentError: if n is not specified and pdf is not extended.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># if not isinstance(n, tf.Variable):</span>
-        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>  <span class="c1"># ALSO do if tf.Variable. So a user can change the original var.</span>
-            <span class="c1"># Or not: refactor that variable can be given due to no variable creation policy!</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="c1"># # if not isinstance(n, tf.Variable):</span>
+        <span class="c1"># with suppress(ValueError, TypeError):  # ALSO do if tf.Variable. So a user can change the original var.</span>
+        <span class="c1">#     # Or not: refactor that variable can be given due to no variable creation policy!</span>
+        <span class="c1">#     n = tf.Variable(initial_value=n, trainable=False, dtype=tf.int64)</span>
 
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
@@ -926,29 +1165,29 @@
             <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>  <span class="c1"># TODO(Mayou36): clean up, better norm_range?</span>
             <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
-        <span class="n">fixed_params</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_sampler_tensor</span><span class="p">(</span><span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
-                                                              <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">n_holder</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
-                                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">sample_data</span></div>
-
-    <span class="k">def</span> <span class="nf">_create_sampler_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fixed_params</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="c1"># if limits is None:</span>
-        <span class="c1">#     limits = self.space  # TODO(Mayou36): clean up, better norm_range?</span>
-        <span class="c1">#     if limits.limits in (None, False):</span>
-        <span class="c1">#         raise tf.errors.InvalidArgumentError(&quot;limits are False/None, have to be specified&quot;)</span>
         <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">fixed_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fixed_params</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`Fixed_params` has to be a list, tuple or a boolean.&quot;</span><span class="p">)</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">sample_func</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_sampler_tensor</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample_func</span><span class="o">=</span><span class="n">sample_func</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
+                                          <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample_data</span></div>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+    <span class="k">def</span> <span class="nf">_create_sampler_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)</span>
         <span class="c1"># needed to be able to change the number of events in resampling</span>
 
         <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">fixed_params</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">sample</span>
+        <span class="k">return</span> <span class="n">sample</span>
 
     <span class="nd">@_BaseModel_register_check_support</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
@@ -978,14 +1217,23 @@
 <span class="sd">            ValueError: if n is an invalid string option.</span>
 <span class="sd">            InvalidArgumentError: if n is not specified and pdf is not extended.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">n</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
             <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">SampleData</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+        <span class="k">def</span> <span class="nf">run_tf</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sample</span>
+
+        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">SampleData</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">run_tf</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">sample_data</span></div>
 
@@ -1034,8 +1282,8 @@
         <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;analytic sampling not possible because the analytic integral is not&quot;</span>
                                       <span class="s2">&quot; implemented for the boundaries:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">limits</span><span class="p">))</span>
-        <span class="n">prob_sample</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="n">lower_prob_lim</span><span class="p">,</span>
-                                         <span class="n">maxval</span><span class="o">=</span><span class="n">upper_prob_lim</span><span class="p">)</span>
+        <span class="n">prob_sample</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="n">lower_prob_lim</span><span class="p">,</span>
+                                       <span class="n">maxval</span><span class="o">=</span><span class="n">upper_prob_lim</span><span class="p">)</span>
         <span class="c1"># with self._convert_sort_x(prob_sample) as x:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">prob_sample</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># TODO(Mayou36): switch (n, n_obs) shape order</span>
@@ -1148,8 +1396,8 @@
 <span class="sd">            def _unnormalized_pdf(self, x):</span>
 <span class="sd">                mu = self.params[&#39;mu&#39;]</span>
 <span class="sd">                sigma = self.params[&#39;sigma&#39;]</span>
-<span class="sd">                x = ztf.unstack_x(x)</span>
-<span class="sd">                return ztf.exp(-ztf.square((x - mu) / sigma))</span>
+<span class="sd">                x = z.unstack_x(x)</span>
+<span class="sd">                return z.exp(-z.square((x - mu) / sigma))</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1183,6 +1431,9 @@
   <div class="container">
     <p class="pull-right">
       <a href="#">Back to top</a>
+      
+        <br/>
+        
       
     </p>
     <p>

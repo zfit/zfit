@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; zfit 0.1.dev549+g3901963 documentation</title>
+    <title>Index &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,19 +38,15 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev549+g3901963</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
             <li class="divider-vertical"></li>
             
                 <li><a href="getting_started.html">Getting started</a></li>
-                <li><a href="space.html">Space</a></li>
-                <li><a href="parameter.html">Parameter</a></li>
-                <li><a href="model.html">Model</a></li>
-                <li><a href="data.html">Data</a></li>
-                <li><a href="loss.html">Loss</a></li>
-                <li><a href="minimize.html">Minimize</a></li>
+                <li><a href="introduction.html">Intro</a></li>
+                <li><a href="project.html">Project</a></li>
                 <li><a href="API.html">API</a></li>
             
             
@@ -59,24 +55,264 @@
      id="dLabelGlobalToc"
      data-toggle="dropdown"
      data-target="#"
-     href="index.html">Site <b class="caret"></b></a>
+     href="index.html">Overview <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading and Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="intro/space.html#defining-limits">Defining limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id3">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id4">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id5">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id6">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id7">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id8">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id9">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id10">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id11">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id12">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id13">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id14">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id18">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id19">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id20">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id21">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id22">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id23">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/authors.html">Credits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/authors.html#authors">Authors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.html">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/zfit.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.core.html">core</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.core.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.basefunc.html">basefunc</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.basemodel.html">basemodel</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.baseobject.html">baseobject</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.basepdf.html">basepdf</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.data.html">data</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.dependents.html">dependents</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.dimension.html">dimension</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.integration.html">integration</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.interfaces.html">interfaces</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.limits.html">limits</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.loss.html">loss</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.operations.html">operations</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.parameter.html">parameter</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.testing.html">testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.minimizers.html">minimizers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.minimizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.base_tf.html">base_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.interface.html">interface</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.models.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.basefunctor.html">basefunctor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.basic.html">basic</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.dist_tfp.html">dist_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.functions.html">functions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.functor.html">functor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.physics.html">physics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.polynomials.html">polynomials</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.special.html">special</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.util.html">util</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.util.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.cache.html">cache</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.checks.html">checks</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.container.html">container</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.diverse.html">diverse</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.exception.html">exception</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.execution.html">execution</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.logging.html">logging</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.ztyping.html">ztyping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.html">z</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.math.html">math</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.random.html">random</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/zfit.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.func.html">func</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.loss.html">loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.param.html">param</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.sample.html">sample</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.settings.html">settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.func.html">func</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.data.html">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.loss.html">loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.settings.html">settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.z.html">z</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.math.html">math</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.random.html">random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
 </li>
               
             
@@ -143,12 +379,16 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.__eq__">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.MetaBaseParameter.__instancecheck__">__instancecheck__() (zfit.core.parameter.MetaBaseParameter method)</a>
+</li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.__iter__">__iter__() (zfit.core.parameter.ComposedResourceVariable method)</a>
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.__iter__">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.__iter__">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.__iter__">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.__iter__">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.__iter__">[1]</a>
 </li>
@@ -162,18 +402,20 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.__ne__">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.__ne__">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.__ne__">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.__ne__">[1]</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.MetaBaseParameter.__subclasscheck__">__subclasscheck__() (zfit.core.parameter.MetaBaseParameter method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.abs_square">abs_square() (in module zfit.ztf.zextension)</a>
-</li>
-      <li><a href="api/zfit.core.sample.html#zfit.core.sample.accept_reject_sample">accept_reject_sample() (in module zfit.core.sample)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.abs_square">abs_square() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.minimize.html#zfit.minimize.Adam">Adam (class in zfit.minimize)</a>
 
@@ -324,7 +566,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.add_cache_dependents">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.add_cache_dependents">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.add_cache_dependents">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.add_cache_dependents">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.add_cache_dependents">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.add_cache_dependents">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.add_cache_dependents">[1]</a>
 </li>
@@ -370,6 +618,8 @@
 </li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.Cachable.add_cache_dependents">(zfit.util.cache.Cachable method)</a>
 </li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.add_cache_dependents">(zfit.util.cache.FunctionCacheHolder method)</a>
+</li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.ZfitCachable.add_cache_dependents">(zfit.util.cache.ZfitCachable method)</a>
 </li>
       </ul></li>
@@ -411,6 +661,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.aggregation">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.aggregation">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.aggregation">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.aggregation">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.aggregation">[1]</a>
 </li>
@@ -666,6 +918,8 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.arg">(zfit.core.parameter.ComplexParameter property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.arg">(zfit.param.ComplexParameter property)</a>
+</li>
       </ul></li>
       <li><a href="api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.FailMinimizeNaN.args">args (zfit.minimizers.baseminimizer.FailMinimizeNaN attribute)</a>
 
@@ -678,9 +932,9 @@
 </li>
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.BasePDFSubclassingError.args">(zfit.util.exception.BasePDFSubclassingError attribute)</a>
 </li>
-        <li><a href="api/zfit.util.exception.html#zfit.util.exception.ConversionError.args">(zfit.util.exception.ConversionError attribute)</a>
+        <li><a href="api/zfit.util.exception.html#zfit.util.exception.BreakingAPIChangeError.args">(zfit.util.exception.BreakingAPIChangeError attribute)</a>
 </li>
-        <li><a href="api/zfit.util.exception.html#zfit.util.exception.DueToLazynessNotImplementedError.args">(zfit.util.exception.DueToLazynessNotImplementedError attribute)</a>
+        <li><a href="api/zfit.util.exception.html#zfit.util.exception.ConversionError.args">(zfit.util.exception.ConversionError attribute)</a>
 </li>
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.ExtendedPDFError.args">(zfit.util.exception.ExtendedPDFError attribute)</a>
 </li>
@@ -733,6 +987,8 @@
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.UnderdefinedError.args">(zfit.util.exception.UnderdefinedError attribute)</a>
 </li>
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.WeightsNotImplementedError.args">(zfit.util.exception.WeightsNotImplementedError attribute)</a>
+</li>
+        <li><a href="api/zfit.util.exception.html#zfit.util.exception.WorkInProgressError.args">(zfit.util.exception.WorkInProgressError attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.as_func">as_func() (zfit.core.basepdf.BasePDF method)</a>
@@ -872,7 +1128,13 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ZfitBaseVariable.assign">(zfit.core.parameter.ZfitBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.assign">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.assign">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.assign">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.assign">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.assign">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.assign">[1]</a>
 </li>
@@ -884,6 +1146,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.assign_add">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.assign_add">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.assign_add">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.assign_add">[1]</a>
 </li>
       </ul></li>
@@ -893,6 +1157,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.assign_sub">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.assign_sub">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.assign_sub">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.assign_sub">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.assign_sub">[1]</a>
 </li>
@@ -908,6 +1174,14 @@
       <li><a href="api/zfit.util.execution.html#zfit.util.execution.RunManager.auto_initialize">auto_initialize() (zfit.util.execution.RunManager method)</a>
 </li>
       <li><a href="api/zfit.core.integration.html#zfit.core.integration.auto_integrate">auto_integrate() (in module zfit.core.integration)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.automatic_gradient">automatic_gradient() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.automatic_hessian">automatic_hessian() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.automatic_value_gradients">automatic_value_gradients() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.automatic_value_gradients_hessian">automatic_value_gradients_hessian() (in module zfit.z.math)</a>
 </li>
       <li><a href="api/zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.axes">axes() (zfit.core.basefunc.BaseFunc property)</a>
 
@@ -1063,7 +1337,7 @@
 </li>
       <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint">BaseConstraint (class in zfit.core.constraint)</a>
 </li>
-      <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseDependentsMixin">BaseDependentsMixin (class in zfit.core.baseobject)</a>
+      <li><a href="api/zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin">BaseDependentsMixin (class in zfit.core.dependents)</a>
 </li>
       <li><a href="api/zfit.core.dimension.html#zfit.core.dimension.BaseDimensional">BaseDimensional (class in zfit.core.dimension)</a>
 </li>
@@ -1091,10 +1365,10 @@
 </li>
       <li><a href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel">BaseModel (class in zfit.core.basemodel)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric">BaseNumeric (class in zfit.core.baseobject)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseObject">BaseObject (class in zfit.core.baseobject)</a>
 </li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseParameter">BaseParameter (class in zfit.core.parameter)</a>
@@ -1118,10 +1392,18 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.batch_scatter_update">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.batch_scatter_update">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.batch_scatter_update">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.batch_scatter_update">[1]</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer">BFGSMinimizer (class in zfit.minimizers.minimizer_tfp)</a>
+      <li><a href="api/zfit.minimize.html#zfit.minimize.BFGS">BFGS (class in zfit.minimize)</a>
+
+      <ul>
+        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGS">(class in zfit.minimizers.minimizer_tfp)</a>
+</li>
+      </ul></li>
+      <li><a href="api/zfit.util.exception.html#zfit.util.exception.BreakingAPIChangeError">BreakingAPIChangeError</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1147,11 +1429,11 @@
       </ul></li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.chebyshev2_shape">chebyshev2_shape() (in module zfit.models.polynomials)</a>
 </li>
-      <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.chebyshev_recurrence">chebyshev_recurrence() (in module zfit.models.polynomials)</a>
-</li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.chebyshev_shape">chebyshev_shape() (in module zfit.models.polynomials)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.check_numerics">check_numerics() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.check_numerics">check_numerics() (in module zfit.z.wrapping_tf)</a>
+</li>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.FunctionWrapperRegistry.check_wrapped_functions_registered">check_wrapped_functions_registered() (zfit.z.zextension.FunctionWrapperRegistry class method)</a>
 </li>
       <li><a href="api/zfit.core.integration.html#zfit.core.integration.chunked_average">chunked_average() (in module zfit.core.integration)</a>
 </li>
@@ -1171,18 +1453,22 @@
 </li>
       <li><a href="api/zfit.core.dimension.html#zfit.core.dimension.common_obs">common_obs() (in module zfit.core.dimension)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.complex">complex() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.complex">complex() (in module zfit.z.wrapping_tf)</a>
 </li>
       <li><a href="api/keep/zfit.html#zfit.ComplexParameter">ComplexParameter (class in zfit)</a>, <a href="api/zfit.html#zfit.ComplexParameter">[1]</a>
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter">(class in zfit.core.parameter)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter">(class in zfit.param)</a>
+</li>
       </ul></li>
       <li><a href="api/keep/zfit.html#zfit.ComposedParameter">ComposedParameter (class in zfit)</a>, <a href="api/zfit.html#zfit.ComposedParameter">[1]</a>
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedParameter">(class in zfit.core.parameter)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter">(class in zfit.param)</a>
 </li>
       </ul></li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable">ComposedResourceVariable (class in zfit.core.parameter)</a>
@@ -1196,8 +1482,10 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.conj">(zfit.core.parameter.ComplexParameter property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.conj">(zfit.param.ComplexParameter property)</a>
+</li>
       </ul></li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.constant">constant() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.constant">constant() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter">ConstantParameter (class in zfit.core.parameter)</a>
 
@@ -1211,6 +1499,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.constraint">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.constraint">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.constraint">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.constraint">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.constraint">[1]</a>
 </li>
@@ -1235,6 +1525,8 @@
         <li><a href="api/zfit.loss.html#zfit.loss.UnbinnedNLL.constraints">(zfit.loss.UnbinnedNLL property)</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.core.limits.html#zfit.core.limits.contains_tensor">contains_tensor() (in module zfit.core.limits)</a>
+</li>
       <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.converged">converged() (zfit.minimizers.fitresult.FitResult property)</a>
 </li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.ConversionError">ConversionError</a>
@@ -1372,6 +1664,8 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.convert_to_parameter">(in module zfit.core.parameter)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.convert_to_parameter">(in module zfit.param)</a>
+</li>
       </ul></li>
       <li><a href="api/keep/zfit.html#zfit.convert_to_space">convert_to_space() (in module zfit)</a>, <a href="api/zfit.html#zfit.convert_to_space">[1]</a>
 
@@ -1379,7 +1673,7 @@
         <li><a href="api/zfit.core.limits.html#zfit.core.limits.convert_to_space">(in module zfit.core.limits)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.convert_to_tensor">convert_to_tensor() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.convert_to_tensor">convert_to_tensor() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/keep/zfit.html#zfit.ComplexParameter.copy">copy() (zfit.ComplexParameter method)</a>, <a href="api/zfit.html#zfit.ComplexParameter.copy">[1]</a>
 
@@ -1488,6 +1782,8 @@
 </li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.copy">(zfit.minimize.Adam method)</a>
 </li>
+        <li><a href="api/zfit.minimize.html#zfit.minimize.BFGS.copy">(zfit.minimize.BFGS method)</a>
+</li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.copy">(zfit.minimize.Minuit method)</a>
 </li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Scipy.copy">(zfit.minimize.Scipy method)</a>
@@ -1500,7 +1796,7 @@
 </li>
         <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.copy">(zfit.minimizers.minimizer_minuit.Minuit method)</a>
 </li>
-        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.copy">(zfit.minimizers.minimizer_tfp.BFGSMinimizer method)</a>
+        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGS.copy">(zfit.minimizers.minimizer_tfp.BFGS method)</a>
 </li>
         <li><a href="api/zfit.minimizers.minimizers_scipy.html#zfit.minimizers.minimizers_scipy.Scipy.copy">(zfit.minimizers.minimizers_scipy.Scipy method)</a>
 </li>
@@ -1560,7 +1856,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.copy">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.copy">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.copy">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.copy">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.copy">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.copy">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.copy">[1]</a>
 </li>
@@ -1618,10 +1920,12 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.count_up_to">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.count_up_to">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.count_up_to">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.count_up_to">[1]</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.ztf.random.html#zfit.ztf.random.counts_multinomial">counts_multinomial() (in module zfit.ztf.random)</a>
+      <li><a href="api/zfit.z.random.html#zfit.z.random.counts_multinomial">counts_multinomial() (in module zfit.z.random)</a>
 </li>
       <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.covariance">covariance() (zfit.minimizers.fitresult.FitResult method)</a>
 </li>
@@ -1631,6 +1935,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.create">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.create">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.create">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.create">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.create">[1]</a>
 </li>
@@ -1723,6 +2029,8 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.create_extended">(zfit.pdf.ZPDF method)</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.create_immutable">create_immutable() (zfit.util.cache.FunctionCacheHolder method)</a>
+</li>
       <li><a href="api/zfit.core.sample.html#zfit.core.sample.EventSpace.create_limits">create_limits() (zfit.core.sample.EventSpace method)</a>
 </li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.create_poly">create_poly() (in module zfit.models.polynomials)</a>
@@ -1923,8 +2231,6 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.create_sampler">(zfit.pdf.ZPDF method)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.util.execution.html#zfit.util.execution.RunManager.create_session">create_session() (zfit.util.execution.RunManager method)</a>
-</li>
       <li><a href="api/zfit.models.physics.html#zfit.models.physics.CrystalBall">CrystalBall (class in zfit.models.physics)</a>
 
       <ul>
@@ -2015,6 +2321,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.device">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.device">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.device">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.device">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.device">[1]</a>
 </li>
@@ -2116,8 +2424,6 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.dtype">(zfit.core.parameter.ComposedResourceVariable property)</a>
 </li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedVariable.dtype">(zfit.core.parameter.ComposedVariable property)</a>
-</li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter.dtype">(zfit.core.parameter.ConstantParameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.dtype">(zfit.core.parameter.Parameter property)</a>
@@ -2192,7 +2498,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.dtype">(zfit.models.special.ZPDF property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.dtype">(zfit.param.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.dtype">(zfit.param.ComposedParameter property)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.dtype">(zfit.param.ConstantParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.dtype">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.dtype">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.dtype">[1]</a>
 </li>
@@ -2238,10 +2550,6 @@
 </li>
       </ul></li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/zfit.util.exception.html#zfit.util.exception.DueToLazynessNotImplementedError">DueToLazynessNotImplementedError</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="E">E</h2>
@@ -2284,6 +2592,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.eval">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.eval">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.eval">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.eval">[1]</a>
 </li>
       </ul></li>
@@ -2291,7 +2601,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.core.sample.html#zfit.core.sample.EventSpace">EventSpace (class in zfit.core.sample)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.exp">exp() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.exp">exp() (in module zfit.z.wrapping_tf)</a>
 </li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.experimental_ref">experimental_ref() (zfit.core.parameter.ComposedResourceVariable method)</a>
 
@@ -2299,6 +2609,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.experimental_ref">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.experimental_ref">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.experimental_ref">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.experimental_ref">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.experimental_ref">[1]</a>
 </li>
@@ -2400,7 +2712,13 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin.floating">(zfit.core.parameter.ZfitParameterMixin property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.floating">(zfit.param.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.floating">(zfit.param.ComposedParameter property)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.floating">(zfit.param.ConstantParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.floating">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.floating">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.floating">[1]</a>
 </li>
@@ -2430,6 +2748,8 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.from_cartesian">(zfit.core.parameter.ComplexParameter static method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.from_cartesian">(zfit.param.ComplexParameter static method)</a>
+</li>
       </ul></li>
       <li><a href="api/zfit.core.data.html#zfit.core.data.Data.from_numpy">from_numpy() (zfit.core.data.Data class method)</a>
 
@@ -2458,6 +2778,8 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.from_polar">(zfit.core.parameter.ComplexParameter static method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.from_polar">(zfit.param.ComplexParameter static method)</a>
+</li>
       </ul></li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.from_proto">from_proto() (zfit.core.parameter.ComposedResourceVariable static method)</a>
 
@@ -2465,6 +2787,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.from_proto">(zfit.core.parameter.Parameter static method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.from_proto">(zfit.core.parameter.TFBaseVariable static method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.from_proto">(zfit.param.Parameter static method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.from_proto">(zfit.Parameter static method)</a>, <a href="api/zfit.html#zfit.Parameter.from_proto">[1]</a>
 </li>
@@ -2541,6 +2865,10 @@
 </li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.func_integral_laguerre">func_integral_laguerre() (in module zfit.models.polynomials)</a>
 </li>
+      <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder">FunctionCacheHolder (class in zfit.util.cache)</a>
+</li>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.FunctionWrapperRegistry">FunctionWrapperRegistry (class in zfit.z.zextension)</a>
+</li>
       <li><a href="api/zfit.models.basefunctor.html#zfit.models.basefunctor.FunctorMixin">FunctorMixin (class in zfit.models.basefunctor)</a>
 </li>
   </ul></td>
@@ -2555,6 +2883,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.gather_nd">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.gather_nd">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.gather_nd">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.gather_nd">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.gather_nd">[1]</a>
 </li>
@@ -2618,8 +2948,6 @@
 </li>
         <li><a href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.get_dependents">(zfit.core.basemodel.BaseModel method)</a>
 </li>
-        <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseDependentsMixin.get_dependents">(zfit.core.baseobject.BaseDependentsMixin method)</a>
-</li>
         <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric.get_dependents">(zfit.core.baseobject.BaseNumeric method)</a>
 </li>
         <li><a href="api/zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.get_dependents">(zfit.core.basepdf.BasePDF method)</a>
@@ -2631,6 +2959,8 @@
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.get_dependents">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.get_dependents">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin.get_dependents">(zfit.core.dependents.BaseDependentsMixin method)</a>
 </li>
         <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitDependentsMixin.get_dependents">(zfit.core.interfaces.ZfitDependentsMixin method)</a>
 </li>
@@ -2742,7 +3072,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.get_dependents">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.get_dependents">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.get_dependents">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.get_dependents">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.get_dependents">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.get_dependents">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.get_dependents">[1]</a>
 </li>
@@ -2958,7 +3294,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.get_params">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.get_params">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.get_params">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.get_params">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.get_params">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.get_params">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.get_params">[1]</a>
 </li>
@@ -3021,6 +3363,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.get_shape">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.get_shape">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.get_shape">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.get_shape">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.get_shape">[1]</a>
 </li>
@@ -3262,7 +3606,195 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.graph">(zfit.core.parameter.TFBaseVariable property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.graph">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.graph">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.graph">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="api/keep/zfit.html#zfit.ComplexParameter.graph_caching_methods">graph_caching_methods (zfit.ComplexParameter attribute)</a>, <a href="api/zfit.html#zfit.ComplexParameter.graph_caching_methods">[1]</a>
+
+      <ul>
+        <li><a href="api/keep/zfit.html#zfit.ComposedParameter.graph_caching_methods">(zfit.ComposedParameter attribute)</a>, <a href="api/zfit.html#zfit.ComposedParameter.graph_caching_methods">[1]</a>
+</li>
+        <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.graph_caching_methods">(zfit.constraint.GaussianConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.constraint.html#zfit.constraint.SimpleConstraint.graph_caching_methods">(zfit.constraint.SimpleConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.graph_caching_methods">(zfit.core.basefunc.BaseFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.graph_caching_methods">(zfit.core.basemodel.BaseModel attribute)</a>
+</li>
+        <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric.graph_caching_methods">(zfit.core.baseobject.BaseNumeric attribute)</a>
+</li>
+        <li><a href="api/zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.graph_caching_methods">(zfit.core.basepdf.BasePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.graph_caching_methods">(zfit.core.constraint.BaseConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.graph_caching_methods">(zfit.core.constraint.DistributionConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.graph_caching_methods">(zfit.core.constraint.GaussianConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.graph_caching_methods">(zfit.core.constraint.SimpleConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.Data.graph_caching_methods">(zfit.core.data.Data attribute)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.SampleData.graph_caching_methods">(zfit.core.data.SampleData attribute)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.Sampler.graph_caching_methods">(zfit.core.data.Sampler attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.BaseLoss.graph_caching_methods">(zfit.core.loss.BaseLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.CachedLoss.graph_caching_methods">(zfit.core.loss.CachedLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.graph_caching_methods">(zfit.core.loss.ExtendedUnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.graph_caching_methods">(zfit.core.loss.SimpleLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.graph_caching_methods">(zfit.core.loss.UnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.graph_caching_methods">(zfit.core.parameter.BaseComposedParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseZParameter.graph_caching_methods">(zfit.core.parameter.BaseZParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.graph_caching_methods">(zfit.core.parameter.ComplexParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedParameter.graph_caching_methods">(zfit.core.parameter.ComposedParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter.graph_caching_methods">(zfit.core.parameter.ConstantParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.graph_caching_methods">(zfit.core.parameter.Parameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin.graph_caching_methods">(zfit.core.parameter.ZfitParameterMixin attribute)</a>
+</li>
+        <li><a href="api/zfit.data.html#zfit.data.Data.graph_caching_methods">(zfit.data.Data attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.BaseFunc.graph_caching_methods">(zfit.func.BaseFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.ProdFunc.graph_caching_methods">(zfit.func.ProdFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.SimpleFunc.graph_caching_methods">(zfit.func.SimpleFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.SumFunc.graph_caching_methods">(zfit.func.SumFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.BaseLoss.graph_caching_methods">(zfit.loss.BaseLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.graph_caching_methods">(zfit.loss.ExtendedUnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.SimpleLoss.graph_caching_methods">(zfit.loss.SimpleLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.UnbinnedNLL.graph_caching_methods">(zfit.loss.UnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.graph_caching_methods">(zfit.minimize.Minuit attribute)</a>
+</li>
+        <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.graph_caching_methods">(zfit.minimizers.minimizer_minuit.Minuit attribute)</a>
+</li>
+        <li><a href="api/zfit.models.basefunctor.html#zfit.models.basefunctor.FunctorMixin.graph_caching_methods">(zfit.models.basefunctor.FunctorMixin attribute)</a>
+</li>
+        <li><a href="api/zfit.models.basic.html#zfit.models.basic.CustomGaussOLD.graph_caching_methods">(zfit.models.basic.CustomGaussOLD attribute)</a>
+</li>
+        <li><a href="api/zfit.models.basic.html#zfit.models.basic.Exponential.graph_caching_methods">(zfit.models.basic.Exponential attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.ExponentialTFP.graph_caching_methods">(zfit.models.dist_tfp.ExponentialTFP attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.Gauss.graph_caching_methods">(zfit.models.dist_tfp.Gauss attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.TruncatedGauss.graph_caching_methods">(zfit.models.dist_tfp.TruncatedGauss attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.Uniform.graph_caching_methods">(zfit.models.dist_tfp.Uniform attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.WrapDistribution.graph_caching_methods">(zfit.models.dist_tfp.WrapDistribution attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.BaseFunctorFunc.graph_caching_methods">(zfit.models.functions.BaseFunctorFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.ProdFunc.graph_caching_methods">(zfit.models.functions.ProdFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.SimpleFunc.graph_caching_methods">(zfit.models.functions.SimpleFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.SumFunc.graph_caching_methods">(zfit.models.functions.SumFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.ZFunc.graph_caching_methods">(zfit.models.functions.ZFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functor.html#zfit.models.functor.BaseFunctor.graph_caching_methods">(zfit.models.functor.BaseFunctor attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functor.html#zfit.models.functor.ProductPDF.graph_caching_methods">(zfit.models.functor.ProductPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functor.html#zfit.models.functor.SumPDF.graph_caching_methods">(zfit.models.functor.SumPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.physics.html#zfit.models.physics.CrystalBall.graph_caching_methods">(zfit.models.physics.CrystalBall attribute)</a>
+</li>
+        <li><a href="api/zfit.models.physics.html#zfit.models.physics.DoubleCB.graph_caching_methods">(zfit.models.physics.DoubleCB attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Chebyshev.graph_caching_methods">(zfit.models.polynomials.Chebyshev attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Chebyshev2.graph_caching_methods">(zfit.models.polynomials.Chebyshev2 attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Hermite.graph_caching_methods">(zfit.models.polynomials.Hermite attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Laguerre.graph_caching_methods">(zfit.models.polynomials.Laguerre attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Legendre.graph_caching_methods">(zfit.models.polynomials.Legendre attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.RecursivePolynomial.graph_caching_methods">(zfit.models.polynomials.RecursivePolynomial attribute)</a>
+</li>
+        <li><a href="api/zfit.models.special.html#zfit.models.special.SimpleFunctorPDF.graph_caching_methods">(zfit.models.special.SimpleFunctorPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.special.html#zfit.models.special.SimplePDF.graph_caching_methods">(zfit.models.special.SimplePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.graph_caching_methods">(zfit.models.special.ZPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.graph_caching_methods">(zfit.param.ComplexParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.graph_caching_methods">(zfit.param.ComposedParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.graph_caching_methods">(zfit.param.ConstantParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.graph_caching_methods">(zfit.param.Parameter attribute)</a>
+</li>
+        <li><a href="api/keep/zfit.html#zfit.Parameter.graph_caching_methods">(zfit.Parameter attribute)</a>, <a href="api/zfit.html#zfit.Parameter.graph_caching_methods">[1]</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.BaseFunctor.graph_caching_methods">(zfit.pdf.BaseFunctor attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.BasePDF.graph_caching_methods">(zfit.pdf.BasePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Chebyshev.graph_caching_methods">(zfit.pdf.Chebyshev attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Chebyshev2.graph_caching_methods">(zfit.pdf.Chebyshev2 attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.CrystalBall.graph_caching_methods">(zfit.pdf.CrystalBall attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.DoubleCB.graph_caching_methods">(zfit.pdf.DoubleCB attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Exponential.graph_caching_methods">(zfit.pdf.Exponential attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Gauss.graph_caching_methods">(zfit.pdf.Gauss attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Hermite.graph_caching_methods">(zfit.pdf.Hermite attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Laguerre.graph_caching_methods">(zfit.pdf.Laguerre attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Legendre.graph_caching_methods">(zfit.pdf.Legendre attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.ProductPDF.graph_caching_methods">(zfit.pdf.ProductPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.RecursivePolynomial.graph_caching_methods">(zfit.pdf.RecursivePolynomial attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.SimpleFunctorPDF.graph_caching_methods">(zfit.pdf.SimpleFunctorPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.SimplePDF.graph_caching_methods">(zfit.pdf.SimplePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.SumPDF.graph_caching_methods">(zfit.pdf.SumPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.TruncatedGauss.graph_caching_methods">(zfit.pdf.TruncatedGauss attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Uniform.graph_caching_methods">(zfit.pdf.Uniform attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.WrapDistribution.graph_caching_methods">(zfit.pdf.WrapDistribution attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.graph_caching_methods">(zfit.pdf.ZPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.Cachable.graph_caching_methods">(zfit.util.cache.Cachable attribute)</a>
+</li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.graph_caching_methods">(zfit.util.cache.FunctionCacheHolder attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -3278,12 +3810,16 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.handle">(zfit.core.parameter.TFBaseVariable property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.handle">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.handle">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.handle">[1]</a>
 </li>
       </ul></li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.has_limits">has_limits() (zfit.core.parameter.Parameter property)</a>
 
       <ul>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.has_limits">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.has_limits">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.has_limits">[1]</a>
 </li>
       </ul></li>
@@ -3295,8 +3831,6 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.Hermite">(class in zfit.pdf)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.hermite_recurrence">hermite_recurrence() (in module zfit.models.polynomials)</a>
-</li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.hermite_shape">hermite_shape() (in module zfit.models.polynomials)</a>
 </li>
       <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">hesse() (zfit.minimizers.fitresult.FitResult method)</a>
@@ -3315,6 +3849,8 @@
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.imag">(zfit.core.parameter.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.imag">(zfit.param.ComplexParameter property)</a>
 </li>
       </ul></li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.IncompatibleError">IncompatibleError</a>
@@ -3340,7 +3876,13 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.independent">(zfit.core.parameter.Parameter property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.independent">(zfit.param.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.independent">(zfit.param.ComposedParameter property)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.independent">(zfit.param.ConstantParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.independent">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.independent">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.independent">[1]</a>
 </li>
@@ -3353,6 +3895,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.initial_value">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.initial_value">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.initial_value">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.initial_value">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.initial_value">[1]</a>
 </li>
@@ -3374,6 +3918,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.initialized_value">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.initialized_value">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.initialized_value">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.initialized_value">[1]</a>
 </li>
       </ul></li>
@@ -3383,6 +3929,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.initializer">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.initializer">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.initializer">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.initializer">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.initializer">[1]</a>
 </li>
@@ -3513,7 +4061,7 @@
 </li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.IntentionNotUnambiguousError">IntentionNotUnambiguousError</a>
 </li>
-      <li><a href="api/zfit.core.math.html#zfit.core.math.interpolate">interpolate() (in module zfit.core.math)</a>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.interpolate">interpolate() (in module zfit.z.math)</a>
 </li>
       <li><a href="api/zfit.util.cache.html#zfit.util.cache.invalidates_cache">invalidates_cache() (in module zfit.util.cache)</a>
 </li>
@@ -3618,9 +4166,13 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.is_initialized">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.is_initialized">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.is_initialized">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.is_initialized">[1]</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.IS_TENSOR">IS_TENSOR (zfit.util.cache.FunctionCacheHolder attribute)</a>
+</li>
       <li><a href="api/zfit.util.container.html#zfit.util.container.DotDict.items">items() (zfit.util.container.DotDict method)</a>
 </li>
       <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace.iter_areas">iter_areas() (zfit.core.interfaces.ZfitSpace method)</a>
@@ -3673,8 +4225,6 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.Laguerre">(class in zfit.pdf)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.laguerre_recurrence">laguerre_recurrence() (in module zfit.models.polynomials)</a>
-</li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.laguerre_shape">laguerre_shape() (in module zfit.models.polynomials)</a>
 </li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.laguerre_shape_alpha_minusone">laguerre_shape_alpha_minusone() (in module zfit.models.polynomials)</a>
@@ -3686,8 +4236,6 @@
 </li>
       </ul></li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.legendre_integral">legendre_integral() (in module zfit.models.polynomials)</a>
-</li>
-      <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.legendre_recurrence">legendre_recurrence() (in module zfit.models.polynomials)</a>
 </li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.legendre_shape">legendre_shape() (in module zfit.models.polynomials)</a>
 </li>
@@ -3739,35 +4287,19 @@
 </li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.LimitsUnderdefinedError">LimitsUnderdefinedError</a>
 </li>
-      <li><a href="api/keep/zfit.html#zfit.ComplexParameter.load">load() (zfit.ComplexParameter method)</a>, <a href="api/zfit.html#zfit.ComplexParameter.load">[1]</a>
+      <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.load">load() (zfit.core.parameter.ComposedResourceVariable method)</a>
 
       <ul>
-        <li><a href="api/keep/zfit.html#zfit.ComposedParameter.load">(zfit.ComposedParameter method)</a>, <a href="api/zfit.html#zfit.ComposedParameter.load">[1]</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.load">(zfit.core.parameter.BaseComposedParameter method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseZParameter.load">(zfit.core.parameter.BaseZParameter method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.load">(zfit.core.parameter.ComplexParameter method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedParameter.load">(zfit.core.parameter.ComposedParameter method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.load">(zfit.core.parameter.ComposedResourceVariable method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedVariable.load">(zfit.core.parameter.ComposedVariable method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter.load">(zfit.core.parameter.ConstantParameter method)</a>
-</li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.load">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.load">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
-        <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.load">(zfit.param.ConstantParameter method)</a>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.load">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.load">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.load">[1]</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.log">log() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.log">log() (in module zfit.z.wrapping_tf)</a>
 </li>
       <li><a href="api/zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.log_pdf">log_pdf() (zfit.core.basepdf.BasePDF method)</a>
 
@@ -3878,6 +4410,8 @@
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.lower_limit">lower_limit() (zfit.core.parameter.Parameter property)</a>
 
       <ul>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.lower_limit">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.lower_limit">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.lower_limit">[1]</a>
 </li>
       </ul></li>
@@ -3894,6 +4428,8 @@
       <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.minimize">minimize() (zfit.minimize.Adam method)</a>
 
       <ul>
+        <li><a href="api/zfit.minimize.html#zfit.minimize.BFGS.minimize">(zfit.minimize.BFGS method)</a>
+</li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.minimize">(zfit.minimize.Minuit method)</a>
 </li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Scipy.minimize">(zfit.minimize.Scipy method)</a>
@@ -3908,7 +4444,7 @@
 </li>
         <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.minimize">(zfit.minimizers.minimizer_minuit.Minuit method)</a>
 </li>
-        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.minimize">(zfit.minimizers.minimizer_tfp.BFGSMinimizer method)</a>
+        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGS.minimize">(zfit.minimizers.minimizer_tfp.BFGS method)</a>
 </li>
         <li><a href="api/zfit.minimizers.minimizers_scipy.html#zfit.minimizers.minimizers_scipy.Scipy.minimize">(zfit.minimizers.minimizers_scipy.Scipy method)</a>
 </li>
@@ -3947,6 +4483,8 @@
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.mod">(zfit.core.parameter.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.mod">(zfit.param.ComplexParameter property)</a>
 </li>
       </ul></li>
       <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss.model">model() (zfit.core.interfaces.ZfitLoss property)</a>
@@ -4270,8 +4808,6 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.name">(zfit.core.parameter.ComposedResourceVariable property)</a>
 </li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedVariable.name">(zfit.core.parameter.ComposedVariable property)</a>
-</li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter.name">(zfit.core.parameter.ConstantParameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.name">(zfit.core.parameter.Parameter property)</a>
@@ -4354,7 +4890,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.name">(zfit.models.special.ZPDF property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.name">(zfit.param.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.name">(zfit.param.ComposedParameter property)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.name">(zfit.param.ConstantParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.name">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.name">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.name">[1]</a>
 </li>
@@ -4613,7 +5155,7 @@
 </li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.NotSpecifiedError">NotSpecifiedError</a>
 </li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.nth_pow">nth_pow() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.nth_pow">nth_pow() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.core.integration.html#zfit.core.integration.numeric_integrate">numeric_integrate() (in module zfit.core.integration)</a>
 
@@ -4727,12 +5269,52 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.numeric_integrate">(zfit.pdf.ZPDF method)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.numpy">numpy() (zfit.core.parameter.ComposedResourceVariable method)</a>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.numerical_gradient">numerical_gradient() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.numerical_hessian">numerical_hessian() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.numerical_value_gradients">numerical_value_gradients() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.numerical_value_gradients_hessian">numerical_value_gradients_hessian() (in module zfit.z.math)</a>
+</li>
+      <li><a href="api/keep/zfit.html#zfit.ComplexParameter.numpy">numpy() (zfit.ComplexParameter method)</a>, <a href="api/zfit.html#zfit.ComplexParameter.numpy">[1]</a>
 
       <ul>
+        <li><a href="api/keep/zfit.html#zfit.ComposedParameter.numpy">(zfit.ComposedParameter method)</a>, <a href="api/zfit.html#zfit.ComposedParameter.numpy">[1]</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.Data.numpy">(zfit.core.data.Data method)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.SampleData.numpy">(zfit.core.data.SampleData method)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.Sampler.numpy">(zfit.core.data.Sampler method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.numpy">(zfit.core.parameter.BaseComposedParameter method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseZParameter.numpy">(zfit.core.parameter.BaseZParameter method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.numpy">(zfit.core.parameter.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedParameter.numpy">(zfit.core.parameter.ComposedParameter method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.numpy">(zfit.core.parameter.ComposedResourceVariable method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedVariable.numpy">(zfit.core.parameter.ComposedVariable method)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter.numpy">(zfit.core.parameter.ConstantParameter method)</a>
+</li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.numpy">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.numpy">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.data.html#zfit.data.Data.numpy">(zfit.data.Data method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.numpy">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.numpy">(zfit.param.ComposedParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.numpy">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.numpy">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.numpy">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.numpy">[1]</a>
 </li>
@@ -4883,8 +5465,6 @@
         <li><a href="api/keep/zfit.html#zfit.Space.obs">(zfit.Space property)</a>, <a href="api/zfit.html#zfit.Space.obs">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.core.limits.html#zfit.core.limits.Space.obs_axes">obs_axes() (zfit.core.limits.Space property)</a>
 
       <ul>
@@ -4897,12 +5477,202 @@
 </li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.ObsNotSpecifiedError">ObsNotSpecifiedError</a>
 </li>
+      <li><a href="api/keep/zfit.html#zfit.ComplexParameter.old_graph_caching_methods">old_graph_caching_methods (zfit.ComplexParameter attribute)</a>, <a href="api/zfit.html#zfit.ComplexParameter.old_graph_caching_methods">[1]</a>
+
+      <ul>
+        <li><a href="api/keep/zfit.html#zfit.ComposedParameter.old_graph_caching_methods">(zfit.ComposedParameter attribute)</a>, <a href="api/zfit.html#zfit.ComposedParameter.old_graph_caching_methods">[1]</a>
+</li>
+        <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.old_graph_caching_methods">(zfit.constraint.GaussianConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.constraint.html#zfit.constraint.SimpleConstraint.old_graph_caching_methods">(zfit.constraint.SimpleConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.old_graph_caching_methods">(zfit.core.basefunc.BaseFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.old_graph_caching_methods">(zfit.core.basemodel.BaseModel attribute)</a>
+</li>
+        <li><a href="api/zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric.old_graph_caching_methods">(zfit.core.baseobject.BaseNumeric attribute)</a>
+</li>
+        <li><a href="api/zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.old_graph_caching_methods">(zfit.core.basepdf.BasePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.old_graph_caching_methods">(zfit.core.constraint.BaseConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.old_graph_caching_methods">(zfit.core.constraint.DistributionConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.old_graph_caching_methods">(zfit.core.constraint.GaussianConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.old_graph_caching_methods">(zfit.core.constraint.SimpleConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.Data.old_graph_caching_methods">(zfit.core.data.Data attribute)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.SampleData.old_graph_caching_methods">(zfit.core.data.SampleData attribute)</a>
+</li>
+        <li><a href="api/zfit.core.data.html#zfit.core.data.Sampler.old_graph_caching_methods">(zfit.core.data.Sampler attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.BaseLoss.old_graph_caching_methods">(zfit.core.loss.BaseLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.CachedLoss.old_graph_caching_methods">(zfit.core.loss.CachedLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.old_graph_caching_methods">(zfit.core.loss.ExtendedUnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.old_graph_caching_methods">(zfit.core.loss.SimpleLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.old_graph_caching_methods">(zfit.core.loss.UnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.old_graph_caching_methods">(zfit.core.parameter.BaseComposedParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.BaseZParameter.old_graph_caching_methods">(zfit.core.parameter.BaseZParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.old_graph_caching_methods">(zfit.core.parameter.ComplexParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedParameter.old_graph_caching_methods">(zfit.core.parameter.ComposedParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ConstantParameter.old_graph_caching_methods">(zfit.core.parameter.ConstantParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.old_graph_caching_methods">(zfit.core.parameter.Parameter attribute)</a>
+</li>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin.old_graph_caching_methods">(zfit.core.parameter.ZfitParameterMixin attribute)</a>
+</li>
+        <li><a href="api/zfit.data.html#zfit.data.Data.old_graph_caching_methods">(zfit.data.Data attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.BaseFunc.old_graph_caching_methods">(zfit.func.BaseFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.ProdFunc.old_graph_caching_methods">(zfit.func.ProdFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.SimpleFunc.old_graph_caching_methods">(zfit.func.SimpleFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.func.html#zfit.func.SumFunc.old_graph_caching_methods">(zfit.func.SumFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.BaseLoss.old_graph_caching_methods">(zfit.loss.BaseLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.old_graph_caching_methods">(zfit.loss.ExtendedUnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.SimpleLoss.old_graph_caching_methods">(zfit.loss.SimpleLoss attribute)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.UnbinnedNLL.old_graph_caching_methods">(zfit.loss.UnbinnedNLL attribute)</a>
+</li>
+        <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.old_graph_caching_methods">(zfit.minimize.Minuit attribute)</a>
+</li>
+        <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.old_graph_caching_methods">(zfit.minimizers.minimizer_minuit.Minuit attribute)</a>
+</li>
+        <li><a href="api/zfit.models.basefunctor.html#zfit.models.basefunctor.FunctorMixin.old_graph_caching_methods">(zfit.models.basefunctor.FunctorMixin attribute)</a>
+</li>
+        <li><a href="api/zfit.models.basic.html#zfit.models.basic.CustomGaussOLD.old_graph_caching_methods">(zfit.models.basic.CustomGaussOLD attribute)</a>
+</li>
+        <li><a href="api/zfit.models.basic.html#zfit.models.basic.Exponential.old_graph_caching_methods">(zfit.models.basic.Exponential attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.ExponentialTFP.old_graph_caching_methods">(zfit.models.dist_tfp.ExponentialTFP attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.Gauss.old_graph_caching_methods">(zfit.models.dist_tfp.Gauss attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.TruncatedGauss.old_graph_caching_methods">(zfit.models.dist_tfp.TruncatedGauss attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.Uniform.old_graph_caching_methods">(zfit.models.dist_tfp.Uniform attribute)</a>
+</li>
+        <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.WrapDistribution.old_graph_caching_methods">(zfit.models.dist_tfp.WrapDistribution attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.BaseFunctorFunc.old_graph_caching_methods">(zfit.models.functions.BaseFunctorFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.ProdFunc.old_graph_caching_methods">(zfit.models.functions.ProdFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.SimpleFunc.old_graph_caching_methods">(zfit.models.functions.SimpleFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.SumFunc.old_graph_caching_methods">(zfit.models.functions.SumFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functions.html#zfit.models.functions.ZFunc.old_graph_caching_methods">(zfit.models.functions.ZFunc attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functor.html#zfit.models.functor.BaseFunctor.old_graph_caching_methods">(zfit.models.functor.BaseFunctor attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functor.html#zfit.models.functor.ProductPDF.old_graph_caching_methods">(zfit.models.functor.ProductPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.functor.html#zfit.models.functor.SumPDF.old_graph_caching_methods">(zfit.models.functor.SumPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.physics.html#zfit.models.physics.CrystalBall.old_graph_caching_methods">(zfit.models.physics.CrystalBall attribute)</a>
+</li>
+        <li><a href="api/zfit.models.physics.html#zfit.models.physics.DoubleCB.old_graph_caching_methods">(zfit.models.physics.DoubleCB attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Chebyshev.old_graph_caching_methods">(zfit.models.polynomials.Chebyshev attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Chebyshev2.old_graph_caching_methods">(zfit.models.polynomials.Chebyshev2 attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Hermite.old_graph_caching_methods">(zfit.models.polynomials.Hermite attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Laguerre.old_graph_caching_methods">(zfit.models.polynomials.Laguerre attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.Legendre.old_graph_caching_methods">(zfit.models.polynomials.Legendre attribute)</a>
+</li>
+        <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.RecursivePolynomial.old_graph_caching_methods">(zfit.models.polynomials.RecursivePolynomial attribute)</a>
+</li>
+        <li><a href="api/zfit.models.special.html#zfit.models.special.SimpleFunctorPDF.old_graph_caching_methods">(zfit.models.special.SimpleFunctorPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.special.html#zfit.models.special.SimplePDF.old_graph_caching_methods">(zfit.models.special.SimplePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.old_graph_caching_methods">(zfit.models.special.ZPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.old_graph_caching_methods">(zfit.param.ComplexParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.old_graph_caching_methods">(zfit.param.ComposedParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.old_graph_caching_methods">(zfit.param.ConstantParameter attribute)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.old_graph_caching_methods">(zfit.param.Parameter attribute)</a>
+</li>
+        <li><a href="api/keep/zfit.html#zfit.Parameter.old_graph_caching_methods">(zfit.Parameter attribute)</a>, <a href="api/zfit.html#zfit.Parameter.old_graph_caching_methods">[1]</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.BaseFunctor.old_graph_caching_methods">(zfit.pdf.BaseFunctor attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.BasePDF.old_graph_caching_methods">(zfit.pdf.BasePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Chebyshev.old_graph_caching_methods">(zfit.pdf.Chebyshev attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Chebyshev2.old_graph_caching_methods">(zfit.pdf.Chebyshev2 attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.CrystalBall.old_graph_caching_methods">(zfit.pdf.CrystalBall attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.DoubleCB.old_graph_caching_methods">(zfit.pdf.DoubleCB attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Exponential.old_graph_caching_methods">(zfit.pdf.Exponential attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Gauss.old_graph_caching_methods">(zfit.pdf.Gauss attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Hermite.old_graph_caching_methods">(zfit.pdf.Hermite attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Laguerre.old_graph_caching_methods">(zfit.pdf.Laguerre attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Legendre.old_graph_caching_methods">(zfit.pdf.Legendre attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.ProductPDF.old_graph_caching_methods">(zfit.pdf.ProductPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.RecursivePolynomial.old_graph_caching_methods">(zfit.pdf.RecursivePolynomial attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.SimpleFunctorPDF.old_graph_caching_methods">(zfit.pdf.SimpleFunctorPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.SimplePDF.old_graph_caching_methods">(zfit.pdf.SimplePDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.SumPDF.old_graph_caching_methods">(zfit.pdf.SumPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.TruncatedGauss.old_graph_caching_methods">(zfit.pdf.TruncatedGauss attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.Uniform.old_graph_caching_methods">(zfit.pdf.Uniform attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.WrapDistribution.old_graph_caching_methods">(zfit.pdf.WrapDistribution attribute)</a>
+</li>
+        <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.old_graph_caching_methods">(zfit.pdf.ZPDF attribute)</a>
+</li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.Cachable.old_graph_caching_methods">(zfit.util.cache.Cachable attribute)</a>
+</li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.old_graph_caching_methods">(zfit.util.cache.FunctionCacheHolder attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.op">op() (zfit.core.parameter.ComposedResourceVariable property)</a>
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.op">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.op">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.op">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.op">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.op">[1]</a>
 </li>
@@ -4920,11 +5690,15 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter">(class in zfit.core.parameter)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter">(class in zfit.param)</a>
+</li>
       </ul></li>
       <li><a href="api/keep/zfit.html#zfit.Parameter.SaveSliceInfo">Parameter.SaveSliceInfo (class in zfit)</a>, <a href="api/zfit.html#zfit.Parameter.SaveSliceInfo">[1]</a>
 
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.SaveSliceInfo">(class in zfit.core.parameter)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.SaveSliceInfo">(class in zfit.param)</a>
 </li>
       </ul></li>
       <li><a href="api/keep/zfit.html#zfit.ComplexParameter.params">params() (zfit.ComplexParameter property)</a>, <a href="api/zfit.html#zfit.ComplexParameter.params">[1]</a>
@@ -5044,7 +5818,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.params">(zfit.models.special.ZPDF property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.params">(zfit.param.ComplexParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.params">(zfit.param.ComposedParameter property)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.params">(zfit.param.ConstantParameter property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.params">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.params">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.params">[1]</a>
 </li>
@@ -5539,13 +6319,17 @@
       </ul></li>
       <li><a href="api/zfit.sample.html#zfit.sample.poisson">poisson() (in module zfit.sample)</a>
 </li>
-      <li><a href="api/zfit.core.math.html#zfit.core.math.poly_complex">poly_complex() (in module zfit.core.math)</a>
+      <li><a href="api/zfit.z.math.html#zfit.z.math.poly_complex">poly_complex() (in module zfit.z.math)</a>
 </li>
       <li><a href="api/zfit.util.container.html#zfit.util.container.DotDict.pop">pop() (zfit.util.container.DotDict method)</a>
 </li>
       <li><a href="api/zfit.util.container.html#zfit.util.container.DotDict.popitem">popitem() (zfit.util.container.DotDict method)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.pow">pow() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.pow">pow() (in module zfit.z.wrapping_tf)</a>
+</li>
+      <li><a href="api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.print_gradients">print_gradients() (in module zfit.minimizers.baseminimizer)</a>
+</li>
+      <li><a href="api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.print_params">print_params() (in module zfit.minimizers.baseminimizer)</a>
 </li>
       <li><a href="api/zfit.func.html#zfit.func.ProdFunc">ProdFunc (class in zfit.func)</a>
 
@@ -5559,6 +6343,8 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ProductPDF">(class in zfit.pdf)</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.py_function">py_function() (in module zfit.z.zextension)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -5567,15 +6353,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.models.special.html#zfit.models.special.raise_error_if_norm_range">raise_error_if_norm_range() (in module zfit.models.special)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.random_normal">random_normal() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.random_normal">random_normal() (in module zfit.z.wrapping_tf)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.random_poisson">random_poisson() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.random_poisson">random_poisson() (in module zfit.z.wrapping_tf)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.random_uniform">random_uniform() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.random_uniform">random_uniform() (in module zfit.z.wrapping_tf)</a>
 </li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.randomize">randomize() (zfit.core.parameter.Parameter method)</a>
 
       <ul>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.randomize">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.randomize">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.randomize">[1]</a>
 </li>
       </ul></li>
@@ -5602,7 +6390,13 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.read_value">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.read_value">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.read_value">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.read_value">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.read_value">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.read_value">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.read_value">[1]</a>
 </li>
@@ -5612,6 +6406,8 @@
       <ul>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComplexParameter.real">(zfit.core.parameter.ComplexParameter property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.real">(zfit.param.ComplexParameter property)</a>
+</li>
       </ul></li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.RecursivePolynomial">RecursivePolynomial (class in zfit.models.polynomials)</a>
 
@@ -5620,7 +6416,11 @@
 </li>
       </ul></li>
       <li><a href="api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.register">register() (zfit.core.integration.AnalyticIntegral method)</a>
+
+      <ul>
+        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.MetaBaseParameter.register">(zfit.core.parameter.MetaBaseParameter method)</a>
 </li>
+      </ul></li>
       <li><a href="api/zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.register_additional_repr">register_additional_repr() (zfit.core.basefunc.BaseFunc class method)</a>
 
       <ul>
@@ -5978,7 +6778,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.register_cacher">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.register_cacher">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.register_cacher">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.register_cacher">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.register_cacher">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.register_cacher">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.register_cacher">[1]</a>
 </li>
@@ -6023,6 +6829,8 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.register_cacher">(zfit.pdf.ZPDF method)</a>
 </li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.Cachable.register_cacher">(zfit.util.cache.Cachable method)</a>
+</li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.register_cacher">(zfit.util.cache.FunctionCacheHolder method)</a>
 </li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.ZfitCachable.register_cacher">(zfit.util.cache.ZfitCachable method)</a>
 </li>
@@ -6145,6 +6953,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.FunctionWrapperRegistry.registries">registries (zfit.z.zextension.FunctionWrapperRegistry attribute)</a>
+</li>
       <li><a href="api/zfit.core.limits.html#zfit.core.limits.Space.reorder_by_indices">reorder_by_indices() (zfit.core.limits.Space method)</a>
 
       <ul>
@@ -6157,7 +6967,7 @@
 </li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.rescale_minus_plus_one">rescale_minus_plus_one() (in module zfit.models.polynomials)</a>
 </li>
-      <li><a href="api/zfit.util.execution.html#zfit.util.execution.RunManager.reset">reset() (zfit.util.execution.RunManager method)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.FunctionWrapperRegistry.reset">reset() (zfit.z.zextension.FunctionWrapperRegistry method)</a>
 </li>
       <li><a href="api/keep/zfit.html#zfit.ComplexParameter.reset_cache">reset_cache() (zfit.ComplexParameter method)</a>, <a href="api/zfit.html#zfit.ComplexParameter.reset_cache">[1]</a>
 
@@ -6290,7 +7100,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.reset_cache">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.reset_cache">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.reset_cache">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.reset_cache">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.reset_cache">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.reset_cache">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.reset_cache">[1]</a>
 </li>
@@ -6335,6 +7151,8 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.reset_cache">(zfit.pdf.ZPDF method)</a>
 </li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.Cachable.reset_cache">(zfit.util.cache.Cachable method)</a>
+</li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.reset_cache">(zfit.util.cache.FunctionCacheHolder method)</a>
 </li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.ZfitCachable.reset_cache">(zfit.util.cache.ZfitCachable method)</a>
 </li>
@@ -6470,7 +7288,13 @@
 </li>
         <li><a href="api/zfit.models.special.html#zfit.models.special.ZPDF.reset_cache_self">(zfit.models.special.ZPDF method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.reset_cache_self">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.reset_cache_self">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.reset_cache_self">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.reset_cache_self">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.reset_cache_self">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.reset_cache_self">[1]</a>
 </li>
@@ -6516,10 +7340,12 @@
 </li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.Cachable.reset_cache_self">(zfit.util.cache.Cachable method)</a>
 </li>
+        <li><a href="api/zfit.util.cache.html#zfit.util.cache.FunctionCacheHolder.reset_cache_self">(zfit.util.cache.FunctionCacheHolder method)</a>
+</li>
         <li><a href="api/zfit.util.cache.html#zfit.util.cache.ZfitCachable.reset_cache_self">(zfit.util.cache.ZfitCachable method)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.run_no_nan">run_no_nan() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.run_no_nan">run_no_nan() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.util.execution.html#zfit.util.execution.RunManager">RunManager (class in zfit.util.execution)</a>
 </li>
@@ -6529,7 +7355,7 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.safe_where">safe_where() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.safe_where">safe_where() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.sample">sample() (zfit.constraint.GaussianConstraint method)</a>
 
@@ -6670,6 +7496,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_add">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_add">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_add">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_add">[1]</a>
 </li>
       </ul></li>
@@ -6679,6 +7507,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.scatter_div">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_div">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_div">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_div">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_div">[1]</a>
 </li>
@@ -6690,6 +7520,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_max">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_max">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_max">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_max">[1]</a>
 </li>
       </ul></li>
@@ -6699,6 +7531,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.scatter_min">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_min">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_min">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_min">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_min">[1]</a>
 </li>
@@ -6710,6 +7544,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_mul">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_mul">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_mul">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_mul">[1]</a>
 </li>
       </ul></li>
@@ -6719,6 +7555,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.scatter_nd_add">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_nd_add">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_nd_add">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_nd_add">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_nd_add">[1]</a>
 </li>
@@ -6730,6 +7568,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_nd_sub">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_nd_sub">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_nd_sub">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_nd_sub">[1]</a>
 </li>
       </ul></li>
@@ -6739,6 +7579,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.scatter_nd_update">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_nd_update">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_nd_update">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_nd_update">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_nd_update">[1]</a>
 </li>
@@ -6750,6 +7592,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_sub">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_sub">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_sub">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_sub">[1]</a>
 </li>
       </ul></li>
@@ -6759,6 +7603,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.scatter_update">(zfit.core.parameter.Parameter method)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.scatter_update">(zfit.core.parameter.TFBaseVariable method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.scatter_update">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.scatter_update">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.scatter_update">[1]</a>
 </li>
@@ -6772,48 +7618,6 @@
       <li><a href="api/zfit.minimize.html#zfit.minimize.ScipyMinimizer">ScipyMinimizer (in module zfit.minimize)</a>
 </li>
       <li><a href="api/zfit.minimizers.tf_external_optimizer.html#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface">ScipyOptimizerInterface (class in zfit.minimizers.tf_external_optimizer)</a>
-</li>
-      <li><a href="api/zfit.core.data.html#zfit.core.data.Data.sess">sess() (zfit.core.data.Data property)</a>
-
-      <ul>
-        <li><a href="api/zfit.core.data.html#zfit.core.data.SampleData.sess">(zfit.core.data.SampleData property)</a>
-</li>
-        <li><a href="api/zfit.core.data.html#zfit.core.data.Sampler.sess">(zfit.core.data.Sampler property)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.sess">(zfit.core.parameter.Parameter property)</a>
-</li>
-        <li><a href="api/zfit.data.html#zfit.data.Data.sess">(zfit.data.Data property)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.sess">(zfit.minimize.Adam property)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.sess">(zfit.minimize.Minuit property)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.Scipy.sess">(zfit.minimize.Scipy property)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.WrapOptimizer.sess">(zfit.minimize.WrapOptimizer property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.base_tf.html#zfit.minimizers.base_tf.WrapOptimizer.sess">(zfit.minimizers.base_tf.WrapOptimizer property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer.sess">(zfit.minimizers.baseminimizer.BaseMinimizer property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.sess">(zfit.minimizers.fitresult.FitResult property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.sess">(zfit.minimizers.minimizer_minuit.Minuit property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.sess">(zfit.minimizers.minimizer_tfp.BFGSMinimizer property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.minimizers_scipy.html#zfit.minimizers.minimizers_scipy.Scipy.sess">(zfit.minimizers.minimizers_scipy.Scipy property)</a>
-</li>
-        <li><a href="api/zfit.minimizers.optimizers_tf.html#zfit.minimizers.optimizers_tf.Adam.sess">(zfit.minimizers.optimizers_tf.Adam property)</a>
-</li>
-        <li><a href="api/keep/zfit.html#zfit.Parameter.sess">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.sess">[1]</a>
-</li>
-        <li><a href="api/zfit.util.execution.html#zfit.util.execution.RunManager.sess">(zfit.util.execution.RunManager property)</a>
-</li>
-        <li><a href="api/zfit.util.execution.html#zfit.util.execution.SessionHolderMixin.sess">(zfit.util.execution.SessionHolderMixin property)</a>
-</li>
-      </ul></li>
-      <li><a href="api/zfit.util.execution.html#zfit.util.execution.SessionHolderMixin">SessionHolderMixin (class in zfit.util.execution)</a>
 </li>
       <li><a href="api/zfit.core.data.html#zfit.core.data.Data.set_data_range">set_data_range() (zfit.core.data.Data method)</a>
 
@@ -6919,44 +7723,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.settings.html#zfit.settings.set_seed">set_seed() (in module zfit.settings)</a>
 </li>
-      <li><a href="api/zfit.core.data.html#zfit.core.data.Data.set_sess">set_sess() (zfit.core.data.Data method)</a>
-
-      <ul>
-        <li><a href="api/zfit.core.data.html#zfit.core.data.SampleData.set_sess">(zfit.core.data.SampleData method)</a>
-</li>
-        <li><a href="api/zfit.core.data.html#zfit.core.data.Sampler.set_sess">(zfit.core.data.Sampler method)</a>
-</li>
-        <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.set_sess">(zfit.core.parameter.Parameter method)</a>
-</li>
-        <li><a href="api/zfit.data.html#zfit.data.Data.set_sess">(zfit.data.Data method)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.set_sess">(zfit.minimize.Adam method)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.set_sess">(zfit.minimize.Minuit method)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.Scipy.set_sess">(zfit.minimize.Scipy method)</a>
-</li>
-        <li><a href="api/zfit.minimize.html#zfit.minimize.WrapOptimizer.set_sess">(zfit.minimize.WrapOptimizer method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.base_tf.html#zfit.minimizers.base_tf.WrapOptimizer.set_sess">(zfit.minimizers.base_tf.WrapOptimizer method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer.set_sess">(zfit.minimizers.baseminimizer.BaseMinimizer method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.set_sess">(zfit.minimizers.fitresult.FitResult method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.set_sess">(zfit.minimizers.minimizer_minuit.Minuit method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.set_sess">(zfit.minimizers.minimizer_tfp.BFGSMinimizer method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.minimizers_scipy.html#zfit.minimizers.minimizers_scipy.Scipy.set_sess">(zfit.minimizers.minimizers_scipy.Scipy method)</a>
-</li>
-        <li><a href="api/zfit.minimizers.optimizers_tf.html#zfit.minimizers.optimizers_tf.Adam.set_sess">(zfit.minimizers.optimizers_tf.Adam method)</a>
-</li>
-        <li><a href="api/keep/zfit.html#zfit.Parameter.set_sess">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.set_sess">[1]</a>
-</li>
-        <li><a href="api/zfit.util.execution.html#zfit.util.execution.SessionHolderMixin.set_sess">(zfit.util.execution.SessionHolderMixin method)</a>
-</li>
-      </ul></li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ComposedResourceVariable.set_shape">set_shape() (zfit.core.parameter.ComposedResourceVariable method)</a>
 
       <ul>
@@ -6964,12 +7730,16 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.set_shape">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.set_shape">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.set_shape">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.set_shape">[1]</a>
 </li>
       </ul></li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.set_value">set_value() (zfit.core.parameter.Parameter method)</a>
 
       <ul>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.set_value">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.set_value">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.set_value">[1]</a>
 </li>
       </ul></li>
@@ -6996,9 +7766,13 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.shape">(zfit.core.parameter.TFBaseVariable property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.shape">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.shape">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.shape">[1]</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.core.limits.html#zfit.core.limits.shape_np_tf">shape_np_tf() (in module zfit.core.limits)</a>
+</li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError">ShapeIncompatibleError</a>
 </li>
       <li><a href="api/zfit.constraint.html#zfit.constraint.SimpleConstraint">SimpleConstraint (class in zfit.constraint)</a>
@@ -7208,6 +7982,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.sparse_read">(zfit.core.parameter.TFBaseVariable method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.sparse_read">(zfit.param.Parameter method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.sparse_read">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.sparse_read">[1]</a>
 </li>
       </ul></li>
@@ -7218,20 +7994,24 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.SaveSliceInfo.spec">(zfit.core.parameter.TFBaseVariable.SaveSliceInfo property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.SaveSliceInfo.spec">(zfit.param.Parameter.SaveSliceInfo property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.SaveSliceInfo.spec">(zfit.Parameter.SaveSliceInfo property)</a>, <a href="api/zfit.html#zfit.Parameter.SaveSliceInfo.spec">[1]</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.sqrt">sqrt() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.sqrt">sqrt() (in module zfit.z.wrapping_tf)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#zfit.ztf.wrapping_tf.square">square() (in module zfit.ztf.wrapping_tf)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#zfit.z.wrapping_tf.square">square() (in module zfit.z.wrapping_tf)</a>
 </li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.stack_x">stack_x() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.stack_x">stack_x() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.status">status() (zfit.minimizers.fitresult.FitResult property)</a>
 </li>
       <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.step">step() (zfit.minimize.Adam method)</a>
 
       <ul>
+        <li><a href="api/zfit.minimize.html#zfit.minimize.BFGS.step">(zfit.minimize.BFGS method)</a>
+</li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.step">(zfit.minimize.Minuit method)</a>
 </li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Scipy.step">(zfit.minimize.Scipy method)</a>
@@ -7246,7 +8026,7 @@
 </li>
         <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.step">(zfit.minimizers.minimizer_minuit.Minuit method)</a>
 </li>
-        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.step">(zfit.minimizers.minimizer_tfp.BFGSMinimizer method)</a>
+        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGS.step">(zfit.minimizers.minimizer_tfp.BFGS method)</a>
 </li>
         <li><a href="api/zfit.minimizers.minimizers_scipy.html#zfit.minimizers.minimizers_scipy.Scipy.step">(zfit.minimizers.minimizers_scipy.Scipy method)</a>
 </li>
@@ -7256,6 +8036,8 @@
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.step_size">step_size() (zfit.core.parameter.Parameter property)</a>
 
       <ul>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.step_size">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.step_size">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.step_size">[1]</a>
 </li>
       </ul></li>
@@ -7286,6 +8068,8 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.synchronization">(zfit.core.parameter.TFBaseVariable property)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.synchronization">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.synchronization">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.synchronization">[1]</a>
 </li>
       </ul></li>
@@ -7305,7 +8089,7 @@
 </li>
       <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.tfd_analytic_sample">tfd_analytic_sample() (in module zfit.models.dist_tfp)</a>
 </li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.to_complex">to_complex() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.to_complex">to_complex() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.core.data.html#zfit.core.data.Data.to_pandas">to_pandas() (zfit.core.data.Data method)</a>
 
@@ -7330,6 +8114,10 @@
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.SaveSliceInfo.to_proto">(zfit.core.parameter.TFBaseVariable.SaveSliceInfo method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.to_proto">(zfit.param.Parameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.SaveSliceInfo.to_proto">(zfit.param.Parameter.SaveSliceInfo method)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.to_proto">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.to_proto">[1]</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.SaveSliceInfo.to_proto">(zfit.Parameter.SaveSliceInfo method)</a>, <a href="api/zfit.html#zfit.Parameter.SaveSliceInfo.to_proto">[1]</a>
@@ -7337,11 +8125,13 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.to_real">to_real() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.to_real">to_real() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.tolerance">tolerance() (zfit.minimize.Adam property)</a>
 
       <ul>
+        <li><a href="api/zfit.minimize.html#zfit.minimize.BFGS.tolerance">(zfit.minimize.BFGS property)</a>
+</li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Minuit.tolerance">(zfit.minimize.Minuit property)</a>
 </li>
         <li><a href="api/zfit.minimize.html#zfit.minimize.Scipy.tolerance">(zfit.minimize.Scipy property)</a>
@@ -7356,7 +8146,7 @@
 </li>
         <li><a href="api/zfit.minimizers.minimizer_minuit.html#zfit.minimizers.minimizer_minuit.Minuit.tolerance">(zfit.minimizers.minimizer_minuit.Minuit property)</a>
 </li>
-        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGSMinimizer.tolerance">(zfit.minimizers.minimizer_tfp.BFGSMinimizer property)</a>
+        <li><a href="api/zfit.minimizers.minimizer_tfp.html#zfit.minimizers.minimizer_tfp.BFGS.tolerance">(zfit.minimizers.minimizer_tfp.BFGS property)</a>
 </li>
         <li><a href="api/zfit.minimizers.minimizers_scipy.html#zfit.minimizers.minimizers_scipy.Scipy.tolerance">(zfit.minimizers.minimizers_scipy.Scipy property)</a>
 </li>
@@ -7371,6 +8161,8 @@
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.trainable">(zfit.core.parameter.Parameter property)</a>
 </li>
         <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable.trainable">(zfit.core.parameter.TFBaseVariable property)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.trainable">(zfit.param.Parameter property)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.trainable">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.trainable">[1]</a>
 </li>
@@ -7489,7 +8281,7 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.ZPDF.unnormalized_pdf">(zfit.pdf.ZPDF method)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.ztf.zextension.html#zfit.ztf.zextension.unstack_x">unstack_x() (in module zfit.ztf.zextension)</a>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.unstack_x">unstack_x() (in module zfit.z.zextension)</a>
 
       <ul>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.unstack_x">(zfit.core.data.Data method)</a>
@@ -7636,6 +8428,8 @@
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.upper_limit">upper_limit() (zfit.core.parameter.Parameter property)</a>
 
       <ul>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.upper_limit">(zfit.param.Parameter property)</a>
+</li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.upper_limit">(zfit.Parameter property)</a>, <a href="api/zfit.html#zfit.Parameter.upper_limit">[1]</a>
 </li>
       </ul></li>
@@ -7671,6 +8465,8 @@
         <li><a href="api/zfit.core.data.html#zfit.core.data.Sampler.value">(zfit.core.data.Sampler method)</a>
 </li>
         <li><a href="api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.value">(zfit.core.integration.PartialIntegralSampleData method)</a>
+</li>
+        <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitConstraint.value">(zfit.core.interfaces.ZfitConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitData.value">(zfit.core.interfaces.ZfitData method)</a>
 </li>
@@ -7720,13 +8516,59 @@
 </li>
         <li><a href="api/zfit.loss.html#zfit.loss.UnbinnedNLL.value">(zfit.loss.UnbinnedNLL method)</a>
 </li>
+        <li><a href="api/zfit.param.html#zfit.param.ComplexParameter.value">(zfit.param.ComplexParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.ComposedParameter.value">(zfit.param.ComposedParameter method)</a>
+</li>
         <li><a href="api/zfit.param.html#zfit.param.ConstantParameter.value">(zfit.param.ConstantParameter method)</a>
+</li>
+        <li><a href="api/zfit.param.html#zfit.param.Parameter.value">(zfit.param.Parameter method)</a>
 </li>
         <li><a href="api/keep/zfit.html#zfit.Parameter.value">(zfit.Parameter method)</a>, <a href="api/zfit.html#zfit.Parameter.value">[1]</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/zfit.core.loss.html#zfit.core.loss.BaseLoss.value_gradients">value_gradients() (zfit.core.loss.BaseLoss method)</a>
+
+      <ul>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.CachedLoss.value_gradients">(zfit.core.loss.CachedLoss method)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.value_gradients">(zfit.core.loss.ExtendedUnbinnedNLL method)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.value_gradients">(zfit.core.loss.SimpleLoss method)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.value_gradients">(zfit.core.loss.UnbinnedNLL method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.BaseLoss.value_gradients">(zfit.loss.BaseLoss method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.value_gradients">(zfit.loss.ExtendedUnbinnedNLL method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.SimpleLoss.value_gradients">(zfit.loss.SimpleLoss method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.UnbinnedNLL.value_gradients">(zfit.loss.UnbinnedNLL method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/zfit.core.loss.html#zfit.core.loss.BaseLoss.value_gradients_hessian">value_gradients_hessian() (zfit.core.loss.BaseLoss method)</a>
+
+      <ul>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.CachedLoss.value_gradients_hessian">(zfit.core.loss.CachedLoss method)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.value_gradients_hessian">(zfit.core.loss.ExtendedUnbinnedNLL method)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.value_gradients_hessian">(zfit.core.loss.SimpleLoss method)</a>
+</li>
+        <li><a href="api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.value_gradients_hessian">(zfit.core.loss.UnbinnedNLL method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.BaseLoss.value_gradients_hessian">(zfit.loss.BaseLoss method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.value_gradients_hessian">(zfit.loss.ExtendedUnbinnedNLL method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.SimpleLoss.value_gradients_hessian">(zfit.loss.SimpleLoss method)</a>
+</li>
+        <li><a href="api/zfit.loss.html#zfit.loss.UnbinnedNLL.value_gradients_hessian">(zfit.loss.UnbinnedNLL method)</a>
+</li>
+      </ul></li>
       <li><a href="api/zfit.util.container.html#zfit.util.container.DotDict.values">values() (zfit.util.container.DotDict method)</a>
 </li>
   </ul></td>
@@ -7810,9 +8652,9 @@
 </li>
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.BasePDFSubclassingError.with_traceback">(zfit.util.exception.BasePDFSubclassingError method)</a>
 </li>
-        <li><a href="api/zfit.util.exception.html#zfit.util.exception.ConversionError.with_traceback">(zfit.util.exception.ConversionError method)</a>
+        <li><a href="api/zfit.util.exception.html#zfit.util.exception.BreakingAPIChangeError.with_traceback">(zfit.util.exception.BreakingAPIChangeError method)</a>
 </li>
-        <li><a href="api/zfit.util.exception.html#zfit.util.exception.DueToLazynessNotImplementedError.with_traceback">(zfit.util.exception.DueToLazynessNotImplementedError method)</a>
+        <li><a href="api/zfit.util.exception.html#zfit.util.exception.ConversionError.with_traceback">(zfit.util.exception.ConversionError method)</a>
 </li>
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.ExtendedPDFError.with_traceback">(zfit.util.exception.ExtendedPDFError method)</a>
 </li>
@@ -7866,9 +8708,13 @@
 </li>
         <li><a href="api/zfit.util.exception.html#zfit.util.exception.WeightsNotImplementedError.with_traceback">(zfit.util.exception.WeightsNotImplementedError method)</a>
 </li>
+        <li><a href="api/zfit.util.exception.html#zfit.util.exception.WorkInProgressError.with_traceback">(zfit.util.exception.WorkInProgressError method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/zfit.util.exception.html#zfit.util.exception.WorkInProgressError">WorkInProgressError</a>
+</li>
       <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.WrapDistribution">WrapDistribution (class in zfit.models.dist_tfp)</a>
 
       <ul>
@@ -7881,6 +8727,8 @@
         <li><a href="api/zfit.minimizers.base_tf.html#zfit.minimizers.base_tf.WrapOptimizer">(class in zfit.minimizers.base_tf)</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.FunctionWrapperRegistry.wrapped_functions">wrapped_functions (zfit.z.zextension.FunctionWrapperRegistry attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -7905,6 +8753,8 @@
 </li>
       <li><a href="api/zfit.core.data.html#module-zfit.core.data">zfit.core.data (module)</a>
 </li>
+      <li><a href="api/zfit.core.dependents.html#module-zfit.core.dependents">zfit.core.dependents (module)</a>
+</li>
       <li><a href="api/zfit.core.dimension.html#module-zfit.core.dimension">zfit.core.dimension (module)</a>
 </li>
       <li><a href="api/zfit.core.integration.html#module-zfit.core.integration">zfit.core.integration (module)</a>
@@ -7914,8 +8764,6 @@
       <li><a href="api/zfit.core.limits.html#module-zfit.core.limits">zfit.core.limits (module)</a>
 </li>
       <li><a href="api/zfit.core.loss.html#module-zfit.core.loss">zfit.core.loss (module)</a>
-</li>
-      <li><a href="api/zfit.core.math.html#module-zfit.core.math">zfit.core.math (module)</a>
 </li>
       <li><a href="api/zfit.core.operations.html#module-zfit.core.operations">zfit.core.operations (module)</a>
 </li>
@@ -7969,12 +8817,12 @@
 </li>
       <li><a href="api/zfit.models.polynomials.html#module-zfit.models.polynomials">zfit.models.polynomials (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.models.special.html#module-zfit.models.special">zfit.models.special (module)</a>
 </li>
       <li><a href="api/zfit.param.html#module-zfit.param">zfit.param (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/zfit.pdf.html#module-zfit.pdf">zfit.pdf (module)</a>
 </li>
       <li><a href="api/zfit.sample.html#module-zfit.sample">zfit.sample (module)</a>
@@ -8003,19 +8851,23 @@
 </li>
       <li><a href="api/zfit.util.ztyping.html#module-zfit.util.ztyping">zfit.util.ztyping (module)</a>
 </li>
-      <li><a href="api/zfit.ztf.html#module-zfit.ztf">zfit.ztf (module)</a>
+      <li><a href="api/zfit.z.html#module-zfit.z">zfit.z (module)</a>
 </li>
-      <li><a href="api/zfit.ztf.random.html#module-zfit.ztf.random">zfit.ztf.random (module)</a>
+      <li><a href="api/zfit.z.math.html#module-zfit.z.math">zfit.z.math (module)</a>
 </li>
-      <li><a href="api/zfit.ztf.tools.html#module-zfit.ztf.tools">zfit.ztf.tools (module)</a>
+      <li><a href="api/zfit.z.random.html#module-zfit.z.random">zfit.z.random (module)</a>
 </li>
-      <li><a href="api/zfit.ztf.wrapping_tf.html#module-zfit.ztf.wrapping_tf">zfit.ztf.wrapping_tf (module)</a>
+      <li><a href="api/zfit.z.tools.html#module-zfit.z.tools">zfit.z.tools (module)</a>
 </li>
-      <li><a href="api/zfit.ztf.zextension.html#module-zfit.ztf.zextension">zfit.ztf.zextension (module)</a>
+      <li><a href="api/zfit.z.wrapping_tf.html#module-zfit.z.wrapping_tf">zfit.z.wrapping_tf (module)</a>
+</li>
+      <li><a href="api/zfit.z.zextension.html#module-zfit.z.zextension">zfit.z.zextension (module)</a>
 </li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.ZfitBaseVariable">ZfitBaseVariable (class in zfit.core.parameter)</a>
 </li>
       <li><a href="api/zfit.util.cache.html#zfit.util.cache.ZfitCachable">ZfitCachable (class in zfit.util.cache)</a>
+</li>
+      <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitConstraint">ZfitConstraint (class in zfit.core.interfaces)</a>
 </li>
       <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitData">ZfitData (class in zfit.core.interfaces)</a>
 </li>
@@ -8032,6 +8884,8 @@
       <li><a href="api/zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer">ZfitMinimizer (class in zfit.minimizers.interface)</a>
 </li>
       <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel">ZfitModel (class in zfit.core.interfaces)</a>
+</li>
+      <li><a href="api/zfit.util.checks.html#zfit.util.checks.ZfitNotImplemented">ZfitNotImplemented (class in zfit.util.checks)</a>
 </li>
       <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumeric">ZfitNumeric (class in zfit.core.interfaces)</a>
 </li>
@@ -8070,6 +8924,9 @@
   <div class="container">
     <p class="pull-right">
       <a href="#">Back to top</a>
+      
+        <br/>
+        
       
     </p>
     <p>

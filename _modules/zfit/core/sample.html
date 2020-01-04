@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.1.dev549+g3901963 documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,19 +37,15 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev549+g3901963</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
             <li class="divider-vertical"></li>
             
                 <li><a href="../../../getting_started.html">Getting started</a></li>
-                <li><a href="../../../space.html">Space</a></li>
-                <li><a href="../../../parameter.html">Parameter</a></li>
-                <li><a href="../../../model.html">Model</a></li>
-                <li><a href="../../../data.html">Data</a></li>
-                <li><a href="../../../loss.html">Loss</a></li>
-                <li><a href="../../../minimize.html">Minimize</a></li>
+                <li><a href="../../../introduction.html">Intro</a></li>
+                <li><a href="../../../project.html">Project</a></li>
                 <li><a href="../../../API.html">API</a></li>
             
             
@@ -58,24 +54,264 @@
      id="dLabelGlobalToc"
      data-toggle="dropdown"
      data-target="#"
-     href="../../../index.html">Site <b class="caret"></b></a>
+     href="../../../index.html">Overview <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../downloading.html">Downloading and Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../minimize.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started with zfit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id3">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id8">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id19">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id22">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id23">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Credits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
 </li>
               
             
@@ -105,22 +341,19 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.core.sample</h1><div class="highlight"><pre>
-<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-
-<span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">ztf</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
+
+<span class="n">ztf</span> <span class="o">=</span> <span class="n">z</span>
 <span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitPDF</span>
 <span class="kn">from</span> <span class="nn">zfit.util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">DueToLazynessNotImplementedError</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span>
@@ -219,10 +452,14 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_calculate_areas</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># TODO: return the area as a tensor?</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="accept_reject_sample"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.accept_reject_sample">[docs]</a><span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
+<span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
                          <span class="n">sample_and_weights_factory</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">UniformSampleAndWeights</span><span class="p">,</span>
                          <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">prob_max</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                          <span class="n">efficiency_estimation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -233,7 +470,7 @@
 <span class="sd">            (or anything that is proportional to the probability).</span>
 <span class="sd">        n (int): Number of samples to produce</span>
 <span class="sd">        limits (:py:class:`~zfit.Space`): The limits to sample from</span>
-<span class="sd">        sample_and_weights_factory (Callable): A factory function that returns the following function:</span>
+<span class="sd">        sample_and_weights_factory (Callable): An (immutable!) factory function that returns the following function:</span>
 <span class="sd">            A function that returns the sample to insert into `prob` and the weights</span>
 <span class="sd">            (probability density) of each sample together with the random thresholds. The API looks as follows:</span>
 
@@ -302,9 +539,11 @@
                                     <span class="n">clear_after_read</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># we read only once at end to tensor</span>
                                     <span class="n">element_shape</span><span class="o">=</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,))</span>
 
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">not_enough_produced</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">n_produced</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="p">,</span> <span class="n">eff</span><span class="p">,</span> <span class="n">is_sampled</span><span class="p">,</span> <span class="n">weights_scaling</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n_produced</span><span class="p">)</span>
 
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
     <span class="k">def</span> <span class="nf">sample_body</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">n_produced</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">eff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">is_sampled</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights_scaling</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
         <span class="n">eff</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="p">[</span><span class="n">eff</span><span class="p">,</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)])</span>
 
@@ -321,7 +560,7 @@
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">print_op</span><span class="p">]</span> <span class="k">if</span> <span class="n">do_print</span> <span class="k">else</span> <span class="p">[]):</span>
             <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dynamic_array_shape</span><span class="p">:</span>
-            <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">/</span> <span class="n">eff</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span>  <span class="c1"># just to make sure</span>
+            <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">/</span> <span class="n">eff</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span>  <span class="c1"># just to make sure</span>
             <span class="c1"># TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)</span>
             <span class="n">max_produce_cap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mf">8e5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
             <span class="n">safe_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">max_produce_cap</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">)</span>  <span class="c1"># protect against overflow, n_to_prod -&gt; neg.</span>
@@ -330,19 +569,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># TODO(Mayou36): add cap for n_to_produce here as well</span>
             <span class="k">if</span> <span class="n">multiple_limits</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">DueToLazynessNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Multiple limits for fixed event space not yet implemented&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Multiple limits for fixed event space not yet implemented&quot;</span><span class="p">)</span>
             <span class="n">is_not_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">is_sampled</span><span class="p">)</span>
             <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
             <span class="n">lower</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">low</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">is_not_sampled</span><span class="p">)</span> <span class="k">for</span> <span class="n">low</span> <span class="ow">in</span> <span class="n">lower</span><span class="p">)</span>
             <span class="n">upper</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">up</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">is_not_sampled</span><span class="p">)</span> <span class="k">for</span> <span class="n">up</span> <span class="ow">in</span> <span class="n">upper</span><span class="p">)</span>
             <span class="n">new_limits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">with_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">((</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)))</span>
-            <span class="n">draw_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_not_sampled</span><span class="p">)</span>
+            <span class="n">draw_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_not_sampled</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">n_to_produce</span><span class="p">]):</span>
-            <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span><span class="p">,</span> <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">sample_and_weights</span><span class="p">(</span>
-                <span class="n">n_to_produce</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">,</span>
-                <span class="n">limits</span><span class="o">=</span><span class="n">new_limits</span><span class="p">,</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span><span class="p">,</span> <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">sample_and_weights</span><span class="p">(</span>
+            <span class="n">n_to_produce</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">,</span>
+            <span class="n">limits</span><span class="o">=</span><span class="n">new_limits</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
         <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n_drawn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
@@ -401,8 +639,12 @@
             <span class="n">failed_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
             <span class="n">failed_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
 
-            <span class="n">print_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;HACK WARNING: if the following is NOT empty, your sampling _may_ be biased.&quot;</span>
-                                <span class="s2">&quot; Failed weights:&quot;</span><span class="p">,</span> <span class="n">failed_weights</span><span class="p">,</span> <span class="s2">&quot; failed probs&quot;</span><span class="p">,</span> <span class="n">failed_probs</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">bias_print</span><span class="p">():</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;HACK WARNING: if the following is NOT empty, your sampling _may_ be biased.&quot;</span>
+                         <span class="s2">&quot; Failed weights:&quot;</span><span class="p">,</span> <span class="n">failed_weights</span><span class="p">,</span> <span class="s2">&quot; failed probs&quot;</span><span class="p">,</span> <span class="n">failed_probs</span><span class="p">)</span>
+
+            <span class="c1"># tf.cond(tf.not_equal(tf.shape(input=failed_weights), [0]), bias_print, lambda: None)</span>
+
             <span class="n">assert_no_failed_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">failed_weights</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="c1"># assert_op = [print_op]</span>
             <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_no_failed_probs</span><span class="p">]</span>
@@ -416,7 +658,7 @@
             <span class="c1">#                                              &quot;or decrease the `max_weight`&quot;)]</span>
             <span class="c1">#</span>
             <span class="c1"># # check disabled (below not added to deps)</span>
-            <span class="c1"># assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, ztf.constant(ratio_threshold),</span>
+            <span class="c1"># assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, z.constant(ratio_threshold),</span>
             <span class="c1">#                                    data=[weights_scaling, min_prob_weights_ratio],</span>
             <span class="c1">#                                    message=&quot;The ratio between the probabilities from the pdf and the&quot;</span>
             <span class="c1">#                                    f&quot;probability from the sampler is higher &quot;</span>
@@ -436,10 +678,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dynamic_array_shape</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">draw_indices</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">take_or_not</span><span class="p">)</span>
             <span class="n">current_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">to_dense</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">SparseTensor</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
-                                                                        <span class="n">values</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="p">(</span><span class="kc">True</span><span class="p">,),</span>
-                                                                                               <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_accepted</span><span class="p">,)),</span>
-                                                                        <span class="n">dense_shape</span><span class="o">=</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),)),</span>
-                                                        <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                                                 <span class="n">values</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="p">(</span><span class="kc">True</span><span class="p">,),</span>
+                                                                                        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_accepted</span><span class="p">,)),</span>
+                                                                 <span class="n">dense_shape</span><span class="o">=</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),)),</span>
+                                                 <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">is_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">is_sampled</span><span class="p">,</span> <span class="n">current_sampled</span><span class="p">)</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -471,7 +713,7 @@
     <span class="c1"># if no failure, uncomment both for improvement of shape inference, but what if n is tensor?</span>
     <span class="c1"># with suppress(AttributeError):  # if n_samples_int is not a numpy object</span>
     <span class="c1">#     new_sample.set_shape((n_samples_int, n_dims))</span>
-    <span class="k">return</span> <span class="n">new_sample</span></div>
+    <span class="k">return</span> <span class="n">new_sample</span>
 
 
 <div class="viewcode-block" id="extract_extended_pdfs"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.extract_extended_pdfs">[docs]</a><span class="k">def</span> <span class="nf">extract_extended_pdfs</span><span class="p">(</span><span class="n">pdfs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">],</span> <span class="n">ZfitPDF</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">]:</span>
@@ -527,44 +769,6 @@
 
     <span class="n">samples</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">samples</span></div>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
-    <span class="kn">import</span> <span class="nn">time</span>
-
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">5.</span><span class="p">)</span>
-        <span class="n">log_prob_fn</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">log_prob</span>
-        <span class="n">hmc</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">mcmc</span><span class="o">.</span><span class="n">HamiltonianMonteCarlo</span><span class="p">(</span><span class="n">target_log_prob_fn</span><span class="o">=</span><span class="n">log_prob_fn</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-                                             <span class="n">num_leapfrog_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">samples</span><span class="p">,</span> <span class="n">kernel_results</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">mcmc</span><span class="o">.</span><span class="n">sample_chain</span><span class="p">(</span><span class="n">num_results</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
-                                                        <span class="n">num_burnin_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-                                                        <span class="n">num_steps_between_results</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-                                                        <span class="n">current_state</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="n">hmc</span><span class="p">,</span>
-                                                        <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
-        <span class="c1"># maximum = 1.1 * tf.reduce_max(dist.model(tf.random_uniform((10000,), -100, 100)))</span>
-        <span class="n">maximum</span> <span class="o">=</span> <span class="mf">0.1</span>
-        <span class="c1"># maximum = None</span>
-        <span class="n">list1</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">sampled_dist_ar</span> <span class="o">=</span> <span class="n">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="o">=</span><span class="n">dist</span><span class="o">.</span><span class="n">prob</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">100000000</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">13.5</span><span class="p">,</span> <span class="mf">16.5</span><span class="p">),</span> <span class="n">sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                               <span class="n">prob_max</span><span class="o">=</span><span class="n">maximum</span><span class="p">)</span>
-
-        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">):</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sampled_dist_ar</span><span class="p">)</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time needed for normalization:&quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-        <span class="c1"># plt.hist(sampled_dist_ar, bins=40)</span>
-
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-        <span class="c1"># plt.hist(result, bins=40)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -575,6 +779,9 @@
   <div class="container">
     <p class="pull-right">
       <a href="#">Back to top</a>
+      
+        <br/>
+        
       
     </p>
     <p>

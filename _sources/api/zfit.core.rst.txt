@@ -18,12 +18,12 @@ Submodules
    zfit.core.basepdf
    zfit.core.constraint
    zfit.core.data
+   zfit.core.dependents
    zfit.core.dimension
    zfit.core.integration
    zfit.core.interfaces
    zfit.core.limits
    zfit.core.loss
-   zfit.core.math
    zfit.core.operations
    zfit.core.parameter
    zfit.core.sample

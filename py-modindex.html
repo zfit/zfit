@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Python Module Index &#8212; zfit 0.1.dev549+g3901963 documentation</title>
+    <title>Python Module Index &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -40,19 +40,15 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev549+g3901963</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
             <li class="divider-vertical"></li>
             
                 <li><a href="getting_started.html">Getting started</a></li>
-                <li><a href="space.html">Space</a></li>
-                <li><a href="parameter.html">Parameter</a></li>
-                <li><a href="model.html">Model</a></li>
-                <li><a href="data.html">Data</a></li>
-                <li><a href="loss.html">Loss</a></li>
-                <li><a href="minimize.html">Minimize</a></li>
+                <li><a href="introduction.html">Intro</a></li>
+                <li><a href="project.html">Project</a></li>
                 <li><a href="API.html">API</a></li>
             
             
@@ -61,24 +57,264 @@
      id="dLabelGlobalToc"
      data-toggle="dropdown"
      data-target="#"
-     href="index.html">Site <b class="caret"></b></a>
+     href="index.html">Overview <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
       aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading and Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="space.html">Space, Observable and Range</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameter.html">Parameter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">Building a model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss</a></li>
-<li class="toctree-l1"><a class="reference internal" href="minimize.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with zfit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="intro/space.html#defining-limits">Defining limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id3">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id4">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id5">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id6">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id7">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id8">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id9">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id10">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id11">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id12">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id13">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id14">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#id18">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id19">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id20">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id21">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id22">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/changelog.html#id23">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="project/authors.html">Credits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="project/authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/authors.html#authors">Authors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">zfit API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.html">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/zfit.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.core.html">core</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.core.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.basefunc.html">basefunc</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.basemodel.html">basemodel</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.baseobject.html">baseobject</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.basepdf.html">basepdf</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.data.html">data</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.dependents.html">dependents</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.dimension.html">dimension</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.integration.html">integration</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.interfaces.html">interfaces</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.limits.html">limits</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.loss.html">loss</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.operations.html">operations</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.parameter.html">parameter</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.core.testing.html">testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.minimizers.html">minimizers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.minimizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.base_tf.html">base_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.interface.html">interface</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.models.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.basefunctor.html">basefunctor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.basic.html">basic</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.dist_tfp.html">dist_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.functions.html">functions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.functor.html">functor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.physics.html">physics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.polynomials.html">polynomials</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.models.special.html">special</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.util.html">util</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.util.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.cache.html">cache</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.checks.html">checks</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.container.html">container</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.diverse.html">diverse</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.exception.html">exception</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.execution.html">execution</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.logging.html">logging</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.util.ztyping.html">ztyping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.html">z</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.math.html">math</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.random.html">random</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/zfit.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.func.html">func</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.loss.html">loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.param.html">param</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.sample.html">sample</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.settings.html">settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.func.html">func</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.data.html">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.loss.html">loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.settings.html">settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/zfit.z.html">z</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.math.html">math</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.random.html">random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
 </li>
               
             
@@ -167,6 +403,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/zfit.core.dependents.html#module-zfit.core.dependents"><code class="xref">zfit.core.dependents</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/zfit.core.dimension.html#module-zfit.core.dimension"><code class="xref">zfit.core.dimension</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -188,11 +429,6 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/zfit.core.loss.html#module-zfit.core.loss"><code class="xref">zfit.core.loss</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/zfit.core.math.html#module-zfit.core.math"><code class="xref">zfit.core.math</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -407,27 +643,32 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/zfit.ztf.html#module-zfit.ztf"><code class="xref">zfit.ztf</code></a></td><td>
+       <a href="api/zfit.z.html#module-zfit.z"><code class="xref">zfit.z</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/zfit.ztf.random.html#module-zfit.ztf.random"><code class="xref">zfit.ztf.random</code></a></td><td>
+       <a href="api/zfit.z.math.html#module-zfit.z.math"><code class="xref">zfit.z.math</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/zfit.ztf.tools.html#module-zfit.ztf.tools"><code class="xref">zfit.ztf.tools</code></a></td><td>
+       <a href="api/zfit.z.random.html#module-zfit.z.random"><code class="xref">zfit.z.random</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/zfit.ztf.wrapping_tf.html#module-zfit.ztf.wrapping_tf"><code class="xref">zfit.ztf.wrapping_tf</code></a></td><td>
+       <a href="api/zfit.z.tools.html#module-zfit.z.tools"><code class="xref">zfit.z.tools</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/zfit.ztf.zextension.html#module-zfit.ztf.zextension"><code class="xref">zfit.ztf.zextension</code></a></td><td>
+       <a href="api/zfit.z.wrapping_tf.html#module-zfit.z.wrapping_tf"><code class="xref">zfit.z.wrapping_tf</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/zfit.z.zextension.html#module-zfit.z.zextension"><code class="xref">zfit.z.zextension</code></a></td><td>
        <em></em></td></tr>
    </table>
 
@@ -440,6 +681,9 @@
   <div class="container">
     <p class="pull-right">
       <a href="#">Back to top</a>
+      
+        <br/>
+        
       
     </p>
     <p>

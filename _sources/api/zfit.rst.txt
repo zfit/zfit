@@ -16,7 +16,7 @@ Subpackages
    zfit.minimizers
    zfit.models
    zfit.util
-   zfit.ztf
+   zfit.z
 
 Submodules
 ----------

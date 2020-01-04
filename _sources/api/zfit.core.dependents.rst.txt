@@ -1,0 +1,8 @@
+dependents
+==========
+
+.. automodule:: zfit.core.dependents
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

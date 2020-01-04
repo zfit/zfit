@@ -1,0 +1,8 @@
+random
+======
+
+.. automodule:: zfit.z.random
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

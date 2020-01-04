@@ -1,0 +1,19 @@
+z
+=
+
+.. automodule:: zfit.z
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
+
+Submodules
+----------
+
+.. toctree::
+
+   zfit.z.math
+   zfit.z.random
+   zfit.z.tools
+   zfit.z.wrapping_tf
+   zfit.z.zextension
