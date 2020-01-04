@@ -25,9 +25,14 @@ Major Features and Improvements
    returns the value. It depends on the `dependents` that are now required.
  - Added numerical differentiation, which allows now to wrap any function with `z.py_function` (`zfit.z`).
    This can be switched on with `zfit.settings.options['numerical_grad'] = True
+ - Added gradient and hessian calculation options to the loss. Support numerical calculation as well.
+ - Add caching system for graph to prevent recursive graph building
+
 
 Behavioral changes
 ------------------
+ - known issue: the `projection_pdf` has troubles with the newest TF version and may not work properly (runs out of
+   memory)
 
 
 Bug fixes and small changes
