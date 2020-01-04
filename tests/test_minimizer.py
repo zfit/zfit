@@ -8,7 +8,7 @@ import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
 from zfit import z
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.minimizers.minimizer_tfp import BFGSMinimizer
+from zfit.minimizers.minimizer_tfp import BFGS
 
 true_a = 1.
 true_b = 4.
@@ -118,7 +118,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
      False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
     (zfit.minimize.Minuit, {}, True),
-    (BFGSMinimizer, {}, False),
+    (BFGS, {}, False),
     # (zfit.minimize.Scipy, {}, False),
 ]
 

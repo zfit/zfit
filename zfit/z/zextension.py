@@ -1,18 +1,13 @@
 #  Copyright (c) 2020 zfit
-import functools
 import math as _mt
 from collections import defaultdict
-from functools import wraps
-
+from math import inf as _inf
 from typing import Any, Callable
 
 import numpy as np
-from math import inf as _inf
-
 import tensorflow as tf
 
 from ..settings import ztypes
-from ..util.container import convert_to_container
 
 inf = tf.constant(_inf, dtype=ztypes.float)
 
@@ -215,4 +210,16 @@ tf_function = FunctionWrapperRegistry()
 function_tf = tf_function  # for only tensorflow inside
 function_sampling = tf_function
 
-py_function = tf.py_function
+
+# py_function = tf.py_function
+
+
+def py_function(func, inp, Tout, name=None):
+    from .. import settings
+    if not settings.options['numerical_grad']:
+        raise RuntimeError("Running a py_function without using the numerical gradient will result in wrong gradient"
+                           " calculation. Will be more fine-grained in the future. To switch to numerical calculation"
+                           " (even if the gradients are not calculated at all), do"
+                           " `zfit.settings.options['numerical_grad'] = True`")
+
+    return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)

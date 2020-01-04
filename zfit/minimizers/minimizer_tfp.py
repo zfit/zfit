@@ -1,23 +1,36 @@
 #  Copyright (c) 2020 zfit
 from collections import OrderedDict
+from typing import Mapping
 
+import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .baseminimizer import BaseMinimizer, print_gradients
+from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy
 from .fitresult import FitResult
 
 
-class BFGSMinimizer(BaseMinimizer):
+class BFGS(BaseMinimizer):
 
-    def __init__(self, tolerance=1e-5, verbosity=5, name="BFGS_TFP", options=None, **minimizer_options):
+    def __init__(self, strategy: ZfitStrategy = None, tolerance: float = 1e-5, verbosity: int = 5,
+                 name: str = "BFGS_TFP", options: Mapping = None) -> None:
+        """
+
+        Args:
+            strategy (ZfitStrategy): Strategy that handles NaN and more (to come, experimental)
+            tolerance (float): Difference between the function value that suffices to stop minimization
+            verbosity: The higher, the more is printed. Between 1 and 10 typically
+            name: Name of the Minimizer
+            options: A `dict` containing the options given to the minimization function, overriding the default
+        """
         self.options = {} if options is None else options
-        super().__init__(tolerance=tolerance, verbosity=verbosity, name=name, minimizer_options=minimizer_options)
+        super().__init__(strategy=strategy, tolerance=tolerance, verbosity=verbosity, name=name,
+                         minimizer_options={})
 
     def _minimize(self, loss, params):
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
-        do_print = self.verbosity > 1
+        do_print = self.verbosity > 5
 
         @tf.function(autograph=False, experimental_relax_shapes=True)
         def update_params_value_grad(loss, params, values):
@@ -31,6 +44,9 @@ class BFGSMinimizer(BaseMinimizer):
             if do_print:
                 print_gradients(params, values.numpy(), [float(g.numpy()) for g in gradients])
 
+            loss_evaluated = value.numpy()
+            if np.isnan(loss_evaluated):
+                self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
             gradients = tf.stack(gradients)
             return value, gradients
 
@@ -56,7 +72,6 @@ class BFGSMinimizer(BaseMinimizer):
         info = {'n_eval': result.num_objective_evaluations.numpy(),
                 'n_iter': result.num_iterations.numpy(),
                 'grad': result.objective_gradient.numpy(),
-                # 'message': result['message'],
                 'original': result}
         edm = -999
         fmin = result.objective_value.numpy()
