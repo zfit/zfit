@@ -23,15 +23,15 @@ lbounds = (bounds[0], mu)
 rbounds = (mu, bounds[1])
 
 
-def _cb_params_factory():
-    mu_ = zfit.Parameter('mu_cb', mu)
-    sigma_ = zfit.Parameter('sigma_cb', sigma)
-    alphal_ = zfit.Parameter('alphal_cb', alphal)
-    nl_ = zfit.Parameter('nl_cb', nl)
+def _cb_params_factory(name_add=""):
+    mu_ = zfit.Parameter('mu_cb' + name_add, mu)
+    sigma_ = zfit.Parameter('sigma_cb' + name_add, sigma)
+    alphal_ = zfit.Parameter('alphal_cb' + name_add, alphal)
+    nl_ = zfit.Parameter('nl_cb' + name_add, nl)
     return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
 
 
-tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory())
+tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory)
 
 
 def sample_testing(pdf):
@@ -49,12 +49,12 @@ def eval_testing(pdf, x):
 def test_cb_dcb():
     obs = zfit.Space('x', limits=bounds)
 
-    mu_ = zfit.Parameter('mu_cb', mu)
-    sigma_ = zfit.Parameter('sigma_cb', sigma)
-    alphal_ = zfit.Parameter('alphal_cb', alphal)
-    nl_ = zfit.Parameter('nl_cb', nl)
-    alphar_ = zfit.Parameter('alphar_cb', alphar)
-    nr_ = zfit.Parameter('nr_cb', nr)
+    mu_ = zfit.Parameter('mu_cb5', mu)
+    sigma_ = zfit.Parameter('sigma_cb5', sigma)
+    alphal_ = zfit.Parameter('alphal_cb5', alphal)
+    nl_ = zfit.Parameter('nl_cb5', nl)
+    alphar_ = zfit.Parameter('alphar_cb5', alphar)
+    nr_ = zfit.Parameter('nr_cb5', nr)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=-alphar_, n=nr_)

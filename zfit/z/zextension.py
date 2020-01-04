@@ -107,8 +107,8 @@ def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values
     Returns:
         :py:class:`tf.Tensor`:
     """
-    safe_x = tf.compat.v1.where(condition=condition, x=values, y=value_safer(values))
-    result = tf.compat.v1.where(condition=condition, x=func(safe_x), y=safe_func(values))
+    safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
+    result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
     return result
 
 

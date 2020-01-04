@@ -1,12 +1,9 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-from typing import Type, Any
+from typing import Type
 
-import tensorflow as tf
-
-
-import tensorflow_probability.python.distributions as tfd
 import numpy as np
+import tensorflow as tf
 
 import zfit
 from zfit import z
@@ -199,15 +196,22 @@ def double_crystalball_integral(limits, params, model):
                        n=params["nl"])
     params_right = dict(mu=mu, sigma=sigma, alpha=-params["alphar"],
                         n=params["nr"])
+    #
+    left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),
+                   false_fn=lambda: crystalball_integral(limits_left, params_left, model))
+    right = tf.cond(pred=tf.greater(mu, upper), true_fn=lambda: z.constant(0.),
+                    false_fn=lambda: crystalball_integral(limits_right, params_right, model))
+    integral = left + right
+    # integral = z.where(condition=tf.less(mu, lower),
+    #                     x=crystalball_integral(limits_left, params_left, model),
+    #                     y=crystalball_integral(limits_right, params_right, model))
 
-    left = tf.cond(pred=tf.less(mu, lower), true_fn=0., false_fn=crystalball_integral(limits_left, params_left))
-    right = tf.cond(pred=tf.greater(mu, upper), true_fn=0., false_fn=crystalball_integral(limits_right, params_right))
-
-    return left + right
+    return integral
 
 
 class CrystalBall(BasePDF):
     _N_OBS = 1
+
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
                  alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput, name: str = "CrystalBall", dtype: Type = ztypes.float):
@@ -259,7 +263,7 @@ class CrystalBall(BasePDF):
 
 crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
-# CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
+CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 
 
 class DoubleCB(BasePDF):
@@ -325,33 +329,5 @@ class DoubleCB(BasePDF):
         return double_crystalball_func(x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl,
                                        alphar=alphar, nr=nr)
 
-# DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)
 
-
-if __name__ == '__main__':
-    mu = z.constant(0)
-    sigma = z.constant(0.5)
-    alpha = z.constant(3)
-    n = z.constant(1)
-    # res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)
-    # int1 = crystalball_integral(limits=zfit.Space(obs='obs1', limits=(-3, 5)),
-    #                             params={'mu': mu, "sigma": sigma, "alpha": alpha, "n": n})
-    from tensorflow.contrib import autograph
-    import matplotlib.pyplot as plt
-
-    new_code = autograph.to_code(crystalball_integral)
-    obs = zfit.Space(obs='obs1', limits=(-3, 1))
-    cb1 = CrystalBall(mu, sigma, alpha, n, obs=obs)
-    res = cb1.pdf(np.random.random(size=100))
-    int1 = cb1.integrate(limits=(-0.01, 2), norm_range=obs)
-    # tf.add_check_numerics_ops()
-
-    x = np.linspace(-5, 1, num=1000)
-    vals = cb1.pdf(x=x)
-    y = vals.numpy()[0]
-    plt.plot(x, y)
-    plt.show()
-
-    # print(new_code)
-    print(res.numpy())
-    print(int1.numpy())
+DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)
