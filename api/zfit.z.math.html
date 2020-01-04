@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>math &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
+    <title>math &#8212; zfit 0.1.dev577+g2b1b0d3 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev577</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -348,40 +348,88 @@
   <div class="section" id="module-zfit.z.math">
 <span id="math"></span><h1>math<a class="headerlink" href="#module-zfit.z.math" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="zfit.z.math.automatic_gradient">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">automatic_gradient</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#automatic_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.automatic_gradient" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Gradients</p>
+<dt id="zfit.z.math.autodiff_gradient">
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">autodiff_gradient</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#autodiff_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.autodiff_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate using autodiff the gradients of <cite>func()</cite> wrt <cite>params</cite>.</p>
+<p>Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+applying the chain rule. All that is needed is that every operation knows its own derivative.
+TensorFlow implements this and anything using <cite>tf.*</cite> operations only can use this technique.</p>
+<blockquote>
+<div><dl>
+<dt>Args:</dt><dd><p>func (Callable): Function without arguments that depends on <cite>params</cite>
+params (ZfitParameter): Parameters that <cite>func</cite> implicitly depends on and with respect to which the</p>
+<blockquote>
+<div><p>derivatives will be taken.</p>
+</div></blockquote>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Tensor</p>
+<dt>Returns:</dt><dd><p><cite>tf.Tensor</cite>: gradient</p>
 </dd>
 </dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="function">
-<dt id="zfit.z.math.automatic_hessian">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">automatic_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#automatic_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.automatic_hessian" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Gradients</p>
+<dt id="zfit.z.math.autodiff_hessian">
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">autodiff_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#autodiff_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.autodiff_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate using autodiff the hessian matrix of <cite>func()</cite> wrt <cite>params</cite>.</p>
+<p>Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
+applying the chain rule. All that is needed is that every operation knows its own derivative.
+TensorFlow implements this and anything using <cite>tf.*</cite> operations only can use this technique.</p>
+<blockquote>
+<div><dl>
+<dt>Args:</dt><dd><p>func (Callable): Function without arguments that depends on <cite>params</cite>
+params (ZfitParameter): Parameters that <cite>func</cite> implicitly depends on and with respect to which the</p>
+<blockquote>
+<div><p>derivatives will be taken.</p>
+</div></blockquote>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Tensor</p>
+<dt>Returns:</dt><dd><p><cite>tf.Tensor</cite>: hessian matrix</p>
 </dd>
 </dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="function">
-<dt id="zfit.z.math.automatic_value_gradients">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">automatic_value_gradients</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#automatic_value_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.automatic_value_gradients" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="zfit.z.math.autodiff_value_gradients">
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">autodiff_value_gradients</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#autodiff_value_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.autodiff_value_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate using autodiff the gradients of <cite>func()</cite> wrt <cite>params</cite>; also return <cite>func()</cite>.</p>
+<p>Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+applying the chain rule. All that is needed is that every operation knows its own derivative.
+TensorFlow implements this and anything using <cite>tf.*</cite> operations only can use this technique.</p>
+<blockquote>
+<div><dl>
+<dt>Args:</dt><dd><p>func (Callable): Function without arguments that depends on <cite>params</cite>
+params (ZfitParameter): Parameters that <cite>func</cite> implicitly depends on and with respect to which the</p>
+<blockquote>
+<div><p>derivatives will be taken.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>tuple(<cite>tf.Tensor</cite>, <cite>tf.Tensor</cite>): value and gradient</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
 
 <dl class="function">
 <dt id="zfit.z.math.automatic_value_gradients_hessian">
 <code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">automatic_value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#automatic_value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.automatic_value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate using autodiff the gradients and hessian matrix of <cite>func()</cite> wrt <cite>params</cite>; also return <cite>func()</cite>.</p>
+<p>Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+applying the chain rule. All that is needed is that every operation knows its own derivative.
+TensorFlow implements this and anything using <cite>tf.*</cite> operations only can use this technique.</p>
+<blockquote>
+<div><dl>
+<dt>Args:</dt><dd><p>func (Callable): Function without arguments that depends on <cite>params</cite>
+params (ZfitParameter): Parameters that <cite>func</cite> implicitly depends on and with respect to which the</p>
+<blockquote>
+<div><p>derivatives will be taken.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>tuple(<cite>tf.Tensor</cite>, <cite>tf.Tensor</cite>, <cite>tf.Tensor</cite>): value, gradient and hessian matrix</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
 
 <dl class="function">
 <dt id="zfit.z.math.interpolate">
@@ -406,12 +454,20 @@
 <dl class="function">
 <dt id="zfit.z.math.numerical_gradient">
 <code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_gradient</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_gradient" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Gradients</p>
+<dd><p>Calculate numerically the gradients of func() with respect to <cite>params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – Function without arguments that depends on <cite>params</cite></p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter"><em>ZfitParameter</em></a>) – Parameters that <cite>func</cite> implicitly depends on and with respect to which the
+derivatives will be taken.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Tensor</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gradients</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>tf.Tensor</cite></p>
 </dd>
 </dl>
 </dd></dl>
@@ -419,17 +475,65 @@
 <dl class="function">
 <dt id="zfit.z.math.numerical_hessian">
 <code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_hessian" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate numerically the hessian matrix of func() with respect to <cite>params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – Function without arguments that depends on <cite>params</cite></p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter"><em>ZfitParameter</em></a>) – Parameters that <cite>func</cite> implicitly depends on and with respect to which the
+derivatives will be taken.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>hessian matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>tf.Tensor</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="zfit.z.math.numerical_value_gradients">
 <code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_value_gradients</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_value_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_value_gradients" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate numerically the gradients of <cite>func()</cite> with respect to <cite>params</cite>, also returns the value of <cite>func()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – Function without arguments that depends on <cite>params</cite></p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter"><em>ZfitParameter</em></a>) – Parameters that <cite>func</cite> implicitly depends on and with respect to which the
+derivatives will be taken.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>value, gradient</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple(<cite>tf.Tensor</cite>, <cite>tf.Tensor</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="zfit.z.math.numerical_value_gradients_hessian">
 <code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.core.parameter.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate numerically the gradients and hessian matrix of <cite>func()</cite> wrt <cite>params</cite>; also return <cite>func()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – Function without arguments that depends on <cite>params</cite></p></li>
+<li><p><strong>params</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter"><em>ZfitParameter</em></a>) – Parameters that <cite>func</cite> implicitly depends on and with respect to which the
+derivatives will be taken.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>value, gradient and hessian matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple(<cite>tf.Tensor</cite>, <cite>tf.Tensor</cite>, <cite>tf.Tensor</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="zfit.z.math.poly_complex">

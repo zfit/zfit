@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
+    <title>Changelog &#8212; zfit 0.1.dev577+g2b1b0d3 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev577</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -399,7 +399,7 @@ a running version, install a version
 <div class="section" id="major-features-and-improvements">
 <h3>Major Features and Improvements<a class="headerlink" href="#major-features-and-improvements" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><ul class="simple">
+<div><ul>
 <li><p>Dependents (currently, and probably also in the future) need more manual tracking. This has mostly
 an effect on CompositeParameters and SimpleLoss, which now require to specify the dependents by giving
 the objects it depends (indirectly) on. For example, it is sufficient to give a <cite>ComplexParameter</cite> (which
@@ -411,6 +411,16 @@ returns the value. It depends on the <cite>dependents</cite> that are now requir
 This can be switched on with <a href="#id1"><span class="problematic" id="id2">`</span></a>zfit.settings.options[‘numerical_grad’] = True</p></li>
 <li><p>Added gradient and hessian calculation options to the loss. Support numerical calculation as well.</p></li>
 <li><p>Add caching system for graph to prevent recursive graph building</p></li>
+<li><p>changed backend name to <cite>z</cite> and can be used as <cite>zfit.z</cite> or imported from it. Added:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>function</cite> decorator that can be used to trace a function. Respects dependencies of inputs and automatically
+caches/invalidates the graph and recreates.</p></li>
+<li><p><cite>py_function</cite>, same as <cite>tf.py_function</cite>, but checks and may extends in the future</p></li>
+<li><p><cite>math</cite> module that contains autodiff and numerical differentiation methods, both working with tensors.</p></li>
+</ul>
+</div></blockquote>
+</li>
 </ul>
 </div></blockquote>
 </div>

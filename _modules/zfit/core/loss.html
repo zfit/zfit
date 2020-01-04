@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.loss &#8212; zfit 0.1.dev588+g497b7dc documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.1.dev577+g2b1b0d3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev588</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev577</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -353,7 +353,7 @@
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span><span class="p">,</span> <span class="n">settings</span>
 
 <span class="n">ztf</span> <span class="o">=</span> <span class="n">z</span>
-<span class="kn">from</span> <span class="nn">zfit.z.math</span> <span class="kn">import</span> <span class="n">numerical_gradient</span><span class="p">,</span> <span class="n">automatic_gradient</span><span class="p">,</span> <span class="n">automatic_value_gradients</span><span class="p">,</span> <span class="n">numerical_value_gradients</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">zfit.z.math</span> <span class="kn">import</span> <span class="n">numerical_gradient</span><span class="p">,</span> <span class="n">autodiff_gradient</span><span class="p">,</span> <span class="n">autodiff_value_gradients</span><span class="p">,</span> <span class="n">numerical_value_gradients</span><span class="p">,</span> \
     <span class="n">automatic_value_gradients_hessian</span><span class="p">,</span> <span class="n">numerical_value_gradients_hessian</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
@@ -585,7 +585,7 @@
             <span class="n">gradients</span> <span class="o">=</span> <span class="n">numerical_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">gradients</span> <span class="o">=</span> <span class="n">automatic_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">gradients</span> <span class="o">=</span> <span class="n">autodiff_gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">gradients</span>
 
 <div class="viewcode-block" id="BaseLoss.value_gradients"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss.value_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">value_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -596,7 +596,7 @@
         <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;numerical_grad&#39;</span><span class="p">]:</span>
             <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">numerical_value_gradients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">automatic_value_gradients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">autodiff_value_gradients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span>
 
 <div class="viewcode-block" id="BaseLoss.value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss.value_gradients_hessian">[docs]</a>    <span class="k">def</span> <span class="nf">value_gradients_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
