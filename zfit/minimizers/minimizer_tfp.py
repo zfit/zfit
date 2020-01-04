@@ -4,7 +4,7 @@ from collections import OrderedDict
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .baseminimizer import BaseMinimizer
+from .baseminimizer import BaseMinimizer, print_gradients
 from .fitresult import FitResult
 
 
@@ -17,12 +17,20 @@ class BFGSMinimizer(BaseMinimizer):
     def _minimize(self, loss, params):
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
+        do_print = self.verbosity > 1
 
         @tf.function(autograph=False, experimental_relax_shapes=True)
-        def to_minimize_func(values):
+        def update_params_value_grad(loss, params, values):
             for param, value in zip(params, tf.unstack(values, axis=0)):
                 param.set_value(value)
             value, gradients = loss.value_gradients(params=params)
+            return gradients, value
+
+        def to_minimize_func(values):
+            gradients, value = update_params_value_grad(loss, params, values)
+            if do_print:
+                print_gradients(params, values.numpy(), [float(g.numpy()) for g in gradients])
+
             gradients = tf.stack(gradients)
             return value, gradients
 

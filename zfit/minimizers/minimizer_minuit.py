@@ -1,19 +1,16 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
-import copy
 from typing import List
 
 import iminuit
 import numpy as np
-import texttable as tt
-import tensorflow as tf
 
 from zfit.core.interfaces import ZfitLoss
+from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
 from .fitresult import FitResult
-from ..util.cache import Cachable
 from ..core.parameter import Parameter
-from .baseminimizer import BaseMinimizer, ZfitStrategy
+from ..util.cache import Cachable
 
 
 class Minuit(BaseMinimizer, Cachable):
@@ -99,13 +96,7 @@ class Minuit(BaseMinimizer, Cachable):
                 raise
             finally:
                 if do_print:
-                    table = tt.Texttable()
-                    table.header(['Parameter', 'Value'])
-
-                    for param, value in zip(params, values):
-                        table.add_row([param.name, value])
-                    table.add_row(["Loss value:", loss_evaluated])
-                    print(table.draw())
+                    print_params(params, values, loss_evaluated)
             if np.isnan(loss_evaluated):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
             return loss_evaluated
@@ -122,11 +113,7 @@ class Minuit(BaseMinimizer, Cachable):
                 raise
             finally:
                 if do_print:
-                    table = tt.Texttable()
-                    table.header(['Parameter', 'Value', 'Gradient'])
-                    for param, value, grad in zip(params, values, gradients_values):
-                        table.add_row([param.name, value, grad])
-                    print(table.draw())
+                    print_gradients(params, values, gradients_values)
 
             if any(np.isnan(gradients_values)):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)

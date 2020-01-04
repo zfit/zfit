@@ -6,19 +6,18 @@ Definition of minimizers, wrappers etc.
 #  Copyright (c) 2020 zfit
 import abc
 import collections
-from abc import ABCMeta, abstractmethod
-from collections import OrderedDict
-from contextlib import ExitStack
 import copy
+from abc import abstractmethod
+from collections import OrderedDict
 from typing import List, Union, Iterable
 
 import numpy as np
-import tensorflow as tf
+import texttable as tt
 
-from ..settings import run
-from .interface import ZfitMinimizer
 from .fitresult import FitResult
+from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..settings import run
 from ..util import ztyping
 
 
@@ -257,3 +256,24 @@ class BaseMinimizer(ZfitMinimizer):
 
     def copy(self):
         return copy.copy(self)
+
+
+def print_params(params, values, loss=None):
+    table = tt.Texttable()
+    table.header(['Parameter', 'Value'])
+
+    for param, value in zip(params, values):
+        table.add_row([param.name, value])
+    if loss is not None:
+        table.add_row(["Loss value:", loss])
+    print(table.draw())
+
+
+def print_gradients(params, values, gradients, loss=None):
+    table = tt.Texttable()
+    table.header(['Parameter', 'Value', 'Gradient'])
+    for param, value, grad in zip(params, values, gradients):
+        table.add_row([param.name, value, grad])
+    if loss is not None:
+        table.add_row(["Loss value:", loss])
+    print(table.draw())
