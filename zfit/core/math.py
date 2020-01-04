@@ -68,8 +68,6 @@ def numerical_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
     hesse_func = numdifftools.Hessian(wrapped_func)
     hessian = tf.py_function(hesse_func, inp=[param_vals],
                              Tout=tf.float64)
-    if hessian.shape == ():
-        hessian = tf.reshape(hessian, shape=(1,))
     hessian.set_shape((len(param_vals), len(param_vals)))
     for param, val in zip(params, original_vals):
         param.set_value(val)
@@ -143,6 +141,7 @@ def automatic_value_gradients(func: Callable, params: Iterable[Parameter]) -> [t
 def automatic_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     with tf.GradientTape(persistent=False) as tape:
         loss, gradients = automatic_value_gradients(func=func, params=params)
+        gradients_tf = z.convert_to_tensor(gradients)
 
-    hessian = tape.gradient(gradients, sources=params)
+    hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params))
     return loss, gradients, hessian
