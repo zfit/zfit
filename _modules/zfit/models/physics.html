@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.physics &#8212; zfit 0.1.dev577+g2b1b0d3 documentation</title>
+    <title>zfit.models.physics &#8212; zfit 0.1.dev567+g48c78ee documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev577</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev567</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -341,15 +341,12 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.models.physics</h1><div class="highlight"><pre>
-<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-
-
-<span class="kn">import</span> <span class="nn">tensorflow_probability.python.distributions</span> <span class="k">as</span> <span class="nn">tfd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
@@ -542,15 +539,22 @@
                        <span class="n">n</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;nl&quot;</span><span class="p">])</span>
     <span class="n">params_right</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=-</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alphar&quot;</span><span class="p">],</span>
                         <span class="n">n</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">])</span>
+    <span class="c1">#</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">pred</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">lower</span><span class="p">),</span> <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">),</span>
+                   <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">crystalball_integral</span><span class="p">(</span><span class="n">limits_left</span><span class="p">,</span> <span class="n">params_left</span><span class="p">,</span> <span class="n">model</span><span class="p">))</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">pred</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">),</span>
+                    <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">crystalball_integral</span><span class="p">(</span><span class="n">limits_right</span><span class="p">,</span> <span class="n">params_right</span><span class="p">,</span> <span class="n">model</span><span class="p">))</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+    <span class="c1"># integral = z.where(condition=tf.less(mu, lower),</span>
+    <span class="c1">#                     x=crystalball_integral(limits_left, params_left, model),</span>
+    <span class="c1">#                     y=crystalball_integral(limits_right, params_right, model))</span>
 
-    <span class="n">left</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">pred</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">lower</span><span class="p">),</span> <span class="n">true_fn</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">false_fn</span><span class="o">=</span><span class="n">crystalball_integral</span><span class="p">(</span><span class="n">limits_left</span><span class="p">,</span> <span class="n">params_left</span><span class="p">))</span>
-    <span class="n">right</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">pred</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="n">true_fn</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">false_fn</span><span class="o">=</span><span class="n">crystalball_integral</span><span class="p">(</span><span class="n">limits_right</span><span class="p">,</span> <span class="n">params_right</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span></div>
+    <span class="k">return</span> <span class="n">integral</span></div>
 
 
 <div class="viewcode-block" id="CrystalBall"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.physics.CrystalBall">[docs]</a><span class="k">class</span> <span class="nc">CrystalBall</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
     <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">alpha</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CrystalBall&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
@@ -602,7 +606,7 @@
 
 <span class="n">crystalball_integral_limits</span> <span class="o">=</span> <span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">limits</span><span class="o">=</span><span class="p">(((</span><span class="n">ANY_LOWER</span><span class="p">,),),</span> <span class="p">((</span><span class="n">ANY_UPPER</span><span class="p">,),)))</span>
 <span class="c1"># TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond</span>
-<span class="c1"># CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)</span>
+<span class="n">CrystalBall</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">crystalball_integral</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">crystalball_integral_limits</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DoubleCB"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.physics.DoubleCB">[docs]</a><span class="k">class</span> <span class="nc">DoubleCB</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
@@ -668,36 +672,8 @@
         <span class="k">return</span> <span class="n">double_crystalball_func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alphal</span><span class="o">=</span><span class="n">alphal</span><span class="p">,</span> <span class="n">nl</span><span class="o">=</span><span class="n">nl</span><span class="p">,</span>
                                        <span class="n">alphar</span><span class="o">=</span><span class="n">alphar</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="n">nr</span><span class="p">)</span></div>
 
-<span class="c1"># DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)</span>
 
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">sigma</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1"># res = crystalball_func(np.random.random(size=100), mu, sigma, alpha, n)</span>
-    <span class="c1"># int1 = crystalball_integral(limits=zfit.Space(obs=&#39;obs1&#39;, limits=(-3, 5)),</span>
-    <span class="c1">#                             params={&#39;mu&#39;: mu, &quot;sigma&quot;: sigma, &quot;alpha&quot;: alpha, &quot;n&quot;: n})</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.contrib</span> <span class="kn">import</span> <span class="n">autograph</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
-    <span class="n">new_code</span> <span class="o">=</span> <span class="n">autograph</span><span class="o">.</span><span class="n">to_code</span><span class="p">(</span><span class="n">crystalball_integral</span><span class="p">)</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-    <span class="n">cb1</span> <span class="o">=</span> <span class="n">CrystalBall</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">cb1</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
-    <span class="n">int1</span> <span class="o">=</span> <span class="n">cb1</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
-    <span class="c1"># tf.add_check_numerics_ops()</span>
-
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-    <span class="n">vals</span> <span class="o">=</span> <span class="n">cb1</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="c1"># print(new_code)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">int1</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">DoubleCB</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">double_crystalball_integral</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">crystalball_integral_limits</span><span class="p">)</span>
 </pre></div>
 
     </div>
