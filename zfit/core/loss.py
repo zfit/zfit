@@ -15,7 +15,8 @@ from ordered_set import OrderedSet
 from zfit import z, settings
 
 ztf = z
-from .math import numerical_gradient, automatic_gradient
+from .math import numerical_gradient, automatic_gradient, automatic_value_gradients, numerical_value_gradients, \
+    automatic_value_gradients_hessian, numerical_value_gradients_hessian
 from ..util import ztyping
 from ..util.cache import Cachable
 from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
@@ -254,14 +255,13 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._value_gradients(params=params)
 
     @z.function
-    def _value_gradients(self, params):  # TODO(Mayou36): numerical gradient
+    def _value_gradients(self, params):
+        if settings.options['numerical_grad']:
+            value, gradients = numerical_value_gradients(self.value, params=params)
+        else:
+            value, gradients = automatic_value_gradients(self.value, params=params)
+        return value, gradients
 
-        with tf.GradientTape(persistent=False) as tape:
-            loss = self.value()
-
-        # variables = tape.watched_variables()
-        gradients = tape.gradient(loss, sources=params)
-        return loss, gradients
 
     def value_gradients_hessian(self, params):
         vals = self._value_gradients_hessian(params=params)
@@ -271,12 +271,12 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     @z.function
     def _value_gradients_hessian_fallback(self, params):
-        with tf.GradientTape(persistent=False) as tape:
-            loss, gradients = self.value_gradients(params=params)
 
-        # variables = tape.watched_variables()
-        hesse = tape.gradient(gradients, sources=params)
-        return loss, gradients, hesse
+        if settings.options['numerical_grad']:
+            value, gradients = numerical_value_gradients_hessian(self.value, params=params)
+        else:
+            value, gradients = automatic_value_gradients_hessian(self.value, params=params)
+        return value, gradients
 
     def _value_gradients_hessian(self, params):
         return ZfitNotImplemented

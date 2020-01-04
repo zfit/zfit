@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import itertools
 
@@ -55,8 +55,25 @@ def interpolate(t, c):
     return interp
 
 
-def numerical_hessian():
-    pass
+def numerical_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    params = convert_to_container(params)
+
+    def wrapped_func(param_values):
+        for param, value in zip(params, param_values):
+            param.assign(value)
+        return func().numpy()
+
+    param_vals = tf.stack(params)
+    original_vals = [param.read_value() for param in params]
+    hesse_func = numdifftools.Hessian(wrapped_func)
+    hessian = tf.py_function(hesse_func, inp=[param_vals],
+                             Tout=tf.float64)
+    if hessian.shape == ():
+        hessian = tf.reshape(hessian, shape=(1,))
+    hessian.set_shape((len(param_vals), len(param_vals)))
+    for param, val in zip(params, original_vals):
+        param.set_value(val)
+    return hessian
 
 
 def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
@@ -85,6 +102,17 @@ def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor
     return gradients
 
 
+def numerical_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
+    return func(), numerical_gradient(func, params)
+
+
+def numerical_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+    value, gradients = numerical_value_gradients(func, params)
+    hessian = numerical_hessian(func, params)
+
+    return value, gradients, hessian
+
+
 def automatic_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
     """
 
@@ -92,18 +120,29 @@ def automatic_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor
         Tensor: Gradients
     """
 
+    return automatic_value_gradients(func, params)[1]
+
+
+def automatic_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+    """
+
+    Returns:
+        Tensor: Gradients
+    """
+
+    return automatic_value_gradients_hessian(func, params)[2]
+
+
+def automatic_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
     with tf.GradientTape(persistent=False) as tape:
         value = func()
-
     gradients = tape.gradient(value, sources=params)
-    return gradients
+    return value, gradients
 
 
-if __name__ == '__main__':
-    import zfit
+def automatic_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+    with tf.GradientTape(persistent=False) as tape:
+        loss, gradients = automatic_value_gradients(func=func, params=params)
 
-    param1 = zfit.Parameter('param1', 4.)
-
-
-    def func1():
-        return param1 ** 2
+    hessian = tape.gradient(gradients, sources=params)
+    return loss, gradients, hessian
