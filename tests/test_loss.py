@@ -1,20 +1,18 @@
-#  Copyright (c) 2019 zfit
-
+#  Copyright (c) 2020 zfit
+import numpy as np
 import pytest
 import tensorflow as tf
 
-import numpy as np
-
-from zfit import z
 import zfit.core.basepdf
-from zfit.core.limits import Space
-from zfit.minimizers.minimizer_minuit import Minuit
 import zfit.models.dist_tfp
-from zfit.models.dist_tfp import Gauss
 import zfit.settings
+from zfit import z
+from zfit.core.limits import Space
 from zfit.core.loss import UnbinnedNLL
-from zfit.util.exception import IntentionNotUnambiguousError
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.minimizers.minimizer_minuit import Minuit
+from zfit.models.dist_tfp import Gauss
+from zfit.util.exception import IntentionNotUnambiguousError
 
 mu_true = 1.2
 sigma_true = 4.1

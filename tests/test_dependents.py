@@ -1,10 +1,9 @@
-#  Copyright (c) 2019 zfit
-from ordered_set import OrderedSet
+#  Copyright (c) 2020 zfit
 
 import zfit
-import pytest
 
-from zfit.core.testing import setup_function, teardown_function, tester  # needed
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_get_dependents_ordered():

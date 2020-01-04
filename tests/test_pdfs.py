@@ -1,22 +1,18 @@
-#  Copyright (c) 2019 zfit
-
+#  Copyright (c) 2020 zfit
 from typing import List
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
-
-import numpy as np
-
-from zfit import z
+import zfit
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
 from zfit.core.limits import Space
 from zfit.core.parameter import Parameter
-from zfit.models.functor import SumPDF, ProductPDF
-from zfit.models.dist_tfp import Gauss
-import zfit
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.dist_tfp import Gauss
+from zfit.models.functor import SumPDF, ProductPDF
 
 low, high = -0.64, 5.9
 

@@ -5,12 +5,12 @@ them be tested.
 #  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
-
-import scipy.stats
 from typing import Callable, Tuple, List, Union, Iterable
 
-from .parameter import ZfitParameterMixin
+import scipy.stats
+
 from .interfaces import ZfitPDF
+from .parameter import ZfitParameterMixin
 from ..util.container import convert_to_container
 
 __all__ = ["tester", "setup_function", "teardown_function"]

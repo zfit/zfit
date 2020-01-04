@@ -3,7 +3,7 @@ Definition of minimizers, wrappers etc.
 
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 import abc
 import collections
 from abc import ABCMeta, abstractmethod
@@ -181,9 +181,9 @@ class BaseMinimizer(ZfitMinimizer):
         Raises:
             NotImplementedError: if the `step` method is not implemented in the minimizer.
         """
-        params = self._check_input_params(params)
+        params = self._check_input_params(loss, params)
 
-        return self._step(params=params)
+        return self._step(loss, params=params)
 
     def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params`.

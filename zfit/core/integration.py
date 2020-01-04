@@ -5,12 +5,11 @@ This module contains functions for the numeric as well as the analytic (partial)
 #  Copyright (c) 2020 zfit
 
 import collections
-import numpy as np
-
-import tensorflow as tf
-
-import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
+
+import numpy as np
+import tensorflow as tf
+import tensorflow_probability as tfp
 
 import zfit
 from zfit import z
@@ -18,10 +17,10 @@ from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from ..util import ztyping
-from ..util.exception import WorkInProgressError
 from .limits import convert_to_space, Space, supports
 from ..settings import ztypes
+from ..util import ztyping
+from ..util.exception import WorkInProgressError
 
 
 @supports()

@@ -7,9 +7,9 @@ import tensorflow as tf
 from typing import Iterable, Callable
 
 from zfit.util.container import convert_to_container
-from .. import z
-from .parameter import Parameter
-from ..settings import ztypes
+from zfit import z
+from zfit.core.parameter import Parameter
+from zfit.settings import ztypes
 
 
 def poly_complex(*args, real_x=False):
@@ -132,14 +132,16 @@ def automatic_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
 
 
 def automatic_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
-    with tf.GradientTape(persistent=False) as tape:
+    with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
+        tape.watch(params)
         value = func()
     gradients = tape.gradient(value, sources=params)
     return value, gradients
 
 
 def automatic_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
-    with tf.GradientTape(persistent=False) as tape:
+    with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
+        tape.watch(params)
         loss, gradients = automatic_value_gradients(func=func, params=params)
         gradients_tf = z.convert_to_tensor(gradients)
 

@@ -2,14 +2,12 @@
 
 TODO(Mayou36): subclassing?
 """
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 import typing
 
 import tensorflow as tf
-
-
 
 import zfit
 from zfit.util.exception import ShapeIncompatibleError

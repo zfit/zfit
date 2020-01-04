@@ -1,16 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
+import numpy as np
 import pytest
 
 import zfit
 from zfit import z
-import numpy as np
-
-from zfit.util.exception import SubclassingError
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.exception import SubclassingError
 
 
 def test_pdf_simple_subclass():

@@ -4,30 +4,29 @@
 
 import abc
 import builtins
-from collections import OrderedDict
 import contextlib
-from contextlib import suppress
-from typing import Dict, Type, Union, Callable, List, Tuple
 import warnings
+from collections import OrderedDict
+from contextlib import suppress
+from typing import Dict, Union, Callable, List, Tuple
 
 import tensorflow as tf
-
 from tensorflow_probability.python import mcmc as mc
 
-from zfit import z
-from zfit.core.sample import UniformSampleAndWeights
-from ..core.integration import Integration
-from ..util.cache import Cachable
-from .data import Data, Sampler, SampleData
-from .dimension import BaseDimensional
+from .. import z
+from .sample import UniformSampleAndWeights
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
+from .data import Data, Sampler, SampleData
+from .dimension import BaseDimensional
 from .interfaces import ZfitModel, ZfitParameter, ZfitData
-from .limits import Space, convert_to_space, no_multiple_limits, no_norm_range, supports
+from .limits import Space, convert_to_space, no_norm_range, supports
+from ..core.integration import Integration
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
+from ..util.cache import Cachable
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, SubclassingError, LimitsNotSpecifiedError, )
+                              ShapeIncompatibleError, SubclassingError, )
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 

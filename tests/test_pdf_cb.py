@@ -1,11 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-import pytest
 import numpy as np
-from zfit.models.physics import CrystalBall, DoubleCB
-import zfit
+import pytest
 from scipy.stats import crystalball
+
+import zfit
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.physics import CrystalBall, DoubleCB
 
 mu = 0.0
 sigma = 0.5

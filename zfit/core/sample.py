@@ -1,12 +1,8 @@
 #  Copyright (c) 2020 zfit
 
-from contextlib import suppress
 from typing import Callable, Union, Iterable, List, Optional, Tuple
 
 import tensorflow as tf
-
-import tensorflow_probability as tfp
-import numpy as np
 
 import zfit
 from zfit import z
@@ -14,7 +10,7 @@ from zfit import z
 ztf = z
 from zfit.core.interfaces import ZfitPDF
 from zfit.util import ztyping
-from zfit.util.exception import ShapeIncompatibleError, WorkInProgressError
+from zfit.util.exception import WorkInProgressError
 from .. import settings
 from ..util.container import convert_to_container
 from .limits import Space

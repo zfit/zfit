@@ -1,13 +1,12 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
+import numpy as np
 import pytest
-from zfit.core.testing import setup_function, teardown_function, tester
-
 import tensorflow as tf
-
 
 import zfit
 from zfit import z
-import numpy as np
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 
 true_a = 1.
 true_b = 4.

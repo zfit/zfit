@@ -1,8 +1,7 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
-from collections import OrderedDict
-from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
+from typing import Union, List, Dict, Callable, Tuple
 
 import tensorflow as tf
 

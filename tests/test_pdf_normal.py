@@ -1,15 +1,11 @@
-#  Copyright (c) 2019 zfit
-
+#  Copyright (c) 2020 zfit
 import numpy as np
 import pytest
-import tensorflow as tf
-
-
 
 import zfit
 from zfit import Parameter
-from zfit.models.dist_tfp import Gauss
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.dist_tfp import Gauss
 
 mu1_true = 1.
 mu2_true = 2.

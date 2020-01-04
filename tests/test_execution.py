@@ -1,13 +1,11 @@
-#  Copyright (c) 2019 zfit
-
-from zfit.core.testing import setup_function, teardown_function, tester
+#  Copyright (c) 2020 zfit
 
 import copy
 
 import pytest
 
 import zfit
-from zfit import z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
 

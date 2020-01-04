@@ -1,19 +1,15 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
-from collections import OrderedDict
 import copy
 import random
-from unittest import TestCase
+from collections import OrderedDict
 
 import pytest
-import numpy as np
 
 from zfit.core.limits import Space, convert_to_space
-from zfit.util.exception import ConversionError, ObsNotSpecifiedError, AxesNotSpecifiedError, LimitsUnderdefinedError
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.exception import ObsNotSpecifiedError, AxesNotSpecifiedError, LimitsUnderdefinedError
 
 lower1 = (1,), (4,)
 upper1 = (3,), (7,)

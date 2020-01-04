@@ -1,26 +1,20 @@
-#  Copyright (c) 2019 zfit
-
-from contextlib import suppress
+#  Copyright (c) 2020 zfit
 import math as mt
+from contextlib import suppress
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
-import numpy as np
-
 import zfit
+import zfit.core.integration as zintegrate
 from zfit import z
 from zfit.core import basepdf as zbasepdf
-import zfit.core.integration as zintegrate
 from zfit.core.limits import Space
-import zfit.core.math as zmath
 from zfit.core.parameter import Parameter
+from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.basic import CustomGaussOLD
 from zfit.models.dist_tfp import Gauss
-
-from zfit.core.testing import setup_function, teardown_function, tester
-
-from zfit.core.testing import setup_function, teardown_function, tester
 
 limits1_5deps = [((1., -1., 2., 4., 3.),), ((5., 4., 5., 8., 9.),)]
 # limits_simple_5deps = (0.9, 4.7)

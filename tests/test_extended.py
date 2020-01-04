@@ -1,13 +1,11 @@
 #  Copyright (c) 2020 zfit
 
-from zfit.core.testing import setup_function, teardown_function, tester
-
-import pytest
 import numpy as np
-import tensorflow as tf
+import pytest
 
 import zfit
 from zfit.core.sample import extract_extended_pdfs, extended_sampling
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
 obs1 = 'obs1'

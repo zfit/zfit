@@ -1,15 +1,10 @@
-#  Copyright (c) 2019 zfit
-import pytest
-
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
-import sys
+#  Copyright (c) 2020 zfit
 
 import zfit
 from zfit import z
-from zfit.util.graph import get_dependents_auto
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.graph import get_dependents_auto
 
 
 # sys.setrecursionlimit(200)

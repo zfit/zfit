@@ -1,14 +1,14 @@
 #  Copyright (c) 2020 zfit
-import pytest
 import numpy as np
+import pytest
 import scipy.stats
 
 import zfit
 from zfit import z
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import ShapeIncompatibleError
 from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
+from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.container import convert_to_container
+from zfit.util.exception import ShapeIncompatibleError
 
 
 def true_nll_gaussian(params, mu, sigma):

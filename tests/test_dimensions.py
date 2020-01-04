@@ -1,20 +1,17 @@
-#  Copyright (c) 2019 zfit
-
-from zfit.core.testing import setup_function, teardown_function, tester
-
+#  Copyright (c) 2020 zfit
 
 import os
 
 import pytest
 
-from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedError, ShapeIncompatibleError,
-                                 SpaceIncompatibleError, )
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedError, SpaceIncompatibleError, )
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import zfit
 from zfit.core.dimension import add_spaces, limits_consistent, limits_overlap, combine_spaces
-from zfit.core.testing import setup_function, teardown_function, tester
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)

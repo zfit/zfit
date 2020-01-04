@@ -46,22 +46,21 @@ which you can now iterate through. For example, to calc an integral (assuming th
 >>> def integrate(lower_limit, upper_limit): return 42  # dummy function
 >>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
 """
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 # TODO(Mayou36): update docs above
 
-from collections import OrderedDict
-import copy
 import functools
 import inspect
+from collections import OrderedDict
 from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 
-from .dimension import add_spaces, combine_spaces
 from .baseobject import BaseObject
+from .dimension import add_spaces, combine_spaces
 from .interfaces import ZfitSpace
 from ..util import ztyping
 from ..util.checks import NOT_SPECIFIED
@@ -241,7 +240,8 @@ class Space(ZfitSpace, BaseObject):
                              "\nlower = {l}"
                              "\nupper = {u}".format(l=lower, u=upper))
         if lower_is_iterable and upper_is_iterable:
-            if not shape_np_tf(lower) == shape_np_tf(upper) or (len(shape_np_tf(lower)) not in (2, 3)):  # 3 for EventSpace eager
+            if not shape_np_tf(lower) == shape_np_tf(upper) or (
+                len(shape_np_tf(lower)) not in (2, 3)):  # 3 for EventSpace eager
                 raise ValueError("Lower and/or upper limits invalid:"
                                  "\nlower: {lower}"
                                  "\nupper: {upper}".format(lower=lower, upper=upper))

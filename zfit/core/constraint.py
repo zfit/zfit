@@ -2,25 +2,21 @@
 
 import abc
 from collections import OrderedDict
-
 from typing import Dict, Union, Callable, Optional
 
+import numpy as np
+import tensorflow as tf
+import tensorflow_probability as tfp
 from ordered_set import OrderedSet
-from .interfaces import ZfitConstraint
 
+from zfit import z
 from .baseobject import BaseNumeric
+from .interfaces import ZfitConstraint
 from .interfaces import ZfitParameter
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError, LogicalUndefinedOperationError
-from ..settings import ztypes
-from zfit import z
-
-import tensorflow as tf
-
-
-import numpy as np
-import tensorflow_probability as tfp
 
 tfd = tfp.distributions
 

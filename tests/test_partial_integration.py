@@ -1,16 +1,12 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
+import numpy as np
 import pytest
 import scipy
 import scipy.special
-import numpy as np
 import tensorflow as tf
 
-
-
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
 import zfit
+from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def func_cosxy2_np(x, y):

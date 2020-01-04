@@ -2,28 +2,23 @@
 
 from typing import Dict, Type
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
-
-import numpy as np
-
 import zfit.core.basepdf
-from zfit.core.interfaces import ZfitParameter
-from zfit.core.limits import Space, ANY_UPPER
 import zfit.models.dist_tfp
-from zfit.models.dist_tfp import Gauss
-from zfit.core.parameter import Parameter
-from zfit.models.functor import ProductPDF
-from zfit.models.special import SimplePDF
 import zfit.settings
 from zfit import z
-from zfit.core.testing import setup_function, teardown_function, tester  # needed
-
+from zfit.core.interfaces import ZfitParameter
+from zfit.core.limits import Space, ANY_UPPER
+from zfit.core.parameter import Parameter
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.dist_tfp import Gauss
+from zfit.models.special import SimplePDF
 # from zfit.z import
 from zfit.util import ztyping
-
-
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 

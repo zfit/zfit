@@ -1,7 +1,7 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 import abc
 import itertools
-from typing import List, Iterable
+from typing import Iterable
 
 from ordered_set import OrderedSet
 

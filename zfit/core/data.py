@@ -1,32 +1,31 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
+import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
 from typing import List, Tuple, Union, Dict, Mapping, Callable
-import warnings
 
-import tensorflow as tf
-
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import array_ops
-import uproot
 import numpy as np
 import pandas as pd
+import tensorflow as tf
+import uproot
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
 from zfit import z
 from zfit.core.interfaces import ZfitSpace
-from .sample import EventSpace
-from ..util.cache import Cachable, invalidates_cache
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
 from .limits import Space, convert_to_space, convert_to_obs_str
+from .sample import EventSpace
 from ..settings import ztypes
 from ..util import ztyping
+from ..util.cache import Cachable, invalidates_cache
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, NoSessionSpecifiedError, ShapeIncompatibleError, \
+from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
     ObsIncompatibleError
 from ..util.temporary import TemporarilySet
 

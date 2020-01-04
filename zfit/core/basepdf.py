@@ -49,29 +49,28 @@ For more advanced methods and ways to register analytic integrals or overwrite c
 also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
-from contextlib import suppress
-from typing import Union, Any, Type, Dict
 import warnings
+from contextlib import suppress
+from typing import Union, Type, Dict
 
 import tensorflow as tf
 
 from zfit import z
 from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
+from .basemodel import BaseModel
 from .interfaces import ZfitPDF, ZfitParameter
 from .limits import Space
-from ..util import ztyping
-from ..util.container import convert_to_container
-from ..util.exception import (AlreadyExtendedPDFError, WorkInProgressError, IntentionNotUnambiguousError,
-                              AlreadyExtendedPDFError,
-                              NormRangeNotSpecifiedError, ShapeIncompatibleError, NotExtendedPDFError, )
-from ..util.temporary import TemporarilySet
-from .basemodel import BaseModel
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
+from ..util import ztyping
+from ..util.container import convert_to_container
+from ..util.exception import (AlreadyExtendedPDFError,
+                              NotExtendedPDFError, )
+from ..util.temporary import TemporarilySet
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 

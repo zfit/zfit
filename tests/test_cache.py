@@ -1,15 +1,9 @@
 #  Copyright (c) 2020 zfit
-import pytest
 
-import zfit
 from zfit import z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-
 from zfit.util.cache import Cachable, invalidates_cache
-
-import numpy as np
-
-from zfit.core.testing import setup_function, teardown_function, tester
 
 
 # class Test1(Cachable):

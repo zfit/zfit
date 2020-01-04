@@ -1,19 +1,14 @@
-#  Copyright (c) 2019 zfit
-
+#  Copyright (c) 2020 zfit
 from collections import OrderedDict
-import functools
-import time
 
 import pytest
 import tensorflow as tf
 
-import numpy as np
-
-from zfit.core.loss import SimpleLoss
 import zfit.minimizers.baseminimizer as zmin
-from zfit import z
 import zfit.minimizers.optimizers_tf
+from zfit import z
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.minimizers.minimizer_tfp import BFGSMinimizer
 
 true_a = 1.
 true_b = 4.
@@ -67,6 +62,7 @@ def minimize_func(minimizer_class_and_kwargs):
     assert true_b == pytest.approx(bval, abs=parameter_tolerance)
     assert true_c == pytest.approx(cval, abs=parameter_tolerance)
     assert true_minimum == pytest.approx(cur_val, abs=max_distance_to_min)
+    assert result.converged
 
     if test_error:
         # Test Error
@@ -117,14 +113,12 @@ def minimize_func(minimizer_class_and_kwargs):
             _ = result.error(params=a_param)
 
 
-from zfit.minimizers.minimizer_tfp import BFGSMinimizer
-
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.5)),
-     False),
-    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
-    (zfit.minimize.Minuit, {}, True),
-    # (BFGSMinimizer, {}, False),
+    # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.5)),
+    #  False),
+    # (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.5), False),
+    # (zfit.minimize.Minuit, {}, True),
+    (BFGSMinimizer, {}, False),
     # (zfit.minimize.Scipy, {}, False),
 ]
 

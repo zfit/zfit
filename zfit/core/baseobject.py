@@ -7,9 +7,9 @@ from typing import List
 import tensorflow as tf
 
 from zfit.core.dependents import BaseDependentsMixin
-from ..util.cache import Cachable
-from ..util import ztyping
 from .interfaces import ZfitObject, ZfitNumeric
+from ..util import ztyping
+from ..util.cache import Cachable
 from ..util.container import DotDict
 
 _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.

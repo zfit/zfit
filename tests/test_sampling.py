@@ -1,16 +1,14 @@
 #  Copyright (c) 2020 zfit
-
 import numpy as np
 import pytest
 import tensorflow as tf
-from tensorboard.errors import InvalidArgumentError
 
 import zfit
 from zfit import z, Space
+from zfit.core.testing import setup_function, teardown_function, tester
 
 ztf = z
 from zfit.core.sample import accept_reject_sample
-from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.5
 sigma_true = 1.2

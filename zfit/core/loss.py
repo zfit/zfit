@@ -2,31 +2,25 @@
 
 import abc
 import warnings
-from collections import OrderedDict
-
-import numdifftools
-import tensorflow as tf
-import numpy as np
-
 from typing import Optional, Union, List, Callable, Iterable
 
+import tensorflow as tf
 from ordered_set import OrderedSet
 
 from zfit import z, settings
 
 ztf = z
-from .math import numerical_gradient, automatic_gradient, automatic_value_gradients, numerical_value_gradients, \
+from zfit.z.math import numerical_gradient, automatic_gradient, automatic_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 from ..util import ztyping
 from ..util.cache import Cachable
 from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
-from ..util.graph import get_dependents_auto
 from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF, ZfitConstraint
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitConstraint
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
-    LogicalUndefinedOperationError, BreakingAPIChangeError
+    BreakingAPIChangeError
 from .constraint import BaseConstraint, SimpleConstraint
 
 
@@ -261,7 +255,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         else:
             value, gradients = automatic_value_gradients(self.value, params=params)
         return value, gradients
-
 
     def value_gradients_hessian(self, params):
         vals = self._value_gradients_hessian(params=params)

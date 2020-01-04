@@ -1,35 +1,29 @@
 """Define Parameter which holds the value."""
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 from collections import OrderedDict
 from contextlib import suppress
+from typing import Callable
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from tensorflow.python import ops, array_ops
-from typing import Callable
-
-import zfit
-from zfit import z
-
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
+from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
 
+from zfit import z
 from zfit.util.container import convert_to_container
-from ..util.temporary import TemporarilySet
-from ..core.baseobject import BaseNumeric, BaseObject
-from ..util.cache import Cachable, invalidates_cache
-from ..util import ztyping
+from . import interfaces as zinterfaces
 from .interfaces import ZfitModel, ZfitParameter
-from ..util.graph import get_dependents_auto
+from ..core.baseobject import BaseNumeric
+from ..settings import ztypes, run
+from ..util import ztyping
+from ..util.cache import invalidates_cache
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
     WorkInProgressError
-from . import baseobject as zbaseobject
-from . import interfaces as zinterfaces
-from ..settings import ztypes, run
+from ..util.temporary import TemporarilySet
 
 
 class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses

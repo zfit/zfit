@@ -1,14 +1,9 @@
 #  Copyright (c) 2020 zfit
-
-
-import pytest
-import tensorflow as tf
 import numpy as np
 
 import zfit
-from zfit.core.math import numerical_gradient, automatic_gradient, numerical_hessian, automatic_hessian
-
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.z.math import numerical_gradient, automatic_gradient, numerical_hessian, automatic_hessian
 
 
 def test_numerical_gradient():
