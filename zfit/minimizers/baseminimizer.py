@@ -88,7 +88,7 @@ class BaseMinimizer(ZfitMinimizer):
         self.strategy = strategy
         self.name = name
         if tolerance is None:
-            tolerance = 1e-5
+            tolerance = 1e-3
         self.tolerance = tolerance
         self.verbosity = verbosity
         if minimizer_options is None:
