@@ -1,51 +1,3 @@
-"""
-.. include:: ../../docs/subst_types.rst
-
-# NamedSpace and limits
-
-Limits define a certain interval in a specific dimension. This can be used to define, for example,
-the limits of an integral over several dimensions or a normalization range.
-
-
-
-### with limits
-
-Therefore a different way of specifying limits is possible, basically by defining chunks of the
-lower and the upper limits. The shape of a lower resp. upper limit is (n_limits, n_obs).
-
-Example: 1-dim: 1 to 4, 2.-dim: 21 to 24 AND 1.-dim: 6 to 7, 2.-dim 26 to 27
->>> lower = ((1, 21), (6, 26))
->>> upper = ((4, 24), (7, 27))
->>> limits2 = Space(limits=(lower, upper), obs=('obs1', 'obs2')
-
-General form:
-
-lower = ((lower1_dim1, lower1_dim2, lower1_dim3), (lower2_dim1, lower2_dim2, lower2_dim3),...)
-upper = ((upper1_dim1, upper1_dim2, upper1_dim3), (upper2_dim1, upper2_dim2, upper2_dim3),...)
-
-## Using :py:class:`~zfit.Space`
-
-:py:class:`NamedSpace` offers a few useful functions to easier deal with the intervals
-
-### Handling areas
-
-For example when doing a MC integration using the expectation value, it is mandatory to know
-the total area of your intervals. You can retrieve the total area or (if multiple limits (=intervals
- are given) the area of each interval.
-
- >>> area = limits2.area()
- >>> area_1, area_2 = limits2.iter_areas(rel=False)  # if rel is True, return the fraction of 1
-
-
-### Retrieve the limits
-
->>> lower, upper = limits2.limits
-
-which you can now iterate through. For example, to calc an integral (assuming there is a function
-`integrate` taking the lower and upper limits and returning the function), you can do
->>> def integrate(lower_limit, upper_limit): return 42  # dummy function
->>> integral = sum(integrate(lower_limit=low, upper_limit=up) for low, up in zip(lower, upper))
-"""
 #  Copyright (c) 2020 zfit
 
 # TODO(Mayou36): update docs above
@@ -54,7 +6,7 @@ import functools
 import inspect
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union, Iterable
 
 import numpy as np
 import tensorflow as tf
@@ -157,6 +109,8 @@ class Space(ZfitSpace, BaseObject):
             limits ():
             name (str):
         """
+
+        self._has_rect_limits = True
         obs = self._check_convert_input_obs(obs)
 
         if name is None:
@@ -1034,6 +988,39 @@ class Space(ZfitSpace, BaseObject):
             upper = frozenset(frozenset(lim) for lim in upper)
 
         return hash((lower, upper))
+
+    @property
+    def has_rect_limits(self):
+        return all(space.has_rect_limits for space in self.spaces) and self._has_rect_limits
+
+    def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
+        if self.has_rect_limits and guarantee_limits:
+            return x
+        if self.n_limits > 1:
+            inside_limits = []
+            for space in self:
+                inside_limits.append(space.inside(x, guarantee_limits=guarantee_limits))
+            inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
+            return inside_any_limit
+        else:
+            lower, upper = self.iter_limits()[0]
+            from .sample import EventSpace
+
+            if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
+                upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
+                lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
+
+            below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
+            above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
+            inside = tf.logical_and(above_lower, below_upper)
+            return inside
+
+    def filter(self, x: tf.Tensor) -> tf.Tensor:
+        filtered = tf.boolean_mask(tensor=x, mask=self.inside(x))
+        return filtered
+
+    def __iter__(self) -> Iterable[ZfitSpace]:
+        yield from self.iter_limits(as_tuple=False)
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,

@@ -54,7 +54,7 @@ import functools
 import inspect
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union, Iterable
 
 import numpy as np
 import tensorflow as tf
@@ -157,6 +157,9 @@ class Space(ZfitSpace, BaseObject):
             limits ():
             name (str):
         """
+
+        self._has_rect_limits = True
+        self.spaces = ()
         obs = self._check_convert_input_obs(obs)
 
         if name is None:
@@ -1035,11 +1038,17 @@ class Space(ZfitSpace, BaseObject):
 
         return hash((lower, upper))
 
-    def inside(self, x):
+    @property
+    def has_rect_limits(self):
+        return all(space.has_rect_limits for space in self.spaces) and self._has_rect_limits
+
+    def inside(self, x, guarantee_limits=False):
+        if self.has_rect_limits and guarantee_limits:
+            return x
         if self.n_limits > 1:
             inside_limits = []
-            for space in self.iter_limits(as_tuple=False):
-                inside_limits.append(space.inside(x))
+            for space in self:
+                inside_limits.append(space.inside(x, guarantee_limits=guarantee_limits))
             inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
             return inside_any_limit
         else:
@@ -1058,6 +1067,9 @@ class Space(ZfitSpace, BaseObject):
     def filter(self, x):
         filtered = tf.boolean_mask(tensor=x, mask=self.inside(x))
         return filtered
+
+    def __iter__(self) -> Iterable[ZfitSpace]:
+        yield from self.iter_limits(as_tuple=False)
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,

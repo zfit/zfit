@@ -199,6 +199,43 @@ class ZfitSpace(ZfitObject):
         """
         raise NotImplementedError
 
+    @classmethod
+    @abc.abstractmethod
+    def from_axes(cls, axes, limits, name):
+        """Create a space from `axes` instead of from `obs`.
+
+        Args:
+            axes ():
+            limits ():
+            name (str):
+
+        Returns:
+            :py:class:`~zfit.Space`
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_subspace(self, obs, axes, name):
+        """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
+
+        Args:
+            obs (str, Tuple[str]):
+            axes (int, Tuple[int]):
+            name ():
+
+        Returns:
+
+        """
+        pass
+
+    @abc.abstractmethod
+    def inside(self, x, guarantee_limits):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def filter(self, x):
+        raise NotImplementedError
+
 
 class ZfitDependentsMixin:
     @abc.abstractmethod
