@@ -8,7 +8,7 @@ import numpy as np
 import zfit
 from zfit.util.exception import (SpaceIncompatibleError, LimitsIncompatibleError,
                                  LimitsNotSpecifiedError, )
-from .interfaces import ZfitDimensional
+from .interfaces import ZfitDimensional, ZfitSpace
 from ..util import ztyping
 from ..util.container import convert_to_container
 
@@ -71,6 +71,8 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
         LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
     """
     spaces = convert_to_container(spaces)
+    if not all(isinstance(space, ZfitSpace) for space in spaces):
+        raise TypeError("Cannot only add type ZfitSpace")
     if len(spaces) <= 1:
         raise ValueError("Need at least two spaces to be added.")  # TODO: allow? usecase?
     obs = frozenset(frozenset(space.obs) for space in spaces)

@@ -88,6 +88,12 @@ class ZfitSpace(ZfitObject):
 
     @property
     @abc.abstractmethod
+    def has_rect_limits(self) -> bool:
+        """If the limits are rectangular."""
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
     def n_obs(self) -> int:
         """Return the number of observables (axis)."""
         raise NotImplementedError
@@ -199,20 +205,20 @@ class ZfitSpace(ZfitObject):
         """
         raise NotImplementedError
 
-    @classmethod
-    @abc.abstractmethod
-    def from_axes(cls, axes, limits, name):
-        """Create a space from `axes` instead of from `obs`.
-
-        Args:
-            axes ():
-            limits ():
-            name (str):
-
-        Returns:
-            :py:class:`~zfit.Space`
-        """
-        pass
+    # @classmethod
+    # @abc.abstractmethod
+    # def from_axes(cls, axes, limits, name):
+    #     """Create a space from `axes` instead of from `obs`.
+    #
+    #     Args:
+    #         axes ():
+    #         limits ():
+    #         name (str):
+    #
+    #     Returns:
+    #         :py:class:`~zfit.Space`
+    #     """
+    #     pass
 
     @abc.abstractmethod
     def get_subspace(self, obs, axes, name):

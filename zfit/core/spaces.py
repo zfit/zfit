@@ -4,6 +4,7 @@
 
 import functools
 import inspect
+from abc import abstractmethod
 from collections import OrderedDict
 from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union, Iterable
@@ -14,12 +15,14 @@ import tensorflow as tf
 from .baseobject import BaseObject
 from .dimension import add_spaces, combine_spaces
 from .interfaces import ZfitSpace
+from .. import z
 from ..util import ztyping
 from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                              OverdefinedError, LimitsNotSpecifiedError, )
+                              OverdefinedError, LimitsNotSpecifiedError, ObsIncompatibleError, WorkInProgressError,
+                              BreakingAPIChangeError)
 from ..util.temporary import TemporarilySet
 
 
@@ -94,7 +97,144 @@ ANY_LOWER = AnyLower()
 ANY_UPPER = AnyUpper()
 
 
-class Space(ZfitSpace, BaseObject):
+class BaseSpace(ZfitSpace, BaseObject):
+    def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
+        if self.has_rect_limits and guarantee_limits:
+            return x
+        inside = self._inside(x, guarantee_limits)
+        return inside
+
+    @abstractmethod
+    def _inside(self, x, guarantee_limits):
+        raise NotImplementedError
+
+    def filter(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
+        if self.has_rect_limits and guarantee_limits:
+            return x
+        filtered = self._filter(x, guarantee_limits)
+        return filtered
+
+    def _filter(self, x, guarantee_limits):
+        filtered = tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
+        return filtered
+
+    @property
+    def n_obs(self) -> int:  # TODO(naming): better name? Like rank?
+        """Return the number of observables/axes.
+
+        Returns:
+            int >= 1
+        """
+
+        if self.obs is None:
+            length = len(self.axes)
+        else:
+            length = len(self.obs)
+        return length
+
+    @property
+    def n_limits(self) -> int:
+        return len(self)
+
+    def __iter__(self) -> Iterable[ZfitSpace]:
+        yield self
+
+    def _check_convert_input_axes(self, axes: ztyping.AxesTypeInput,
+                                  allow_none: bool = False) -> ztyping.AxesTypeReturn:
+        if axes is None:
+            if allow_none:
+                return None
+            else:
+                raise AxesNotSpecifiedError("TODO: Cannot be None")
+        axes = convert_to_container(value=axes, container=tuple)  # TODO(Mayou36): extend like _check_obs?
+        return axes
+
+    def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
+                                 allow_none: bool = False) -> ztyping.ObsTypeReturn:
+        """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
+
+        Args:
+            obs (str, List[str], None, NOT_SPECIFIED):
+
+        Returns:
+            type:
+        """
+        if obs is None:
+            if allow_none:
+                return None
+            else:
+                raise ObsNotSpecifiedError("TODO: Cannot be None")
+
+        if isinstance(obs, Space):
+            obs = obs.obs
+        else:
+            obs = convert_to_container(obs, container=tuple)
+            obs_not_str = tuple(o for o in obs if not isinstance(o, str))
+            if obs_not_str:
+                raise ValueError("The following observables are not strings: {}".format(obs_not_str))
+        return obs
+
+    def get_axes(self, obs: ztyping.ObsTypeInput = None,
+                 as_dict: bool = False,
+                 autofill: bool = False) -> Union[ztyping.AxesTypeReturn, Dict[str, int]]:
+        """Return the axes corresponding to the `obs` (or all if None).
+
+        Args:
+            obs ():
+            as_dict (bool): If True, returns a ordered dictionary with {obs: axis}
+            autofill (bool): If True and the axes are not specified, automatically fill
+                them with the default numbering and return (not setting them).
+
+        Returns:
+            Tuple, OrderedDict
+
+        Raises:
+            ValueError: if the requested `obs` do not match with the one defined in the range
+            AxesNotSpecifiedError: If the axes in this :py:class:`~zfit.Space` have not been specified.
+        """
+        # check input
+        obs = self._check_convert_input_obs(obs=obs, allow_none=True)
+        axes = self.axes
+        if axes is None:
+            if autofill:
+                axes = tuple(range(self.n_obs))
+            else:
+                raise AxesNotSpecifiedError("The axes have not been specified")
+
+        if obs is not None:
+            try:
+                axes = tuple(axes[self.obs.index(o)] for o in obs)
+            except KeyError:
+                missing_obs = set(obs) - set(self.obs)
+                raise ValueError("The requested observables {mis} are not contained in the defined "
+                                 "observables {obs}".format(mis=missing_obs, obs=self.obs))
+        else:
+            obs = self.obs
+        if as_dict:
+            axes = OrderedDict((o, ax) for o, ax in zip(obs, axes))
+
+        return axes
+
+
+def add_spaces_new(spaces: Iterable["zfit.Space"], name=None):
+    """Add two spaces and merge their limits if possible or return False.
+
+    Args:
+        spaces (Iterable[:py:class:`~zfit.Space`]):
+
+    Returns:
+        Union[None, :py:class:`~zfit.Space`, bool]:
+
+    Raises:
+        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
+    """
+    spaces = convert_to_container(spaces)
+    if not all(isinstance(space, ZfitSpace) for space in spaces):
+        raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
+    return MultiSpace(spaces, name=name)
+
+
+class Space(BaseSpace):
     AUTO_FILL = object()
     ANY = ANY
     ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
@@ -246,41 +386,6 @@ class Space(ZfitSpace, BaseObject):
             limits = lower, upper
         self._check_set_limits(limits=limits)
 
-    def _check_convert_input_axes(self, axes: ztyping.AxesTypeInput,
-                                  allow_none: bool = False) -> ztyping.AxesTypeReturn:
-        if axes is None:
-            if allow_none:
-                return None
-            else:
-                raise AxesNotSpecifiedError("TODO: Cannot be None")
-        axes = convert_to_container(value=axes, container=tuple)  # TODO(Mayou36): extend like _check_obs?
-        return axes
-
-    def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
-                                 allow_none: bool = False) -> ztyping.ObsTypeReturn:
-        """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
-
-        Args:
-            obs (str, List[str], None, NOT_SPECIFIED):
-
-        Returns:
-            type:
-        """
-        if obs is None:
-            if allow_none:
-                return None
-            else:
-                raise ObsNotSpecifiedError("TODO: Cannot be None")
-
-        if isinstance(obs, Space):
-            obs = obs.obs
-        else:
-            obs = convert_to_container(obs, container=tuple)
-            obs_not_str = tuple(o for o in obs if not isinstance(o, str))
-            if obs_not_str:
-                raise ValueError("The following observables are not strings: {}".format(obs_not_str))
-        return obs
-
     @property
     def limits(self) -> ztyping.LimitsTypeReturn:
         """Return the limits.
@@ -393,20 +498,6 @@ class Space(ZfitSpace, BaseObject):
             return self.limits[1]
 
     @property
-    def n_obs(self) -> int:  # TODO(naming): better name? Like rank?
-        """Return the number of observables/axes.
-
-        Returns:
-            int >= 1
-        """
-
-        if self.obs is None:
-            length = len(self.axes)
-        else:
-            length = len(self.obs)
-        return length
-
-    @property
     def n_limits(self) -> int:
         """The number of different limits.
 
@@ -434,47 +525,6 @@ class Space(ZfitSpace, BaseObject):
 
         """
         return self._axes
-
-    def get_axes(self, obs: ztyping.ObsTypeInput = None,
-                 as_dict: bool = False,
-                 autofill: bool = False) -> Union[ztyping.AxesTypeReturn, Dict[str, int]]:
-        """Return the axes corresponding to the `obs` (or all if None).
-
-        Args:
-            obs ():
-            as_dict (bool): If True, returns a ordered dictionary with {obs: axis}
-            autofill (bool): If True and the axes are not specified, automatically fill
-                them with the default numbering and return (not setting them).
-
-        Returns:
-            Tuple, OrderedDict
-
-        Raises:
-            ValueError: if the requested `obs` do not match with the one defined in the range
-            AxesNotSpecifiedError: If the axes in this :py:class:`~zfit.Space` have not been specified.
-        """
-        # check input
-        obs = self._check_convert_input_obs(obs=obs, allow_none=True)
-        axes = self.axes
-        if axes is None:
-            if autofill:
-                axes = tuple(range(self.n_obs))
-            else:
-                raise AxesNotSpecifiedError("The axes have not been specified")
-
-        if obs is not None:
-            try:
-                axes = tuple(axes[self.obs.index(o)] for o in obs)
-            except KeyError:
-                missing_obs = set(obs) - set(self.obs)
-                raise ValueError("The requested observables {mis} are not contained in the defined "
-                                 "observables {obs}".format(mis=missing_obs, obs=self.obs))
-        else:
-            obs = self.obs
-        if as_dict:
-            axes = OrderedDict((o, ax) for o, ax in zip(obs, axes))
-
-        return axes
 
     def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
         """Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
@@ -957,6 +1007,9 @@ class Space(ZfitSpace, BaseObject):
         return new_space
 
     def __add__(self, other):
+        return add_spaces_new((self, other))
+
+    def __radd__(self, other):
         if not isinstance(other, ZfitSpace):
             raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
         return self.add(other)
@@ -991,42 +1044,141 @@ class Space(ZfitSpace, BaseObject):
 
     @property
     def has_rect_limits(self):
-        return all(space.has_rect_limits for space in self.spaces) and self._has_rect_limits
+        return self._has_rect_limits
 
-    def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
-        if self.has_rect_limits and guarantee_limits:
-            return x
-        if self.n_limits > 1:
-            inside_limits = []
-            for space in self:
-                inside_limits.append(space.inside(x, guarantee_limits=guarantee_limits))
-            inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
-            return inside_any_limit
+    def _inside(self, x, guarantee_limits):  # TODO: add proper implementation
+        lower, upper = self.iter_limits()[0]
+        from .sample import EventSpace
+
+        if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
+            upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
+            lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
+
+        below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
+        above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
+        inside = tf.logical_and(above_lower, below_upper)
+        return inside
+
+
+def flatten_spaces(spaces):
+    return tuple(s for space in spaces for s in space)
+
+
+class MultiSpace(BaseSpace):
+
+    def __init__(self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> None:
+        if name is None:
+            name = "MultiSpace"
+        super().__init__(name)
+        spaces, obs, axes = self._check_convert_input_spaces_obs_axes(spaces, obs, axes)
+        self._obs = obs
+        self._axes = axes
+        self.spaces = spaces
+
+    def _check_convert_input_spaces_obs_axes(self, spaces, obs, axes):  # TODO: do something with axes
+        if axes is not None:
+            raise WorkInProgressError("Axes not yet implemented")
+        spaces = convert_to_container(spaces, container=tuple)
+        spaces = flatten_spaces(spaces)
+        if obs is None:
+            obs = spaces[0].obs
         else:
-            lower, upper = self.iter_limits()[0]
-            from .sample import EventSpace
+            obs = convert_to_obs_str(obs)
+        if axes is None:
+            axes = spaces[0].axes
+        else:
+            axes = convert_to_axes(axes)
+        if not all(frozenset(obs) == frozenset(space.obs) for space in spaces):
+            raise ObsIncompatibleError(f"observables of spaces do not coincide: {spaces}")
+        return spaces, obs, axes
 
-            if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
-                upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
-                lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
+    @property
+    def has_rect_limits(self) -> bool:
+        return all(space.has_rect_limits for space in self.spaces)
 
-            below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
-            above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
-            inside = tf.logical_and(above_lower, below_upper)
-            return inside
+    @property
+    def obs(self) -> ztyping.ObsTypeReturn:
+        """The observables ("axes with str")the space is defined in.
 
-    def filter(self, x: tf.Tensor) -> tf.Tensor:
-        filtered = tf.boolean_mask(tensor=x, mask=self.inside(x))
-        return filtered
+        Returns:
 
-    def __iter__(self) -> Iterable[ZfitSpace]:
-        yield from self.iter_limits(as_tuple=False)
+        """
+        return self._obs
+
+    @property
+    def axes(self) -> ztyping.AxesTypeReturn:
+        """The axes ("obs with int") the space is defined in.
+
+        Returns:
+
+        """
+        return self._axes
+
+    # noinspection PyPropertyDefinition
+    @property
+    def limits(self) -> None:
+        self._raise_limits_not_implemented()
+
+    # noinspection PyPropertyDefinition
+    @property
+    def lower(self) -> None:
+        self._raise_limits_not_implemented()
+
+    # noinspection PyPropertyDefinition
+    @property
+    def upper(self) -> None:
+        self._raise_limits_not_implemented()
+
+    def area(self) -> float:
+        return z.reduce_sum((space.area() for space in self), axis=0)
+
+    def with_limits(self, limits, name):
+        self._raise_limits_not_implemented()
+
+    def with_obs(self, obs):
+        spaces = [space.with_obs(obs) for space in self.spaces]
+        return type(self)(spaces, obs=obs)
+
+    def with_axes(self, axes):
+        spaces = [space.with_axes(axes) for space in self.spaces]
+        return type(self)(spaces, axes=axes)
+
+    def with_autofill_axes(self, overwrite: bool):
+        spaces = [space.with_autofill_axes(overwrite) for space in self.spaces]
+        return type(self)(spaces)
+
+    def iter_limits(self):
+        raise BreakingAPIChangeError("This should not be used anymore")
+
+    def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+        raise BreakingAPIChangeError("This should not be used anymore")
+
+    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> ZfitSpace:
+        spaces = [space.get_subspace(obs=obs, axes=axes) for space in self.spaces]
+        return type(self)(spaces, name=name)
+
+    def _raise_limits_not_implemented(self):
+        raise MultipleLimitsNotImplementedError(
+            "Limits/lower/upper not implemented for MultiSpace. This error is either caught"
+            " automatically as part of the codes logic or the MultiLimit case should"
+            " now be implemented. To do that, simply iterate through it, works also"
+            "for simple spaces.")
+
+    def _inside(self, x, guarantee_limits):
+        inside_limits = [space.inside(x, guarantee_limits=guarantee_limits) for space in self]
+        inside = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
+        return inside
+
+    def __iter__(self):
+        yield from self.spaces
+
+    # TODO: add equality
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
                      limits: Optional[ztyping.LimitsTypeInput] = None,
                      *, overwrite_limits: bool = False, one_dim_limits_only: bool = True,
-                     simple_limits_only: bool = True) -> Union[None, Space, bool]:
+                     simple_limits_only: bool = True) -> Union[None, ZfitSpace, bool]:
     """Convert *limits* to a :py:class:`~zfit.Space` object if not already None or False.
 
     Args:
@@ -1048,20 +1200,20 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     space = None
 
     # Test if already `Space` and handle
-    if isinstance(obs, Space):
+    if isinstance(obs, ZfitSpace):
         if axes is not None:
             raise OverdefinedError("if `obs` is a `Space`, `axes` cannot be defined.")
         space = obs
-    elif isinstance(axes, Space):
+    elif isinstance(axes, ZfitSpace):
         if obs is not None:
             raise OverdefinedError("if `axes` is a `Space`, `obs` cannot be defined.")
         space = axes
-    elif isinstance(limits, Space):
+    elif isinstance(limits, ZfitSpace):
         return limits
     if space is not None:
         # set the limits if given
         if limits is not None and (overwrite_limits or space.limits is None):
-            if isinstance(limits, Space):  # figure out if compatible if limits is `Space`
+            if isinstance(limits, ZfitSpace):  # figure out if compatible if limits is `Space`
                 if not (limits.obs == space.obs or
                         (limits.axes == space.axes and limits.obs is None and space.obs is None)):
                     raise IntentionNotUnambiguousError(
@@ -1103,7 +1255,7 @@ def no_norm_range(func):
     @functools.wraps(func)
     def new_func(*args, **kwargs):
         norm_range = kwargs.get('norm_range')
-        if isinstance(norm_range, Space):
+        if isinstance(norm_range, ZfitSpace):
             norm_range_not_false = not (norm_range.limits is None or norm_range.limits is False)
         else:
             norm_range_not_false = not (norm_range is None or norm_range is False)
@@ -1173,14 +1325,32 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
     return create_deco_stack
 
 
+def convert_to_axes(axes):
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
+
+    """
+    axes = convert_to_container(value=axes, container=tuple)
+    new_obs = []
+    for axis in axes:
+        if isinstance(axis, ZfitSpace):
+            if len(axis) > 1:
+                raise WorkInProgressError("Not implemented, uniqueify?")
+            new_obs.extend(axis.obs)
+        else:
+            new_obs.append(axis)
+    return new_obs
+
+
 def convert_to_obs_str(obs):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~zfit.Space`.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
 
     """
     obs = convert_to_container(value=obs, container=tuple)
     new_obs = []
     for ob in obs:
-        if isinstance(ob, Space):
+        if isinstance(ob, ZfitSpace):
+            if len(ob) > 1:
+                raise WorkInProgressError("Not implemented, uniqueify?")
             new_obs.extend(ob.obs)
         else:
             new_obs.append(ob)
