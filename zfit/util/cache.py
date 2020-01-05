@@ -51,11 +51,8 @@ Example with a pdf that caches the normalization:
 
 #  Copyright (c) 2020 zfit
 
-import abc
-from abc import abstractmethod
 import functools
-from contextlib import suppress
-from types import MethodType
+from abc import abstractmethod
 from typing import Iterable, Union, Mapping
 
 import tensorflow as tf
@@ -216,6 +213,7 @@ class FunctionCacheHolder(Cachable):
         self.wrapped_func = wrapped_func
         # self.parent_cache = cache
         self.python_func = func
+        self._hash_value = hash(self.python_func)
         if cachables is None and cachables_mapping is None:
             raise ValueError("Both `cachables and `cachables_mapping` are None. One needs to be different from None.")
         if cachables is None:
@@ -237,7 +235,7 @@ class FunctionCacheHolder(Cachable):
         #         del self.parent_cache[self.caching_func]
 
     def create_immutable(self, args, kwargs):
-        """Creates a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
+        """Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
 
         Args:
             args: list like
@@ -257,7 +255,7 @@ class FunctionCacheHolder(Cachable):
         return tuple(combined)
 
     def __hash__(self) -> int:
-        return hash(self.python_func)
+        return self._hash_value
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCacheHolder):

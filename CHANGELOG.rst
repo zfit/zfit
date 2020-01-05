@@ -37,6 +37,8 @@ Major Features and Improvements
 
 Behavioral changes
 ------------------
+ - EDM goal of the minuit minimizer has been reduced by a factor of 10 to 10E-3 in agreement with
+   the goal in RooFits Minuit minimizer. This can be varied by specifying the tolerance.
  - known issue: the `projection_pdf` has troubles with the newest TF version and may not work properly (runs out of
    memory)
 

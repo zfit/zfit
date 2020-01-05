@@ -147,7 +147,7 @@ class Minuit(BaseMinimizer, Cachable):
         self._update_params(params, values=result_vals)
 
         info = {'n_eval': result[0]['nfcn'],
-                # 'n_iter': result['nit'],
+                'n_iter': result[0]['ncalls'],
                 # 'grad': result['jac'],
                 # 'message': result['message'],
                 'original': result[0]}
