@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.1.dev458+g1bbbf91 documentation</title>
+    <title>Changelog &#8212; zfit 0.1.dev446+gef86a18 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev458</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev446</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -430,6 +430,8 @@ caches/invalidates the graph and recreates.</p></li>
 <h3>Behavioral changes<a class="headerlink" href="#behavioral-changes" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
+<li><p>EDM goal of the minuit minimizer has been reduced by a factor of 10 to 10E-3 in agreement with
+the goal in RooFits Minuit minimizer. This can be varied by specifying the tolerance.</p></li>
 <li><p>known issue: the <cite>projection_pdf</cite> has troubles with the newest TF version and may not work properly (runs out of
 memory)</p></li>
 </ul>

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.cache &#8212; zfit 0.1.dev458+g1bbbf91 documentation</title>
+    <title>zfit.util.cache &#8212; zfit 0.1.dev446+gef86a18 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev458</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev446</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -396,11 +396,8 @@
 
 <span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -561,6 +558,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">wrapped_func</span>
         <span class="c1"># self.parent_cache = cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">python_func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash_value</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">python_func</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cachables</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cachables_mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both `cachables and `cachables_mapping` are None. One needs to be different from None.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cachables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -582,7 +580,7 @@
         <span class="c1">#         del self.parent_cache[self.caching_func]</span>
 
 <div class="viewcode-block" id="FunctionCacheHolder.create_immutable"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.FunctionCacheHolder.create_immutable">[docs]</a>    <span class="k">def</span> <span class="nf">create_immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`</span>
+        <span class="sd">&quot;&quot;&quot;Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            args: list like</span>
@@ -602,7 +600,7 @@
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">python_func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_value</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">FunctionCacheHolder</span><span class="p">):</span>
