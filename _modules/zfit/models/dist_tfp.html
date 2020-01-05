@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.dist_tfp &#8212; zfit 0.1.dev523+g0e2367e documentation</title>
+    <title>zfit.models.dist_tfp &#8212; zfit 0.1.dev505+g66645db documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev523</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev505</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -350,7 +350,7 @@
 
 <span class="sd">Therefore a convenient wrapper as well as a lot of implementations are provided.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1">#  Copyright (c) 2019 zfit</span>
+<span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
@@ -418,7 +418,6 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c1"># self.tf_distribution = self.parameters[&#39;distribution&#39;]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_distribution</span> <span class="o">=</span> <span class="n">distribution</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span> <span class="o">=</span> <span class="n">dist_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_kwargs</span> <span class="o">=</span> <span class="n">dist_kwargs</span>
