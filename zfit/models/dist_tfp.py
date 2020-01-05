@@ -5,7 +5,7 @@ different from the zfit models, it is similar enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
 from typing import Union
@@ -73,7 +73,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
-        # self.tf_distribution = self.parameters['distribution']
         self._distribution = distribution
         self.dist_params = dist_params
         self.dist_kwargs = dist_kwargs

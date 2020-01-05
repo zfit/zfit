@@ -30,24 +30,33 @@ warnings.warn(
     and minor ones on the user side. Be sure to read the upgrade guide (can be found in the README at the top)
      to have a seemless transition. If this is currently not doable (upgrading is highly recommended though)
      you can downgrade zfit to <0.4. Feel free to contact us in case of problems in order to fix them ASAP.""")
-import os
 
-os.environ["KMP_AFFINITY"] = "noverbose"
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-import warnings
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
-warnings.simplefilter(action='ignore', category=DeprecationWarning)
-# import tensorflow as tf
+def _maybe_disable_warnings():
+    import os
+    if not os.environ.get("ZFIT_DISABLE_TF_WARNINGS"):
+        return
+    os.environ["KMP_AFFINITY"] = "noverbose"
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    import warnings
 
-# tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+    # warnings.simplefilter(action='ignore', category=FutureWarning)
+    # warnings.simplefilter(action='ignore', category=DeprecationWarning)
+    import tensorflow as tf
+
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
+
+_maybe_disable_warnings()
 import tensorflow.compat.v1 as _tfv1
 
-# tf.enable_resource_variables()  # forward compat
-# tf.enable_v2_tensorshape()  # forward compat
 _tfv1.enable_v2_behavior()
-# _tfv1.disable_eager_execution()
 import tensorflow as tf
+
+if int(tf.__version__[0]) < 3:
+    warnings.warn(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
+                  f" with TF >= 2 and will likely break with an older version. Please consider upgrading as this"
+                  f" will raise an error in the future.")
 
 # EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY = False
 # tf.config.experimental_run_functions_eagerly(EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY)
