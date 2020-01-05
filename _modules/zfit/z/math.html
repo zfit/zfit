@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.math &#8212; zfit 0.1.dev533+g4ed040b documentation</title>
+    <title>zfit.z.math &#8212; zfit 0.1.dev523+g0e2367e documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev533</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev523</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -253,6 +253,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
@@ -288,6 +289,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
@@ -349,10 +351,8 @@
 <span class="kn">import</span> <span class="nn">numdifftools</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
-<span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">zfit.settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
-<span class="kn">from</span> <span class="nn">zfit.util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 
 
 <div class="viewcode-block" id="poly_complex"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.poly_complex">[docs]</a><span class="k">def</span> <span class="nf">poly_complex</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">real_x</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -365,6 +365,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tf.Tensor:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
@@ -398,7 +399,7 @@
     <span class="k">return</span> <span class="n">interp</span></div>
 
 
-<div class="viewcode-block" id="numerical_gradient"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_gradient">[docs]</a><span class="k">def</span> <span class="nf">numerical_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="numerical_gradient"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_gradient">[docs]</a><span class="k">def</span> <span class="nf">numerical_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Calculate numerically the gradients of func() with respect to `params`.</span>
 
 <span class="sd">    Args:</span>
@@ -429,7 +430,7 @@
     <span class="k">return</span> <span class="n">gradients</span></div>
 
 
-<div class="viewcode-block" id="numerical_value_gradients"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_value_gradients">[docs]</a><span class="k">def</span> <span class="nf">numerical_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="numerical_value_gradients"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_value_gradients">[docs]</a><span class="k">def</span> <span class="nf">numerical_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Calculate numerically the gradients of `func()` with respect to `params`, also returns the value of `func()`.</span>
 
 <span class="sd">        Args:</span>
@@ -443,7 +444,7 @@
     <span class="k">return</span> <span class="n">func</span><span class="p">(),</span> <span class="n">numerical_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="numerical_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="numerical_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Calculate numerically the hessian matrix of func() with respect to `params`.</span>
 
 <span class="sd">        Args:</span>
@@ -472,7 +473,8 @@
     <span class="k">return</span> <span class="n">hessian</span></div>
 
 
-<div class="viewcode-block" id="numerical_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="numerical_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                                                                                              <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.</span>
 
 <span class="sd">        Args:</span>
@@ -489,7 +491,7 @@
     <span class="k">return</span> <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">hessian</span></div>
 
 
-<div class="viewcode-block" id="autodiff_gradient"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_gradient">[docs]</a><span class="k">def</span> <span class="nf">autodiff_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="autodiff_gradient"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_gradient">[docs]</a><span class="k">def</span> <span class="nf">autodiff_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Calculate using autodiff the gradients of `func()` wrt `params`.</span>
 
 <span class="sd">    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively</span>
@@ -507,7 +509,7 @@
     <span class="k">return</span> <span class="n">autodiff_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="autodiff_value_gradients"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_value_gradients">[docs]</a><span class="k">def</span> <span class="nf">autodiff_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="autodiff_value_gradients"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_value_gradients">[docs]</a><span class="k">def</span> <span class="nf">autodiff_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Calculate using autodiff the gradients of `func()` wrt `params`; also return `func()`.</span>
 
 <span class="sd">    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively</span>
@@ -529,7 +531,7 @@
     <span class="k">return</span> <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span></div>
 
 
-<div class="viewcode-block" id="autodiff_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_hessian">[docs]</a><span class="k">def</span> <span class="nf">autodiff_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="autodiff_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_hessian">[docs]</a><span class="k">def</span> <span class="nf">autodiff_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Calculate using autodiff the hessian matrix of `func()` wrt `params`.</span>
 
 <span class="sd">    Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively</span>
@@ -548,7 +550,8 @@
     <span class="k">return</span> <span class="n">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="automatic_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.automatic_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="automatic_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.automatic_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                                                                                              <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Calculate using autodiff the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.</span>
 
 <span class="sd">    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively</span>
@@ -563,6 +566,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
     <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">(</span><span class="n">persistent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">watch_accessed_variables</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
         <span class="n">tape</span><span class="o">.</span><span class="n">watch</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">autodiff_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>

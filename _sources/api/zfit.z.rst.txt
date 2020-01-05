@@ -12,6 +12,7 @@ Submodules
 
 .. toctree::
 
+   zfit.z.const
    zfit.z.math
    zfit.z.random
    zfit.z.tools

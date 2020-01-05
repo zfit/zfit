@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.execution &#8212; zfit 0.1.dev533+g4ed040b documentation</title>
+    <title>zfit.util.execution &#8212; zfit 0.1.dev523+g0e2367e documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev533</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev523</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -253,6 +253,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
@@ -288,6 +289,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
@@ -341,23 +343,19 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.util.execution</h1><div class="highlight"><pre>
-<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-
-
-<span class="kn">from</span> <span class="nn">.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
-<span class="kn">from</span> <span class="nn">.container</span> <span class="kn">import</span> <span class="n">DotDict</span><span class="p">,</span> <span class="n">is_container</span><span class="p">,</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">.container</span> <span class="kn">import</span> <span class="n">DotDict</span><span class="p">,</span> <span class="n">is_container</span>
 
 
 <div class="viewcode-block" id="RunManager"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.util.execution.RunManager">[docs]</a><span class="k">class</span> <span class="nc">RunManager</span><span class="p">:</span>
@@ -367,6 +365,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">MAX_CHUNK_SIZE</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chunking</span> <span class="o">=</span> <span class="n">DotDict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cpu</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_cpu</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inter_cpus</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_intra_cpus</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">numeric_checks</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_n_cpu</span><span class="p">(</span><span class="n">n_cpu</span><span class="o">=</span><span class="n">n_cpu</span><span class="p">)</span>
@@ -379,9 +381,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">chunking</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># not yet implemented the chunking...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chunking</span><span class="o">.</span><span class="n">max_n_points</span> <span class="o">=</span> <span class="mi">1000000</span>
 
-<div class="viewcode-block" id="RunManager.auto_initialize"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.util.execution.RunManager.auto_initialize">[docs]</a>    <span class="k">def</span> <span class="nf">auto_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
-        <span class="k">pass</span></div>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">chunksize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunking</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
@@ -393,7 +392,13 @@
     <span class="k">def</span> <span class="nf">n_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cpu</span><span class="p">)</span>
 
-<div class="viewcode-block" id="RunManager.set_n_cpu"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.util.execution.RunManager.set_n_cpu">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cpu</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="RunManager.set_n_cpu"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.util.execution.RunManager.set_n_cpu">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cpu</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the number of cpus to be used by zfit. For more control, use `set_cpus_explicit`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_cpu: Number of cpus, will be the number for inter-op parallelism</span>
+<span class="sd">            strict: If strict, sets intra parallelism to 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">n_cpu</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">cpu</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sched_getaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
@@ -404,7 +409,29 @@
                               <span class="s2">&quot;`zfit.run.set_n_cpu(your_cpu_number)`&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_cpu</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">cpu</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cpu</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cpu</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dummy_cpu</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cpu</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cpu</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dummy_cpu</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cpu</span><span class="p">]</span>
+        <span class="n">n_cpu</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cpu</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">strict</span> <span class="o">^</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span><span class="p">:</span>
+            <span class="n">intra</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">strict</span> <span class="k">else</span> <span class="mi">2</span>
+            <span class="n">inter</span> <span class="o">=</span> <span class="n">n_cpu</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_cpus_explicit</span><span class="p">(</span><span class="n">intra</span><span class="o">=</span><span class="n">intra</span><span class="p">,</span> <span class="n">inter</span><span class="o">=</span><span class="n">inter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RunManager.set_cpus_explicit"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.util.execution.RunManager.set_cpus_explicit">[docs]</a>    <span class="k">def</span> <span class="nf">set_cpus_explicit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intra</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the number of threads (cpus) used for inter-op and intra-op parallelism</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            intra: Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this</span>
+<span class="sd">                is usually beneficial to have &gt;= 2.</span>
+<span class="sd">            inter: Parallelization on the level of ops. This is beneficial, if many operations can be computed</span>
+<span class="sd">                independently in parallel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">threading</span><span class="o">.</span><span class="n">set_intra_op_parallelism_threads</span><span class="p">(</span><span class="n">intra</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">threading</span><span class="o">.</span><span class="n">set_inter_op_parallelism_threads</span><span class="p">(</span><span class="n">inter</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_n_cpu</span> <span class="o">=</span> <span class="n">inter</span> <span class="o">+</span> <span class="n">intra</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot set the number of cpus after initialization, has to be at the beginning.&quot;</span>
+                               <span class="sa">f</span><span class="s2">&quot; Original message: </span><span class="si">{err}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RunManager.aquire_cpu"><a class="viewcode-back" href="../../../api/zfit.util.execution.html#zfit.util.execution.RunManager.aquire_cpu">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
     <span class="k">def</span> <span class="nf">aquire_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>

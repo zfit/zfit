@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>execution &#8212; zfit 0.1.dev533+g4ed040b documentation</title>
+    <title>execution &#8212; zfit 0.1.dev523+g0e2367e documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev533</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev523</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -255,6 +255,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.html">z</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="zfit.z.const.html">const</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
@@ -290,6 +291,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zfit.settings.html">settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zfit.z.html">z</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="zfit.z.const.html">const</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
@@ -358,11 +360,6 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.util.execution.RunManager.auto_initialize">
-<code class="sig-name descname">auto_initialize</code><span class="sig-paren">(</span><em class="sig-param">variable: tensorflow.python.ops.variables.VariableV1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.auto_initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.auto_initialize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="zfit.util.execution.RunManager.chunksize">
 <em class="property">property </em><code class="sig-name descname">chunksize</code><a class="headerlink" href="#zfit.util.execution.RunManager.chunksize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -373,9 +370,34 @@
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="zfit.util.execution.RunManager.set_cpus_explicit">
+<code class="sig-name descname">set_cpus_explicit</code><span class="sig-paren">(</span><em class="sig-param">intra: int</em>, <em class="sig-param">inter: int</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_cpus_explicit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_cpus_explicit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of threads (cpus) used for inter-op and intra-op parallelism</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intra</strong> – Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this
+is usually beneficial to have &gt;= 2.</p></li>
+<li><p><strong>inter</strong> – Parallelization on the level of ops. This is beneficial, if many operations can be computed
+independently in parallel.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="zfit.util.execution.RunManager.set_n_cpu">
-<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param">n_cpu='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param">n_cpu: Union[str</em>, <em class="sig-param">int] = 'auto'</em>, <em class="sig-param">strict: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of cpus to be used by zfit. For more control, use <cite>set_cpus_explicit</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_cpu</strong> – Number of cpus, will be the number for inter-op parallelism</p></li>
+<li><p><strong>strict</strong> – If strict, sets intra parallelism to 1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

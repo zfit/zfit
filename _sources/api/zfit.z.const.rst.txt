@@ -1,0 +1,8 @@
+const
+=====
+
+.. automodule:: zfit.z.const
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
