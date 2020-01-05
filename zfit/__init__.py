@@ -38,9 +38,9 @@ import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
-import tensorflow as tf
+# import tensorflow as tf
 
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+# tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import tensorflow.compat.v1 as _tfv1
 
 # tf.enable_resource_variables()  # forward compat
@@ -49,13 +49,12 @@ _tfv1.enable_v2_behavior()
 # _tfv1.disable_eager_execution()
 import tensorflow as tf
 
-EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY = False
-tf.config.experimental_run_functions_eagerly(EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY)
+# EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY = False
+# tf.config.experimental_run_functions_eagerly(EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY)
 
 from . import z
 from . import z as ztf  # legacy
 from .settings import ztypes
-
 
 from . import constraint, pdf, minimize, loss, core, data, func, param
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter

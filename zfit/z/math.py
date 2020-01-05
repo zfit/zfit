@@ -6,10 +6,8 @@ from typing import Iterable, Callable
 import numdifftools
 import tensorflow as tf
 
-from zfit import z
-from zfit.core.parameter import Parameter
-from zfit.settings import ztypes
-from zfit.util.container import convert_to_container
+from ..settings import ztypes
+from ..util.container import convert_to_container
 
 
 def poly_complex(*args, real_x=False):
@@ -22,6 +20,7 @@ def poly_complex(*args, real_x=False):
     Returns:
         tf.Tensor:
     """
+    from .. import z
 
     args = list(args)
     x = args.pop()
@@ -55,7 +54,7 @@ def interpolate(t, c):
     return interp
 
 
-def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
     """Calculate numerically the gradients of func() with respect to `params`.
 
     Args:
@@ -86,7 +85,7 @@ def numerical_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor
     return gradients
 
 
-def numerical_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
+def numerical_value_gradients(func: Callable, params: Iterable["zfit.Parameter"]) -> [tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients of `func()` with respect to `params`, also returns the value of `func()`.
 
         Args:
@@ -100,7 +99,7 @@ def numerical_value_gradients(func: Callable, params: Iterable[Parameter]) -> [t
     return func(), numerical_gradient(func, params)
 
 
-def numerical_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
     """Calculate numerically the hessian matrix of func() with respect to `params`.
 
         Args:
@@ -129,7 +128,8 @@ def numerical_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
     return hessian
 
 
-def numerical_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"]) -> [tf.Tensor, tf.Tensor,
+                                                                                              tf.Tensor]:
     """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
         Args:
@@ -146,7 +146,7 @@ def numerical_value_gradients_hessian(func: Callable, params: Iterable[Parameter
     return value, gradients, hessian
 
 
-def autodiff_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+def autodiff_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
     """Calculate using autodiff the gradients of `func()` wrt `params`.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
@@ -164,7 +164,7 @@ def autodiff_gradient(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
     return autodiff_value_gradients(func, params)[1]
 
 
-def autodiff_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor]:
+def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"]) -> [tf.Tensor, tf.Tensor]:
     """Calculate using autodiff the gradients of `func()` wrt `params`; also return `func()`.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
@@ -186,7 +186,7 @@ def autodiff_value_gradients(func: Callable, params: Iterable[Parameter]) -> [tf
     return value, gradients
 
 
-def autodiff_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
+def autodiff_hessian(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
     """Calculate using autodiff the hessian matrix of `func()` wrt `params`.
 
     Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
@@ -205,7 +205,8 @@ def autodiff_hessian(func: Callable, params: Iterable[Parameter]) -> tf.Tensor:
     return automatic_value_gradients_hessian(func, params)[2]
 
 
-def automatic_value_gradients_hessian(func: Callable, params: Iterable[Parameter]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+def automatic_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"]) -> [tf.Tensor, tf.Tensor,
+                                                                                              tf.Tensor]:
     """Calculate using autodiff the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
@@ -220,6 +221,7 @@ def automatic_value_gradients_hessian(func: Callable, params: Iterable[Parameter
         Returns:
             tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
     """
+    from .. import z
     with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
         tape.watch(params)
         loss, gradients = autodiff_value_gradients(func=func, params=params)

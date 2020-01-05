@@ -1,7 +1,6 @@
 #  Copyright (c) 2020 zfit
 import math as _mt
 from collections import defaultdict
-from math import inf as _inf
 from typing import Any, Callable
 
 import numpy as np
@@ -9,7 +8,6 @@ import tensorflow as tf
 
 from ..settings import ztypes
 
-inf = tf.constant(_inf, dtype=ztypes.float)
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):

@@ -1,20 +1,16 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import contextlib
-import copy
 import multiprocessing
 import os
 import sys
-from typing import List
 import warnings
+from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
 
-
-
-from .temporary import TemporarilySet
-from .container import DotDict, is_container, convert_to_container
+from .container import DotDict, is_container
 
 
 class RunManager:
@@ -24,6 +20,10 @@ class RunManager:
         self.MAX_CHUNK_SIZE = sys.maxsize
         self.chunking = DotDict()
         self._cpu = []
+        self._n_cpu = None
+        self._inter_cpus = None
+        self._intra_cpus = None
+        self._strict = False
         self.numeric_checks = True
 
         self.set_n_cpu(n_cpu=n_cpu)
@@ -36,9 +36,6 @@ class RunManager:
         self.chunking.active = False  # not yet implemented the chunking...
         self.chunking.max_n_points = 1000000
 
-    def auto_initialize(self, variable: tf.Variable):
-        pass
-
     @property
     def chunksize(self):
         if self.chunking.active:
@@ -50,7 +47,13 @@ class RunManager:
     def n_cpu(self):
         return len(self._cpu)
 
-    def set_n_cpu(self, n_cpu='auto'):
+    def set_n_cpu(self, n_cpu: Union[str, int] = 'auto', strict: bool = False) -> None:
+        """Set the number of cpus to be used by zfit. For more control, use `set_cpus_explicit`.
+
+        Args:
+            n_cpu: Number of cpus, will be the number for inter-op parallelism
+            strict: If strict, sets intra parallelism to 1
+        """
         if n_cpu == 'auto':
             try:
                 cpu = sorted(os.sched_getaffinity(0))
@@ -62,6 +65,28 @@ class RunManager:
         elif isinstance(n_cpu, int):
             cpu = range(n_cpu)
         self._cpu = ['dummy_cpu{}'.format(i) for i in cpu]
+        n_cpu = len(cpu)
+        if strict ^ self._strict:
+            intra = 1 if strict else 2
+            inter = n_cpu
+            self.set_cpus_explicit(intra=intra, inter=inter)
+
+    def set_cpus_explicit(self, intra: int, inter: int) -> None:
+        """Set the number of threads (cpus) used for inter-op and intra-op parallelism
+
+        Args:
+            intra: Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this
+                is usually beneficial to have >= 2.
+            inter: Parallelization on the level of ops. This is beneficial, if many operations can be computed
+                independently in parallel.
+        """
+        try:
+            tf.config.threading.set_intra_op_parallelism_threads(intra)
+            tf.config.threading.set_inter_op_parallelism_threads(inter)
+            self._n_cpu = inter + intra
+        except RuntimeError as err:
+            raise RuntimeError("Cannot set the number of cpus after initialization, has to be at the beginning."
+                               f" Original message: {err}")
 
     @contextlib.contextmanager
     def aquire_cpu(self, max_cpu: int = -1) -> List[str]:
