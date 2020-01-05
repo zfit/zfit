@@ -55,11 +55,12 @@ class UniformSampleAndWeights:
 class EventSpace(Space):
     """EXPERIMENTAL SPACE CLASS!"""
 
-    def __init__(self, obs: ztyping.ObsTypeInput, limits: ztyping.LimitsTypeInput, factory=None,
+    def __init__(self, obs: ztyping.ObsTypeInput, limits: ztyping.LimitsTypeInput, factory=None, dtype=ztypes.float,
                  name: Optional[str] = "Space"):
         if limits is None:
             raise ValueError("Limits cannot be None for EventSpaces (currently)")
         self._limits_tensor = None
+        self.dtype = dtype
         self._factory = factory
         super().__init__(obs, limits, name)
 

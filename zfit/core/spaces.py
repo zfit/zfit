@@ -1035,30 +1035,6 @@ class Space(ZfitSpace, BaseObject):
 
         return hash((lower, upper))
 
-    def inside(self, x):
-        if self.n_limits > 1:
-            inside_limits = []
-            for space in self.iter_limits(as_tuple=False):
-                inside_limits.append(space.inside(x))
-            inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
-            return inside_any_limit
-        else:
-            lower, upper = self.iter_limits()[0]
-            from .sample import EventSpace
-
-            if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
-                upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
-                lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
-
-            below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
-            above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
-            inside = tf.logical_and(above_lower, below_upper)
-            return inside
-
-    def filter(self, x):
-        filtered = tf.boolean_mask(tensor=x, mask=self.inside(x))
-        return filtered
-
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
                      limits: Optional[ztyping.LimitsTypeInput] = None,
