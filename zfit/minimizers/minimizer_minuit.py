@@ -64,6 +64,12 @@ class Minuit(BaseMinimizer, Cachable):
 
         minimizer_setter = {}
         minimizer_setter['strategy'] = minimizer_options.pop('strategy')
+        if self.verbosity > 7:
+            minuit_verbosity = self.verbosity
+        elif self.verbosity > 2:
+            minuit_verbosity = 1
+        else:
+            minuit_verbosity = 0
         if minimizer_options:
             raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
 
@@ -125,7 +131,7 @@ class Minuit(BaseMinimizer, Cachable):
                                                    error=errors, limit=limits, name=params_name,
                                                    grad=grad_func,
                                                    # use_array_call=True,
-                                                   print_level=self.verbosity,
+                                                   print_level=minuit_verbosity,
                                                    # forced_parameters=[f"param_{i}" for i in range(len(start_values))],
                                                    **minimizer_init)
 
