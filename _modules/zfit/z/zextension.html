@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.zextension &#8212; zfit 0.1.dev446+gef86a18 documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.1.dev628+g33866db documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.1.dev446</b></span>
+        <span class="navbar-text pull-left"><b>0.1.dev628</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -344,6 +344,7 @@
       
   <h1>Source code for zfit.z.zextension</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">_mt</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
@@ -556,8 +557,8 @@
 
 <span class="c1"># py_function = tf.py_function</span>
 
-
-<div class="viewcode-block" id="py_function"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.py_function">[docs]</a><span class="k">def</span> <span class="nf">py_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">py_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;numerical_grad&#39;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Running a py_function without using the numerical gradient will result in wrong gradient&quot;</span>
@@ -565,7 +566,7 @@
                            <span class="s2">&quot; (even if the gradients are not calculated at all), do&quot;</span>
                            <span class="s2">&quot; `zfit.settings.options[&#39;numerical_grad&#39;] = True`&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="o">=</span><span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="o">=</span><span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 
     </div>
