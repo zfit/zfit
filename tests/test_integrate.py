@@ -107,6 +107,7 @@ def func1_5deps_fully_integrated(limits):
 
 
 limits2 = (-1., 2.)
+limits2_split = [(-1., 1.5), (1.5, 2.)]
 
 
 def func2_1deps(x):
@@ -190,7 +191,8 @@ def func4_3deps_1_integrated(x, limits):
 
 
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
-def test_mc_integration(chunksize):
+@pytest.mark.parametrize("limits", [limits2, limits2_split])
+def test_mc_integration(chunksize, limits):
     # simpel example
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
@@ -198,9 +200,13 @@ def test_mc_integration(chunksize):
                                            limits=Space.from_axes(limits=limits_simple_5deps,
                                                                   axes=tuple(range(5))),
                                            n_axes=5)
+    if isinstance(limits, list):
+        spaces = [Space.from_axes(limits=limit, axes=tuple(range(1))) for limit in limits]
+        space2 = spaces[0] + spaces[1]
+    else:
+        space2 = Space.from_axes(limits=limits2, axes=tuple(range(1)))
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
-                                            limits=Space.from_axes(limits=limits2,
-                                                                   axes=tuple(range(1))),
+                                            limits=space2,
                                             n_axes=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
                                             limits=Space.from_axes(limits=limits3,

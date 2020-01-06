@@ -83,69 +83,72 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     if n_axes is not None and axes is None:
         axes = tuple(range(n_axes))
 
-    lower, upper = limits.limits
-    if np.infty in upper[0] or -np.infty in lower[0]:
-        raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
-                         "\nlower: {}, upper: {}".format(lower, upper))
+    integrals = []
+    for space in limits:
+        lower, upper = space.limits
+        if np.infty in upper[0] or -np.infty in lower[0]:
+            raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
+                             "\nlower: {}, upper: {}".format(lower, upper))
 
-    lower = z.convert_to_tensor(lower, dtype=dtype)
-    upper = z.convert_to_tensor(upper, dtype=dtype)
+        lower = z.convert_to_tensor(lower, dtype=dtype)
+        upper = z.convert_to_tensor(upper, dtype=dtype)
 
-    n_samples = draws_per_dim
+        n_samples = draws_per_dim
 
-    chunked_normalization = zfit.run.chunksize < n_samples
-    # chunked_normalization = True
-    if chunked_normalization and partial:
-        print("NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked.")
-    if chunked_normalization and not partial:
-        n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
-        chunksize = int(np.ceil(n_samples / n_chunks))
-        # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
-        avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
-                                    num_batches=n_chunks, batch_size=chunksize, space=limits)
+        chunked_normalization = zfit.run.chunksize < n_samples
+        # chunked_normalization = True
+        if chunked_normalization and partial:
+            print("NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked.")
+        if chunked_normalization and not partial:
+            n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
+            chunksize = int(np.ceil(n_samples / n_chunks))
+            # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
+            avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
+                                        num_batches=n_chunks, batch_size=chunksize, space=space)
 
-    else:
-        # TODO: deal with n_obs properly?
-
-        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
-                                    dtype=dtype)
-        # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
-        # samples_normed = tf.expand_dims(samples_normed, axis=0)
-        samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-        # samples = tf.transpose(samples, perm=[2, 0, 1])
-
-        if partial:  # TODO(Mayou36): shape of partial integral?
-            data_obs = x.obs
-            new_obs = []
-            x = x.value()
-            value_list = []
-            index_samples = 0
-            index_values = 0
-            if len(x.shape) == 1:
-                x = tf.expand_dims(x, axis=1)
-            for i in range(n_axes + x.shape[-1]):
-                if i in axes:
-                    new_obs.append(limits.obs[index_samples])
-                    value_list.append(samples[:, index_samples])
-                    index_samples += 1
-                else:
-                    new_obs.append(data_obs[index_values])
-                    value_list.append(tf.expand_dims(x[:, index_values], axis=1))
-                    index_values += 1
-            value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-            x = PartialIntegralSampleData(sample=value_list,
-                                          space=Space(obs=new_obs))
         else:
-            x = samples
+            # TODO: deal with n_obs properly?
 
-        # convert rnd samples with value to feedable vector
-        reduce_axis = 1 if partial else None
-        avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
-        # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
-        # TODO: importance sampling?
-        # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    integral = avg * tf.cast(z.convert_to_tensor(limits.area()), dtype=avg.dtype)
-    return integral
+            samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
+                                        dtype=dtype)
+            # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
+            # samples_normed = tf.expand_dims(samples_normed, axis=0)
+            samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+            # samples = tf.transpose(samples, perm=[2, 0, 1])
+
+            if partial:  # TODO(Mayou36): shape of partial integral?
+                data_obs = x.obs
+                new_obs = []
+                x = x.value()
+                value_list = []
+                index_samples = 0
+                index_values = 0
+                if len(x.shape) == 1:
+                    x = tf.expand_dims(x, axis=1)
+                for i in range(n_axes + x.shape[-1]):
+                    if i in axes:
+                        new_obs.append(space.obs[index_samples])
+                        value_list.append(samples[:, index_samples])
+                        index_samples += 1
+                    else:
+                        new_obs.append(data_obs[index_values])
+                        value_list.append(tf.expand_dims(x[:, index_values], axis=1))
+                        index_values += 1
+                value_list = [tf.cast(val, dtype=dtype) for val in value_list]
+                x = PartialIntegralSampleData(sample=value_list,
+                                              space=Space(obs=new_obs))
+            else:
+                x = samples
+
+            # convert rnd samples with value to feedable vector
+            reduce_axis = 1 if partial else None
+            avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
+            # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
+            # TODO: importance sampling?
+            # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
+        integral = avg * tf.cast(z.convert_to_tensor(space.area()), dtype=avg.dtype)
+        integrals.append(integral)
+    return z.reduce_sum(integrals, axis=0)
     # return z.to_real(integral, dtype=dtype)
 
 
