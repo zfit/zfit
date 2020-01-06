@@ -1,4 +1,5 @@
 #  Copyright (c) 2020 zfit
+import functools
 import math as _mt
 from collections import defaultdict
 from typing import Any, Callable
@@ -211,7 +212,7 @@ function_sampling = tf_function
 
 # py_function = tf.py_function
 
-
+@functools.wraps(tf.py_function)
 def py_function(func, inp, Tout, name=None):
     from .. import settings
     if not settings.options['numerical_grad']:
