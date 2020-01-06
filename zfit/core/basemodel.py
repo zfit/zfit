@@ -17,7 +17,7 @@ from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, Sampler, SampleData
 from .dimension import BaseDimensional
-from .interfaces import ZfitModel, ZfitParameter, ZfitData
+from .interfaces import ZfitModel, ZfitParameter, ZfitData, ZfitSpace
 from .limits import Space, convert_to_space, no_norm_range, supports
 from .sample import UniformSampleAndWeights
 from .. import z
@@ -151,11 +151,11 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         raise NotImplementedError
 
     @property
-    def space(self) -> "zfit.Space":
+    def space(self) -> ZfitSpace:
         return self._space
 
     def _check_set_space(self, obs):
-        if not isinstance(obs, Space):
+        if not isinstance(obs, ZfitSpace):
             obs = Space(obs=obs)
         self._check_n_obs(space=obs)
         self._space = obs.with_autofill_axes(overwrite=True)
@@ -231,7 +231,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             Union[:py:class:`~zfit.Space`, False]:
 
         """
-        if norm_range is None or (isinstance(norm_range, Space) and norm_range.limits is None):
+        if norm_range is None or (isinstance(norm_range, ZfitSpace) and norm_range.limits is None):
             if none_is_error:
                 raise ValueError("Normalization range `norm_range` has to be specified when calling {name} or"
                                  "a default normalization range has to be set. Currently, both are None"
@@ -244,7 +244,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self.convert_sort_space(limits=norm_range)
 
     def _check_input_limits(self, limits, caller_name="", none_is_error=False):
-        if limits is None or (isinstance(limits, Space) and limits.limits is None):
+        if limits is None or (isinstance(limits, ZfitSpace) and limits.limits is None):
             if none_is_error:
                 raise ValueError("The `limits` have to be specified when calling {name} and not be None"
                                  "".format(name=caller_name))
@@ -254,8 +254,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self.convert_sort_space(limits=limits)
 
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-                           limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to
+                           limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
+        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
         own `obs`.
 
         Args:
@@ -287,8 +287,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the
                 unnormalized probability
             name (str): name of the operation shown in the :py:class:`tf.Graph`
 
@@ -370,8 +370,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
                     * x (:py:class:`~zfit.core.interfaces.ZfitData`, None): the data for the remaining axes in a partial
                         integral. If it is not a partial integral, this will be None.
-                    * limits (:py:class:`~zfit.Space`): the limits to integrate over.
-                    * norm_range (:py:class:`~zfit.Space`, None): Normalization range of the integral.
+                    * limits (:py:class:`~zfit.ZfitSpace`): the limits to integrate over.
+                    * norm_range (:py:class:`~zfit.ZfitSpace`, None): Normalization range of the integral.
                         If not `supports_supports_norm_range`, this will be None.
                     * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.
                     * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
@@ -410,8 +410,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """Analytical integration over function and raise Error if not possible.
 
         Args:
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.Space`, `False`): the limits to normalize over
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, `False`): the limits to normalize over
             name (str):
 
         Returns:
@@ -481,8 +481,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """Numerical integration over the model.
 
         Args:
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over
             name (str):
 
         Returns:
@@ -546,8 +546,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -595,7 +595,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
             return self._fallback_partial_integrate(x=x, limits=limits, norm_range=norm_range)
 
-    def _fallback_partial_integrate(self, x, limits: Space, norm_range: Space):
+    def _fallback_partial_integrate(self, x, limits: ZfitSpace, norm_range: ZfitSpace):
         max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=limits.axes)
         if max_axes:
             sublimits = limits.get_subspace(axes=max_axes)
@@ -629,8 +629,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -710,8 +710,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         Args:
             x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes
             name (str):
 
         Returns:
@@ -819,10 +819,10 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         limits = self._check_input_limits(limits=limits)
 
-        if limits.limits is None:
+        if limits.limits_not_set:
             limits = self.space  # TODO(Mayou36): clean up, better norm_range?
-            if limits.limits in (None, False):
-                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+            if not limits.has_limits:
+                raise ValueError("limits are False/None, have to be specified")
 
         if fixed_params is True:
             fixed_params = list(self.get_dependents(only_floating=False))
@@ -863,7 +863,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 or a valid string. Currently implemented:
 
                     - 'extended': samples `poisson(yield)` from each pdf that is extended.
-            limits (tuple, :py:class:`~zfit.Space`): In which region to sample in
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): In which region to sample in
             name (str):
 
         Returns:
@@ -919,7 +919,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 return self._analytic_sample(n=n, limits=limits)
             return self._fallback_sample(n=n, limits=limits)
 
-    def _analytic_sample(self, n, limits: Space):  # TODO(Mayou36) implement multiple limits sampling
+    def _analytic_sample(self, n, limits: ZfitSpace):  # TODO(Mayou36) implement multiple limits sampling
         if not self._inverse_analytic_integral:
             raise NotImplementedError  # TODO(Mayou36): create proper analytic sampling
         if limits.n_limits > 1:

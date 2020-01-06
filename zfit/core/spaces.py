@@ -147,7 +147,11 @@ class BaseSpace(ZfitSpace, BaseObject):
                 return None
             else:
                 raise AxesNotSpecifiedError("TODO: Cannot be None")
-        axes = convert_to_container(value=axes, container=tuple)  # TODO(Mayou36): extend like _check_obs?
+        if isinstance(axes, ZfitSpace):
+            obs = axes.obs
+        else:
+            axes = convert_to_container(value=axes, container=tuple)  # TODO(Mayou36): extend like _check_obs?
+
         return axes
 
     def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
@@ -166,7 +170,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             else:
                 raise ObsNotSpecifiedError("TODO: Cannot be None")
 
-        if isinstance(obs, Space):
+        if isinstance(obs, ZfitSpace):
             obs = obs.obs
         else:
             obs = convert_to_container(obs, container=tuple)
@@ -220,8 +224,13 @@ class BaseSpace(ZfitSpace, BaseObject):
         class_name = str(self.__class__).split('.')[-1].split('\'')[0]
         return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={self.has_limits}>"
 
+    def __add__(self, other):
+        if not isinstance(other, ZfitSpace):
+            raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
+        return add_spaces_new(self, other)
 
-def add_spaces_new(*spaces: Iterable["zfit.Space"], name=None):
+
+def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
@@ -1133,11 +1142,6 @@ class Space(BaseSpace):
         new_space = combine_spaces_new(self, *other)
         return new_space
 
-    def __add__(self, other):
-        if not isinstance(other, ZfitSpace):
-            raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
-        return add_spaces_new(self, other)
-
     def __mul__(self, other):
         if not isinstance(other, ZfitSpace):
             raise TypeError("Cannot combine a {} and a {}".format(type(self), type(other)))
@@ -1390,7 +1394,6 @@ class MultiSpace(BaseSpace):
     def __hash__(self):
         return hash(self.spaces)
 
-    # TODO: add equality
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,

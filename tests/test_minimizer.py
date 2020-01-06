@@ -16,12 +16,11 @@ true_b = 4.
 true_c = -0.3
 
 
-def create_loss():
+def create_loss(obs1):
     a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
                              step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151", 3.5)
     c_param = zfit.Parameter("variable_c15151", -0.04)
-    obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
     # load params for sampling
     a_param.set_value(true_a)
@@ -41,8 +40,8 @@ def create_loss():
     return loss, (a_param, b_param, c_param)
 
 
-def minimize_func(minimizer_class_and_kwargs):
-    loss, (a_param, b_param, c_param) = create_loss()
+def minimize_func(minimizer_class_and_kwargs, obs):
+    loss, (a_param, b_param, c_param) = create_loss(obs1=obs)
 
     true_minimum = loss.value().numpy()
 
@@ -126,12 +125,19 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.Scipy, {}, False),
 ]
 
+obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
+obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
+              + zfit.Space(obs='obs1', limits=(1.3, 2.1))
+              + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
+obs1 = obs1_split  # HACK
+
 
 @pytest.mark.order4
 @pytest.mark.parametrize("chunksize", [10000000, 3000])
+@pytest.mark.parametrize("spaces", [obs1, obs1_split])
 @pytest.mark.parametrize("minimizer_class", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizer_class, chunksize):
+def test_minimizers(minimizer_class, chunksize, spaces):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
-    minimize_func(minimizer_class)
+    minimize_func(minimizer_class, obs=spaces)
