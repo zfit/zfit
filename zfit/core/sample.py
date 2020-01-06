@@ -22,15 +22,17 @@ class UniformSampleAndWeights:
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
-
-        for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
+        tot_area = limits.area()
+        for space in limits:
+            lower, upper = space.iter_limits(as_tuple=True)[0]  # TODO: remove new space
+            frac = space.area() / tot_area
             n_partial_to_produce = tf.cast(
-                ztf.to_real(n_to_produce) * ztf.to_real(area), dtype=tf.int32)  # TODO(Mayou36): split right!
+                ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 
             lower = ztf.convert_to_tensor(lower, dtype=dtype)
             upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
-            if isinstance(limits, EventSpace):
+            if isinstance(space, EventSpace):
                 lower = tf.transpose(a=lower)
                 upper = tf.transpose(a=upper)
 

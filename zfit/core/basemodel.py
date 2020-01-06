@@ -880,9 +880,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             n = tf.cast(n, dtype=tf.int32)
 
         limits = self._check_input_limits(limits=limits)
-        if limits.limits is None:
+        if limits.limits_not_set:
             limits = self.space
-            if limits.limits in (None, False):
+            if limits.limits_not_set or not limits.has_limits:
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
 

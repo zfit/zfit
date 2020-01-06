@@ -362,7 +362,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         return self.value().numpy()
 
     def _cut_data(self, value, obs=None):
-        if self.data_range.limits is not None:
+        if self.data_range.has_limits:
             data_range = self.data_range.with_obs(obs=obs)
             #
             # inside_limits = []

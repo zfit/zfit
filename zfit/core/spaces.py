@@ -13,7 +13,7 @@ import numpy as np
 import tensorflow as tf
 
 from .baseobject import BaseObject
-from .dimension import add_spaces, combine_spaces
+from .dimension import common_obs, limits_overlap
 from .interfaces import ZfitSpace
 from .. import z
 from ..util import ztyping
@@ -22,7 +22,7 @@ from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
                               OverdefinedError, LimitsNotSpecifiedError, ObsIncompatibleError, WorkInProgressError,
-                              BreakingAPIChangeError)
+                              BreakingAPIChangeError, LimitsIncompatibleError)
 from ..util.temporary import TemporarilySet
 
 
@@ -134,7 +134,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     @property
     def n_limits(self) -> int:
-        return len(self)
+        return len(tuple(self))
 
     def __iter__(self) -> Iterable[ZfitSpace]:
         yield self
@@ -216,7 +216,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         return axes
 
 
-def add_spaces_new(spaces: Iterable["zfit.Space"], name=None):
+def add_spaces_new(*spaces: Iterable["zfit.Space"], name=None):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
@@ -232,6 +232,93 @@ def add_spaces_new(spaces: Iterable["zfit.Space"], name=None):
     if not all(isinstance(space, ZfitSpace) for space in spaces):
         raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
     return MultiSpace(spaces, name=name)
+
+
+def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
+    """Combine spaces with different `obs` and `limits` to one `space`.
+
+    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
+    is not unambiguous and `False` is returned
+
+    Args:
+        spaces (List[:py:class:`~zfit.Space`]):
+
+    Returns:
+        `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
+            return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the
+            combined limits.
+    Raises:
+        ValueError: if only one space is given
+        LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
+        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
+    """
+    spaces = convert_to_container(spaces, container=tuple)
+    # if len(spaces) <= 1:
+    #     return spaces
+    # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
+
+    all_obs = common_obs(spaces=spaces)
+    all_lower = []
+    all_upper = []
+    spaces = tuple(space.with_obs(all_obs) for space in spaces)
+
+    # create the lower and upper limits with all obs replacing missing dims with None
+    # With this, all limits have the same length
+    if limits_overlap(spaces=spaces, allow_exact_match=True):
+        raise LimitsIncompatibleError("Limits overlap")
+
+    for space in flatten_spaces(spaces):
+        if space.limits is None:
+            continue
+        lowers, uppers = space.limits
+        lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
+        upper = [tuple(up[space.obs.index(ob)] for up in uppers) if ob in space.obs else None for ob in all_obs]
+        all_lower.append(lower)
+        all_upper.append(upper)
+
+    def check_extract_limits(limits_spaces):
+        new_limits = []
+
+        if not limits_spaces:
+            return None
+        for index, obs in enumerate(all_obs):
+            current_limit = None
+            for limit in limits_spaces:
+                lim = limit[index]
+
+                if lim is not None:
+                    if current_limit is None:
+                        current_limit = lim
+                    elif not np.allclose(current_limit, lim):
+                        return False
+            else:
+                if current_limit is None:
+                    raise LimitsNotSpecifiedError("Limits in obs {} are not specified".format(obs))
+                new_limits.append(current_limit)
+
+        n_limits = int(np.prod(tuple(len(lim) for lim in new_limits)))
+        new_limits_comb = [[] for _ in range(n_limits)]
+        for limit in new_limits:
+            for lim in limit:
+                for i in range(int(n_limits / len(limit))):
+                    new_limits_comb[i].append(lim)
+
+        new_limits = tuple(tuple(limit) for limit in new_limits_comb)
+        return new_limits
+
+    new_lower = check_extract_limits(all_lower)
+    new_upper = check_extract_limits(all_upper)
+    assert not (new_lower is None) ^ (new_upper is None), "Bug, please report issue. either both are defined or None."
+    if new_lower is None:
+        limits = None
+    elif new_lower is False:
+        return False
+    else:
+        limits = (new_lower, new_upper)
+    new_space = Space(obs=all_obs, limits=limits)
+    if new_space.n_limits > 1:
+        new_space = MultiSpace(Space.iter_limits(as_tuple=False), obs=all_obs)
+    return new_space
 
 
 class Space(BaseSpace):
@@ -250,7 +337,7 @@ class Space(BaseSpace):
             name (str):
         """
 
-        self._has_rect_limits = True
+        # self._has_rect_limits = True
         obs = self._check_convert_input_obs(obs)
 
         if name is None:
@@ -394,6 +481,14 @@ class Space(BaseSpace):
 
         """
         return self._limits
+
+    @property
+    def has_limits(self):
+        return (not self.limits_not_set) and self.limits is not False
+
+    @property
+    def limits_not_set(self):
+        return self.limits is None
 
     @property
     def limit1d(self) -> Tuple[float, float]:
@@ -544,7 +639,7 @@ class Space(BaseSpace):
         Returns:
             List[:py:class:`~zfit.Space`] or List[limit,...]:
         """
-        if not self.limits:
+        if not self.has_limits:
             raise LimitsNotSpecifiedError("Space does not have limits, cannot iterate over them.")
         if as_tuple:
             return tuple(zip(self.lower, self.upper))
@@ -990,7 +1085,7 @@ class Space(BaseSpace):
             :py:class:`~zfit.Space`:
         """
         other = convert_to_container(other, container=list)
-        new_space = add_spaces([self] + other)
+        new_space = add_spaces_new(self, other)
         return new_space
 
     def combine(self, other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
@@ -1003,21 +1098,18 @@ class Space(BaseSpace):
             :py:class:`~zfit.Space`:
         """
         other = convert_to_container(other, container=list)
-        new_space = combine_spaces([self] + other)
+        new_space = combine_spaces_new(self, other)
         return new_space
 
     def __add__(self, other):
-        return add_spaces_new((self, other))
-
-    def __radd__(self, other):
         if not isinstance(other, ZfitSpace):
             raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
-        return self.add(other)
+        return add_spaces_new(self, other)
 
     def __mul__(self, other):
         if not isinstance(other, ZfitSpace):
             raise TypeError("Cannot combine a {} and a {}".format(type(self), type(other)))
-        return self.combine(other)
+        return combine_spaces_new(self, other)
 
     def __ge__(self, other):
         return other.__le__(self)
@@ -1044,7 +1136,7 @@ class Space(BaseSpace):
 
     @property
     def has_rect_limits(self):
-        return self._has_rect_limits
+        return self.has_limits  # TODO: implement properly new space
 
     def _inside(self, x, guarantee_limits):  # TODO: add proper implementation
         lower, upper = self.iter_limits()[0]
@@ -1117,23 +1209,43 @@ class MultiSpace(BaseSpace):
     # noinspection PyPropertyDefinition
     @property
     def limits(self) -> None:
+        if all(space.limits is None for space in self):
+            return None
         self._raise_limits_not_implemented()
+
+    @property
+    def has_limits(self):
+        try:
+            return (not self.limits_not_set) and self.limits is not False
+        except MultipleLimitsNotImplementedError:
+            return True
+
+    @property
+    def limits_not_set(self):
+        try:
+            return self.limits is None
+        except MultipleLimitsNotImplementedError:
+            return False
 
     # noinspection PyPropertyDefinition
     @property
     def lower(self) -> None:
+        if all(space.lower is None for space in self):
+            return None
         self._raise_limits_not_implemented()
 
     # noinspection PyPropertyDefinition
     @property
     def upper(self) -> None:
+        if all(space.upper is None for space in self):
+            return None
         self._raise_limits_not_implemented()
-
-    def area(self) -> float:
-        return z.reduce_sum((space.area() for space in self), axis=0)
 
     def with_limits(self, limits, name):
         self._raise_limits_not_implemented()
+
+    def area(self) -> float:
+        return z.reduce_sum([space.area() for space in self], axis=0)
 
     def with_obs(self, obs):
         spaces = [space.with_obs(obs) for space in self.spaces]
@@ -1147,7 +1259,11 @@ class MultiSpace(BaseSpace):
         spaces = [space.with_autofill_axes(overwrite) for space in self.spaces]
         return type(self)(spaces)
 
-    def iter_limits(self):
+    def with_obs_axes(self, obs_axes, ordered, allow_subset):
+        new_spaces = [space.with_obs_axes(obs_axes, ordered=ordered, allow_subset=allow_subset) for space in self]
+        return type(self)(spaces=new_spaces)
+
+    def iter_limits(self, as_tuple=True):
         raise BreakingAPIChangeError("This should not be used anymore")
 
     def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:

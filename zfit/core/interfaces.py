@@ -242,6 +242,26 @@ class ZfitSpace(ZfitObject):
     def filter(self, x):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def with_obs_axes(self, obs_axes, ordered, allow_subset):
+        """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
+
+
+        Args:
+            obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
+            allow_subset ():
+
+        Returns:
+            :py:class:`~zfit.Space`:
+        """
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def has_limits(self):
+        raise NotImplementedError
+
 
 class ZfitDependentsMixin:
     @abc.abstractmethod
