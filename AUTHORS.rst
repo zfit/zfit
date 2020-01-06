@@ -1,7 +1,3 @@
-=======
-Credits
-=======
-
 Development Lead
 ----------------
 

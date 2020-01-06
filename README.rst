@@ -29,7 +29,8 @@ and is optimised for simple and direct manipulation of probability density funct
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
-- **Documentation**: Full documentation_ and API_
+- **Develop Documentation**: Full documentation_ and API_
+- **Stable Documentation**: Full documentation_stable_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
   `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
 - **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
@@ -227,14 +228,15 @@ You can contact us directly:
 
 
 Original Authors
-============
+================
 
 | Jonas Eschle <jonas.eschle@cern.ch>
 | Albert Puig <albert.puig@cern.ch>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
 
-.. include:: AUTHORS.rst
+`All authors and contributors`_
+..  _All authors and contributors: AUTHORS.rst
 
 
 Acknowledgements
@@ -244,5 +246,6 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
-.. _documentation: https://zfit.readthedocs.io/en/0.4.1/
+.. _documentation: https://zfit.readthedocs.io/en/latest/
+.. _documentation_stable: https://zfit.readthedocs.io/en/0.4.0/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html
