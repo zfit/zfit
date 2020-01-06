@@ -1,27 +1,20 @@
-#  Copyright (c) 2019 zfit
-
-from contextlib import suppress
+#  Copyright (c) 2020 zfit
 import math as mt
+from contextlib import suppress
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
-
-import numpy as np
-
 import zfit
-from zfit import ztf
-from zfit.core import basepdf as zbasepdf
 import zfit.core.integration as zintegrate
+from zfit import z
+from zfit.core import basepdf as zbasepdf
 from zfit.core.limits import Space
-import zfit.core.math as zmath
 from zfit.core.parameter import Parameter
+from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.basic import CustomGaussOLD
 from zfit.models.dist_tfp import Gauss
-
-from zfit.core.testing import setup_function, teardown_function, tester
-
-from zfit.core.testing import setup_function, teardown_function, tester
 
 limits1_5deps = [((1., -1., 2., 4., 3.),), ((5., 4., 5., 8., 9.),)]
 # limits_simple_5deps = (0.9, 4.7)
@@ -31,7 +24,7 @@ obs1 = 'obs1'
 
 
 def func1_5deps(x):
-    a, b, c, d, e = ztf.unstack_x(x)
+    a, b, c, d, e = z.unstack_x(x)
     return a + b * c ** 2 + d ** 2 * e ** 3
 
 
@@ -135,7 +128,7 @@ limits3 = [((-1., -4.3),), ((2.3, -1.2),)]
 
 
 def func3_2deps(x):
-    a, b = ztf.unstack_x(x)
+    a, b = z.unstack_x(x)
     return a ** 2 + b ** 2
 
 
@@ -144,13 +137,12 @@ def func3_2deps_fully_integrated(limits, params=None, model=None):
     with suppress(TypeError):
         lower, upper = lower[0], upper[0]
 
-    # print("DEBUG": lower, upper", lower, upper)
     lower_a, lower_b = lower
     upper_a, upper_b = upper
     integral = (lower_a ** 3 - upper_a ** 3) * (lower_b - upper_b)
     integral += (lower_a - upper_a) * (lower_b ** 3 - upper_b ** 3)
     integral /= 3
-    return integral
+    return z.convert_to_tensor(integral)
 
 
 limits4_2dim = [((-4., 1.),), ((-1., 4.5),)]
@@ -164,7 +156,7 @@ def func4_3deps(x):
     if isinstance(x, np.ndarray):
         a, b, c = x
     else:
-        a, b, c = ztf.unstack_x(x)
+        a, b, c = z.unstack_x(x)
 
     return a ** 2 + b ** 3 + 0.5 * c
 
@@ -214,9 +206,9 @@ def test_mc_integration(chunksize):
                                                                    axes=tuple(range(2))),
                                             n_axes=2)
 
-    integral = zfit.run(num_integral)
-    integral2 = zfit.run(num_integral2)
-    integral3 = zfit.run(num_integral3)
+    integral = num_integral.numpy()
+    integral2 = num_integral2.numpy()
+    integral3 = num_integral3.numpy()
 
     assert not hasattr(integral, "__len__")
     assert not hasattr(integral2, "__len__")
@@ -225,12 +217,12 @@ def test_mc_integration(chunksize):
                                                                               rel=0.1)
     assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
     assert func3_2deps_fully_integrated(
-        Space.from_axes(limits=limits3, axes=(0, 1))) == pytest.approx(integral3, rel=0.03)
+        Space.from_axes(limits=limits3, axes=(0, 1))).numpy() == pytest.approx(integral3, rel=0.03)
 
 
 @pytest.mark.flaky(2)
 def test_mc_partial_integration():
-    values = ztf.convert_to_tensor(func4_values)
+    values = z.convert_to_tensor(func4_values)
     data1 = zfit.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))
     limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'])
     limits1._set_obs_axes({'obs1': 0, 'obs3': 2})
@@ -238,7 +230,7 @@ def test_mc_partial_integration():
                                            func=func4_3deps,
                                            limits=limits1)
 
-    vals_tensor = ztf.convert_to_tensor(func4_2values)
+    vals_tensor = z.convert_to_tensor(func4_2values)
 
     vals_reshaped = tf.transpose(a=vals_tensor)
     data2 = zfit.Data.from_tensor(obs=['obs1', 'obs3'], tensor=vals_reshaped)
@@ -250,9 +242,9 @@ def test_mc_partial_integration():
                                             limits=limits2,
                                             draws_per_dim=100)
 
-    integral = zfit.run(num_integral)
-    integral2 = zfit.run(num_integral2)
-    # print("DEBUG", value:", zfit.run(vals_reshaped))
+    integral = num_integral.numpy()
+    integral2 = num_integral2.numpy()
+    # print("DEBUG", value:", vals_reshaped)
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[0])
     assert func4_3deps_0and2_integrated(x=func4_values,
@@ -286,15 +278,13 @@ def test_analytic_integral():
                                          limits=Space.from_axes(limits=limits3, axes=(0, 1)))
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
-    gauss_integral_infs = zfit.run(gauss_integral_infs)
-    normal_integral_infs = zfit.run(normal_integral_infs)
-    func3_integrated = zfit.run(
-        ztf.convert_to_tensor(
-            dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)), norm_range=False),
-            dtype=tf.float64))
-    assert func3_integrated == func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1)))
-    assert gauss_integral_infs == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
-    assert normal_integral_infs == pytest.approx(1, rel=0.0001)
+    normal_integral_infs = normal_integral_infs
+    func3_integrated = dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)),
+                                            norm_range=False).numpy()
+    assert func3_integrated == pytest.approx(
+        func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1))).numpy())
+    assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
+    assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
 
 
 def test_analytic_integral_selection():

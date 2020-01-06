@@ -1,16 +1,11 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
-import pytest
 import numpy as np
-import tensorflow as tf
-
-
+import pytest
 
 import zfit
 from zfit.core.sample import extract_extended_pdfs, extended_sampling
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
 obs1 = 'obs1'
@@ -43,8 +38,8 @@ def test_extract_extended_pdfs():
     limits = zfit.Space(obs=obs1, limits=(-4, 5))
     limits = limits.with_autofill_axes()
     extended_sample = extended_sampling(pdfs=sum_all, limits=limits)
-    extended_sample_np = zfit.run(extended_sample)
+    extended_sample_np = extended_sample.numpy()
     assert np.shape(extended_sample_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)
     samples_from_pdf = sum_all.sample(n='extended', limits=limits)
-    samples_from_pdf_np = zfit.run(samples_from_pdf)
+    samples_from_pdf_np = samples_from_pdf.numpy()
     assert np.shape(samples_from_pdf_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)

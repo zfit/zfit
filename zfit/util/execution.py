@@ -1,20 +1,16 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import contextlib
-import copy
 import multiprocessing
 import os
 import sys
-from typing import List
 import warnings
+from typing import List, Union
 
+import numpy as np
 import tensorflow as tf
 
-
-
-import zfit
-from .temporary import TemporarilySet
-from .container import DotDict
+from .container import DotDict, is_container
 
 
 class RunManager:
@@ -22,10 +18,12 @@ class RunManager:
     def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
         self.MAX_CHUNK_SIZE = sys.maxsize
-        self.sess = None
-        self._sess_kwargs = {}
         self.chunking = DotDict()
         self._cpu = []
+        self._n_cpu = None
+        self._inter_cpus = None
+        self._intra_cpus = None
+        self._strict = False
         self.numeric_checks = True
 
         self.set_n_cpu(n_cpu=n_cpu)
@@ -38,9 +36,6 @@ class RunManager:
         self.chunking.active = False  # not yet implemented the chunking...
         self.chunking.max_n_points = 1000000
 
-    def auto_initialize(self, variable: tf.Variable):
-        self(variable.initializer)
-
     @property
     def chunksize(self):
         if self.chunking.active:
@@ -52,7 +47,13 @@ class RunManager:
     def n_cpu(self):
         return len(self._cpu)
 
-    def set_n_cpu(self, n_cpu='auto'):
+    def set_n_cpu(self, n_cpu: Union[str, int] = 'auto', strict: bool = False) -> None:
+        """Set the number of cpus to be used by zfit. For more control, use `set_cpus_explicit`.
+
+        Args:
+            n_cpu: Number of cpus, will be the number for inter-op parallelism
+            strict: If strict, sets intra parallelism to 1
+        """
         if n_cpu == 'auto':
             try:
                 cpu = sorted(os.sched_getaffinity(0))
@@ -64,6 +65,28 @@ class RunManager:
         elif isinstance(n_cpu, int):
             cpu = range(n_cpu)
         self._cpu = ['dummy_cpu{}'.format(i) for i in cpu]
+        n_cpu = len(cpu)
+        if strict ^ self._strict:
+            intra = 1 if strict else 2
+            inter = n_cpu
+            self.set_cpus_explicit(intra=intra, inter=inter)
+
+    def set_cpus_explicit(self, intra: int, inter: int) -> None:
+        """Set the number of threads (cpus) used for inter-op and intra-op parallelism
+
+        Args:
+            intra: Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this
+                is usually beneficial to have >= 2.
+            inter: Parallelization on the level of ops. This is beneficial, if many operations can be computed
+                independently in parallel.
+        """
+        try:
+            tf.config.threading.set_intra_op_parallelism_threads(intra)
+            tf.config.threading.set_inter_op_parallelism_threads(inter)
+            self._n_cpu = inter + intra
+        except RuntimeError as err:
+            raise RuntimeError("Cannot set the number of cpus after initialization, has to be at the beginning."
+                               f" Original message: {err}")
 
     @contextlib.contextmanager
     def aquire_cpu(self, max_cpu: int = -1) -> List[str]:
@@ -82,86 +105,16 @@ class RunManager:
             self._cpu.extend(cpu)
 
     def __call__(self, *args, **kwargs):
-        return self.sess.run(*args, **kwargs)
+        flattened_args = tf.nest.flatten(args)
+        evaluated_args = [arg.numpy() for arg in flattened_args]
+        values = tf.nest.pack_sequence_as(args, flat_sequence=evaluated_args)
 
-    # def close(self):
-    #     """Closes the current session."""
-    def reset(self):
-        if self._sess is not None:
-            self.sess.close()
-        tf.compat.v1.reset_default_graph()
-
-    def create_session(self, *args, close_current=True, reset_graph=False, **kwargs):
-        """Create a new session (or replace the current one). Arguments will overwrite the already set arguments.
-
-        Args:
-            close_current (bool): Closes the current open session before replacement. Has no effect if
-                no session was created before.
-            reset_graph (bool): Resets the current (default) graph before creating a new :py:class:`tf.compat.v1.Session`.
-            *args ():
-            **kwargs ():
-
-        Returns:
-            :py:class:`tf.compat.v1.Session`
-        """
-        sess_kwargs = copy.deepcopy(self._sess_kwargs)
-        sess_kwargs.update(kwargs)
-        if close_current and self._sess is not None:
-            self.sess.close()
-        if reset_graph:
-            tf.compat.v1.reset_default_graph()
-            from zfit.core.parameter import ZfitParameterMixin
-            ZfitParameterMixin._existing_names = set()  # TODO(Mayou36): better hook for reset?
-        self.sess = tf.compat.v1.Session(*args, **sess_kwargs)
-
-        from ..settings import ztypes
-        tf.compat.v1.get_variable_scope().set_use_resource(True)
-        tf.compat.v1.get_variable_scope().set_dtype(ztypes.float)
-
-        return self.sess
-
-    @property
-    def sess(self):
-        if self._sess is None:
-            self.create_session()
-        return self._sess
-
-    @sess.setter
-    def sess(self, value):
-        self._sess = value
-
-
-class SessionHolderMixin:
-
-    def __init__(self, *args, **kwargs):
-        """Creates a `self.sess` attribute, a setter `set_sess` (with a fallback to the zfit default session)."""
-        super().__init__(*args, **kwargs)
-        self._sess = None
-
-    def set_sess(self, sess: tf.compat.v1.Session):
-        """Set the session (temporarily) for this instance. If None, the auto-created default is taken.
-
-        Args:
-            sess (tf.compat.v1.Session):
-        """
-        if not isinstance(sess, tf.compat.v1.Session):
-            raise TypeError("`sess` has to be a TensorFlow Session but is {}".format(sess))
-
-        def getter():
-            return self._sess  # use private attribute! self.sess creates default session
-
-        def setter(value):
-            self.sess = value
-
-        return TemporarilySet(value=sess, setter=setter, getter=getter)
-
-    @property
-    def sess(self):
-        sess = self._sess
-        if sess is None:
-            sess = zfit.run.sess
-        return sess
-
-    @sess.setter
-    def sess(self, sess: tf.compat.v1.Session):
-        self._sess = sess
+        # tf.nest.map_structure(lambda *args: [arg.numpy() for arg in args], *args)
+        if kwargs:
+            raise RuntimeError("Why kwargs provided? Still under conversion from TF 1.x to 2.x")
+        was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )
+        # to_convert = convert_to_container(args[0])
+        # values = [arg.numpy() for arg in to_convert if isinstance(arg, (tf.Tensor, tf.Variable))]
+        if not was_container and values:
+            values = values[0]
+        return values

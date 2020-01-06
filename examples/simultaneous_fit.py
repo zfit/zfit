@@ -30,3 +30,6 @@ nll_simultaneous = zfit.loss.UnbinnedNLL(model=[gauss1, gauss2],
 nll1 = zfit.loss.UnbinnedNLL(model=gauss1, data=data1)
 nll2 = zfit.loss.UnbinnedNLL(model=gauss2, data=data2)
 nll_simultaneous2 = nll1 + nll2
+
+minimizer = zfit.minimize.Minuit()
+minimizer.minimize(nll_simultaneous2)

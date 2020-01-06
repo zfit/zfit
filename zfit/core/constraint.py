@@ -1,30 +1,27 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 from collections import OrderedDict
-
 from typing import Dict, Union, Callable, Optional
 
+import numpy as np
+import tensorflow as tf
+import tensorflow_probability as tfp
+from ordered_set import OrderedSet
+
+from zfit import z
 from .baseobject import BaseNumeric
+from .interfaces import ZfitConstraint
 from .interfaces import ZfitParameter
+from ..settings import ztypes
 from ..util import ztyping
-from ..util.graph import get_dependents_auto
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError, LogicalUndefinedOperationError
-from ..settings import ztypes
-from zfit import ztf
-import zfit
-
-import tensorflow as tf
-
-
-import numpy as np
-import tensorflow_probability as tfp
 
 tfd = tfp.distributions
 
 
-class BaseConstraint(BaseNumeric):
+class BaseConstraint(ZfitConstraint, BaseNumeric):
 
     def __init__(self, params: Union[Dict[str, ZfitParameter]] = None,
                  name: str = "BaseConstraint", dtype=ztypes.float,
@@ -67,7 +64,7 @@ class BaseConstraint(BaseNumeric):
 
 class SimpleConstraint(BaseConstraint):
 
-    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType] = None, sampler: Callable = None):
+    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType], sampler: Callable = None):
         """Constraint from a (function returning a) Tensor.
 
         The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
@@ -79,22 +76,20 @@ class SimpleConstraint(BaseConstraint):
         """
         self._simple_func = func
         self._sampler = sampler
-        self._simple_func_dependents = convert_to_container(params, container=set)
-        if params is None:
-            params = self.get_dependents()
+        self._simple_func_dependents = convert_to_container(params, container=OrderedSet)
 
         params = convert_to_container(params, container=list)
         params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
 
         super().__init__(name="SimpleConstraint", params=params)
 
-    def _get_dependents(self):
-        dependents = self._simple_func_dependents
-        if dependents is None:
-            independent_params = tf.compat.v1.get_collection("zfit_independent")
-            dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-            self._simple_func_dependents = dependents
-        return dependents
+    # def _get_dependents(self):
+    #     dependents = self._simple_func_dependents
+    #     if dependents is None:
+    #         independent_params = tf.compat.v1.get_collection("zfit_independent")
+    #         dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
+    #         self._simple_func_dependents = dependents
+    #     return dependents
 
     def _value(self):
         return self._simple_func()
@@ -141,7 +136,7 @@ class DistributionConstraint(BaseConstraint):
 
     def _sample(self, n):
         # TODO cache: add proper caching
-        return zfit.run(self.distribution.sample(n))
+        return self.distribution.sample(n)
 
 
 class GaussianConstraint(DistributionConstraint):
@@ -164,30 +159,35 @@ class GaussianConstraint(DistributionConstraint):
 
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
 
-        mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
-        sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
-        params = ztf.convert_to_tensor(params)
+        def create_covariance(mu, sigma):
+            mu = z.convert_to_tensor([z.convert_to_tensor(m) for m in mu])
+            sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
+            params_tensor = z.convert_to_tensor(params)
 
-        if sigma.shape.ndims > 1:
-            covariance = sigma
-        elif sigma.shape.ndims == 1:
-            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
-        else:
-            sigma = tf.reshape(sigma, [1])
-            covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
+            if sigma.shape.ndims > 1:
+                covariance = sigma
+            elif sigma.shape.ndims == 1:
+                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
+            else:
+                sigma = tf.reshape(sigma, [1])
+                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
 
-        if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
-            raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
-                                         f"param: {params.shape[0]}, mu: {mu.shape[0]}, "
-                                         f"covariance (from sigma): {covariance.shape[0:2]}")
+            if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
+                raise ShapeIncompatibleError(f"params_tensor, mu and sigma have to have the same length. Currently"
+                                             f"param: {params_tensor.shape[0]}, mu: {mu.shape[0]}, "
+                                             f"covariance (from sigma): {covariance.shape[0:2]}")
+            return covariance
 
-        self._covariance = covariance
+        self._covariance = lambda: create_covariance(mu, sigma)
         self._mu = mu
-        self._params_array = params
-
+        self._ordered_params = params
         distribution = tfd.MultivariateNormalFullCovariance
-        dist_params = dict(loc=mu, covariance_matrix=covariance)
+        dist_params = lambda: dict(loc=mu, covariance_matrix=create_covariance(mu, sigma))
         dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+
+    @property
+    def _params_array(self):
+        return z.convert_to_tensor(self._ordered_params)

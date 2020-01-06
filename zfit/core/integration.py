@@ -2,27 +2,25 @@
 This module contains functions for the numeric as well as the analytic (partial) integration.
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import collections
-import numpy as np
-
-import tensorflow as tf
-
-
-import tensorflow_probability as tfp
 from typing import Callable, Optional, Union, Type, Tuple, List
 
+import numpy as np
+import tensorflow as tf
+import tensorflow_probability as tfp
+
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from ..util import ztyping
-from ..util.exception import DueToLazynessNotImplementedError
 from .limits import convert_to_space, Space, supports
 from ..settings import ztypes
+from ..util import ztyping
+from ..util.exception import WorkInProgressError
 
 
 @supports()
@@ -48,6 +46,7 @@ def numeric_integrate():
     return integral
 
 
+# @z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
                  method: str = None,
@@ -89,26 +88,27 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
                          "\nlower: {}, upper: {}".format(lower, upper))
 
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)
-    upper = ztf.convert_to_tensor(upper, dtype=dtype)
+    lower = z.convert_to_tensor(lower, dtype=dtype)
+    upper = z.convert_to_tensor(upper, dtype=dtype)
 
     n_samples = draws_per_dim
 
     chunked_normalization = zfit.run.chunksize < n_samples
     # chunked_normalization = True
-    if chunked_normalization:
-        if partial:
-            raise DueToLazynessNotImplementedError("This feature is not yet implemented: needs new Datasets")
+    if chunked_normalization and partial:
+        print("NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked.")
+    if chunked_normalization and not partial:
         n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
         chunksize = int(np.ceil(n_samples / n_chunks))
-        print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
+        # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
         avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
                                     num_batches=n_chunks, batch_size=chunksize, space=limits)
 
     else:
         # TODO: deal with n_obs properly?
 
-        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples, dtype=dtype)
+        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
+                                    dtype=dtype)
         # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
         # samples_normed = tf.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
@@ -144,16 +144,17 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
         # TODO: importance sampling?
         # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    integral = avg * tf.cast(ztf.convert_to_tensor(limits.area()), dtype=avg.dtype)
+    integral = avg * tf.cast(z.convert_to_tensor(limits.area()), dtype=avg.dtype)
     return integral
-    # return ztf.to_real(integral, dtype=dtype)
+    # return z.to_real(integral, dtype=dtype)
 
 
 # TODO(Mayou36): Make more flexible for sampling
+# @z.function
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     upper, lower = space.limits
-    lower = ztf.convert_to_tensor(lower, dtype=dtype)
-    upper = ztf.convert_to_tensor(upper, dtype=dtype)
+    lower = z.convert_to_tensor(lower, dtype=dtype)
+    upper = z.convert_to_tensor(upper, dtype=dtype)
 
     def body(batch_num, mean):
         start_idx = batch_num * batch_size
@@ -200,6 +201,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
     return final_mean
 
 
+# @z.function
 def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     x_is_none = x is None
 
@@ -232,17 +234,18 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     avg = normalization_nograd()
 
 
+# @z.function
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 
-    fake_resource_var = tf.compat.v1.get_variable("fake_hack_ResVar_for_custom_gradient",
-                                                  initializer=ztf.constant(4242.))
-    fake_x = ztf.constant(42.) * fake_resource_var
+    fake_resource_var = tf.Variable("fake_hack_ResVar_for_custom_gradient",
+                                    initializer=z.constant(4242.))
+    fake_x = z.constant(42.) * fake_resource_var
 
     @tf.custom_gradient
     def dummy_func(fake_x):  # to make working with custom_gradient
         if x is not None:
-            raise DueToLazynessNotImplementedError("partial not yet implemented")
+            raise WorkInProgressError("partial not yet implemented")
 
         def body(batch_num, mean):
             if mc_sampler == tfp.mcmc.sample_halton_sequence:
@@ -281,9 +284,9 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
                                       swap_memory=False, back_prop=False, maximum_iterations=num_batches)
 
         def dummy_grad_with_var(dy, variables=None):
-            raise DueToLazynessNotImplementedError("Who called me? Mayou36")
+            raise WorkInProgressError("Who called me? Mayou36")
             if variables is None:
-                raise DueToLazynessNotImplementedError("Is this needed? Why? It's not a NN. Please make an issue.")
+                raise WorkInProgressError("Is this needed? Why? It's not a NN. Please make an issue.")
 
             def dummy_grad_func(x):
                 values = func(x)

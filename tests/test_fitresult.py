@@ -1,13 +1,12 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
+import numpy as np
 import pytest
-from zfit.core.testing import setup_function, teardown_function, tester
-
 import tensorflow as tf
 
-
 import zfit
-from zfit import ztf
-import numpy as np
+from zfit import z
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 
 true_a = 1.
 true_b = 4.
@@ -17,7 +16,7 @@ true_c = -0.3
 def create_loss():
     with tf.compat.v1.variable_scope("func1"):
         a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
-                                 step_size=ztf.constant(0.1))
+                                 step_size=z.constant(0.1))
         b_param = zfit.Parameter("variable_b15151", 3.5)
         c_param = zfit.Parameter("variable_c15151", -0.04)
         obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
@@ -43,20 +42,20 @@ def create_loss():
 def create_fitresult(minimizer_class_and_kwargs):
     loss, (a_param, b_param, c_param) = create_loss()
 
-    true_minimum = zfit.run(loss.value())
+    true_minimum = loss.value().numpy()
 
     parameter_tolerance = 0.25  # percent
     max_distance_to_min = 10.
 
     for param in [a_param, b_param, c_param]:
-        zfit.run(param.initializer)  # reset the value
+        param.assign(param.initialized_value())  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
-    cur_val = zfit.run(loss.value())
-    aval, bval, cval = zfit.run([v for v in (a_param, b_param, c_param)])
+    cur_val = loss.value().numpy()
+    aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
 
     ret = {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval,
            'a_param': a_param, 'b_param': b_param, 'c_param': c_param}

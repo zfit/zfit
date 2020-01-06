@@ -38,7 +38,6 @@ class BasePDFSubclassingError(SubclassingError):
 class IntentionNotUnambiguousError(Exception):
     pass
 
-
 class UnderdefinedError(IntentionNotUnambiguousError):
     pass
 
@@ -138,6 +137,10 @@ class MultipleLimitsNotImplementedError(Exception):
 
 # Developer verbose messages
 
-class DueToLazynessNotImplementedError(Exception):
+class WorkInProgressError(Exception):
     """Only for developing purpose! Does not serve as a 'real' Exception."""
+    pass
+
+
+class BreakingAPIChangeError(Exception):
     pass

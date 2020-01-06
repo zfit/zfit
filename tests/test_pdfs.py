@@ -1,22 +1,18 @@
-#  Copyright (c) 2019 zfit
-
+#  Copyright (c) 2020 zfit
 from typing import List
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
-
-import numpy as np
-
-from zfit import ztf
+import zfit
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
 from zfit.core.limits import Space
 from zfit.core.parameter import Parameter
-from zfit.models.functor import SumPDF, ProductPDF
-from zfit.models.dist_tfp import Gauss
-import zfit
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.dist_tfp import Gauss
+from zfit.models.functor import SumPDF, ProductPDF
 
 low, high = -0.64, 5.9
 
@@ -110,9 +106,9 @@ def test_prod_gauss_nd():
     product_pdf = product_gauss_3d()
     probs = product_pdf.pdf(x=test_values_data, norm_range=norm_range_3d)
     true_probs = np.prod(
-        [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())])
-    probs_np = zfit.run(probs)
-    np.testing.assert_allclose(zfit.run(true_probs), probs_np, rtol=1e-2)
+        [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())], axis=0)
+    probs_np = probs.numpy()
+    np.testing.assert_allclose(true_probs, probs_np, rtol=1e-2)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -131,7 +127,7 @@ def test_prod_gauss_nd_mixed():
                               norm_range=limits_4d)
     gausses = create_gaussians()
 
-    for gauss in (gausses):
+    for gauss in gausses:
         gauss.set_norm_range(norm_range)
     gauss1, gauss2, gauss3 = gausses
     prod_gauss_3d = product_gauss_3d()
@@ -140,21 +136,17 @@ def test_prod_gauss_nd_mixed():
         true_prob = [gauss1.pdf(values[:, 3])]
         true_prob += [gauss2.pdf(values[:, 0])]
         true_prob += [gauss3.pdf(values[:, 2])]
-        true_prob += [prod_gauss_3d.pdf(values[:, (0, 1, 2)],
+        true_prob += [prod_gauss_3d.pdf(values[:, 0:3],
                                         norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
                                                          obs=['a', 'b', 'c']))]
-        return np.prod(true_prob, axis=0)
+        return tf.math.reduce_prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
 
-    normalization_probs = limits_4d.area() * probs_4d(np.random.uniform(low=low, high=high, size=(40 ** 4, 4)))
+    normalization_probs = limits_4d.area() * probs_4d(tf.random.uniform(minval=low, maxval=high, shape=(40 ** 4, 4)))
     true_probs = true_unnormalized_probs / tf.reduce_mean(input_tensor=normalization_probs)
-    grad = tf.gradients(ys=probs, xs=list(prod_gauss_4d.get_dependents()))
-    probs_np = zfit.run(probs)
-    grad_np = zfit.run(grad)
-    print("Gradients", grad_np)
-    print(np.average(probs_np))
-    true_probs_np = zfit.run(true_probs)
+    probs_np = probs.numpy()
+    true_probs_np = true_probs.numpy()
     assert np.average(probs_np * limits_4d.area()) == pytest.approx(1., rel=0.33)  # low n mc
     np.testing.assert_allclose(true_probs_np, probs_np, rtol=2e-2)
 
@@ -164,6 +156,7 @@ def test_func_sum():
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm_range=(-10, 10))
     vals = sum_gauss_as_func.func(x=test_values)
+    # vals = vals.numpy()
     vals = zfit.run(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])
     np.testing.assert_allclose(vals, true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
@@ -188,11 +181,11 @@ def test_exp():
     lambda_ = zfit.Parameter('lambda1', lambda_true)
     exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
     sample = exp1.sample(n=1000, limits=(-10, 10))
-    sample_np = zfit.run(sample)
+    sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))
     probs1 = exp1.pdf(x=np.random.normal(size=842), norm_range=(-5, 5))
     probs2 = exp1.pdf(x=np.linspace(5300, 5700, num=1100), norm_range=(5250, 5750))
-    probs1_np, probs2_np = zfit.run([probs1, probs2])
+    probs1_np, probs2_np = [probs1.numpy(), probs2.numpy()]
     assert not any(np.isnan(probs1_np))
     assert not any(np.isnan(probs2_np))
     normalization_testing(exp1)
@@ -204,7 +197,7 @@ def normalization_testing(pdf):
                           dtype=tf.float64)
         samples = zfit.Data.from_tensor(obs=pdf.obs, tensor=samples)
         probs = pdf.pdf(samples)
-        result = zfit.run(probs)
+        result = probs.numpy()
         result = np.average(result) * (high - low)
         assert pytest.approx(result, rel=0.07) == 1
 

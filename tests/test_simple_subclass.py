@@ -1,16 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-from zfit.core.testing import setup_function, teardown_function, tester
-
-
+import numpy as np
 import pytest
 
 import zfit
-from zfit import ztf
-import numpy as np
-
-from zfit.util.exception import SubclassingError
+from zfit import z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.exception import SubclassingError
 
 
 def test_pdf_simple_subclass():
@@ -20,13 +17,13 @@ def test_pdf_simple_subclass():
         def _unnormalized_pdf(self, x):
             mu = self.params['mu']
             sigma = self.params['sigma']
-            x = ztf.unstack_x(x)
-            return ztf.exp(-ztf.square((x - mu) / sigma))
+            x = z.unstack_x(x)
+            return z.exp(-z.square((x - mu) / sigma))
 
     gauss1 = SimpleGauss(obs='obs1', mu=3, sigma=5)
 
     prob = gauss1.pdf(np.random.random(size=(10, 1)), norm_range=(-4, 5))
-    zfit.run(prob)
+    prob.numpy()
 
     with pytest.raises(ValueError):
         gauss2 = SimpleGauss('obs1', 1., sigma=5.)
@@ -36,8 +33,8 @@ def test_pdf_simple_subclass():
             def _unnormalized_pdf(self, x):
                 mu = self.params['mu']
                 sigma = self.params['sigma']
-                x = ztf.unstack_x(x)
-                return ztf.exp(-ztf.square((x - mu) / sigma))
+                x = z.unstack_x(x)
+                return z.exp(-z.square((x - mu) / sigma))
 
 
 def test_func_simple_subclass():
@@ -47,13 +44,13 @@ def test_func_simple_subclass():
         def _func(self, x):
             mu = self.params['mu']
             sigma = self.params['sigma']
-            x = ztf.unstack_x(x)
-            return ztf.exp(-ztf.square((x - mu) / sigma))
+            x = z.unstack_x(x)
+            return z.exp(-z.square((x - mu) / sigma))
 
     gauss1 = SimpleGaussFunc(obs='obs1', mu=3, sigma=5)
 
     value = gauss1.func(np.random.random(size=(10, 1)))
-    zfit.run(value)
+    value.numpy()
 
     with pytest.raises(ValueError):
         gauss2 = SimpleGaussFunc('obs1', 1., sigma=5.)
@@ -63,5 +60,5 @@ def test_func_simple_subclass():
             def _func(self, x):
                 mu = self.params['mu']
                 sigma = self.params['sigma']
-                x = ztf.unstack_x(x)
-                return ztf.exp(-ztf.square((x - mu) / sigma))
+                x = z.unstack_x(x)
+                return z.exp(-z.square((x - mu) / sigma))

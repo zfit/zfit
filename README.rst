@@ -20,7 +20,7 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-|
+**UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
@@ -36,7 +36,7 @@ and is optimised for simple and direct manipulation of probability density funct
   related content
 
 
-If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
+If you use zfit in research, please consider `citing <https://arxiv.org/abs/1910.13429>`_.
 
 *N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
@@ -226,13 +226,15 @@ You can contact us directly:
  - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
 
-Main Authors
+Original Authors
 ============
 
 | Jonas Eschle <jonas.eschle@cern.ch>
 | Albert Puig <albert.puig@cern.ch>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
+
+.. include:: AUTHORS.rst
 
 
 Acknowledgements
@@ -242,5 +244,5 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
-.. _documentation: https://zfit.readthedocs.io/en/latest/
+.. _documentation: https://zfit.readthedocs.io/en/0.4.0/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html

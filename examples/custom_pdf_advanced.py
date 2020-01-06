@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 import zfit
-from zfit import ztf
+from zfit import z
 
 
 class CustomPDF2D(zfit.pdf.BasePDF):
@@ -37,11 +37,11 @@ def integral_full(x, limits, norm_range, params, model):
     param2 = params['param2']
     param3 = params['param3']
 
-    lower = ztf.convert_to_tensor(lower)
-    upper = ztf.convert_to_tensor(upper)
+    lower = z.convert_to_tensor(lower)
+    upper = z.convert_to_tensor(upper)
 
     # calculate the integral here, dummy integral
-    integral = param1 * param2 * param3 + ztf.reduce_sum([lower, upper])
+    integral = param1 * param2 * param3 + z.reduce_sum([lower, upper])
     return integral
 
 
@@ -64,11 +64,11 @@ def integral_axis1(x, limits, norm_range, params, model):
     param3 = params['param3']
 
     lower, upper = limits.limit1d
-    lower = ztf.convert_to_tensor(lower)  # the limits are now 1-D, for axis 1
-    upper = ztf.convert_to_tensor(upper)
+    lower = z.convert_to_tensor(lower)  # the limits are now 1-D, for axis 1
+    upper = z.convert_to_tensor(upper)
 
     # calculate the integral here, dummy integral
-    integral = data_0 * param1 * param2 * param3 + ztf.reduce_sum([lower, upper])
+    integral = data_0 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
     return integral
 
 
