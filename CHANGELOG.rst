@@ -1,13 +1,35 @@
 *********
 Changelog
 *********
-
 Develop
 =======
 
+
+
+Major Features and Improvements
+-------------------------------
+
+
+Behavioral changes
+------------------
+
+
+Bug fixes and small changes
+---------------------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
+0.4.1 (6.1.2020)
+================
+
 This release switched to TensorFlow 2.0 eager mode. In case this breaks things for you and you need **urgently**
 a running version, install a version
-< 0.4.0. It is highly recommended to upgrade and make the small changes required.
+< 0.4.1. It is highly recommended to upgrade and make the small changes required.
 
 Please read the :doc:`upgrade guide <docs/project/upgrade_guide.rst>` on a more detailed explanation how to upgrade.
 
