@@ -235,8 +235,9 @@ Original Authors
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
 
-`All authors and contributors`_
-..  _All authors and contributors: AUTHORS.rst
+See here for `all authors and contributors`_
+
+..  _all authors and contributors: AUTHORS.rst
 
 
 Acknowledgements
