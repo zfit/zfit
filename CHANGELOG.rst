@@ -24,7 +24,7 @@ Requirement changes
 Thanks
 ------
 
-0.4.1 (6.1.2020)
+0.4.0 (7.1.2020)
 ================
 
 This release switched to TensorFlow 2.0 eager mode. In case this breaks things for you and you need **urgently**
