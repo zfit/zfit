@@ -1,6 +1,7 @@
 *********
 Changelog
 *********
+
 Develop
 =======
 
@@ -31,7 +32,7 @@ This release switched to TensorFlow 2.0 eager mode. In case this breaks things f
 a running version, install a version
 < 0.4.1. It is highly recommended to upgrade and make the small changes required.
 
-Please read the :doc:`upgrade guide <docs/project/upgrade_guide.rst>` on a more detailed explanation how to upgrade.
+Please read the `upgrade guide <docs/project/upgrade_guide.rst>` on a more detailed explanation how to upgrade.
 
 TensorFlow 2.0 is eager executing and uses functions to abstract the performance critical parts away.
 
@@ -46,7 +47,7 @@ Major Features and Improvements
  - `ComposedParameter` does no longer allow to give a Tensor but requires a function that, when evaluated,
    returns the value. It depends on the `dependents` that are now required.
  - Added numerical differentiation, which allows now to wrap any function with `z.py_function` (`zfit.z`).
-   This can be switched on with `zfit.settings.options['numerical_grad'] = True
+   This can be switched on with `zfit.settings.options['numerical_grad'] = True`
  - Added gradient and hessian calculation options to the loss. Support numerical calculation as well.
  - Add caching system for graph to prevent recursive graph building
  - changed backend name to `z` and can be used as `zfit.z` or imported from it. Added:
