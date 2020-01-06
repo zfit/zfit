@@ -226,13 +226,15 @@ You can contact us directly:
  - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
 
-Main Authors
+Original Authors
 ============
 
 | Jonas Eschle <jonas.eschle@cern.ch>
 | Albert Puig <albert.puig@cern.ch>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
+
+.. include:: AUTHORS.rst
 
 
 Acknowledgements
@@ -242,5 +244,5 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
-.. _documentation: https://zfit.readthedocs.io/en/latest/
+.. _documentation: https://zfit.readthedocs.io/en/0.4.0/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html
