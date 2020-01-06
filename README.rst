@@ -227,14 +227,15 @@ You can contact us directly:
 
 
 Original Authors
-============
+================
 
 | Jonas Eschle <jonas.eschle@cern.ch>
 | Albert Puig <albert.puig@cern.ch>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
 
-.. include:: AUTHORS.rst
+`All authors and contributors`_
+..  _All authors and contributors: AUTHORS.rst
 
 
 Acknowledgements
