@@ -169,7 +169,7 @@ class ZfitSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_obs(self, obs):
+    def with_obs(self, obs, allow_superset: bool = False):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -181,7 +181,7 @@ class ZfitSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_axes(self, axes):
+    def with_axes(self, axes, allow_superset: bool = False):
         """Sort by `obs` and return the new instance.
 
         Args:

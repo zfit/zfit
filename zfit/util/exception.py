@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
 
@@ -94,6 +94,11 @@ class ShapeIncompatibleError(IncompatibleError):
 
 class ObsIncompatibleError(IncompatibleError):
     pass
+
+
+class AxesIncompatibleError(IncompatibleError):
+    pass
+
 
 class SpaceIncompatibleError(IncompatibleError):
     pass

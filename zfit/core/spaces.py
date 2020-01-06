@@ -22,7 +22,8 @@ from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
                               OverdefinedError, LimitsNotSpecifiedError, ObsIncompatibleError, WorkInProgressError,
-                              BreakingAPIChangeError, LimitsIncompatibleError)
+                              BreakingAPIChangeError, LimitsIncompatibleError, AxesIncompatibleError,
+                              SpaceIncompatibleError)
 from ..util.temporary import TemporarilySet
 
 
@@ -215,6 +216,10 @@ class BaseSpace(ZfitSpace, BaseObject):
 
         return axes
 
+    def __repr__(self):
+        class_name = str(self.__class__).split('.')[-1].split('\'')[0]
+        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={self.has_limits}>"
+
 
 def add_spaces_new(*spaces: Iterable["zfit.Space"], name=None):
     """Add two spaces and merge their limits if possible or return False.
@@ -228,7 +233,7 @@ def add_spaces_new(*spaces: Iterable["zfit.Space"], name=None):
     Raises:
         LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
     """
-    spaces = convert_to_container(spaces)
+    # spaces = convert_to_container(spaces)
     if not all(isinstance(space, ZfitSpace) for space in spaces):
         raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
     return MultiSpace(spaces, name=name)
@@ -669,38 +674,65 @@ class Space(BaseSpace):
         new_space = self.copy(limits=limits, name=name)
         return new_space
 
-    def with_obs(self, obs: ztyping.ObsTypeInput) -> "zfit.Space":
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
+                 allow_subset: bool = False) -> "zfit.Space":
         """Sort by `obs` and return the new instance.
 
         Args:
             obs ():
+            allow_superset (bool): Allow `axes` to be a superset of the `Spaces` axes
+            allow_subset (bool): Allow `axes` to be a subset of the `Spaces` axes
 
         Returns:
             :py:class:`~zfit.Space`
         """
-        if obs is None or obs == self.obs:
+        if obs == self.obs:  # trivial, already satisfied
             return self
-        obs = self._convert_obs_to_str(obs)
+        if obs is None:  # drop obs, check if there are axes
+            if self.axes is None:
+                raise AxesIncompatibleError("cannot remove obs (using None) for a Space without axes")
+            new_space = self.copy()
+            new_space._obs = None
+        else:
+            obs = self._convert_obs_to_str(obs)
+            if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
+                raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
+
+            if (not allow_subset) and (not frozenset(obs).issuperset(self.obs)):
+                raise ObsIncompatibleError(f"Obs {obs} are a subset of {self.obs}, not allowed according to flag.")
         new_indices = self.get_reorder_indices(obs=obs)
         new_space = self.reorder_by_indices(indices=new_indices)
         return new_space
 
-    def with_axes(self, axes: ztyping.AxesTypeInput) -> "zfit.Space":
-        """Sort by `obs` and return the new instance.
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
+                  allow_subset: bool = False) -> "zfit.Space":
+        """Sort by `axes` and return the new instance. `None` drops the axes.
 
         Args:
             axes ():
+            allow_superset (bool): Allow `axes` to be a superset of the `Spaces` axes
 
         Returns:
             :py:class:`~zfit.Space`
         """
-        # TODO: what if self.axes is None? Just add them?
-        if axes is None or axes == self.axes:
+        if axes == self.axes:
             return self
-        axes = self._convert_axes_to_int(axes)
-        new_indices = self.get_reorder_indices(axes=axes)
-        new_space = self.copy()
-        new_space.reorder_by_indices(indices=new_indices)
+        if axes is None:  # drop axes
+            if self.obs is None:
+                raise ObsIncompatibleError("Cannot remove axes (using None) for a Space without obs")
+            new_space = self.copy()
+            new_space._axes = None
+        else:
+            axes = self._convert_axes_to_int(axes)
+            if not allow_superset and frozenset(axes).issuperset(self.axes):
+                raise AxesIncompatibleError(
+                    f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
+
+            if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
+                raise AxesIncompatibleError(f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
+            new_indices = self.get_reorder_indices(axes=axes)
+            new_space = self.copy()
+            new_space.reorder_by_indices(indices=new_indices)
         return new_space
 
     def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None,
@@ -1073,7 +1105,7 @@ class Space(BaseSpace):
                 return False
         return True
 
-    def add(self, other: ztyping.SpaceOrSpacesTypeInput):
+    def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
         """Add the limits of the spaces. Only works for the same obs.
 
         In case the observables are different, the order of the first space is taken.
@@ -1084,11 +1116,11 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`:
         """
-        other = convert_to_container(other, container=list)
-        new_space = add_spaces_new(self, other)
+        # other = convert_to_container(other, container=list)
+        new_space = add_spaces_new(self, *other)
         return new_space
 
-    def combine(self, other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
+    def combine(self, *other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
         """Combine spaces with different obs (but consistent limits).
 
         Args:
@@ -1097,8 +1129,8 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`:
         """
-        other = convert_to_container(other, container=list)
-        new_space = combine_spaces_new(self, other)
+        # other = convert_to_container(other, container=list)
+        new_space = combine_spaces_new(self, *other)
         return new_space
 
     def __add__(self, other):
@@ -1158,30 +1190,91 @@ def flatten_spaces(spaces):
 
 class MultiSpace(BaseSpace):
 
+    def __new__(cls, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> Any:
+        spaces, obs, axes = cls._check_convert_input_spaces_obs_axes(spaces, obs, axes)
+        if len(spaces) == 1:
+            return spaces[0]
+        space = super().__new__(cls)
+        space = space._initialize_space(space, spaces, obs, axes)
+        return space
+
     def __init__(self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> None:
         if name is None:
             name = "MultiSpace"
         super().__init__(name)
-        spaces, obs, axes = self._check_convert_input_spaces_obs_axes(spaces, obs, axes)
-        self._obs = obs
-        self._axes = axes
-        self.spaces = spaces
 
-    def _check_convert_input_spaces_obs_axes(self, spaces, obs, axes):  # TODO: do something with axes
-        if axes is not None:
-            raise WorkInProgressError("Axes not yet implemented")
-        spaces = convert_to_container(spaces, container=tuple)
+    @staticmethod
+    def _initialize_space(space, spaces, obs, axes):
+        space._obs = obs
+        space._axes = axes
+        space.spaces = spaces
+        return space
+
+    @staticmethod
+    def _check_convert_input_spaces_obs_axes(spaces, obs, axes):  # TODO: do something with axes
         spaces = flatten_spaces(spaces)
-        if obs is None:
-            obs = spaces[0].obs
+        all_have_obs = all(space.obs is not None for space in spaces)
+        all_have_axes = all(space.axes is not None for space in spaces)
+        if all_have_axes:
+            axes = spaces[0].axes if axes is None else convert_to_axes(axes)
+
+        if all_have_obs:
+            obs = spaces[0].obs if obs is None else convert_to_obs_str(obs)
+            spaces = [space.with_obs(obs) for space in spaces]
+            if not (all_have_axes and all(space.axes == axes for space in spaces)):  # obs coincide, axes don't -> drop
+                spaces = [space.with_axes(None) for space in spaces]
+        elif all_have_axes:
+            if all(space.obs is None for space in spaces):
+                spaces = [space.with_axes(axes) for space in spaces]
+
         else:
-            obs = convert_to_obs_str(obs)
-        if axes is None:
-            axes = spaces[0].axes
-        else:
-            axes = convert_to_axes(axes)
-        if not all(frozenset(obs) == frozenset(space.obs) for space in spaces):
-            raise ObsIncompatibleError(f"observables of spaces do not coincide: {spaces}")
+            raise SpaceIncompatibleError("Spaces do not have consistent obs and/or axes.")
+
+        if all(space.has_limits for space in spaces):
+            # check overlap, reduce common limits
+            pass
+        elif not any(space.has_limits for space in spaces):
+            spaces = [spaces[0]]  # if all are None, then nothing to add
+        else:  # some have limits, some don't -> does not really make sense (or just drop the ones without limits?)
+            raise LimitsIncompatibleError(
+                "Some spaces have limits, other don't. This behavior may change in the future "
+                "to allow spaces with None to be simply ignored.\n"
+                "If you prefer this behavior, please open an issue on github.")
+
+        spaces = tuple(spaces)
+
+        # if axes is not None:
+        #     raise WorkInProgressError("Axes not yet implemented")
+        # spaces = convert_to_container(spaces, container=tuple)
+        # spaces = flatten_spaces(spaces)
+        # if obs is None:
+        #     obs = spaces[0].obs
+        # else:
+        #     obs = convert_to_obs_str(obs)
+        #
+        # all_have_obs = all(space.obs is not None for space in spaces)
+        # if all_have_obs:
+        #     if not all(frozenset(obs) == frozenset(space.obs) for space in spaces):
+        #         raise ObsIncompatibleError(f"observables of spaces do not coincide: {spaces}")
+        #     spaces = tuple(space.with_obs(obs) for space in spaces)
+        # else:
+        #     if any(space.obs is not None for space in spaces):
+        #         raise ObsIncompatibleError("Some spaces have obs, other don't")  # TODO, better check
+        #
+        # if axes is None:
+        #     axes = spaces[0].axes
+        # else:
+        #     axes = convert_to_axes(axes)
+        #
+        # all_have_axes = all(space.axes is not None for space in spaces)
+        # if all_have_axes:
+        #     if not all(frozenset(axes) == frozenset(space.axes) for space in spaces):
+        #         raise AxesIncompatibleError(f"observables of spaces do not coincide: {spaces}")
+        #     spaces = tuple(space.with_axes(axes) for space in spaces)
+        #
+        # else:
+        #     if any(space.axes is not None for space in spaces):
+        #         raise AxesIncompatibleError("Some spaces have axes, others don't")  # TODO, better check
         return spaces, obs, axes
 
     @property
@@ -1247,12 +1340,12 @@ class MultiSpace(BaseSpace):
     def area(self) -> float:
         return z.reduce_sum([space.area() for space in self], axis=0)
 
-    def with_obs(self, obs):
-        spaces = [space.with_obs(obs) for space in self.spaces]
+    def with_obs(self, obs, allow_superset: bool = False):
+        spaces = [space.with_obs(obs, allow_superset) for space in self.spaces]
         return type(self)(spaces, obs=obs)
 
-    def with_axes(self, axes):
-        spaces = [space.with_axes(axes) for space in self.spaces]
+    def with_axes(self, axes, allow_superset: bool = False):
+        spaces = [space.with_axes(axes, allow_superset) for space in self.spaces]
         return type(self)(spaces, axes=axes)
 
     def with_autofill_axes(self, overwrite: bool):
@@ -1287,6 +1380,15 @@ class MultiSpace(BaseSpace):
 
     def __iter__(self):
         yield from self.spaces
+
+    def __eq__(self, other):
+        if not isinstance(other, MultiSpace):
+            return NotImplemented
+        all_equal = frozenset(self) == frozenset(other)
+        return all_equal
+
+    def __hash__(self):
+        return hash(self.spaces)
 
     # TODO: add equality
 

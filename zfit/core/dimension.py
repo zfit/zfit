@@ -81,7 +81,7 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
         return False
 
     obs1 = spaces[0].obs
-    spaces = [space.with_obs(obs=obs) if not space.obs == obs1 else space for space in spaces]
+    spaces = [space.with_obs(obs=obs1) if not space.obs == obs1 else space for space in spaces]
 
     if limits_overlap(spaces=spaces, allow_exact_match=True):
         raise LimitsIncompatibleError("Limits of spaces overlap, cannot merge spaces.")

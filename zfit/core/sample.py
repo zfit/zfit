@@ -22,10 +22,13 @@ class UniformSampleAndWeights:
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
-        tot_area = limits.area()
         for space in limits:
             lower, upper = space.iter_limits(as_tuple=True)[0]  # TODO: remove new space
-            frac = space.area() / tot_area
+            if isinstance(space, EventSpace):
+                frac = 1.  # TODO(Mayou36): remove hack for Eventspace
+            else:
+                tot_area = limits.area()
+                frac = space.area() / tot_area
             n_partial_to_produce = tf.cast(
                 ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 

@@ -6,12 +6,13 @@ import pytest
 
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedError, SpaceIncompatibleError, )
+from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedError, SpaceIncompatibleError,
+                                 ObsIncompatibleError, MultipleLimitsNotImplementedError)
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import zfit
-from zfit.core.dimension import add_spaces, limits_consistent, limits_overlap, combine_spaces
+from zfit.core.dimension import limits_consistent, limits_overlap, combine_spaces, add_spaces
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
@@ -79,7 +80,7 @@ def test_combine_spaces():
         space2d_2.combine(space1)
 
 
-def test_add_spaces():
+def test_add_spaces_old():
     with pytest.raises(ValueError):
         assert add_spaces(spaces=space1)
     with pytest.raises(ValueError):
@@ -103,6 +104,37 @@ def test_add_spaces():
     assert add_spaces(spaces=[space1d_12, space1d_22]).limits == combined_lim_1d_12_and_22
     assert add_spaces(spaces=[space1d_12, space1d_12, space1d_22, space1d_12]).limits == combined_lim_1d_12_and_22
     assert add_spaces(spaces=[space1d_12, space1d_12, space1d_12]).limits == (lower1d_12, upper1d_12)
+
+
+def test_add_spaces():
+    # TODO: add more tests to test the new spaces
+    from zfit.core.spaces import add_spaces_new as add_spaces
+
+    # with pytest.raises(ValueError):
+    #     assert add_spaces(space1)
+    # with pytest.raises(ValueError):
+    #     assert add_spaces(spaces=[])
+    # with pytest.raises(LimitsIncompatibleError):
+    #     assert add_spaces(space2d_1, space2d_2)
+
+    assert add_spaces(space1, space2) == space1
+    assert add_spaces(space1, space2, space3) == space1
+    with pytest.raises(ObsIncompatibleError):
+        assert not add_spaces(space1, space2, space3, space4)
+
+    assert space1 + space2 == space1
+    assert space1 + space2 + space3 == space1
+    with pytest.raises(ObsIncompatibleError):
+        space1.add(space2, space3, space4)
+
+    with pytest.raises(ObsIncompatibleError):
+        add_spaces(space1d_2, space2d_1)
+    with pytest.raises(MultipleLimitsNotImplementedError):
+        add_spaces(space1d_2, space1d_1).limits
+
+    # assert add_spaces(space1d_12, space1d_22).limits == combined_lim_1d_12_and_22
+    # assert add_spaces(space1d_12, space1d_12, space1d_22, space1d_12).limits == combined_lim_1d_12_and_22
+    # assert add_spaces(space1d_12, space1d_12, space1d_12).limits == (lower1d_12, upper1d_12)
 
 
 def test_limits_consistent():
