@@ -72,14 +72,15 @@ def test_combine_spaces():
     # same but different syntax
     combined_space = space1d_1.combine(space1d_12)
     assert combined_space == space2d_2
-    assert space2d_2.combine([space2d_2, space2d_2]) == space2d_2
-    none_limits_space = space1.combine([space1, space1])
+    assert space2d_2.combine(space2d_2, space2d_2) == space2d_2
+    none_limits_space = space1.combine(space1, space1)
     assert none_limits_space == space1  # with None limits
     assert none_limits_space.limits is None
     with pytest.raises(LimitsNotSpecifiedError):
         space2d_2.combine(space1)
 
 
+@pytest.mark.skip
 def test_add_spaces_old():
     with pytest.raises(ValueError):
         assert add_spaces(spaces=space1)
@@ -96,7 +97,7 @@ def test_add_spaces_old():
 
     assert space1 + space2 == space1
     assert space1 + space2 + space3 == space1
-    assert not space1.add([space2, space3, space4])
+    assert not space1.add(space2, space3, space4)
 
     assert not add_spaces(spaces=(space1d_2, space2d_1))
     assert add_spaces(spaces=(space1d_2, space1d_1)).limits == space1d_2.limits

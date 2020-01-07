@@ -135,12 +135,13 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
         lowers = []
         uppers = []
         for space in spaces:
-            if not space.limits or obs not in space.obs:
+            if not space.has_limits or obs not in space.obs:
                 continue
             else:
                 index = space.obs.index(obs)
 
-            for lower, upper in space.iter_limits(as_tuple=True):
+            for spa in space:
+                lower, upper = spa.lower[0], spa.upper[0]  # TODO: new space
                 low = lower[index]
                 up = upper[index]
 
@@ -205,7 +206,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     return bool(new_space)
 
 
-def combine_spaces(spaces: Iterable["zfit.Space"]):
+def combine_spaces(spaces: Iterable["ZfitSpace"]):
     """Combine spaces with different `obs` and `limits` to one `space`.
 
     Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
@@ -224,6 +225,9 @@ def combine_spaces(spaces: Iterable["zfit.Space"]):
         LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
     """
     spaces = convert_to_container(spaces, container=tuple)
+
+    from zfit.core.spaces import flatten_spaces
+    spaces = flatten_spaces(spaces)
     # if len(spaces) <= 1:
     #     return spaces
     # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
@@ -231,7 +235,7 @@ def combine_spaces(spaces: Iterable["zfit.Space"]):
     all_obs = common_obs(spaces=spaces)
     all_lower = []
     all_upper = []
-    spaces = tuple(space.with_obs(all_obs) for space in spaces)
+    spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
 
     # create the lower and upper limits with all obs replacing missing dims with None
     # With this, all limits have the same length
@@ -239,7 +243,7 @@ def combine_spaces(spaces: Iterable["zfit.Space"]):
         raise LimitsIncompatibleError("Limits overlap")
 
     for space in spaces:
-        if space.limits is None:
+        if space.limits_not_set:
             continue
         lowers, uppers = space.limits
         lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
@@ -249,7 +253,7 @@ def combine_spaces(spaces: Iterable["zfit.Space"]):
 
     def check_extract_limits(limits_spaces):
         new_limits = []
-
+        raise RuntimeError("WIP: how do deal with that?")
         if not limits_spaces:
             return None
         for index, obs in enumerate(all_obs):

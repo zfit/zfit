@@ -244,7 +244,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self.convert_sort_space(limits=norm_range)
 
     def _check_input_limits(self, limits, caller_name="", none_is_error=False):
-        if limits is None or (isinstance(limits, ZfitSpace) and limits.limits is None):
+        if limits is None or (isinstance(limits, ZfitSpace) and not limits.has_limits):
             if none_is_error:
                 raise ValueError("The `limits` have to be specified when calling {name} and not be None"
                                  "".format(name=caller_name))

@@ -274,7 +274,7 @@ def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
     all_obs = common_obs(spaces=spaces)
     all_lower = []
     all_upper = []
-    spaces = tuple(space.with_obs(all_obs) for space in spaces)
+    spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
 
     # create the lower and upper limits with all obs replacing missing dims with None
     # With this, all limits have the same length

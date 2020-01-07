@@ -2,7 +2,7 @@
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Union, List, Dict, Callable, Tuple
+from typing import Union, List, Dict, Callable, Tuple, Optional
 
 import tensorflow as tf
 
@@ -169,7 +169,8 @@ class ZfitSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_obs(self, obs, allow_superset: bool = False):
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
+                 allow_subset: bool = False):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -181,7 +182,8 @@ class ZfitSpace(ZfitObject):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_axes(self, axes, allow_superset: bool = False):
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
+                  allow_subset: bool = False):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -260,6 +262,11 @@ class ZfitSpace(ZfitObject):
     @property
     @abc.abstractmethod
     def has_limits(self):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def limits_not_set(self):
         raise NotImplementedError
 
 

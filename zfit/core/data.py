@@ -432,7 +432,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(axes) - frozenset(self.axes),
                                                                      self.axes))
-        space = self.space.with_axes(axes=axes)
+        space = self.space.with_axes(axes=axes, allow_subset=True)
 
         def setter(value):
             self._space = value
@@ -450,7 +450,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
 
-        space = self.space.with_obs(obs=obs)
+        space = self.space.with_obs(obs=obs, allow_subset=True)
 
         def setter(value):
             self._space = value
