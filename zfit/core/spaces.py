@@ -99,6 +99,19 @@ ANY_UPPER = AnyUpper()
 
 
 class BaseSpace(ZfitSpace, BaseObject):
+
+    def __init__(self, obs, axes, rect_limits, name, **kwargs):
+        super().__init__(name, **kwargs)
+        obs = self._check_convert_input_obs(obs, allow_none=True)
+        self._obs = obs
+        axes = self._check_convert_input_axes(axes=axes, allow_none=True)
+        self._axes = axes  # TODO: check axes
+        self._rect_limits = rect_limits
+
+    @property
+    def has_rect_limits(self) -> bool:
+        return self._rect_limits is not None
+
     def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
         if self.has_rect_limits and guarantee_limits:
             return x
@@ -132,6 +145,24 @@ class BaseSpace(ZfitSpace, BaseObject):
         else:
             length = len(self.obs)
         return length
+
+    @property
+    def obs(self) -> ztyping.ObsTypeReturn:
+        """The observables ("axes with str")the space is defined in.
+
+        Returns:
+
+        """
+        return self._obs
+
+    @property
+    def axes(self) -> ztyping.AxesTypeReturn:
+        """The axes ("obs with int") the space is defined in.
+
+        Returns:
+
+        """
+        return self._axes
 
     @property
     def n_limits(self) -> int:
@@ -352,13 +383,11 @@ class Space(BaseSpace):
         """
 
         # self._has_rect_limits = True
-        obs = self._check_convert_input_obs(obs)
 
         if name is None:
             name = "Space_" + "_".join(obs)
-        super().__init__(name=name)
-        self._axes = None
-        self._obs = obs
+        axes = None
+        super().__init__(obs=obs, axes=axes, name=name)
         self._check_set_limits(limits=limits)
 
     @classmethod
@@ -613,27 +642,9 @@ class Space(BaseSpace):
         Returns:
             int >= 1
         """
-        if self.lower is None or self.lower is False:
+        if not self.has_limits:
             return 0
         return len(self.lower)
-
-    @property
-    def obs(self) -> ztyping.ObsTypeReturn:
-        """The observables ("axes with str")the space is defined in.
-
-        Returns:
-
-        """
-        return self._obs
-
-    @property
-    def axes(self) -> ztyping.AxesTypeReturn:
-        """The axes ("obs with int") the space is defined in.
-
-        Returns:
-
-        """
-        return self._axes
 
     def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
         """Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
@@ -1394,6 +1405,23 @@ class MultiSpace(BaseSpace):
     def __hash__(self):
         return hash(self.spaces)
 
+
+class FunctionSpace(BaseSpace):
+
+    def __init__(self, obs=None, axes=None, limit_fn=None, rect_limits=None, name="FunctionSpace"):
+        super().__init__(name, obs=obs, axes=axes, rect_limits=rect_limits, name=name)
+        self.limit_fn = limit_fn
+
+    def _inside(self, x, guarantee_limits):
+        return self.limit_fn(x)
+
+    @property
+    def limits_not_set(self):
+        return self.limit_fn is None
+
+    @property
+    def has_limits(self):
+        return not self.limits_not_set
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
