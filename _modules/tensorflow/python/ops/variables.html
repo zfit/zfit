@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tensorflow.python.ops.variables &#8212; zfit 0.3.7 documentation</title>
+    <title>tensorflow.python.ops.variables &#8212; zfit 0.4.1.dev4+g41bd440 documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.7</b></span>
+        <span class="navbar-text pull-left"><b>0.4.1.dev4</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -367,7 +367,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">enum</span>  <span class="c1"># pylint: disable=g-bad-import-order</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">functools</span>
@@ -376,8 +375,8 @@
 
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">attr_value_pb2</span>
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">variable_pb2</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">pywrap_tensorflow</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.compat</span> <span class="kn">import</span> <span class="n">compat</span> <span class="k">as</span> <span class="n">fwd_compat</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">pywrap_tensorflow</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">_pywrap_utils</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">context</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">dtypes</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">ops</span>
@@ -395,6 +394,7 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">object_identity</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">tf_should_use</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated_args</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="kn">import</span> <span class="n">tf_export</span>
 
 
@@ -614,92 +614,105 @@
 
 <span class="nd">@tf_export</span><span class="p">(</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="p">[])</span>
 <span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">VariableMetaclass</span><span class="p">,</span> <span class="n">trackable</span><span class="o">.</span><span class="n">Trackable</span><span class="p">)):</span>
-  <span class="sd">&quot;&quot;&quot;See the [Variables Guide](https://tensorflow.org/guide/variables).</span>
+  <span class="sd">&quot;&quot;&quot;See the [variable guide](https://tensorflow.org/guide/variable).</span>
 
-<span class="sd">  A variable maintains state in the graph across calls to `run()`. You add a</span>
-<span class="sd">  variable to the graph by constructing an instance of the class `Variable`.</span>
+<span class="sd">  A variable maintains shared, persistent state manipulated by a program.</span>
 
-<span class="sd">  The `Variable()` constructor requires an initial value for the variable,</span>
-<span class="sd">  which can be a `Tensor` of any type and shape. The initial value defines the</span>
-<span class="sd">  type and shape of the variable. After construction, the type and shape of</span>
-<span class="sd">  the variable are fixed. The value can be changed using one of the assign</span>
-<span class="sd">  methods.</span>
+<span class="sd">  The `Variable()` constructor requires an initial value for the variable, which</span>
+<span class="sd">  can be a `Tensor` of any type and shape. This initial value defines the type</span>
+<span class="sd">  and shape of the variable. After construction, the type and shape of the</span>
+<span class="sd">  variable are fixed. The value can be changed using one of the assign methods.</span>
 
-<span class="sd">  If you want to change the shape of a variable later you have to use an</span>
-<span class="sd">  `assign` Op with `validate_shape=False`.</span>
+<span class="sd">  &gt;&gt;&gt; v = tf.Variable(1.)</span>
+<span class="sd">  &gt;&gt;&gt; v.assign(2.)</span>
+<span class="sd">  &lt;tf.Variable ... shape=() dtype=float32, numpy=2.0&gt;</span>
+<span class="sd">  &gt;&gt;&gt; v.assign_add(0.5)</span>
+<span class="sd">  &lt;tf.Variable ... shape=() dtype=float32, numpy=2.5&gt;</span>
+
+<span class="sd">  The `shape` argument to `Variable`&#39;s constructor allows you to construct a</span>
+<span class="sd">  variable with a less defined shape than its `initial_value`:</span>
+
+<span class="sd">  &gt;&gt;&gt; v = tf.Variable(1., shape=tf.TensorShape(None))</span>
+<span class="sd">  &gt;&gt;&gt; v.assign([[1.]])</span>
+<span class="sd">  &lt;tf.Variable ... shape=&lt;unknown&gt; dtype=float32, numpy=array([[1.]], ...)&gt;</span>
 
 <span class="sd">  Just like any `Tensor`, variables created with `Variable()` can be used as</span>
-<span class="sd">  inputs for other Ops in the graph. Additionally, all the operators</span>
-<span class="sd">  overloaded for the `Tensor` class are carried over to variables, so you can</span>
-<span class="sd">  also add nodes to the graph by just doing arithmetic on variables.</span>
+<span class="sd">  inputs to operations. Additionally, all the operators overloaded for the</span>
+<span class="sd">  `Tensor` class are carried over to variables.</span>
 
-<span class="sd">  ```python</span>
-<span class="sd">  import tensorflow as tf</span>
-
-<span class="sd">  # Create a variable.</span>
-<span class="sd">  w = tf.Variable(&lt;initial-value&gt;, name=&lt;optional-name&gt;)</span>
-
-<span class="sd">  # Use the variable in the graph like any Tensor.</span>
-<span class="sd">  y = tf.matmul(w, ...another variable or tensor...)</span>
-
-<span class="sd">  # The overloaded operators are available too.</span>
-<span class="sd">  z = tf.sigmoid(w + y)</span>
-
-<span class="sd">  # Assign a new value to the variable with `assign()` or a related method.</span>
-<span class="sd">  w.assign(w + 1.0)</span>
-<span class="sd">  w.assign_add(1.0)</span>
-<span class="sd">  ```</span>
-
-<span class="sd">  When you launch the graph, variables have to be explicitly initialized before</span>
-<span class="sd">  you can run Ops that use their value. You can initialize a variable by</span>
-<span class="sd">  running its *initializer op*, restoring the variable from a save file, or</span>
-<span class="sd">  simply running an `assign` Op that assigns a value to the variable. In fact,</span>
-<span class="sd">  the variable *initializer op* is just an `assign` Op that assigns the</span>
-<span class="sd">  variable&#39;s initial value to the variable itself.</span>
-
-<span class="sd">  ```python</span>
-<span class="sd">  # Launch the graph in a session.</span>
-<span class="sd">  with tf.compat.v1.Session() as sess:</span>
-<span class="sd">      # Run the variable initializer.</span>
-<span class="sd">      sess.run(w.initializer)</span>
-<span class="sd">      # ...you now can run ops that use the value of &#39;w&#39;...</span>
-<span class="sd">  ```</span>
-
-<span class="sd">  The most common initialization pattern is to use the convenience function</span>
-<span class="sd">  `global_variables_initializer()` to add an Op to the graph that initializes</span>
-<span class="sd">  all the variables. You then run that Op after launching the graph.</span>
-
-<span class="sd">  ```python</span>
-<span class="sd">  # Add an Op to initialize global variables.</span>
-<span class="sd">  init_op = tf.compat.v1.global_variables_initializer()</span>
-
-<span class="sd">  # Launch the graph in a session.</span>
-<span class="sd">  with tf.compat.v1.Session() as sess:</span>
-<span class="sd">      # Run the Op that initializes global variables.</span>
-<span class="sd">      sess.run(init_op)</span>
-<span class="sd">      # ...you can now run any Op that uses variable values...</span>
-<span class="sd">  ```</span>
-
-<span class="sd">  If you need to create a variable with an initial value dependent on another</span>
-<span class="sd">  variable, use the other variable&#39;s `initialized_value()`. This ensures that</span>
-<span class="sd">  variables are initialized in the right order.</span>
-
-<span class="sd">  All variables are automatically collected in the graph where they are</span>
-<span class="sd">  created. By default, the constructor adds the new variable to the graph</span>
-<span class="sd">  collection `GraphKeys.GLOBAL_VARIABLES`. The convenience function</span>
-<span class="sd">  `global_variables()` returns the contents of that collection.</span>
+<span class="sd">  &gt;&gt;&gt; w = tf.Variable([[1.], [2.]])</span>
+<span class="sd">  &gt;&gt;&gt; x = tf.constant([[3., 4.]])</span>
+<span class="sd">  &gt;&gt;&gt; tf.matmul(w, x)</span>
+<span class="sd">  &lt;tf.Tensor:... shape=(2, 2), ... numpy=</span>
+<span class="sd">    array([[3., 4.],</span>
+<span class="sd">           [6., 8.]], dtype=float32)&gt;</span>
+<span class="sd">  &gt;&gt;&gt; tf.sigmoid(w + x)</span>
+<span class="sd">  &lt;tf.Tensor:... shape=(2, 2), ...&gt;</span>
 
 <span class="sd">  When building a machine learning model it is often convenient to distinguish</span>
-<span class="sd">  between variables holding the trainable model parameters and other variables</span>
-<span class="sd">  such as a `global step` variable used to count training steps. To make this</span>
-<span class="sd">  easier, the variable constructor supports a `trainable=&lt;bool&gt;` parameter. If</span>
-<span class="sd">  `True`, the new variable is also added to the graph collection</span>
-<span class="sd">  `GraphKeys.TRAINABLE_VARIABLES`. The convenience function</span>
-<span class="sd">  `trainable_variables()` returns the contents of this collection. The</span>
-<span class="sd">  various `Optimizer` classes use this collection as the default list of</span>
-<span class="sd">  variables to optimize.</span>
+<span class="sd">  between variables holding trainable model parameters and other variables such</span>
+<span class="sd">  as a `step` variable used to count training steps. To make this easier, the</span>
+<span class="sd">  variable constructor supports a `trainable=&lt;bool&gt;`</span>
+<span class="sd">  parameter. `tf.GradientTape` watches trainable variables by default:</span>
+
+<span class="sd">  &gt;&gt;&gt; with tf.GradientTape(persistent=True) as tape:</span>
+<span class="sd">  ...   trainable = tf.Variable(1.)</span>
+<span class="sd">  ...   non_trainable = tf.Variable(2., trainable=False)</span>
+<span class="sd">  ...   x1 = trainable * 2.</span>
+<span class="sd">  ...   x2 = non_trainable * 3.</span>
+<span class="sd">  &gt;&gt;&gt; tape.gradient(x1, trainable)</span>
+<span class="sd">  &lt;tf.Tensor:... shape=(), dtype=float32, numpy=2.0&gt;</span>
+<span class="sd">  &gt;&gt;&gt; assert tape.gradient(x2, non_trainable) is None  # Unwatched</span>
+
+<span class="sd">  Variables are automatically tracked when assigned to attributes of types</span>
+<span class="sd">  inheriting from `tf.Module`.</span>
+
+<span class="sd">  &gt;&gt;&gt; m = tf.Module()</span>
+<span class="sd">  &gt;&gt;&gt; m.v = tf.Variable([1.])</span>
+<span class="sd">  &gt;&gt;&gt; m.trainable_variables</span>
+<span class="sd">  (&lt;tf.Variable ... shape=(1,) ... numpy=array([1.], dtype=float32)&gt;,)</span>
+
+<span class="sd">  This tracking then allows saving variable values to</span>
+<span class="sd">  [training checkpoints](https://www.tensorflow.org/guide/checkpoint), or to</span>
+<span class="sd">  [SavedModels](https://www.tensorflow.org/guide/saved_model) which include</span>
+<span class="sd">  serialized TensorFlow graphs.</span>
+
+<span class="sd">  Variables are often captured and manipulated by `tf.function`s. This works the</span>
+<span class="sd">  same way the un-decorated function would have:</span>
+
+<span class="sd">  &gt;&gt;&gt; v = tf.Variable(0.)</span>
+<span class="sd">  &gt;&gt;&gt; read_and_decrement = tf.function(lambda: v.assign_sub(0.1))</span>
+<span class="sd">  &gt;&gt;&gt; read_and_decrement()</span>
+<span class="sd">  &lt;tf.Tensor: shape=(), dtype=float32, numpy=-0.1&gt;</span>
+<span class="sd">  &gt;&gt;&gt; read_and_decrement()</span>
+<span class="sd">  &lt;tf.Tensor: shape=(), dtype=float32, numpy=-0.2&gt;</span>
+
+<span class="sd">  Variables created inside a `tf.function` must be owned outside the function</span>
+<span class="sd">  and be created only once:</span>
+
+<span class="sd">  &gt;&gt;&gt; class M(tf.Module):</span>
+<span class="sd">  ...   @tf.function</span>
+<span class="sd">  ...   def __call__(self, x):</span>
+<span class="sd">  ...     if not hasattr(self, &quot;v&quot;):  # Or set self.v to None in __init__</span>
+<span class="sd">  ...       self.v = tf.Variable(x)</span>
+<span class="sd">  ...     return self.v * x</span>
+<span class="sd">  &gt;&gt;&gt; m = M()</span>
+<span class="sd">  &gt;&gt;&gt; m(2.)</span>
+<span class="sd">  &lt;tf.Tensor: shape=(), dtype=float32, numpy=4.0&gt;</span>
+<span class="sd">  &gt;&gt;&gt; m(3.)</span>
+<span class="sd">  &lt;tf.Tensor: shape=(), dtype=float32, numpy=6.0&gt;</span>
+<span class="sd">  &gt;&gt;&gt; m.v</span>
+<span class="sd">  &lt;tf.Variable ... shape=() dtype=float32, numpy=2.0&gt;</span>
+
+<span class="sd">  See the `tf.function` documentation for details.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
+  <span class="nd">@deprecated_args</span><span class="p">(</span>
+      <span class="kc">None</span><span class="p">,</span>
+      <span class="s2">&quot;A variable&#39;s value can be manually cached by calling &quot;</span>
+      <span class="s2">&quot;tf.Variable.read_value() under a tf.device scope. The caching_device &quot;</span>
+      <span class="s2">&quot;argument does not work properly.&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;caching_device&quot;</span><span class="p">)</span>
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                <span class="n">initial_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -714,15 +727,6 @@
                <span class="n">aggregation</span><span class="o">=</span><span class="n">VariableAggregation</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
                <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a new variable with value `initial_value`.</span>
-
-<span class="sd">    The new variable is added to the graph collections listed in `collections`,</span>
-<span class="sd">    which defaults to `[GraphKeys.GLOBAL_VARIABLES]`.</span>
-
-<span class="sd">    If `trainable` is `True` the variable is also added to the graph collection</span>
-<span class="sd">    `GraphKeys.TRAINABLE_VARIABLES`.</span>
-
-<span class="sd">    This constructor creates both a `variable` Op and an `assign` Op to set the</span>
-<span class="sd">    variable to its initial value.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      initial_value: A `Tensor`, or Python object convertible to a `Tensor`,</span>
@@ -777,7 +781,6 @@
 <span class="sd">      ValueError: If both `variable_def` and initial_value are specified.</span>
 <span class="sd">      ValueError: If the initial value is not specified, or does not have a</span>
 <span class="sd">        shape and `validate_shape` is `True`.</span>
-<span class="sd">      RuntimeError: If eager execution is enabled.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -1442,10 +1445,7 @@
   <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
-      <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
       <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span>
@@ -1454,11 +1454,7 @@
   <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compares two variables element-wise for equality.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
-      <span class="k">if</span> <span class="n">fwd_compat</span><span class="o">.</span><span class="n">forward_compatible</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">gen_math_ops</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">incompatible_shape_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="c1"># In legacy graph mode, tensor equality is object equality</span>
       <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">other</span>
@@ -1709,7 +1705,7 @@
 
 
 <span class="n">Variable</span><span class="o">.</span><span class="n">_OverloadAllOperators</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
-<span class="n">pywrap_tensorflow</span><span class="o">.</span><span class="n">RegisterType</span><span class="p">(</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">Variable</span><span class="p">)</span>
+<span class="n">_pywrap_utils</span><span class="o">.</span><span class="n">RegisterType</span><span class="p">(</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">Variable</span><span class="p">)</span>
 
 
 <span class="nd">@tf_export</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">])</span>
@@ -2195,6 +2191,10 @@
           <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="n">state_ops</span><span class="o">.</span><span class="n">variable_op_v2</span><span class="p">(</span>
               <span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">base_dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
+        <span class="c1"># Cache the name in `self`, because some APIs call `Variable.name` in a</span>
+        <span class="c1"># tight loop, and this halves the cost.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span>
+
         <span class="c1"># Manually overrides the variable&#39;s shape with the initial value&#39;s.</span>
         <span class="k">if</span> <span class="n">validate_shape</span><span class="p">:</span>
           <span class="n">initial_value_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_value</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
@@ -2240,6 +2240,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">as_graph_element</span><span class="p">(</span>
         <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span>
             <span class="n">variable_def</span><span class="o">.</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_initializer_op</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">as_graph_element</span><span class="p">(</span>
         <span class="n">ops</span><span class="o">.</span><span class="n">prepend_name_scope</span><span class="p">(</span>
             <span class="n">variable_def</span><span class="o">.</span><span class="n">initializer_name</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">))</span>
@@ -2897,7 +2898,7 @@
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The name of this variable.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">initializer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3187,7 +3188,7 @@
 <span class="sd">  eager execution.  Use `tf.Variable` instead which is compatible</span>
 <span class="sd">  with both eager execution and graph construction.  See [the</span>
 <span class="sd">  TensorFlow Eager Execution</span>
-<span class="sd">  guide](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/eager/python/g3doc/guide.md#variables-and-optimizers)</span>
+<span class="sd">  guide](https://www.tensorflow.org/guide/eager#variables_and_optimizers)</span>
 <span class="sd">  for details on how variables work in eager execution.</span>
 <span class="sd">  @end_compatibility</span>
 <span class="sd">  &quot;&quot;&quot;</span>
@@ -3728,17 +3729,6 @@
 
 <span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span>
     <span class="n">PartitionedVariable</span><span class="p">,</span> <span class="n">PartitionedVariable</span><span class="o">.</span><span class="n">_TensorConversionFunction</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
-
-
-<span class="k">class</span> <span class="nc">AbstractVariableMetaclass</span><span class="p">(</span><span class="n">VariableMetaclass</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Metaclass combining `VariableMetaclass` and `abc.ABCMeta`.&quot;&quot;&quot;</span>
-  <span class="k">pass</span>
-
-
-<span class="nd">@six</span><span class="o">.</span><span class="n">add_metaclass</span><span class="p">(</span><span class="n">AbstractVariableMetaclass</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">AbstractVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;`Variable`, but abstract.&quot;&quot;&quot;</span>
-  <span class="k">pass</span>
 </pre></div>
 
     </div>

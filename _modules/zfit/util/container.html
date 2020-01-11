@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.container &#8212; zfit 0.3.7 documentation</title>
+    <title>zfit.util.container &#8212; zfit 0.4.1.dev4+g41bd440 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.3.7</b></span>
+        <span class="navbar-text pull-left"><b>0.4.1.dev4</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -348,7 +348,7 @@
     <div class="body span12 content" role="main">
       
   <h1>Source code for zfit.util.container</h1><div class="highlight"><pre>
-<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -380,7 +380,7 @@
 <span class="sd">    Returns:</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitModel</span>  <span class="c1"># here due to dependency</span>
+    <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span>  <span class="c1"># here due to dependency</span>
     <span class="k">if</span> <span class="n">non_containers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">non_containers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">non_containers</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -389,7 +389,7 @@
         <span class="k">return</span> <span class="n">value</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">container</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">non_containers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">])</span>
+            <span class="n">non_containers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">])</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">non_containers</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">container</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
