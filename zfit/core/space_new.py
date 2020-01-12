@@ -9,14 +9,13 @@ from collections import OrderedDict
 from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union, Iterable
 
-
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
 from .baseobject import BaseObject
 from .dimension import common_obs, limits_overlap
-from .interfaces import ZfitSpace
+from .interfaces import ZfitSpace, ZfitLimit
 from .. import z
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -107,6 +106,11 @@ ANY_UPPER = AnyUpper()
 #         self.obs = obs
 #         axes = convert_to_container(axes)
 #         self.axes = axes
+
+class Limit(ZfitLimit):
+    def __init__(self, limit_fn, rect_limits):
+        super().__init__()
+        limit_fn, rect_limits, n_obs = self._check_convert_input_limits(limit_fn=limit_fn, rect_limits=rect_limits)
 
 
 class BaseSpace(ZfitSpace, BaseObject):
@@ -512,7 +516,8 @@ class Space(BaseSpace):
                 rect_limits = None
 
         if not isinstance(limits, dict):
-            pass TODO
+            pass
+            TODO
 
         if callable(limits):
             limits_are_rect = False
@@ -557,13 +562,13 @@ class Space(BaseSpace):
 
     # def _check_set_lower_upper(self, lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput):
     #     raise NotImplementedError
-        # if lower is None or lower is False:
-        #     limits = lower
-        # else:
-        #     lower = self._check_convert_input_limit(lower)
-        #     upper = self._check_convert_input_limit(upper)
-        #     limits = lower, upper
-        # self._check_set_limits(limits=limits)
+    # if lower is None or lower is False:
+    #     limits = lower
+    # else:
+    #     lower = self._check_convert_input_limit(lower)
+    #     upper = self._check_convert_input_limit(upper)
+    #     limits = lower, upper
+    # self._check_set_limits(limits=limits)
 
     @property
     @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
@@ -576,6 +581,7 @@ class Space(BaseSpace):
 
         """
         return self._limits
+
     @property
     def rect_limits(self) -> ztyping.LimitsTypeReturn:
         """Return the limits.
@@ -649,7 +655,6 @@ class Space(BaseSpace):
         """
         raise BreakingAPIChangeError("Use rect_lower")
 
-
     @property
     def rect_lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
@@ -670,7 +675,6 @@ class Space(BaseSpace):
 
         """
         raise NotImplementedError
-
 
     @property
     def upper(self) -> ztyping.UpperTypeReturn:
@@ -728,7 +732,8 @@ class Space(BaseSpace):
     #             space_objects.append(space)
     #         return tuple(space_objects)
 
-    def with_limits(self, limits: ztyping.LimitsTypeInput = None, rect_limits=None, name: Optional[str] = None) -> ZfitSpace:
+    def with_limits(self, limits: ztyping.LimitsTypeInput = None, rect_limits=None,
+                    name: Optional[str] = None) -> ZfitSpace:
         """Return a copy of the space with the new `limits` (and the new `name`).
 
         Args:
@@ -814,7 +819,8 @@ class Space(BaseSpace):
         obs_is_defined = self.obs is not None and not obs_none
         axes_is_defined = self.axes is not None and not axes_none
         if not (obs_is_defined or axes_is_defined):
-            raise ValueError("Neither the `obs` (argument and on instance) nor `axes` (argument and on instance) are defined.")
+            raise ValueError(
+                "Neither the `obs` (argument and on instance) nor `axes` (argument and on instance) are defined.")
 
         if obs_is_defined:
             old, new = self.obs, [o for o in obs if o in self.obs]
@@ -842,6 +848,7 @@ class Space(BaseSpace):
 
     def _reorder_limits(self, indices: Tuple[int]) -> ztyping.LimitsTypeReturn:
         pass
+
     # limits = self.limits
     #     if limits is not None and limits is not False:
     #         lower, upper = limits
@@ -871,6 +878,7 @@ class Space(BaseSpace):
 
     def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
         pass
+
     # if self.obs is None:
     #     raise ObsNotSpecifiedError("Obs not specified, cannot create `obs_axes`")
     # if self.axes is None:
