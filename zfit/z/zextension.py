@@ -204,7 +204,7 @@ FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
 
 tf_function = FunctionWrapperRegistry()
 
-function_tf = FunctionWrapperRegistry2()  # for only tensorflow inside
+function_tf_input = FunctionWrapperRegistry2()  # for only tensorflow inside
 function_sampling = tf_function
 
 

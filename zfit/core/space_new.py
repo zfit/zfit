@@ -107,8 +107,30 @@ ANY_UPPER = AnyUpper()
 #         axes = convert_to_container(axes)
 #         self.axes = axes
 
+
+@z.function_tf_input
 def calculate_rect_area(rect_limits):
-    raise WorkInProgressError("Implement properly area calc")
+    lower, upper = rect_limits
+    diff = upper - lower
+    area = tf.reduce_prod(diff, axis=-1)
+    return area
+
+
+@z.function_tf_input
+def inside_rect_limits(x, rect_limits):
+    if not x.shape.ndims > 1:
+        raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
+                         " structures is (nevents, n_obs).")
+    lower, upper = rect_limits
+    below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
+    above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
+    inside = tf.logical_and(above_lower, below_upper)
+    return inside
+
+
+@z.function_tf_input
+def filter_rect_limits(x, rect_limits):
+    return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits))
 
 
 class Limit(ZfitLimit):
@@ -135,6 +157,47 @@ class Limit(ZfitLimit):
 
     def rect_area(self) -> float:
         return calculate_rect_area(rect_limits=self.rect_limits)
+
+    def inside(self, x, guarantee_limits=False):
+        if guarantee_limits and self.has_rect_limits:
+            return tf.broadcast_to(True, x.shape)
+        else:
+            return self._inside(x, guarantee_limits)
+
+    def _inside(self, x, guarantee_limits):
+        if self.has_rect_limits:
+            return inside_rect_limits(x, rect_limits=self.rect_limits)
+        else:
+            return self._limit_fn(x)
+
+    def filter(self, x, guarantee_limits):
+        if guarantee_limits and self.has_rect_limits:
+            return x
+        if self.has_rect_limits:
+            return self._filter(x, guarantee_limits)
+
+    def _filter(self, x, guarantee_limits):
+        return filter_rect_limits(x, rect_limits=self.rect_limits)
+
+    @property
+    def limits_not_set(self):
+        return self.rect_limits is None
+
+    @property
+    def has_limits(self):
+        return self.rect_limits is not False and not self.limits_not_set
+
+    @property
+    def rect_lower(self):
+        return self.rect_limits[0]
+
+    @property
+    def rect_upper(self):
+        return self.rect_limits[1]
+
+    @property
+    def n_obs(self) -> int:
+        return self._n_obs
 
 
 class BaseSpace(ZfitSpace, BaseObject):

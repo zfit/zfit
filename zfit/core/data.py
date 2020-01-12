@@ -379,7 +379,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             #
             # value = tf.boolean_mask(tensor=value, mask=inside_any_limit)
             # value = tf.transpose(value)
-            value = data_range.filter(value)
+            value = data_range.filter(value, )
 
         return value
 
