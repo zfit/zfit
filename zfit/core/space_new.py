@@ -107,10 +107,34 @@ ANY_UPPER = AnyUpper()
 #         axes = convert_to_container(axes)
 #         self.axes = axes
 
+def calculate_rect_area(rect_limits):
+    raise WorkInProgressError("Implement properly area calc")
+
+
 class Limit(ZfitLimit):
-    def __init__(self, limit_fn, rect_limits):
+    def __init__(self, limit_fn, rect_limit):
         super().__init__()
-        limit_fn, rect_limits, n_obs = self._check_convert_input_limits(limit_fn=limit_fn, rect_limits=rect_limits)
+        limit_fn, rect_limit, n_obs, is_rect = self._check_convert_input_limits(limit_fn=limit_fn,
+                                                                                rect_limits=rect_limit)
+        self._limit_fn = limit_fn
+        self._rect_limits = rect_limit
+        self._n_obs = n_obs
+        self._is_rect = is_rect
+
+    @staticmethod
+    def _check_convert_input_limits(limits_fn, rect_limits):
+        raise WorkInProgressError("Implement preprocessing properly")
+
+    @property
+    def has_rect_limits(self) -> bool:
+        return self.has_limits and self._is_rect
+
+    @property
+    def rect_limits(self):
+        return self._rect_limits
+
+    def rect_area(self) -> float:
+        return calculate_rect_area(rect_limits=self.rect_limits)
 
 
 class BaseSpace(ZfitSpace, BaseObject):
