@@ -397,7 +397,10 @@ class Space(BaseSpace):
         if name is None:
             name = "Space_" + "_".join(obs)
         axes = None
-        super().__init__(obs=obs, axes=axes, name=name)
+        # HACK START
+        super().__init__(obs=obs, axes=axes, rect_limits=limits, name=name)
+        # HACK STOP
+        # super().__init__(obs=obs, axes=axes, name=name)
         self._check_set_limits(limits=limits)
 
     @classmethod
@@ -435,6 +438,9 @@ class Space(BaseSpace):
         new_space._obs = None
         new_space._axes = new_space._check_convert_input_axes(axes)
         return new_space
+
+    def rect_area(self) -> float:
+        return self.area()
 
     @staticmethod
     def _convert_obs_to_str(obs):

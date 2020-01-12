@@ -15,7 +15,7 @@ from tensorflow.python.util.deprecation import deprecated
 
 from .baseobject import BaseObject
 from .dimension import common_obs, limits_overlap
-from .interfaces import ZfitSpace, ZfitLimit
+from .interfaces import ZfitSpace, ZfitLimit, ZfitOrderableDimensional
 from .. import z
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -23,7 +23,8 @@ from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousErro
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
                               OverdefinedError, LimitsNotSpecifiedError, WorkInProgressError,
                               BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
-                              ObsIncompatibleError, AxesIncompatibleError)
+                              ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
+                              IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError)
 
 
 # Singleton
@@ -112,7 +113,7 @@ ANY_UPPER = AnyUpper()
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
-    area = tf.reduce_prod(diff, axis=-1)
+    area = z.unstable.reduce_prod(diff, axis=-1)
     return area
 
 
@@ -122,6 +123,8 @@ def inside_rect_limits(x, rect_limits):
         raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
                          " structures is (nevents, n_obs).")
     lower, upper = rect_limits
+    lower = z.convert_to_tensor(lower)
+    upper = z.convert_to_tensor(upper)
     below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
     above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
     inside = tf.logical_and(above_lower, below_upper)
@@ -133,19 +136,98 @@ def filter_rect_limits(x, rect_limits):
     return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits))
 
 
+def convert_to_tensor_or_numpy(obj):
+    if isinstance(obj, (tf.Tensor, tf.Variable)):
+        return obj
+    else:
+        return np.array(obj)
+
+
+def _sanitize_x_input(x, n_obs):
+    x = z.convert_to_tensor(x)
+    if not x.shape.ndims > 1 and n_obs > 1:
+        raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
+                         " structures is (nevents, n_obs).")
+    elif x.shape.ndims <= 1 and n_obs == 1:
+        if x.shape.ndims == 0:
+            x = tf.broadcast_to(x, (1, 1))
+        else:
+            x = tf.expand_dims(x, axis=-1)
+    if tf.get_static_value(x.shape[-1]) != n_obs:
+        raise ShapeIncompatibleError("n_obs and the last dim of x do not agree. Assuming x has shape (..., n_obs)")
+    return x
+
+
+def convert_to_numpy(obj):
+    if isinstance(obj, (tf.Tensor, tf.Variable)):
+        return obj.numpy()
+    else:
+        return np.array(obj)
+
+
 class Limit(ZfitLimit):
-    def __init__(self, limit_fn, rect_limit):
+    def __init__(self, limit_fn=None, rect_limit=None, n_obs=None):
         super().__init__()
-        limit_fn, rect_limit, n_obs, is_rect = self._check_convert_input_limits(limit_fn=limit_fn,
-                                                                                rect_limits=rect_limit)
+        limit_fn, rect_limit, n_obs, is_rect = self._check_convert_input_limits(limits_fn=limit_fn,
+                                                                                rect_limits=rect_limit,
+                                                                                n_obs=n_obs)
         self._limit_fn = limit_fn
         self._rect_limits = rect_limit
         self._n_obs = n_obs
         self._is_rect = is_rect
 
+    def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
+        limits_are_rect = True
+        if limits_fn is False:
+            if rect_limits in (False, None):
+                return False, False, n_obs, None
+        elif limits_fn is None:
+            if rect_limits is False:
+                return False, False, n_obs, None
+            elif rect_limits is None:
+                return None, None, n_obs, None
+            else:  # start from limits are anything, rect is None
+                limits_fn = rect_limits
+                rect_limits = None
+
+        if not callable(limits_fn):  # limits_fn is actually rect_limits
+            rect_limits = limits_fn
+            limits_fn = None
+
+        else:
+            limits_are_rect = False
+            if rect_limits in (None, False):
+                raise ValueError("Limits given as a function need also rect_limits, cannot be None or False")
+        try:
+            lower, upper = rect_limits
+        except TypeError as err:
+            raise TypeError(
+                "The outermost shape of `rect_limits` has to be 2 to represent (lower, upper).") from err
+
+        # if not isinstance(lower, (np.ndarray, tf.Tensor)):
+
+        lower = self._sanitize_rect_limit(lower)
+        upper = self._sanitize_rect_limit(upper)
+
+        lower_nobs = lower.shape[-1]
+        upper_nobs = upper.shape[-1]
+        # lower.shape.assert_is_compatible_with(upper.shape)
+        tf.assert_equal(lower_nobs, upper_nobs, message="Last dimension of lower and upper have to coincide.")
+        if n_obs is not None:
+            tf.assert_equal(lower_nobs, n_obs,
+                            message="Inferred last dimension (n_obs) does not coincide with given n_obs")
+        n_obs = tf.get_static_value(lower_nobs)
+        rect_limits = (lower, upper)
+        return limits_fn, rect_limits, n_obs, limits_are_rect
+
     @staticmethod
-    def _check_convert_input_limits(limits_fn, rect_limits):
-        raise WorkInProgressError("Implement preprocessing properly")
+    def _sanitize_rect_limit(limit):
+        limit = convert_to_tensor_or_numpy(limit)
+        if len(limit.shape) == 0:
+            limit = z.unstable.broadcast_to(limit, shape=(1, 1))
+        if len(limit.shape) == 1:
+            limit = z.unstable.expand_dims(limit, axis=-1)
+        return limit
 
     @property
     def has_rect_limits(self) -> bool:
@@ -155,10 +237,15 @@ class Limit(ZfitLimit):
     def rect_limits(self):
         return self._rect_limits
 
+    @property
+    def limit_fn(self):
+        return self._limit_fn
+
     def rect_area(self) -> float:
         return calculate_rect_area(rect_limits=self.rect_limits)
 
     def inside(self, x, guarantee_limits=False):
+        x = _sanitize_x_input(x, n_obs=self.n_obs)
         if guarantee_limits and self.has_rect_limits:
             return tf.broadcast_to(True, x.shape)
         else:
@@ -171,13 +258,16 @@ class Limit(ZfitLimit):
             return self._limit_fn(x)
 
     def filter(self, x, guarantee_limits):
+        x = _sanitize_x_input(x, n_obs=self.n_obs)
         if guarantee_limits and self.has_rect_limits:
             return x
         if self.has_rect_limits:
+            return filter_rect_limits(x, rect_limits=self.rect_limits)
+        else:
             return self._filter(x, guarantee_limits)
 
     def _filter(self, x, guarantee_limits):
-        return filter_rect_limits(x, rect_limits=self.rect_limits)
+        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
 
     @property
     def limits_not_set(self):
@@ -199,11 +289,162 @@ class Limit(ZfitLimit):
     def n_obs(self) -> int:
         return self._n_obs
 
+    def __eq__(self, other):
+        if not isinstance(other, ZfitLimit):
+            return NotImplemented
+        return self.equal(other, allow_graph=False)
+
+    def equal(self, other, allow_graph=True):
+
+        lower, upper = self.rect_limits
+        lower_other, upper_other = other.rect_limits
+        if not allow_graph:
+            try:
+                lower = convert_to_numpy(lower)
+                upper = convert_to_numpy(upper)
+                lower_other = convert_to_numpy(lower_other)
+                upper_other = convert_to_numpy(upper_other)
+            except AttributeError:  # we're in graph mode seemingly
+                raise IllegalInGraphModeError(
+                    "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
+                    "function. To retrieve a symbolic Tensor, use `.equal(...)`")
+
+        rect_limits_equal = z.unstable.reduce_all(z.unstable.equal((lower, upper), (lower_other, upper_other)))
+        funcs_equal = self.limit_fn == other.limit_fn
+        return z.unstable.logical_and(rect_limits_equal, funcs_equal)
+
+
+class Coordinates(ZfitOrderableDimensional):
+    def __init__(self, obs, axes):
+        obs, axes, n_obs = self._check_convert_obs_axes(obs, axes)
+        self._obs = obs
+        self._axes = axes
+        self._n_obs = n_obs
+
+    @staticmethod
+    def _check_convert_obs_axes(obs, axes):
+        obs = convert_to_obs_str(obs)
+        axes = convert_to_axes(axes)
+        if obs is None:
+            if axes is None:
+                raise CoordinatesUnderdefinedError("Neither obs nor axes specified")
+            n_obs = len(axes)
+        else:
+            n_obs = len(obs)
+            if axes is not None:
+                if not len(obs) == len(axes):
+                    raise CoordinatesIncompatibleError("obs and axes do not have the same length.")
+        return obs, axes, n_obs
+
+    @property
+    def obs(self):
+        return self._obs
+
+    @property
+    def axes(self):
+        return self._axes
+
+    @property
+    def n_obs(self):
+        return self._n_obs
+
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False, allow_subset: bool = False):
+        if obs is None:  # drop obs, check if there are axes
+            if self.axes is None:
+                raise AxesIncompatibleError("cannot remove obs (using None) for a Space without axes")
+            new_coords = type(self)(obs=obs, axes=self.axes)
+        else:
+            obs = _convert_obs_to_str(obs)
+            if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
+                raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
+
+            if (not allow_subset) and (not frozenset(obs).issuperset(self.obs)):
+                raise ObsIncompatibleError(f"Obs {obs} are a subset of {self.obs}, not allowed according to flag.")
+
+            new_indices = self.get_reorder_indices(obs=obs)
+            new_obs = self._reorder_obs(indices=new_indices)
+            new_axes = self._reorder_axes(indices=new_indices)
+            new_coords = type(self)(obs=new_obs, axes=new_axes)
+        return new_coords
+
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
+                  allow_subset: bool = False) -> "zfit.Space":
+        """Sort by `axes` and return the new instance. `None` drops the axes.
+
+        Args:
+            axes ():
+            allow_superset (bool): Allow `axes` to be a superset of the `Spaces` axes
+
+        Returns:
+            :py:class:`~zfit.Space`
+        """
+        if axes is None:  # drop axes
+            if self.obs is None:
+                raise ObsIncompatibleError("Cannot remove axes (using None) for a Space without obs")
+            new_coords = type(self)(obs=self.obs, axes=axes)
+        else:
+            axes = _convert_axes_to_int(axes)
+            if not allow_superset and frozenset(axes).issuperset(self.axes):
+                raise AxesIncompatibleError(
+                    f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
+
+            if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
+                raise AxesIncompatibleError(f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
+            new_indices = self.get_reorder_indices(axes=axes)
+            new_obs = self._reorder_obs(indices=new_indices)
+            new_axes = self._reorder_axes(indices=new_indices)
+            new_coords = type(self)(obs=new_obs, axes=new_axes)
+        return new_coords
+
+    def _reorder_obs(self, indices: Tuple[int]) -> ztyping.ObsTypeReturn:
+        obs = self.obs
+        if obs is not None:
+            obs = tuple(obs[i] for i in indices)
+        return obs
+
+    def _reorder_axes(self, indices: Tuple[int]) -> ztyping.AxesTypeReturn:
+        axes = self.axes
+        if axes is not None:
+            axes = tuple(axes[i] for i in indices)
+        return axes
+
+    def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None,
+                            axes: ztyping.AxesTypeInput = None) -> Tuple[int]:
+        """Indices that would order `self.obs` as `obs` respectively `self.axes` as `axes`.
+
+        Args:
+            obs ():
+            axes ():
+
+        Returns:
+
+        """
+        obs_none = obs is None
+        axes_none = axes is None
+
+        obs_is_defined = self.obs is not None and not obs_none
+        axes_is_defined = self.axes is not None and not axes_none
+        if not (obs_is_defined or axes_is_defined):
+            raise ValueError(
+                "Neither the `obs` (argument and on instance) nor `axes` (argument and on instance) are defined.")
+
+        if obs_is_defined:
+            old, new = self.obs, [o for o in obs if o in self.obs]
+        else:
+            old, new = self.axes, [a for a in axes if a in self.axes]
+
+        new_indices = _reorder_indices(old=old, new=new)
+        return new_indices
+
+
+# def limits_are_equal(limit1, limit2):
+
 
 class BaseSpace(ZfitSpace, BaseObject):
 
     def __init__(self, obs, axes, rect_limits, name, **kwargs):
         super().__init__(name, **kwargs)
+        coords = Coordinates(obs, axes)
         obs = self._check_convert_input_obs(obs, allow_none=True)
         self._obs = obs
         axes = self._check_convert_input_axes(axes=axes, allow_none=True)
@@ -215,8 +456,9 @@ class BaseSpace(ZfitSpace, BaseObject):
         return self._rect_limits is not None
 
     def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
+        x = _sanitize_x_input(x, n_obs=self.n_obs)
         if self.has_rect_limits and guarantee_limits:
-            return x
+            return tf.broadcast_to(True, x.shape)
         inside = self._inside(x, guarantee_limits)
         return inside
 
@@ -468,16 +710,16 @@ def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
     return new_space
 
 
-def create_rect_limits_func(rect_limits):
-    def inside(x: tf.Tensor):
-        if not x.shape.ndims > 1:
-            raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
-                             " structures is (nevents, n_obs).")
-        lower, upper = rect_limits
-        below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
-        above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
-        inside = tf.logical_and(above_lower, below_upper)
-        return inside
+# def create_rect_limits_func(rect_limits):
+#     def inside(x: tf.Tensor):
+#         if not x.shape.ndims > 1:
+#             raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
+#                              " structures is (nevents, n_obs).")
+#         lower, upper = rect_limits
+#         below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
+#         above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
+#         inside = tf.logical_and(above_lower, below_upper)
+#         return inside
 
 
 class Space(BaseSpace):
@@ -589,18 +831,6 @@ class Space(BaseSpace):
         Returns:
 
         """
-        limits_are_rect = True
-        if limits is False:
-            if rect_limits in (False, None):
-                return False, False
-        if limits is None:
-            if rect_limits is False:
-                return False, False
-            elif rect_limits is None:
-                return None
-            else:  # start from limits are anything, rect is None
-                limits = rect_limits
-                rect_limits = None
 
         if not isinstance(limits, dict):
             pass
@@ -1723,6 +1953,8 @@ def convert_to_axes(axes):
     """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
 
     """
+    if axes is None:
+        return axes
     axes = convert_to_container(value=axes, container=tuple)
     new_obs = []
     for axis in axes:
@@ -1739,6 +1971,8 @@ def convert_to_obs_str(obs):
     """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
 
     """
+    if obs is None:
+        return obs
     obs = convert_to_container(value=obs, container=tuple)
     new_obs = []
     for ob in obs:

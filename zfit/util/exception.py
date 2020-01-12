@@ -38,6 +38,7 @@ class BasePDFSubclassingError(SubclassingError):
 class IntentionNotUnambiguousError(Exception):
     pass
 
+
 class UnderdefinedError(IntentionNotUnambiguousError):
     pass
 
@@ -51,6 +52,10 @@ class OverdefinedError(IntentionNotUnambiguousError):
 
 
 class LimitsOverdefinedError(OverdefinedError):
+    pass
+
+
+class CoordinatesUnderdefinedError(UnderdefinedError):
     pass
 
 
@@ -100,6 +105,10 @@ class AxesIncompatibleError(IncompatibleError):
     pass
 
 
+class CoordinatesIncompatibleError(IncompatibleError):
+    pass
+
+
 class SpaceIncompatibleError(IncompatibleError):
     pass
 
@@ -126,6 +135,10 @@ class NotMinimizedError(Exception):
 # Runtime Errors
 
 class NoSessionSpecifiedError(Exception):
+    pass
+
+
+class IllegalInGraphModeError(Exception):
     pass
 
 

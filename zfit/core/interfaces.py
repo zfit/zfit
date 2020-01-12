@@ -25,11 +25,11 @@ class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
 
 class ZfitDimensional(ZfitObject):
 
-    @property
-    @abstractmethod
-    def space(self) -> "zfit.Space":
-        """Return the :py:class:`~zfit.Space` object that defines the dimensionality of the object."""
-        raise NotImplementedError
+    # @property
+    # @abstractmethod
+    # def space(self) -> "zfit.Space":
+    #     """Return the :py:class:`~zfit.Space` object that defines the dimensionality of the object."""
+    #     raise NotImplementedError
 
     @property
     @abstractmethod
@@ -47,6 +47,35 @@ class ZfitDimensional(ZfitObject):
     @abstractmethod
     def n_obs(self) -> int:
         """Return the number of observables."""
+        raise NotImplementedError
+
+
+class ZfitOrderableDimensional(ZfitDimensional):
+
+    @abstractmethod
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
+                 allow_subset: bool = False):
+        """Sort by `obs` and return the new instance.
+
+        Args:
+            obs ():
+
+        Returns:
+            `Space`
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
+                  allow_subset: bool = False):
+        """Sort by `obs` and return the new instance.
+
+        Args:
+            axes ():
+
+        Returns:
+            :py:class:`~zfit.Space`
+        """
         raise NotImplementedError
 
 
@@ -70,7 +99,23 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
 
-class ZfitLimit(abs.ABC):
+class ZfitLimit(abc.ABC):
+
+    @property
+    # @abstractmethod  # TODO(spaces): make abstract
+    def rect_limits(self):
+        raise NotImplementedError
+
+    @property
+    # @abstractmethod  # TODO(spaces): make abstract
+    def rect_lower(self):
+        raise NotImplementedError
+
+    @property
+    # @abstractmethod  # TODO(spaces): make abstract
+    def rect_upper(self):
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def has_rect_limits(self) -> bool:
@@ -87,7 +132,7 @@ class ZfitLimit(abs.ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def filter(self, x):
+    def filter(self, x, guarantee_limits):
         raise NotImplementedError
 
     @property
@@ -104,6 +149,11 @@ class ZfitLimit(abs.ABC):
     @property
     @abstractmethod
     def has_limits(self):
+        raise NotImplementedError
+
+    @property
+    # @abstractmethod  # TODO(spaces): make abstact
+    def limit_fn(self):
         raise NotImplementedError
 
 
