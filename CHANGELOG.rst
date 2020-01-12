@@ -25,6 +25,17 @@ Requirement changes
 Thanks
 ------
 
+0.4.1 (12.1.20)
+===============
+
+Release to keep up with TensorFlow 2.1
+
+Major Features and Improvements
+-------------------------------
+
+ - Fixed the comparison in caching the graph (implementation detail) that leads to an error.
+
+
 0.4.0 (7.1.2020)
 ================
 
