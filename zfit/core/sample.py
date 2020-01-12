@@ -353,6 +353,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             indices = tf.range(n_produced, n_produced_new)
 
+        # TODO: pack into tf.function to speedup considerable the eager sampling? Is bottleneck currently
         sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
