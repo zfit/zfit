@@ -18,7 +18,8 @@ script:
     - coverage report
     - bash utils/ci/test_examples.sh
     - bash utils/ci/test_tutorials.sh
-    - bash docs/make_docs.sh
+    - bash utils/ci/testbuild_docs.sh
+    - bash utils/ci/testbuild_package.sh
 
 after_success:
     - pip install coveralls
