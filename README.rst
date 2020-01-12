@@ -32,7 +32,7 @@ and is optimised for simple and direct manipulation of probability density funct
 - **Develop Documentation**: Full documentation_ and API_
 - **Stable Documentation**: Latest `stable documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
-  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask?tags=zfit>`_ (with the **zfit** tag) or `contact`_ us directly.
 - **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
   related content
 
