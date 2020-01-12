@@ -59,6 +59,7 @@ import tensorflow as tf
 
 from . import ztyping
 from .container import convert_to_container
+from ..core.interfaces import ZfitData, ZfitParameter
 
 
 class ZfitCachable:
@@ -251,8 +252,17 @@ class FunctionCacheHolder(Cachable):
             combined += args
         if kwargs != []:
             combined += args
-        combined = [self.IS_TENSOR if isinstance(obj, (tf.Tensor, tf.Variable)) else obj for obj in combined]
-        return tuple(combined)
+        combined_cleaned = []
+        for obj in combined:
+            if isinstance(obj, ZfitData):
+                obj = (hash(object), id(object))
+
+            elif isinstance(obj, ZfitParameter):
+                obj = (hash(object), id(object), obj.name)
+            elif isinstance(obj, (tf.Tensor, tf.Variable)):
+                obj = self.IS_TENSOR
+
+        return tuple(combined_cleaned)
 
     def __hash__(self) -> int:
         return self._hash_value

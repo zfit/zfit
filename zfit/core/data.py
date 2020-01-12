@@ -3,6 +3,7 @@
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
+from types import MethodType
 from typing import List, Tuple, Union, Dict, Mapping, Callable
 
 import numpy as np
