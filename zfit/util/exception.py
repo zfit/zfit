@@ -117,6 +117,10 @@ class LimitsIncompatibleError(IncompatibleError):
     pass
 
 
+class InvalidLimitSubspaceError(Exception):
+    pass
+
+
 class ModelIncompatibleError(IncompatibleError):
     pass
 

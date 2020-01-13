@@ -104,5 +104,14 @@ def test_with_obs_or_axes(graph):
         assert coords2.axes == axes2
         assert coords_axes2.axes == axes2
 
+        coords1 = coords.with_autofill_axes(overwrite=True)
+        coords_obs1 = coords_obs.with_autofill_axes()
+        assert coords1.obs == obs1
+        assert coords1.axes == axes
+        assert coords_obs1.obs == obs1
+        assert coords_obs1.axes == axes
+        with pytest.raises(ValueError):
+            coords.with_autofill_axes(overwrite=False)
+
     if graph:
         test = z.function(test)

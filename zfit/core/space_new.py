@@ -24,7 +24,8 @@ from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousErro
                               OverdefinedError, LimitsNotSpecifiedError, WorkInProgressError,
                               BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
                               ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
-                              IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError)
+                              IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
+                              InvalidLimitSubspaceError)
 
 
 # Singleton
@@ -396,6 +397,21 @@ class Coordinates(ZfitOrderableDimensional):
             new_coords = type(self)(obs=new_obs, axes=new_axes)
         return new_coords
 
+    def with_autofill_axes(self, overwrite: bool = False) -> "zfit.Space":
+        """Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).
+
+        Args:
+            overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.
+                If axes is already set, don't do anything if `overwrite` is False.
+
+        Returns:
+            :py:class:`~zfit.Space`
+        """
+        if self.axes and not overwrite:
+            raise ValueError("overwrite is not allowed but axes are already set.")
+        new_coords = type(self)(obs=self.obs, axes=range(self.n_obs))
+        return new_coords
+
     def _reorder_obs(self, indices: Tuple[int]) -> ztyping.ObsTypeReturn:
         obs = self.obs
         if obs is not None:
@@ -498,24 +514,31 @@ class Coordinates(ZfitOrderableDimensional):
         x = z.unstable.gather(x, indices=new_indices, axis=-1)
         return x
 
+    def __eq__(self, other):
+        if not isinstance(Coordinates, ZfitSpace):
+            return NotImplemented
+        equal = self.obs == other.obs and self.axes == other.axes
+        return equal
+
+    def __repr__(self):
+        return f"<zfit Coordinates obs={self.obs}, axes={self.axes}"
+
 
 # def limits_are_equal(limit1, limit2):
 
 
 class BaseSpace(ZfitSpace, BaseObject):
 
-    def __init__(self, obs, axes, rect_limits, name, **kwargs):
+    def __init__(self, obs, axes, name, **kwargs):
         super().__init__(name, **kwargs)
         coords = Coordinates(obs, axes)
-        obs = self._check_convert_input_obs(obs, allow_none=True)
-        self._obs = obs
-        axes = self._check_convert_input_axes(axes=axes, allow_none=True)
-        self._axes = axes  # TODO: check axes
-        self._rect_limits = rect_limits
-
-    @property
-    def has_rect_limits(self) -> bool:
-        return self._rect_limits is not None
+        self.coords = coords
+        # self._limit = Limit(limit_fn=limits, rect_limits=rect_limits, n_obs=self.n_obs)
+        # obs = self._check_convert_input_obs(obs, allow_none=True)
+        # self._obs = obs
+        # axes = self._check_convert_input_axes(axes=axes, allow_none=True)
+        # self._axes = axes  # TODO: check axes
+        # self._rect_limits = rect_limits
 
     def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
         x = _sanitize_x_input(x, n_obs=self.n_obs)
@@ -546,11 +569,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             int >= 1
         """
 
-        if self.obs is None:
-            length = len(self.axes)
-        else:
-            length = len(self.obs)
-        return length
+        return self.coords.n_obs
 
     @property
     def obs(self) -> ztyping.ObsTypeReturn:
@@ -559,7 +578,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         Returns:
 
         """
-        return self._obs
+        return self.coords.obs
 
     @property
     def axes(self) -> ztyping.AxesTypeReturn:
@@ -568,7 +587,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         Returns:
 
         """
-        return self._axes
+        return self.coords.axes
 
     @property
     def n_limits(self) -> int:
@@ -577,6 +596,7 @@ class BaseSpace(ZfitSpace, BaseObject):
     def __iter__(self) -> Iterable[ZfitSpace]:
         yield self
 
+    # TODO
     def _check_convert_input_axes(self, axes: ztyping.AxesTypeInput,
                                   allow_none: bool = False) -> ztyping.AxesTypeReturn:
         if axes is None:
@@ -591,6 +611,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 
         return axes
 
+    # TODO
     def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
                                  allow_none: bool = False) -> ztyping.ObsTypeReturn:
         """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
@@ -616,6 +637,7 @@ class BaseSpace(ZfitSpace, BaseObject):
                 raise ValueError("The following observables are not strings: {}".format(obs_not_str))
         return obs
 
+    # TODO
     def get_axes(self, obs: ztyping.ObsTypeInput = None,
                  as_dict: bool = False,
                  autofill: bool = False) -> Union[ztyping.AxesTypeReturn, Dict[str, int]]:
@@ -806,10 +828,13 @@ class Space(BaseSpace):
         if name is None:
             name = "Space_" + "_".join(obs)
         super().__init__(obs=obs, axes=axes, name=name)
-        limits, rect_limits = self._check_convert_input_limits(limits=limits, rect_limits=rect_limits, obs=self.obs,
-                                                               axes=self.axes)
-        self._limits = limits  # TODO: needed? or better below limits_fn?
-        self._limits_fn = limits  # TODO: what if false? Hide, does not have to be accesed by the outside use?
+        limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
+                                                       axes=self.axes, n_obs=self.n_obs)
+        self._limits_dict = limits_dict
+
+    @property
+    def has_rect_limits(self) -> bool:
+        return all(limit.has_rect_limits for limit in self._limits_dict.values())
 
     @classmethod
     def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
@@ -882,43 +907,32 @@ class Space(BaseSpace):
     #                          "\nn_obs: {n_obs}".format(lower=lower, upper=upper, n_obs=self.n_obs))
     # return lower, upper
 
-    def _check_convert_input_limits(self, limits: Union[ztyping.LowerTypeInput, ztyping.UpperTypeInput],
-                                    rect_limits,
+    def _check_convert_input_limits(self, limit: Union[ztyping.LowerTypeInput, ztyping.UpperTypeInput],
+                                    rect_limits, obs, axes, n_obs,
                                     replace=None) -> Union[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
         """Check and sanitize the input limits as well as the rectangular limits.
 
         Args:
-            limits ():
+            limit ():
 
         Returns:
 
         """
-
-        if not isinstance(limits, dict):
-            pass
-            TODO
-
-        if callable(limits):
-            limits_are_rect = False
-            if rect_limits is False:
-                raise ValueError("Limits is a function but rect_limits is False. Not clear what is wanted.")
-
-        try:
-            lower, upper = limits
-        except (TypeError, ValueError) as err:  # Type: not iterable; Value: too many to unpack
-            raise TypeError("limits has to be an iterable of length 2") from err
-        if callable(lower) and callable(upper):
-            pass
-        elif not callable(lower) and not callable(upper):
-            if rect_limits is not None:
-                raise ValueError("if limits are not callable, rect_limits has to be None")
-            rect_limits = limits
-            limits = create_rect_limits_func(limits)
+        limits_dict = {}
+        if not isinstance(limit, dict):
+            if not isinstance(rect_limits, dict):
+                limit = Limit(limit_fn=limit, rect_limits=rect_limits, n_obs=n_obs)
+                if obs is not None:
+                    limits_dict[obs] = limit
+                if axes is not None:
+                    limits_dict[axes] = limit
+            else:
+                limits_dict = rect_limits
         else:
-            raise TypeError("Lower and Upper have to be values or callables but not mixed")
+            limits_dict = limit
 
-        # TODO: check rect_limits for overlap?
-        return limits, rect_limits
+        # TODO: extend input processing
+        return limits_dict
 
         # replace = {} if replace is None else replace
         # if limit is NOT_SPECIFIED or limit is None:
@@ -948,6 +962,33 @@ class Space(BaseSpace):
     #     upper = self._check_convert_input_limit(upper)
     #     limits = lower, upper
     # self._check_set_limits(limits=limits)
+
+    def _extract_limits(self, obs=None, axes=None):
+        if not (obs is None) ^ (axes is None):
+            raise ValueError("Cannot specify both or none of them.")
+        if obs is None:
+            obs_in_use = False
+            coords = axes
+        else:
+            obs_in_use = True
+            coords = obs
+
+        keys_sorted = sorted(self._limits_dict, key=len, reverse=True)
+        for key in keys_sorted:
+            value = self._limits_dict[key]
+            for coord in coords:
+                if coord in key:
+                    coord = {coord}
+                    if not frozenset(key).issubset(coord):
+                        if isinstance(value, ZfitSpace):
+                            kwargs = {'obs' if obs_in_use else 'axes': coord}
+                            try:
+                                limit = value.get_subspace(**kwargs)
+                            except InvalidLimitSubspaceError:
+                                raise InvalidLimitSubspaceError(f"Cannot extract {coord} from limit {limit}.")
+                        else:
+                            raise CoordinatesIncompatibleError("Cannot extract limits")
+                        # TODO pen and paper algorithm :D
 
     @property
     @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
@@ -1056,7 +1097,7 @@ class Space(BaseSpace):
         raise NotImplementedError
 
     @property
-    def upper(self) -> ztyping.UpperTypeReturn:
+    def rect_upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
 
         Returns:
