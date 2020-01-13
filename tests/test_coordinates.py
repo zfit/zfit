@@ -60,3 +60,49 @@ def test_reorder_x(graph):
     true_x = tf.constant([1, 2, 3, 4], dtype=tf.float64)
     for x in all_x:
         assert np.allclose(x, true_x)
+
+
+@pytest.mark.parametrize('graph', [True, False])
+def test_with_obs_or_axes(graph):
+    x = tf.constant([2, 3, 4, 1], dtype=tf.float64)
+
+    def test():
+        x_all = []
+        obs = ['a', 'b', 'c', 'd']
+        obs1 = ['b', 'c', 'd', 'a']
+        obs2 = ['d', 'a', 'b', 'c', ]
+        coords_obs = Coordinates(obs)
+
+        axes = [0, 1, 2, 3]
+        axes1 = [1, 2, 3, 0]
+        axes2 = [3, 0, 1, 2]
+        coords_axes = Coordinates(axes=axes)
+
+        coords = Coordinates(obs=obs, axes=axes)
+
+        coords1 = coords.with_obs(obs1)
+        coords_obs1 = coords_obs.with_obs(obs1)
+        assert coords1.obs == obs1
+        assert coords1.axes == axes1
+        assert coords_obs1.obs == obs1
+
+        coords2 = coords.with_obs(obs2)
+        coords_obs2 = coords_obs.with_obs(obs2)
+        assert coords2.obs == obs2
+        assert coords2.axes == axes2
+        assert coords_obs2.obs == obs2
+
+        coords1 = coords.with_axes(axes1)
+        coords_axes1 = coords_axes.with_axes(axes1)
+        assert coords1.obs == obs1
+        assert coords1.axes == axes1
+        assert coords_axes1.axes == axes1
+
+        coords2 = coords.with_axes(axes2)
+        coords_axes2 = coords_axes.with_axes(axes2)
+        assert coords2.obs == obs2
+        assert coords2.axes == axes2
+        assert coords_axes2.axes == axes2
+
+    if graph:
+        test = z.function(test)
