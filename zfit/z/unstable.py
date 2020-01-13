@@ -54,3 +54,10 @@ def logical_and(x, y):
         return tf.logical_and(x, y)
     else:
         return np.logical_and(x, y)
+
+
+def gather(x, indices=None, axis=None):
+    if not SWITCH_ON or is_tensor(x):
+        return tf.gather(x, indices=indices, axis=axis)
+    else:
+        return np.take(x, indices=indices, axis=axis)

@@ -315,7 +315,7 @@ class Limit(ZfitLimit):
 
 
 class Coordinates(ZfitOrderableDimensional):
-    def __init__(self, obs, axes):
+    def __init__(self, obs=None, axes=None):
         obs, axes, n_obs = self._check_convert_obs_axes(obs, axes)
         self._obs = obs
         self._axes = axes
@@ -435,6 +435,68 @@ class Coordinates(ZfitOrderableDimensional):
 
         new_indices = _reorder_indices(old=old, new=new)
         return new_indices
+
+    def reorder_x(self, x: Union[tf.Tensor, np.ndarray], *, x_obs: ztyping.ObsTypeInput = None,
+                  x_axes: ztyping.AxesTypeInput = None, func_obs: ztyping.ObsTypeInput = None,
+                  func_axes: ztyping.AxesTypeInput = None) -> Union[tf.Tensor, np.ndarray]:
+        """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
+
+        There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
+        If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
+        according to `self.obs` resp. `self.axes`.
+
+        If func_obs resp. func_axes is given, then x is assumed to have `self.obs` resp. `self.axes` and will be
+        reordered to align with a function ordered with `func_obs` resp. `func_axes`.
+
+        Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
+
+        Args:
+            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
+                latter.
+            x_axes: Axes associated with x.
+            func_obs: Observables associated with a function that x will be given to. Reorders x accordingly and assumes
+                self.obs to be the obs of x. If both, `func_obs` and `func_axes` are given, this has precedency over the
+                latter.
+            func_axes: Axe associated with a function that x will be given to. Reorders x accordingly and assumes
+                self.axes to be the axes of x.
+
+        Returns:
+
+        """
+        x_reorder = x_obs is not None or x_axes is not None
+        func_reorder = func_obs is not None or func_axes is not None
+        if not (x_reorder ^ func_reorder):
+            raise ValueError("Either specify `x_obs/axes` or `func_obs/axes`, not both.")
+        obs_defined = x_obs is not None or func_obs is not None
+        axes_defined = x_axes is not None or func_axes is not None
+        if obs_defined and self.obs:
+            if x_reorder:
+                coord_old = x_obs
+                coord_new = self.obs
+            elif func_reorder:
+                coord_new = func_obs
+                coord_old = self.obs
+            else:
+                assert False, 'bug, should never be reached'
+
+        elif axes_defined and self.axes:
+            if x_reorder:
+                coord_old = x_axes
+                coord_new = self.axes
+            elif func_reorder:
+                coord_new = func_axes
+                coord_old = self.axes
+            else:
+                assert False, 'bug, should never be reached'
+        else:
+            raise ValueError("Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined"
+                             " coordinates.")
+
+        new_indices = _reorder_indices(old=coord_old, new=coord_new)
+
+        x = z.unstable.gather(x, indices=new_indices, axis=-1)
+        return x
 
 
 # def limits_are_equal(limit1, limit2):
