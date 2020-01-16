@@ -14,7 +14,7 @@ def test_rect_limit(graph):
 
     def test(allow_graph=True):
         limit = Limit(rect_limits)
-        limit2 = Limit(rect_limit=rect_limits)
+        limit2 = Limit(rect_limits=rect_limits)
 
         lower, upper = limit.rect_limits
         lower2, upper2 = limit2.rect_limits

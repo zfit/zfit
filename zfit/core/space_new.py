@@ -99,17 +99,6 @@ ANY_LOWER = AnyLower()
 ANY_UPPER = AnyUpper()
 
 
-# #
-# class Coordinates:
-#
-#     def __init__(self, obs=None, axes=None) -> None:
-#         super().__init__()
-#         obs = convert_to_container(obs)
-#         self.obs = obs
-#         axes = convert_to_container(axes)
-#         self.axes = axes
-
-
 @z.function_tf_input
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
@@ -167,17 +156,22 @@ def convert_to_numpy(obj):
 
 
 class Limit(ZfitLimit):
-    def __init__(self, limit_fn=None, rect_limit=None, n_obs=None):
+    def __init__(self, limit_fn=None, rect_limits=None, n_obs=None):
         super().__init__()
-        limit_fn, rect_limit, n_obs, is_rect = self._check_convert_input_limits(limits_fn=limit_fn,
-                                                                                rect_limits=rect_limit,
-                                                                                n_obs=n_obs)
+        limit_fn, rect_limits, n_obs, is_rect = self._check_convert_input_limits(limits_fn=limit_fn,
+                                                                                 rect_limits=rect_limits,
+                                                                                 n_obs=n_obs)
         self._limit_fn = limit_fn
-        self._rect_limits = rect_limit
+        self._rect_limits = rect_limits
         self._n_obs = n_obs
         self._is_rect = is_rect
 
     def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
+        if isinstance(limits_fn, ZfitLimit):
+            if rect_limits is not None or n_obs:
+                raise OverdefinedError("limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified.")
+            limit = limits_fn
+            return limit.limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits
         limits_are_rect = True
         if limits_fn is False:
             if rect_limits in (False, None):
@@ -227,7 +221,7 @@ class Limit(ZfitLimit):
         if len(limit.shape) == 0:
             limit = z.unstable.broadcast_to(limit, shape=(1, 1))
         if len(limit.shape) == 1:
-            limit = z.unstable.expand_dims(limit, axis=-1)
+            limit = z.unstable.expand_dims(limit, axis=0)
         return limit
 
     @property
@@ -324,8 +318,14 @@ class Coordinates(ZfitOrderableDimensional):
 
     @staticmethod
     def _check_convert_obs_axes(obs, axes):
-        obs = convert_to_obs_str(obs)
-        axes = convert_to_axes(axes)
+        if isinstance(obs, ZfitOrderableDimensional):
+            if axes is not None:
+                raise OverdefinedError("Cannot use (currently, please open an issue if desired) a"
+                                       " ZfitOrderableDimensional as obs with axes not None")
+            coord = obs
+            return coord.obs, coord.axes, coord.n_obs
+        obs = convert_to_obs_str(obs, container=tuple)
+        axes = convert_to_axes(axes, container=tuple)
         if obs is None:
             if axes is None:
                 raise CoordinatesUnderdefinedError("Neither obs nor axes specified")
@@ -358,9 +358,6 @@ class Coordinates(ZfitOrderableDimensional):
             obs = _convert_obs_to_str(obs)
             if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
                 raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
-
-            if (not allow_subset) and (not frozenset(obs).issuperset(self.obs)):
-                raise ObsIncompatibleError(f"Obs {obs} are a subset of {self.obs}, not allowed according to flag.")
 
             new_indices = self.get_reorder_indices(obs=obs)
             new_obs = self._reorder_obs(indices=new_indices)
@@ -515,7 +512,7 @@ class Coordinates(ZfitOrderableDimensional):
         return x
 
     def __eq__(self, other):
-        if not isinstance(Coordinates, ZfitSpace):
+        if not isinstance(other, Coordinates):
             return NotImplemented
         equal = self.obs == other.obs and self.axes == other.axes
         return equal
@@ -687,6 +684,18 @@ class BaseSpace(ZfitSpace, BaseObject):
         if not isinstance(other, ZfitSpace):
             raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
         return add_spaces_new(self, other)
+
+    def equal(self, other, allow_graph):
+        if not isinstance(other, ZfitSpace):
+            return NotImplemented
+        limits_equal = self.rect_limits == other.rect_limits  # TODO: improve! What about 'inside'?
+        coords_equal = self.coords == other.coords
+        return z.unstable.logical_and(limits_equal, coords_equal)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ZfitSpace):
+            return NotImplemented
+        return self.equal(other=other, allow_graph=False)
 
 
 def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
@@ -964,31 +973,37 @@ class Space(BaseSpace):
     # self._check_set_limits(limits=limits)
 
     def _extract_limits(self, obs=None, axes=None):
-        if not (obs is None) ^ (axes is None):
-            raise ValueError("Cannot specify both or none of them.")
+        if (obs is None) and (axes is None):
+            raise ValueError("Need to specify at least one, obs or axes.")
+        elif (obs is not None) and (axes is not None):
+            axes = None  # obs has precedency
         if obs is None:
             obs_in_use = False
-            coords = axes
+            coords_to_extract = axes
         else:
             obs_in_use = True
-            coords = obs
+            coords_to_extract = obs
+        coords_to_extract = set(coords_to_extract)
 
-        keys_sorted = sorted(self._limits_dict, key=len, reverse=True)
-        for key in keys_sorted:
-            value = self._limits_dict[key]
-            for coord in coords:
-                if coord in key:
-                    coord = {coord}
-                    if not frozenset(key).issubset(coord):
-                        if isinstance(value, ZfitSpace):
-                            kwargs = {'obs' if obs_in_use else 'axes': coord}
-                            try:
-                                limit = value.get_subspace(**kwargs)
-                            except InvalidLimitSubspaceError:
-                                raise InvalidLimitSubspaceError(f"Cannot extract {coord} from limit {limit}.")
-                        else:
-                            raise CoordinatesIncompatibleError("Cannot extract limits")
-                        # TODO pen and paper algorithm :D
+        limits_to_eval = {}
+        keys_sorted = sorted(self._limits_dict.items(), key=lambda x: len(x[0]), reverse=True)
+        for key_coords, limit in keys_sorted:
+            coord_intersec = frozenset(key_coords).intersection(coords_to_extract)
+            if not coord_intersec:  # this limit does not contain any requested obs
+                continue
+            if coord_intersec == frozenset(key_coords):
+                limits_to_eval[key_coords] = limit
+            else:
+                coord_limit = [coord for coord in key_coords if coord in coord_intersec]
+                kwargs = {'obs' if obs_in_use else 'axes': coord_limit}
+                try:
+                    sublimit = limit.get_subspace(**kwargs)
+                except InvalidLimitSubspaceError:
+                    raise InvalidLimitSubspaceError(f"Cannot extract {coord_intersec} from limit {limit}.")
+                sublimit_coord = limit.obs if obs_in_use else limit.axes
+                limits_to_eval[sublimit_coord] = sublimit
+                coords_to_extract -= coord_intersec
+        return limits_to_eval
 
     @property
     @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
@@ -1000,7 +1015,7 @@ class Space(BaseSpace):
         Returns:
 
         """
-        return self._limits
+        return "HACK no limits"
 
     @property
     def rect_limits(self) -> ztyping.LimitsTypeReturn:
@@ -1009,7 +1024,28 @@ class Space(BaseSpace):
         Returns:
 
         """
-        return self._rect_limits
+        limits_obs = []
+        rect_lower_unordered = []
+        rect_upper_unordered = []
+        for obs_limit, limit in self._limits_dict.items():  # TODO: what about axis?
+            limits_obs.extend(obs_limit)
+            lower, upper = limit.rect_limits
+            rect_lower_unordered.append(lower)
+            rect_upper_unordered.append(upper)
+        # limits_obs = sum(limits_obs, [])
+        lower_stacked = z.unstable.concat(rect_lower_unordered,
+                                          axis=-1)  # TODO: improve this layer, is list does not recognize it as tensor?
+        lower_ordered = self.reorder_x(lower_stacked, x_obs=limits_obs)
+        upper_stacked = z.unstable.concat(rect_upper_unordered,
+                                          axis=-1)  # TODO: improve this layer, is list does not recognize it as tensor?
+        upper_ordered = self.reorder_x(upper_stacked, x_obs=limits_obs)
+        return (lower_ordered, upper_ordered)
+
+    def reorder_x(self, x, x_obs=None, x_axes=None, func_obs=None, func_axes=None):
+        return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
+
+    def rect_area(self) -> float:
+        raise WorkInProgressError
 
     @property
     def has_limits(self):
@@ -1112,7 +1148,7 @@ class Space(BaseSpace):
         Returns:
             int >= 1
         """
-        pass
+        return len(self)
         # if not self.has_limits:
         #     return 0
         # return len(self.lower)
@@ -1189,10 +1225,9 @@ class Space(BaseSpace):
             if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
                 raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
 
-            if (not allow_subset) and (not frozenset(obs).issuperset(self.obs)):
-                raise ObsIncompatibleError(f"Obs {obs} are a subset of {self.obs}, not allowed according to flag.")
         new_indices = self.get_reorder_indices(obs=obs)
-        new_space = self.reorder_by_indices(indices=new_indices)
+        new_space = self.with_indices(indices=new_indices)
+        raise WorkInProgressError
         return new_space
 
     def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
@@ -1219,7 +1254,9 @@ class Space(BaseSpace):
             if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
                 raise AxesIncompatibleError(f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
             new_indices = self.get_reorder_indices(axes=axes)
-            new_space = self.reorder_by_indices(indices=new_indices)
+            new_space = self.with_indices(indices=new_indices)
+        raise WorkInProgressError
+
         return new_space
 
     def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None,
@@ -1473,53 +1510,22 @@ class Space(BaseSpace):
         Returns:
 
         """
-        # if obs is not None and axes is not None:
-        #     raise ValueError("Cannot specify `obs` *and* `axes` to get subspace.")
-        # if axes is None and obs is None:
-        #     raise ValueError("Either `obs` or `axes` has to be specified and not None")
-        #
-        # # try to use observables to get index
-        # obs = self._check_convert_input_obs(obs=obs, allow_none=True)
-        # if obs is not None:
-        #     try:
-        #         sub_index = tuple(self.obs.index(o) for o in obs)
-        #     except ValueError as error:
-        #         print("Original message: ", error)
-        #         raise KeyError("Cannot get subspace from `obs` {} as this observables are not defined"
-        #                        "in this space. Only {} is defined.".format(set(obs) - set(self.obs), set(self.obs)))
-        #     except AttributeError:  # `obs` is None -> has not attribute `index`
-        #         raise ObsNotSpecifiedError("Observables have not been specified in this space.")
-        #
-        # # try to use axes to get index
-        # axes = self._check_convert_input_axes(axes=axes, allow_none=True)
-        # if axes is not None:
-        #     try:
-        #         sub_index = tuple(self.axes.index(ax) for ax in axes)
-        #
-        #     except ValueError as error:
-        #         print("Original message: ", error)
-        #         raise KeyError("Cannot get subspace from `axes` {} as this axes are not defined"
-        #                        "in this space. Only the following axes are {}"
-        #                        "".format(set(axes) - set(self.axes), self.axes))
-        #     except AttributeError:
-        #         raise AxesNotSpecifiedError("Axes have not been specified for this space.")
-        #
-        # sub_obs = self.obs if self.obs is None else tuple(self.obs[i] for i in sub_index)
-        # sub_axes = self.axes if self.axes is None else tuple(self.axes[i] for i in sub_index)
-        #
-        # # use index to get limits
-        # limits = self.limits
-        # if limits is None or limits is False:
-        #     sub_limits = limits
-        # else:
-        #     lower, upper = limits
-        #     sub_lower = tuple(tuple(lim[i] for i in sub_index) for lim in lower)
-        #     sub_upper = tuple(tuple(lim[i] for i in sub_index) for lim in upper)
-        #     sub_limits = sub_lower, sub_upper
-        #
-        # new_space = type(self)._from_any(obs=sub_obs, axes=sub_axes, limits=sub_limits, name=name)
-        #
-        # return new_space
+        if obs is not None and axes is not None:
+            raise ValueError("Cannot specify `obs` *and* `axes` to get subspace.")
+        if axes is None and obs is None:
+            raise ValueError("Either `obs` or `axes` has to be specified and not None")
+
+        # try to use observables to get index
+        obs = self._check_convert_input_obs(obs=obs, allow_none=True)
+        axes = self._check_convert_input_axes(axes=axes, allow_none=True)
+        if obs is not None:
+            limits_dict = self._extract_limits(obs=obs)
+            new_coords = self.coords.with_obs(obs, allow_subset=True)
+        else:
+            limits_dict = self._extract_limits(axes=axes)
+            new_coords = self.coords.with_axes(axes=axes, allow_subset=True)
+        new_space = type(self)(obs=new_coords, limits=limits_dict)
+        return new_space
 
     # Operators
 
@@ -2052,31 +2058,31 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
     return create_deco_stack
 
 
-def convert_to_axes(axes):
+def convert_to_axes(axes, container=tuple):
     """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
 
     """
     if axes is None:
         return axes
-    axes = convert_to_container(value=axes, container=tuple)
-    new_obs = []
+    axes = convert_to_container(value=axes, container=container)
+    new_axes = []
     for axis in axes:
         if isinstance(axis, ZfitSpace):
             if len(axis) > 1:
                 raise WorkInProgressError("Not implemented, uniqueify?")
-            new_obs.extend(axis.obs)
+            new_axes.extend(axis.obs)
         else:
-            new_obs.append(axis)
-    return new_obs
+            new_axes.append(axis)
+    return container(new_axes)
 
 
-def convert_to_obs_str(obs):
+def convert_to_obs_str(obs, container=tuple):
     """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
 
     """
     if obs is None:
         return obs
-    obs = convert_to_container(value=obs, container=tuple)
+    obs = convert_to_container(value=obs, container=container)
     new_obs = []
     for ob in obs:
         if isinstance(ob, ZfitSpace):
@@ -2085,7 +2091,7 @@ def convert_to_obs_str(obs):
             new_obs.extend(ob.obs)
         else:
             new_obs.append(ob)
-    return new_obs
+    return container(new_obs)
 
 
 def contains_tensor(object):

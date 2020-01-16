@@ -61,3 +61,10 @@ def gather(x, indices=None, axis=None):
         return tf.gather(x, indices=indices, axis=axis)
     else:
         return np.take(x, indices=indices, axis=axis)
+
+
+def concat(values, axis, name=None):
+    if not SWITCH_ON or is_tensor(values):
+        return tf.concat(values=values, axis=axis, name=name)
+    else:
+        return np.concatenate(values, axis=axis)

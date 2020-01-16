@@ -50,7 +50,7 @@ class ZfitDimensional(ZfitObject):
         raise NotImplementedError
 
 
-class ZfitOrderableDimensional(ZfitDimensional):
+class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
     def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
@@ -78,6 +78,35 @@ class ZfitOrderableDimensional(ZfitDimensional):
         """
         raise NotImplementedError
 
+    # @abstractmethod
+    def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
+        """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
+
+        There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
+        If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
+        according to `self.obs` resp. `self.axes`.
+
+        If func_obs resp. func_axes is given, then x is assumed to have `self.obs` resp. `self.axes` and will be
+        reordered to align with a function ordered with `func_obs` resp. `func_axes`.
+
+        Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
+
+        Args:
+            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
+                latter.
+            x_axes: Axes associated with x.
+            func_obs: Observables associated with a function that x will be given to. Reorders x accordingly and assumes
+                self.obs to be the obs of x. If both, `func_obs` and `func_axes` are given, this has precedency over the
+                latter.
+            func_axes: Axe associated with a function that x will be given to. Reorders x accordingly and assumes
+                self.axes to be the axes of x.
+
+        Returns:
+
+        """
+        pass
+
 
 class ZfitData(ZfitDimensional):
 
@@ -99,7 +128,7 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
 
-class ZfitLimit(abc.ABC):
+class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @property
     # @abstractmethod  # TODO(spaces): make abstract
@@ -156,8 +185,16 @@ class ZfitLimit(abc.ABC):
     def limit_fn(self):
         raise NotImplementedError
 
+    def get_subspace(self, *_, **__):
+        from zfit.util.exception import InvalidLimitSubspaceError
+        raise InvalidLimitSubspaceError("ZfitLimits does not suppoert subspaces")
 
-class ZfitSpace(ZfitLimit, ZfitObject):
+    # @abstractmethod  # TODO(spaces)
+    def equal(self, other, allow_graph):
+        pass
+
+
+class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject):
 
     @property
     @abstractmethod
@@ -193,7 +230,7 @@ class ZfitSpace(ZfitLimit, ZfitObject):
         """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
-    @abstractmethod
+    # @abstractmethod
     def iter_limits(self):
         """Iterate through the limits by returning several observables/(lower, upper)-tuples.
 
