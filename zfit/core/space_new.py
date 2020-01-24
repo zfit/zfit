@@ -925,6 +925,8 @@ class Space(BaseSpace):
             limit ():
 
         Returns:
+            dict(obs/axes: ZfitLimit): Limits dictionary containing the observables and/or the axes as a key matching
+                `ZfitLimits` objects.
 
         """
         limits_dict = {}
@@ -1024,38 +1026,47 @@ class Space(BaseSpace):
         Returns:
 
         """
+        self._check_has_limits
+        if not self.has_rect_limits:
+            return (False, False)
         limits_obs = []
         rect_lower_unordered = []
         rect_upper_unordered = []
+        obs_in_use = self.obs is not None
         for obs_limit, limit in self._limits_dict.items():  # TODO: what about axis?
+            if obs_in_use ^ isinstance(obs_limit[0], str):  # testing first element is sufficient
+                continue  # skipping if stored in different type of coords
             limits_obs.extend(obs_limit)
             lower, upper = limit.rect_limits
             rect_lower_unordered.append(lower)
             rect_upper_unordered.append(upper)
         # limits_obs = sum(limits_obs, [])
+        reorder_kwargs = {'x_obs' if obs_in_use else 'x_axes': limits_obs}
         lower_stacked = z.unstable.concat(rect_lower_unordered,
                                           axis=-1)  # TODO: improve this layer, is list does not recognize it as tensor?
-        lower_ordered = self.reorder_x(lower_stacked, x_obs=limits_obs)
+        lower_ordered = self.reorder_x(lower_stacked, **reorder_kwargs)
         upper_stacked = z.unstable.concat(rect_upper_unordered,
                                           axis=-1)  # TODO: improve this layer, is list does not recognize it as tensor?
-        upper_ordered = self.reorder_x(upper_stacked, x_obs=limits_obs)
+        upper_ordered = self.reorder_x(upper_stacked, **reorder_kwargs)
         return (lower_ordered, upper_ordered)
 
     def reorder_x(self, x, x_obs=None, x_axes=None, func_obs=None, func_axes=None):
         return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
     def rect_area(self) -> float:
-        raise WorkInProgressError
+        raise calculate_rect_area(rect_limits=self.rect_limits)
 
     @property
     def has_limits(self):
-        return (not self.limits_not_set) and self.limits is not False
+        return (not self.limits_not_set) and self.rect_limits is not False
 
     @property
     def limits_not_set(self):
-        return self.limits is None
+        return len(self._limits_dict) == 0
 
     @property
+    @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
+                                        " Use `inside` to check if an Tensor is inside the limits.")
     def limit1d(self) -> Tuple[float, float]:
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
@@ -1069,7 +1080,7 @@ class Space(BaseSpace):
             raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
         if self.n_limits > 1:
             raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
-        raise NotImplementedError
+        return self.rect_limits
 
     @property
     def limit2d(self) -> Tuple[float, float, float, float]:
@@ -1095,14 +1106,12 @@ class Space(BaseSpace):
         Raises:
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
         """
-        if self.n_obs > 1:
-            raise RuntimeError("Cannot call `limits1d, as `Space` has more than one observable: {}".format(self.n_obs))
-        raise NotImplementedError
+        raise BreakingAPIChangeError("This function is gone TODO alternative to use?")
 
     @property
-    @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
+    @deprecated(date=None, instructions="Depreceated (currently) due to the unambiguous nature of the word."
                                         " Use `inside` to check if an Tensor is inside the limits or"
-                                        " `rect_limits` if you need to retreave the rectangular limits.")
+                                        " `rect_lower` if you need to retreave the rectangular limits.")
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
@@ -1121,16 +1130,16 @@ class Space(BaseSpace):
         return self.rect_limits[0]
 
     @property
-    @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
+    @deprecated(date=None, instructions="depreceated (currently) due to the unambiguous nature of the word."
                                         " Use `inside` to check if an Tensor is inside the limits or"
-                                        " `rect_limits` if you need to retreave the rectangular limits.")
+                                        " `rect_upper` if you need to retreave the rectangular limits.")
     def upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
 
         Returns:
 
         """
-        raise NotImplementedError
+        return self.rect_upper
 
     @property
     def rect_upper(self) -> ztyping.UpperTypeReturn:
@@ -1149,9 +1158,6 @@ class Space(BaseSpace):
             int >= 1
         """
         return len(self)
-        # if not self.has_limits:
-        #     return 0
-        # return len(self.lower)
 
     # def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
     #     """Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
@@ -1199,9 +1205,10 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        # if limits == self._limits_fn and rect_limits == self.rect_limits and (name is None or name == self.name):
-        #     return self
-        new_space = self.copy(limits=limits, rect_limits=rect_limits, name=name)
+        # self._check_convert_input_limits(limits=limits, rect_limits=rect_limits, obs=self.obs, axes=self.axes,
+        #                                  n_obs=self.n_obs)
+        # new_space = self.copy(limits=limits, rect_limits=rect_limits, name=name)
+        new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits)
         return new_space
 
     def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,

@@ -33,7 +33,20 @@ def test_extract_limits():
 
 def test_rect_limits():
     obs1 = ['a']
+    axes1 = [0]
     space1 = Space('a', (0, 1))
+    space1_nolim = Space('a')
+    assert not space1_nolim.has_limits
+    space1_lim = space1_nolim.with_limits((0, 1))
+    space1_ax = Space(axes=0, limits=(0, 1))
     lower, upper = space1.rect_limits
+    assert lower == 0
+    assert upper == 1
+
+    lower, upper = space1_ax.rect_limits
+    assert lower == 0
+    assert upper == 1
+
+    lower, upper = space1_lim.rect_limits
     assert lower == 0
     assert upper == 1
