@@ -38,8 +38,8 @@ def create_gauss1(nameadd=""):
 
 
 def create_mu_sigma_true_params():
-    mu_true_param = zfit.Parameter('mu_true123', mu_true)
-    sigma_true_param = zfit.Parameter('sigma_true123', sigma_true)
+    mu_true_param = zfit.Parameter('mu_true', mu_true)
+    sigma_true_param = zfit.Parameter('sigma_true', sigma_true)
     return mu_true_param, sigma_true_param
 
 
