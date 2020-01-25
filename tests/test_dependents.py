@@ -1,11 +1,11 @@
 #  Copyright (c) 2020 zfit
 
 import zfit
-
+import pytest
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
+@pytest.mark.flaky()
 def test_get_dependents_ordered():
     params = [zfit.Parameter(f'param{i}', i) for i in range(4)]
     obs = zfit.Space('obs1', (-3, 2))
