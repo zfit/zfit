@@ -591,7 +591,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return self._partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
+                return self._hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
 
             return self._fallback_partial_integrate(x=x, limits=limits, norm_range=norm_range)
 
@@ -609,6 +609,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         else:
             part_int = self._func_to_integrate
 
+        assert limits.axes, "Internal Error! Axes should not be empty, maybe cleanup."
         integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, x=x, norm_range=norm_range)
 
         return integral_vals
