@@ -319,6 +319,6 @@ then sampling of the observed values might be needed to obtain an unbiased sampl
     ...     sampler.resample()
     ...     # do something with nll
     ...     with ExitStack() as stack:
-    ...         stack.enter_context(mu_sigma1.set_value(constr_values[sigma1][i]))
-    ...         stack.enter_context(mu_sigma2.set_value(constr_values[sigma2][i]))
+    ...         for x, v in constr.items():
+    ...             stack.enter_context(x.set_value())
     ...         minimizer.minimize(nll)  # minimize
