@@ -7,6 +7,7 @@ from typing import Dict, Union, Callable, Optional
 
 from .baseobject import BaseNumeric
 from .interfaces import ZfitParameter
+from .parameter import convert_to_parameter
 from ..util import ztyping
 from ..util.graph import get_dependents_auto
 from ..util.container import convert_to_container
@@ -134,7 +135,7 @@ class DistributionConstraint(BaseConstraint):
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
     def _value(self):
-        value = -self.distribution.log_prob(self._params_array)
+        value = -self.distribution.log_prob(self._x_array)
         return value
 
     def _sample(self, n):
@@ -144,13 +145,14 @@ class DistributionConstraint(BaseConstraint):
 
 class GaussianConstraint(DistributionConstraint):
 
-    def __init__(self, params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
+    def __init__(self, x: ztyping.NumericalScalarType, mu: ztyping.ParamTypeInput,
                  sigma: ztyping.NumericalScalarType):
         """Gaussian constraints on a list of parameters.
 
         Args:
-            params (list(zfit.Parameter)): The parameters to constraint
-            mu (numerical, list(numerical)): The central values of the constraint
+            x (numerical, list(numerical) or list(zfit.Parameter)): Observed values of the parameter
+                to constraint
+            mu (list(zfit.Parameter)): The parameters to constraint
             sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
 
@@ -158,14 +160,17 @@ class GaussianConstraint(DistributionConstraint):
             ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
         """
 
-        mu = convert_to_container(mu, tuple, non_containers=[np.ndarray])
+        mu = convert_to_container(mu, list)
         self._mu = mu
-        params = convert_to_container(params, tuple)
-        params_dict = {f"param_{i}": p for i, p in enumerate(params)}
+        params_dict = {f"param_{i}": p for i, p in enumerate(mu)}
+
+        x = convert_to_container(x, list, non_containers=[np.ndarray])
+        x = [convert_to_parameter(x_, f"{p.name}_obs") for x_, p in zip(x, mu)]
+        self._x = x
 
         mu = ztf.convert_to_tensor([ztf.convert_to_tensor(m) for m in mu])
         sigma = ztf.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
-        params = ztf.convert_to_tensor(params)
+        x = ztf.convert_to_tensor([ztf.convert_to_tensor(x_) for x_ in x])
 
         if sigma.shape.ndims > 1:
             covariance = sigma
@@ -175,13 +180,13 @@ class GaussianConstraint(DistributionConstraint):
             sigma = tf.reshape(sigma, [1])
             covariance = tf.linalg.tensor_diag(ztf.pow(sigma, 2.))
 
-        if not params.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
+        if not x.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
             raise ShapeIncompatibleError(f"params, mu and sigma have to have the same length. Currently"
-                                         f"params: {params.shape[0]}, mu: {mu.shape[0]}, "
+                                         f"params: {x.shape[0]}, mu: {mu.shape[0]}, "
                                          f"covariance (from sigma): {covariance.shape[0:2]}")
 
         self._covariance = covariance
-        self._params_array = params
+        self._x_array = x
 
         distribution = tfd.MultivariateNormalFullCovariance
         dist_params = dict(loc=mu, covariance_matrix=covariance)
@@ -189,6 +194,16 @@ class GaussianConstraint(DistributionConstraint):
 
         super().__init__(name="GaussianConstraint", params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+
+    @property
+    def x(self):
+        """
+        Return the observed values of the constraint.
+        """
+        return self._x
+
+    #def _x_array(self):
+    #    return ztf.convert_to_tensor([ztf.convert_to_tensor(x_) for x_ in x])
 
     @property
     def mu(self):
