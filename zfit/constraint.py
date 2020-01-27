@@ -9,13 +9,14 @@ import tensorflow as tf
 __all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 
 
-def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType,
+def nll_gaussian(x: ztyping.NumericalScalarType, mu: ztyping.ParamTypeInput,
                  sigma: ztyping.NumericalScalarType) -> tf.Tensor:
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
 
     Args:
-        params (list(zfit.Parameter)): The parameters to constraint
-        mu (numerical, list(numerical)): The central value of the constraint
+        x (numerical, list(numerical) or list(zfit.Parameter)): Observed values of the parameter
+            to constraint obtained from auxiliary measurements
+        mu (list(zfit.Parameter)): The parameters to constraint
         sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
             matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
     Returns:
@@ -24,7 +25,7 @@ def nll_gaussian(params: ztyping.ParamTypeInput, mu: ztyping.NumericalScalarType
         ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """
 
-    return GaussianConstraint(params=params, mu=mu, sigma=sigma)
+    return GaussianConstraint(x=x, mu=mu, sigma=sigma)
 
 # def nll_pdf(constraints: dict):
 #     if not constraints:
