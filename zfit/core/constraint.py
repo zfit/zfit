@@ -47,25 +47,10 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
     def _get_dependents(self) -> ztyping.DependentsType:
         return self._extract_dependents(self.get_params())
 
-    def sample(self, n):
-        """Sample `n` points from the probability density function for the constrained parameters.
-
-        Args:
-            n (int, tf.Tensor): The number of samples to be generated.
-        Returns:
-            Dict(Parameter: n_samples)
-        """
-        sample = self._sample(n=n)
-        return {p: sample[:, i] for i, p in enumerate(self.get_params())}
-
-    @abc.abstractmethod
-    def _sample(self, n):
-        raise NotImplementedError
-
 
 class SimpleConstraint(BaseConstraint):
 
-    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType], sampler: Callable = None):
+    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType]):
         """Constraint from a (function returning a) Tensor.
 
         The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
@@ -76,7 +61,6 @@ class SimpleConstraint(BaseConstraint):
                 dependents are figured out automatically.
         """
         self._simple_func = func
-        self._sampler = sampler
         self._simple_func_dependents = convert_to_container(params, container=OrderedSet)
 
         params = convert_to_container(params, container=list)
@@ -95,17 +79,73 @@ class SimpleConstraint(BaseConstraint):
     def _value(self):
         return self._simple_func()
 
+
+class SamplableConstraint(BaseConstraint):
+
+    def __init__(self, x: Union[ztyping.NumericalScalarType, ZfitParameter],
+                 params: Union[Dict[str, ZfitParameter]] = None, name: str = "SamplableConstraint",
+                 dtype=ztypes.float, **kwargs):
+        """Base class for samplable constraints.
+
+        Args:
+            dtype (DType): the dtype of the constraint
+            name (str): the name of the constraint
+            params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the
+                parameter and the parameters itself the constrains depends on
+            x (numerical, list(numerical) or list(zfit.Parameter)): Observed values of the parameter
+                to constraint obtained from auxiliary measurements.
+        """
+        super().__init__(name=name, dtype=dtype, params=params, **kwargs)
+        x = convert_to_container(x, tuple)
+
+        if len(x) != len(params):
+            raise ShapeIncompatibleError("x and params have to be the same lenght. Currently"
+                                         f"x: {len(x)}, params: {len(params)}")
+
+        x = [convert_to_parameter(x_, f"{p.name}_obs") for x_, p in zip(x, params.values())]
+        self._x = x
+
+    @property
+    def x(self):
+        """
+        Return the values of the constrained parameters obtained from auxiliary measurment.
+        """
+        return self._x
+
+    @property
+    def _x_array(self):
+        return z.convert_to_tensor([z.convert_to_tensor(x) for x in self.x])
+
+    def value(self):
+        return self._value()
+
+    @abc.abstractmethod
+    def _value(self):
+        raise NotImplementedError
+
+    def _get_dependents(self) -> ztyping.DependentsType:
+        return self._extract_dependents(self.get_params())
+
+    def sample(self, n):
+        """Sample `n` points from the probability density function for the observed value of the parameters.
+
+        Args:
+            n (int, tf.Tensor): The number of samples to be generated.
+        Returns:
+            Dict(Parameter: n_samples)
+        """
+        sample = self._sample(n=n)
+        return {p: sample[:, i] for i, p in enumerate(self.x)}
+
+    @abc.abstractmethod
     def _sample(self, n):
-        sampler = self._sampler
-        if sampler is None:
-            raise LogicalUndefinedOperationError(
-                "Cannot sample from a SimpleLoss if no sampler was given on instanciation.")
-        return sampler(n)
+        raise NotImplementedError
 
 
-class DistributionConstraint(BaseConstraint):
+class DistributionConstraint(SamplableConstraint):
 
-    def __init__(self, params: Dict[str, ZfitParameter], distribution: tfd.Distribution,
+    def __init__(self, x: Union[ztyping.NumericalScalarType, ZfitParameter],
+                 params: Dict[str, ZfitParameter], distribution: tfd.Distribution,
                  dist_params, dist_kwargs=None, name: str = "DistributionConstraint", dtype=ztypes.float,
                  **kwargs):
         """ Base class for constraints using a probability density function.
@@ -115,7 +155,7 @@ class DistributionConstraint(BaseConstraint):
                 used to constraint the parameters
 
         """
-        super().__init__(params=params, name=name, dtype=dtype, **kwargs)
+        super().__init__(x=x, params=params, name=name, dtype=dtype, **kwargs)
 
         self._distribution = distribution
         self.dist_params = dist_params
@@ -148,7 +188,7 @@ class GaussianConstraint(DistributionConstraint):
 
         Args:
             x (numerical, list(numerical) or list(zfit.Parameter)): Observed values of the parameter
-                to constraint
+                to constraint obtained from auxiliary measurements
             mu (list(zfit.Parameter)): The parameters to constraint
             sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance
                 matrix of the constraint. Can either be a single value, a list of values, an array or a tensor
@@ -157,16 +197,14 @@ class GaussianConstraint(DistributionConstraint):
             ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
         """
 
+        x = convert_to_container(x, tuple)
         mu = convert_to_container(mu, tuple)
         params_dict = {f"param_{i}": p for i, p in enumerate(mu)}
 
-        x = convert_to_container(x, list, non_containers=[np.ndarray])
-        x = [convert_to_parameter(x_, f"{p.name}_obs") for x_, p in zip(x, mu)]
-
-        def create_covariance(x, mu, sigma):
-            mu = z.convert_to_tensor([z.convert_to_tensor(m) for m in mu])
+        def create_covariance(mu, sigma):
+            mu = z.convert_to_tensor(mu)
             sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
-            x_tensor = z.convert_to_tensor(x)
+            x_tensor = self._x_array
 
             if sigma.shape.ndims > 1:
                 covariance = sigma
@@ -182,24 +220,14 @@ class GaussianConstraint(DistributionConstraint):
                                              f"covariance (from sigma): {covariance.shape[0:2]}")
             return covariance
 
-        self._x_array = x
-
-        self._x = x
         self._mu = mu
-        self._covariance = lambda: create_covariance(x, mu, sigma)
+        self._covariance = lambda: create_covariance(mu, sigma)
         distribution = tfd.MultivariateNormalFullCovariance
-        dist_params = lambda: dict(loc=mu, covariance_matrix=create_covariance(mu, sigma))
+        dist_params = lambda: dict(loc=mu, covariance_matrix=self.covariance)
         dist_kwargs = dict(validate_args=True)
 
-        super().__init__(name="GaussianConstraint", params=params_dict,
+        super().__init__(name="GaussianConstraint", x=x, params=params_dict,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
-
-    @property
-    def x(self):
-        """
-        Return the observed values of the constraint.
-        """
-        return self._x
 
     @property
     def mu(self):
@@ -213,7 +241,4 @@ class GaussianConstraint(DistributionConstraint):
         """
         Return the covariance matrix of the constraint.
         """
-        return self._covariance
-
-    def _x_array(self):
-        return z.convert_to_tensor(self.x)
+        return self._covariance()
