@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>parameter &#8212; zfit 0.4.2.dev3+gdcf57d1 documentation</title>
+    <title>parameter &#8212; zfit 0.4.2.dev6+gea904f9 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev3</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev6</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -447,8 +447,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.parameter.BaseComposedParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.BaseComposedParameter.numpy">
@@ -493,6 +492,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.parameter.BaseComposedParameter.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.parameter.BaseComposedParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -510,7 +514,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.parameter.BaseParameter.dtype">
-<em class="property">abstract property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.parameter.BaseParameter.dtype" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.parameter.BaseParameter.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <cite>DType</cite> of <cite>Tensor`s handled by this `model</cite>.</p>
 </dd></dl>
 
@@ -546,8 +550,13 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.parameter.BaseParameter.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.BaseParameter.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.parameter.BaseParameter.value">
-<em class="property">abstract </em><code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="headerlink" href="#zfit.core.parameter.BaseParameter.value" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseParameter.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -640,8 +649,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.parameter.BaseZParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.BaseZParameter.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.BaseZParameter.numpy">
@@ -684,6 +692,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseZParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.BaseZParameter.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.BaseZParameter.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.BaseZParameter.value">
@@ -810,8 +823,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.parameter.ComplexParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.ComplexParameter.numpy">
@@ -859,6 +871,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ComplexParameter.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.ComplexParameter.value">
@@ -955,8 +972,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.parameter.ComposedParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.ComposedParameter.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.ComposedParameter.numpy">
@@ -1001,6 +1017,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.parameter.ComposedParameter.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.ComposedParameter.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.parameter.ComposedParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedParameter.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1017,6 +1038,16 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="zfit.core.parameter.ComposedVariable.dtype">
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ComposedVariable.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.core.parameter.ComposedVariable.numpy">
 <code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedVariable.numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.numpy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1024,6 +1055,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.parameter.ComposedVariable.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedVariable.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.read_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ComposedVariable.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.ComposedVariable.shape" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1121,8 +1157,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.parameter.ConstantParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.ConstantParameter.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.ConstantParameter.numpy">
@@ -1165,6 +1200,11 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ConstantParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ConstantParameter.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.ConstantParameter.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.parameter.ConstantParameter.value">
@@ -3083,6 +3123,16 @@ in the specified name scope.</p>
 <dl class="method">
 <dt id="zfit.core.parameter.ZfitBaseVariable.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.parameter.ZfitBaseVariable.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ZfitBaseVariable.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.parameter.ZfitBaseVariable.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.parameter.ZfitBaseVariable.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.core.parameter.ZfitBaseVariable.shape" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
