@@ -249,6 +249,20 @@ class ZfitParameter(ZfitNumeric):
     def independent(self) -> bool:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def shape(self):
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def dtype(self) -> tf.DType:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def value(self):
+        raise NotImplementedError
+
 
 class ZfitLoss(ZfitObject, ZfitDependentsMixin):
 
