@@ -1536,7 +1536,7 @@ class Space(BaseSpace):
 
     # Operators
 
-    def copy(self, name: Optional[str] = None, **overwrite_kwargs) -> "zfit.Space":
+    def copy(self, **overwrite_kwargs) -> "zfit.Space":
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
         `overwrite_overwrite_kwargs`.
 
@@ -1548,19 +1548,16 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        raise NotImplementedError
-        # name = self.name if name is None else name
-        #
-        # kwargs = {'name': name,
-        #           'limits': self.limits,
-        #           'axes': self.axes,
-        #           'obs': self.obs}
-        # kwargs.update(overwrite_kwargs)
-        # if set(overwrite_kwargs) - set(kwargs):
-        #     raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
-        #
-        # new_space = type(self)._from_any(**kwargs)
-        # return new_space
+        kwargs = {'name': self.name,
+                  'limits': self._limits_dict,
+                  'axes': self.axes,
+                  'obs': self.obs}
+        kwargs.update(overwrite_kwargs)
+        if set(overwrite_kwargs) - set(kwargs):
+            raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
+
+        new_space = type(self)(**kwargs)
+        return new_space
 
     def __le__(self, other):
         raise NotImplementedError
@@ -1672,6 +1669,14 @@ class Space(BaseSpace):
         above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
         inside = tf.logical_and(above_lower, below_upper)
         return inside
+
+    def get_updated_limits_dict(self, limits, obs=None, axes=None):
+        obs = convert_to_obs_str(obs)
+        axes = convert_to_axes(axes)
+        if obs is not None:
+
+
+def get_reordered_limits_dict(limits, old_coords, new_coords):
 
 
 def _convert_axes_to_int(axes):
@@ -1897,22 +1902,23 @@ class MultiSpace(BaseSpace):
         return hash(self.spaces)
 
 
-class FunctionSpace(BaseSpace):
-
-    def __init__(self, obs=None, axes=None, limit_fn=None, rect_limits=None, name="FunctionSpace"):
-        super().__init__(name, obs=obs, axes=axes, rect_limits=rect_limits, name=name)
-        self.limit_fn = limit_fn
-
-    def _inside(self, x, guarantee_limits):
-        return self.limit_fn(x)
-
-    @property
-    def limits_not_set(self):
-        return self.limit_fn is None
-
-    @property
-    def has_limits(self):
-        return not self.limits_not_set
+#
+# class FunctionSpace(BaseSpace):
+#
+#     def __init__(self, obs=None, axes=None, limit_fn=None, rect_limits=None, name="FunctionSpace"):
+#         super().__init__(name, obs=obs, axes=axes, rect_limits=rect_limits, name=name)
+#         self.limit_fn = limit_fn
+#
+#     def _inside(self, x, guarantee_limits):
+#         return self.limit_fn(x)
+#
+#     @property
+#     def limits_not_set(self):
+#         return self.limit_fn is None
+#
+#     @property
+#     def has_limits(self):
+#         return not self.limits_not_set
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,
@@ -2066,7 +2072,7 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
 
 
 def convert_to_axes(axes, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.
 
     """
     if axes is None:
@@ -2084,7 +2090,7 @@ def convert_to_axes(axes, container=tuple):
 
 
 def convert_to_obs_str(obs, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.
 
     """
     if obs is None:
