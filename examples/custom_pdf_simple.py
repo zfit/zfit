@@ -1,5 +1,7 @@
+#  Copyright (c) 2019 zfit
+
 import zfit
-from zfit import ztf
+from zfit import z
 
 
 class CustomPDF(zfit.pdf.ZPDF):
@@ -10,7 +12,7 @@ class CustomPDF(zfit.pdf.ZPDF):
         data = x.unstack_x()
         alpha = self.params['alpha']
 
-        return ztf.exp(alpha * data)
+        return z.exp(alpha * data)
 
 
 obs = zfit.Space("obs1", limits=(-4, 4))

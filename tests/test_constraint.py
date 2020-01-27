@@ -1,25 +1,25 @@
-#  Copyright (c) 2019 zfit
-import pytest
+#  Copyright (c) 2020 zfit
 import numpy as np
+import pytest
 import scipy.stats
 
 import zfit
-from zfit import ztf
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import ShapeIncompatibleError
+from zfit import z
 from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
+from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.container import convert_to_container
+from zfit.util.exception import ShapeIncompatibleError
 
 
 def true_nll_gaussian(x, mu, sigma):
     x = convert_to_container(x, container=tuple)
     mu = convert_to_container(mu, container=tuple)
     sigma = convert_to_container(sigma, container=tuple)
-    constraint = ztf.constant(0.)
+    constraint = z.constant(0.)
     if not len(x) == len(mu) == len(sigma):
         raise ValueError("params, mu and sigma have to have the same length.")
     for x_, mean, sig in zip(x, mu, sigma):
-        constraint += ztf.reduce_sum(ztf.square(x_ - mean) / (2. * ztf.square(sig)))
+        constraint += z.reduce_sum(z.square(x_ - mean) / (2. * z.square(sig)))
 
     return constraint
 
@@ -34,9 +34,8 @@ def true_multinormal_constr_value(x, mean, cov):
 
 
 def test_base_constraint():  # TODO(Mayou36): upgrade to tf2, use ABC again
-    # with pytest.raises(TypeError):
-    #     _ = BaseConstraint()
-    pass
+    with pytest.raises(TypeError):
+        BaseConstraint()
 
 
 def test_gaussian_constraint_shape_errors():
@@ -48,13 +47,13 @@ def test_gaussian_constraint_shape_errors():
     obs3 = zfit.Parameter("obs3", 4)
 
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(mu=[param1, param2], x=[obs1, obs2, obs3], sigma=5)
+        GaussianConstraint(x=[obs1, obs2, obs3], mu=[param1, param2], sigma=5)
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(mu=[param1, param2], x=[obs1, obs3], sigma=5)
+        GaussianConstraint(x=[obs1, obs3], mu=[param1, param2], sigma=5)
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(mu=[param1, param2], x=obs1, sigma=[1, 4])
+        GaussianConstraint(x=obs1, mu=[param1, param2], sigma=[1, 4])
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(mu=param1, x=[obs1, obs3], sigma=[2, 3])
+        GaussianConstraint(x=[obs1, obs3], mu=param1, sigma=[2, 3])
 
 
 def test_gaussian_constraint_matrix():
@@ -85,16 +84,15 @@ def test_gaussian_constraint():
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
     constr = GaussianConstraint(x=observed, mu=params, sigma=sigma)
-    value_tensor = constr.value()
-    constr_np = zfit.run(value_tensor)
+    constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(true_val)
     assert constr.get_dependents() == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
 
-    constr2_np = zfit.run(value_tensor)
-    constr2_newtensor_np = zfit.run(constr.value())
+    constr2_np = constr.value().numpy()
+    constr2_newtensor_np = constr.value().numpy()
     assert constr2_newtensor_np == pytest.approx(constr2_np)
 
     true_val2 = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
@@ -124,7 +122,7 @@ def test_gaussian_constraint_orderbug():  # as raised in #162
     constr1 = zfit.constraint.GaussianConstraint(x=observed, mu=params, sigma=sigma)
 
     value_tensor = constr1.value()
-    constr_np = zfit.run(value_tensor)
+    constr_np = value_tensor.numpy()
     assert constr_np == pytest.approx(true_val)
     assert true_val < 10000
 
@@ -143,12 +141,13 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
 
     constr1 = zfit.constraint.GaussianConstraint(**constraint)
     # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
-    constraint['mu'] = zfit.run(constraint['mu'])
+    constraint['mu'] = [m.numpy() for m in constraint['mu']]
+
 
     true_val = true_gauss_constr_value(**constraint)
 
     value_tensor = constr1.value()
-    constr_np = zfit.run(value_tensor)
+    constr_np = value_tensor.numpy()
     assert constr_np == pytest.approx(true_val)
     assert true_val < 1000
     assert true_val == pytest.approx(-8.592, abs=0.1)  # if failing, change value. Hardcoded for additional layer
@@ -180,9 +179,9 @@ def test_simple_constraint():
     def func():
         return true_nll_gaussian(x=observed, mu=params, sigma=sigma)
 
-    constr = SimpleConstraint(func=func)
+    constr = SimpleConstraint(func=func, params=params)
 
-    constr_np = zfit.run(constr.value())
+    constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(2.02)
 
     assert constr.get_dependents() == set(params)

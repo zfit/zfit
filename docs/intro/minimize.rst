@@ -29,7 +29,7 @@ For instance, the Adam minimizer could have been initialised by
 .. code-block:: pycon
 
     >>> # Adam's TensorFlor optimiser using a wrapper
-    >>> minimizer_wrapper = zfit.minimize.WrapOptimizer(tf.train.AdamOptimizer())
+    >>> minimizer_wrapper = zfit.minimize.WrapOptimizer(tf.keras.optimizer.Adam())
 
 Any of these minimizers can then be used to minimize the loss function we created in :ref:`previous section <data-section>`, e.g.
 

@@ -1,13 +1,14 @@
-import abc
-from typing import List, Union, Dict, Tuple
+#  Copyright (c) 2019 zfit
 
-import zfit
-from ..core.limits import Space
+import abc
+from typing import List, Union, Tuple
+
 from ..core.basemodel import BaseModel
 from ..core.dimension import get_same_obs, combine_spaces
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel
+from ..core.limits import Space
 from ..util.container import convert_to_container
-from ..util.exception import AxesNotUnambiguousError, NormRangeNotSpecifiedError, LimitsIncompatibleError
+from ..util.exception import NormRangeNotSpecifiedError, LimitsIncompatibleError
 
 
 class FunctorMixin(ZfitFunctorMixin, BaseModel):

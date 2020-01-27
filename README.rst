@@ -9,8 +9,8 @@ zfit: scalable pythonic fitting
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
 
-.. image:: https://img.shields.io/travis/zfit/zfit.svg
-   :target: https://travis-ci.org/zfit/zfit
+.. image:: https://travis-ci.org/zfit/zfit.svg?branch=develop
+    :target: https://travis-ci.org/zfit/zfit
 
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
    :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
@@ -20,7 +20,7 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-|
+**UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
@@ -29,14 +29,15 @@ and is optimised for simple and direct manipulation of probability density funct
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
-- **Documentation**: Full documentation_ and API_
+- **Develop Documentation**: Full documentation_ and API_
+- **Stable Documentation**: Latest `stable documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
-  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask?tags=zfit>`_ (with the **zfit** tag) or `contact`_ us directly.
 - **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
   related content
 
 
-If you use zfit in research, please consider `citing <https://zenodo.org/badge/latestdoi/126311570>`_.
+If you use zfit in research, please consider `citing <https://arxiv.org/abs/1910.13429>`_.
 
 *N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
@@ -226,13 +227,17 @@ You can contact us directly:
  - join our `Gitter channel <https://gitter.im/zfit/zfit>`_
 
 
-Main Authors
-============
+Original Authors
+================
 
 | Jonas Eschle <jonas.eschle@cern.ch>
 | Albert Puig <albert.puig@cern.ch>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 
+
+See here for `all authors and contributors`_
+
+..  _all authors and contributors: AUTHORS.rst
 
 
 Acknowledgements
@@ -243,4 +248,5 @@ zfit has been developed with support from the University of Zürich and the Swis
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
 .. _documentation: https://zfit.readthedocs.io/en/latest/
+..  _stable documentation: https://zfit.readthedocs.io/en/0.4.1/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html

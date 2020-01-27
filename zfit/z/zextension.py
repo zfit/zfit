@@ -1,18 +1,14 @@
-#  Copyright (c) 2019 zfit
-
+#  Copyright (c) 2020 zfit
+import functools
 import math as _mt
-
+from collections import defaultdict
 from typing import Any, Callable
 
 import numpy as np
-from math import inf as _inf
-
 import tensorflow as tf
-
 
 from ..settings import ztypes
 
-inf = tf.constant(_inf, dtype=ztypes.float)
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
@@ -110,8 +106,8 @@ def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values
     Returns:
         :py:class:`tf.Tensor`:
     """
-    safe_x = tf.compat.v1.where(condition=condition, x=values, y=value_safer(values))
-    result = tf.compat.v1.where(condition=condition, x=func(safe_x), y=safe_func(values))
+    safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
+    result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
     return result
 
 
@@ -130,4 +126,99 @@ def run_no_nan(func, x):
                            shape=tf.shape(input=value_with_nans, out_type=finite_indices.dtype))
     return result
 
-# reduce functions
+
+# tf_function_deco = tf.function(autograph=False, experimental_relax_shapes=True)
+
+
+class FunctionWrapperRegistry:
+    wrapped_functions = []
+    registries = []
+
+    @classmethod
+    def check_wrapped_functions_registered(cls):
+        return all((func.zfit_graph_cache_registered for func in cls.wrapped_functions))
+
+    def __init__(self, **kwargs_user) -> None:
+        """`tf.function`-like decorator with additional cache-invalidation functionality.
+
+        Args:
+            **kwargs_user: arguments to `tf.function`
+        """
+        super().__init__()
+        self._initial_user_kwargs = kwargs_user
+        self.registries.append(self)
+        self.reset(**self._initial_user_kwargs)
+        # self.inside_tracing = False
+        self.currently_traced = set()
+
+    def reset(self, **kwargs_user):
+        kwargs = dict(autograph=False, experimental_relax_shapes=True)
+        kwargs.update(self._initial_user_kwargs)
+        kwargs.update(kwargs_user)
+
+        self.tf_function = tf.function(**kwargs)
+        self.function_cache = defaultdict(list)
+
+    def __call__(self, func):
+        wrapped_func = self.tf_function(func)
+        cache = self.function_cache[func]
+        from zfit.util.cache import FunctionCacheHolder
+
+        def call_correct_signature(func, args, kwargs):
+            if args == [] and kwargs != {}:
+                return func(**kwargs)
+            elif args != [] and kwargs == {}:
+                return func(*args)
+            elif args == [] and kwargs == {}:
+                return func()
+            elif args != [] and kwargs != {}:
+                return func(*args, **kwargs)
+
+        def concrete_func(*args, **kwargs):
+
+            if func in self.currently_traced:
+                return call_correct_signature(func, args, kwargs)
+
+            # self.inside_tracing = True
+            self.currently_traced.add(func)
+            nonlocal wrapped_func
+            function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
+
+            try:
+                func_holder_index = cache.index(function_holder)
+            except ValueError:  # not in cache
+                cache.append(function_holder)
+            else:
+                func_holder_cached = cache[func_holder_index]
+                if func_holder_cached.is_valid:
+                    function_holder = func_holder_cached
+                else:
+                    wrapped_func = self.tf_function(func)  # update nonlocal wrapped function
+                    function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
+                    cache[func_holder_index] = function_holder
+            func_to_run = function_holder.wrapped_func
+            result = call_correct_signature(func_to_run, args, kwargs)
+            self.currently_traced.remove(func)
+            return result
+
+        return concrete_func
+
+
+tf_function = FunctionWrapperRegistry()
+
+function_tf = tf_function  # for only tensorflow inside
+function_sampling = tf_function
+
+
+# py_function = tf.py_function
+
+@functools.wraps(tf.py_function)
+def py_function(func, inp, Tout, name=None):
+    from .. import settings
+    if not settings.options['numerical_grad']:
+        raise RuntimeError("Running a py_function without using the numerical gradient will result in wrong gradient"
+                           " calculation. Will be more fine-grained in the future. To switch to numerical calculation"
+                           " (even if the gradients are not calculated at all), do"
+                           " `zfit.settings.options['numerical_grad'] = True`")
+
+    return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)

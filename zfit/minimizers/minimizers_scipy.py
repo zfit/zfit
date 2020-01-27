@@ -11,6 +11,7 @@ import tensorflow as tf
 from zfit.minimizers.fitresult import FitResult
 from .tf_external_optimizer import ScipyOptimizerInterface
 from .baseminimizer import BaseMinimizer
+from ..util.exception import WorkInProgressError
 
 
 class Scipy(BaseMinimizer):
@@ -18,6 +19,7 @@ class Scipy(BaseMinimizer):
     def __init__(self, minimizer='L-BFGS-B', tolerance=None, verbosity=5, name=None, **minimizer_options):
         if name is None:
             name = minimizer
+        raise WorkInProgressError("Wrapper has not been updated to TF2. Use iminuit instead.")
         minimizer_options.update(method=minimizer)  # named method in ScipyOptimizerInterface
         super().__init__(tolerance=tolerance, name=name, verbosity=verbosity, minimizer_options=minimizer_options)
         # kwargs.update(hess=SR1())
@@ -25,16 +27,10 @@ class Scipy(BaseMinimizer):
         # kwargs.update(options={'maxiter': 3000, 'xtol': 1e-12})
 
     def _minimize(self, loss, params):
-        loss = loss.value()
-        # var_list = self.get_params()
         var_list = params
 
-        # params_name = self._extract_param_names(var_list)
         def try_run(obj):
-            if isinstance(obj, tf.Tensor):
-                return self.sess.run(obj)
-            else:
-                return obj
+            return obj.numpy()
 
         var_to_bounds = {p.name: (try_run(p.lower_limit), try_run(p.upper_limit)) for p in var_list}
         # TODO(Mayou36): inefficient for toys, rewrite ScipyOptimizerInterface?
@@ -42,7 +38,7 @@ class Scipy(BaseMinimizer):
                                             var_to_bounds=var_to_bounds,
                                             **self.minimizer_options)
         # self._scipy_minimizer = minimizer
-        result = minimizer.minimize(session=self.sess)
+        result = minimizer.minimize()
         result_values = result['x']
         converged = result['success']
         status = result['status']

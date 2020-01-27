@@ -37,8 +37,8 @@ class Adam(WrapOptimizer):
                  epsilon=1e-08,
                  use_locking=False,
                  name='Adam', **kwargs):
-        optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate,
-                                                     beta1=beta1, beta2=beta2,
-                                                     epsilon=epsilon, use_locking=use_locking,
-                                                     name=name)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate,
+                                             beta_1=beta1, beta_2=beta2,
+                                             epsilon=epsilon,
+                                             name=name)
         super().__init__(optimizer=optimizer, tolerance=tolerance, **kwargs)

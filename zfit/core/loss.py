@@ -1,28 +1,30 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
-from collections import OrderedDict
-
-import tensorflow as tf
-
+import warnings
 from typing import Optional, Union, List, Callable, Iterable
 
-from zfit import ztf
-from zfit.util import ztyping
-from zfit.util.cache import Cachable
-from zfit.util.graph import get_dependents_auto
-from .baseobject import BaseObject, BaseDependentsMixin
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitPDF
-from ..models.functions import SimpleFunc
+import tensorflow as tf
+from ordered_set import OrderedSet
+
+from zfit import z, settings
+
+ztf = z
+from zfit.z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
+    automatic_value_gradients_hessian, numerical_value_gradients_hessian
+from ..util import ztyping
+from ..util.cache import Cachable
+from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
+from .baseobject import BaseObject
+from .dependents import BaseDependentsMixin
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitConstraint
 from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, DueToLazynessNotImplementedError
-from zfit.settings import ztypes
+from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
+    BreakingAPIChangeError
 from .constraint import BaseConstraint, SimpleConstraint
 
-func_simple = tf.function(autograph=False)  # TODO: how to properly?
 
-
-# @func_simple
+# @z.function
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
     """Return unbinned negative log likelihood graph for a PDF
 
@@ -76,7 +78,9 @@ def _constraint_check_convert(constraints):
 
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
-    def __init__(self, model, data, fit_range: ztyping.LimitsTypeInput = None, constraints: List[tf.Tensor] = None):
+    def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
+                 fit_range: ztyping.LimitsTypeInput = NOT_SPECIFIED,
+                 constraints: Iterable[Union[ZfitConstraint, Callable]] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
 
@@ -93,6 +97,14 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__)
+        if fit_range is NOT_SPECIFIED:  # depreceation
+            fit_range = None
+        else:
+            warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
+                          "It is preferred to define the range in the space"
+                          " when creating the data and the model.")
+
+        self.computed_gradients = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
         self._data = data
@@ -199,7 +211,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def _loss_func(self, model, data, fit_range, constraints):
         raise NotImplementedError
 
-    # @func_simple
     def value(self):
         return self._value()
 
@@ -227,12 +238,48 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return loss
 
     def _gradients(self, params):
-        return tf.gradients(ys=self.value(), xs=params)
+        if settings.options['numerical_grad']:
+            gradients = numerical_gradient(self.value, params=params)
+
+        else:
+            gradients = autodiff_gradient(self.value, params=params)
+        return gradients
+
+    def value_gradients(self, params):
+        return self._value_gradients(params=params)
+
+    @z.function
+    def _value_gradients(self, params):
+        if settings.options['numerical_grad']:
+            value, gradients = numerical_value_gradients(self.value, params=params)
+        else:
+            value, gradients = autodiff_value_gradients(self.value, params=params)
+        return value, gradients
+
+    def value_gradients_hessian(self, params):
+        vals = self._value_gradients_hessian(params=params)
+        if vals is ZfitNotImplemented:
+            vals = self._value_gradients_hessian_fallback(params=params)
+        return vals
+
+    @z.function
+    def _value_gradients_hessian_fallback(self, params):
+
+        if settings.options['numerical_grad']:
+            value, gradients = numerical_value_gradients_hessian(self.value, params=params)
+        else:
+            value, gradients = automatic_value_gradients_hessian(self.value, params=params)
+        return value, gradients
+
+    def _value_gradients_hessian(self, params):
+        return ZfitNotImplemented
 
 
 class CachedLoss(BaseLoss):
 
     def __init__(self, model, data, fit_range=None, constraints=None):
+        raise WorkInProgressError("Currently, caching is not implemented in the loss and does not make"
+                                  "sense, it is 'not yet upgraded to TF2'")
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
 
     @abc.abstractmethod
@@ -267,31 +314,52 @@ class CachedLoss(BaseLoss):
         return param_gradients
 
 
-class UnbinnedNLL(CachedLoss):
+# class UnbinnedNLL(CachedLoss):
+class UnbinnedNLL(BaseLoss):
     """The Unbinned Negative Log Likelihood."""
 
     _name = "UnbinnedNLL"
 
-    def __init__(self, model, data, fit_range=None, constraints=None):
+    def __init__(self, model, data, fit_range=NOT_SPECIFIED, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
 
+    @z.function
     def _loss_func(self, model, data, fit_range, constraints):
+        # with tf.GradientTape(persistent=True) as tape:
+        nll = self._loss_func_watched(constraints, data, fit_range, model)
+
+        # variables = tape.watched_variables()
+        # gradients = tape.gradient(nll, sources=variables)
+        # if any(grad is None for grad in tf.unstack(gradients, axis=0)):
+        #     none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}
+        #     raise LogicalUndefinedOperationError(f"One or more gradients are None and therefore the function does not"
+        #                                          f" depend on them:"
+        #                                          f" {none_dict}")
+        # for param, grad in zip(variables, gradients):
+        # if param in self.computed_gradients:
+        #     continue
+        # self.computed_gradients[param] = grad
+        return nll
+
+    @z.function
+    def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
             constraints = ztf.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
 
-    def _cache_add_constraints(self, constraints):
-        if self._cache.get('loss') is not None:
-            constraints = [c.value() for c in constraints]
-            self._cache['loss'] += ztf.reduce_sum(constraints)
+    # def _cache_add_constraints(self, constraints):
+    #     if self._cache.get('loss') is not None:
+    #         constraints = [c.value() for c in constraints]
+    #         self._cache['loss'] += ztf.reduce_sum(constraints)
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
     """An Unbinned Negative Log Likelihood with an additional poisson term for the"""
 
+    @z.function
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
         poisson_terms = []
@@ -304,10 +372,10 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         return nll
 
 
-class SimpleLoss(CachedLoss):
+class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Optional[Iterable["zfit.Parameter"]] = None,
+    def __init__(self, func: Callable, dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a ) Tensor.
 
@@ -318,19 +386,29 @@ class SimpleLoss(CachedLoss):
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
-        self._simple_func = func
+        if dependents is NOT_SPECIFIED:  # depreceation
+            raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
+                                         "More information can be found in the upgrade guide on the website.")
+
+        @z.function
+        def wrapped_func():
+            return func()
+
+        self._simple_func = wrapped_func
         self._simple_errordef = errordef
         self._errordef = errordef
-        self._simple_func_dependents = convert_to_container(dependents, container=set)
+        self.computed_gradients = {}
+        dependents = convert_to_container(dependents, container=OrderedSet)
+        self._simple_func_dependents = self._extract_dependents(dependents)
 
         super().__init__(model=[], data=[], fit_range=[])
 
     def _get_dependents(self):
         dependents = self._simple_func_dependents
-        if dependents is None:
-            independent_params = tf.compat.v1.get_collection("zfit_independent")
-            dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-            self._simple_func_dependents = dependents
+        # if dependents is None:
+        #     independent_params = tf.compat.v1.get_collection("zfit_independent")
+        #     dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
+        #     self._simple_func_dependents = dependents
         return dependents
 
     @property
@@ -343,12 +421,11 @@ class SimpleLoss(CachedLoss):
             return errordef
 
     def _loss_func(self, model, data, fit_range, constraints=None):
-        loss = self._simple_func
-        return loss()
+        return self._simple_func()
 
     def __add__(self, other):
         raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
                                            "Add them manually")
 
     def _cache_add_constraints(self, constraints):
-        raise DueToLazynessNotImplementedError("Needed? will probably provided in future")
+        raise WorkInProgressError("Needed? will probably provided in future")

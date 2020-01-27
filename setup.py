@@ -55,12 +55,15 @@ setup(
     keywords='TensorFlow, model, fitting, scalable, HEP',
     name='zfit',
     python_requires=">=3.6",
-    packages=find_packages(include=['zfit', 'zfit.ztf',
+    packages=find_packages(include=['zfit', 'zfit.z',
                                     'zfit.util', 'zfit.core', "zfit.minimizers", 'zfit.models']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/zfit/zfit',
     use_scm_version=True,
+    # use_scm_version={
+    #     'git_describe_command': 'git describe --tags --long --first-parent $(git rev-list --tags --max-count=1)',
+    # },
     zip_safe=False,
-    )
+)

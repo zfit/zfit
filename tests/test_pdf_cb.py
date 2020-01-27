@@ -1,11 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-import pytest
 import numpy as np
-from zfit.models.physics import CrystalBall, DoubleCB
-import zfit
+import pytest
 from scipy.stats import crystalball
+
+import zfit
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.physics import CrystalBall, DoubleCB
 
 mu = 0.0
 sigma = 0.5
@@ -21,25 +23,25 @@ lbounds = (bounds[0], mu)
 rbounds = (mu, bounds[1])
 
 
-def _cb_params_factory():
-    mu_ = zfit.Parameter('mu_cb', mu)
-    sigma_ = zfit.Parameter('sigma_cb', sigma)
-    alphal_ = zfit.Parameter('alphal_cb', alphal)
-    nl_ = zfit.Parameter('nl_cb', nl)
+def _cb_params_factory(name_add=""):
+    mu_ = zfit.Parameter('mu_cb' + name_add, mu)
+    sigma_ = zfit.Parameter('sigma_cb' + name_add, sigma)
+    alphal_ = zfit.Parameter('alphal_cb' + name_add, alphal)
+    nl_ = zfit.Parameter('nl_cb' + name_add, nl)
     return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
 
 
-tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory())
+tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory)
 
 
 def sample_testing(pdf):
     sample = pdf.sample(n=1000, limits=(-0.5, 1.5))
-    sample_np = zfit.run(sample)
+    sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))
 
 
 def eval_testing(pdf, x):
-    probs = zfit.run(pdf.pdf(x))
+    probs = pdf.pdf(x).numpy()
     assert not any(np.isnan(probs))
     return probs
 
@@ -47,12 +49,12 @@ def eval_testing(pdf, x):
 def test_cb_dcb():
     obs = zfit.Space('x', limits=bounds)
 
-    mu_ = zfit.Parameter('mu_cb', mu)
-    sigma_ = zfit.Parameter('sigma_cb', sigma)
-    alphal_ = zfit.Parameter('alphal_cb', alphal)
-    nl_ = zfit.Parameter('nl_cb', nl)
-    alphar_ = zfit.Parameter('alphar_cb', alphar)
-    nr_ = zfit.Parameter('nr_cb', nr)
+    mu_ = zfit.Parameter('mu_cb5', mu)
+    sigma_ = zfit.Parameter('sigma_cb5', sigma)
+    alphal_ = zfit.Parameter('alphal_cb5', alphal)
+    nl_ = zfit.Parameter('nl_cb5', nl)
+    alphar_ = zfit.Parameter('alphar_cb5', alphar)
+    nr_ = zfit.Parameter('nr_cb5', nr)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=-alphar_, n=nr_)
@@ -81,15 +83,15 @@ def test_cb_dcb():
 
     kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(zfit.run(intl)) == 0.
+    assert pytest.approx(intl.numpy()) == 0.
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(zfit.run(intl)) != 0
+    assert pytest.approx(intl.numpy()) != 0
 
     kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
     intr = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(zfit.run(intr)) == 0.
+    assert pytest.approx(intr.numpy()) == 0.
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(zfit.run(intr)) != 0.
+    assert pytest.approx(intr.numpy()) != 0.
 
     xl = x[x <= mu]
     xr = x[x > mu]

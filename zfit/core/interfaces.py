@@ -1,19 +1,16 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
-from collections import OrderedDict
-from typing import Union, List, Dict, Callable, Tuple, Mapping, Iterable
+from typing import Union, List, Dict, Callable, Tuple
 
 import tensorflow as tf
-
-
 
 import zfit
 from ..util import ztyping
 
 
-# class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
-class ZfitObject:
+class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
+    # class ZfitObject:
     # class ZfitObject:
     @property
     # @abc.abstractmethod
@@ -293,7 +290,6 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
         raise NotImplementedError
 
 
-
 class ZfitModel(ZfitNumeric, ZfitDimensional):
 
     @abc.abstractmethod
@@ -431,4 +427,10 @@ class ZfitFunctorMixin:
 
     @abc.abstractmethod
     def get_models(self) -> List[ZfitModel]:
+        raise NotImplementedError
+
+
+class ZfitConstraint(abc.ABC):
+    @abc.abstractmethod
+    def value(self):
         raise NotImplementedError

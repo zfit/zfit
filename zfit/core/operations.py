@@ -1,15 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
-from typing import Optional, Tuple, Callable, Union
+from typing import Callable, Union
 
 import tensorflow as tf
 
-
-
-from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter, ZfitData
-from .parameter import convert_to_parameter, ComposedParameter
+from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
+from .parameter import convert_to_parameter
 from ..util import ztyping
-from ..util.exception import (LogicalUndefinedOperationError, AlreadyExtendedPDFError, IntentionNotUnambiguousError,
+from ..util.exception import (AlreadyExtendedPDFError, IntentionNotUnambiguousError,
                               ModelIncompatibleError, )
 
 
@@ -54,8 +52,8 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -
 
     if new_object is None:
         raise ModelIncompatibleError("Multiplication for {} and {} of type {} and {} is not"
-                        "properly defined. (may change the order)"
-                        "".format(object1, object2, type(object1), type(object2)))
+                                     "properly defined. (may change the order)"
+                                     "".format(object1, object2, type(object1), type(object2)))
     return new_object
 
 

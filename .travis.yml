@@ -4,20 +4,22 @@ os:
 python:
     - "3.6"
     - "3.7"
-env:
-    - TF_VERSION=1
-    - TF_VERSION=2
 install:
+    - pip install -U pip
     - pip install -U tox-travis
     - pip install -U .
-    - if [ $TF_VERSION == 1 ]; then  pip install -U "tensorflow<2"; else pip install -U tensorflow --pre; fi
 
 script:
-    - tox
+    - pip install -U -r requirements_dev.txt 2>&1 | tail -n 11
+    - pip install -U numpy  # needed for linspace with vectors
+    - echo "TensorFlow version:" && pip install coverage 2>&1 | tail -n 11
+    - python -c 'import tensorflow as tf; print(tf.__version__)'
+    - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
+    - coverage report
     - bash utils/ci/test_examples.sh
     - bash utils/ci/test_tutorials.sh
-    - pip install -r requirements_dev.txt
-    - bash docs/make_docs.sh
+    - bash utils/ci/testbuild_docs.sh
+    - bash utils/ci/testbuild_package.sh
 
 after_success:
     - pip install coveralls

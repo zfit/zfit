@@ -1,21 +1,16 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
-import copy
 from typing import List
 
 import iminuit
 import numpy as np
-import texttable as tt
-import tensorflow as tf
-
-
 
 from zfit.core.interfaces import ZfitLoss
+from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
 from .fitresult import FitResult
-from ..util.cache import Cachable
 from ..core.parameter import Parameter
-from .baseminimizer import BaseMinimizer, ZfitStrategy
+from ..util.cache import Cachable
 
 
 class Minuit(BaseMinimizer, Cachable):
@@ -46,9 +41,9 @@ class Minuit(BaseMinimizer, Cachable):
         self._use_tfgrad = True
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
-        gradients = loss.gradients(params)
-        loss_val = loss.value()
-        self._check_gradients(params=params, gradients=gradients)
+        # loss_val = loss.value()
+        # gradients = loss.gradients(params)
+        # self._check_gradients(params=params, gradients=gradients)
 
         # load_params = self._extract_load_method(params=params)  REMOVE
 
@@ -69,13 +64,21 @@ class Minuit(BaseMinimizer, Cachable):
 
         minimizer_setter = {}
         minimizer_setter['strategy'] = minimizer_options.pop('strategy')
+        if self.verbosity > 7:
+            minuit_verbosity = self.verbosity
+        elif self.verbosity > 2:
+            minuit_verbosity = 1
+        else:
+            minuit_verbosity = 0
         if minimizer_options:
             raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
 
         # create Minuit compatible names
         limits = tuple(tuple((param.lower_limit, param.upper_limit)) for param in params)
         errors = tuple(param.step_size for param in params)
-        start_values, limits, errors = self.sess.run([params, limits, errors])
+        start_values = [p.numpy() for p in params]
+        limits = [(low.numpy(), up.numpy()) for low, up in limits]
+        errors = [err.numpy() for err in errors]
 
         multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
         if multiparam:
@@ -91,15 +94,15 @@ class Minuit(BaseMinimizer, Cachable):
         def func(values):
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
-            if do_print:
-                table = tt.Texttable()
-                table.header(['Parameter', 'Value'])
 
-                for param, value in zip(params, values):
-                    table.add_row([param.name, value])
-                print(table.draw())
-
-            loss_evaluated = self.sess.run(loss_val)
+            try:
+                loss_evaluated = loss.value().numpy()
+            except:
+                loss_evaluated = "invalid, error occured"
+                raise
+            finally:
+                if do_print:
+                    print_params(params, values, loss_evaluated)
             if np.isnan(loss_evaluated):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
             return loss_evaluated
@@ -107,14 +110,17 @@ class Minuit(BaseMinimizer, Cachable):
         def grad_func(values):
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 5
-            if do_print:
-                table = tt.Texttable()
-                table.header(['Parameter', 'Gradient'])
-                for param, value in zip(params, values):
-                    table.add_row([param.name, value])
-                print(table.draw())
 
-            gradients_values = self.sess.run(gradients)
+            try:
+                gradients = loss.gradients(params=params)
+                gradients_values = [float(g.numpy()) for g in gradients]
+            except:
+                gradients_values = ["invalid"] * len(params)
+                raise
+            finally:
+                if do_print:
+                    print_gradients(params, values, gradients_values)
+
             if any(np.isnan(gradients_values)):
                 self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
             return gradients_values
@@ -125,14 +131,13 @@ class Minuit(BaseMinimizer, Cachable):
                                                    error=errors, limit=limits, name=params_name,
                                                    grad=grad_func,
                                                    # use_array_call=True,
-                                                   print_level=self.verbosity,
+                                                   print_level=minuit_verbosity,
                                                    # forced_parameters=[f"param_{i}" for i in range(len(start_values))],
                                                    **minimizer_init)
 
         strategy = minimizer_setter.pop('strategy')
         minimizer.set_strategy(strategy)
-        # print("HACK HEAVY MINUIT TOL")
-        # minimizer.tol = 1.
+        minimizer.tol = self.tolerance / 1e-3  # iminuit 1e-3 and tolerance 0.1
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer
@@ -142,7 +147,7 @@ class Minuit(BaseMinimizer, Cachable):
         self._update_params(params, values=result_vals)
 
         info = {'n_eval': result[0]['nfcn'],
-                # 'n_iter': result['nit'],
+                'n_iter': result[0]['ncalls'],
                 # 'grad': result['jac'],
                 # 'message': result['message'],
                 'original': result[0]}
