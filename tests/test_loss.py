@@ -162,8 +162,11 @@ def test_add():
     ranges[2] = Space(limits=(3, 6), obs=obs1)
     ranges[3] = Space(limits=(4, 7), obs=obs1)
 
-    constraint1 = zfit.constraint.nll_gaussian(x=1, mu=param1, sigma=0.5)
-    constraint2 = zfit.constraint.nll_gaussian(x=2, mu=param1, sigma=0.25)
+    x1 = zfit.Parameter("param1_x", 1.)
+    x2 = zfit.Parameter("param2_x", 2.)
+
+    constraint1 = zfit.constraint.nll_gaussian(x=x1, mu=param1, sigma=0.5)
+    constraint2 = zfit.constraint.nll_gaussian(x=x2, mu=param1, sigma=0.25)
     merged_contraints = [constraint1, constraint2]
 
     nll1 = UnbinnedNLL(model=pdfs[0], data=datas[0], fit_range=ranges[0], constraints=constraint1)
