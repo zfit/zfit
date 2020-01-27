@@ -35,9 +35,6 @@ def register_tensor_conversion(convertable, overload_operators=True, priority=1)
                                        lambda val: val[0])
     feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
     feed_function_for_partial_run = lambda feed: [feed.read_value()]
-
-    from tensorflow.python.framework import ops
-    #
     ops.register_dense_tensor_like_type(convertable)
 
     register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
@@ -279,7 +276,7 @@ class ZfitParameterMixin(BaseNumeric):
     def __del__(self):
         if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
             del self._existing_names[self.name]
-        with suppress(AttributeError):  # if super does not have a __del__
+        with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
     def __add__(self, other):
