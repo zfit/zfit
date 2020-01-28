@@ -44,7 +44,10 @@ class BaseStrategy(ZfitStrategy):
                                   gradient_values=gradient_values)
 
     def _minimize_nan(self, loss, loss_value, params, minimizer, gradient_values):
-        raise NotImplementedError
+        print("The minimization failed due to NaNs being produced in the loss. This is most probably caused by negative"
+              " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
+              " problem. Also check your model (if custom) for problems. For more information,"
+              " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
 
 
 class ToyStrategyFail(BaseStrategy):
