@@ -102,8 +102,11 @@ class ProbabilityConstraint(BaseConstraint):
             raise ShapeIncompatibleError("x and params have to be the same lenght. Currently"
                                          f"x: {len(x)}, params: {len(params)}")
 
-        x = [convert_to_parameter(x_, f"{p.name}_obs") for x_, p in zip(x, params.values())]
-        self._x = x
+        self._x = []
+        for x_, p in zip(x, params.values()):
+            x_ = convert_to_parameter(x_, f"{p.name}_obs", prefer_constant=False)
+            x_.floating = False
+            self._x.append(x_)
 
     @property
     def x(self):

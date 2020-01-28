@@ -66,12 +66,12 @@ def test_gaussian_constraint_matrix():
     sigma = np.array([[1, 0.3],
                       [0.3, 0.5]])
 
-    trueval = true_multinormal_constr_value(x=observed, mean=zfit.run(params)[0], cov=sigma)
+    #trueval = true_multinormal_constr_value(x=observed, mean=zfit.run(params)[0], cov=sigma)
 
     constr = GaussianConstraint(x=observed, mu=params, sigma=sigma)
     constr_np = zfit.run(constr.value())
-    assert constr_np == pytest.approx(trueval)
-    #assert constr_np == pytest.approx(3.989638)
+    #assert constr_np == pytest.approx(trueval)
+    assert constr_np == pytest.approx(3.989638)
 
     assert constr.get_dependents() == set(params)
 
@@ -99,11 +99,11 @@ def test_gaussian_constraint():
     true_val2 = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
     assert constr2_np == pytest.approx(true_val2)
 
-    #constr.x[0].set_value(5)
-    #observed[0] = 5
-    #true_val3 = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
-    #constr3_np = constr.value().numpy()
-    #assert constr3_np == pytest.approx(true_val3)
+    constr.x[0].set_value(5)
+    observed[0] = 5
+    true_val3 = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
+    constr3_np = constr.value().numpy()
+    assert constr3_np == pytest.approx(true_val3)
 
 
 def test_gaussian_constraint_orderbug():  # as raised in #162

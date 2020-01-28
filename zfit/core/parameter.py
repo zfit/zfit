@@ -615,8 +615,8 @@ class ComplexParameter(ComposedParameter):
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
                        **kwargs):  # TODO: correct dtype handling, also below
-        real = convert_to_parameter(real, name=name + "_real", prefer_floating=floating)
-        imag = convert_to_parameter(imag, name=name + "_imag", prefer_floating=floating)
+        real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
+        imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
                                  dependents=[real, imag],
                                  **kwargs)
@@ -626,8 +626,8 @@ class ComplexParameter(ComposedParameter):
 
     @staticmethod
     def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
-        mod = convert_to_parameter(mod, name=name + "_mod", prefer_floating=floating)
-        arg = convert_to_parameter(arg, name=name + "_arg", prefer_floating=floating)
+        mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
+        arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = ComplexParameter(name=name,
                                  value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
                                                                      mod * tf.math.sin(arg)),
@@ -685,13 +685,14 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_floating=False, dependents=None, graph_mode=False) -> "ZfitParameter":
-    """Convert a *numerical* to a fixed/floating parameter or return if already a parameter.
+def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None,
+                         graph_mode=False) -> "ZfitParameter":
+    """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
         value ():
         name ():
-        prefer_floating: If True, create a Parameter instead of a FixedParameter _if possible_.
+        prefer_constant: If True, create a ConstantParameter instead of a Parameter _if possible_.
 
     """
     is_python = False
@@ -722,17 +723,18 @@ def convert_to_parameter(value, name=None, prefer_floating=False, dependents=Non
     if value.dtype.is_complex:
         if name is None:
             name = "FIXED_complex_autoparam_" + str(get_auto_number())
-        if not prefer_floating:
+        if prefer_constant:
             raise WorkInProgressError("Constant complex param not here yet, complex Mixin?")
-        value = ComplexParameter(name, value_fn=value, floating=prefer_floating)
+        value = ComplexParameter(name, value_fn=value, floating=not prefer_constant)
 
     else:
-        if prefer_floating:
-            name = "autoparam_" + str(get_auto_number()) if name is None else name
-            value = Parameter(name=name, value=value)
-        else:
+        if prefer_constant:
             if name is None:
                 name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
             value = ConstantParameter(name, value=value)
+
+        else:
+            name = "autoparam_" + str(get_auto_number()) if name is None else name
+            value = Parameter(name=name, value=value)
 
     return value
