@@ -48,6 +48,7 @@ class BaseStrategy(ZfitStrategy):
               " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
               " problem. Also check your model (if custom) for problems. For more information,"
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
+        raise NotImplementedError
 
 
 class ToyStrategyFail(BaseStrategy):
