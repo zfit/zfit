@@ -320,5 +320,5 @@ then sampling of the observed values might be needed to obtain an unbiased sampl
     ...     # do something with nll
     ...     with ExitStack() as stack:
     ...         for x, v in constr.items():
-    ...             stack.enter_context(x.set_value())
+    ...             stack.enter_context(x.set_value(v))
     ...         minimizer.minimize(nll)  # minimize
