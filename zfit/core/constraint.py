@@ -114,7 +114,7 @@ class ProbabilityConstraint(BaseConstraint):
 
     @property
     def _x_array(self):
-        return z.convert_to_tensor([z.convert_to_tensor(x) for x in self.x])
+        return z.convert_to_tensor(self.x)
 
     def value(self):
         return self._value()
