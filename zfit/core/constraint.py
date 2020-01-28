@@ -80,12 +80,12 @@ class SimpleConstraint(BaseConstraint):
         return self._simple_func()
 
 
-class SamplableConstraint(BaseConstraint):
+class ProbabilityConstraint(BaseConstraint):
 
     def __init__(self, x: Union[ztyping.NumericalScalarType, ZfitParameter],
-                 params: Union[Dict[str, ZfitParameter]] = None, name: str = "SamplableConstraint",
+                 params: Union[Dict[str, ZfitParameter]] = None, name: str = "ProbabilityConstraint",
                  dtype=ztypes.float, **kwargs):
-        """Base class for samplable constraints.
+        """Base class for constraints using a probability density function.
 
         Args:
             dtype (DType): the dtype of the constraint
@@ -142,13 +142,13 @@ class SamplableConstraint(BaseConstraint):
         raise NotImplementedError
 
 
-class DistributionConstraint(SamplableConstraint):
+class TFProbabilityConstraint(ProbabilityConstraint):
 
     def __init__(self, x: Union[ztyping.NumericalScalarType, ZfitParameter],
                  params: Dict[str, ZfitParameter], distribution: tfd.Distribution,
                  dist_params, dist_kwargs=None, name: str = "DistributionConstraint", dtype=ztypes.float,
                  **kwargs):
-        """ Base class for constraints using a probability density function.
+        """ Base class for constraints using a probability density function from `tensorflow_probability`.
 
         Args:
             distribution (`tensorflow_probability.distributions.Distribution`): The probability density function
@@ -180,7 +180,7 @@ class DistributionConstraint(SamplableConstraint):
         return self.distribution.sample(n)
 
 
-class GaussianConstraint(DistributionConstraint):
+class GaussianConstraint(TFProbabilityConstraint):
 
     def __init__(self, x: ztyping.NumericalScalarType, mu: ztyping.ParamTypeInput,
                  sigma: ztyping.NumericalScalarType):
