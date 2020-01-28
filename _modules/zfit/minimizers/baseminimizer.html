@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.2.dev8+g11deacb documentation</title>
+    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.2.dev9+gc034e80 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev8</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev9</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -398,7 +398,10 @@
                                   <span class="n">gradient_values</span><span class="o">=</span><span class="n">gradient_values</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_value</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">,</span> <span class="n">gradient_values</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The minimization failed due to NaNs being produced in the loss. This is most probably caused by negative&quot;</span>
+              <span class="s2">&quot; values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this&quot;</span>
+              <span class="s2">&quot; problem. Also check your model (if custom) for problems. For more information,&quot;</span>
+              <span class="s2">&quot; visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ToyStrategyFail"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.ToyStrategyFail">[docs]</a><span class="k">class</span> <span class="nc">ToyStrategyFail</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
