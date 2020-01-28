@@ -35,6 +35,7 @@ def register_tensor_conversion(convertable, overload_operators=True, priority=1)
                                        lambda val: val[0])
     feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
     feed_function_for_partial_run = lambda feed: [feed.read_value()]
+    ops.register_dense_tensor_like_type(convertable)
 
     register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
                                               feed_function=feed_function,
@@ -61,11 +62,19 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade t
     #     return self.variable.op.name
 
     @property
+    def name(self):
+        raise NotImplementedError
+
+    @property
     def dtype(self):
         return self.variable.dtype
 
     def value(self):
         return self.variable.value()
+
+    @property
+    def shape(self):
+        return self.variable.shape
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         return self.variable.assign(value=value, use_locking=use_locking,
@@ -156,6 +165,18 @@ class ComposedVariable:
             raise TypeError("`value_fn` is not callable.")
         self._value_fn = value_fn
 
+    @property
+    def name(self):
+        raise NotImplementedError
+
+    @property
+    def shape(self):
+        raise NotImplementedError
+
+    @property
+    def dtype(self):
+        raise NotImplementedError
+
     def value(self):
         return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
 
@@ -220,7 +241,13 @@ register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
     # class BaseParameter(ZfitParameter):
-    pass
+    @property
+    def dtype(self) -> tf.DType:
+        return self.value().dtype
+
+    @property
+    def shape(self):
+        return self.value().shape
 
 
 class ZfitParameterMixin(BaseNumeric):
@@ -249,7 +276,7 @@ class ZfitParameterMixin(BaseNumeric):
     def __del__(self):
         if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
             del self._existing_names[self.name]
-        with suppress(AttributeError):  # if super does not have a __del__
+        with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
     def __add__(self, other):
@@ -546,6 +573,16 @@ class ConstantParameter(BaseZParameter):
 
     def _get_dependents(self) -> ztyping.DependentsType:
         return OrderedSet()
+
+
+register_tensor_conversion(ConstantParameter, overload_operators=True)
+
+
+# from tensorflow.python import _pywrap_utils
+
+# ConstantParameter._OverloadAllOperators()  # pylint: disable=protected-access
+# _pywrap_utils.RegisterType("Variable", Variable)
+# _pywrap_utils.RegisterType("ConstantParameter", ConstantParameter)
 
 
 class ComposedParameter(BaseComposedParameter):

@@ -23,7 +23,7 @@ coeffs_parametrization = [
     [11.1, 1.4, 5.6, 3.1, 18.1, 3.1],
 ]
 
-rel_integral = 6e-2
+rel_integral = 7e-2
 default_sampling = 60000
 
 poly_pdfs = [(zfit.pdf.Legendre, default_sampling),
