@@ -136,8 +136,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             for p, d in zip(pdf, data):
                 if not p.norm_range == d.data_range:
                     raise IntentionNotUnambiguousError(f"No `fit_range` is specified and `pdf` {p} as "
-                                                       f"well as `data` {d} have different ranges they"
-                                                       f"are defined in. Either make them (all) consistent"
+                                                       f"well as `data` {d} have different ranges they "
+                                                       f"are defined in. Either make them (all) consistent "
                                                        f"or specify the `fit_range`")
                 fit_range.append(p.norm_range)
         else:
