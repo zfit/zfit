@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.2.dev13+g4828afe documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.2.dev14+ge966ed3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev13</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev14</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -418,7 +418,7 @@
 
         <span class="n">minimizer_setter</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">minimizer_setter</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minimizer_options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;strategy&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">7</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
             <span class="n">minuit_verbosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">minuit_verbosity</span> <span class="o">=</span> <span class="mi">1</span>
@@ -447,7 +447,7 @@
 
         <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">5</span>
+            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
@@ -463,7 +463,7 @@
 
         <span class="k">def</span> <span class="nf">grad_func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">5</span>
+            <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">gradients</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
