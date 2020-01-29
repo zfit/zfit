@@ -64,7 +64,7 @@ class Minuit(BaseMinimizer, Cachable):
 
         minimizer_setter = {}
         minimizer_setter['strategy'] = minimizer_options.pop('strategy')
-        if self.verbosity > 7:
+        if self.verbosity > 6:
             minuit_verbosity = self.verbosity
         elif self.verbosity > 2:
             minuit_verbosity = 1
@@ -93,7 +93,7 @@ class Minuit(BaseMinimizer, Cachable):
 
         def func(values):
             self._update_params(params=params, values=values)
-            do_print = self.verbosity > 5
+            do_print = self.verbosity > 8
 
             try:
                 loss_evaluated = loss.value().numpy()
@@ -109,7 +109,7 @@ class Minuit(BaseMinimizer, Cachable):
 
         def grad_func(values):
             self._update_params(params=params, values=values)
-            do_print = self.verbosity > 5
+            do_print = self.verbosity > 8
 
             try:
                 gradients = loss.gradients(params=params)
