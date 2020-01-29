@@ -274,8 +274,9 @@ class ZfitParameterMixin(BaseNumeric):
         self._floating = value
 
     def __del__(self):
-        if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
-            del self._existing_names[self.name]
+        with suppress(NotImplementedError):  # PY36 bug, gets stuck
+            if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
+                del self._existing_names[self.name]
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
