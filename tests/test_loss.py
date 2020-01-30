@@ -126,9 +126,9 @@ def test_unbinned_nll(weights, sigma):
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=rel_error)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=rel_error)
 
-    constraints = zfit.constraint.nll_gaussian(x=[mu_constr[0], sigma_constr[0]],
-                                               mu=[mu2, sigma2],
-                                               sigma=sigma())
+    constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
+                                               observation=[mu_constr[0], sigma_constr[0]],
+                                               uncertainty=sigma())
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
                              constraints=constraints)
 
@@ -165,8 +165,8 @@ def test_add():
     x1 = zfit.Parameter("param1_x", 1.)
     x2 = zfit.Parameter("param2_x", 2.)
 
-    constraint1 = zfit.constraint.nll_gaussian(x=x1, mu=param1, sigma=0.5)
-    constraint2 = zfit.constraint.nll_gaussian(x=x2, mu=param1, sigma=0.25)
+    constraint1 = zfit.constraint.nll_gaussian(params=param1, observation=1., uncertainty=0.5)
+    constraint2 = zfit.constraint.nll_gaussian(params=param2, observation=2., uncertainty=0.25)
     merged_contraints = [constraint1, constraint2]
 
     nll1 = UnbinnedNLL(model=pdfs[0], data=datas[0], fit_range=ranges[0], constraints=constraint1)

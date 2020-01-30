@@ -47,13 +47,13 @@ def test_gaussian_constraint_shape_errors():
     obs3 = zfit.Parameter("obs3", 4)
 
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(x=[obs1, obs2, obs3], mu=[param1, param2], sigma=5).value()
+        GaussianConstraint(params=[param1, param2], observation=[obs1, obs2, obs3], uncertainty=5).value()
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(x=[obs1, obs3], mu=[param1, param2], sigma=5).value()
+        GaussianConstraint(params=[param1, param2], observation=[obs1, obs3], uncertainty=5).value()
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(x=obs1, mu=[param1, param2], sigma=[1, 4]).value()
+        GaussianConstraint(params=[param1, param2], observation=obs1, uncertainty=[1, 4]).value()
     with pytest.raises(ShapeIncompatibleError):
-        GaussianConstraint(x=[obs1, obs3], mu=param1, sigma=[2, 3]).value()
+        GaussianConstraint(params=param1, observation=[obs1, obs3], uncertainty=[2, 3]).value()
 
 
 
@@ -66,12 +66,12 @@ def test_gaussian_constraint_matrix():
     sigma = np.array([[1, 0.3],
                       [0.3, 0.5]])
 
-    #trueval = true_multinormal_constr_value(x=observed, mean=zfit.run(params)[0], cov=sigma)
+    trueval = true_multinormal_constr_value(x=zfit.run(params)[0], mean=observed, cov=sigma)
 
-    constr = GaussianConstraint(x=observed, mu=params, sigma=sigma)
+    constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = zfit.run(constr.value())
-    #assert constr_np == pytest.approx(trueval)
-    assert constr_np == pytest.approx(3.989638)
+    assert constr_np == pytest.approx(trueval)
+    #assert constr_np == pytest.approx(3.989638)
 
     assert constr.get_dependents() == set(params)
 
@@ -84,7 +84,7 @@ def test_gaussian_constraint():
     assert true_val == true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
-    constr = GaussianConstraint(x=observed, mu=params, sigma=sigma)
+    constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(true_val)
     assert constr.get_dependents() == set(params)
@@ -96,12 +96,16 @@ def test_gaussian_constraint():
     constr2_newtensor_np = constr.value().numpy()
     assert constr2_newtensor_np == pytest.approx(constr2_np)
 
-    true_val2 = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
+    true_val2 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
     assert constr2_np == pytest.approx(true_val2)
+    print(true_val2)
 
-    constr.x[0].set_value(5)
+    constr.observation[0].set_value(5)
     observed[0] = 5
-    true_val3 = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
+    print("x: ", param_vals, [p.numpy() for p in params])
+    print("mu: ", observed, [p.numpy() for p in constr.observation])
+    print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
+    true_val3 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
     constr3_np = constr.value().numpy()
     assert constr3_np == pytest.approx(true_val3)
 
@@ -113,7 +117,7 @@ def test_gaussian_constraint_orderbug():  # as raised in #162
     sigma = [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]
     true_val = true_gauss_constr_value(x=observed, mu=observed, sigma=sigma)
 
-    constr1 = zfit.constraint.GaussianConstraint(x=observed, mu=params, sigma=sigma)
+    constr1 = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
 
     value_tensor = constr1.value()
     constr_np = value_tensor.numpy()
@@ -129,15 +133,16 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
     param3 = zfit.Parameter("param4", 1.0)
     param4 = zfit.Parameter("param5", 1.0)
 
-    constraint = {"mu": [param1, param2, param3, param4, param5],
-                  "x": [1500, 1.0, 1.0, 1.0, 0.5],
-                  "sigma": [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]}
+    constraint = {"params": [param1, param2, param3, param4, param5],
+                  "observation": [1500, 1.0, 1.0, 1.0, 0.5],
+                  "uncertainty": [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]}
 
-    constr1 = zfit.constraint.GaussianConstraint(**constraint)
+    constr1 = GaussianConstraint(**constraint)
     # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
-    constraint['mu'] = [m.numpy() for m in constraint['mu']]
+    constraint['x'] = [m.numpy() for m in constraint['params']]
 
-    true_val = true_gauss_constr_value(**constraint)
+    true_val = true_gauss_constr_value(x=constraint['x'], mu=constraint['observation'],
+                                       sigma=constraint['uncertainty'])
 
     value_tensor = constr1.value()
     constr_np = value_tensor.numpy()
@@ -153,14 +158,14 @@ def test_gaussian_constraint_sampling():
 
     observed = [5]
     sigma = [1]
-    constr = GaussianConstraint(x=observed, mu=params, sigma=sigma)
+    constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
 
     sample = constr.sample(15000)
 
     print(sample)
 
-    assert np.mean(sample[constr.x[0]]) == pytest.approx(observed[0], rel=0.01)
-    assert np.std(sample[constr.x[0]]) == pytest.approx(sigma[0], rel=0.01)
+    assert np.mean(sample[constr.observation[0]]) == pytest.approx(observed[0], rel=0.01)
+    assert np.std(sample[constr.observation[0]]) == pytest.approx(sigma[0], rel=0.01)
 
 
 def test_simple_constraint():
