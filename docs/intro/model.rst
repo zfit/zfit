@@ -302,8 +302,6 @@ then sampling of the observed values might be needed to obtain an unbiased sampl
 
     >>> from contextlib import ExitStack
 
-    >>> mu_sigma1 = zfit.param.ConstantParameter("mu_sigma1", 1.0)
-    >>> mu_sigma2 = zfit.param.ConstantParameter("mu_sigma1", 0.5)
     >>> constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]
     ...                                                 mu=[sigma1, sigma2],
     ...                                                 sigma=[0.1, 0.05])
