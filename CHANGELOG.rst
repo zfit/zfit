@@ -10,6 +10,11 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+ - Refactoring of the Constraints, dividing into `ProbabilityConstraint` that can be
+   sampled from and more general constraints (e.g. for parameter boundaries) that
+   can not be sampled from.
+ - Doc improvements in the constraints.
+
 
 Behavioral changes
 ------------------
@@ -24,6 +29,7 @@ Requirement changes
 
 Thanks
 ------
+
 
 0.4.1 (12.1.20)
 ===============
