@@ -46,6 +46,25 @@ def eval_testing(pdf, x):
     return probs
 
 
+def test_cb_integral():
+    obs = zfit.Space('x', limits=bounds)
+
+    mu_ = zfit.Parameter('mu_cb5', mu)
+    sigma_ = zfit.Parameter('sigma_cb5', sigma)
+    alphal_ = zfit.Parameter('alphal_cb5', alphal)
+    nl_ = zfit.Parameter('nl_cb5', nl)
+
+    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
+    int_limits = (-1, 3)
+    integral_numeric = cbl.numeric_integrate(limits=int_limits, norm_range=False)
+
+    integral = cbl.analytic_integrate(limits=int_limits, norm_range=False)
+    integral_numeric = zfit.run(integral_numeric)
+    integral = zfit.run(integral)
+
+    assert pytest.approx(integral_numeric, integral, 1e-5)
+
+
 def test_cb_dcb():
     obs = zfit.Space('x', limits=bounds)
 
