@@ -192,11 +192,15 @@ class GaussianConstraint(TFProbabilityConstraint):
     def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
                  uncertainty: ztyping.NumericalScalarType):
         """Gaussian constraints on a list of parameters to some observed values with uncertainties.
+
         Args:
-            params (list(zfit.Parameter)): The parameters to constraint
-            observation (numerical, list(numerical)): observed values of the parameter
+            params (list(zfit.Parameter)): The parameters to constraint; corresponds to mu in the Gaussian
+                distribution.
+            observation (numerical, list(numerical)): observed values of the parameter; corresponds to the x argument
+                in the Gaussian distribution.
             uncertainty (numerical, list(numerical) or array/tensor): Uncertainties or covariance/error
-                matrix of the observed values. Can either be a single value, a list of values, an array or a tensor
+                matrix of the observed values. Can either be a single value, a list of values, an array or a tensor.
+                Corresponds to the sigma of the Gaussian distribution.
         Raises:
             ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
         """
