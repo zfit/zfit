@@ -3,9 +3,7 @@
 import abc
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
-import warnings
 
-import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
@@ -18,7 +16,7 @@ from .parameter import convert_to_parameter
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import ShapeIncompatibleError, LogicalUndefinedOperationError
+from ..util.exception import ShapeIncompatibleError
 
 tfd = tfp.distributions
 
@@ -192,6 +190,14 @@ class GaussianConstraint(TFProbabilityConstraint):
     def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
                  uncertainty: ztyping.NumericalScalarType):
         """Gaussian constraints on a list of parameters to some observed values with uncertainties.
+
+        A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from
+        a different measurement.
+
+
+        .. math::
+            constraint = Gauss(observation; params, uncertainty)
+
 
         Args:
             params (list(zfit.Parameter)): The parameters to constraint; corresponds to mu in the Gaussian
