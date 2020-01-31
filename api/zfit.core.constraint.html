@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>constraint &#8212; zfit 0.4.2.dev18+g27cee35 documentation</title>
+    <title>constraint &#8212; zfit 0.4.2.dev39+g9b10e33 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev39</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -478,23 +478,6 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.core.constraint.BaseConstraint.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#BaseConstraint.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.BaseConstraint.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample <cite>n</cite> points from the probability density function for the constrained parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>tf.Tensor</em>) – The number of samples to be generated.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>n_samples)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Dict(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter">Parameter</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="zfit.core.constraint.BaseConstraint.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#BaseConstraint.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.BaseConstraint.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -502,161 +485,24 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="class">
-<dt id="zfit.core.constraint.DistributionConstraint">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">DistributionConstraint</code><span class="sig-paren">(</span><em class="sig-param">params: Dict[str, zfit.core.interfaces.ZfitParameter], distribution: tensorflow_probability.python.distributions.distribution.Distribution, dist_params, dist_kwargs=None, name: str = 'DistributionConstraint', dtype=tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#DistributionConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.core.constraint.BaseConstraint" title="zfit.core.constraint.BaseConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.constraint.BaseConstraint</span></code></a></p>
-<p>Base class for constraints using a probability density function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>distribution</strong> (<cite>tensorflow_probability.distributions.Distribution</cite>) – The probability density function
-used to constraint the parameters</p>
-</dd>
-</dl>
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add dependents that render the cache invalid if they change.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
-<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
-If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
-    if <cite>False</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.distribution">
-<em class="property">property </em><code class="sig-name descname">distribution</code><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.distribution" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.dtype">
-<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.dtype" title="Permalink to this definition">¶</a></dt>
-<dd><p>The dtype of the object</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.get_dependents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[ZfitParameter]<a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.get_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
-<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="zfit.core.constraint.DistributionConstraint.graph_caching_methods">
-<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="zfit.core.constraint.DistributionConstraint.old_graph_caching_methods">
-<code class="sig-name descname">old_graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.old_graph_caching_methods" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.params">
-<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.register_cacher" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.reset_cache" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.reset_cache_self">
-<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.reset_cache_self" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear the cache of self and all dependent cachers.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample <cite>n</cite> points from the probability density function for the constrained parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>tf.Tensor</em>) – The number of samples to be generated.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>n_samples)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Dict(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter">Parameter</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.constraint.DistributionConstraint.value">
-<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.DistributionConstraint.value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="zfit.core.constraint.GaussianConstraint">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">GaussianConstraint</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], mu: Union[int, float, complex, tensorflow.python.framework.ops.Tensor], sigma: Union[int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#GaussianConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.GaussianConstraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.core.constraint.DistributionConstraint" title="zfit.core.constraint.DistributionConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.constraint.DistributionConstraint</span></code></a></p>
-<p>Gaussian constraints on a list of parameters.</p>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">GaussianConstraint</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], observation: Union[int, float, complex, tensorflow.python.framework.ops.Tensor], uncertainty: Union[int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#GaussianConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.GaussianConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.constraint.TFProbabilityConstraint" title="zfit.core.constraint.TFProbabilityConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.constraint.TFProbabilityConstraint</span></code></a></p>
+<p>Gaussian constraints on a list of parameters to some observed values with uncertainties.</p>
+<p>A Gaussian constraint is defined as the likelihood of <cite>params</cite> given the <cite>observations</cite> and <cite>uncertainty</cite> from
+a different measurement.</p>
+<div class="math notranslate nohighlight">
+\[constraint = Gauss(observation; params, uncertainty)\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><em>zfit.Parameter</em></a><em>)</em>) – The parameters to constraint</p></li>
-<li><p><strong>mu</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><em>numerical</em><em>)</em>) – The central value of the constraint</p></li>
-<li><p><strong>sigma</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><em>numerical</em><em>) or </em><em>array/tensor</em>) – The standard deviations or covariance
-matrix of the constraint. Can either be a single value, a list of values, an array or a tensor</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><em>zfit.Parameter</em></a><em>)</em>) – The parameters to constraint; corresponds to mu in the Gaussian
+distribution.</p></li>
+<li><p><strong>observation</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><em>numerical</em><em>)</em>) – observed values of the parameter; corresponds to the x argument
+in the Gaussian distribution.</p></li>
+<li><p><strong>uncertainty</strong> (<em>numerical</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><em>numerical</em><em>) or </em><em>array/tensor</em>) – Uncertainties or covariance/error
+matrix of the observed values. Can either be a single value, a list of values, an array or a tensor.
+Corresponds to the sigma of the Gaussian distribution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -686,6 +532,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dt id="zfit.core.constraint.GaussianConstraint.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.constraint.GaussianConstraint.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.GaussianConstraint.covariance">
+<em class="property">property </em><code class="sig-name descname">covariance</code><a class="headerlink" href="#zfit.core.constraint.GaussianConstraint.covariance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the covariance matrix of the observed values of the parameters constrained.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.constraint.GaussianConstraint.distribution">
@@ -740,6 +592,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dd><p>The name of the object.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="zfit.core.constraint.GaussianConstraint.observation">
+<em class="property">property </em><code class="sig-name descname">observation</code><a class="headerlink" href="#zfit.core.constraint.GaussianConstraint.observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observed values of the parameters constrained.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="zfit.core.constraint.GaussianConstraint.old_graph_caching_methods">
 <code class="sig-name descname">old_graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.GaussianConstraint.old_graph_caching_methods" title="Permalink to this definition">¶</a></dt>
@@ -775,7 +633,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.core.constraint.GaussianConstraint.sample">
 <code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.GaussianConstraint.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample <cite>n</cite> points from the probability density function for the constrained parameters.</p>
+<dd><p>Sample <cite>n</cite> points from the probability density function for the observed value of the parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>tf.Tensor</em>) – The number of samples to be generated.</p>
@@ -797,8 +655,158 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="class">
+<dt id="zfit.core.constraint.ProbabilityConstraint">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">ProbabilityConstraint</code><span class="sig-paren">(</span><em class="sig-param">observation: Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter], params: Dict[str, zfit.core.interfaces.ZfitParameter] = None, name: str = 'ProbabilityConstraint', dtype=tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#ProbabilityConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.constraint.BaseConstraint" title="zfit.core.constraint.BaseConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.constraint.BaseConstraint</span></code></a></p>
+<p>Base class for constraints using a probability density function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dtype</strong> (<em>DType</em>) – the dtype of the constraint</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the name of the constraint</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><em>zfit.Parameter</em></a><em>)</em>) – The parameters to constraint</p></li>
+<li><p><strong>observation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><em>numerical</em><em>) or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><em>zfit.Parameter</em></a><em>)</em>) – Observed values of the parameter
+to constraint obtained from auxiliary measurements.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.add_cache_dependents">
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.dtype">
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.get_dependents">
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[ZfitParameter]<a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.constraint.ProbabilityConstraint.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.observation">
+<em class="property">property </em><code class="sig-name descname">observation</code><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observed values of the parameters constrained.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.constraint.ProbabilityConstraint.old_graph_caching_methods">
+<code class="sig-name descname">old_graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.old_graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.params">
+<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#ProbabilityConstraint.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points from the probability density function for the observed value of the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>tf.Tensor</em>) – The number of samples to be generated.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>n_samples)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter">Parameter</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.ProbabilityConstraint.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#ProbabilityConstraint.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.ProbabilityConstraint.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="zfit.core.constraint.SimpleConstraint">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">SimpleConstraint</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Optional[Dict[str, zfit.core.interfaces.ZfitParameter]], sampler: Callable = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#SimpleConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.SimpleConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">SimpleConstraint</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Optional[Dict[str, zfit.core.interfaces.ZfitParameter]]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#SimpleConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.SimpleConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.constraint.BaseConstraint" title="zfit.core.constraint.BaseConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.constraint.BaseConstraint</span></code></a></p>
 <p>Constraint from a (function returning a) Tensor.</p>
 <p>The parameters are named “param_{i}” with i starting from 0 and corresponding to the index of params.</p>
@@ -806,7 +814,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> – Callable that constructs the constraint and returns a tensor.</p></li>
-<li><p><strong>dependents</strong> – The dependents (independent <cite>zfit.Parameter</cite>) of the loss. If not given, the
+<li><p><strong>params</strong> – The dependents (independent <cite>zfit.Parameter</cite>) of the loss. If not given, the
 dependents are figured out automatically.</p></li>
 </ul>
 </dd>
@@ -916,9 +924,142 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.core.constraint.SimpleConstraint.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.SimpleConstraint.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sample <cite>n</cite> points from the probability density function for the constrained parameters.</p>
+<dt id="zfit.core.constraint.SimpleConstraint.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.SimpleConstraint.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.core.constraint.TFProbabilityConstraint">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.constraint.</code><code class="sig-name descname">TFProbabilityConstraint</code><span class="sig-paren">(</span><em class="sig-param">observation: Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter], params: Dict[str, zfit.core.interfaces.ZfitParameter], distribution: tensorflow_probability.python.distributions.distribution.Distribution, dist_params, dist_kwargs=None, name: str = 'DistributionConstraint', dtype=tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/constraint.html#TFProbabilityConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.constraint.ProbabilityConstraint" title="zfit.core.constraint.ProbabilityConstraint"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.constraint.ProbabilityConstraint</span></code></a></p>
+<p>Base class for constraints using a probability density function from <cite>tensorflow_probability</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distribution</strong> (<cite>tensorflow_probability.distributions.Distribution</cite>) – The probability density function
+used to constraint the parameters</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.add_cache_dependents">
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.distribution">
+<em class="property">property </em><code class="sig-name descname">distribution</code><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.dtype">
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.get_dependents">
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[ZfitParameter]<a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
+<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.observation">
+<em class="property">property </em><code class="sig-name descname">observation</code><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observed values of the parameters constrained.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.old_graph_caching_methods">
+<code class="sig-name descname">old_graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.old_graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.params">
+<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.core.constraint.TFProbabilityConstraint.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample <cite>n</cite> points from the probability density function for the observed value of the parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>tf.Tensor</em>) – The number of samples to be generated.</p>
@@ -933,8 +1074,8 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="method">
-<dt id="zfit.core.constraint.SimpleConstraint.value">
-<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.SimpleConstraint.value" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.core.constraint.TFProbabilityConstraint.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.constraint.TFProbabilityConstraint.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

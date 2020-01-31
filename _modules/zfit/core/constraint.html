@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.constraint &#8212; zfit 0.4.2.dev18+g27cee35 documentation</title>
+    <title>zfit.core.constraint &#8212; zfit 0.4.2.dev39+g9b10e33 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev39</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -358,7 +358,6 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
@@ -367,10 +366,11 @@
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitConstraint</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitParameter</span>
+<span class="kn">from</span> <span class="nn">.parameter</span> <span class="kn">import</span> <span class="n">convert_to_parameter</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">LogicalUndefinedOperationError</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">ShapeIncompatibleError</span>
 
 <span class="n">tfd</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span>
 
@@ -398,38 +398,22 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
-
-<div class="viewcode-block" id="BaseConstraint.sample"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.BaseConstraint.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Sample `n` points from the probability density function for the constrained parameters.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            n (int, tf.Tensor): The number of samples to be generated.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict(Parameter: n_samples)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">sample</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())}</span></div>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="SimpleConstraint"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.SimpleConstraint">[docs]</a><span class="k">class</span> <span class="nc">SimpleConstraint</span><span class="p">(</span><span class="n">BaseConstraint</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ParametersType</span><span class="p">],</span> <span class="n">sampler</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ParametersType</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Constraint from a (function returning a) Tensor.</span>
 
 <span class="sd">        The parameters are named &quot;param_{i}&quot; with i starting from 0 and corresponding to the index of params.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            func: Callable that constructs the constraint and returns a tensor.</span>
-<span class="sd">            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the</span>
+<span class="sd">            params: The dependents (independent `zfit.Parameter`) of the loss. If not given, the</span>
 <span class="sd">                dependents are figured out automatically.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span> <span class="o">=</span> <span class="n">sampler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">OrderedSet</span><span class="p">)</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
@@ -446,29 +430,91 @@
     <span class="c1">#     return dependents</span>
 
     <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func</span><span class="p">()</span></div>
 
+
+<div class="viewcode-block" id="ProbabilityConstraint"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.ProbabilityConstraint">[docs]</a><span class="k">class</span> <span class="nc">ProbabilityConstraint</span><span class="p">(</span><span class="n">BaseConstraint</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span>
+                 <span class="n">params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ProbabilityConstraint&quot;</span><span class="p">,</span>
+                 <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Base class for constraints using a probability density function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dtype (DType): the dtype of the constraint</span>
+<span class="sd">            name (str): the name of the constraint</span>
+<span class="sd">            params (list(zfit.Parameter)): The parameters to constraint</span>
+<span class="sd">            observation (list(numerical) or list(zfit.Parameter)): Observed values of the parameter</span>
+<span class="sd">                to constraint obtained from auxiliary measurements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;param_</span><span class="si">{i}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">)}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">observation</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;observation and params have to be the same length. Currently&quot;</span>
+                                         <span class="sa">f</span><span class="s2">&quot;observation: {len(observation)}, params: {len(params)}&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_observation</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">obs</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+            <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{p.name}</span><span class="s2">_obs&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">obs</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_observation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ordered_params</span> <span class="o">=</span> <span class="n">params</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the observed values of the parameters constrained.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observation</span>
+
+<div class="viewcode-block" id="ProbabilityConstraint.value"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.ProbabilityConstraint.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">()</span></div>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
+
+<div class="viewcode-block" id="ProbabilityConstraint.sample"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.ProbabilityConstraint.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sample `n` points from the probability density function for the observed value of the parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n (int, tf.Tensor): The number of samples to be generated.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict(Parameter: n_samples)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">sample</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">)}</span></div>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="n">sampler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span>
-        <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot sample from a SimpleLoss if no sampler was given on instanciation.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sampler</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_params_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ordered_params</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="DistributionConstraint"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.DistributionConstraint">[docs]</a><span class="k">class</span> <span class="nc">DistributionConstraint</span><span class="p">(</span><span class="n">BaseConstraint</span><span class="p">):</span>
+<div class="viewcode-block" id="TFProbabilityConstraint"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.TFProbabilityConstraint">[docs]</a><span class="k">class</span> <span class="nc">TFProbabilityConstraint</span><span class="p">(</span><span class="n">ProbabilityConstraint</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">distribution</span><span class="p">:</span> <span class="n">tfd</span><span class="o">.</span><span class="n">Distribution</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span>
+                 <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">distribution</span><span class="p">:</span> <span class="n">tfd</span><span class="o">.</span><span class="n">Distribution</span><span class="p">,</span>
                  <span class="n">dist_params</span><span class="p">,</span> <span class="n">dist_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DistributionConstraint&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Base class for constraints using a probability density function.</span>
+        <span class="sd">&quot;&quot;&quot; Base class for constraints using a probability density function from `tensorflow_probability`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            distribution (`tensorflow_probability.distributions.Distribution`): The probability density function</span>
 <span class="sd">                used to constraint the parameters</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">observation</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_distribution</span> <span class="o">=</span> <span class="n">distribution</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span> <span class="o">=</span> <span class="n">dist_params</span>
@@ -478,7 +524,7 @@
     <span class="k">def</span> <span class="nf">distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span>
         <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="p">()</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">)</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_kwargs</span>
         <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">()</span>
@@ -493,28 +539,37 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GaussianConstraint"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.GaussianConstraint">[docs]</a><span class="k">class</span> <span class="nc">GaussianConstraint</span><span class="p">(</span><span class="n">DistributionConstraint</span><span class="p">):</span>
+<div class="viewcode-block" id="GaussianConstraint"><a class="viewcode-back" href="../../../api/zfit.core.constraint.html#zfit.constraint.GaussianConstraint">[docs]</a><span class="k">class</span> <span class="nc">GaussianConstraint</span><span class="p">(</span><span class="n">TFProbabilityConstraint</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span>
-                 <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Gaussian constraints on a list of parameters.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">observation</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span>
+                 <span class="n">uncertainty</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gaussian constraints on a list of parameters to some observed values with uncertainties.</span>
+
+<span class="sd">        A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from</span>
+<span class="sd">        a different measurement.</span>
+
+
+<span class="sd">        .. math::</span>
+<span class="sd">            constraint = Gauss(observation; params, uncertainty)</span>
+
 
 <span class="sd">        Args:</span>
-<span class="sd">            params (list(zfit.Parameter)): The parameters to constraint</span>
-<span class="sd">            mu (numerical, list(numerical)): The central value of the constraint</span>
-<span class="sd">            sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance</span>
-<span class="sd">                matrix of the constraint. Can either be a single value, a list of values, an array or a tensor</span>
-
+<span class="sd">            params (list(zfit.Parameter)): The parameters to constraint; corresponds to mu in the Gaussian</span>
+<span class="sd">                distribution.</span>
+<span class="sd">            observation (numerical, list(numerical)): observed values of the parameter; corresponds to the x argument</span>
+<span class="sd">                in the Gaussian distribution.</span>
+<span class="sd">            uncertainty (numerical, list(numerical) or array/tensor): Uncertainties or covariance/error</span>
+<span class="sd">                matrix of the observed values. Can either be a single value, a list of values, an array or a tensor.</span>
+<span class="sd">                Corresponds to the sigma of the Gaussian distribution.</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            ShapeIncompatibleError: if params, mu and sigma don&#39;t have incompatible shapes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">non_containers</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span>
+
+        <span class="n">observation</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
 
-        <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;param_</span><span class="si">{i}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">)}</span>
-
         <span class="k">def</span> <span class="nf">create_covariance</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
-            <span class="n">mu</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([</span><span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mu</span><span class="p">])</span>
+            <span class="n">mu</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
             <span class="n">sigma</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>  <span class="c1"># TODO (Mayou36): fix as above?</span>
             <span class="n">params_tensor</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
@@ -527,24 +582,28 @@
                 <span class="n">covariance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">tensor_diag</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">2.</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">params_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;params_tensor, mu and sigma have to have the same length. Currently&quot;</span>
+                <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;params_tensor, observation and uncertainty have to have the&quot;</span>
+                                             <span class="s2">&quot; same length. Currently&quot;</span>
                                              <span class="sa">f</span><span class="s2">&quot;param: </span><span class="si">{params_tensor.shape[0]}</span><span class="s2">, mu: </span><span class="si">{mu.shape[0]}</span><span class="s2">, &quot;</span>
-                                             <span class="sa">f</span><span class="s2">&quot;covariance (from sigma): </span><span class="si">{covariance.shape[0:2]}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                             <span class="sa">f</span><span class="s2">&quot;covariance (from uncertainty): </span><span class="si">{covariance.shape[0:2]}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">covariance</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">create_covariance</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mu</span> <span class="o">=</span> <span class="n">mu</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ordered_params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">MultivariateNormalFullCovariance</span>
-        <span class="n">dist_params</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="n">create_covariance</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">))</span>
+        <span class="n">dist_params</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">observation</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span>
+                                               <span class="n">covariance_matrix</span><span class="o">=</span><span class="n">create_covariance</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">uncertainty</span><span class="p">))</span>
         <span class="n">dist_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">validate_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GaussianConstraint&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params_dict</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GaussianConstraint&quot;</span><span class="p">,</span> <span class="n">observation</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
                          <span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="n">dist_params</span><span class="p">,</span> <span class="n">dist_kwargs</span><span class="o">=</span><span class="n">dist_kwargs</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">create_covariance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">,</span> <span class="n">uncertainty</span><span class="p">)</span>
+
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_params_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ordered_params</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the covariance matrix of the observed values of the parameters constrained.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span><span class="p">()</span></div>
 </pre></div>
 
     </div>

@@ -293,14 +293,18 @@ using the following argument. Reusing the example above
 
 The sample (and therefore also the sample the `nll` depends on) is now sampled with `sigma1` set to 5.
 
-If some parameters are constrained from external measurements, usually Gaussian constraints, then sampling of
-those parameters might be needed to obtain an unbiased sample from the model. Example:
+If some parameters are constrained to values observed from external measurements, usually Gaussian constraints,
+then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:
 
 .. code:: pycon
 
     >>> # same model depending on mu1, sigma1, mu2, sigma2
 
-    >>> constraint = zfit.constraint.GaussianConstraint(params=[sigma1, sigma2], mu=[1.0, 0.5], sigma=[0.1, 0.05])
+    >>> from contextlib import ExitStack
+
+    >>> constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]
+    ...                                                 mu=[sigma1, sigma2],
+    ...                                                 sigma=[0.1, 0.05])
 
     >>> n_samples = 1000
 
@@ -310,7 +314,9 @@ those parameters might be needed to obtain an unbiased sample from the model. Ex
     >>> constr_values = constraint.sample(n=n_samples)
 
     >>> for i in range(n_samples):
-    >>>     sampler.resample(param_values={sigma1: constr_values[sigma1][i],
-    >>>                                    sigma2: constr_values[sigma2][i]})
-    >>>     # do something with nll
-    >>>     minimizer.minimize(nll)  # minimize
+    ...     sampler.resample()
+    ...     # do something with nll
+    ...     with ExitStack() as stack:
+    ...         for x, v in constr.items():
+    ...             stack.enter_context(x.set_value(v))
+    ...         minimizer.minimize(nll)  # minimize

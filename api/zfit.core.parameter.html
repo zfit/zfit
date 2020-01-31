@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>parameter &#8212; zfit 0.4.2.dev18+g27cee35 documentation</title>
+    <title>parameter &#8212; zfit 0.4.2.dev39+g9b10e33 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev39</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -3259,14 +3259,14 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="function">
 <dt id="zfit.core.parameter.convert_to_parameter">
-<code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">convert_to_parameter</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">name=None</em>, <em class="sig-param">prefer_floating=False</em>, <em class="sig-param">dependents=None</em>, <em class="sig-param">graph_mode=False</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitParameter<a class="reference internal" href="../_modules/zfit/core/parameter.html#convert_to_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.convert_to_parameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a <em>numerical</em> to a fixed/floating parameter or return if already a parameter.</p>
+<code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">convert_to_parameter</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">name=None</em>, <em class="sig-param">prefer_constant=True</em>, <em class="sig-param">dependents=None</em>, <em class="sig-param">graph_mode=False</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitParameter<a class="reference internal" href="../_modules/zfit/core/parameter.html#convert_to_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.convert_to_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <em>numerical</em> to a constant/floating parameter or return if already a parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – </p></li>
 <li><p><strong>(</strong><strong>)</strong> – </p></li>
-<li><p><strong>prefer_floating</strong> – If True, create a Parameter instead of a FixedParameter _if <a href="#id105"><span class="problematic" id="id106">possible_</span></a>.</p></li>
+<li><p><strong>prefer_constant</strong> – If True, create a ConstantParameter instead of a Parameter _if <a href="#id105"><span class="problematic" id="id106">possible_</span></a>.</p></li>
 </ul>
 </dd>
 </dl>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; zfit 0.4.2.dev18+g27cee35 documentation</title>
+    <title>Index &#8212; zfit 0.4.2.dev39+g9b10e33 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev39</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -457,11 +457,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.add_cache_dependents">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.add_cache_dependents">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.add_cache_dependents">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.add_cache_dependents">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.add_cache_dependents">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.add_cache_dependents">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.add_cache_dependents">(zfit.core.data.Data method)</a>
 </li>
@@ -1681,11 +1683,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.copy">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.copy">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.copy">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.copy">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.copy">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.copy">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.copy">(zfit.core.data.Data method)</a>
 </li>
@@ -1910,8 +1914,14 @@
       </ul></li>
       <li><a href="api/zfit.z.random.html#zfit.z.random.counts_multinomial">counts_multinomial() (in module zfit.z.random)</a>
 </li>
-      <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.covariance">covariance() (zfit.minimizers.fitresult.FitResult method)</a>
+      <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.covariance">covariance() (zfit.constraint.GaussianConstraint property)</a>
+
+      <ul>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.covariance">(zfit.core.constraint.GaussianConstraint property)</a>
 </li>
+        <li><a href="api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.covariance">(zfit.minimizers.fitresult.FitResult method)</a>
+</li>
+      </ul></li>
       <li><a href="api/zfit.core.parameter.html#zfit.core.parameter.Parameter.create">create() (zfit.core.parameter.Parameter property)</a>
 
       <ul>
@@ -2311,9 +2321,9 @@
       <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.distribution">distribution() (zfit.constraint.GaussianConstraint property)</a>
 
       <ul>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.distribution">(zfit.core.constraint.DistributionConstraint property)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.distribution">(zfit.core.constraint.GaussianConstraint property)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.distribution">(zfit.core.constraint.TFProbabilityConstraint property)</a>
 </li>
         <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.ExponentialTFP.distribution">(zfit.models.dist_tfp.ExponentialTFP property)</a>
 </li>
@@ -2334,8 +2344,6 @@
         <li><a href="api/zfit.pdf.html#zfit.pdf.WrapDistribution.distribution">(zfit.pdf.WrapDistribution property)</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint">DistributionConstraint (class in zfit.core.constraint)</a>
-</li>
       <li><a href="api/zfit.models.polynomials.html#zfit.models.polynomials.do_recurrence">do_recurrence() (in module zfit.models.polynomials)</a>
 </li>
       <li><a href="api/zfit.util.container.html#zfit.util.container.DotDict">DotDict (class in zfit.util.container)</a>
@@ -2369,11 +2377,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.dtype">(zfit.core.constraint.BaseConstraint property)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.dtype">(zfit.core.constraint.DistributionConstraint property)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.dtype">(zfit.core.constraint.GaussianConstraint property)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.dtype">(zfit.core.constraint.ProbabilityConstraint property)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.dtype">(zfit.core.constraint.SimpleConstraint property)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.dtype">(zfit.core.constraint.TFProbabilityConstraint property)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.dtype">(zfit.core.data.Data property)</a>
 </li>
@@ -2913,11 +2923,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.get_dependents">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.get_dependents">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.get_dependents">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.get_dependents">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.get_dependents">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.get_dependents">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin.get_dependents">(zfit.core.dependents.BaseDependentsMixin method)</a>
 </li>
@@ -3159,11 +3171,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.get_params">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.get_params">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.get_params">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.get_params">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.get_params">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.get_params">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitFunc.get_params">(zfit.core.interfaces.ZfitFunc method)</a>
 </li>
@@ -3585,11 +3599,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.graph_caching_methods">(zfit.core.constraint.BaseConstraint attribute)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.graph_caching_methods">(zfit.core.constraint.DistributionConstraint attribute)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.graph_caching_methods">(zfit.core.constraint.GaussianConstraint attribute)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.graph_caching_methods">(zfit.core.constraint.ProbabilityConstraint attribute)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.graph_caching_methods">(zfit.core.constraint.SimpleConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.graph_caching_methods">(zfit.core.constraint.TFProbabilityConstraint attribute)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.graph_caching_methods">(zfit.core.data.Data attribute)</a>
 </li>
@@ -4691,11 +4707,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.name">(zfit.core.constraint.BaseConstraint property)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.name">(zfit.core.constraint.DistributionConstraint property)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.name">(zfit.core.constraint.GaussianConstraint property)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.name">(zfit.core.constraint.ProbabilityConstraint property)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.name">(zfit.core.constraint.SimpleConstraint property)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.name">(zfit.core.constraint.TFProbabilityConstraint property)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.name">(zfit.core.data.Data property)</a>
 </li>
@@ -5416,6 +5434,16 @@
         <li><a href="api/keep/zfit.html#zfit.Space.obs_axes">(zfit.Space property)</a>, <a href="api/zfit.html#zfit.Space.obs_axes">[1]</a>
 </li>
       </ul></li>
+      <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.observation">observation() (zfit.constraint.GaussianConstraint property)</a>
+
+      <ul>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.observation">(zfit.core.constraint.GaussianConstraint property)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.observation">(zfit.core.constraint.ProbabilityConstraint property)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.observation">(zfit.core.constraint.TFProbabilityConstraint property)</a>
+</li>
+      </ul></li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.ObsIncompatibleError">ObsIncompatibleError</a>
 </li>
       <li><a href="api/zfit.util.exception.html#zfit.util.exception.ObsNotSpecifiedError">ObsNotSpecifiedError</a>
@@ -5439,11 +5467,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.old_graph_caching_methods">(zfit.core.constraint.BaseConstraint attribute)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.old_graph_caching_methods">(zfit.core.constraint.DistributionConstraint attribute)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.old_graph_caching_methods">(zfit.core.constraint.GaussianConstraint attribute)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.old_graph_caching_methods">(zfit.core.constraint.ProbabilityConstraint attribute)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.old_graph_caching_methods">(zfit.core.constraint.SimpleConstraint attribute)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.old_graph_caching_methods">(zfit.core.constraint.TFProbabilityConstraint attribute)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.old_graph_caching_methods">(zfit.core.data.Data attribute)</a>
 </li>
@@ -5661,11 +5691,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.params">(zfit.core.constraint.BaseConstraint property)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.params">(zfit.core.constraint.DistributionConstraint property)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.params">(zfit.core.constraint.GaussianConstraint property)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.params">(zfit.core.constraint.ProbabilityConstraint property)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.params">(zfit.core.constraint.SimpleConstraint property)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.params">(zfit.core.constraint.TFProbabilityConstraint property)</a>
 </li>
         <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitFunc.params">(zfit.core.interfaces.ZfitFunc property)</a>
 </li>
@@ -6272,6 +6304,8 @@
 </li>
       <li><a href="api/zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.print_params">print_params() (in module zfit.minimizers.baseminimizer)</a>
 </li>
+      <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint">ProbabilityConstraint (class in zfit.core.constraint)</a>
+</li>
       <li><a href="api/zfit.func.html#zfit.func.ProdFunc">ProdFunc (class in zfit.func)</a>
 
       <ul>
@@ -6603,11 +6637,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.register_cacher">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.register_cacher">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.register_cacher">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.register_cacher">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.register_cacher">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.register_cacher">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.register_cacher">(zfit.core.data.Data method)</a>
 </li>
@@ -6927,11 +6963,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.reset_cache">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.reset_cache">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.reset_cache">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.reset_cache">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.reset_cache">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.reset_cache">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.reset_cache">(zfit.core.data.Data method)</a>
 </li>
@@ -7115,11 +7153,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.reset_cache_self">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.reset_cache_self">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.reset_cache_self">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.reset_cache_self">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.reset_cache_self">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.reset_cache_self">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.reset_cache_self">(zfit.core.data.Data method)</a>
 </li>
@@ -7299,21 +7339,17 @@
       <li><a href="api/zfit.constraint.html#zfit.constraint.GaussianConstraint.sample">sample() (zfit.constraint.GaussianConstraint method)</a>
 
       <ul>
-        <li><a href="api/zfit.constraint.html#zfit.constraint.SimpleConstraint.sample">(zfit.constraint.SimpleConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.sample">(zfit.core.basefunc.BaseFunc method)</a>
 </li>
         <li><a href="api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample">(zfit.core.basemodel.BaseModel method)</a>
 </li>
         <li><a href="api/zfit.core.basepdf.html#zfit.core.basepdf.BasePDF.sample">(zfit.core.basepdf.BasePDF method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.sample">(zfit.core.constraint.BaseConstraint method)</a>
-</li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.sample">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.sample">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.sample">(zfit.core.constraint.SimpleConstraint method)</a>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.sample">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.sample">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitFunc.sample">(zfit.core.interfaces.ZfitFunc method)</a>
 </li>
@@ -8028,6 +8064,8 @@
 </li>
       <li><a href="api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.tfd_analytic_sample">tfd_analytic_sample() (in module zfit.models.dist_tfp)</a>
 </li>
+      <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint">TFProbabilityConstraint (class in zfit.core.constraint)</a>
+</li>
       <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.to_complex">to_complex() (in module zfit.z.zextension)</a>
 </li>
       <li><a href="api/zfit.core.data.html#zfit.core.data.Data.to_pandas">to_pandas() (zfit.core.data.Data method)</a>
@@ -8058,10 +8096,10 @@
         <li><a href="api/keep/zfit.html#zfit.Parameter.SaveSliceInfo.to_proto">(zfit.Parameter.SaveSliceInfo method)</a>, <a href="api/zfit.html#zfit.Parameter.SaveSliceInfo.to_proto">[1]</a>
 </li>
       </ul></li>
-      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.to_real">to_real() (in module zfit.z.zextension)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/zfit.z.zextension.html#zfit.z.zextension.to_real">to_real() (in module zfit.z.zextension)</a>
+</li>
       <li><a href="api/zfit.minimize.html#zfit.minimize.Adam.tolerance">tolerance() (zfit.minimize.Adam property)</a>
 
       <ul>
@@ -8383,11 +8421,13 @@
 </li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.BaseConstraint.value">(zfit.core.constraint.BaseConstraint method)</a>
 </li>
-        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.DistributionConstraint.value">(zfit.core.constraint.DistributionConstraint method)</a>
-</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.GaussianConstraint.value">(zfit.core.constraint.GaussianConstraint method)</a>
 </li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.ProbabilityConstraint.value">(zfit.core.constraint.ProbabilityConstraint method)</a>
+</li>
         <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.SimpleConstraint.value">(zfit.core.constraint.SimpleConstraint method)</a>
+</li>
+        <li><a href="api/zfit.core.constraint.html#zfit.core.constraint.TFProbabilityConstraint.value">(zfit.core.constraint.TFProbabilityConstraint method)</a>
 </li>
         <li><a href="api/zfit.core.data.html#zfit.core.data.Data.value">(zfit.core.data.Data method)</a>
 </li>

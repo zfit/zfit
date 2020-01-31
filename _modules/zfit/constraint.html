@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.constraint &#8212; zfit 0.4.2.dev18+g27cee35 documentation</title>
+    <title>zfit.constraint &#8212; zfit 0.4.2.dev39+g9b10e33 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev39</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -363,22 +363,21 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nll_gaussian&quot;</span><span class="p">,</span> <span class="s2">&quot;SimpleConstraint&quot;</span><span class="p">,</span> <span class="s2">&quot;GaussianConstraint&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="nll_gaussian"><a class="viewcode-back" href="../../api/zfit.constraint.html#zfit.constraint.nll_gaussian">[docs]</a><span class="k">def</span> <span class="nf">nll_gaussian</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span>
-                 <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="nll_gaussian"><a class="viewcode-back" href="../../api/zfit.constraint.html#zfit.constraint.nll_gaussian">[docs]</a><span class="k">def</span> <span class="nf">nll_gaussian</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">observation</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span>
+                 <span class="n">uncertainty</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Return negative log likelihood graph for gaussian constraints on a list of parameters.</span>
-
 <span class="sd">    Args:</span>
 <span class="sd">        params (list(zfit.Parameter)): The parameters to constraint</span>
-<span class="sd">        mu (numerical, list(numerical)): The central value of the constraint</span>
-<span class="sd">        sigma (numerical, list(numerical) or array/tensor): The standard deviations or covariance</span>
-<span class="sd">            matrix of the constraint. Can either be a single value, a list of values, an array or a tensor</span>
+<span class="sd">        observation (numerical, list(numerical)): observed values of the parameter</span>
+<span class="sd">        uncertainty (numerical, list(numerical) or array/tensor): Uncertainties or covariance/error</span>
+<span class="sd">            matrix of the observed values. Can either be a single value, a list of values, an array or a tensor</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        `GaussianConstraint`: the constraint object</span>
 <span class="sd">    Raises:</span>
 <span class="sd">        ShapeIncompatibleError: if params, mu and sigma don&#39;t have the same size</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">observation</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span> <span class="n">uncertainty</span><span class="o">=</span><span class="n">uncertainty</span><span class="p">)</span></div>
 
 <span class="c1"># def nll_pdf(constraints: dict):</span>
 <span class="c1">#     if not constraints:</span>

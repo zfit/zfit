@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Building a model &#8212; zfit 0.4.2.dev18+g27cee35 documentation</title>
+    <title>Building a model &#8212; zfit 0.4.2.dev39+g9b10e33 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev39</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -610,11 +610,15 @@ using the following argument. Reusing the example above</p>
 </pre></div>
 </div>
 <p>The sample (and therefore also the sample the <cite>nll</cite> depends on) is now sampled with <cite>sigma1</cite> set to 5.</p>
-<p>If some parameters are constrained from external measurements, usually Gaussian constraints, then sampling of
-those parameters might be needed to obtain an unbiased sample from the model. Example:</p>
+<p>If some parameters are constrained to values observed from external measurements, usually Gaussian constraints,
+then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># same model depending on mu1, sigma1, mu2, sigma2</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="p">],</span> <span class="n">mu</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+<span class="gp">... </span>                                                <span class="n">mu</span><span class="o">=</span><span class="p">[</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="p">],</span>
+<span class="gp">... </span>                                                <span class="n">sigma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">])</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">n_samples</span> <span class="o">=</span> <span class="mi">1000</span>
 
@@ -624,10 +628,12 @@ those parameters might be needed to obtain an unbiased sample from the model. Ex
 <span class="gp">&gt;&gt;&gt; </span><span class="n">constr_values</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{</span><span class="n">sigma1</span><span class="p">:</span> <span class="n">constr_values</span><span class="p">[</span><span class="n">sigma1</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
-<span class="gp">&gt;&gt;&gt; </span>                                   <span class="n">sigma2</span><span class="p">:</span> <span class="n">constr_values</span><span class="p">[</span><span class="n">sigma2</span><span class="p">][</span><span class="n">i</span><span class="p">]})</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># do something with nll</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
+<span class="gp">... </span>    <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="c1"># do something with nll</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">constr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>            <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+<span class="gp">... </span>        <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
 </pre></div>
 </div>
 </div>
