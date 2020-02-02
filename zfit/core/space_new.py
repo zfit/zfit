@@ -5,7 +5,7 @@
 import functools
 import inspect
 from abc import abstractmethod
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union, Iterable
 
@@ -843,7 +843,7 @@ class Space(BaseSpace):
 
     @property
     def has_rect_limits(self) -> bool:
-        return all(limit.has_rect_limits for limit in self._limits_dict.values())
+        return all(limit.has_rect_limits for limit in list(self._limits_dict.values())[0].values())
 
     @classmethod
     def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
@@ -929,14 +929,14 @@ class Space(BaseSpace):
                 `ZfitLimits` objects.
 
         """
-        limits_dict = {}
+        limits_dict = defaultdict(dict)
         if not isinstance(limit, dict):
             if not isinstance(rect_limits, dict):
                 limit = Limit(limit_fn=limit, rect_limits=rect_limits, n_obs=n_obs)
                 if obs is not None:
-                    limits_dict[obs] = limit
+                    limits_dict['obs'][obs] = limit
                 if axes is not None:
-                    limits_dict[axes] = limit
+                    limits_dict['axes'][axes] = limit
             else:
                 limits_dict = rect_limits
         else:
@@ -988,7 +988,8 @@ class Space(BaseSpace):
         coords_to_extract = set(coords_to_extract)
 
         limits_to_eval = {}
-        keys_sorted = sorted(self._limits_dict.items(), key=lambda x: len(x[0]), reverse=True)
+        limit_dict = self._limits_dict['obs' if obs_in_use else 'axes'].items()
+        keys_sorted = sorted(limit_dict, key=lambda x: len(x[0]), reverse=True)
         for key_coords, limit in keys_sorted:
             coord_intersec = frozenset(key_coords).intersection(coords_to_extract)
             if not coord_intersec:  # this limit does not contain any requested obs
@@ -1026,14 +1027,16 @@ class Space(BaseSpace):
         Returns:
 
         """
-        self._check_has_limits
+        # self._check_has_limits
         if not self.has_rect_limits:
             return (False, False)
         limits_obs = []
         rect_lower_unordered = []
         rect_upper_unordered = []
         obs_in_use = self.obs is not None
-        for obs_limit, limit in self._limits_dict.items():  # TODO: what about axis?
+
+        limits_dict = self._limits_dict['obs' if obs_in_use else 'axes']
+        for obs_limit, limit in limits_dict.items():  # TODO: what about axis?
             if obs_in_use ^ isinstance(obs_limit[0], str):  # testing first element is sufficient
                 continue  # skipping if stored in different type of coords
             limits_obs.extend(obs_limit)
@@ -1058,7 +1061,7 @@ class Space(BaseSpace):
 
     @property
     def has_limits(self):
-        return (not self.limits_not_set) and self.rect_limits is not False
+        return (not self.limits_not_set) and self.has_rect_limits is not False
 
     @property
     def limits_not_set(self):
@@ -1224,9 +1227,12 @@ class Space(BaseSpace):
             :py:class:`~zfit.Space`
         """
         if obs is None:  # drop obs, check if there are axes
+            if self.obs is None:
+                return self
             if self.axes is None:
                 raise AxesIncompatibleError("cannot remove obs (using None) for a Space without axes")
-            new_space = self.copy(obs=obs)
+            new_limits = self._limits_dict['obs']
+            new_space = self.copy(obs=obs, limits=new_limits)
         else:
             obs = _convert_obs_to_str(obs)
             if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
@@ -1234,7 +1240,6 @@ class Space(BaseSpace):
 
         new_indices = self.get_reorder_indices(obs=obs)
         new_space = self.with_indices(indices=new_indices)
-        raise WorkInProgressError
         return new_space
 
     def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
@@ -1249,20 +1254,31 @@ class Space(BaseSpace):
             :py:class:`~zfit.Space`
         """
         if axes is None:  # drop axes
+            if self.axes is None:
+                return self
             if self.obs is None:
                 raise ObsIncompatibleError("Cannot remove axes (using None) for a Space without obs")
-            new_space = self.copy(axes=axes)
+            new_limits = self._limits_dict['axes']
+            new_space = self.copy(axes=axes, limits=new_limits)
         else:
-            axes = _convert_axes_to_int(axes)
-            if not allow_superset and frozenset(axes).issuperset(self.axes):
-                raise AxesIncompatibleError(
-                    f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
+            axes = convert_to_axes(axes)
+            if self.axes is None:
+                if not len(axes) == len(self.obs):
+                    raise AxesIncompatibleError(f"Trying to set axes {axes} to object with obs {self.obs}")
+                new_limits = self._limits_dict['obs'].copy()
+                for obs, limit in self._limits_dict['obs']:
+                    ax = tuple(axes[obs.index[ob]] for ob in obs)
+                    new_limits['axes'][ax] = limit
+            else:
+                if not allow_superset and frozenset(axes).issuperset(self.axes):
+                    raise AxesIncompatibleError(
+                        f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
 
-            if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
-                raise AxesIncompatibleError(f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
-            new_indices = self.get_reorder_indices(axes=axes)
-            new_space = self.with_indices(indices=new_indices)
-        raise WorkInProgressError
+                if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
+                    raise AxesIncompatibleError(
+                        f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
+                new_indices = self.get_reorder_indices(axes=axes)
+                new_space = self.with_indices(indices=new_indices)
 
         return new_space
 
@@ -1655,7 +1671,13 @@ class Space(BaseSpace):
 
     @property
     def has_rect_limits(self):
-        return self._rect_limits is not None  # TODO: implement properly new space
+        if self.obs is not None:
+            limits_dict = self._limits_dict['obs']
+        else:
+            limits_dict = self._limits_dict['axes']
+        rect_limits = [limit.has_rect_limits for limit in limits_dict.values()]
+        all_rect_limits = all(rect_limits)
+        return all_rect_limits and len(rect_limits) > 0
 
     def _inside(self, x, guarantee_limits):  # TODO: add proper implementation
         lower, upper = self.iter_limits()[0]
@@ -1673,10 +1695,10 @@ class Space(BaseSpace):
     def get_updated_limits_dict(self, limits, obs=None, axes=None):
         obs = convert_to_obs_str(obs)
         axes = convert_to_axes(axes)
-        if obs is not None:
+        # if obs is not None:
 
 
-def get_reordered_limits_dict(limits, old_coords, new_coords):
+# def get_reordered_limits_dict(limits, old_coords, new_coords):
 
 
 def _convert_axes_to_int(axes):
