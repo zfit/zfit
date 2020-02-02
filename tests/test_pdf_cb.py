@@ -8,8 +8,8 @@ import zfit
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.physics import CrystalBall, DoubleCB
 
-mu = 0.0
-sigma = 0.5
+mu = -0.2
+sigma = 0.7
 
 alphal = 1.0
 nl = 2.0
