@@ -1030,11 +1030,31 @@ class Space(BaseSpace):
         # self._check_has_limits
         if not self.has_rect_limits:
             return (False, False)
+        lower_ordered, upper_ordered = self._rect_limits_z()
+        lower_ordered, upper_ordered = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(upper_ordered)
+        return (lower_ordered, upper_ordered)
+
+    @property
+    def _rect_limits_np(self):
+        """Return the rectangular limits as `np.ndarray`. Raises error if not possible.
+
+        Returns:
+            (lower, upper):
+
+        Raises:
+            CannotConvertToNumpyError: In case the conversion fails.
+        """
+        lower, upper = self._rect_limits_z()
+
+        lower = z.unstable._try_convert_numpy(lower)
+        upper = z.unstable._try_convert_numpy(upper)
+        return (lower, upper)
+
+    def _rect_limits_z(self):
         limits_obs = []
         rect_lower_unordered = []
         rect_upper_unordered = []
         obs_in_use = self.obs is not None
-
         limits_dict = self._limits_dict['obs' if obs_in_use else 'axes']
         for obs_limit, limit in limits_dict.items():  # TODO: what about axis?
             if obs_in_use ^ isinstance(obs_limit[0], str):  # testing first element is sufficient
@@ -1051,7 +1071,7 @@ class Space(BaseSpace):
         upper_stacked = z.unstable.concat(rect_upper_unordered,
                                           axis=-1)  # TODO: improve this layer, is list does not recognize it as tensor?
         upper_ordered = self.reorder_x(upper_stacked, **reorder_kwargs)
-        return (lower_ordered, upper_ordered)
+        return lower_ordered, upper_ordered
 
     def reorder_x(self, x, x_obs=None, x_axes=None, func_obs=None, func_axes=None):
         return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)

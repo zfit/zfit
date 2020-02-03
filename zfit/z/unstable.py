@@ -68,3 +68,17 @@ def concat(values, axis, name=None):
         return tf.concat(values=values, axis=axis, name=name)
     else:
         return np.concatenate(values, axis=axis)
+
+
+def _try_convert_numpy(tensorlike):
+    if hasattr(tensorlike, 'numpy'):
+        tensorlike = tensorlike.numpy()
+
+    if not isinstance(tensorlike, np.ndarray):
+        from zfit.util.exception import CannotConvertToNumpyError
+        raise CannotConvertToNumpyError(f"Cannot convert {tensorlike} to a Numpy array. This may be because the"
+                                        f" object is a Tensor and the function is called in Graph mode (e.g. in"
+                                        f"a `z.function` decorated function.\n"
+                                        f"If this error appears and is not understandable, it is most likely a bug."
+                                        f" Please open an issue on Github.")
+    return tensorlike

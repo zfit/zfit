@@ -145,6 +145,8 @@ class NoSessionSpecifiedError(Exception):
 class IllegalInGraphModeError(Exception):
     pass
 
+class CannotConvertToNumpyError(Exception):
+    pass
 
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
