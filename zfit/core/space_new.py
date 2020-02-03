@@ -845,17 +845,17 @@ class Space(BaseSpace):
     def has_rect_limits(self) -> bool:
         return all(limit.has_rect_limits for limit in list(self._limits_dict.values())[0].values())
 
-    @classmethod
-    def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-                  limits: Optional[ztyping.LimitsTypeInput] = None,
-                  name: str = None) -> "zfit.Space":
-        if obs is None:
-            new_space = cls.from_axes(axes=axes, limits=limits, name=name)
-        else:
-            new_space = cls(obs=obs, limits=limits, name=name)
-            new_space._axes = axes
-
-        return new_space
+    # @classmethod
+    # def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
+    #               limits: Optional[ztyping.LimitsTypeInput] = None,
+    #               name: str = None) -> "zfit.Space":
+    #     if obs is None:
+    #         new_space = cls.from_axes(axes=axes, limits=limits, name=name)
+    #     else:
+    #         new_space = cls(obs=obs, limits=limits, name=name)
+    #         new_space._axes = axes
+    #
+    #     return new_space
 
     @classmethod
     def from_axes(cls, axes: ztyping.AxesTypeInput,

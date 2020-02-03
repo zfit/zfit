@@ -1,5 +1,6 @@
 #  Copyright (c) 2020 zfit
 import pytest
+import tensorflow as tf
 
 from zfit import z
 from zfit.core.space_new import Limit
