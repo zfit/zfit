@@ -776,7 +776,7 @@ def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
         limits = (new_lower, new_upper)
     new_space = Space(obs=all_obs, limits=limits)
     if new_space.n_limits > 1:
-        new_space = MultiSpace(Space.iter_limits(as_tuple=False), obs=all_obs)
+        new_space = MultiSpace(Space, obs=all_obs)
     return new_space
 
 
@@ -1641,18 +1641,29 @@ class Space(BaseSpace):
         all_rect_limits = all(rect_limits)
         return all_rect_limits and len(rect_limits) > 0
 
-    def _inside(self, x, guarantee_limits):  # TODO: add proper implementation
-        lower, upper = self.iter_limits()[0]
-        from .sample import EventSpace
-
-        if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
-            upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
-            lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
-
-        below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
-        above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
-        inside = tf.logical_and(above_lower, below_upper)
-        return inside
+    def _inside(self, x, guarantee_limits):  # TODO: add proper implementation, as with rect_limits
+        xs_inside = []
+        obs_in_use = self.obs is not None
+        limits_dict = self._limits_dict['obs' if obs_in_use else 'axes']
+        for coords, limit in limits_dict.items():
+            reorder_kwargs = {'func_obs' if obs_in_use else 'func_axes': coords}
+            x_sub = self.reorder_x(x, **reorder_kwargs)
+            x_inside = limit.inside(x_sub)
+            # reorder_back_kwargs = {'x_obs' if obs_in_use else 'x_axes': coords}
+            # x_sub_reordered = self.reorder_x(x_inside, **reorder_back_kwargs)
+            xs_inside.append(x_inside)
+        all_inside = tf.reduce_all(xs_inside, axis=-1)
+        #
+        #     from .sample import EventSpace
+        #
+        # if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
+        #     upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
+        #     lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
+        #
+        # below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
+        # above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
+        # inside = tf.logical_and(above_lower, below_upper)
+        return all_inside
 
     def get_updated_limits_dict(self, limits, obs=None, axes=None):
         obs = convert_to_obs_str(obs)

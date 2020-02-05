@@ -23,7 +23,7 @@ class UniformSampleAndWeights:
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
         for space in limits:
-            lower, upper = space.iter_limits(as_tuple=True)[0]  # TODO: remove new space
+            lower, upper = space.rect_limits  # TODO: remove new space
             if isinstance(space, EventSpace):
                 frac = 1.  # TODO(Mayou36): remove hack for Eventspace
             else:

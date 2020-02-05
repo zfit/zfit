@@ -328,7 +328,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._call_integrate(limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.iter_limits(as_tuple=False):
+            for sub_limits in limits:
                 integrals.append(self._call_integrate(limits=sub_limits, norm_range=norm_range, name=name))
             integral = z.reduce_sum(tf.stack(integrals), axis=0)
         return integral
@@ -457,7 +457,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._call_analytic_integrate(limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.iter_limits(as_tuple=False):
+            for sub_limits in limits:
                 integrals.append(self._call_analytic_integrate(limits=sub_limits, norm_range=norm_range, name=name))
             integral = z.reduce_sum(tf.stack(integrals), axis=0)
         return integral
@@ -516,7 +516,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._call_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.iter_limits(as_tuple=False):
+            for sub_limits in limits:
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range, name=name))
             integral = z.reduce_sum(tf.stack(integrals), axis=0)
 
@@ -580,7 +580,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._call_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limit in limits.iter_limits(as_tuple=False):
+            for sub_limit in limits:
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range, name=name))
             integral = z.reduce_sum(tf.stack(integrals), axis=0)
 
@@ -678,7 +678,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._call_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.iter_limits(as_tuple=False):
+            for sub_limits in limits:
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range,
                                                                        name=name))
             integral = z.reduce_sum(tf.stack(integrals), axis=0)
@@ -745,7 +745,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             integral = self._call_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
         except MultipleLimitsNotImplementedError:
             integrals = []
-            for sub_limits in limits.iter_limits(as_tuple=False):
+            for sub_limits in limits:
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range,
                                                                       name=name))
             integral = z.reduce_sum(tf.stack(integrals), axis=0)

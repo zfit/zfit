@@ -91,7 +91,7 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     for space in spaces:
         if space.limits is None:
             continue
-        for lower, upper in space.iter_limits(as_tuple=True):
+        for lower, upper in space:
             for other_lower, other_upper in zip(lowers, uppers):
                 lower_same = np.allclose(lower, other_lower)
                 upper_same = np.allclose(upper, other_upper)
