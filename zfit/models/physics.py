@@ -209,7 +209,7 @@ class CrystalBall(BasePDF):
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
-crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+crystalball_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
 CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 

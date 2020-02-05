@@ -3,7 +3,7 @@ Basic PDFs are provided here. Gauss, exponential... that can be used together wi
 build larger models.
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import math as mt
 from typing import Type, Any
@@ -44,7 +44,7 @@ def _gauss_integral_from_inf_to_inf(limits, params, model):
 
 
 CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
-                                          limits=Space.from_axes(limits=(-infinity, infinity), axes=(0,)))
+                                          limits=Space(limits=(-infinity, infinity), axes=(0,)))
 
 
 class Exponential(BasePDF):
@@ -178,5 +178,5 @@ def _exp_integral_from_any_to_any(limits, params, model):
 # Exponential.register_inverse_analytic_integral()
 
 
-limits = Space.from_axes(axes=0, limits=(ANY_LOWER, ANY_UPPER))
+limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
 Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)

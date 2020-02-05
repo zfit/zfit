@@ -184,7 +184,7 @@ class Legendre(RecursivePolynomial):
         return legendre_shape(x=x, coeffs=coeffs)
 
 
-legendre_limits = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+legendre_limits = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Legendre.register_analytic_integral(func=legendre_integral, limits=legendre_limits)
 
 chebyshev_polys = [lambda x: tf.ones_like(x), lambda x: x]
@@ -276,7 +276,7 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
     return integral
 
 
-chebyshev1_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+chebyshev1_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev.register_analytic_integral(func=func_integral_chebyshev1, limits=chebyshev1_limits_integral)
 
 chebyshev2_polys = [lambda x: tf.ones_like(x), lambda x: x * 2]
@@ -354,7 +354,7 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
     return integral
 
 
-chebyshev2_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+chebyshev2_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev2.register_analytic_integral(func=func_integral_chebyshev2, limits=chebyshev2_limits_integral)
 
 
@@ -470,7 +470,7 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
     return integral
 
 
-laguerre_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+laguerre_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Laguerre.register_analytic_integral(func=func_integral_laguerre, limits=laguerre_limits_integral)
 
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
@@ -554,7 +554,7 @@ def func_integral_hermite(limits, norm_range, params, model):
     return integral
 
 
-hermite_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+hermite_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_limits_integral)
 
 

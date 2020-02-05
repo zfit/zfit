@@ -158,29 +158,30 @@ def convert_to_numpy(obj):
 class Limit(ZfitLimit):
     def __init__(self, limit_fn=None, rect_limits=None, n_obs=None):
         super().__init__()
-        limit_fn, rect_limits, n_obs, is_rect = self._check_convert_input_limits(limits_fn=limit_fn,
-                                                                                 rect_limits=rect_limits,
-                                                                                 n_obs=n_obs)
+        limit_fn, rect_limits, n_obs, is_rect, sublimits = self._check_convert_input_limits(limits_fn=limit_fn,
+                                                                                            rect_limits=rect_limits,
+                                                                                            n_obs=n_obs)
         self._limit_fn = limit_fn
         self._rect_limits = rect_limits
         self._n_obs = n_obs
         self._is_rect = is_rect
+        self._sublimits = sublimits
 
     def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
         if isinstance(limits_fn, ZfitLimit):
             if rect_limits is not None or n_obs:
                 raise OverdefinedError("limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified.")
             limit = limits_fn
-            return limit.limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits
+            return limit.limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits, (self,)
         limits_are_rect = True
         if limits_fn is False:
             if rect_limits in (False, None):
-                return False, False, n_obs, None
+                return False, False, n_obs, None, (self,)
         elif limits_fn is None:
             if rect_limits is False:
-                return False, False, n_obs, None
+                return False, False, n_obs, None, (self,)
             elif rect_limits is None:
-                return None, None, n_obs, None
+                return None, None, n_obs, None, (self,)
             else:  # start from limits are anything, rect is None
                 limits_fn = rect_limits
                 rect_limits = None
@@ -213,7 +214,20 @@ class Limit(ZfitLimit):
                             message="Inferred last dimension (n_obs) does not coincide with given n_obs")
         n_obs = tf.get_static_value(lower_nobs)
         rect_limits = (lower, upper)
-        return limits_fn, rect_limits, n_obs, limits_are_rect
+
+        # create sublimits to iterate if possible
+        sublimits = []
+        if limits_are_rect and n_obs > 1:
+            for i in range(n_obs):
+                low = tf.gather(lower, (i,), axis=-1)
+                up = tf.gather(upper, (i,), axis=-1)
+                sublimits.append(type(self)(rect_limits=(low, up), n_obs=1))
+        else:
+            sublimits.append(self)
+
+        sublimits = tuple(sublimits)
+
+        return limits_fn, rect_limits, n_obs, limits_are_rect, sublimits
 
     @staticmethod
     def _sanitize_rect_limit(limit):
@@ -307,6 +321,9 @@ class Limit(ZfitLimit):
         rect_limits_equal = z.unstable.reduce_all(z.unstable.equal((lower, upper), (lower_other, upper_other)))
         funcs_equal = self.limit_fn == other.limit_fn
         return z.unstable.logical_and(rect_limits_equal, funcs_equal)
+
+    def __iter__(self):
+        yield from self._sublimits
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -593,6 +610,8 @@ class BaseSpace(ZfitSpace, BaseObject):
     def __iter__(self) -> Iterable[ZfitSpace]:
         yield self
 
+    # TODO: remove, in coords
+
     # TODO
     def _check_convert_input_axes(self, axes: ztyping.AxesTypeInput,
                                   allow_none: bool = False) -> ztyping.AxesTypeReturn:
@@ -602,13 +621,13 @@ class BaseSpace(ZfitSpace, BaseObject):
             else:
                 raise AxesNotSpecifiedError("TODO: Cannot be None")
         if isinstance(axes, ZfitSpace):
-            obs = axes.obs
+            axes = axes.axes
         else:
             axes = convert_to_container(value=axes, container=tuple)  # TODO(Mayou36): extend like _check_obs?
 
         return axes
 
-    # TODO
+    # TODO: remove, in coords
     def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput,
                                  allow_none: bool = False) -> ztyping.ObsTypeReturn:
         """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
@@ -633,48 +652,6 @@ class BaseSpace(ZfitSpace, BaseObject):
             if obs_not_str:
                 raise ValueError("The following observables are not strings: {}".format(obs_not_str))
         return obs
-
-    # TODO
-    def get_axes(self, obs: ztyping.ObsTypeInput = None,
-                 as_dict: bool = False,
-                 autofill: bool = False) -> Union[ztyping.AxesTypeReturn, Dict[str, int]]:
-        """Return the axes corresponding to the `obs` (or all if None).
-
-        Args:
-            obs ():
-            as_dict (bool): If True, returns a ordered dictionary with {obs: axis}
-            autofill (bool): If True and the axes are not specified, automatically fill
-                them with the default numbering and return (not setting them).
-
-        Returns:
-            Tuple, OrderedDict
-
-        Raises:
-            ValueError: if the requested `obs` do not match with the one defined in the range
-            AxesNotSpecifiedError: If the axes in this :py:class:`~zfit.Space` have not been specified.
-        """
-        # check input
-        obs = self._check_convert_input_obs(obs=obs, allow_none=True)
-        axes = self.axes
-        if axes is None:
-            if autofill:
-                axes = tuple(range(self.n_obs))
-            else:
-                raise AxesNotSpecifiedError("The axes have not been specified")
-
-        if obs is not None:
-            try:
-                axes = tuple(axes[self.obs.index(o)] for o in obs)
-            except KeyError:
-                missing_obs = set(obs) - set(self.obs)
-                raise ValueError("The requested observables {mis} are not contained in the defined "
-                                 "observables {obs}".format(mis=missing_obs, obs=self.obs))
-        else:
-            obs = self.obs
-        if as_dict:
-            axes = OrderedDict((o, ax) for o, ax in zip(obs, axes))
-
-        return axes
 
     def __repr__(self):
         class_name = str(self.__class__).split('.')[-1].split('\'')[0]
@@ -835,7 +812,7 @@ class Space(BaseSpace):
         # self._has_rect_limits = True
 
         if name is None:
-            name = "Space_" + "_".join(obs)
+            name = "space"
         super().__init__(obs=obs, axes=axes, name=name)
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
@@ -845,19 +822,8 @@ class Space(BaseSpace):
     def has_rect_limits(self) -> bool:
         return all(limit.has_rect_limits for limit in list(self._limits_dict.values())[0].values())
 
-    # @classmethod
-    # def _from_any(cls, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-    #               limits: Optional[ztyping.LimitsTypeInput] = None,
-    #               name: str = None) -> "zfit.Space":
-    #     if obs is None:
-    #         new_space = cls.from_axes(axes=axes, limits=limits, name=name)
-    #     else:
-    #         new_space = cls(obs=obs, limits=limits, name=name)
-    #         new_space._axes = axes
-    #
-    #     return new_space
-
     @classmethod
+    @deprecated(date=None, instructions="Use directly the class to create a Space")
     def from_axes(cls, axes: ztyping.AxesTypeInput,
                   limits: Optional[ztyping.LimitsTypeInput] = None, rect_limits=None,
                   name: str = None) -> "zfit.Space":
@@ -871,14 +837,13 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
+        # TODO(v0.5):
+        # raise BreakingAPIChangeError("from_axes is not needed anymore, create a Space directly.")
         axes = convert_to_container(value=axes, container=tuple)
         if axes is None:
             raise AxesNotSpecifiedError("Axes cannot be `None`")
         new_space = cls(axes=axes, limits=limits, rect_limits=rect_limits, name=name)
         return new_space
-        # new_space._obs = None
-        # new_space._axes = new_space._check_convert_input_axes(axes)
-        # return new_space
 
     # def _check_set_limits(self, limits: ztyping.LimitsTypeInput):
     #     raise NotImplementedError
@@ -933,10 +898,13 @@ class Space(BaseSpace):
         if not isinstance(limit, dict):
             if not isinstance(rect_limits, dict):
                 limit = Limit(limit_fn=limit, rect_limits=rect_limits, n_obs=n_obs)
-                if obs is not None:
-                    limits_dict['obs'][obs] = limit
-                if axes is not None:
-                    limits_dict['axes'][axes] = limit
+                i_old = 0
+                for lim in limit:  # split into smaller ones if possible
+                    i = i_old + lim.n_obs
+                    if obs is not None:
+                        limits_dict['obs'][obs[i_old:i]] = lim
+                    if axes is not None:
+                        limits_dict['axes'][axes[i_old:i]] = lim
             else:
                 limits_dict = rect_limits
         else:
@@ -963,16 +931,6 @@ class Space(BaseSpace):
         #     limit = tuple(tuple(replace.get(l, l) for l in lim) for lim in limit)
         #
         # return limit
-
-    # def _check_set_lower_upper(self, lower: ztyping.LowerTypeInput, upper: ztyping.UpperTypeInput):
-    #     raise NotImplementedError
-    # if lower is None or lower is False:
-    #     limits = lower
-    # else:
-    #     lower = self._check_convert_input_limit(lower)
-    #     upper = self._check_convert_input_limit(upper)
-    #     limits = lower, upper
-    # self._check_set_limits(limits=limits)
 
     def _extract_limits(self, obs=None, axes=None):
         if (obs is None) and (axes is None):
@@ -1063,7 +1021,6 @@ class Space(BaseSpace):
             lower, upper = limit.rect_limits
             rect_lower_unordered.append(lower)
             rect_upper_unordered.append(upper)
-        # limits_obs = sum(limits_obs, [])
         reorder_kwargs = {'x_obs' if obs_in_use else 'x_axes': limits_obs}
         lower_stacked = z.unstable.concat(rect_lower_unordered,
                                           axis=-1)  # TODO: improve this layer, is list does not recognize it as tensor?
@@ -1133,8 +1090,7 @@ class Space(BaseSpace):
 
     @property
     @deprecated(date=None, instructions="Depreceated (currently) due to the unambiguous nature of the word."
-                                        " Use `inside` to check if an Tensor is inside the limits or"
-                                        " `rect_lower` if you need to retreave the rectangular limits.")
+                                        " Use `rect_lower` instead.")
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
@@ -1154,8 +1110,7 @@ class Space(BaseSpace):
 
     @property
     @deprecated(date=None, instructions="depreceated (currently) due to the unambiguous nature of the word."
-                                        " Use `inside` to check if an Tensor is inside the limits or"
-                                        " `rect_upper` if you need to retreave the rectangular limits.")
+                                        " Use `rect_upper` instead.")
     def upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
 
@@ -1182,40 +1137,45 @@ class Space(BaseSpace):
         """
         return len(self)
 
-    # def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
-    #     """Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
-    #
-    #     This makes iterating over limits easier: `for limit in space.iter_limits()`
-    #     allows to, for example, pass `limit` to a function that can deal with simple limits
-    #     only or if `as_tuple` is True the `limit` can be directly used to calculate something.
-    #
-    #     Example:
-    #         .. code:: python
-    #
-    #             for lower, upper in space.iter_limits(as_tuple=True):
-    #                 integrals = integrate(lower, upper)  # calculate integral
-    #             integral = sum(integrals)
-    #
-    #
-    #     Returns:
-    #         List[:py:class:`~zfit.Space`] or List[limit,...]:
-    #     """
-    #     if not self.has_limits:
-    #         raise LimitsNotSpecifiedError("Space does not have limits, cannot iterate over them.")
-    #     if as_tuple:
-    #         return tuple(zip(self.lower, self.upper))
-    #     else:
-    #         space_objects = []
-    #         for lower, upper in self.iter_limits(as_tuple=True):
-    #             if not (lower is None or lower is False):
-    #                 lower = (lower,)
-    #                 upper = (upper,)
-    #                 limit = lower, upper
-    #             else:
-    #                 limit = lower
-    #             space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=limit)
-    #             space_objects.append(space)
-    #         return tuple(space_objects)
+    @property
+    @deprecated(date=None, instructions="Iterate over the space directly and"
+                                        " use the limits from the spaces.")
+    def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
+        """Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
+
+        This makes iterating over limits easier: `for limit in space.iter_limits()`
+        allows to, for example, pass `limit` to a function that can deal with simple limits
+        only or if `as_tuple` is True the `limit` can be directly used to calculate something.
+
+        Example:
+            .. code:: python
+
+                for lower, upper in space.iter_limits(as_tuple=True):
+                    integrals = integrate(lower, upper)  # calculate integral
+                integral = sum(integrals)
+
+
+        Returns:
+            List[:py:class:`~zfit.Space`] or List[limit,...]:
+        """
+        # TODO: soften?
+        raise BreakingAPIChangeError
+        if not self.has_limits:
+            raise LimitsNotSpecifiedError("Space does not have limits, cannot iterate over them.")
+        if as_tuple:
+            return tuple(zip(self.lower, self.upper))
+        else:
+            space_objects = []
+            for lower, upper in self.iter_limits(as_tuple=True):
+                if not (lower is None or lower is False):
+                    lower = (lower,)
+                    upper = (upper,)
+                    limit = lower, upper
+                else:
+                    limit = lower
+                space = type(self)(obs=self.obs, axes=self.axes, limits=limit)
+                space_objects.append(space)
+            return tuple(space_objects)
 
     def with_limits(self, limits: ztyping.LimitsTypeInput = None, rect_limits=None,
                     name: Optional[str] = None) -> ZfitSpace:
@@ -1258,8 +1218,8 @@ class Space(BaseSpace):
             if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
                 raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
 
-        new_indices = self.get_reorder_indices(obs=obs)
-        new_space = self.with_indices(indices=new_indices)
+            new_indices = self.get_reorder_indices(obs=obs)
+            new_space = self.with_indices(indices=new_indices)
         return new_space
 
     def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
@@ -1330,24 +1290,24 @@ class Space(BaseSpace):
         new_indices = _reorder_indices(old=old, new=new)
         return new_indices
 
-    def reorder_by_indices(self, indices: Tuple[int]):
-        """Return a :py:class:`~zfit.Space` reordered by the indices.
+    # def reorder_by_indices(self, indices: Tuple[int]):
+    #     """Return a :py:class:`~zfit.Space` reordered by the indices.
+    #
+    #     Args:
+    #         indices ():
+    #
+    #     """
+    #     pass
+    #
+    #     # new_space = self.copy()
+    #     # new_space._reorder_limits(indices=indices)
+    #     # new_space._reorder_axes(indices=indices)
+    #     # new_space._reorder_obs(indices=indices)
+    #     #
+    #     # return new_space
 
-        Args:
-            indices ():
-
-        """
-        pass
-
-        # new_space = self.copy()
-        # new_space._reorder_limits(indices=indices)
-        # new_space._reorder_axes(indices=indices)
-        # new_space._reorder_obs(indices=indices)
-        #
-        # return new_space
-
-    def _reorder_limits(self, indices: Tuple[int]) -> ztyping.LimitsTypeReturn:
-        pass
+    # def _reorder_limits(self, indices: Tuple[int]) -> ztyping.LimitsTypeReturn:
+    #     pass
 
     # limits = self.limits
     #     if limits is not None and limits is not False:
@@ -1377,31 +1337,12 @@ class Space(BaseSpace):
     # return obs
 
     def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
-        pass
-
-    # if self.obs is None:
-    #     raise ObsNotSpecifiedError("Obs not specified, cannot create `obs_axes`")
-    # if self.axes is None:
-    #     raise AxesNotSpecifiedError("Axes not specified, cannot create `obs_axes`")
-    #
-    # obs = self._check_convert_input_obs(obs, allow_none=True)
-    # axes = self._check_convert_input_axes(axes, allow_none=True)
-    # if obs is not None and axes is not None:
-    #     raise OverdefinedError("Cannot use `obs` and `axes` to define which subset to access.")
-    # obs = self.obs if obs is None else obs
-    # axes = self.axes if axes is None else axes
-    # # only membership testing below
-    # obs = frozenset(obs)
-    # axes = frozenset(axes)
-    #
-    # # create obs_axes dict
-    # obs_axes = OrderedDict((o, ax) for o, ax in self.obs_axes.items() if o in obs or ax in axes)
-    # return obs_axes
+        raise BreakingAPIChangeError("Simply get the coords if needed?")
 
     @property
     def obs_axes(self):
         # TODO(Mayou36): what if axes is None?
-        raise NotImplementedError
+        raise BreakingAPIChangeError
         # return OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
 
     #
@@ -1493,6 +1434,7 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`:
         """
+        raise BreakingAPIChangeError("What is this needed for?")
         # new_space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=self.limits)
         # new_space._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset)
         # return new_space
@@ -1507,13 +1449,13 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        # if self.axes is None or overwrite:
-        #     new_axes = tuple(range(self.n_obs))
-        #     new_space = self.copy(axes=new_axes)
-        # else:
-        #     new_space = self
-        #
-        # return new_space
+        if self.axes is None or overwrite:
+            new_axes = tuple(range(self.n_obs))
+            new_space = self.copy(axes=new_axes)
+        else:
+            new_space = self
+
+        return new_space
 
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
@@ -1893,12 +1835,12 @@ class MultiSpace(BaseSpace):
     def area(self) -> float:
         return z.reduce_sum([space.area() for space in self], axis=0)
 
-    def with_obs(self, obs, allow_superset: bool = False):
-        spaces = [space.with_obs(obs, allow_superset) for space in self.spaces]
+    def with_obs(self, obs, allow_superset: bool = False, allow_subset: bool = True):
+        spaces = [space.with_obs(obs, allow_superset, allow_subset=allow_subset) for space in self.spaces]
         return type(self)(spaces, obs=obs)
 
-    def with_axes(self, axes, allow_superset: bool = False):
-        spaces = [space.with_axes(axes, allow_superset) for space in self.spaces]
+    def with_axes(self, axes, allow_superset: bool = False, allow_subset: bool = True):
+        spaces = [space.with_axes(axes, allow_superset, allow_subset=allow_subset) for space in self.spaces]
         return type(self)(spaces, axes=axes)
 
     def with_autofill_axes(self, overwrite: bool):
@@ -2016,7 +1958,7 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     # space is None again
     if not (obs is None and axes is None):
         # check if limits are allowed
-        space = Space._from_any(obs=obs, axes=axes, limits=limits)  # create and test if valid
+        space = Space(obs=obs, axes=axes, limits=limits)  # create and test if valid
         if one_dim_limits_only and space.n_obs > 1 and space.limits:
             raise LimitsUnderdefinedError(
                 "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `Space` instead.")

@@ -173,7 +173,7 @@ class Space(ZfitSpace, BaseObject):
                   limits: Optional[ztyping.LimitsTypeInput] = None,
                   name: str = None) -> "zfit.Space":
         if obs is None:
-            new_space = cls.from_axes(axes=axes, limits=limits, name=name)
+            new_space = cls(axes=axes, limits=limits, name=name)
         else:
             new_space = cls(obs=obs, limits=limits, name=name)
             new_space._axes = axes

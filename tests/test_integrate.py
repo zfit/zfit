@@ -197,20 +197,20 @@ def test_mc_integration(chunksize, limits):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
-                                           limits=Space.from_axes(limits=limits_simple_5deps,
-                                                                  axes=tuple(range(5))),
+                                           limits=Space(limits=limits_simple_5deps,
+                                                        axes=tuple(range(5))),
                                            n_axes=5)
     if isinstance(limits, list):
-        spaces = [Space.from_axes(limits=limit, axes=tuple(range(1))) for limit in limits]
+        spaces = [Space(limits=limit, axes=tuple(range(1))) for limit in limits]
         space2 = spaces[0] + spaces[1]
     else:
-        space2 = Space.from_axes(limits=limits2, axes=tuple(range(1)))
+        space2 = Space(limits=limits2, axes=tuple(range(1)))
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
                                             limits=space2,
                                             n_axes=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
-                                            limits=Space.from_axes(limits=limits3,
-                                                                   axes=tuple(range(2))),
+                                            limits=Space(limits=limits3,
+                                                         axes=tuple(range(2))),
                                             n_axes=2)
 
     integral = num_integral.numpy()
@@ -224,7 +224,7 @@ def test_mc_integration(chunksize, limits):
                                                                               rel=0.1)
     assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
     assert func3_2deps_fully_integrated(
-        Space.from_axes(limits=limits3, axes=(0, 1))).numpy() == pytest.approx(integral3, rel=0.03)
+        Space(limits=limits3, axes=(0, 1))).numpy() == pytest.approx(integral3, rel=0.03)
 
 
 @pytest.mark.flaky(2)
@@ -282,14 +282,14 @@ def test_analytic_integral():
     normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity), norm_range=False)
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
-                                         limits=Space.from_axes(limits=limits3, axes=(0, 1)))
+                                         limits=Space(limits=limits3, axes=(0, 1)))
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     normal_integral_infs = normal_integral_infs
-    func3_integrated = dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)),
+    func3_integrated = dist_func3.integrate(limits=Space(limits=limits3, axes=(0, 1)),
                                             norm_range=False).numpy()
     assert func3_integrated == pytest.approx(
-        func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1))).numpy())
+        func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))).numpy())
     assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
 
@@ -307,25 +307,25 @@ def test_analytic_integral_selection():
     int5 = lambda x: 5
     limits1 = (-1, 5)
     dims1 = (1,)
-    limits1 = Space.from_axes(axes=dims1, limits=limits1)
+    limits1 = Space(axes=dims1, limits=limits1)
     limits2 = (Space.ANY_LOWER, 5)
     dims2 = (1,)
-    limits2 = Space.from_axes(axes=dims2, limits=limits2)
+    limits2 = Space(axes=dims2, limits=limits2)
     limits3 = ((Space.ANY_LOWER, 1),), ((Space.ANY_UPPER, 5),)
     dims3 = (0, 1)
-    limits3 = Space.from_axes(axes=dims3, limits=limits3)
+    limits3 = Space(axes=dims3, limits=limits3)
     limits4 = (((Space.ANY_LOWER, 0, Space.ANY_LOWER),), ((Space.ANY_UPPER, 5, 42),))
     dims4 = (0, 1, 2)
-    limits4 = Space.from_axes(axes=dims4, limits=limits4)
+    limits4 = Space(axes=dims4, limits=limits4)
     limits5 = (((Space.ANY_LOWER, 1),), ((10, Space.ANY_UPPER),))
     dims5 = (1, 2)
-    limits5 = Space.from_axes(axes=dims5, limits=limits5)
+    limits5 = Space(axes=dims5, limits=limits5)
     DistFuncInts.register_analytic_integral(int1, limits=limits1)
     DistFuncInts.register_analytic_integral(int2, limits=limits2)
     DistFuncInts.register_analytic_integral(int22, limits=limits2, priority=60)
     DistFuncInts.register_analytic_integral(int3, limits=limits3)
     DistFuncInts.register_analytic_integral(int4, limits=limits4)
     DistFuncInts.register_analytic_integral(int5, limits=limits5)
-    dims = DistFuncInts._analytic_integral.get_max_axes(limits=Space.from_axes(limits=(((-5, 1),), ((1, 5),)),
-                                                                               axes=dims3))
+    dims = DistFuncInts._analytic_integral.get_max_axes(limits=Space(limits=(((-5, 1),), ((1, 5),)),
+                                                                     axes=dims3))
     assert dims3 == dims

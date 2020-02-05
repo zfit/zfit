@@ -219,8 +219,8 @@ def test_analytic_sampling():
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params, model: 2 * limits.upper[0][0],
-                                           limits=Space.from_axes(limits=(-float("inf"), ANY_UPPER),
-                                                                  axes=(0,)))  # DUMMY!
+                                           limits=Space(limits=(-float("inf"), ANY_UPPER),
+                                                        axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     mu, sigma = create_mu_sigma_true_params()
@@ -240,7 +240,7 @@ def test_multiple_limits():
     simple_limits = (-3.2, 9.1)
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
-    multiple_limits_range = Space.from_axes(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
+    multiple_limits_range = Space(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
     integral_simp = gauss_params1.integrate(limits=simple_limits, norm_range=False)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm_range=False)
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)

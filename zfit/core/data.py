@@ -414,7 +414,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
-            perm_indices = self.space.get_axes(obs=obs)
+            perm_indices = self.space.get_reorder_indices(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
             value = z.unstack_x(value)

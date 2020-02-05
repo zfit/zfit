@@ -928,14 +928,14 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         neg_infinities = (tuple((-float("inf"),) * limits.n_obs),)  # py34 change float("inf") to math.inf
         # to the cdf to get the limits for the inverse analytic integral
         try:
-            lower_prob_lim = self._norm_analytic_integrate(limits=Space.from_axes(limits=(neg_infinities,
-                                                                                          (lower_bound,)),
-                                                                                  axes=limits.axes),
+            lower_prob_lim = self._norm_analytic_integrate(limits=Space(limits=(neg_infinities,
+                                                                                (lower_bound,)),
+                                                                        axes=limits.axes),
                                                            norm_range=False)
 
-            upper_prob_lim = self._norm_analytic_integrate(limits=Space.from_axes(limits=(neg_infinities,
-                                                                                          (upper_bound,)),
-                                                                                  axes=limits.axes),
+            upper_prob_lim = self._norm_analytic_integrate(limits=Space(limits=(neg_infinities,
+                                                                                (upper_bound,)),
+                                                                        axes=limits.axes),
                                                            norm_range=False)
         except NotImplementedError:
             raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
