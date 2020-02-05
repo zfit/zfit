@@ -3,7 +3,6 @@
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
-from types import MethodType
 from typing import List, Tuple, Union, Dict, Mapping, Callable
 
 import numpy as np
@@ -21,7 +20,6 @@ from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
 from .limits import Space, convert_to_space, convert_to_obs_str
-from .sample import EventSpace
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import Cachable, invalidates_cache
@@ -533,9 +531,8 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             obs = self.obs
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
-        self_space = self._space
-        if self_space is not None:
-            space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
+        if self.space is not None:
+            space = space.with_coords(self.space, allow_subset=True)
         return space
 
     def _get_nevents(self):

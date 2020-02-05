@@ -7,7 +7,7 @@ import inspect
 from abc import abstractmethod
 from collections import OrderedDict, defaultdict
 from contextlib import suppress
-from typing import Callable, Dict, List, Optional, Tuple, Union, Iterable
+from typing import Callable, List, Optional, Tuple, Union, Iterable
 
 import numpy as np
 import tensorflow as tf
@@ -373,9 +373,16 @@ class Coordinates(ZfitOrderableDimensional):
             new_coords = type(self)(obs=obs, axes=self.axes)
         else:
             obs = _convert_obs_to_str(obs)
-            if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
-                raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
 
+            if not frozenset(obs) == frozenset(self.obs):
+
+                if not allow_superset and frozenset(obs).issuperset(self.obs):
+                    raise ObsIncompatibleError(
+                        f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
+
+                if not allow_subset and frozenset(obs).issubset(self.obs):
+                    raise ObsIncompatibleError(
+                        f"Obs {obs} are a subset of {self.obs}, not allowed according to flag.")
             new_indices = self.get_reorder_indices(obs=obs)
             new_obs = self._reorder_obs(indices=new_indices)
             new_axes = self._reorder_axes(indices=new_indices)
@@ -399,12 +406,14 @@ class Coordinates(ZfitOrderableDimensional):
             new_coords = type(self)(obs=self.obs, axes=axes)
         else:
             axes = _convert_axes_to_int(axes)
-            if not allow_superset and frozenset(axes).issuperset(self.axes):
-                raise AxesIncompatibleError(
-                    f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
+            if not frozenset(axes) == frozenset(self.axes):
+                if not allow_superset and frozenset(axes).issuperset(self.axes):
+                    raise AxesIncompatibleError(
+                        f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
 
-            if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
-                raise AxesIncompatibleError(f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
+                if not allow_subset and frozenset(axes).issubset(self.axes):
+                    raise AxesIncompatibleError(
+                        f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
             new_indices = self.get_reorder_indices(axes=axes)
             new_obs = self._reorder_obs(indices=new_indices)
             new_axes = self._reorder_axes(indices=new_indices)
@@ -653,6 +662,26 @@ class BaseSpace(ZfitSpace, BaseObject):
                 raise ValueError("The following observables are not strings: {}".format(obs_not_str))
         return obs
 
+    def _check_coords_allowed(self, obs=None, axes=None, allow_superset=False, allow_subset=True):
+        to_check = []
+        if obs is not None and self.obs is not None:
+            to_check.append(obs, self.obs)
+        if axes is not None and self.axes is not None:
+            to_check.append(axes, self.axes)
+
+        for coord, self_coord in to_check:
+            coord = frozenset(coord)
+            self_coord = frozenset(self_coord)
+            if coord != self_coord:
+
+                if not allow_superset and coord.issuperset(self_coord):
+                    raise CoordinatesIncompatibleError(f"Superset is not allowed, but {coord} is a superset"
+                                                       f" of {self_coord}")
+
+                if not allow_subset and coord.issubset(self_coord):
+                    raise CoordinatesIncompatibleError(f"subset is not allowed, but {coord} is a subset"
+                                                       f" of {self_coord}")
+
     def __repr__(self):
         class_name = str(self.__class__).split('.')[-1].split('\'')[0]
         return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={self.has_limits}>"
@@ -674,6 +703,10 @@ class BaseSpace(ZfitSpace, BaseObject):
             return NotImplemented
         return self.equal(other=other, allow_graph=False)
 
+    def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
+        return self.coords.reorder_x(x, x_obs=x_obs, x_axes=x_axes,
+                                     func_obs=func_obs, func_axes=func_axes)
+
 
 def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
     """Add two spaces and merge their limits if possible or return False.
@@ -693,6 +726,7 @@ def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
     return MultiSpace(spaces, name=name)
 
 
+# WORKHERE
 def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
     """Combine spaces with different `obs` and `limits` to one `space`.
 
@@ -1034,7 +1068,7 @@ class Space(BaseSpace):
         return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
     def rect_area(self) -> float:
-        raise calculate_rect_area(rect_limits=self.rect_limits)
+        return calculate_rect_area(rect_limits=self.rect_limits)
 
     @property
     def has_limits(self):
@@ -1195,7 +1229,7 @@ class Space(BaseSpace):
         return new_space
 
     def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
-                 allow_subset: bool = False, name=None) -> "zfit.Space":
+                 allow_subset: bool = False) -> "zfit.Space":
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -1206,6 +1240,7 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
+        # TODO: remove chekcs, move to coords?
         if obs is None:  # drop obs, check if there are axes
             if self.obs is None:
                 return self
@@ -1215,11 +1250,10 @@ class Space(BaseSpace):
             new_space = self.copy(obs=obs, limits=new_limits)
         else:
             obs = _convert_obs_to_str(obs)
-            if (not allow_superset) and (not frozenset(obs).issubset(self.obs)):
-                raise ObsIncompatibleError(f"Obs {obs} are a superset of {self.obs}, not allowed according to flag.")
-
-            new_indices = self.get_reorder_indices(obs=obs)
-            new_space = self.with_indices(indices=new_indices)
+            coords = self.coords.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
+            new_space = type(self)(coords, limits=self._limits_dict)
+            # new_indices = self.get_reorder_indices(obs=obs)
+            # new_space = self.with_indices(indices=new_indices)
         return new_space
 
     def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
@@ -1233,6 +1267,7 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
+        # TODO: remove chekcs, move to coords?
         if axes is None:  # drop axes
             if self.axes is None:
                 return self
@@ -1250,15 +1285,11 @@ class Space(BaseSpace):
                     ax = tuple(axes[obs.index[ob]] for ob in obs)
                     new_limits['axes'][ax] = limit
             else:
-                if not allow_superset and frozenset(axes).issuperset(self.axes):
-                    raise AxesIncompatibleError(
-                        f"Axes {axes} are a superset of {self.axes}, not allowed according to flag.")
 
-                if (not allow_subset) and (not frozenset(axes).issuperset(self.axes)):
-                    raise AxesIncompatibleError(
-                        f"Axes {axes} are a subset of {self.axes}, not allowed according to flag.")
-                new_indices = self.get_reorder_indices(axes=axes)
-                new_space = self.with_indices(indices=new_indices)
+                coords = self.coords.with_axes(axes=axes, allow_superset=allow_superset, allow_subset=allow_subset)
+                new_space = type(self)(coords, limits=self._limits_dict)
+                # new_indices = self.get_reorder_indices(axes=axes)
+                # new_space = self.with_indices(indices=new_indices)
 
         return new_space
 
@@ -1421,19 +1452,41 @@ class Space(BaseSpace):
     #
     #     return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def with_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
-                      allow_subset=False) -> "zfit.Space":
+    def with_coords(self, coords: ZfitOrderableDimensional, allow_superset=False, allow_subset=True) -> "zfit.Space":
         """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
 
 
         Args:
-            obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            coords (OrderedDict[str, int]): An ordered dict with {obs: axes}.
             ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
             allow_subset ():
 
         Returns:
             :py:class:`~zfit.Space`:
         """
+        new_space_obs = None
+        new_space_axes = None
+        if self.obs is not None and coords.obs is not None:
+            new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
+
+        if self.axes is not None and coords.axes is not None:
+            new_space_axes = self.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
+
+        if new_space_obs is not None and new_space_axes is not None:
+            if new_space_obs.axes != new_space_axes.axes or new_space_obs.obs != new_space_axes.obs:
+                raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
+                                                   f" because the obs and axes assignement does not agree."
+                                                   f" The ordering of the axes with respect to the obs"
+                                                   f" is different.")
+
+        new_space = new_space_obs if new_space_axes is None else new_space_axes
+        if new_space is None:
+            raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
+                                               f" because neither obs nor axes are specified in both.")
+
+        return new_space
+
+    def with_obs_axes(self, **kwargs):
         raise BreakingAPIChangeError("What is this needed for?")
         # new_space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=self.limits)
         # new_space._set_obs_axes(obs_axes=obs_axes, ordered=ordered, allow_subset=allow_subset)
@@ -1457,9 +1510,10 @@ class Space(BaseSpace):
 
         return new_space
 
+    @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area.")
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
-        raise NotImplementedError
+        return self.rect_limits
 
     # def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
     #     """Return the areas of each interval
@@ -1476,12 +1530,12 @@ class Space(BaseSpace):
     #         areas = tuple(areas)
     #     return areas
 
-    @staticmethod
-    @functools.lru_cache()
-    def _calculate_areas(limits) -> Tuple[float]:
-        raise NotImplementedError
-        # areas = tuple(float(np.prod(np.array(up) - np.array(low))) for low, up in zip(*limits))
-        # return areas
+    # @staticmethod
+    # @functools.lru_cache()
+    # def _calculate_areas(limits) -> Tuple[float]:
+    #     raise NotImplementedError
+    # areas = tuple(float(np.prod(np.array(up) - np.array(low))) for low, up in zip(*limits))
+    # return areas
 
     def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                      name: Optional[str] = None) -> "zfit.Space":
@@ -1652,7 +1706,7 @@ class Space(BaseSpace):
             # reorder_back_kwargs = {'x_obs' if obs_in_use else 'x_axes': coords}
             # x_sub_reordered = self.reorder_x(x_inside, **reorder_back_kwargs)
             xs_inside.append(x_inside)
-        all_inside = tf.reduce_all(xs_inside, axis=-1)
+        all_inside = tf.reduce_all(xs_inside, axis=-1, keepdims=True)
         #
         #     from .sample import EventSpace
         #
@@ -1701,13 +1755,14 @@ class MultiSpace(BaseSpace):
         if len(spaces) == 1:
             return spaces[0]
         space = super().__new__(cls)
-        space = space._initialize_space(space, spaces, obs, axes)
+        # space = space._initialize_space(space, spaces, obs, axes)
         return space
 
     def __init__(self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> None:
+        spaces, obs, axes = self._check_convert_input_spaces_obs_axes(spaces, obs, axes)
         if name is None:
             name = "MultiSpace"
-        super().__init__(name)
+        super().__init__(obs, axes, name)
 
     @staticmethod
     def _initialize_space(space, spaces, obs, axes):
@@ -1843,24 +1898,31 @@ class MultiSpace(BaseSpace):
     def with_limits(self, limits, name):
         self._raise_limits_not_implemented()
 
+    @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area of the space.")
     def area(self) -> float:
-        return z.reduce_sum([space.area() for space in self], axis=0)
+        return self.rect_area()
+
+    def rect_area(self) -> float:
+        return z.reduce_sum([space.rect_area() for space in self], axis=0)
 
     def with_obs(self, obs, allow_superset: bool = False, allow_subset: bool = True):
-        spaces = [space.with_obs(obs, allow_superset, allow_subset=allow_subset) for space in self.spaces]
+        spaces = [space.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
+                  for space in self.spaces]
         return type(self)(spaces, obs=obs)
 
     def with_axes(self, axes, allow_superset: bool = False, allow_subset: bool = True):
-        spaces = [space.with_axes(axes, allow_superset, allow_subset=allow_subset) for space in self.spaces]
+        spaces = [space.with_axes(axes, allow_superset=allow_superset, allow_subset=allow_subset)
+                  for space in self.spaces]
         return type(self)(spaces, axes=axes)
+
+    def with_coords(self, coords, allow_superset=False, allow_subset=True):
+        new_spaces = [space.with_coords(coords, allow_superset=allow_superset, allow_subset=allow_subset)
+                      for space in self]
+        return type(self)(spaces=new_spaces)
 
     def with_autofill_axes(self, overwrite: bool):
         spaces = [space.with_autofill_axes(overwrite) for space in self.spaces]
         return type(self)(spaces)
-
-    def with_obs_axes(self, obs_axes, ordered, allow_subset):
-        new_spaces = [space.with_obs_axes(obs_axes, ordered=ordered, allow_subset=allow_subset) for space in self]
-        return type(self)(spaces=new_spaces)
 
     def iter_limits(self, as_tuple=True):
         raise BreakingAPIChangeError("This should not be used anymore")

@@ -78,7 +78,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    # @abstractmethod
+    @abstractmethod
     def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
         """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
 
@@ -105,7 +105,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         Returns:
 
         """
-        pass
+        raise NotImplementedError
 
 
 class ZfitData(ZfitDimensional):
@@ -215,14 +215,15 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject):
     def axes(self) -> ztyping.AxesTypeReturn:
         raise NotImplementedError
 
-    @abstractmethod
-    def get_axes(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = True):
-        """Return the axes number of the observable *if available* (set by `axes_by_obs`).
-
-        Raises:
-            AxesNotUnambiguousError: In case
-        """
-        raise NotImplementedError
+    # TODO: remove below?
+    # @abstractmethod
+    # def get_axes(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = True):
+    #     """Return the axes number of the observable *if available* (set by `axes_by_obs`).
+    #
+    #     Raises:
+    #         AxesNotUnambiguousError: In case
+    #     """
+    #     raise NotImplementedError
 
     @property
     @abstractmethod
@@ -349,12 +350,12 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject):
         raise NotImplementedError
 
     @abstractmethod
-    def with_obs_axes(self, obs_axes, ordered, allow_subset):
+    def with_coords(self, coords, allow_superset=False, allow_subset=True):
         """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
 
 
         Args:
-            obs_axes (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            coords (OrderedDict[str, int]): An ordered dict with {obs: axes}.
             ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
             allow_subset ():
 

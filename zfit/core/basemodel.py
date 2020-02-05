@@ -270,9 +270,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             obs = self.obs
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
-        self_space = self.space
-        if self_space is not None:
-            space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
+        if self.space is not None:
+            space = space.with_coords(self.space)
         return space
 
     # Integrals
