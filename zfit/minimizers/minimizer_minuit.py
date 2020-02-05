@@ -25,7 +25,7 @@ class Minuit(BaseMinimizer, Cachable):
             strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
             the minimizer in certain situations.
             minimize_strategy (): A number used by minuit to define the strategy
-            tolerance (): Internal numerical tolerance
+            tolerance (): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
             verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
             name (): Name of the minimizer
             ncall (): Maximum number of minimization steps.
