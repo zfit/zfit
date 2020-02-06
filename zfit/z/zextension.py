@@ -133,6 +133,7 @@ def run_no_nan(func, x):
 class FunctionWrapperRegistry:
     wrapped_functions = []
     registries = []
+    do_jit = True
 
     @classmethod
     def check_wrapped_functions_registered(cls):
@@ -176,7 +177,7 @@ class FunctionWrapperRegistry:
 
         def concrete_func(*args, **kwargs):
 
-            if func in self.currently_traced:
+            if not self.do_jit or func in self.currently_traced:
                 return call_correct_signature(func, args, kwargs)
 
             # self.inside_tracing = True
