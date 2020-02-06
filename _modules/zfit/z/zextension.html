@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.zextension &#8212; zfit 0.4.2.dev41+g409394f documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.4.2.dev42+gc1a90e3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev41</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev42</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -487,6 +487,7 @@
 <div class="viewcode-block" id="FunctionWrapperRegistry"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry">[docs]</a><span class="k">class</span> <span class="nc">FunctionWrapperRegistry</span><span class="p">:</span>
     <span class="n">wrapped_functions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">registries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">do_jit</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="FunctionWrapperRegistry.check_wrapped_functions_registered"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry.check_wrapped_functions_registered">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">check_wrapped_functions_registered</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -530,7 +531,7 @@
 
         <span class="k">def</span> <span class="nf">concrete_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-            <span class="k">if</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_jit</span> <span class="ow">or</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">call_correct_signature</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
             <span class="c1"># self.inside_tracing = True</span>
