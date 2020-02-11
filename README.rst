@@ -24,7 +24,7 @@ zfit: scalable pythonic fitting
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
 `TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
-and is optimised for simple and direct manipulation of probability density functions. The project affiliated with and well integrated into `scikit-hep <https://scikit-hep.org/>`_, the HEP Python ecosystem.
+and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with and well integrated into `scikit-hep <https://scikit-hep.org/>`_, the HEP Python ecosystem.
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
