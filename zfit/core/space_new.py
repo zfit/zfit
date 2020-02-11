@@ -7,7 +7,7 @@ import inspect
 from abc import abstractmethod
 from collections import OrderedDict, defaultdict
 from contextlib import suppress
-from typing import Callable, List, Optional, Tuple, Union, Iterable
+from typing import Callable, List, Optional, Tuple, Union, Iterable, Mapping
 
 import numpy as np
 import tensorflow as tf
@@ -15,7 +15,7 @@ from tensorflow.python.util.deprecation import deprecated
 
 from .baseobject import BaseObject
 from .dimension import common_obs, limits_overlap
-from .interfaces import ZfitSpace, ZfitLimit, ZfitOrderableDimensional
+from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 from .. import z
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -316,7 +316,7 @@ class Limit(ZfitLimit):
             except AttributeError:  # we're in graph mode seemingly
                 raise IllegalInGraphModeError(
                     "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
-                    "function. To retrieve a symbolic Tensor, use `.equal(...)`")
+                    "function. To retrieve a symbolic Tensor, use `.equal(..., allow_graph=True)`")
 
         rect_limits_equal = z.unstable.reduce_all(z.unstable.equal((lower, upper), (lower_other, upper_other)))
         funcs_equal = self.limit_fn == other.limit_fn
@@ -1010,7 +1010,7 @@ class Space(BaseSpace):
         Returns:
 
         """
-        return "HACK no limits"
+        return self.rect_limits
 
     @property
     def rect_limits(self) -> ztyping.LimitsTypeReturn:
@@ -1592,58 +1592,9 @@ class Space(BaseSpace):
         return new_space
 
     def __le__(self, other):
-        raise NotImplementedError
-        # if not isinstance(other, type(self)):
-        #     return NotImplemented
-        # axes_not_none = self.axes is not None and other.axes is not None
-        # obs_not_none = self.obs is not None and other.obs is not None
-        # if not (axes_not_none or obs_not_none):  # if both are None
-        #     return False
-        # if axes_not_none:
-        #     if set(self.axes) != set(other.axes):
-        #         return False
-        #
-        # if obs_not_none:
-        #     if set(self.obs) != set(other.obs):
-        #         return False
-        #
-        # # check limits
-        # if self.limits is None:
-        #     if other.limits is None:
-        #         return True
-        #     else:
-        #         return False
-        #
-        # elif self.limits is False:
-        #     if other.limits is False:
-        #         return True
-        #     else:
-        #         return False
-        #
-        # reorder_indices = other.get_reorder_indices(obs=self.obs, axes=self.axes)
-        # other = other.reorder_by_indices(reorder_indices)
-        #
-        # # check explicitly if they match
-        # # for each limit in self, find another matching in other
-        # for lower, upper in self.iter_limits(as_tuple=True):
-        #     limit_is_le = False
-        #     for other_lower, other_upper in other.iter_limits(as_tuple=True):
-        #         # each entry *has to* match the entry of the other limit, otherwise it's not the same
-        #         for low, up, other_low, other_up in zip(lower, upper, other_lower, other_upper):
-        #             axis_le = 0  # False
-        #             axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
-        #             axis_le += other_low == low and other_up is ANY_UPPER  # TODO: approx limit
-        #             # comparison?
-        #             axis_le += other_low is ANY_LOWER and up == other_up  # TODO: approx limit
-        #             # comparison?
-        #             axis_le += other_low is ANY_LOWER and other_up is ANY_UPPER
-        #             if not axis_le:  # if not the same, don't test other dims
-        #                 break
-        #         else:
-        #             limit_is_le = True  # no break -> all axes coincide
-        #     if not limit_is_le:  # for this `limit`, no other_limit matched
-        #         return False
-        # return True
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.less_equal_space(other)
 
     def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
         """Add the limits of the spaces. Only works for the same obs.
@@ -1674,7 +1625,7 @@ class Space(BaseSpace):
         return new_space
 
     def __mul__(self, other):
-        raise NotImplementedError
+        return self.combine(other)
 
     def __ge__(self, other):
         raise NotImplementedError
@@ -1707,25 +1658,126 @@ class Space(BaseSpace):
             # x_sub_reordered = self.reorder_x(x_inside, **reorder_back_kwargs)
             xs_inside.append(x_inside)
         all_inside = tf.reduce_all(xs_inside, axis=-1, keepdims=True)
-        #
-        #     from .sample import EventSpace
-        #
-        # if isinstance(self, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
-        #     upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
-        #     lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
-        #
-        # below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=1)  # if all obs inside
-        # above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=1)
-        # inside = tf.logical_and(above_lower, below_upper)
         return all_inside
 
-    def get_updated_limits_dict(self, limits, obs=None, axes=None):
-        obs = convert_to_obs_str(obs)
-        axes = convert_to_axes(axes)
-        # if obs is not None:
+
+def less_limits(space1, space2):
+    low, up = space1._rect_limits_np
+    other_low, other_up = space2._rect_limits_np
+    axis_le = 0  # False
+    axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
+    axis_le += other_low == low and other_up is ANY_UPPER  # TODO: approx limit comparison?
+    axis_le += other_low is ANY_LOWER and up == other_up  # TODO: approx limit comparison?
+    axis_le += other_low is ANY_LOWER and other_up is ANY_UPPER
+    if axis_le and not (space2.has_rect_limits and space1.has_rect_limits):
+        pass
+    return axis_le
 
 
-# def get_reordered_limits_dict(limits, old_coords, new_coords):
+def less_equal_space(space1, space2):
+    return comparing_spaces(space1=space1, space2=space2, comparator=less_limits)
+
+
+def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable):
+    """Compare multiple spaces if they have the same obs, axes, and, if a comparator is given, limits.
+
+    It is automatically checked if the limits are set resp. are False
+
+    Args:
+        space1:
+        space2:
+        comparator:
+
+    Returns:
+
+    """
+    axes_not_none = space1.axes is not None and space2.axes is not None
+    obs_not_none = space1.obs is not None and space2.obs is not None
+    if not (axes_not_none or obs_not_none):  # if both are None
+        return False
+    if axes_not_none:
+        if set(space1.axes) != set(space2.axes):
+            return False
+    if obs_not_none:
+        if set(space1.obs) != set(space2.obs):
+            return False
+    # check limits
+    if space1.limits is None:
+        if space2.limits is None:
+            return True
+        else:
+            return False
+
+    elif space1.limits is False:
+        if space2.limits is False:
+            return True
+        else:
+            return False
+
+
+def compare_space(space1: ZfitSpace, space2: ZfitSpace) -> bool:
+    axes_not_none = space1.axes is not None and space2.axes is not None
+    obs_not_none = space1.obs is not None and space2.obs is not None
+    if not (axes_not_none or obs_not_none):  # if both are None
+        return False
+    if axes_not_none:
+        if set(space1.axes) != set(space2.axes):
+            return False
+    if obs_not_none:
+        if set(space1.obs) != set(space2.obs):
+            return False
+    # check limits
+    if space1.limits is None:
+        if space2.limits is None:
+            return True
+        else:
+            return False
+
+    elif space1.limits is False:
+        if space2.limits is False:
+            return True
+        else:
+            return False
+
+    space2_reordered = space2.with_coords(space1)
+    # check explicitly if they match
+    # for each limit in self, find another matching in other
+    return equal_limits(space1, space2_reordered)
+
+
+def comparing_limits_spaces(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
+    spaces_to_check = list(space2)
+    for space11 in space1:
+        limit_is_le = False
+        for i, space22 in enumerate(spaces_to_check):
+            # each entry *has to* match the entry of the other limit, otherwise it's not the same
+
+            axis_le = less_limits(space11, space22)
+            if axis_le:  # if not the same, don't test other dims
+                spaces_to_check.pop(i)
+                break
+            else:
+                limit_is_le = False  # no break -> all axes coincide
+        if not limit_is_le:  # for this `limit`, no other_limit matched
+            return False
+    return True
+
+
+def comparing_limits_dict(limits1: Mapping[Mapping[Iterable, ZfitLimit]],
+                          limits2: Mapping[Mapping[Iterable, ZfitLimit]],
+                          comparator: Callable,
+                          require_all_coord_types: bool = False) -> bool:
+    if not limits1.keys() == limits2.keys() and require_all_coord_types:
+        return False
+    equal = False
+    for coord_type, limit1_dict in limits1.items():
+        limit2_dict = limits2.get(coord_type)
+        if limit2_dict is None:
+            continue
+        equal = comparator(limit1_dict, limit2_dict)
+        if equal is False:
+            break
+    return equal
 
 
 def _convert_axes_to_int(axes):
@@ -1946,7 +1998,7 @@ class MultiSpace(BaseSpace):
         inside = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
         return inside
 
-    def __iter__(self):
+    def __iter__(self) -> ZfitSpace:
         yield from self.spaces
 
     def __eq__(self, other):

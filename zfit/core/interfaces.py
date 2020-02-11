@@ -194,7 +194,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         pass
 
 
-class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject):
+class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
@@ -363,6 +363,10 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject):
             :py:class:`~zfit.Space`:
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def __iter__(self):
+        pass
 
 
 class ZfitDependentsMixin:
