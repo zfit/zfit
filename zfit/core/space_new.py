@@ -244,8 +244,12 @@ class Limit(ZfitLimit):
 
     @property
     def rect_limits(self):
-        lower = z.convert_to_tensor(self._rect_limits[0])
-        upper = z.convert_to_tensor(self._rect_limits[1])
+
+        rect_limits = self._rect_limits
+        if rect_limits in (None, False):
+            return rect_limits
+        lower = z.convert_to_tensor(rect_limits[0])
+        upper = z.convert_to_tensor(rect_limits[1])
         return lower, upper
 
     @property
@@ -258,7 +262,7 @@ class Limit(ZfitLimit):
         Raises:
             CannotConvertToNumpyError: In case the conversion fails.
         """
-        lower, upper = self._rect_limits_z()
+        lower, upper = self._rect_limits
 
         lower = z.unstable._try_convert_numpy(lower)
         upper = z.unstable._try_convert_numpy(upper)
@@ -342,6 +346,18 @@ class Limit(ZfitLimit):
 
     def __iter__(self):
         yield from self._sublimits
+
+    def __hash__(self) -> int:
+        objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
+        return hash(tuple(objects))
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Limit):
+            return NotImplemented
+        nobs_equal = self.n_obs == other.n_obs  # TODO generalize equality as in space?
+        rect_lim_equal = np.allclose(self._rect_limits_np, other._rect_limits_np)
+        lim_fn_equal = self._limit_fn == other._limit_fn
+        return nobs_equal and rect_lim_equal and lim_fn_equal
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -558,8 +574,18 @@ class Coordinates(ZfitOrderableDimensional):
     def __eq__(self, other):
         if not isinstance(other, Coordinates):
             return NotImplemented
-        equal = self.obs == other.obs and self.axes == other.axes
+        obs_equal = False
+        axes_equal = False
+        if self.obs is not None and other.obs is not None:
+            obs_equal = frozenset(self.obs) == frozenset(other.obs)
+
+        if self.axes is not None and other.axes is not None:
+            axes_equal = frozenset(self.axes) == frozenset(other.axes)
+        equal = obs_equal or axes_equal
         return equal
+
+    def __hash__(self):
+        return 42  # always check with equal...  maybe change in future, use dict that checks for different things.
 
     def __repr__(self):
         return f"<zfit Coordinates obs={self.obs}, axes={self.axes}"
@@ -1129,7 +1155,8 @@ class Space(BaseSpace):
         Raises:
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
         """
-        raise BreakingAPIChangeError("This function is gone TODO alternative to use?")
+        return self.rect_limits
+        # raise BreakingAPIChangeError("This function is gone TODO alternative to use?")
 
     @property
     @deprecated(date=None, instructions="Depreceated (currently) due to the unambiguous nature of the word."
@@ -1140,7 +1167,8 @@ class Space(BaseSpace):
         Returns:
 
         """
-        raise BreakingAPIChangeError("Use rect_lower")
+        return self.rect_lower
+        # raise BreakingAPIChangeError("Use rect_lower")
 
     @property
     def rect_lower(self) -> ztyping.LowerTypeReturn:
@@ -1178,7 +1206,7 @@ class Space(BaseSpace):
         Returns:
             int >= 1
         """
-        return len(self)
+        return len(tuple(self))
 
     @property
     @deprecated(date=None, instructions="Iterate over the space directly and"
@@ -1643,7 +1671,9 @@ class Space(BaseSpace):
         raise NotImplementedError
 
     def __hash__(self):
-        raise NotImplementedError
+        limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
+        hash_val = hash(tuple((limits_frozen, hash(self.coords))))
+        return hash_val
 
     @property
     def has_rect_limits(self):
@@ -1815,14 +1845,17 @@ class MultiSpace(BaseSpace):
         if len(spaces) == 1:
             return spaces[0]
         space = super().__new__(cls)
-        # space = space._initialize_space(space, spaces, obs, axes)
+        space._tmp_store_spaces_obs_axes = spaces, obs, axes
         return space
 
     def __init__(self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> None:
-        spaces, obs, axes = self._check_convert_input_spaces_obs_axes(spaces, obs, axes)
+        del spaces, obs, axes  # not needed, we take the already preprocessed.
+        space, sobs, axes = self._tmp_store_obs_axes
+        del self._tmp_store_spaces_obs_axes
         if name is None:
             name = "MultiSpace"
         super().__init__(obs, axes, name)
+        self.spaces = spaces
 
     @staticmethod
     def _initialize_space(space, spaces, obs, axes):

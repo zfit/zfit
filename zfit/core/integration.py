@@ -467,8 +467,8 @@ class AnalyticIntegral:
         # add catching everything unsupported:
         func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
         limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
-        self._integrals[axes][limits.limits] = Integral(func=func, limits=limits,
-                                                        priority=priority)  # TODO improve with
+        self._integrals[axes][limits] = Integral(func=func, limits=limits,
+                                                 priority=priority)  # TODO improve with
         # database-like access
 
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
