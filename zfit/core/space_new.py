@@ -244,7 +244,25 @@ class Limit(ZfitLimit):
 
     @property
     def rect_limits(self):
-        return self._rect_limits
+        lower = z.convert_to_tensor(self._rect_limits[0])
+        upper = z.convert_to_tensor(self._rect_limits[1])
+        return lower, upper
+
+    @property
+    def _rect_limits_np(self):
+        """Return the rectangular limits as `np.ndarray`. Raises error if not possible.
+
+        Returns:
+            (lower, upper):
+
+        Raises:
+            CannotConvertToNumpyError: In case the conversion fails.
+        """
+        lower, upper = self._rect_limits_z()
+
+        lower = z.unstable._try_convert_numpy(lower)
+        upper = z.unstable._try_convert_numpy(upper)
+        return (lower, upper)
 
     @property
     def limit_fn(self):
@@ -547,21 +565,12 @@ class Coordinates(ZfitOrderableDimensional):
         return f"<zfit Coordinates obs={self.obs}, axes={self.axes}"
 
 
-# def limits_are_equal(limit1, limit2):
-
-
 class BaseSpace(ZfitSpace, BaseObject):
 
     def __init__(self, obs, axes, name, **kwargs):
         super().__init__(name, **kwargs)
         coords = Coordinates(obs, axes)
         self.coords = coords
-        # self._limit = Limit(limit_fn=limits, rect_limits=rect_limits, n_obs=self.n_obs)
-        # obs = self._check_convert_input_obs(obs, allow_none=True)
-        # self._obs = obs
-        # axes = self._check_convert_input_axes(axes=axes, allow_none=True)
-        # self._axes = axes  # TODO: check axes
-        # self._rect_limits = rect_limits
 
     def inside(self, x: tf.Tensor, guarantee_limits: bool = False) -> tf.Tensor:
         x = _sanitize_x_input(x, n_obs=self.n_obs)
@@ -1661,21 +1670,34 @@ class Space(BaseSpace):
         return all_inside
 
 
-def less_limits(space1, space2):
-    low, up = space1._rect_limits_np
-    other_low, other_up = space2._rect_limits_np
-    axis_le = 0  # False
-    axis_le += other_low == low and up == other_up  # TODO: approx limit comparison?
-    axis_le += other_low == low and other_up is ANY_UPPER  # TODO: approx limit comparison?
-    axis_le += other_low is ANY_LOWER and up == other_up  # TODO: approx limit comparison?
-    axis_le += other_low is ANY_LOWER and other_up is ANY_UPPER
-    if axis_le and not (space2.has_rect_limits and space1.has_rect_limits):
-        pass
+def less_equal_limits(limit1: Limit, limit2: Limit) -> bool:
+    low, up = limit1._rect_limits_np
+    other_low, other_up = limit2._rect_limits_np
+    lower_le = other_low == low or other_low is ANY_LOWER
+    upper_le = up == other_up or other_up is ANY_UPPER
+    axis_le = lower_le and upper_le
+    if axis_le and not (limit2.has_rect_limits and limit1.has_rect_limits):
+        pass  # TODO: compare functions, limits dict
+    return axis_le
+
+
+def equal_limits(limit1: Limit, limit2: Limit) -> bool:
+    low, up = limit1._rect_limits_np
+    other_low, other_up = limit2._rect_limits_np
+    lower_le = other_low == low
+    upper_le = up == other_up
+    axis_le = lower_le and upper_le
+    if axis_le and not (limit2.has_rect_limits and limit1.has_rect_limits):
+        pass  # TODO: compare functions, limits dict
     return axis_le
 
 
 def less_equal_space(space1, space2):
-    return comparing_spaces(space1=space1, space2=space2, comparator=less_limits)
+    return compare_multispace(space1=space1, space2=space2, comparator=lambda limit1, limit2: limit1 <= limit2)
+
+
+def equal_space(space1, space2):
+    return compare_multispace(space1=space1, space2=space2, comparator=lambda limit1, limit2: limit1 == limit2)
 
 
 def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable):
@@ -1714,47 +1736,25 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
         else:
             return False
 
+    return compare_limits_multispace(space1, space2, comparator=comparator)
 
-def compare_space(space1: ZfitSpace, space2: ZfitSpace) -> bool:
-    axes_not_none = space1.axes is not None and space2.axes is not None
-    obs_not_none = space1.obs is not None and space2.obs is not None
-    if not (axes_not_none or obs_not_none):  # if both are None
+
+def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
+    if not len(space1) == len(space2):
         return False
-    if axes_not_none:
-        if set(space1.axes) != set(space2.axes):
-            return False
-    if obs_not_none:
-        if set(space1.obs) != set(space2.obs):
-            return False
-    # check limits
-    if space1.limits is None:
-        if space2.limits is None:
-            return True
-        else:
-            return False
-
-    elif space1.limits is False:
-        if space2.limits is False:
-            return True
-        else:
-            return False
-
     space2_reordered = space2.with_coords(space1)
-    # check explicitly if they match
-    # for each limit in self, find another matching in other
-    return equal_limits(space1, space2_reordered)
 
-
-def comparing_limits_spaces(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
-    spaces_to_check = list(space2)
-    for space11 in space1:
+    spaces_to_check2 = list(space2_reordered)
+    spaces_to_check1 = list(space1)
+    for index1, space11 in enumerate(spaces_to_check1):
         limit_is_le = False
-        for i, space22 in enumerate(spaces_to_check):
+        for index2, space22 in enumerate(spaces_to_check2):
             # each entry *has to* match the entry of the other limit, otherwise it's not the same
 
-            axis_le = less_limits(space11, space22)
-            if axis_le:  # if not the same, don't test other dims
-                spaces_to_check.pop(i)
+            axis_pos_comp = compare_limits_coords_dict(space11._limits_dict, space22._limits_dic, comparator=comparator)
+            if axis_pos_comp:  # if not the same, don't test other dims
+                spaces_to_check2.pop(index1)
+                spaces_to_check1.pop(index2)
                 break
             else:
                 limit_is_le = False  # no break -> all axes coincide
@@ -1763,10 +1763,10 @@ def comparing_limits_spaces(space1: ZfitSpace, space2: ZfitSpace, comparator: Ca
     return True
 
 
-def comparing_limits_dict(limits1: Mapping[Mapping[Iterable, ZfitLimit]],
-                          limits2: Mapping[Mapping[Iterable, ZfitLimit]],
-                          comparator: Callable,
-                          require_all_coord_types: bool = False) -> bool:
+def compare_limits_coords_dict(limits1: Mapping[str, Mapping[Iterable, ZfitLimit]],
+                               limits2: Mapping[str, Mapping[Iterable, ZfitLimit]],
+                               comparator: Callable,
+                               require_all_coord_types: bool = False) -> bool:
     if not limits1.keys() == limits2.keys() and require_all_coord_types:
         return False
     equal = False
@@ -1774,10 +1774,18 @@ def comparing_limits_dict(limits1: Mapping[Mapping[Iterable, ZfitLimit]],
         limit2_dict = limits2.get(coord_type)
         if limit2_dict is None:
             continue
-        equal = comparator(limit1_dict, limit2_dict)
+        equal = compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator)
         if equal is False:
             break
     return equal
+
+
+def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) -> bool:
+    for coord, limit1 in dict1.items():
+        limit2 = dict2.get(coord)
+        if limit2 is None or not comparator(limit1, limit2):
+            return False
+    return True
 
 
 def _convert_axes_to_int(axes):
