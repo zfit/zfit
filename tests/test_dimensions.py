@@ -109,7 +109,7 @@ def test_add_spaces_old():
 
 def test_add_spaces():
     # TODO: add more tests to test the new spaces
-    from zfit.core.spaces import add_spaces_new as add_spaces
+    from zfit.core.space_new import add_spaces_new as add_spaces
 
     # with pytest.raises(ValueError):
     #     assert add_spaces(space1)

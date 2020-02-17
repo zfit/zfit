@@ -1631,7 +1631,7 @@ class Space(BaseSpace):
     def __le__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
-        return self.less_equal_space(other)
+        return less_equal_space(other)
 
     def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
         """Add the limits of the spaces. Only works for the same obs.
@@ -1665,10 +1665,12 @@ class Space(BaseSpace):
         return self.combine(other)
 
     def __ge__(self, other):
-        raise NotImplementedError
+        return NotImplemented
 
     def __eq__(self, other):
-        raise NotImplementedError
+        if not isinstance(other, ZfitSpace):
+            return NotImplemented
+        return equal_space(self, other)
 
     def __hash__(self):
         limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
@@ -1678,9 +1680,11 @@ class Space(BaseSpace):
     @property
     def has_rect_limits(self):
         if self.obs is not None:
-            limits_dict = self._limits_dict['obs']
+            limits_dict = self._limits_dict.get('obs')
         else:
-            limits_dict = self._limits_dict['axes']
+            limits_dict = self._limits_dict.get('axes')
+        if not limits_dict:
+            return False
         rect_limits = [limit.has_rect_limits for limit in limits_dict.values()]
         all_rect_limits = all(rect_limits)
         return all_rect_limits and len(rect_limits) > 0
@@ -1850,7 +1854,7 @@ class MultiSpace(BaseSpace):
 
     def __init__(self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> None:
         del spaces, obs, axes  # not needed, we take the already preprocessed.
-        space, sobs, axes = self._tmp_store_obs_axes
+        spaces, obs, axes = self._tmp_store_spaces_obs_axes
         del self._tmp_store_spaces_obs_axes
         if name is None:
             name = "MultiSpace"
@@ -1935,23 +1939,23 @@ class MultiSpace(BaseSpace):
     def has_rect_limits(self) -> bool:
         return all(space.has_rect_limits for space in self.spaces)
 
-    @property
-    def obs(self) -> ztyping.ObsTypeReturn:
-        """The observables ("axes with str")the space is defined in.
-
-        Returns:
-
-        """
-        return self._obs
-
-    @property
-    def axes(self) -> ztyping.AxesTypeReturn:
-        """The axes ("obs with int") the space is defined in.
-
-        Returns:
-
-        """
-        return self._axes
+    # @property
+    # def obs(self) -> ztyping.ObsTypeReturn:
+    #     """The observables ("axes with str")the space is defined in.
+    #
+    #     Returns:
+    #
+    #     """
+    #     return self._obs
+    #
+    # @property
+    # def axes(self) -> ztyping.AxesTypeReturn:
+    #     """The axes ("obs with int") the space is defined in.
+    #
+    #     Returns:
+    #
+    #     """
+    #     return self._axes
 
     # noinspection PyPropertyDefinition
     @property

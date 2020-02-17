@@ -226,7 +226,7 @@ def combine_spaces(spaces: Iterable["ZfitSpace"]):
     """
     spaces = convert_to_container(spaces, container=tuple)
 
-    from zfit.core.spaces import flatten_spaces
+    from zfit.core.space_new import flatten_spaces
     spaces = flatten_spaces(spaces)
     # if len(spaces) <= 1:
     #     return spaces
