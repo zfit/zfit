@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.loss &#8212; zfit 0.4.2.dev45+g4cc9559 documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.4.2.dev47+g6e9bd75 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev45</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev47</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -557,8 +557,9 @@
     <span class="k">def</span> <span class="nf">constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span>
 
-    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># TODO: fix, add constraints</span>
         <span class="n">pdf_dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">pdf_dependents</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pdf_dependents</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -800,7 +801,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.0.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.1.<br/>
     </p>
   </div>
 </footer>
