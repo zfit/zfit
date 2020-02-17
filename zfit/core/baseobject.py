@@ -90,7 +90,7 @@ class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumeric, BaseObject):
 
         params = params or OrderedDict()
         params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
-        self.add_cache_dependents(params.values())
+        self.add_cache_dependents(params)
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params

@@ -203,22 +203,17 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def constraints(self):
         return self._constraints
 
+    def _get_dependents(self):  # TODO: fix, add constraints
+        pdf_dependents = self._extract_dependents(self.model)
+        pdf_dependents |= self._extract_dependents(self.constraints)
+        return pdf_dependents
 
-FIXME
+    @abc.abstractmethod
+    def _loss_func(self, model, data, fit_range, constraints):
+        raise NotImplementedError
 
-
-def _get_dependents(self):  # TODO: fix, add constraints
-    pdf_dependents = self._extract_dependents(self.model)
-    return pdf_dependents
-
-
-@abc.abstractmethod
-def _loss_func(self, model, data, fit_range, constraints):
-    raise NotImplementedError
-
-
-def value(self):
-    return self._value()
+    def value(self):
+        return self._value()
 
     @property
     def errordef(self) -> Union[float, int]:
