@@ -16,7 +16,7 @@ from ..util import ztyping
 def _powerlaw(x, a, k):
     return a * tf.pow(x, k)
 
-
+# TODO: decorate?
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
@@ -32,6 +32,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
     return func
 
 
+# TODO: decorate?
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
     func = tf.compat.v1.where(cond,
