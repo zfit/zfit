@@ -6,8 +6,7 @@ SWITCH_ON = True
 
 
 def is_tensor(x):
-    return isinstance(x, (tf.Tensor, tf.Variable))
-
+    return tf.is_tensor(x)
 
 @tf.function(autograph=False, experimental_relax_shapes=True)
 def allclose(x, y, rtol=1e-5, atol=1e-8):
@@ -54,6 +53,13 @@ def logical_and(x, y):
         return tf.logical_and(x, y)
     else:
         return np.logical_and(x, y)
+
+
+def less_equal(x, y):
+    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+        return tf.less_equal(x, y)
+    else:
+        return np.less_equal(x, y)
 
 
 def gather(x, indices=None, axis=None):

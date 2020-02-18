@@ -25,7 +25,7 @@ from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousErro
                               BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
                               ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
                               IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
-                              InvalidLimitSubspaceError)
+                              InvalidLimitSubspaceError, CannotConvertToNumpyError)
 
 
 # Singleton
@@ -153,211 +153,6 @@ def convert_to_numpy(obj):
         return obj.numpy()
     else:
         return np.array(obj)
-
-
-class Limit(ZfitLimit):
-    def __init__(self, limit_fn=None, rect_limits=None, n_obs=None):
-        super().__init__()
-        limit_fn, rect_limits, n_obs, is_rect, sublimits = self._check_convert_input_limits(limits_fn=limit_fn,
-                                                                                            rect_limits=rect_limits,
-                                                                                            n_obs=n_obs)
-        self._limit_fn = limit_fn
-        self._rect_limits = rect_limits
-        self._n_obs = n_obs
-        self._is_rect = is_rect
-        self._sublimits = sublimits
-
-    def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
-        if isinstance(limits_fn, ZfitLimit):
-            if rect_limits is not None or n_obs:
-                raise OverdefinedError("limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified.")
-            limit = limits_fn
-            return limit.limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits, (self,)
-        limits_are_rect = True
-        if limits_fn is False:
-            if rect_limits in (False, None):
-                return False, False, n_obs, None, (self,)
-        elif limits_fn is None:
-            if rect_limits is False:
-                return False, False, n_obs, None, (self,)
-            elif rect_limits is None:
-                return None, None, n_obs, None, (self,)
-            else:  # start from limits are anything, rect is None
-                limits_fn = rect_limits
-                rect_limits = None
-
-        if not callable(limits_fn):  # limits_fn is actually rect_limits
-            rect_limits = limits_fn
-            limits_fn = None
-
-        else:
-            limits_are_rect = False
-            if rect_limits in (None, False):
-                raise ValueError("Limits given as a function need also rect_limits, cannot be None or False")
-        try:
-            lower, upper = rect_limits
-        except TypeError as err:
-            raise TypeError(
-                "The outermost shape of `rect_limits` has to be 2 to represent (lower, upper).") from err
-
-        # if not isinstance(lower, (np.ndarray, tf.Tensor)):
-
-        lower = self._sanitize_rect_limit(lower)
-        upper = self._sanitize_rect_limit(upper)
-
-        lower_nobs = lower.shape[-1]
-        upper_nobs = upper.shape[-1]
-        # lower.shape.assert_is_compatible_with(upper.shape)
-        tf.assert_equal(lower_nobs, upper_nobs, message="Last dimension of lower and upper have to coincide.")
-        if n_obs is not None:
-            tf.assert_equal(lower_nobs, n_obs,
-                            message="Inferred last dimension (n_obs) does not coincide with given n_obs")
-        n_obs = tf.get_static_value(lower_nobs)
-        rect_limits = (lower, upper)
-
-        # create sublimits to iterate if possible
-        sublimits = []
-        if limits_are_rect and n_obs > 1:
-            for i in range(n_obs):
-                low = tf.gather(lower, (i,), axis=-1)
-                up = tf.gather(upper, (i,), axis=-1)
-                sublimits.append(type(self)(rect_limits=(low, up), n_obs=1))
-        else:
-            sublimits.append(self)
-
-        sublimits = tuple(sublimits)
-
-        return limits_fn, rect_limits, n_obs, limits_are_rect, sublimits
-
-    @staticmethod
-    def _sanitize_rect_limit(limit):
-        limit = convert_to_tensor_or_numpy(limit)
-        if len(limit.shape) == 0:
-            limit = z.unstable.broadcast_to(limit, shape=(1, 1))
-        if len(limit.shape) == 1:
-            limit = z.unstable.expand_dims(limit, axis=0)
-        return limit
-
-    @property
-    def has_rect_limits(self) -> bool:
-        return self.has_limits and self._is_rect
-
-    @property
-    def rect_limits(self):
-
-        rect_limits = self._rect_limits
-        if rect_limits in (None, False):
-            return rect_limits
-        lower = z.convert_to_tensor(rect_limits[0])
-        upper = z.convert_to_tensor(rect_limits[1])
-        return lower, upper
-
-    @property
-    def _rect_limits_np(self):
-        """Return the rectangular limits as `np.ndarray`. Raises error if not possible.
-
-        Returns:
-            (lower, upper):
-
-        Raises:
-            CannotConvertToNumpyError: In case the conversion fails.
-        """
-        lower, upper = self._rect_limits
-
-        lower = z.unstable._try_convert_numpy(lower)
-        upper = z.unstable._try_convert_numpy(upper)
-        return (lower, upper)
-
-    @property
-    def limit_fn(self):
-        return self._limit_fn
-
-    def rect_area(self) -> float:
-        return calculate_rect_area(rect_limits=self.rect_limits)
-
-    def inside(self, x, guarantee_limits=False):
-        x = _sanitize_x_input(x, n_obs=self.n_obs)
-        if guarantee_limits and self.has_rect_limits:
-            return tf.broadcast_to(True, x.shape)
-        else:
-            return self._inside(x, guarantee_limits)
-
-    def _inside(self, x, guarantee_limits):
-        if self.has_rect_limits:
-            return inside_rect_limits(x, rect_limits=self.rect_limits)
-        else:
-            return self._limit_fn(x)
-
-    def filter(self, x, guarantee_limits):
-        x = _sanitize_x_input(x, n_obs=self.n_obs)
-        if guarantee_limits and self.has_rect_limits:
-            return x
-        if self.has_rect_limits:
-            return filter_rect_limits(x, rect_limits=self.rect_limits)
-        else:
-            return self._filter(x, guarantee_limits)
-
-    def _filter(self, x, guarantee_limits):
-        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
-
-    @property
-    def limits_not_set(self):
-        return self.rect_limits is None
-
-    @property
-    def has_limits(self):
-        return self.rect_limits is not False and not self.limits_not_set
-
-    @property
-    def rect_lower(self):
-        return self.rect_limits[0]
-
-    @property
-    def rect_upper(self):
-        return self.rect_limits[1]
-
-    @property
-    def n_obs(self) -> int:
-        return self._n_obs
-
-    def __eq__(self, other):
-        if not isinstance(other, ZfitLimit):
-            return NotImplemented
-        return self.equal(other, allow_graph=False)
-
-    def equal(self, other, allow_graph=True):
-
-        lower, upper = self.rect_limits
-        lower_other, upper_other = other.rect_limits
-        if not allow_graph:
-            try:
-                lower = convert_to_numpy(lower)
-                upper = convert_to_numpy(upper)
-                lower_other = convert_to_numpy(lower_other)
-                upper_other = convert_to_numpy(upper_other)
-            except AttributeError:  # we're in graph mode seemingly
-                raise IllegalInGraphModeError(
-                    "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
-                    "function. To retrieve a symbolic Tensor, use `.equal(..., allow_graph=True)`")
-
-        rect_limits_equal = z.unstable.reduce_all(z.unstable.equal((lower, upper), (lower_other, upper_other)))
-        funcs_equal = self.limit_fn == other.limit_fn
-        return z.unstable.logical_and(rect_limits_equal, funcs_equal)
-
-    def __iter__(self):
-        yield from self._sublimits
-
-    def __hash__(self) -> int:
-        objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
-        return hash(tuple(objects))
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Limit):
-            return NotImplemented
-        nobs_equal = self.n_obs == other.n_obs  # TODO generalize equality as in space?
-        rect_lim_equal = np.allclose(self._rect_limits_np, other._rect_limits_np)
-        lim_fn_equal = self._limit_fn == other._limit_fn
-        return nobs_equal and rect_lim_equal and lim_fn_equal
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -591,6 +386,240 @@ class Coordinates(ZfitOrderableDimensional):
         return f"<zfit Coordinates obs={self.obs}, axes={self.axes}"
 
 
+class Limit(ZfitLimit):
+    def __init__(self, limit_fn=None, rect_limits=None, n_obs=None):
+        super().__init__()
+        limit_fn, rect_limits, n_obs, is_rect, sublimits = self._check_convert_input_limits(limits_fn=limit_fn,
+                                                                                            rect_limits=rect_limits,
+                                                                                            n_obs=n_obs)
+        self._limit_fn = limit_fn
+        self._rect_limits = rect_limits
+        self._n_obs = n_obs
+        self._is_rect = is_rect
+        self._sublimits = sublimits
+
+    def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
+        if isinstance(limits_fn, ZfitLimit):
+            if rect_limits is not None or n_obs:
+                raise OverdefinedError("limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified.")
+            limit = limits_fn
+            return limit.limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits, (self,)
+        limits_are_rect = True
+        if limits_fn is False:
+            if rect_limits in (False, None):
+                return False, False, n_obs, None, (self,)
+        elif limits_fn is None:
+            if rect_limits is False:
+                return False, False, n_obs, None, (self,)
+            elif rect_limits is None:
+                return None, None, n_obs, None, (self,)
+            else:  # start from limits are anything, rect is None
+                limits_fn = rect_limits
+                rect_limits = None
+
+        if not callable(limits_fn):  # limits_fn is actually rect_limits
+            rect_limits = limits_fn
+            limits_fn = None
+
+        else:
+            limits_are_rect = False
+            if rect_limits in (None, False):
+                raise ValueError("Limits given as a function need also rect_limits, cannot be None or False")
+        try:
+            lower, upper = rect_limits
+        except TypeError as err:
+            raise TypeError(
+                "The outermost shape of `rect_limits` has to be 2 to represent (lower, upper).") from err
+
+        # if not isinstance(lower, (np.ndarray, tf.Tensor)):
+
+        lower = self._sanitize_rect_limit(lower)
+        upper = self._sanitize_rect_limit(upper)
+
+        lower_nobs = lower.shape[-1]
+        upper_nobs = upper.shape[-1]
+        # lower.shape.assert_is_compatible_with(upper.shape)
+        tf.assert_equal(lower_nobs, upper_nobs, message="Last dimension of lower and upper have to coincide.")
+        if n_obs is not None:
+            tf.assert_equal(lower_nobs, n_obs,
+                            message="Inferred last dimension (n_obs) does not coincide with given n_obs")
+        n_obs = tf.get_static_value(lower_nobs)
+        rect_limits = (lower, upper)
+
+        # create sublimits to iterate if possible
+        sublimits = []
+        if limits_are_rect and n_obs > 1:
+            for i in range(n_obs):
+                low = tf.gather(lower, (i,), axis=-1)
+                up = tf.gather(upper, (i,), axis=-1)
+                sublimits.append(type(self)(rect_limits=(low, up), n_obs=1))
+        else:
+            sublimits.append(self)
+
+        sublimits = tuple(sublimits)
+
+        return limits_fn, rect_limits, n_obs, limits_are_rect, sublimits
+
+    @staticmethod
+    def _sanitize_rect_limit(limit):
+        limit = convert_to_tensor_or_numpy(limit)
+        if len(limit.shape) == 0:
+            limit = z.unstable.broadcast_to(limit, shape=(1, 1))
+        if len(limit.shape) == 1:
+            limit = z.unstable.expand_dims(limit, axis=0)
+        return limit
+
+    @property
+    def has_rect_limits(self) -> bool:
+        return self.has_limits and self._is_rect
+
+    @property
+    def rect_limits(self):
+
+        rect_limits = self._rect_limits
+        if rect_limits in (None, False):
+            return rect_limits
+        lower = z.convert_to_tensor(rect_limits[0])
+        upper = z.convert_to_tensor(rect_limits[1])
+        return lower, upper
+
+    @property
+    def _rect_limits_np(self):
+        """Return the rectangular limits as `np.ndarray`. Raises error if not possible.
+
+        Returns:
+            (lower, upper):
+
+        Raises:
+            CannotConvertToNumpyError: In case the conversion fails.
+        """
+        lower, upper = self._rect_limits
+
+        lower = z.unstable._try_convert_numpy(lower)
+        upper = z.unstable._try_convert_numpy(upper)
+        return (lower, upper)
+
+    @property
+    def limit_fn(self):
+        return self._limit_fn
+
+    def rect_area(self) -> float:
+        return calculate_rect_area(rect_limits=self.rect_limits)
+
+    def inside(self, x, guarantee_limits=False):
+        x = _sanitize_x_input(x, n_obs=self.n_obs)
+        if guarantee_limits and self.has_rect_limits:
+            return tf.broadcast_to(True, x.shape)
+        else:
+            return self._inside(x, guarantee_limits)
+
+    def _inside(self, x, guarantee_limits):
+        if self.has_rect_limits:
+            return inside_rect_limits(x, rect_limits=self.rect_limits)
+        else:
+            return self._limit_fn(x)
+
+    def filter(self, x, guarantee_limits):
+        x = _sanitize_x_input(x, n_obs=self.n_obs)
+        if guarantee_limits and self.has_rect_limits:
+            return x
+        if self.has_rect_limits:
+            return filter_rect_limits(x, rect_limits=self.rect_limits)
+        else:
+            return self._filter(x, guarantee_limits)
+
+    def _filter(self, x, guarantee_limits):
+        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
+
+    @property
+    def limits_not_set(self):
+        return self.rect_limits is None
+
+    @property
+    def has_limits(self):
+        return self.rect_limits is not False and not self.limits_not_set
+
+    @property
+    def rect_lower(self):
+        return self.rect_limits[0]
+
+    @property
+    def rect_upper(self):
+        return self.rect_limits[1]
+
+    @property
+    def n_obs(self) -> int:
+        return self._n_obs
+
+    def __eq__(self, other):
+        if not isinstance(other, ZfitLimit):
+            return NotImplemented
+        return self.equal(other, allow_graph=False)
+
+    def __le__(self, other):
+        if not isinstance(other, ZfitLimit):
+            return NotImplemented
+        return self.less_equal(other, allow_graph=False)
+
+    def less_equal(self, other, allow_graph=True):
+        return less_equal_limits(self, other, allow_graph=allow_graph)
+
+    def __iter__(self):
+        yield from self._sublimits
+
+    def __hash__(self) -> int:
+        objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
+        return hash(tuple(objects))
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Limit):
+            return NotImplemented
+        return self.equal(other=other, allow_graph=False)
+
+    def equal(self, other, allow_graph=True):
+        return equal_limits(self, other, allow_graph=allow_graph)
+
+
+def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
+    try:
+        lower1, upper1 = limit1._rect_limits_np
+        lower2, upper2 = limit2._rect_limits_np
+    except CannotConvertToNumpyError:
+        if not allow_graph:
+            raise IllegalInGraphModeError(
+                "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
+                "function. To retrieve a symbolic Tensor, use `.equal(..., allow_graph=True)`")
+        else:
+            lower1, upper1 = limit1.rect_limits
+            lower2, upper2 = limit2.rect_limits
+
+    lower_le = z.unstable.reduce_all(z.unstable.less_equal(lower1, lower2), axis=-1)
+    upper_le = z.unstable.reduce_all(z.unstable.less_equal(upper1, upper2), axis=-1)
+    rect_limits_le = z.unstable.logical_and(lower_le, upper_le)
+    funcs_equal = limit1.limit_fn == limit2.limit_fn
+    return z.unstable.logical_and(rect_limits_le, funcs_equal)
+
+
+def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
+    try:
+        lower, upper = limit1._rect_limits_np
+        lower_other, upper_other = limit2._rect_limits_np
+    except CannotConvertToNumpyError:
+        if not allow_graph:
+            raise IllegalInGraphModeError(
+                "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
+                "function. To retrieve a symbolic Tensor, use `.equal(..., allow_graph=True)`")
+        else:
+            lower, upper = limit1.rect_limits
+            lower_other, upper_other = limit2.rect_limits
+
+    # TODO add tolerances
+    rect_limits_equal = z.unstable.reduce_all(z.unstable.allclose((lower, upper), (lower_other, upper_other)))
+
+    funcs_equal = limit1.limit_fn == limit2.limit_fn
+    return z.unstable.logical_and(rect_limits_equal, funcs_equal)
+
+
 class BaseSpace(ZfitSpace, BaseObject):
 
     def __init__(self, obs, axes, name, **kwargs):
@@ -729,6 +758,7 @@ class BaseSpace(ZfitSpace, BaseObject):
     def equal(self, other, allow_graph):
         if not isinstance(other, ZfitSpace):
             return NotImplemented
+        return equal_space(other, allow_graph=allow_graph)
         limits_equal = self.rect_limits == other.rect_limits  # TODO: improve! What about 'inside'?
         coords_equal = self.coords == other.coords
         return z.unstable.logical_and(limits_equal, coords_equal)
@@ -738,127 +768,58 @@ class BaseSpace(ZfitSpace, BaseObject):
             return NotImplemented
         return self.equal(other=other, allow_graph=False)
 
+    def __le__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return less_equal_space(other)
+
+    def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
+        """Add the limits of the spaces. Only works for the same obs.
+
+        In case the observables are different, the order of the first space is taken.
+
+        Args:
+            other (:py:class:`~zfit.Space`):
+
+        Returns:
+            :py:class:`~zfit.Space`:
+        """
+        # other = convert_to_container(other, container=list)
+        new_space = add_spaces_new(self, *other)
+        return new_space
+
+    def combine(self, *other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
+        """Combine spaces with different obs (but consistent limits).
+
+        Args:
+            other (:py:class:`~zfit.Space`):
+
+        Returns:
+            :py:class:`~zfit.Space`:
+        """
+        # other = convert_to_container(other, container=list)
+        new_space = combine_spaces_new(self, *other)
+        return new_space
+
+    def __mul__(self, other):
+        return self.combine(other)
+
+    def __ge__(self, other):
+        return NotImplemented
+
+    def __eq__(self, other):
+        if not isinstance(other, ZfitSpace):
+            return NotImplemented
+        return equal_space(self, other)
+
+    def __hash__(self):
+        limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
+        hash_val = hash(tuple((limits_frozen, hash(self.coords))))
+        return hash_val
+
     def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
         return self.coords.reorder_x(x, x_obs=x_obs, x_axes=x_axes,
                                      func_obs=func_obs, func_axes=func_axes)
-
-
-def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
-    """Add two spaces and merge their limits if possible or return False.
-
-    Args:
-        spaces (Iterable[:py:class:`~zfit.Space`]):
-
-    Returns:
-        Union[None, :py:class:`~zfit.Space`, bool]:
-
-    Raises:
-        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
-    """
-    # spaces = convert_to_container(spaces)
-    if not all(isinstance(space, ZfitSpace) for space in spaces):
-        raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
-    return MultiSpace(spaces, name=name)
-
-
-# WORKHERE
-def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
-    """Combine spaces with different `obs` and `limits` to one `space`.
-
-    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
-    is not unambiguous and `False` is returned
-
-    Args:
-        spaces (List[:py:class:`~zfit.Space`]):
-
-    Returns:
-        `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
-            return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the
-            combined limits.
-    Raises:
-        ValueError: if only one space is given
-        LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
-        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
-    """
-    spaces = convert_to_container(spaces, container=tuple)
-    # if len(spaces) <= 1:
-    #     return spaces
-    # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
-
-    all_obs = common_obs(spaces=spaces)
-    all_lower = []
-    all_upper = []
-    spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
-
-    # create the lower and upper limits with all obs replacing missing dims with None
-    # With this, all limits have the same length
-    if limits_overlap(spaces=spaces, allow_exact_match=True):
-        raise LimitsIncompatibleError("Limits overlap")
-
-    for space in flatten_spaces(spaces):
-        if space.limits is None:
-            continue
-        lowers, uppers = space.limits
-        lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
-        upper = [tuple(up[space.obs.index(ob)] for up in uppers) if ob in space.obs else None for ob in all_obs]
-        all_lower.append(lower)
-        all_upper.append(upper)
-
-    def check_extract_limits(limits_spaces):
-        new_limits = []
-
-        if not limits_spaces:
-            return None
-        for index, obs in enumerate(all_obs):
-            current_limit = None
-            for limit in limits_spaces:
-                lim = limit[index]
-
-                if lim is not None:
-                    if current_limit is None:
-                        current_limit = lim
-                    elif not np.allclose(current_limit, lim):
-                        return False
-            else:
-                if current_limit is None:
-                    raise LimitsNotSpecifiedError("Limits in obs {} are not specified".format(obs))
-                new_limits.append(current_limit)
-
-        n_limits = int(np.prod(tuple(len(lim) for lim in new_limits)))
-        new_limits_comb = [[] for _ in range(n_limits)]
-        for limit in new_limits:
-            for lim in limit:
-                for i in range(int(n_limits / len(limit))):
-                    new_limits_comb[i].append(lim)
-
-        new_limits = tuple(tuple(limit) for limit in new_limits_comb)
-        return new_limits
-
-    new_lower = check_extract_limits(all_lower)
-    new_upper = check_extract_limits(all_upper)
-    assert not (new_lower is None) ^ (new_upper is None), "Bug, please report issue. either both are defined or None."
-    if new_lower is None:
-        limits = None
-    elif new_lower is False:
-        return False
-    else:
-        limits = (new_lower, new_upper)
-    new_space = Space(obs=all_obs, limits=limits)
-    if new_space.n_limits > 1:
-        new_space = MultiSpace(Space, obs=all_obs)
-    return new_space
-
-
-# def create_rect_limits_func(rect_limits):
-#     def inside(x: tf.Tensor):
-#         if not x.shape.ndims > 1:
-#             raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
-#                              " structures is (nevents, n_obs).")
-#         lower, upper = rect_limits
-#         below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
-#         above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
-#         inside = tf.logical_and(above_lower, below_upper)
-#         return inside
 
 
 class Space(BaseSpace):
@@ -1114,24 +1075,6 @@ class Space(BaseSpace):
         return len(self._limits_dict) == 0
 
     @property
-    @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
-                                        " Use `inside` to check if an Tensor is inside the limits.")
-    def limit1d(self) -> Tuple[float, float]:
-        """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
-
-        Returns:
-            tuple(float, float): so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
-
-        Raises:
-            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
-        """
-        if self.n_obs > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
-        if self.n_limits > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
-        return self.rect_limits
-
-    @property
     def limit2d(self) -> Tuple[float, float, float, float]:
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
@@ -1358,6 +1301,9 @@ class Space(BaseSpace):
         new_indices = _reorder_indices(old=old, new=new)
         return new_indices
 
+    def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
+        raise BreakingAPIChangeError("Simply get the coords if needed?")
+
     # def reorder_by_indices(self, indices: Tuple[int]):
     #     """Return a :py:class:`~zfit.Space` reordered by the indices.
     #
@@ -1404,14 +1350,45 @@ class Space(BaseSpace):
     #     self._obs = obs
     # return obs
 
-    def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
-        raise BreakingAPIChangeError("Simply get the coords if needed?")
-
     @property
     def obs_axes(self):
         # TODO(Mayou36): what if axes is None?
         raise BreakingAPIChangeError
         # return OrderedDict((o, ax) for o, ax in zip(self.obs, self.axes))
+
+    def with_coords(self, coords: ZfitOrderableDimensional, allow_superset=False, allow_subset=True) -> "zfit.Space":
+        """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
+
+
+        Args:
+            coords (OrderedDict[str, int]): An ordered dict with {obs: axes}.
+            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
+            allow_subset ():
+
+        Returns:
+            :py:class:`~zfit.Space`:
+        """
+        new_space_obs = None
+        new_space_axes = None
+        if self.obs is not None and coords.obs is not None:
+            new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
+
+        if self.axes is not None and coords.axes is not None:
+            new_space_axes = self.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
+
+        if new_space_obs is not None and new_space_axes is not None:
+            if new_space_obs.axes != new_space_axes.axes or new_space_obs.obs != new_space_axes.obs:
+                raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
+                                                   f" because the obs and axes assignement does not agree."
+                                                   f" The ordering of the axes with respect to the obs"
+                                                   f" is different.")
+
+        new_space = new_space_obs if new_space_axes is None else new_space_axes
+        if new_space is None:
+            raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
+                                               f" because neither obs nor axes are specified in both.")
+
+        return new_space
 
     #
     # def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
@@ -1489,40 +1466,6 @@ class Space(BaseSpace):
     #
     #     return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def with_coords(self, coords: ZfitOrderableDimensional, allow_superset=False, allow_subset=True) -> "zfit.Space":
-        """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
-
-
-        Args:
-            coords (OrderedDict[str, int]): An ordered dict with {obs: axes}.
-            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
-            allow_subset ():
-
-        Returns:
-            :py:class:`~zfit.Space`:
-        """
-        new_space_obs = None
-        new_space_axes = None
-        if self.obs is not None and coords.obs is not None:
-            new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
-
-        if self.axes is not None and coords.axes is not None:
-            new_space_axes = self.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
-
-        if new_space_obs is not None and new_space_axes is not None:
-            if new_space_obs.axes != new_space_axes.axes or new_space_obs.obs != new_space_axes.obs:
-                raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
-                                                   f" because the obs and axes assignement does not agree."
-                                                   f" The ordering of the axes with respect to the obs"
-                                                   f" is different.")
-
-        new_space = new_space_obs if new_space_axes is None else new_space_axes
-        if new_space is None:
-            raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
-                                               f" because neither obs nor axes are specified in both.")
-
-        return new_space
-
     def with_obs_axes(self, **kwargs):
         raise BreakingAPIChangeError("What is this needed for?")
         # new_space = type(self)._from_any(obs=self.obs, axes=self.axes, limits=self.limits)
@@ -1551,28 +1494,6 @@ class Space(BaseSpace):
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
         return self.rect_limits
-
-    # def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
-    #     """Return the areas of each interval
-    #
-    #     Args:
-    #         rel (bool): If True, return the relative fraction of each interval
-    #     Returns:
-    #         Tuple[float]:
-    #     """
-    #     areas = self._calculate_areas(limits=self.limits)
-    #     if rel:
-    #         areas = np.array(areas)
-    #         areas /= areas.sum()
-    #         areas = tuple(areas)
-    #     return areas
-
-    # @staticmethod
-    # @functools.lru_cache()
-    # def _calculate_areas(limits) -> Tuple[float]:
-    #     raise NotImplementedError
-    # areas = tuple(float(np.prod(np.array(up) - np.array(low))) for low, up in zip(*limits))
-    # return areas
 
     def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                      name: Optional[str] = None) -> "zfit.Space":
@@ -1603,7 +1524,27 @@ class Space(BaseSpace):
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
 
-    # Operators
+    # def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+    #     """Return the areas of each interval
+    #
+    #     Args:
+    #         rel (bool): If True, return the relative fraction of each interval
+    #     Returns:
+    #         Tuple[float]:
+    #     """
+    #     areas = self._calculate_areas(limits=self.limits)
+    #     if rel:
+    #         areas = np.array(areas)
+    #         areas /= areas.sum()
+    #         areas = tuple(areas)
+    #     return areas
+
+    # @staticmethod
+    # @functools.lru_cache()
+    # def _calculate_areas(limits) -> Tuple[float]:
+    #     raise NotImplementedError
+    # areas = tuple(float(np.prod(np.array(up) - np.array(low))) for low, up in zip(*limits))
+    # return areas
 
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
@@ -1628,54 +1569,7 @@ class Space(BaseSpace):
         new_space = type(self)(**kwargs)
         return new_space
 
-    def __le__(self, other):
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return less_equal_space(other)
-
-    def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
-        """Add the limits of the spaces. Only works for the same obs.
-
-        In case the observables are different, the order of the first space is taken.
-
-        Args:
-            other (:py:class:`~zfit.Space`):
-
-        Returns:
-            :py:class:`~zfit.Space`:
-        """
-        # other = convert_to_container(other, container=list)
-        new_space = add_spaces_new(self, *other)
-        return new_space
-
-    def combine(self, *other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
-        """Combine spaces with different obs (but consistent limits).
-
-        Args:
-            other (:py:class:`~zfit.Space`):
-
-        Returns:
-            :py:class:`~zfit.Space`:
-        """
-        # other = convert_to_container(other, container=list)
-        new_space = combine_spaces_new(self, *other)
-        return new_space
-
-    def __mul__(self, other):
-        return self.combine(other)
-
-    def __ge__(self, other):
-        return NotImplemented
-
-    def __eq__(self, other):
-        if not isinstance(other, ZfitSpace):
-            return NotImplemented
-        return equal_space(self, other)
-
-    def __hash__(self):
-        limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
-        hash_val = hash(tuple((limits_frozen, hash(self.coords))))
-        return hash_val
+    # Operators
 
     @property
     def has_rect_limits(self):
@@ -1703,35 +1597,153 @@ class Space(BaseSpace):
         all_inside = tf.reduce_all(xs_inside, axis=-1, keepdims=True)
         return all_inside
 
+    @property
+    @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
+                                        " Use `inside` to check if an Tensor is inside the limits.")
+    def limit1d(self) -> Tuple[float, float]:
+        """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
-def less_equal_limits(limit1: Limit, limit2: Limit) -> bool:
-    low, up = limit1._rect_limits_np
-    other_low, other_up = limit2._rect_limits_np
-    lower_le = other_low == low or other_low is ANY_LOWER
-    upper_le = up == other_up or other_up is ANY_UPPER
-    axis_le = lower_le and upper_le
-    if axis_le and not (limit2.has_rect_limits and limit1.has_rect_limits):
-        pass  # TODO: compare functions, limits dict
-    return axis_le
+        Returns:
+            tuple(float, float): so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
 
-
-def equal_limits(limit1: Limit, limit2: Limit) -> bool:
-    low, up = limit1._rect_limits_np
-    other_low, other_up = limit2._rect_limits_np
-    lower_le = other_low == low
-    upper_le = up == other_up
-    axis_le = lower_le and upper_le
-    if axis_le and not (limit2.has_rect_limits and limit1.has_rect_limits):
-        pass  # TODO: compare functions, limits dict
-    return axis_le
+        Raises:
+            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
+        """
+        if self.n_obs > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
+        if self.n_limits > 1:
+            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+        return self.rect_limits
 
 
-def less_equal_space(space1, space2):
-    return compare_multispace(space1=space1, space2=space2, comparator=lambda limit1, limit2: limit1 <= limit2)
+def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
+    """Add two spaces and merge their limits if possible or return False.
+
+    Args:
+        spaces (Iterable[:py:class:`~zfit.Space`]):
+
+    Returns:
+        Union[None, :py:class:`~zfit.Space`, bool]:
+
+    Raises:
+        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
+    """
+    # spaces = convert_to_container(spaces)
+    if not all(isinstance(space, ZfitSpace) for space in spaces):
+        raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
+    return MultiSpace(spaces, name=name)
 
 
-def equal_space(space1, space2):
-    return compare_multispace(space1=space1, space2=space2, comparator=lambda limit1, limit2: limit1 == limit2)
+# WORKHERE
+
+
+# def create_rect_limits_func(rect_limits):
+#     def inside(x: tf.Tensor):
+#         if not x.shape.ndims > 1:
+#             raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
+#                              " structures is (nevents, n_obs).")
+#         lower, upper = rect_limits
+#         below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
+#         above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
+#         inside = tf.logical_and(above_lower, below_upper)
+#         return inside
+
+
+def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
+    """Combine spaces with different `obs` and `limits` to one `space`.
+
+    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
+    is not unambiguous and `False` is returned
+
+    Args:
+        spaces (List[:py:class:`~zfit.Space`]):
+
+    Returns:
+        `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
+            return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the
+            combined limits.
+    Raises:
+        ValueError: if only one space is given
+        LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
+        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
+    """
+    spaces = convert_to_container(spaces, container=tuple)
+    # if len(spaces) <= 1:
+    #     return spaces
+    # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
+
+    all_obs = common_obs(spaces=spaces)
+    all_lower = []
+    all_upper = []
+    spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
+
+    # create the lower and upper limits with all obs replacing missing dims with None
+    # With this, all limits have the same length
+    if limits_overlap(spaces=spaces, allow_exact_match=True):
+        raise LimitsIncompatibleError("Limits overlap")
+
+    for space in flatten_spaces(spaces):
+        if space.limits is None:
+            continue
+        lowers, uppers = space.limits
+        lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
+        upper = [tuple(up[space.obs.index(ob)] for up in uppers) if ob in space.obs else None for ob in all_obs]
+        all_lower.append(lower)
+        all_upper.append(upper)
+
+    def check_extract_limits(limits_spaces):
+        new_limits = []
+
+        if not limits_spaces:
+            return None
+        for index, obs in enumerate(all_obs):
+            current_limit = None
+            for limit in limits_spaces:
+                lim = limit[index]
+
+                if lim is not None:
+                    if current_limit is None:
+                        current_limit = lim
+                    elif not np.allclose(current_limit, lim):
+                        return False
+            else:
+                if current_limit is None:
+                    raise LimitsNotSpecifiedError("Limits in obs {} are not specified".format(obs))
+                new_limits.append(current_limit)
+
+        n_limits = int(np.prod(tuple(len(lim) for lim in new_limits)))
+        new_limits_comb = [[] for _ in range(n_limits)]
+        for limit in new_limits:
+            for lim in limit:
+                for i in range(int(n_limits / len(limit))):
+                    new_limits_comb[i].append(lim)
+
+        new_limits = tuple(tuple(limit) for limit in new_limits_comb)
+        return new_limits
+
+    new_lower = check_extract_limits(all_lower)
+    new_upper = check_extract_limits(all_upper)
+    assert not (new_lower is None) ^ (new_upper is None), "Bug, please report issue. either both are defined or None."
+    if new_lower is None:
+        limits = None
+    elif new_lower is False:
+        return False
+    else:
+        limits = (new_lower, new_upper)
+    new_space = Space(obs=all_obs, limits=limits)
+    if new_space.n_limits > 1:
+        new_space = MultiSpace(Space, obs=all_obs)
+    return new_space
+
+
+def less_equal_space(space1, space2, allow_graph=True):
+    return compare_multispace(space1=space1, space2=space2,
+                              comparator=lambda limit1, limit2: limit1.less_equal(limit2, allow_graph=allow_graph))
+
+
+def equal_space(space1, space2, allow_graph=True):
+    return compare_multispace(space1=space1, space2=space2,
+                              comparator=lambda limit1, limit2: limit1.equal(limit2, allow_graph=allow_graph))
 
 
 def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable):

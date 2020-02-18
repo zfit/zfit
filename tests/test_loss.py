@@ -15,6 +15,9 @@ from zfit.minimizers.minimizer_minuit import Minuit
 from zfit.models.dist_tfp import Gauss
 from zfit.util.exception import IntentionNotUnambiguousError
 
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
+
 mu_true = 1.2
 sigma_true = 4.1
 mu_true2 = 1.01
