@@ -1,5 +1,4 @@
 #  Copyright (c) 2020 zfit
-
 import numpy as np
 import pytest
 from scipy.stats import crystalball
