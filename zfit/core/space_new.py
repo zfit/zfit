@@ -1017,10 +1017,10 @@ class Space(BaseSpace):
         """
         # self._check_has_limits
         if not self.has_rect_limits:
-            return (False, False)
+            return False
         lower_ordered, upper_ordered = self._rect_limits_z()
-        lower_ordered, upper_ordered = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(upper_ordered)
-        return (lower_ordered, upper_ordered)
+        rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(upper_ordered)
+        return rect_limits
 
     @property
     def _rect_limits_np(self):
