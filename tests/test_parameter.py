@@ -8,6 +8,7 @@ from ordered_set import OrderedSet
 import zfit
 from zfit import Parameter, z
 from zfit.core.parameter import ComposedParameter, ComplexParameter
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
 

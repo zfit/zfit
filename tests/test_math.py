@@ -2,6 +2,7 @@
 import numpy as np
 
 import zfit
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.z.math import numerical_gradient, autodiff_gradient, numerical_hessian, autodiff_hessian
 

@@ -5,6 +5,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import Parameter, z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.functions import SimpleFunc
 from zfit.models.functor import SumPDF

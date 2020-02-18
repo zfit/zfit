@@ -7,6 +7,7 @@ import tensorflow as tf
 import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
 from zfit import z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.minimizer_tfp import BFGS
 

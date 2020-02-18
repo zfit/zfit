@@ -9,6 +9,7 @@ import zfit.settings
 from zfit import z
 from zfit.core.limits import Space
 from zfit.core.loss import UnbinnedNLL
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.minimizer_minuit import Minuit
 from zfit.models.dist_tfp import Gauss
