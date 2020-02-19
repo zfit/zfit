@@ -38,7 +38,6 @@ def _maybe_disable_warnings():
         return
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-    import warnings
 
     # warnings.simplefilter(action='ignore', category=FutureWarning)
     # warnings.simplefilter(action='ignore', category=DeprecationWarning)
@@ -72,4 +71,11 @@ from .core.data import Data
 
 from .settings import run
 
+
+def _maybe_disable_jit():
+    import os
+    z.zextension.FunctionWrapperRegistry.do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True)))
+
+
+_maybe_disable_jit()
 # EOF

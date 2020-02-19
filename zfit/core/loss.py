@@ -6,7 +6,6 @@ from typing import Optional, Union, List, Callable, Iterable
 
 import tensorflow as tf
 from ordered_set import OrderedSet
-
 from zfit import z, settings
 
 ztf = z
@@ -79,7 +78,7 @@ def _constraint_check_convert(constraints):
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
-                 fit_range: ztyping.LimitsTypeInput = NOT_SPECIFIED,
+                 fit_range: ztyping.LimitsTypeInput = None,
                  constraints: Iterable[Union[ZfitConstraint, Callable]] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
@@ -97,9 +96,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__)
-        if fit_range is NOT_SPECIFIED:  # depreceation
-            fit_range = None
-        else:
+        if fit_range is not None:
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
                           " when creating the data and the model.")
@@ -321,7 +318,7 @@ class UnbinnedNLL(BaseLoss):
 
     _name = "UnbinnedNLL"
 
-    def __init__(self, model, data, fit_range=NOT_SPECIFIED, constraints=None):
+    def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
 

@@ -1,5 +1,7 @@
 #  Copyright (c) 2020 zfit
+import pytest
 
+import zfit
 from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -77,7 +79,8 @@ class GraphCreator1(Cachable):
         self.value = value
 
 
-# @pytest.mark.skipif(zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="no caching in graph mode expected")  # currently, importance sampling is not working, odd deadlock in TF
+@pytest.mark.skipif(not zfit.z.zextension.FunctionWrapperRegistry.do_jit,
+                    reason="no caching in eager mode expected")  # currently, importance sampling is not working, odd deadlock in TF
 def test_graph_cache():
     graph1 = GraphCreator1()
     initial = 42

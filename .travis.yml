@@ -15,6 +15,10 @@ script:
     - echo "TensorFlow version:" && pip install coverage 2>&1 | tail -n 11
     - python -c 'import tensorflow as tf; print(tf.__version__)'
     - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
+    # PRIVATE BELOW, ONLY FOR TESTING
+    - export ZFIT_DO_JIT=0
+    - coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir}
+    - export ZFIT_DO_JIT=1  # reset
     - coverage report
     - bash utils/ci/test_examples.sh
     - bash utils/ci/test_tutorials.sh
