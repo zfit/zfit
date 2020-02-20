@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.loss &#8212; zfit 0.4.2.dev52+gb736cdf documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev52</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -360,7 +360,6 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
-
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span><span class="p">,</span> <span class="n">settings</span>
 
 <span class="n">ztf</span> <span class="o">=</span> <span class="n">z</span>
@@ -433,7 +432,7 @@
 <div class="viewcode-block" id="BaseLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss">[docs]</a><span class="k">class</span> <span class="nc">BaseLoss</span><span class="p">(</span><span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ModelsInputType</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DataInputType</span><span class="p">,</span>
-                 <span class="n">fit_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="n">NOT_SPECIFIED</span><span class="p">,</span>
+                 <span class="n">fit_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">constraints</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">ZfitConstraint</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -451,9 +450,7 @@
 <span class="sd">                `zfit.constraint.*` allows for easy use of predefined constraints.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">fit_range</span> <span class="ow">is</span> <span class="n">NOT_SPECIFIED</span><span class="p">:</span>  <span class="c1"># depreceation</span>
-            <span class="n">fit_range</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fit_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The fit_range argument is depreceated and will maybe removed in future releases. &quot;</span>
                           <span class="s2">&quot;It is preferred to define the range in the space&quot;</span>
                           <span class="s2">&quot; when creating the data and the model.&quot;</span><span class="p">)</span>
@@ -675,7 +672,7 @@
 
     <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;UnbinnedNLL&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">NOT_SPECIFIED</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_errordef</span> <span class="o">=</span> <span class="mf">0.5</span>
 

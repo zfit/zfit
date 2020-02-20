@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>loss &#8212; zfit 0.4.2.dev52+gb736cdf documentation</title>
+    <title>loss &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev52</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -360,7 +360,7 @@
 <span id="loss"></span><h1>loss<a class="headerlink" href="#module-zfit.loss" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.loss.ExtendedUnbinnedNLL">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">ExtendedUnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=&lt;zfit.util.checks.NotSpecified object&gt;</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#ExtendedUnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">ExtendedUnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#ExtendedUnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.loss.html#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.UnbinnedNLL</span></code></a></p>
 <p>An Unbinned Negative Log Likelihood with an additional poisson term for the</p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
@@ -504,7 +504,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="class">
 <dt id="zfit.loss.UnbinnedNLL">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">UnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=&lt;zfit.util.checks.NotSpecified object&gt;</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#UnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.UnbinnedNLL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">UnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">data</em>, <em class="sig-param">fit_range=None</em>, <em class="sig-param">constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#UnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.UnbinnedNLL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.loss.html#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.BaseLoss</span></code></a></p>
 <p>The Unbinned Negative Log Likelihood.</p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
@@ -648,7 +648,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="class">
 <dt id="zfit.loss.BaseLoss">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param">model: Union[zfit.core.interfaces.ZfitModel, Iterable[zfit.core.interfaces.ZfitModel]], data: Union[zfit.Data, Iterable[zfit.Data]], fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = &lt;zfit.util.checks.NotSpecified object&gt;, constraints: Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param">model: Union[zfit.core.interfaces.ZfitModel, Iterable[zfit.core.interfaces.ZfitModel]], data: Union[zfit.Data, Iterable[zfit.Data]], fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, constraints: Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin" title="zfit.core.dependents.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dependents.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
 to the loss. The length of each has to match the length of the others.</p>
