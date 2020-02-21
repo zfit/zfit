@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -354,22 +354,17 @@
   <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
 <span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span><span class="p">,</span> <span class="n">WorkInProgressError</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
-<span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="kn">import</span> <span class="n">ParamsTypeOpt</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
-<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="kn">import</span> <span class="n">ParamsTypeOpt</span>
 
 
 <span class="k">def</span> <span class="nf">_hesse_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="s2">&quot;FitResult&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
@@ -395,6 +390,25 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
+<span class="k">def</span> <span class="nf">_hesse_np</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="s2">&quot;FitResult&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">sigma</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sigma other then 1 is not valid for hesse numpy.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># check if no weights in data</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="n">WeightsNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Weights are not supported with hesse numpy.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># minimizer = fitresult.minimizer</span>
+    <span class="c1"># from zfit.minimizers.minimizer_minuit import Minuit</span>
+    <span class="c1"># if not isinstance(minimizer, Minuit):</span>
+    <span class="c1">#     raise TypeError(&quot;Cannot perform hesse error calculation &#39;minuit&#39; with a different minimizer then&quot;</span>
+    <span class="c1">#                     &quot;`Minuit`.&quot;)</span>
+    <span class="n">result_hesse</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">value_gradients_hessian</span><span class="p">(</span><span class="n">params</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">hesse</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">param</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">result_hesse</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]})</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">hesse</span>
+
+
 <span class="k">def</span> <span class="nf">_minos_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="n">fitresult</span> <span class="o">=</span> <span class="n">result</span>
     <span class="n">minimizer</span> <span class="o">=</span> <span class="n">fitresult</span><span class="o">.</span><span class="n">minimizer</span>
@@ -409,8 +423,8 @@
 
 
 <div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">ZfitResult</span><span class="p">):</span>
-    <span class="n">_default_hesse</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span>
-    <span class="n">_hesse_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;minuit_hesse&#39;</span><span class="p">:</span> <span class="n">_hesse_minuit</span><span class="p">}</span>
+    <span class="n">_default_hesse</span> <span class="o">=</span> <span class="s1">&#39;hesse_np&#39;</span>
+    <span class="n">_hesse_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;minuit_hesse&#39;</span><span class="p">:</span> <span class="n">_hesse_minuit</span><span class="p">,</span> <span class="s1">&#39;hesse_np&#39;</span><span class="p">:</span> <span class="n">_hesse_np</span><span class="p">}</span>
     <span class="n">_default_error</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span>
     <span class="n">_error_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;minuit_minos&quot;</span><span class="p">:</span> <span class="n">_minos_minuit</span><span class="p">}</span>
 
@@ -476,7 +490,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimizer</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitLoss</span><span class="p">:</span>
         <span class="c1"># TODO(Mayou36): this is currently a reference, should be a copy of the loss?</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span>
 
@@ -510,7 +524,7 @@
             <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">params</span>
 
-<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">error_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Calculate for `params` the symmetric error using the Hessian matrix.</span>
 
@@ -528,6 +542,13 @@
 <span class="sd">                `error_a = result.hesse(params=param_a)[param_a][&#39;error&#39;]`</span>
 <span class="sd">                error_a is the hessian error.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># LEGACY START</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_hesse</span>
+            <span class="kn">from</span> <span class="nn">zfit.minimizers.minimizer_minuit</span> <span class="kn">import</span> <span class="n">Minuit</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">Minuit</span><span class="p">):</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;minuit_hesse&#39;</span>
+            <span class="c1"># LEGACY END</span>
         <span class="k">if</span> <span class="n">error_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to specify `error_name` or use a string as `method`&quot;</span><span class="p">)</span>
@@ -552,7 +573,7 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;minuit_minos&#39;</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
 
         <span class="sd">&quot;&quot;&quot;Calculate and set for `params` the asymmetric error using the set error method.</span>
@@ -576,10 +597,13 @@
 <span class="sd">                    holding the calculated errors.</span>
 <span class="sd">                    Example: result[&#39;par1&#39;][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_error</span>
         <span class="k">if</span> <span class="n">error_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to specify `error_name` or use a string as `method`&quot;</span><span class="p">)</span>
             <span class="n">error_name</span> <span class="o">=</span> <span class="n">method</span>
+
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
 
@@ -631,7 +655,6 @@
 
 
 <div class="viewcode-block" id="dict_to_matrix"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.dict_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix_dict</span><span class="p">):</span>
-
     <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
     <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nparams</span><span class="p">,</span> <span class="n">nparams</span><span class="p">))</span>
 

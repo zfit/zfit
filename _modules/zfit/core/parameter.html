@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -690,7 +690,7 @@
 <span class="sd">            value : starting value</span>
 <span class="sd">            lower_limit : lower limit</span>
 <span class="sd">            upper_limit : upper limit</span>
-<span class="sd">            step_size : step size (set to 0 for fixed parameters)</span>
+<span class="sd">            step_size : step size</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_independent_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: sanitize input for TF2</span>
@@ -798,16 +798,15 @@
             <span class="c1"># if self.has_limits:</span>
             <span class="c1">#     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?</span>
             <span class="c1"># else:</span>
-            <span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.001</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">step_size</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">:</span>
-                    <span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.001</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not set step size. Is NaN.&quot;</span><span class="p">)</span>
-            <span class="c1"># TODO: how to deal with infinities?</span>
-            <span class="n">step_size</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">step_size</span><span class="p">)</span>
+            <span class="c1"># step_size = 0.001</span>
+            <span class="c1"># if np.isnan(step_size):</span>
+            <span class="c1">#     if self.lower_limit == -np.infty or self.upper_limit == np.infty:</span>
+            <span class="c1">#         step_size = 0.001</span>
+            <span class="c1">#     else:</span>
+            <span class="c1">#         raise ValueError(&quot;Could not set step size. Is NaN.&quot;)</span>
+            <span class="c1"># step_size = z.to_real(step_size)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size</span>
-
+            <span class="n">step_size</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">step_size</span>
 
     <span class="nd">@step_size</span><span class="o">.</span><span class="n">setter</span>

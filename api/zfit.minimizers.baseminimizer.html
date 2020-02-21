@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>baseminimizer &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>baseminimizer &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -422,7 +422,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="zfit.minimizers.baseminimizer.ZfitStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.ZfitStrategy</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">params</em>, <em class="sig-param">minimizer</em>, <em class="sig-param">loss_value=None</em>, <em class="sig-param">gradient_values=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -433,7 +433,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="zfit.minimizers.baseminimizer.BaseStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseStrategy</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.DefaultStrategy.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">params</em>, <em class="sig-param">minimizer</em>, <em class="sig-param">loss_value=None</em>, <em class="sig-param">gradient_values=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -462,7 +462,7 @@ set self.__traceback__ to tb and return self.</p>
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="zfit.minimizers.baseminimizer.BaseStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseStrategy</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.ToyStrategyFail.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">params</em>, <em class="sig-param">minimizer</em>, <em class="sig-param">loss_value=None</em>, <em class="sig-param">gradient_values=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.baseminimizer.ToyStrategyFail.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.minimizers.baseminimizer.ToyStrategyFail.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -473,7 +473,7 @@ set self.__traceback__ to tb and return self.</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <dl class="method">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan">
-<em class="property">abstract </em><code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">loss_value</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

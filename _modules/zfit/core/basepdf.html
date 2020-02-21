@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basepdf &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -664,16 +664,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">          :py:class:`tf.Tensor` of type `self.dtype`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO TF2 converion, remove control deps</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
-                <span class="n">assert_op</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Check if pdf output contains any NaNs of Infs&quot;</span><span class="p">)</span>
-                <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_op</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">assert_op</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">z</span><span class="o">.</span><span class="n">check_numerics</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Check if pdf output contains any NaNs of Infs&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>

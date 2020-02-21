@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.zextension &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -353,6 +353,7 @@
       
   <h1>Source code for zfit.z.zextension</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">_mt</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
@@ -364,8 +365,7 @@
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 
 
-
-<div class="viewcode-block" id="constant"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.constant">[docs]</a><span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Const&quot;</span><span class="p">,</span> <span class="n">verify_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="constant"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.constant">[docs]</a><span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Const&quot;</span><span class="p">,</span> <span class="n">verify_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># TODO(tf2): remove this legacy thing below</span>
     <span class="k">if</span> <span class="n">verify_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;&#39;verify_shape&#39; is not a valid argument anymore. It&#39;s always true. Please remove.&quot;</span><span class="p">)</span>
@@ -375,19 +375,19 @@
 <span class="n">pi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">_mt</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="to_complex"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.to_complex">[docs]</a><span class="k">def</span> <span class="nf">to_complex</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
+<div class="viewcode-block" id="to_complex"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.to_complex">[docs]</a><span class="k">def</span> <span class="nf">to_complex</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="to_real"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.to_real">[docs]</a><span class="k">def</span> <span class="nf">to_real</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+<div class="viewcode-block" id="to_real"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.to_real">[docs]</a><span class="k">def</span> <span class="nf">to_real</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="abs_square"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.abs_square">[docs]</a><span class="k">def</span> <span class="nf">abs_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="abs_square"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.abs_square">[docs]</a><span class="k">def</span> <span class="nf">abs_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="nth_pow"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.nth_pow">[docs]</a><span class="k">def</span> <span class="nf">nth_pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nth_pow"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.nth_pow">[docs]</a><span class="k">def</span> <span class="nf">nth_pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculate the nth power of the complex Tensor x.</span>
 
 <span class="sd">    Args:</span>
@@ -404,7 +404,7 @@
     <span class="k">return</span> <span class="n">power</span></div>
 
 
-<div class="viewcode-block" id="unstack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.unstack_x">[docs]</a><span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">always_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unstack_x&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="unstack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.unstack_x">[docs]</a><span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">always_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unstack_x&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Unstack a Data object and return a list of (or a single) tensors in the right order.</span>
 
 <span class="sd">    Args:</span>
@@ -430,18 +430,18 @@
     <span class="k">return</span> <span class="n">unstacked_x</span></div>
 
 
-<div class="viewcode-block" id="stack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.stack_x">[docs]</a><span class="k">def</span> <span class="nf">stack_x</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stack_x&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="stack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.stack_x">[docs]</a><span class="k">def</span> <span class="nf">stack_x</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stack_x&quot;</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <span class="c1"># random sampling</span>
 
 
-<div class="viewcode-block" id="convert_to_tensor"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.convert_to_tensor">[docs]</a><span class="k">def</span> <span class="nf">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_to_tensor"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.convert_to_tensor">[docs]</a><span class="k">def</span> <span class="nf">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype_hint</span><span class="o">=</span><span class="n">preferred_dtype</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="safe_where"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.safe_where">[docs]</a><span class="k">def</span> <span class="nf">safe_where</span><span class="p">(</span><span class="n">condition</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">safe_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<div class="viewcode-block" id="safe_where"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.safe_where">[docs]</a><span class="k">def</span> <span class="nf">safe_where</span><span class="p">(</span><span class="n">condition</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">safe_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
                <span class="n">value_safer</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones_like</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Like :py:func:`tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.</span>
 
@@ -465,7 +465,7 @@
     <span class="k">return</span> <span class="n">result</span></div>
 
 
-<div class="viewcode-block" id="run_no_nan"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.run_no_nan">[docs]</a><span class="k">def</span> <span class="nf">run_no_nan</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="run_no_nan"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.run_no_nan">[docs]</a><span class="k">def</span> <span class="nf">run_no_nan</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">zfit.core.data</span> <span class="kn">import</span> <span class="n">Data</span>
 
     <span class="n">value_with_nans</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
@@ -484,12 +484,12 @@
 <span class="c1"># tf_function_deco = tf.function(autograph=False, experimental_relax_shapes=True)</span>
 
 
-<div class="viewcode-block" id="FunctionWrapperRegistry"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry">[docs]</a><span class="k">class</span> <span class="nc">FunctionWrapperRegistry</span><span class="p">:</span>
+<div class="viewcode-block" id="FunctionWrapperRegistry"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.FunctionWrapperRegistry">[docs]</a><span class="k">class</span> <span class="nc">FunctionWrapperRegistry</span><span class="p">:</span>
     <span class="n">wrapped_functions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">registries</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">do_jit</span> <span class="o">=</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="FunctionWrapperRegistry.check_wrapped_functions_registered"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry.check_wrapped_functions_registered">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FunctionWrapperRegistry.check_wrapped_functions_registered"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.FunctionWrapperRegistry.check_wrapped_functions_registered">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">check_wrapped_functions_registered</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">((</span><span class="n">func</span><span class="o">.</span><span class="n">zfit_graph_cache_registered</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">wrapped_functions</span><span class="p">))</span></div>
 
@@ -506,7 +506,7 @@
         <span class="c1"># self.inside_tracing = False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-<div class="viewcode-block" id="FunctionWrapperRegistry.reset"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_user</span><span class="p">):</span>
+<div class="viewcode-block" id="FunctionWrapperRegistry.reset"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.FunctionWrapperRegistry.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_user</span><span class="p">):</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">autograph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">experimental_relax_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_user_kwargs</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs_user</span><span class="p">)</span>
@@ -558,10 +558,14 @@
 
         <span class="k">return</span> <span class="n">concrete_func</span></div>
 
+<span class="n">FunctionWrapperRegistry2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">FunctionWrapperRegistry</span><span class="p">)</span>
+<span class="c1"># FunctionWrapperRegistry2.do_jit = True</span>
+<span class="c1"># FunctionWrapperRegistry.do_jit = False</span>
+
 
 <span class="n">tf_function</span> <span class="o">=</span> <span class="n">FunctionWrapperRegistry</span><span class="p">()</span>
 
-<span class="n">function_tf</span> <span class="o">=</span> <span class="n">tf_function</span>  <span class="c1"># for only tensorflow inside</span>
+<span class="n">function_tf</span> <span class="o">=</span> <span class="n">FunctionWrapperRegistry2</span><span class="p">()</span>  <span class="c1"># for only tensorflow inside</span>
 <span class="n">function_sampling</span> <span class="o">=</span> <span class="n">tf_function</span>
 
 

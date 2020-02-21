@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>Changelog &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -422,14 +422,27 @@
 sampled from and more general constraints (e.g. for parameter boundaries) that
 can not be sampled from.</p></li>
 <li><p>Doc improvements in the constraints.</p></li>
+<li><p>Add <cite>hesse</cite> error method (‘hesse_np’) available to all minimizers (not just Minuit).</p></li>
 </ul>
 </div></blockquote>
 </div>
 <div class="section" id="behavioral-changes">
 <h3>Behavioral changes<a class="headerlink" href="#behavioral-changes" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Increased the default step_size of a Paramter from 0.001 to 0.1.</p></li>
+</ul>
+</div></blockquote>
 </div>
 <div class="section" id="bug-fixes-and-small-changes">
 <h3>Bug fixes and small changes<a class="headerlink" href="#bug-fixes-and-small-changes" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Add <cite>use_minuit_grad</cite> option to Minuit optimizer to use the internal gradient, often for more stable fits</p></li>
+<li><p>added experimental flag <cite>zfit.experimental_loss_penalty_nan</cite>, which adds a penalty to the loss in case the value is
+nan. Can help with the optimisation. Feedback welcome!</p></li>
+</ul>
+</div></blockquote>
 </div>
 <div class="section" id="requirement-changes">
 <h3>Requirement changes<a class="headerlink" href="#requirement-changes" title="Permalink to this headline">¶</a></h3>

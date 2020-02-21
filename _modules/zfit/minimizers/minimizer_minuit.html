@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -372,17 +372,19 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">ZfitStrategy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minimize_strategy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">ncall</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
+                 <span class="n">ncall</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">use_minuit_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of</span>
 <span class="sd">            the minimizer in certain situations.</span>
-<span class="sd">            minimize_strategy (): A number used by minuit to define the strategy</span>
-<span class="sd">            tolerance (): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`</span>
-<span class="sd">            verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.</span>
-<span class="sd">            name (): Name of the minimizer</span>
-<span class="sd">            ncall (): Maximum number of minimization steps.</span>
+<span class="sd">            minimize_strategy (int): A number used by minuit to define the strategy, either 0, 1 or 2.</span>
+<span class="sd">            tolerance (float): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`</span>
+<span class="sd">            verbosity (int): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.</span>
+<span class="sd">            name (str): Name of the minimizer</span>
+<span class="sd">            ncall (int): Maximum number of minimization steps.</span>
+<span class="sd">            use_minuit_grad (bool): If True, iminuit uses it&#39;s internal numerical gradient calculation instead of the</span>
+<span class="sd">                (analytic/numerical) gradient provided by TensorFlow/zfit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">minimizer_options</span><span class="p">[</span><span class="s1">&#39;ncall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncall</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">minimize_strategy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -391,8 +393,9 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">,</span>
                          <span class="n">minimizer_options</span><span class="o">=</span><span class="n">minimizer_options</span><span class="p">)</span>
+        <span class="n">use_minuit_grad</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">use_minuit_grad</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">use_minuit_grad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">use_minuit_grad</span>
 
     <span class="k">def</span> <span class="nf">_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]):</span>
         <span class="c1"># loss_val = loss.value()</span>
@@ -445,7 +448,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">params_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
 
+        <span class="n">current_loss</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">nonlocal</span> <span class="n">current_loss</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
             <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
 
@@ -458,25 +464,39 @@
                 <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
                     <span class="n">print_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">loss_evaluated</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss_evaluated</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_value</span><span class="o">=</span><span class="n">loss_evaluated</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">info_values</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_evaluated</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;old_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_loss</span>
+                <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span>
+                                                            <span class="n">values</span><span class="o">=</span><span class="n">info_values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">current_loss</span> <span class="o">=</span> <span class="n">loss_evaluated</span>
             <span class="k">return</span> <span class="n">loss_evaluated</span>
 
         <span class="k">def</span> <span class="nf">grad_func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">nonlocal</span> <span class="n">current_loss</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
             <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">gradients</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">loss_value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">loss_value</span> <span class="o">=</span> <span class="n">loss_value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
                 <span class="n">gradients_values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">]</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">gradients_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;invalid&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
                 <span class="k">raise</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                    <span class="n">print_gradients</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">gradients_values</span><span class="p">)</span>
+                    <span class="n">print_gradients</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">gradients_values</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss_value</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">gradients_values</span><span class="p">)):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient_values</span><span class="o">=</span><span class="n">gradients_values</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">info_values</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_value</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;old_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_loss</span>
+                <span class="n">loss_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span>
+                                                            <span class="n">values</span><span class="o">=</span><span class="n">info_values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">current_loss</span> <span class="o">=</span> <span class="n">loss_value</span>
             <span class="k">return</span> <span class="n">gradients_values</span>
 
         <span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_func</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="k">else</span> <span class="kc">None</span>

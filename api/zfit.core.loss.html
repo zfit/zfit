@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>loss &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>loss &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -360,7 +360,7 @@
 <span id="loss"></span><h1>loss<a class="headerlink" href="#module-zfit.core.loss" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.core.loss.BaseLoss">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param">model: Union[zfit.core.interfaces.ZfitModel, Iterable[zfit.core.interfaces.ZfitModel]], data: Union[zfit.Data, Iterable[zfit.Data]], fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, constraints: Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param">model: Union[zfit.core.interfaces.ZfitModel, Iterable[zfit.core.interfaces.ZfitModel]], data: Union[zfit.Data, Iterable[zfit.Data]], fit_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, constraints: Union[Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]], zfit.core.interfaces.ZfitConstraint, Callable, None] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin" title="zfit.core.dependents.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dependents.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
 to the loss. The length of each has to match the length of the others.</p>
@@ -491,12 +491,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.value_gradients">
-<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.BaseLoss.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -634,12 +634,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.value_gradients">
-<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.CachedLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.CachedLoss.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.CachedLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -778,12 +778,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.value_gradients">
-<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.value_gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.value_gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -919,12 +919,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.value_gradients">
-<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.SimpleLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.SimpleLoss.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.SimpleLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1063,12 +1063,12 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.value_gradients">
-<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.value_gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.value_gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.loss.UnbinnedNLL.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>fitresult &#8212; zfit 0.4.2.dev53+g28cd234 documentation</title>
+    <title>fitresult &#8212; zfit 0.4.2.dev56+g7f63b9b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev53</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev56</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -431,7 +431,7 @@ the covariance matrix. If <cite>params</cite> is <cite>None</cite>, use all <em>
 
 <dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.error">
-<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">method: Union[str</em>, <em class="sig-param">Callable] = 'minuit_minos'</em>, <em class="sig-param">error_name: str = None</em>, <em class="sig-param">sigma: float = 1.0</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">method: Union[str</em>, <em class="sig-param">Callable] = None</em>, <em class="sig-param">error_name: str = None</em>, <em class="sig-param">sigma: float = 1.0</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate and set for <cite>params</cite> the asymmetric error using the set error method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -476,7 +476,7 @@ Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘
 
 <dl class="method">
 <dt id="zfit.minimizers.fitresult.FitResult.hesse">
-<code class="sig-name descname">hesse</code><span class="sig-paren">(</span><em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">method: Union[str</em>, <em class="sig-param">Callable] = 'minuit_hesse'</em>, <em class="sig-param">error_name: Optional[str] = None</em>, <em class="sig-param">sigma=1.0</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.hesse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">hesse</code><span class="sig-paren">(</span><em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">method: Union[str</em>, <em class="sig-param">Callable] = None</em>, <em class="sig-param">error_name: Optional[str] = None</em>, <em class="sig-param">sigma=1.0</em><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.hesse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate for <cite>params</cite> the symmetric error using the Hessian matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
