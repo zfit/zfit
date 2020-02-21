@@ -1,4 +1,5 @@
 #  Copyright (c) 2020 zfit
+import copy
 import functools
 import math as _mt
 from collections import defaultdict
@@ -8,7 +9,6 @@ import numpy as np
 import tensorflow as tf
 
 from ..settings import ztypes
-
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
@@ -204,10 +204,14 @@ class FunctionWrapperRegistry:
 
         return concrete_func
 
+FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
+# FunctionWrapperRegistry2.do_jit = True
+# FunctionWrapperRegistry.do_jit = False
+
 
 tf_function = FunctionWrapperRegistry()
 
-function_tf = tf_function  # for only tensorflow inside
+function_tf = FunctionWrapperRegistry2()  # for only tensorflow inside
 function_sampling = tf_function
 
 

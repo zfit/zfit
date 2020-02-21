@@ -78,4 +78,8 @@ def _maybe_disable_jit():
 
 
 _maybe_disable_jit()
+
+# experimental flags
+experimental_loss_penalty_nan = False
+
 # EOF

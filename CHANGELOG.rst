@@ -14,14 +14,19 @@ Major Features and Improvements
    sampled from and more general constraints (e.g. for parameter boundaries) that
    can not be sampled from.
  - Doc improvements in the constraints.
+ - Add `hesse` error method ('hesse_np') available to all minimizers (not just Minuit).
 
 
 Behavioral changes
 ------------------
+ - Increased the default step_size of a Paramter from 0.001 to 0.1.
 
 
 Bug fixes and small changes
 ---------------------------
+ - Add `use_minuit_grad` option to Minuit optimizer to use the internal gradient, often for more stable fits
+ - added experimental flag `zfit.experimental_loss_penalty_nan`, which adds a penalty to the loss in case the value is
+   nan. Can help with the optimisation. Feedback welcome!
 
 Requirement changes
 -------------------

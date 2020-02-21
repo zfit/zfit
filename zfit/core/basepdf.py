@@ -310,16 +310,13 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
+        # TODO TF2 converion, remove control deps
         norm_range = self._check_input_norm_range(norm_range, caller_name=name, none_is_error=True)
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
             if run.numeric_checks:
-                assert_op = z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
-                assert_op = [assert_op]
-            else:
-                assert_op = []
-            with tf.control_dependencies(assert_op):
-                return z.to_real(value)
+                z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
+            return z.to_real(value)
 
     def _single_hook_pdf(self, x, norm_range, name):
         return self._hook_pdf(x=x, norm_range=norm_range, name=name)

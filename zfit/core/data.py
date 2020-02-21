@@ -281,7 +281,8 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             zfit.Data:
         """
-        if not isinstance(array, np.ndarray):
+
+        if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
             raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
         if dtype is None:
             dtype = ztypes.float

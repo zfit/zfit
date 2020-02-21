@@ -2,21 +2,21 @@
 
 import abc
 import warnings
-from typing import Optional, Union, List, Callable, Iterable
+from typing import Optional, Union, List, Callable, Iterable, Tuple
 
 import tensorflow as tf
 from ordered_set import OrderedSet
-from zfit import z, settings
 
-ztf = z
-from zfit.z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
+
+from .. import z, settings
+from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 from ..util import ztyping
 from ..util.cache import Cachable
 from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
 from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitConstraint
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
@@ -56,7 +56,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
 
 def _nll_constraints_tf(constraints):
     if not constraints:
-        return ztf.constant(0.)  # adding 0 to nll
+        return z.constant(0.)  # adding 0 to nll
     probs = []
     for param, dist in constraints.items():
         probs.append(dist.pdf(param))
@@ -79,7 +79,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,
-                 constraints: Iterable[Union[ZfitConstraint, Callable]] = None):
+                 constraints: ztyping.ConstraintsTypeInput = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
 
@@ -243,7 +243,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             gradients = autodiff_gradient(self.value, params=params)
         return gradients
 
-    def value_gradients(self, params):
+    def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         return self._value_gradients(params=params)
 
     @z.function
@@ -254,7 +254,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             value, gradients = autodiff_value_gradients(self.value, params=params)
         return value, gradients
 
-    def value_gradients_hessian(self, params):
+    def value_gradients_hessian(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         vals = self._value_gradients_hessian(params=params)
         if vals is ZfitNotImplemented:
             vals = self._value_gradients_hessian_fallback(params=params)
@@ -264,10 +264,10 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def _value_gradients_hessian_fallback(self, params):
 
         if settings.options['numerical_grad']:
-            value, gradients = numerical_value_gradients_hessian(self.value, params=params)
+            result = numerical_value_gradients_hessian(self.value, params=params)
         else:
-            value, gradients = automatic_value_gradients_hessian(self.value, params=params)
-        return value, gradients
+            result = automatic_value_gradients_hessian(self.value, params=params)
+        return result
 
     def _value_gradients_hessian(self, params):
         return ZfitNotImplemented
@@ -344,14 +344,14 @@ class UnbinnedNLL(BaseLoss):
     def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
-            constraints = ztf.reduce_sum([c.value() for c in constraints])
+            constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
 
     # def _cache_add_constraints(self, constraints):
     #     if self._cache.get('loss') is not None:
     #         constraints = [c.value() for c in constraints]
-    #         self._cache['loss'] += ztf.reduce_sum(constraints)
+    #         self._cache['loss'] += z.reduce_sum(constraints)
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
@@ -364,8 +364,8 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
-            nevents = dat.nevents if dat.weights is None else ztf.reduce_sum(dat.weights)
-            poisson_terms.append(-mod.get_yield() + ztf.to_real(nevents) * tf.math.log(mod.get_yield()))
+            nevents = dat.nevents if dat.weights is None else z.reduce_sum(dat.weights)
+            poisson_terms.append(-mod.get_yield() + z.to_real(nevents) * tf.math.log(mod.get_yield()))
         nll -= tf.reduce_sum(input_tensor=poisson_terms)
         return nll
 

@@ -16,28 +16,28 @@ from ..util import ztyping
 def _powerlaw(x, a, k):
     return a * tf.pow(x, k)
 
-# TODO: decorate?
+
+@z.function_tf
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
     a = tf.pow((n / abs_alpha), n) * tf.exp(-0.5 * tf.square(alpha))
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
-    # func = tf.where(cond, tf.exp(-0.5 * tf.square(t)), _powerlaw(b - t, a, -n))
     func = z.safe_where(cond,
                         lambda t: _powerlaw(b - t, a, -n),
                         lambda t: tf.exp(-0.5 * tf.square(t)),
                         values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
-
+    func = tf.maximum(func, tf.zeros_like(func))
     return func
 
 
-# TODO: decorate?
+@z.function_tf
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
-    func = tf.compat.v1.where(cond,
-                              crystalball_func(x, mu, sigma, alphal, nl),
-                              crystalball_func(x, mu, sigma, -alphar, nr))
+    func = tf.where(cond,
+                    crystalball_func(x, mu, sigma, alphal, nl),
+                    crystalball_func(x, mu, sigma, -alphar, nr))
 
     return func
 
@@ -109,14 +109,17 @@ def crystalball_integral(limits, params, model):
     lower = lower[0]  # obs number 0
     upper = upper[0]
 
+    return crystalball_integral_func(mu, sigma, alpha, n, lower, upper)
+
+
+@z.function_tf
+def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
-    result = 0.0
 
     use_log = tf.less(tf.abs(n - 1.0), 1e-05)
     abs_sigma = tf.abs(sigma)
     abs_alpha = tf.abs(alpha)
-
     tmin = (lower - mu) / abs_sigma
     tmax = (upper - mu) / abs_sigma
 
@@ -129,12 +132,10 @@ def crystalball_integral(limits, params, model):
     tmax, tmin = tf.cond(pred=tf.less(alpha, 0), true_fn=if_true, false_fn=if_false)
 
     def if_true_4():
-        result_5, = result,
-        result_5 += abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
-        return result_5
+        return abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
 
     def if_false_4():
-        result_6 = result
+        result_6 = 0.0
 
         def if_true_3():
             result_3 = result_6
@@ -183,30 +184,32 @@ def crystalball_integral(limits, params, model):
     return result
 
 
-def double_crystalball_integral(limits, params, model):
+@z.function_tf
+def double_crystalball_mu_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
+    alphal = params["alphal"]
+    nl = params["nl"]
+    alphar = -params["alphar"]
+    nr = params["nr"]
 
     (lower,), (upper,) = limits.limits
     lower = lower[0]  # obs number 0
     upper = upper[0]
 
-    limits_left = Space(limits.obs, (lower, mu))
-    limits_right = Space(limits.obs, (mu, upper))
-    params_left = dict(mu=mu, sigma=sigma, alpha=params["alphal"],
-                       n=params["nl"])
-    params_right = dict(mu=mu, sigma=sigma, alpha=-params["alphar"],
-                        n=params["nr"])
     #
-    left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),
-                   false_fn=lambda: crystalball_integral(limits_left, params_left, model))
-    right = tf.cond(pred=tf.greater(mu, upper), true_fn=lambda: z.constant(0.),
-                    false_fn=lambda: crystalball_integral(limits_right, params_right, model))
-    integral = left + right
-    # integral = z.where(condition=tf.less(mu, lower),
-    #                     x=crystalball_integral(limits_left, params_left, model),
-    #                     y=crystalball_integral(limits_right, params_right, model))
+    return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
+                                               lower=lower, upper=upper)
 
+@z.function_tf
+def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
+    left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),
+                   false_fn=lambda: crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl,
+                                                              lower=lower, upper=mu))
+    right = tf.cond(pred=tf.greater(mu, upper), true_fn=lambda: z.constant(0.),
+                    false_fn=lambda: crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphar, n=nr,
+                                                               lower=mu, upper=upper))
+    integral = left + right
     return integral
 
 
@@ -331,4 +334,4 @@ class DoubleCB(BasePDF):
                                        alphar=alphar, nr=nr)
 
 
-DoubleCB.register_analytic_integral(func=double_crystalball_integral, limits=crystalball_integral_limits)
+DoubleCB.register_analytic_integral(func=double_crystalball_mu_integral, limits=crystalball_integral_limits)

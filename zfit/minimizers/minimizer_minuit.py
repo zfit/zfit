@@ -18,17 +18,19 @@ class Minuit(BaseMinimizer, Cachable):
 
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
                  verbosity: int = 5, name: str = None,
-                 ncall: int = 10000, **minimizer_options):
+                 ncall: int = 10000, use_minuit_grad: bool = None, **minimizer_options):
         """
 
         Args:
             strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
             the minimizer in certain situations.
-            minimize_strategy (): A number used by minuit to define the strategy
-            tolerance (): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
-            verbosity (): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
-            name (): Name of the minimizer
-            ncall (): Maximum number of minimization steps.
+            minimize_strategy (int): A number used by minuit to define the strategy, either 0, 1 or 2.
+            tolerance (float): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
+            verbosity (int): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
+            name (str): Name of the minimizer
+            ncall (int): Maximum number of minimization steps.
+            use_minuit_grad (bool): If True, iminuit uses it's internal numerical gradient calculation instead of the
+                (analytic/numerical) gradient provided by TensorFlow/zfit.
         """
         minimizer_options['ncall'] = ncall
         if not minimize_strategy in range(3):
@@ -37,8 +39,9 @@ class Minuit(BaseMinimizer, Cachable):
 
         super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
                          minimizer_options=minimizer_options)
+        use_minuit_grad = False if use_minuit_grad is None else use_minuit_grad
         self._minuit_minimizer = None
-        self._use_tfgrad = True
+        self._use_tfgrad = not use_minuit_grad
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
         # loss_val = loss.value()
@@ -91,7 +94,10 @@ class Minuit(BaseMinimizer, Cachable):
         else:
             params_name = [param.name for param in params]
 
+        current_loss = None
+
         def func(values):
+            nonlocal current_loss
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 8
 
@@ -104,25 +110,39 @@ class Minuit(BaseMinimizer, Cachable):
                 if do_print:
                     print_params(params, values, loss_evaluated)
             if np.isnan(loss_evaluated):
-                self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
+                info_values = {}
+                info_values['loss'] = loss_evaluated
+                info_values['old_loss'] = current_loss
+                loss_evaluated = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
+                                                            values=info_values)
+            else:
+                current_loss = loss_evaluated
             return loss_evaluated
 
         def grad_func(values):
+            nonlocal current_loss
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 8
 
             try:
-                gradients = loss.gradients(params=params)
+                loss_value, gradients = loss.value_gradients(params=params)
+                loss_value = loss_value.numpy()
                 gradients_values = [float(g.numpy()) for g in gradients]
             except:
                 gradients_values = ["invalid"] * len(params)
                 raise
             finally:
                 if do_print:
-                    print_gradients(params, values, gradients_values)
+                    print_gradients(params, values, gradients_values, loss=loss_value)
 
             if any(np.isnan(gradients_values)):
-                self.strategy.minimize_nan(loss=loss, minimizer=self, gradient_values=gradients_values, params=params)
+                info_values = {}
+                info_values['loss'] = loss_value
+                info_values['old_loss'] = current_loss
+                loss_value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
+                                                            values=info_values)
+            else:
+                current_loss = loss_value
             return gradients_values
 
         grad_func = grad_func if self._use_tfgrad else None
