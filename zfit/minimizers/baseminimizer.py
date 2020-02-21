@@ -9,7 +9,7 @@ import collections
 import copy
 from abc import abstractmethod
 from collections import OrderedDict
-from typing import List, Union, Iterable
+from typing import List, Union, Iterable, Mapping
 
 import numpy as np
 import texttable as tt
@@ -21,14 +21,16 @@ from ..settings import run
 from ..util import ztyping
 
 
+
+
 class FailMinimizeNaN(Exception):
     pass
 
 
 class ZfitStrategy(abc.ABC):
-
     @abstractmethod
-    def minimize_nan(self, loss, loss_value, params):
+    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
+                     values: Mapping = None) -> float:
         raise NotImplementedError
 
 
@@ -39,11 +41,12 @@ class BaseStrategy(ZfitStrategy):
         self.error = None
         super().__init__()
 
-    def minimize_nan(self, loss, params, minimizer, loss_value=None, gradient_values=None):
-        return self._minimize_nan(loss=loss, params=params, minimizer=minimizer, loss_value=loss_value,
-                                  gradient_values=gradient_values)
+    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
+                     values: Mapping = None) -> float:
+        return self._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
 
-    def _minimize_nan(self, loss, loss_value, params, minimizer, gradient_values):
+    def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
+                      values: Mapping = None) -> float:
         print("The minimization failed due to NaNs being produced in the loss. This is most probably caused by negative"
               " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
               " problem. Also check your model (if custom) for problems. For more information,"
@@ -58,18 +61,29 @@ class ToyStrategyFail(BaseStrategy):
         self.fit_result = FitResult(params={}, edm=-999, fmin=-999, status=-999, converged=False, info={},
                                     loss=None, minimizer=None)
 
-    def _minimize_nan(self, loss, params, minimizer, loss_value, gradient_values):
-        values = run(params)
-        params = OrderedDict((param, value) for param, value in zip(params, values))
-        self.fit_result = FitResult(params=params, edm=-999, fmin=-999, status=9, converged=False, info={}, loss=loss,
+    def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
+                      values: Mapping = None) -> float:
+        param_vals = run(params)
+        param_vals = OrderedDict((param, value) for param, value in zip(params, param_vals))
+        self.fit_result = FitResult(params=param_vals, edm=-999, fmin=-999, status=9, converged=False, info={},
+                                    loss=loss,
                                     minimizer=minimizer)
         raise FailMinimizeNaN()
 
 
 class DefaultStrategy(BaseStrategy):
 
-    def _minimize_nan(self, loss, params, minimizer, loss_value, gradient_values):
-        pass  # nothing to do here
+    def __init__(self) -> None:
+        super().__init__()
+        self._nan_penalty = 10000
+
+    def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
+                     values: Mapping = None) -> float:
+        import zfit
+        if zfit.experimental_loss_penalty_nan:
+            last_loss = values.get('old_loss')
+            loss_evaluated = last_loss + self._nan_penalty if last_loss is not None else values.get('loss')
+            return loss_evaluated
 
 
 class BaseMinimizer(ZfitMinimizer):
@@ -80,6 +94,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     """
     _DEFAULT_name = "BaseMinimizer"
+    _DEFAULT_TOLERANCE = 1e-3
 
     def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, **kwargs):
         super().__init__(**kwargs)
@@ -92,7 +107,7 @@ class BaseMinimizer(ZfitMinimizer):
         self.strategy = strategy
         self.name = name
         if tolerance is None:
-            tolerance = 1e-3
+            tolerance = self._DEFAULT_TOLERANCE
         self.tolerance = tolerance
         self.verbosity = verbosity
         if minimizer_options is None:

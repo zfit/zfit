@@ -281,7 +281,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
-    @z.function
+    # @z.function
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
@@ -535,7 +535,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    @z.function
+    # @z.function
     def partial_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XTypeReturn:
@@ -618,7 +618,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    @z.function
+    # @z.function
     def partial_analytic_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                                    norm_range: ztyping.LimitsType = None,
                                    name: str = "partial_analytic_integrate") -> ztyping.XTypeReturn:

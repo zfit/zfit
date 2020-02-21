@@ -336,7 +336,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             value : starting value
             lower_limit : lower limit
             upper_limit : upper limit
-            step_size : step size (set to 0 for fixed parameters)
+            step_size : step size
         """
         self._independent_params.append(self)
         # TODO: sanitize input for TF2
@@ -444,16 +444,15 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             # if self.has_limits:
             #     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
             # else:
-            step_size = 0.001
-            if np.isnan(step_size):
-                if self.lower_limit == -np.infty or self.upper_limit == np.infty:
-                    step_size = 0.001
-                else:
-                    raise ValueError("Could not set step size. Is NaN.")
-            # TODO: how to deal with infinities?
-            step_size = z.to_real(step_size)
+            # step_size = 0.001
+            # if np.isnan(step_size):
+            #     if self.lower_limit == -np.infty or self.upper_limit == np.infty:
+            #         step_size = 0.001
+            #     else:
+            #         raise ValueError("Could not set step size. Is NaN.")
+            # step_size = z.to_real(step_size)
             self.step_size = step_size
-
+            step_size = z.constant(0.1)
         return step_size
 
     @step_size.setter
