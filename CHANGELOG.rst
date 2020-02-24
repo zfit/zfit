@@ -19,7 +19,7 @@ Major Features and Improvements
 
 Behavioral changes
 ------------------
- - Increased the default step_size of a Paramter from 0.001 to 0.1.
+ - Increased the default step_size of a Paramter from 0.001 to 0.1 (by setting `zfit.Parameter.DEFAULT_STEP_SIZE`
 
 
 Bug fixes and small changes

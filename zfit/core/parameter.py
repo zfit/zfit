@@ -328,7 +328,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """
     _independent = True
     _independent_params = []
-    _DEFAULT_STEP_SIZE = 0.1
+    DEFAULT_STEP_SIZE = 0.1
 
     def __init__(self, name, value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
                  dtype=ztypes.float, **kwargs):
@@ -453,7 +453,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             #         raise ValueError("Could not set step size. Is NaN.")
             # step_size = z.to_real(step_size)
             self.step_size = step_size
-            step_size = z.convert_to_tensor(self._DEFAULT_STEP_SIZE)
+            step_size = z.convert_to_tensor(self.DEFAULT_STEP_SIZE)
         return step_size
 
     @step_size.setter
