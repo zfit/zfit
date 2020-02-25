@@ -184,7 +184,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     return result
 
 
-@z.function_tf
+# @z.function_tf
 def double_crystalball_mu_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
