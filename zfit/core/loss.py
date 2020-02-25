@@ -265,7 +265,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def _value_gradients_hessian_fallback(self, params, hessian):
 
         if settings.options['numerical_grad']:
-            result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessia)
+            result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessian)
         else:
             result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
         return result
