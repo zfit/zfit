@@ -441,16 +441,16 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         step_size = self._step_size
         if step_size is None:
             # auto-infer from limits
-            # step_splits = 1e4
-            # if self.has_limits:
-            #     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
-            # else:
-            # step_size = 0.001
-            # if np.isnan(step_size):
-            #     if self.lower_limit == -np.infty or self.upper_limit == np.infty:
-            #         step_size = 0.001
-            #     else:
-            #         raise ValueError("Could not set step size. Is NaN.")
+            step_splits = 1e4
+            if self.has_limits:
+                step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            else:
+                step_size = self.DEFAULT_STEP_SIZE
+            if np.isnan(step_size):
+                if self.lower_limit == -np.infty or self.upper_limit == np.infty:
+                    step_size = self.DEFAULT_STEP_SIZE
+                else:
+                    raise ValueError("Could not set step size. Is NaN.")
             # step_size = z.to_real(step_size)
             self.step_size = step_size
             step_size = z.convert_to_tensor(self.DEFAULT_STEP_SIZE)
