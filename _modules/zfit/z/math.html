@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.math &#8212; zfit 0.4.2.dev58+g4459ff4 documentation</title>
+    <title>zfit.z.math &#8212; zfit 0.4.2.dev61+gfcd7a04 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev58</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev61</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -453,8 +453,8 @@
     <span class="k">return</span> <span class="n">func</span><span class="p">(),</span> <span class="n">numerical_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="numerical_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Calculate numerically the hessian matrix of func() with respect to `params`.</span>
+<div class="viewcode-block" id="numerical_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">],</span> <span class="n">hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculate numerically the hessian matrix of func with respect to `params`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            func (Callable): Function without arguments that depends on `params`</span>
@@ -473,17 +473,27 @@
 
     <span class="n">param_vals</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
     <span class="n">original_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">read_value</span><span class="p">()</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
-    <span class="n">hesse_func</span> <span class="o">=</span> <span class="n">numdifftools</span><span class="o">.</span><span class="n">Hessian</span><span class="p">(</span><span class="n">wrapped_func</span><span class="p">)</span>
-    <span class="n">hessian</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">hesse_func</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="p">[</span><span class="n">param_vals</span><span class="p">],</span>
-                             <span class="n">Tout</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-    <span class="n">hessian</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">param_vals</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_vals</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">hessian</span> <span class="o">==</span> <span class="s1">&#39;diag&#39;</span><span class="p">:</span>
+        <span class="n">hesse_func</span> <span class="o">=</span> <span class="n">numdifftools</span><span class="o">.</span><span class="n">Hessdiag</span><span class="p">(</span><span class="n">wrapped_func</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hesse_func</span> <span class="o">=</span> <span class="n">numdifftools</span><span class="o">.</span><span class="n">Hessian</span><span class="p">(</span><span class="n">wrapped_func</span><span class="p">)</span>
+    <span class="n">computed_hessian</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">hesse_func</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="p">[</span><span class="n">param_vals</span><span class="p">],</span>
+                                      <span class="n">Tout</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hessian</span> <span class="o">==</span> <span class="s1">&#39;diag&#39;</span><span class="p">:</span>
+        <span class="n">computed_hessian</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">param_vals</span><span class="p">),))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">computed_hessian</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">param_vals</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_vals</span><span class="p">)))</span>
+
     <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">original_vals</span><span class="p">):</span>
         <span class="n">param</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">hessian</span></div>
+    <span class="k">return</span> <span class="n">computed_hessian</span></div>
 
 
-<div class="viewcode-block" id="numerical_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-                                                                                              <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="numerical_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.numerical_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">numerical_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">],</span> <span class="n">hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                                                                                                            <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                                                                                                            <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.</span>
 
 <span class="sd">        Args:</span>
@@ -495,7 +505,7 @@
 <span class="sd">            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">numerical_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-    <span class="n">hessian</span> <span class="o">=</span> <span class="n">numerical_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">hessian</span> <span class="o">=</span> <span class="n">numerical_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hessian</span><span class="o">=</span><span class="n">hessian</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">hessian</span></div>
 
@@ -540,7 +550,7 @@
     <span class="k">return</span> <span class="n">value</span><span class="p">,</span> <span class="n">gradients</span></div>
 
 
-<div class="viewcode-block" id="autodiff_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_hessian">[docs]</a><span class="k">def</span> <span class="nf">autodiff_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="autodiff_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.autodiff_hessian">[docs]</a><span class="k">def</span> <span class="nf">autodiff_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">],</span> <span class="n">hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Calculate using autodiff the hessian matrix of `func()` wrt `params`.</span>
 
 <span class="sd">    Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively</span>
@@ -556,11 +566,12 @@
 <span class="sd">            `tf.Tensor`: hessian matrix</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="n">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hessian</span><span class="o">=</span><span class="n">hessian</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="automatic_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.automatic_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-                                                                                              <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="automatic_value_gradients_hessian"><a class="viewcode-back" href="../../../api/zfit.z.math.html#zfit.z.math.automatic_value_gradients_hessian">[docs]</a><span class="k">def</span> <span class="nf">automatic_value_gradients_hessian</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">],</span> <span class="n">hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                                                                                                            <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+                                                                                                            <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Calculate using autodiff the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.</span>
 
 <span class="sd">    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively</span>
@@ -576,13 +587,17 @@
 <span class="sd">            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">(</span><span class="n">persistent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">watch_accessed_variables</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">(</span><span class="n">persistent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">watch_accessed_variables</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
         <span class="n">tape</span><span class="o">.</span><span class="n">watch</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">autodiff_value_gradients</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-        <span class="n">gradients_tf</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
-
-    <span class="n">hessian</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tape</span><span class="o">.</span><span class="n">jacobian</span><span class="p">(</span><span class="n">gradients_tf</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="n">params</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">hessian</span></div>
+        <span class="k">if</span> <span class="n">hessian</span> <span class="o">!=</span> <span class="s1">&#39;diag&#39;</span><span class="p">:</span>
+            <span class="n">gradients_tf</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hessian</span> <span class="o">==</span> <span class="s1">&#39;diag&#39;</span><span class="p">:</span>
+        <span class="n">computed_hessian</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">computed_hessian</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">tape</span><span class="o">.</span><span class="n">jacobian</span><span class="p">(</span><span class="n">gradients_tf</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="n">params</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">computed_hessian</span></div>
 </pre></div>
 
     </div>

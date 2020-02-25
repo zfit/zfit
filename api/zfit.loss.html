@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>loss &#8212; zfit 0.4.2.dev58+g4459ff4 documentation</title>
+    <title>loss &#8212; zfit 0.4.2.dev61+gfcd7a04 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev58</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev61</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -497,7 +497,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.loss.ExtendedUnbinnedNLL.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], hessian=None</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -641,7 +641,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.loss.UnbinnedNLL.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.loss.UnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], hessian=None</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.loss.UnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -784,7 +784,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.loss.BaseLoss.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], hessian=None</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -925,7 +925,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.loss.SimpleLoss.value_gradients_hessian">
-<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.loss.SimpleLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], hessian=None</em><span class="sig-paren">)</span> &#x2192; Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.loss.SimpleLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

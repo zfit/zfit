@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.physics &#8212; zfit 0.4.2.dev58+g4459ff4 documentation</title>
+    <title>zfit.models.physics &#8212; zfit 0.4.2.dev61+gfcd7a04 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev58</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev61</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -538,8 +538,8 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<span class="nd">@z</span><span class="o">.</span><span class="n">function_tf</span>
-<span class="k">def</span> <span class="nf">double_crystalball_mu_integral</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="c1"># @z.function_tf</span>
+<div class="viewcode-block" id="double_crystalball_mu_integral"><a class="viewcode-back" href="../../../api/zfit.models.physics.html#zfit.models.physics.double_crystalball_mu_integral">[docs]</a><span class="k">def</span> <span class="nf">double_crystalball_mu_integral</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
     <span class="n">alphal</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;alphal&quot;</span><span class="p">]</span>
@@ -553,7 +553,7 @@
 
     <span class="c1">#</span>
     <span class="k">return</span> <span class="n">double_crystalball_mu_integral_func</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alphal</span><span class="o">=</span><span class="n">alphal</span><span class="p">,</span> <span class="n">nl</span><span class="o">=</span><span class="n">nl</span><span class="p">,</span> <span class="n">alphar</span><span class="o">=</span><span class="n">alphar</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="n">nr</span><span class="p">,</span>
-                                               <span class="n">lower</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">)</span>
+                                               <span class="n">lower</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">)</span></div>
 
 <span class="nd">@z</span><span class="o">.</span><span class="n">function_tf</span>
 <span class="k">def</span> <span class="nf">double_crystalball_mu_integral_func</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">alphal</span><span class="p">,</span> <span class="n">nl</span><span class="p">,</span> <span class="n">alphar</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">):</span>

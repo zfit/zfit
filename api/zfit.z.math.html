@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>math &#8212; zfit 0.4.2.dev58+g4459ff4 documentation</title>
+    <title>math &#8212; zfit 0.4.2.dev61+gfcd7a04 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev58</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev61</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -381,7 +381,7 @@ params (ZfitParameter): Parameters that <cite>func</cite> implicitly depends on 
 
 <dl class="function">
 <dt id="zfit.z.math.autodiff_hessian">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">autodiff_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#autodiff_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.autodiff_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">autodiff_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter], hessian=None</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#autodiff_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.autodiff_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate using autodiff the hessian matrix of <cite>func()</cite> wrt <cite>params</cite>.</p>
 <p>Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
 applying the chain rule. All that is needed is that every operation knows its own derivative.
@@ -423,7 +423,7 @@ params (ZfitParameter): Parameters that <cite>func</cite> implicitly depends on 
 
 <dl class="function">
 <dt id="zfit.z.math.automatic_value_gradients_hessian">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">automatic_value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#automatic_value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.automatic_value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">automatic_value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter], hessian=None</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#automatic_value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.automatic_value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate using autodiff the gradients and hessian matrix of <cite>func()</cite> wrt <cite>params</cite>; also return <cite>func()</cite>.</p>
 <p>Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
 applying the chain rule. All that is needed is that every operation knows its own derivative.
@@ -485,8 +485,8 @@ derivatives will be taken.</p></li>
 
 <dl class="function">
 <dt id="zfit.z.math.numerical_hessian">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter]</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_hessian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate numerically the hessian matrix of func() with respect to <cite>params</cite>.</p>
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter], hessian=None</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate numerically the hessian matrix of func with respect to <cite>params</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -527,7 +527,7 @@ derivatives will be taken.</p></li>
 
 <dl class="function">
 <dt id="zfit.z.math.numerical_value_gradients_hessian">
-<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.z.math.</code><code class="sig-name descname">numerical_value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, params: Iterable[zfit.Parameter], hessian=None</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;, &lt;class 'tensorflow.python.framework.ops.Tensor'&gt;]<a class="reference internal" href="../_modules/zfit/z/math.html#numerical_value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.math.numerical_value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate numerically the gradients and hessian matrix of <cite>func()</cite> wrt <cite>params</cite>; also return <cite>func()</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

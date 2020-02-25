@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.2.dev58+g4459ff4 documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.2.dev61+gfcd7a04 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev58</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev61</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -494,12 +494,21 @@
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_value</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;old_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_loss</span>
                 <span class="n">loss_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span>
-                                                            <span class="n">values</span><span class="o">=</span><span class="n">info_values</span><span class="p">)</span>
+                                                        <span class="n">values</span><span class="o">=</span><span class="n">info_values</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">current_loss</span> <span class="o">=</span> <span class="n">loss_value</span>
             <span class="k">return</span> <span class="n">gradients_values</span>
 
         <span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_func</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># estimate initial step_size</span>
+        <span class="c1"># TODO: test and doc below, refactor to baseclass?</span>
+
+        <span class="c1"># params_no_step_size = [p for p in params if p._step_size is None]</span>
+        <span class="c1"># _, init_grad, init_hesse_diag = loss.value_gradients_hessian(params_no_step_size,</span>
+        <span class="c1">#                                                              hessian=&#39;diag&#39;)</span>
+        <span class="c1"># for param, init_hess in zip(params_no_step_size, init_hesse_diag):</span>
+        <span class="c1">#     param.set_value(1 / init_hess)</span>
 
         <span class="n">minimizer</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="o">.</span><span class="n">from_array_func</span><span class="p">(</span><span class="n">fcn</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_values</span><span class="p">,</span>
                                                    <span class="n">error</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">params_name</span><span class="p">,</span>

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basemodel &#8212; zfit 0.4.2.dev58+g4459ff4 documentation</title>
+    <title>zfit.core.basemodel &#8212; zfit 0.4.2.dev61+gfcd7a04 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.2.dev58</b></span>
+        <span class="navbar-text pull-left"><b>0.4.2.dev61</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -367,14 +367,14 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">tensorflow_probability.python</span> <span class="kn">import</span> <span class="n">mcmc</span> <span class="k">as</span> <span class="n">mc</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
-<span class="kn">from</span> <span class="nn">.sample</span> <span class="kn">import</span> <span class="n">UniformSampleAndWeights</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">integration</span> <span class="k">as</span> <span class="n">zintegrate</span><span class="p">,</span> <span class="n">sample</span> <span class="k">as</span> <span class="n">zsample</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span>
 <span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">.sample</span> <span class="kn">import</span> <span class="n">UniformSampleAndWeights</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
 <span class="kn">from</span> <span class="nn">..core.integration</span> <span class="kn">import</span> <span class="n">Integration</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">container</span> <span class="k">as</span> <span class="n">zcontainer</span><span class="p">,</span> <span class="n">ztyping</span>
