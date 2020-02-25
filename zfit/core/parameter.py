@@ -328,7 +328,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """
     _independent = True
     _independent_params = []
-    DEFAULT_STEP_SIZE = 0.1
+    DEFAULT_STEP_SIZE = 0.001
 
     def __init__(self, name, value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
                  dtype=ztypes.float, **kwargs):

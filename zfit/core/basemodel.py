@@ -13,14 +13,14 @@ from typing import Dict, Union, Callable, List, Tuple
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from .. import z
-from .sample import UniformSampleAndWeights
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, Sampler, SampleData
 from .dimension import BaseDimensional
 from .interfaces import ZfitModel, ZfitParameter, ZfitData
 from .limits import Space, convert_to_space, no_norm_range, supports
+from .sample import UniformSampleAndWeights
+from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping

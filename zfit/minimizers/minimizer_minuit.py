@@ -140,12 +140,18 @@ class Minuit(BaseMinimizer, Cachable):
                 info_values['loss'] = loss_value
                 info_values['old_loss'] = current_loss
                 loss_value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
-                                                            values=info_values)
+                                                        values=info_values)
             else:
                 current_loss = loss_value
             return gradients_values
 
         grad_func = grad_func if self._use_tfgrad else None
+
+        # estimate initial step_size
+        init_hesse_diag = loss.value_gradients_hessian(params, hessian='diag')[2]
+        for param, init_hess in zip(params, init_hesse_diag):
+            if param._step_size is None:
+                param.set_value(1 / init_hess)
 
         minimizer = iminuit.Minuit.from_array_func(fcn=func, start=start_values,
                                                    error=errors, limit=limits, name=params_name,

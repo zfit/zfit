@@ -309,7 +309,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def value_gradients_hessian(self, params):
+    def value_gradients_hessian(self, params, hessian=None):
         pass
 
 
