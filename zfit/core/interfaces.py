@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import abc
+from abc import ABCMeta, abstractmethod
 from typing import Union, List, Dict, Callable, Tuple
 
 import tensorflow as tf
@@ -249,8 +250,22 @@ class ZfitParameter(ZfitNumeric):
     def independent(self) -> bool:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def shape(self):
+        raise NotImplementedError
 
-class ZfitLoss(ZfitObject, ZfitDependentsMixin):
+    @property
+    @abc.abstractmethod
+    def dtype(self) -> tf.DType:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def value(self):
+        raise NotImplementedError
+
+
+class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
 
     @abc.abstractmethod
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
@@ -288,6 +303,14 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin):
     @abc.abstractmethod
     def errordef(self) -> float:
         raise NotImplementedError
+
+    @abstractmethod
+    def value_gradients(self, params):
+        pass
+
+    @abstractmethod
+    def value_gradients_hessian(self, params, hessian=None):
+        pass
 
 
 class ZfitModel(ZfitNumeric, ZfitDimensional):

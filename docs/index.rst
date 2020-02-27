@@ -2,13 +2,24 @@
 zfit: scalable pythonic fitting
 ================================
 
+|zfit_logo|
+
+
+.. |zfit_logo| image:: docs/images/zfit-fin_400x168.png
+   :target: https://github.com/zfit/zfit
+   :alt: zfit logo
+
+.. |scikit-hep_logo| image:: docs/images/scikit-hep-logo_168x168.png
+   :target: https://scikit-hep.org/affiliated
+   :alt: scikit-hep logo
+
 The zfit package is a model fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to
 the very successful RooFit library from the `ROOT <https://root.cern.ch/>`_ data analysis package. While RooFit has provided a stable platform for most of the needs of the High Energy Physics (HEP) community in the last few years, it has become increasingly difficult to integrate all the developments in the scientific Python ecosystem into RooFit due to its monolithic nature. Conversely, the core of zfit aims at becoming a solid ground for model fitting while providing enough flexibility to incorporate state-of-art tools and to allow scalability going to larger datasets.
 This challenging task is tackled by following two basic design pillars:
 
 - The skeleton and extension of the code is minimalist, simple and finite:
   the zfit library is exclusively designed for the purpose of model fitting and sampling---opposite to the self-contained RooFit/ROOT frameworks---with no attempt to extend its functionalities to features such as statistical methods or plotting.
-  This design philosophy is well exemplified by examining maximum likelihood fits: while zfit works as a backend for likelihood fits and can be integrated to packages such as `lauztat <https://github.com/marinang/lauztat>`_ and `matplotlib <https://matplotlib.org/>`_, RooFit performs the fit, the statistical treatment and plotting within.
+  This design philosophy is well exemplified by examining maximum likelihood fits: while zfit works as a backend for likelihood fits and can be integrated to packages such as `hepstats <https://github.com/scikit-hep/hepstats>`_ and `matplotlib <https://matplotlib.org/>`_, RooFit performs the fit, the statistical treatment and plotting within.
   This wider scope of RooFit results in a lack of flexibility with respect to new minimisers, statistic methods and, broadly speaking, any new tool that might come.
 
 - Another paramount aspect of zfit is its design for optimal parallelisation and scalability. Even though the choice of TensorFlow as backend introduces a strong software dependency, its use provides several interesting features in the context of model fitting.

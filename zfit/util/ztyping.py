@@ -1,12 +1,9 @@
 #  Copyright (c) 2019 zfit
 
-from typing import Union, Tuple, Iterable, Optional, List, Dict, Set
+from typing import Union, Tuple, Iterable, Optional, List, Dict, Callable
 
 import numpy as np
 import tensorflow as tf
-
-
-
 # space
 from ordered_set import OrderedSet
 
@@ -59,6 +56,10 @@ NumericalScalarType = Union[int, float, complex, tf.Tensor]
 # Integer sampling
 nSamplingTypeIn = Union[int, tf.Tensor, str]
 
+ConstraintsTypeInput = Optional[Union[Iterable[Union['zfit.core.interfaces.ZfitConstraint', Callable]],
+                                      'zfit.core.interfaces.ZfitConstraint',
+                                      Callable]]
+
 # Parameter
 ParamsTypeOpt = Optional[Iterable['zfit.core.interfaces.ZfitParameter']]
 ParamsNameOpt = Optional[Union[str, List[str]]]
@@ -83,4 +84,3 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
-

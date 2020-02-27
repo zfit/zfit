@@ -7,6 +7,7 @@ import tensorflow as tf
 import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
 from zfit import z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.minimizer_tfp import BFGS
 
@@ -100,13 +101,14 @@ def minimize_func(minimizer_class_and_kwargs):
             assert custom_errors[param]['myval'] == 42
 
         # Test Hesse
-        b_hesses = result.hesse(params=b_param)
-        assert tuple(b_hesses.keys()) == (b_param,)
-        errors = result.hesse()
-        b_hesse = b_hesses[b_param]
-        assert abs(b_hesse['error']) == pytest.approx(0.0965, abs=0.15)
-        assert abs(errors[b_param]['error']) == pytest.approx(0.0965, abs=0.15)
-        assert abs(errors[c_param]['error']) == pytest.approx(0.1, abs=0.15)
+        for method in ['minuit_hesse', 'hesse_np']:
+            b_hesses = result.hesse(params=b_param, method=method)
+            assert tuple(b_hesses.keys()) == (b_param,)
+            errors = result.hesse()
+            b_hesse = b_hesses[b_param]
+            assert abs(b_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+            assert abs(errors[b_param]['error']) == pytest.approx(0.0965, abs=0.15)
+            assert abs(errors[c_param]['error']) == pytest.approx(0.1, abs=0.15)
 
     else:
         with pytest.raises(TypeError):

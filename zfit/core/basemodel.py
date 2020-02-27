@@ -13,14 +13,14 @@ from typing import Dict, Union, Callable, List, Tuple
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from .. import z
-from .sample import UniformSampleAndWeights
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, Sampler, SampleData
 from .dimension import BaseDimensional
 from .interfaces import ZfitModel, ZfitParameter, ZfitData
 from .limits import Space, convert_to_space, no_norm_range, supports
+from .sample import UniformSampleAndWeights
+from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
@@ -281,7 +281,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
-    @z.function
+    # @z.function
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
@@ -535,7 +535,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    @z.function
+    # @z.function
     def partial_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XTypeReturn:
@@ -591,7 +591,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
-                return self._partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
+                return self._hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
 
             return self._fallback_partial_integrate(x=x, limits=limits, norm_range=norm_range)
 
@@ -609,6 +609,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         else:
             part_int = self._func_to_integrate
 
+        assert limits.axes, "Internal Error! Axes should not be empty, maybe cleanup."
         integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, x=x, norm_range=norm_range)
 
         return integral_vals
@@ -617,7 +618,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    @z.function
+    # @z.function
     def partial_analytic_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                                    norm_range: ztyping.LimitsType = None,
                                    name: str = "partial_analytic_integrate") -> ztyping.XTypeReturn:

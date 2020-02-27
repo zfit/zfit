@@ -57,9 +57,9 @@ def test_from_root(weights_factory):
         weights_np = data.weights.numpy()
     else:
         weights_np = weights
-    np.testing.assert_allclose(x_np, true_data[branches].as_matrix())
+    np.testing.assert_allclose(x_np, true_data[branches].values)
     if weights is not None:
-        true_weights = weights if not isinstance(weights, str) else true_data[weights].as_matrix()
+        true_weights = weights if not isinstance(weights, str) else true_data[weights].values
         if isinstance(true_weights, tf.Tensor):
             true_weights = true_weights.numpy()
         np.testing.assert_allclose(weights_np, true_weights)

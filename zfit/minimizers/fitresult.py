@@ -1,21 +1,16 @@
 #  Copyright (c) 2019 zfit
 
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
-import warnings
-
-import tensorflow as tf
-
 
 import numpy as np
 
 import zfit
 from zfit.util.exception import WeightsNotImplementedError, WorkInProgressError
 from .interface import ZfitMinimizer, ZfitResult
-from ..util.ztyping import ParamsTypeOpt
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..util.temporary import TemporarilySet
 from ..util.container import convert_to_container
+from ..util.ztyping import ParamsTypeOpt
 
 
 def _hesse_minuit(result: "FitResult", params, sigma=1.0):
@@ -41,6 +36,25 @@ def _hesse_minuit(result: "FitResult", params, sigma=1.0):
     return result
 
 
+def _hesse_np(result: "FitResult", params, sigma=1.0):
+    if sigma != 1.0:
+        raise ValueError("sigma other then 1 is not valid for hesse numpy.")
+
+    # check if no weights in data
+    if any([data.weights is not None for data in result.loss.data]):
+        raise WeightsNotImplementedError("Weights are not supported with hesse numpy.")
+
+    # minimizer = fitresult.minimizer
+    # from zfit.minimizers.minimizer_minuit import Minuit
+    # if not isinstance(minimizer, Minuit):
+    #     raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
+    #                     "`Minuit`.")
+    result_hesse = 2 * np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
+
+    hesse = OrderedDict((param, {'error': result_hesse[i, i]}) for i, param in enumerate(params))
+    return hesse
+
+
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
     minimizer = fitresult.minimizer
@@ -55,8 +69,8 @@ def _minos_minuit(result, params, sigma=1.0):
 
 
 class FitResult(ZfitResult):
-    _default_hesse = 'minuit_hesse'
-    _hesse_methods = {'minuit_hesse': _hesse_minuit}
+    _default_hesse = 'hesse_np'
+    _hesse_methods = {'minuit_hesse': _hesse_minuit, 'hesse_np': _hesse_np}
     _default_error = 'minuit_minos'
     _error_methods = {"minuit_minos": _minos_minuit}
 
@@ -122,7 +136,7 @@ class FitResult(ZfitResult):
         return self._minimizer
 
     @property
-    def loss(self):
+    def loss(self) -> ZfitLoss:
         # TODO(Mayou36): this is currently a reference, should be a copy of the loss?
         return self._loss
 
@@ -156,7 +170,7 @@ class FitResult(ZfitResult):
             params = list(self.params.keys())
         return params
 
-    def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_hesse',
+    def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None,
               error_name: Optional[str] = None, sigma=1.) -> OrderedDict:
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
@@ -174,6 +188,13 @@ class FitResult(ZfitResult):
                 `error_a = result.hesse(params=param_a)[param_a]['error']`
                 error_a is the hessian error.
         """
+        if method is None:
+            # LEGACY START
+            method = self._default_hesse
+            from zfit.minimizers.minimizer_minuit import Minuit
+            if isinstance(self.minimizer, Minuit):
+                method = 'minuit_hesse'
+            # LEGACY END
         if error_name is None:
             if not isinstance(method, str):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
@@ -198,7 +219,7 @@ class FitResult(ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
 
-    def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = 'minuit_minos', error_name: str = None,
+    def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.) -> OrderedDict:
 
         """Calculate and set for `params` the asymmetric error using the set error method.
@@ -222,10 +243,13 @@ class FitResult(ZfitResult):
                     holding the calculated errors.
                     Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
+        if method is None:
+            method = self._default_error
         if error_name is None:
             if not isinstance(method, str):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
+
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
@@ -277,7 +301,6 @@ class FitResult(ZfitResult):
 
 
 def dict_to_matrix(params, matrix_dict):
-
     nparams = len(params)
     matrix = np.empty((nparams, nparams))
 

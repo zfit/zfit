@@ -35,6 +35,7 @@ def register_tensor_conversion(convertable, overload_operators=True, priority=1)
                                        lambda val: val[0])
     feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
     feed_function_for_partial_run = lambda feed: [feed.read_value()]
+    ops.register_dense_tensor_like_type(convertable)
 
     register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
                                               feed_function=feed_function,
@@ -61,11 +62,19 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade t
     #     return self.variable.op.name
 
     @property
+    def name(self):
+        raise NotImplementedError
+
+    @property
     def dtype(self):
         return self.variable.dtype
 
     def value(self):
         return self.variable.value()
+
+    @property
+    def shape(self):
+        return self.variable.shape
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         return self.variable.assign(value=value, use_locking=use_locking,
@@ -156,6 +165,18 @@ class ComposedVariable:
             raise TypeError("`value_fn` is not callable.")
         self._value_fn = value_fn
 
+    @property
+    def name(self):
+        raise NotImplementedError
+
+    @property
+    def shape(self):
+        raise NotImplementedError
+
+    @property
+    def dtype(self):
+        raise NotImplementedError
+
     def value(self):
         return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
 
@@ -220,7 +241,13 @@ register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
     # class BaseParameter(ZfitParameter):
-    pass
+    @property
+    def dtype(self) -> tf.DType:
+        return self.value().dtype
+
+    @property
+    def shape(self):
+        return self.value().shape
 
 
 class ZfitParameterMixin(BaseNumeric):
@@ -233,6 +260,10 @@ class ZfitParameterMixin(BaseNumeric):
         self._existing_names.update({name: self})
         self._name = name
         super().__init__(name=name, **kwargs)
+
+    # @property
+    # def name(self) -> str:
+    #     return self._name
 
     @property
     def floating(self):
@@ -247,9 +278,10 @@ class ZfitParameterMixin(BaseNumeric):
         self._floating = value
 
     def __del__(self):
-        if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
-            del self._existing_names[self.name]
-        with suppress(AttributeError):  # if super does not have a __del__
+        with suppress(NotImplementedError):  # PY36 bug, gets stuck
+            if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
+                del self._existing_names[self.name]
+        with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
     def __add__(self, other):
@@ -296,6 +328,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     """
     _independent = True
     _independent_params = []
+    DEFAULT_STEP_SIZE = 0.001
 
     def __init__(self, name, value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
                  dtype=ztypes.float, **kwargs):
@@ -304,7 +337,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             value : starting value
             lower_limit : lower limit
             upper_limit : upper limit
-            step_size : step size (set to 0 for fixed parameters)
+            step_size : step size
         """
         self._independent_params.append(self)
         # TODO: sanitize input for TF2
@@ -408,20 +441,19 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         step_size = self._step_size
         if step_size is None:
             # auto-infer from limits
-            # step_splits = 1e4
-            # if self.has_limits:
-            #     step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
-            # else:
-            step_size = 0.001
+            step_splits = 1e4
+            if self.has_limits:
+                step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            else:
+                step_size = self.DEFAULT_STEP_SIZE
             if np.isnan(step_size):
                 if self.lower_limit == -np.infty or self.upper_limit == np.infty:
-                    step_size = 0.001
+                    step_size = self.DEFAULT_STEP_SIZE
                 else:
                     raise ValueError("Could not set step size. Is NaN.")
-            # TODO: how to deal with infinities?
-            step_size = z.to_real(step_size)
+            # step_size = z.to_real(step_size)
             self.step_size = step_size
-
+            step_size = z.convert_to_tensor(self.DEFAULT_STEP_SIZE)
         return step_size
 
     @step_size.setter
@@ -548,6 +580,16 @@ class ConstantParameter(BaseZParameter):
         return OrderedSet()
 
 
+register_tensor_conversion(ConstantParameter, overload_operators=True)
+
+
+# from tensorflow.python import _pywrap_utils
+
+# ConstantParameter._OverloadAllOperators()  # pylint: disable=protected-access
+# _pywrap_utils.RegisterType("Variable", Variable)
+# _pywrap_utils.RegisterType("ConstantParameter", ConstantParameter)
+
+
 class ComposedParameter(BaseComposedParameter):
     def __init__(self, name, value_fn, dependents, dtype=ztypes.float, **kwargs):  # TODO: automatize dependents
         dependents = convert_to_container(dependents)
@@ -578,8 +620,8 @@ class ComplexParameter(ComposedParameter):
     @staticmethod
     def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
                        **kwargs):  # TODO: correct dtype handling, also below
-        real = convert_to_parameter(real, name=name + "_real", prefer_floating=floating)
-        imag = convert_to_parameter(imag, name=name + "_imag", prefer_floating=floating)
+        real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
+        imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
                                  dependents=[real, imag],
                                  **kwargs)
@@ -589,8 +631,8 @@ class ComplexParameter(ComposedParameter):
 
     @staticmethod
     def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
-        mod = convert_to_parameter(mod, name=name + "_mod", prefer_floating=floating)
-        arg = convert_to_parameter(arg, name=name + "_arg", prefer_floating=floating)
+        mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
+        arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = ComplexParameter(name=name,
                                  value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
                                                                      mod * tf.math.sin(arg)),
@@ -648,13 +690,14 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_floating=False, dependents=None, graph_mode=False) -> "ZfitParameter":
-    """Convert a *numerical* to a fixed/floating parameter or return if already a parameter.
+def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None,
+                         graph_mode=False) -> "ZfitParameter":
+    """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
         value ():
         name ():
-        prefer_floating: If True, create a Parameter instead of a FixedParameter _if possible_.
+        prefer_constant: If True, create a ConstantParameter instead of a Parameter _if possible_.
 
     """
     is_python = False
@@ -685,17 +728,18 @@ def convert_to_parameter(value, name=None, prefer_floating=False, dependents=Non
     if value.dtype.is_complex:
         if name is None:
             name = "FIXED_complex_autoparam_" + str(get_auto_number())
-        if not prefer_floating:
+        if prefer_constant:
             raise WorkInProgressError("Constant complex param not here yet, complex Mixin?")
-        value = ComplexParameter(name, value_fn=value, floating=prefer_floating)
+        value = ComplexParameter(name, value_fn=value, floating=not prefer_constant)
 
     else:
-        if prefer_floating:
-            name = "autoparam_" + str(get_auto_number()) if name is None else name
-            value = Parameter(name=name, value=value)
-        else:
+        if prefer_constant:
             if name is None:
                 name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
             value = ConstantParameter(name, value=value)
+
+        else:
+            name = "autoparam_" + str(get_auto_number()) if name is None else name
+            value = Parameter(name=name, value=value)
 
     return value

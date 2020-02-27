@@ -2,9 +2,9 @@
 Changelog
 *********
 
+
 Develop
 =======
-
 
 
 Major Features and Improvements
@@ -18,12 +18,47 @@ Behavioral changes
 Bug fixes and small changes
 ---------------------------
 
+
 Requirement changes
 -------------------
 
 
 Thanks
 ------
+
+
+0.4.2 (27.2.2020)
+=================
+
+
+Major Features and Improvements
+-------------------------------
+
+ - Refactoring of the Constraints, dividing into `ProbabilityConstraint` that can be
+   sampled from and more general constraints (e.g. for parameter boundaries) that
+   can not be sampled from.
+ - Doc improvements in the constraints.
+ - Add `hesse` error method ('hesse_np') available to all minimizers (not just Minuit).
+
+
+Behavioral changes
+------------------
+ - Changed default step size to an adaptive scheme, a fraction (1e-4) of the range between the lower and upper limits.
+
+
+Bug fixes and small changes
+---------------------------
+ - Add `use_minuit_grad` option to Minuit optimizer to use the internal gradient, often for more stable fits
+ - added experimental flag `zfit.experimental_loss_penalty_nan`, which adds a penalty to the loss in case the value is
+   nan. Can help with the optimisation. Feedback welcome!
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
 
 0.4.1 (12.1.20)
 ===============

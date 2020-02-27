@@ -2,22 +2,21 @@
 
 import abc
 import warnings
-from typing import Optional, Union, List, Callable, Iterable
+from typing import Optional, Union, List, Callable, Iterable, Tuple
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from zfit import z, settings
 
-ztf = z
-from zfit.z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
+from .. import z, settings
+from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 from ..util import ztyping
 from ..util.cache import Cachable
 from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
 from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData, ZfitConstraint
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
@@ -57,7 +56,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
 
 def _nll_constraints_tf(constraints):
     if not constraints:
-        return ztf.constant(0.)  # adding 0 to nll
+        return z.constant(0.)  # adding 0 to nll
     probs = []
     for param, dist in constraints.items():
         probs.append(dist.pdf(param))
@@ -79,8 +78,8 @@ def _constraint_check_convert(constraints):
 class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
-                 fit_range: ztyping.LimitsTypeInput = NOT_SPECIFIED,
-                 constraints: Iterable[Union[ZfitConstraint, Callable]] = None):
+                 fit_range: ztyping.LimitsTypeInput = None,
+                 constraints: ztyping.ConstraintsTypeInput = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
 
@@ -97,9 +96,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__)
-        if fit_range is NOT_SPECIFIED:  # depreceation
-            fit_range = None
-        else:
+        if fit_range is not None:
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
                           " when creating the data and the model.")
@@ -135,10 +132,10 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             fit_range = []
             for p, d in zip(pdf, data):
                 if not p.norm_range == d.data_range:
-                    raise IntentionNotUnambiguousError("No `fit_range` is specified and `pdf` {} as "
-                                                       "well as `data` {} have different ranges they"
-                                                       "are defined in. Either make them (all) consistent"
-                                                       "or specify the `fit_range`")
+                    raise IntentionNotUnambiguousError(f"No `fit_range` is specified and `pdf` {p} as "
+                                                       f"well as `data` {d} have different ranges they "
+                                                       f"are defined in. Either make them (all) consistent "
+                                                       f"or specify the `fit_range`")
                 fit_range.append(p.norm_range)
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
@@ -203,8 +200,9 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def constraints(self):
         return self._constraints
 
-    def _get_dependents(self):
+    def _get_dependents(self):  # TODO: fix, add constraints
         pdf_dependents = self._extract_dependents(self.model)
+        pdf_dependents |= self._extract_dependents(self.constraints)
         return pdf_dependents
 
     @abc.abstractmethod
@@ -245,7 +243,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             gradients = autodiff_gradient(self.value, params=params)
         return gradients
 
-    def value_gradients(self, params):
+    def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         return self._value_gradients(params=params)
 
     @z.function
@@ -256,22 +254,23 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             value, gradients = autodiff_value_gradients(self.value, params=params)
         return value, gradients
 
-    def value_gradients_hessian(self, params):
-        vals = self._value_gradients_hessian(params=params)
+    def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None) -> Tuple[
+        tf.Tensor, tf.Tensor, tf.Tensor]:
+        vals = self._value_gradients_hessian(params=params, hessian=hessian)
         if vals is ZfitNotImplemented:
-            vals = self._value_gradients_hessian_fallback(params=params)
+            vals = self._value_gradients_hessian_fallback(params=params, hessian=hessian)
         return vals
 
     @z.function
-    def _value_gradients_hessian_fallback(self, params):
+    def _value_gradients_hessian_fallback(self, params, hessian):
 
         if settings.options['numerical_grad']:
-            value, gradients = numerical_value_gradients_hessian(self.value, params=params)
+            result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessian)
         else:
-            value, gradients = automatic_value_gradients_hessian(self.value, params=params)
-        return value, gradients
+            result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
+        return result
 
-    def _value_gradients_hessian(self, params):
+    def _value_gradients_hessian(self, params, hessian):
         return ZfitNotImplemented
 
 
@@ -320,7 +319,7 @@ class UnbinnedNLL(BaseLoss):
 
     _name = "UnbinnedNLL"
 
-    def __init__(self, model, data, fit_range=NOT_SPECIFIED, constraints=None):
+    def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
 
@@ -346,14 +345,14 @@ class UnbinnedNLL(BaseLoss):
     def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
-            constraints = ztf.reduce_sum([c.value() for c in constraints])
+            constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
 
     # def _cache_add_constraints(self, constraints):
     #     if self._cache.get('loss') is not None:
     #         constraints = [c.value() for c in constraints]
-    #         self._cache['loss'] += ztf.reduce_sum(constraints)
+    #         self._cache['loss'] += z.reduce_sum(constraints)
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
@@ -366,8 +365,8 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
-            nevents = dat.nevents if dat.weights is None else ztf.reduce_sum(dat.weights)
-            poisson_terms.append(-mod.get_yield() + ztf.to_real(nevents) * tf.math.log(mod.get_yield()))
+            nevents = dat.nevents if dat.weights is None else z.reduce_sum(dat.weights)
+            poisson_terms.append(-mod.get_yield() + z.to_real(nevents) * tf.math.log(mod.get_yield()))
         nll -= tf.reduce_sum(input_tensor=poisson_terms)
         return nll
 

@@ -2,9 +2,8 @@
 zfit: scalable pythonic fitting
 *******************************
 
-
-.. image:: https://zenodo.org/badge/126311570.svg
-   :target: https://zenodo.org/badge/latestdoi/126311570
+.. image:: https://scikit-hep.org/assets/images/Scikit--HEP-Affiliated-blue.svg
+   :target: https://scikit-hep.org
 
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
@@ -22,17 +21,27 @@ zfit: scalable pythonic fitting
 
 **UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
+|zfit_logo|
+
+
+.. |zfit_logo| image:: docs/images/zfit-fin_400x168.png
+   :target: https://github.com/zfit/zfit
+   :alt: zfit logo
+
+.. |scikit-hep_logo| image:: docs/images/scikit-hep-logo_168x168.png
+   :target: https://scikit-hep.org/affiliated
+   :alt: scikit-hep logo
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
 `TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
-and is optimised for simple and direct manipulation of probability density functions.
+and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with and well integrated into `scikit-hep <https://scikit-hep.org/>`_, the HEP Python ecosystem.
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
 - **Develop Documentation**: Full documentation_ and API_
 - **Stable Documentation**: Latest `stable documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
-  `ask on StackOverflow <https://stackoverflow.com/questions/ask>`_ with the **zfit** tag or `contact`_ us directly.
+  `ask on StackOverflow <https://stackoverflow.com/questions/ask?tags=zfit>`_ (with the **zfit** tag) or `contact`_ us directly.
 - **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
   related content
 
@@ -248,5 +257,8 @@ zfit has been developed with support from the University of Zürich and the Swis
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
 .. _documentation: https://zfit.readthedocs.io/en/latest/
-..  _stable documentation: https://zfit.readthedocs.io/en/0.4.1/
+..  _stable documentation: https://zfit.readthedocs.io/en/0.4.2/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html
+
+
+

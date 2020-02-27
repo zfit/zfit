@@ -10,9 +10,11 @@ from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
 from zfit.core.limits import Space
 from zfit.core.parameter import Parameter
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.dist_tfp import Gauss
 from zfit.models.functor import SumPDF, ProductPDF
+
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 
 low, high = -0.64, 5.9
 

@@ -46,7 +46,7 @@ class BFGS(BaseMinimizer):
 
             loss_evaluated = value.numpy()
             if np.isnan(loss_evaluated):
-                self.strategy.minimize_nan(loss=loss, minimizer=self, loss_value=loss_evaluated, params=params)
+                self.strategy.minimize_nan(loss=loss, params=params, minimizer=None, values=loss_evaluated)
             gradients = tf.stack(gradients)
             return value, gradients
 
@@ -55,7 +55,7 @@ class BFGS(BaseMinimizer):
         minimizer_kwargs = dict(
             initial_position=tf.stack(params),
             # tolerance=1e-4,
-            f_relative_tolerance=self.tolerance * 1e-2,  # TODO: use edm for stopping criteria
+            f_relative_tolerance=self.tolerance * 1e-3,  # TODO: use edm for stopping criteria
             initial_inverse_hessian_estimate=initial_inv_hessian_est,
             parallel_iterations=1,
             max_iterations=300

@@ -1,4 +1,5 @@
 #  Copyright (c) 2020 zfit
+import copy
 import functools
 import math as _mt
 from collections import defaultdict
@@ -8,7 +9,6 @@ import numpy as np
 import tensorflow as tf
 
 from ..settings import ztypes
-
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
@@ -133,6 +133,7 @@ def run_no_nan(func, x):
 class FunctionWrapperRegistry:
     wrapped_functions = []
     registries = []
+    do_jit = True
 
     @classmethod
     def check_wrapped_functions_registered(cls):
@@ -176,7 +177,7 @@ class FunctionWrapperRegistry:
 
         def concrete_func(*args, **kwargs):
 
-            if func in self.currently_traced:
+            if not self.do_jit or func in self.currently_traced:
                 return call_correct_signature(func, args, kwargs)
 
             # self.inside_tracing = True
@@ -203,10 +204,14 @@ class FunctionWrapperRegistry:
 
         return concrete_func
 
+FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
+# FunctionWrapperRegistry2.do_jit = True
+# FunctionWrapperRegistry.do_jit = False
+
 
 tf_function = FunctionWrapperRegistry()
 
-function_tf = tf_function  # for only tensorflow inside
+function_tf = FunctionWrapperRegistry2()  # for only tensorflow inside
 function_sampling = tf_function
 
 
