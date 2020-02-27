@@ -21,12 +21,11 @@ zfit: scalable pythonic fitting
 
 **UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
-.. image:: docs/images/zfit-fin_500x210.png
+.. image:: docs/images/zfit-fin_400x168.png
    :alt: zfit logo
 
-.. image:: docs/images/scikit-hep-logo210x210.png
+.. image:: docs/images/scikit-hep-logo168x168.png
    :target: https://scikit-hep.org/affiliated
-   :width: 210
    :alt: scikit-hep logo
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
