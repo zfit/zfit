@@ -157,7 +157,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
     return False
 
 
-def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], False]:
+def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]:
     """Extract the union of `obs` from `spaces` in the order of `spaces`.
 
     For example:
@@ -182,7 +182,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], False
     return all_obs
 
 
-def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], False]:
+def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]:
     """Extract the union of `axes` from `spaces` in the order of `spaces`.
 
     For example:

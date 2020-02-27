@@ -14,7 +14,7 @@ import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
 from .baseobject import BaseObject
-from .dimension import common_obs, limits_overlap, common_axes
+from .dimension import common_obs, common_axes
 from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 from .. import z
 from ..util import ztyping
@@ -973,6 +973,7 @@ class Space(BaseSpace):
         else:
             obs_in_use = True
             coords_to_extract = obs
+        coords_to_extract = convert_to_container(coords_to_extract)
         coords_to_extract = set(coords_to_extract)
 
         limits_to_eval = {}
@@ -1312,7 +1313,6 @@ class Space(BaseSpace):
     def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
         raise BreakingAPIChangeError("Simply get the coords if needed?")
 
-
     @property
     def obs_axes(self):
         # TODO(Mayou36): what if axes is None?
@@ -1352,7 +1352,6 @@ class Space(BaseSpace):
                                                f" because neither obs nor axes are specified in both.")
 
         return new_space
-
 
     def with_obs_axes(self, **kwargs):
         raise BreakingAPIChangeError("What is this needed for?")
@@ -1411,7 +1410,6 @@ class Space(BaseSpace):
             new_coords = self.coords.with_axes(axes=axes, allow_subset=True)
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
-
 
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
@@ -1515,6 +1513,12 @@ def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
 #         inside = tf.logical_and(above_lower, below_upper)
 #         return inside
 
+def get_coord(space, obs_in_use=True):
+    if obs_in_use:
+        return space.obs
+    else:
+        return space.axes
+
 
 def combine_spaces_new(*spaces: Iterable[Space]):
     """Combine spaces with different `obs` and `limits` to one `space`.
@@ -1542,6 +1546,7 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     all_obs = common_obs(spaces=spaces)
     all_axes = common_axes(spaces=spaces)
     using_obs = bool(all_obs)
+    all_coords = all_obs if using_obs else all_axes
     if using_obs:
         spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
     elif all_axes:
@@ -1559,24 +1564,46 @@ def combine_spaces_new(*spaces: Iterable[Space]):
         limits = None
     elif not all(has_limits):
         raise LimitsIncompatibleError("Limits either have to be set, not set, or False for all spaces to be combined.")
+    else:
+        # TODO: how to handle multispaces?
+        limits_dict = {}
+        for coord in all_coords:
+            space_with_coord = [space for space in spaces if coord in get_coord(space, using_obs)]
+            assert space_with_coord, "empty, cannot be. This is a bug."
+            if len(space_with_coord) == 1:
+                limits_coord = []
+                for space in space_with_coord:
+                    if type(space) == Space:  # has to be the exact type, we use an implementation detail here
+                        limits_coord.append(space._extract_limits(obs=coord if using_obs else None,
+                                                                  axes=coord if not using_obs else None)
+                                            for space in space_with_coord)
+                    else:
+                        limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord)
+                                            for space in space_with_coord)
+                any_non_equal = any([limits_coord[0] != limit for limit in limits_coord[1:]])
+                if any_non_equal:
+                    raise LimitsIncompatibleError(f"Limits in coord {coord} do not match for spaces {limits_coord}")
+                limits_dict[coord] = limits_coord[0]
 
-    all_lower = []
-    all_upper = []
+        limits = {'obs' if using_obs else 'axes': limits_dict}
 
-    # create the lower and upper limits with all obs replacing missing dims with None
-    # With this, all limits have the same length
-    # TODO?
-    # if limits_overlap(spaces=spaces, allow_exact_match=True):
-    #     raise LimitsIncompatibleError("Limits overlap")
-
-    for space in flatten_spaces(spaces):
-        if space.limits is None:
-            continue
-        lowers, uppers = space.limits
-        lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
-        upper = [tuple(up[space.obs.index(ob)] for up in uppers) if ob in space.obs else None for ob in all_obs]
-        all_lower.append(lower)
-        all_upper.append(upper)
+    # all_lower = []
+    # all_upper = []
+    #
+    # # create the lower and upper limits with all obs replacing missing dims with None
+    # # With this, all limits have the same length
+    # # TODO?
+    # # if limits_overlap(spaces=spaces, allow_exact_match=True):
+    # #     raise LimitsIncompatibleError("Limits overlap")
+    #
+    # for space in flatten_spaces(spaces):
+    #     if space.limits is None:
+    #         continue
+    #     lowers, uppers = space.limits
+    #     lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
+    #     upper = [tuple(up[space.obs.index(ob)] for up in uppers) if ob in space.obs else None for ob in all_obs]
+    #     all_lower.append(lower)
+    #     all_upper.append(upper)
     #
     # def check_extract_limits(limits_spaces):
     #     new_limits = []
@@ -1617,7 +1644,7 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     #     return False
     # else:
     #     limits = (new_lower, new_upper)
-    new_space = Space(obs=all_obs, limits=limits)
+    new_space = Space(obs=all_obs if using_obs else None, axes=all_axes if all_axes else None, limits=limits)
     if new_space.n_limits > 1:
         new_space = MultiSpace(Space, obs=all_obs)
     return new_space
