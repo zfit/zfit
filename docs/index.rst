@@ -2,13 +2,11 @@
 zfit: scalable pythonic fitting
 ================================
 
-.. image:: images/zfit-fin.png
-   :width: 500
+.. image:: images/zfit-fin_500x210.png
    :alt: zfit logo
 
-.. image:: images/scikit-hep-logo.png
+.. image:: images/scikit-hep-logo210x210.png
    :target: https://scikit-hep.org/affiliated
-   :width: 210
    :alt: scikit-hep logo
 
 The zfit package is a model fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to

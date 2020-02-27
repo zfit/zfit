@@ -21,11 +21,10 @@ zfit: scalable pythonic fitting
 
 **UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
-.. image:: docs/images/zfit-fin.png
-   :width: 500
+.. image:: docs/images/zfit-fin_500x210.png
    :alt: zfit logo
 
-.. image:: docs/images/scikit-hep-logo.png
+.. image:: docs/images/scikit-hep-logo210x210.png
    :target: https://scikit-hep.org/affiliated
    :width: 210
    :alt: scikit-hep logo
