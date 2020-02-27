@@ -51,7 +51,7 @@ class BaseStrategy(ZfitStrategy):
               " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
               " problem. Also check your model (if custom) for problems. For more information,"
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
-        raise NotImplementedError
+        raise FailMinimizeNaN()
 
 
 class ToyStrategyFail(BaseStrategy):
@@ -84,6 +84,8 @@ class DefaultStrategy(BaseStrategy):
             last_loss = values.get('old_loss')
             loss_evaluated = last_loss + self._nan_penalty if last_loss is not None else values.get('loss')
             return loss_evaluated
+        else:
+            super()._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
 
 
 class BaseMinimizer(ZfitMinimizer):

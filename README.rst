@@ -21,6 +21,16 @@ zfit: scalable pythonic fitting
 
 **UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
 
+|zfit_logo|
+
+
+.. |zfit_logo| image:: docs/images/zfit-fin_400x168.png
+   :target: https://github.com/zfit/zfit
+   :alt: zfit logo
+
+.. |scikit-hep_logo| image:: docs/images/scikit-hep-logo_168x168.png
+   :target: https://scikit-hep.org/affiliated
+   :alt: scikit-hep logo
 
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
 `TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
@@ -247,7 +257,7 @@ zfit has been developed with support from the University of Zürich and the Swis
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
 .. _documentation: https://zfit.readthedocs.io/en/latest/
-..  _stable documentation: https://zfit.readthedocs.io/en/0.4.1/
+..  _stable documentation: https://zfit.readthedocs.io/en/0.4.2/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html
 
 
