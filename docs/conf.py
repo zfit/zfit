@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 #
 # zfit documentation build configuration file, created by
@@ -134,6 +134,8 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 #
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
+html_logo = "images/zfit-fin.png"
+
 html_theme_options = {
     # Navigation bar title. (Default: ``project`` value)
     'navbar_title': "zfit",

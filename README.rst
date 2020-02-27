@@ -26,6 +26,7 @@ zfit: scalable pythonic fitting
    :alt: zfit logo
 
 .. image:: docs/images/scikit-hep-logo.png
+   :target: https://scikit-hep.org/affiliated
    :width: 210
    :alt: scikit-hep logo
 
