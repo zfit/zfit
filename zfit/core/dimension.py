@@ -1,13 +1,13 @@
 #  Copyright (c) 2020 zfit
 
 import functools
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 import numpy as np
-
 import zfit
 from zfit.util.exception import (SpaceIncompatibleError, LimitsIncompatibleError,
                                  LimitsNotSpecifiedError, )
+
 from .interfaces import ZfitDimensional, ZfitSpace
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -54,8 +54,6 @@ def get_same_obs(obs):
     return deps
 
 
-def is_combinable(spaces):
-    pass
 
 
 def add_spaces(spaces: Iterable["zfit.Space"]):
@@ -159,7 +157,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
     return False
 
 
-def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> List[str]:
+def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], False]:
     """Extract the union of `obs` from `spaces` in the order of `spaces`.
 
     For example:
@@ -173,7 +171,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> List[str]:
         spaces (): :py:class:`~zfit.Space`s to extract the obs from
 
     Returns:
-        List[str]: The observables as `str`
+        List[str]: The observables as `str` or False if not every space has observables
     """
     spaces = convert_to_container(spaces, container=tuple)
     all_obs = []
@@ -182,6 +180,33 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> List[str]:
             if ob not in all_obs:
                 all_obs.append(ob)
     return all_obs
+
+
+def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], False]:
+    """Extract the union of `axes` from `spaces` in the order of `spaces`.
+
+    For example:
+        | space1.axes: [1, 3]
+        | space2.axes: [2, 3, 1]
+        | space3.axes: [2]
+
+        returns [1, 3, 2]
+
+    Args:
+        spaces (): :py:class:`~zfit.Space`s to extract the axes from
+
+    Returns:
+        List[int] or False: The axes as int or False if not every space has axes
+    """
+    spaces = convert_to_container(spaces, container=tuple)
+    all_axes = []
+    for space in spaces:
+        if space.axes is None:
+            return False
+        for ax in space.axes:
+            if ax not in all_axes:
+                all_axes.append(ax)
+    return all_axes
 
 
 def limits_consistent(spaces: Iterable["zfit.Space"]):

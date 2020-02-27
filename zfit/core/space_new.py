@@ -14,7 +14,7 @@ import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
 from .baseobject import BaseObject
-from .dimension import common_obs, limits_overlap
+from .dimension import common_obs, limits_overlap, common_axes
 from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 from .. import z
 from ..util import ztyping
@@ -1075,6 +1075,14 @@ class Space(BaseSpace):
         return len(self._limits_dict) == 0
 
     @property
+    def limits_are_set(self):
+        return not self.limits_not_set
+
+    @property
+    def limits_are_false(self):
+        return self.limits_are_set and not self.has_limits
+
+    @property
     def limit2d(self) -> Tuple[float, float, float, float]:
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
@@ -1304,51 +1312,6 @@ class Space(BaseSpace):
     def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
         raise BreakingAPIChangeError("Simply get the coords if needed?")
 
-    # def reorder_by_indices(self, indices: Tuple[int]):
-    #     """Return a :py:class:`~zfit.Space` reordered by the indices.
-    #
-    #     Args:
-    #         indices ():
-    #
-    #     """
-    #     pass
-    #
-    #     # new_space = self.copy()
-    #     # new_space._reorder_limits(indices=indices)
-    #     # new_space._reorder_axes(indices=indices)
-    #     # new_space._reorder_obs(indices=indices)
-    #     #
-    #     # return new_space
-
-    # def _reorder_limits(self, indices: Tuple[int]) -> ztyping.LimitsTypeReturn:
-    #     pass
-
-    # limits = self.limits
-    #     if limits is not None and limits is not False:
-    #         lower, upper = limits
-    #         lower = tuple(tuple(lower[i] for i in indices) for lower in lower)
-    #         upper = tuple(tuple(upper[i] for i in indices) for upper in upper)
-    #         limits = lower, upper
-    #
-    #     if inplace:
-    #         self._limits = limits
-    #     return limits
-    #
-    # def _reorder_axes(self, indices: Tuple[int], inplace: bool = True) -> ztyping.AxesTypeReturn:
-    #     axes = self.axes
-    #     if axes is not None:
-    #         axes = tuple(axes[i] for i in indices)
-    #     if inplace:
-    #         self._axes = axes
-    #     return axes
-
-    # def _reorder_obs(self, indices: Tuple[int], inplace: bool = True) -> ztyping.ObsTypeReturn:
-    # obs = self.obs
-    # if obs is not None:
-    #     obs = tuple(obs[i] for i in indices)
-    # if inplace:
-    #     self._obs = obs
-    # return obs
 
     @property
     def obs_axes(self):
@@ -1390,81 +1353,6 @@ class Space(BaseSpace):
 
         return new_space
 
-    #
-    # def _set_obs_axes(self, obs_axes: Union[ztyping.OrderedDict[str, int], Dict[str, int]], ordered: bool = False,
-    #                   allow_subset=False):
-    #     """(Reorder) set the observables and the `axes`.
-    #
-    #     Temporarily if used with a context manager.
-    #
-    #     Args:
-    #         obs_axes (OrderedDict[str, int]): An (ordered) dict with {obs: axes}.
-    #         allow_subset ():
-    #
-    #     Returns:
-    #
-    #     """
-    #     if ordered and not isinstance(obs_axes, OrderedDict):
-    #         raise IntentionNotUnambiguousError("`ordered` is True but not an `OrderedDict` was given."
-    #                                            "Error due to safety (in Python <3.7, dicts are not guaranteed to be"
-    #                                            "ordered).")
-    #     tmp_obs = self.obs if self.obs is not None else obs_axes.keys()
-    #     self_obs_set = frozenset(tmp_obs)
-    #     tmp_axes = self.axes if self.axes is not None else obs_axes.values()
-    #     self_axes_set = frozenset(tmp_axes)
-    #     if ordered:
-    #         if self.obs is not None:
-    #             # if not frozenset(obs_axes.keys()) <= self_obs_set:
-    #             #     raise ValueError("TODO observables not contained")
-    #             if not allow_subset and frozenset(obs_axes.keys()) < self_obs_set:
-    #                 raise ValueError("subset not allowed but `obs` is only a subset of `self.obs`")
-    #             permutation_index = tuple(
-    #                 self.obs.index(o) for o in obs_axes if o in self_obs_set)  # the future index of the space
-    #             self_axes_set = set(obs_axes[o] for o in self.obs if o in obs_axes)
-    #         elif self.axes is not None:
-    #             if not frozenset(obs_axes.values()) <= self_axes_set:
-    #                 raise ValueError("TODO axes not contained")
-    #             if not allow_subset and frozenset(obs_axes.values()) < self_axes_set:
-    #                 raise ValueError("subset not allowed but `axes` is only a subset of `self.axes`")
-    #             permutation_index = tuple(
-    #                 self.axes.index(ax) for ax in obs_axes.values() if
-    #                 ax in self_axes_set)  # the future index of the space
-    #             self_obs_set = set(o for o, ax in obs_axes.items() if ax in self.axes)
-    #         else:
-    #             assert False, "This should never be reached."
-    #         limits = self._reorder_limits(indices=permutation_index, inplace=False)
-    #         obs = tuple(o for o in obs_axes.keys() if o in self_obs_set)
-    #         axes = tuple(ax for ax in obs_axes.values() if ax in self_axes_set)
-    #     else:
-    #         if self.obs is not None:
-    #             if not allow_subset and frozenset(obs_axes.keys()) < self_obs_set:
-    #                 raise ValueError("subset not allowed TODO")
-    #             obs = self.obs
-    #             axes = tuple(obs_axes[o] for o in obs)
-    #         elif self.axes is not None:
-    #             if not allow_subset and frozenset(obs_axes.values()) < self_axes_set:
-    #                 raise ValueError("subset not allowed TODO")
-    #             axes = self.axes
-    #             axes_obs = {v: k for k, v in obs_axes.items()}
-    #             obs = tuple(axes_obs[ax] for ax in axes)
-    #         else:
-    #             raise ValueError("Either `obs` or `axes` have to be specified if the `obs_axes` dict"
-    #                              "is not ordered and `ordered` is False.")
-    #         limits = self.limits
-    #
-    #     value = limits, obs, axes
-    #
-    #     def setter(arguments):
-    #         limits, obs, axes = arguments
-    #
-    #         self._obs = obs
-    #         self._axes = axes
-    #         self._check_set_limits(limits=limits)
-    #
-    #     def getter():
-    #         return self.limits, self.obs, self.axes
-    #
-    #     return TemporarilySet(value=value, setter=setter, getter=getter)
 
     def with_obs_axes(self, **kwargs):
         raise BreakingAPIChangeError("What is this needed for?")
@@ -1524,27 +1412,6 @@ class Space(BaseSpace):
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
 
-    # def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
-    #     """Return the areas of each interval
-    #
-    #     Args:
-    #         rel (bool): If True, return the relative fraction of each interval
-    #     Returns:
-    #         Tuple[float]:
-    #     """
-    #     areas = self._calculate_areas(limits=self.limits)
-    #     if rel:
-    #         areas = np.array(areas)
-    #         areas /= areas.sum()
-    #         areas = tuple(areas)
-    #     return areas
-
-    # @staticmethod
-    # @functools.lru_cache()
-    # def _calculate_areas(limits) -> Tuple[float]:
-    #     raise NotImplementedError
-    # areas = tuple(float(np.prod(np.array(up) - np.array(low))) for low, up in zip(*limits))
-    # return areas
 
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
@@ -1649,7 +1516,7 @@ def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
 #         return inside
 
 
-def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
+def combine_spaces_new(*spaces: Iterable[Space]):
     """Combine spaces with different `obs` and `limits` to one `space`.
 
     Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
@@ -1673,14 +1540,34 @@ def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
     # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
 
     all_obs = common_obs(spaces=spaces)
+    all_axes = common_axes(spaces=spaces)
+    using_obs = bool(all_obs)
+    if using_obs:
+        spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
+    elif all_axes:
+        spaces = tuple(space.with_axes(all_axes, allow_superset=True) for space in spaces)
+    else:
+        raise CoordinatesUnderdefinedError("Neither `obs` nor `axes` exist in all spaces.")
+
+    all_limits_false = all([space.limits_are_false for space in spaces])
+    all_limits_not_set = all([space.limits_not_set for space in spaces])
+    has_limits = [space.has_limits for space in spaces]
+    # limits_are_set = [space. for space in spaces]
+    if all_limits_false:
+        limits = False
+    elif all_limits_not_set:
+        limits = None
+    elif not all(has_limits):
+        raise LimitsIncompatibleError("Limits either have to be set, not set, or False for all spaces to be combined.")
+
     all_lower = []
     all_upper = []
-    spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
 
     # create the lower and upper limits with all obs replacing missing dims with None
     # With this, all limits have the same length
-    if limits_overlap(spaces=spaces, allow_exact_match=True):
-        raise LimitsIncompatibleError("Limits overlap")
+    # TODO?
+    # if limits_overlap(spaces=spaces, allow_exact_match=True):
+    #     raise LimitsIncompatibleError("Limits overlap")
 
     for space in flatten_spaces(spaces):
         if space.limits is None:
@@ -1690,46 +1577,46 @@ def combine_spaces_new(*spaces: Iterable["zfit.Space"]):
         upper = [tuple(up[space.obs.index(ob)] for up in uppers) if ob in space.obs else None for ob in all_obs]
         all_lower.append(lower)
         all_upper.append(upper)
+    #
+    # def check_extract_limits(limits_spaces):
+    #     new_limits = []
+    #
+    #     if not limits_spaces:
+    #         return None
+    #     for index, obs in enumerate(all_obs):
+    #         current_limit = None
+    #         for limit in limits_spaces:
+    #             lim = limit[index]
+    #
+    #             if lim is not None:
+    #                 if current_limit is None:
+    #                     current_limit = lim
+    #                 elif not np.allclose(current_limit, lim):
+    #                     return False
+    #         else:
+    #             if current_limit is None:
+    #                 raise LimitsNotSpecifiedError("Limits in obs {} are not specified".format(obs))
+    #             new_limits.append(current_limit)
+    #
+    #     n_limits = int(np.prod(tuple(len(lim) for lim in new_limits)))
+    #     new_limits_comb = [[] for _ in range(n_limits)]
+    #     for limit in new_limits:
+    #         for lim in limit:
+    #             for i in range(int(n_limits / len(limit))):
+    #                 new_limits_comb[i].append(lim)
+    #
+    #     new_limits = tuple(tuple(limit) for limit in new_limits_comb)
+    #     return new_limits
 
-    def check_extract_limits(limits_spaces):
-        new_limits = []
-
-        if not limits_spaces:
-            return None
-        for index, obs in enumerate(all_obs):
-            current_limit = None
-            for limit in limits_spaces:
-                lim = limit[index]
-
-                if lim is not None:
-                    if current_limit is None:
-                        current_limit = lim
-                    elif not np.allclose(current_limit, lim):
-                        return False
-            else:
-                if current_limit is None:
-                    raise LimitsNotSpecifiedError("Limits in obs {} are not specified".format(obs))
-                new_limits.append(current_limit)
-
-        n_limits = int(np.prod(tuple(len(lim) for lim in new_limits)))
-        new_limits_comb = [[] for _ in range(n_limits)]
-        for limit in new_limits:
-            for lim in limit:
-                for i in range(int(n_limits / len(limit))):
-                    new_limits_comb[i].append(lim)
-
-        new_limits = tuple(tuple(limit) for limit in new_limits_comb)
-        return new_limits
-
-    new_lower = check_extract_limits(all_lower)
-    new_upper = check_extract_limits(all_upper)
-    assert not (new_lower is None) ^ (new_upper is None), "Bug, please report issue. either both are defined or None."
-    if new_lower is None:
-        limits = None
-    elif new_lower is False:
-        return False
-    else:
-        limits = (new_lower, new_upper)
+    # new_lower = check_extract_limits(all_lower)
+    # new_upper = check_extract_limits(all_upper)
+    # assert not (new_lower is None) ^ (new_upper is None), "Bug, please report issue. either both are defined or None."
+    # if new_lower is None:
+    #     limits = None
+    # elif new_lower is False:
+    #     return False
+    # else:
+    #     limits = (new_lower, new_upper)
     new_space = Space(obs=all_obs, limits=limits)
     if new_space.n_limits > 1:
         new_space = MultiSpace(Space, obs=all_obs)
