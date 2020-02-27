@@ -2,10 +2,14 @@
 zfit: scalable pythonic fitting
 ================================
 
-.. image:: images/zfit-fin_400x168.png
+|zfit_logo| affiliated with |scikit-hep_logo|
+
+
+.. |zfit_logo| image:: docs/images/zfit-fin_400x168.png
+   :target: https://github.com/zfit/zfit
    :alt: zfit logo
 
-.. image:: images/scikit-hep-logo_168x168.png
+.. |scikit-hep_logo| image:: docs/images/scikit-hep-logo168x168.png
    :target: https://scikit-hep.org/affiliated
    :alt: scikit-hep logo
 
