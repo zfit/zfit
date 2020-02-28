@@ -187,9 +187,11 @@ def test_data_range():
                       [-5, 10]])
     # data1 = data1.transpose()
     obs = ['obs1', 'obs2']
-    lower = ((0.5, 1), (-3, -2))
-    upper = ((1.5, 2.5), (-1.5, 1.5))
-    data_range = zfit.Space(obs=obs, limits=(lower, upper))
+    lower1, lower2 = (0.5, 1), (-3, -2)
+    upper1, upper2 = (1.5, 2.5), (-1.5, 1.5)
+    space1 = zfit.Space(obs, limits=(lower1, upper1))
+    space2 = zfit.Space(obs, limits=(lower2, upper2))
+    data_range = space1 + space2
     cut_data1 = data1[np.array((0, 2)), :]
 
     dataset = zfit.Data.from_tensor(obs=obs, tensor=data1)

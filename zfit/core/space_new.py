@@ -935,6 +935,7 @@ class Space(BaseSpace):
                         limits_dict['obs'][obs[i_old:i]] = lim
                     if axes is not None:
                         limits_dict['axes'][axes[i_old:i]] = lim
+                    i_old = i
             else:
                 limits_dict = rect_limits
         else:
@@ -1569,21 +1570,22 @@ def combine_spaces_new(*spaces: Iterable[Space]):
         limits_dict = {}
         for coord in all_coords:
             space_with_coord = [space for space in spaces if coord in get_coord(space, using_obs)]
+            if any(isinstance(space, MultiSpace) for space in space_with_coord):
+                raise WorkInProgressError("Multispace combination is not yet implemented. Work in progress.")
             assert space_with_coord, "empty, cannot be. This is a bug."
-            if len(space_with_coord) == 1:
-                limits_coord = []
-                for space in space_with_coord:
-                    if type(space) == Space:  # has to be the exact type, we use an implementation detail here
-                        limits_coord.append(space._extract_limits(obs=coord if using_obs else None,
-                                                                  axes=coord if not using_obs else None)
-                                            for space in space_with_coord)
-                    else:
-                        limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord)
-                                            for space in space_with_coord)
-                any_non_equal = any([limits_coord[0] != limit for limit in limits_coord[1:]])
-                if any_non_equal:
-                    raise LimitsIncompatibleError(f"Limits in coord {coord} do not match for spaces {limits_coord}")
-                limits_dict[coord] = limits_coord[0]
+            limits_coord = []
+            for space in space_with_coord:
+                if type(space) == Space:  # has to be the exact type, we use an implementation detail here
+                    limits_coord.append(space._extract_limits(obs=coord if using_obs else None,
+                                                              axes=coord if not using_obs else None)
+                                        for space in space_with_coord)
+                else:
+                    limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord)
+                                        for space in space_with_coord)
+            any_non_equal = any([limits_coord[0] != limit for limit in limits_coord[1:]])
+            if any_non_equal:
+                raise LimitsIncompatibleError(f"Limits in coord {coord} do not match for spaces {limits_coord}")
+            limits_dict[coord] = limits_coord[0]
 
         limits = {'obs' if using_obs else 'axes': limits_dict}
 
@@ -1645,8 +1647,8 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     # else:
     #     limits = (new_lower, new_upper)
     new_space = Space(obs=all_obs if using_obs else None, axes=all_axes if all_axes else None, limits=limits)
-    if new_space.n_limits > 1:
-        new_space = MultiSpace(Space, obs=all_obs)
+    # if new_space.n_limits > 1:
+    #     new_space = MultiSpace(Space, obs=all_obs)
     return new_space
 
 
