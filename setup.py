@@ -54,7 +54,7 @@ setup(
     include_package_data=True,
     keywords='TensorFlow, model, fitting, scalable, HEP',
     name='zfit',
-    python_requires=">=3.6",
+    python_requires=">=3.6, <3.8",  # 3.8 not yet supported by Tensorflow 2.
     packages=find_packages(include=['zfit', 'zfit.z',
                                     'zfit.util', 'zfit.core', "zfit.minimizers", 'zfit.models']),
     setup_requires=setup_requirements,
