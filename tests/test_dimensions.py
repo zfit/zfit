@@ -12,7 +12,9 @@ from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedErro
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import zfit
-from zfit.core.dimension import limits_consistent, limits_overlap, combine_spaces, add_spaces
+from zfit.core.dimension import limits_overlap
+from zfit.core.space_new import combine_spaces
+from zfit.core.space_new import limits_consistent, add_spaces
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)

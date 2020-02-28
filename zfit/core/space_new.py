@@ -13,8 +13,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
+import zfit
 from .baseobject import BaseObject
-from .dimension import common_obs, common_axes
+from .dimension import common_obs, common_axes, limits_overlap
 from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 from .. import z
 from ..util import ztyping
@@ -2206,3 +2207,81 @@ def shape_np_tf(object):
     else:
         shape = np.shape(object)
     return shape
+
+
+def limits_consistent(spaces: Iterable["zfit.Space"]):
+    """Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.
+
+    In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
+    to be consistent with this limits, other limits have to have (in this obs) also the limits
+    from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.
+
+    This function is useful to check if several spaces with *different* observables can be _combined_.
+
+    Args:
+        spaces (List[zfit.Space]):
+
+    Returns:
+        bool:
+    """
+    try:
+        new_space = combine_spaces(spaces=spaces)
+    except LimitsIncompatibleError:
+        return False
+    return bool(new_space)
+
+
+def add_spaces(spaces: Iterable["zfit.Space"]):
+    """Add two spaces and merge their limits if possible or return False.
+
+    Args:
+        spaces (Iterable[:py:class:`~zfit.Space`]):
+
+    Returns:
+        Union[None, :py:class:`~zfit.Space`, bool]:
+
+    Raises:
+        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap
+    """
+    spaces = convert_to_container(spaces)
+    if not all(isinstance(space, ZfitSpace) for space in spaces):
+        raise TypeError("Cannot only add type ZfitSpace")
+    if len(spaces) <= 1:
+        raise ValueError("Need at least two spaces to be added.")  # TODO: allow? usecase?
+    obs = frozenset(frozenset(space.obs) for space in spaces)
+
+    if len(obs) != 1:
+        return False
+
+    obs1 = spaces[0].obs
+    spaces = [space.with_obs(obs=obs1) if not space.obs == obs1 else space for space in spaces]
+
+    if limits_overlap(spaces=spaces, allow_exact_match=True):
+        raise LimitsIncompatibleError("Limits of spaces overlap, cannot merge spaces.")
+
+    lowers = []
+    uppers = []
+    for space in spaces:
+        if space.limits is None:
+            continue
+        for lower, upper in space:
+            for other_lower, other_upper in zip(lowers, uppers):
+                lower_same = np.allclose(lower, other_lower)
+                upper_same = np.allclose(upper, other_upper)
+                assert not lower_same ^ upper_same, "Bug, please report as issue. limits_overlap did not catch right."
+                if lower_same and upper_same:
+                    break
+            else:
+                lowers.append(lower)
+                uppers.append(upper)
+    lowers = tuple(lowers)
+    uppers = tuple(uppers)
+    if len(lowers) == 0:
+        limits = None
+    else:
+        limits = lowers, uppers
+    new_space = zfit.Space(obs=spaces[0].obs, limits=limits)
+    return new_space
+
+
+combine_spaces = combine_spaces_new

@@ -1,10 +1,11 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 from typing import List, Union, Tuple
 
 from ..core.basemodel import BaseModel
-from ..core.dimension import get_same_obs, combine_spaces
+from ..core.dimension import get_same_obs
+from ..core.space_new import combine_spaces
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel
 from ..core.limits import Space
 from ..util.container import convert_to_container
