@@ -1460,7 +1460,7 @@ class Space(BaseSpace):
             # reorder_back_kwargs = {'x_obs' if obs_in_use else 'x_axes': coords}
             # x_sub_reordered = self.reorder_x(x_inside, **reorder_back_kwargs)
             xs_inside.append(x_inside)
-        all_inside = tf.reduce_all(xs_inside, axis=-1, keepdims=True)
+        all_inside = tf.reduce_all(xs_inside, axis=0)
         return all_inside
 
     @property
