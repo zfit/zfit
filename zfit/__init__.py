@@ -77,8 +77,9 @@ from .settings import run
 
 def _maybe_disable_jit():
     import os
-    z.zextension.FunctionWrapperRegistry.do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) or bool(
+    z.zextension.FunctionWrapperRegistry.do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) and bool(
         int(os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT", True)))
+    z.zextension.FunctionWrapperRegistry2.do_jit = z.zextension.FunctionWrapperRegistry.do_jit
 
 
 _maybe_disable_jit()

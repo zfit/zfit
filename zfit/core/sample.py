@@ -27,13 +27,13 @@ class UniformSampleAndWeights:
             if isinstance(space, EventSpace):
                 frac = 1.  # TODO(Mayou36): remove hack for Eventspace
             else:
-                tot_area = limits.area()
-                frac = space.area() / tot_area
+                tot_area = limits.rect_area
+                frac = (space.rect_area / tot_area)[0]
             n_partial_to_produce = tf.cast(
                 ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 
-            lower = ztf.convert_to_tensor(lower, dtype=dtype)
-            upper = ztf.convert_to_tensor(upper, dtype=dtype)
+            # lower = ztf.convert_to_tensor(lower, dtype=dtype)
+            # upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
             if isinstance(space, EventSpace):
                 lower = tf.transpose(a=lower)

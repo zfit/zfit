@@ -803,7 +803,7 @@ class BaseSpace(ZfitSpace, BaseObject):
     def __le__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
-        return less_equal_space(other)
+        return less_equal_space(self, other)
 
     def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
         """Add the limits of the spaces. Only works for the same obs.
@@ -1057,7 +1057,7 @@ class Space(BaseSpace):
         return rect_limits
 
     @property
-    def _rect_limits_np(self):
+    def rect_limits_np(self):
         """Return the rectangular limits as `np.ndarray`. Raises error if not possible.
 
         Returns:
@@ -1082,7 +1082,7 @@ class Space(BaseSpace):
             if obs_in_use ^ isinstance(obs_limit[0], str):  # testing first element is sufficient
                 continue  # skipping if stored in different type of coords
             limits_obs.extend(obs_limit)
-            lower, upper = limit.rect_limits
+            lower, upper = limit._rect_limits  # to get the numpy or tensor
             rect_lower_unordered.append(lower)
             rect_upper_unordered.append(upper)
         reorder_kwargs = {'x_obs' if obs_in_use else 'x_axes': limits_obs}
@@ -1731,7 +1731,7 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
 
 
 def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
-    if not len(space1) == len(space2):
+    if not len(tuple(space1)) == len(tuple(space2)):
         return False
     space2_reordered = space2.with_coords(space1)
 
@@ -1742,7 +1742,8 @@ def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: 
         for index2, space22 in enumerate(spaces_to_check2):
             # each entry *has to* match the entry of the other limit, otherwise it's not the same
 
-            axis_pos_comp = compare_limits_coords_dict(space11._limits_dict, space22._limits_dic, comparator=comparator)
+            axis_pos_comp = compare_limits_coords_dict(space11._limits_dict, space22._limits_dict,
+                                                       comparator=comparator)
             if axis_pos_comp:  # if not the same, don't test other dims
                 spaces_to_check2.pop(index1)
                 spaces_to_check1.pop(index2)

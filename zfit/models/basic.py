@@ -6,21 +6,16 @@ build larger models.
 #  Copyright (c) 2020 zfit
 
 import math as mt
-from typing import Type, Any
 import warnings
 
 import numpy as np
 import tensorflow as tf
 
-
-
 from zfit import z
-from ..util.exception import WorkInProgressError
-from ..util.temporary import TemporarilySet
-from ..settings import ztypes
-from ..util import ztyping
-from ..core.limits import Space, ANY_LOWER, ANY_UPPER
 from ..core.basepdf import BasePDF
+from ..core.limits import Space, ANY_LOWER, ANY_UPPER
+from ..util import ztyping
+from ..util.temporary import TemporarilySet
 
 infinity = mt.inf
 
@@ -76,11 +71,16 @@ class Exponential(BasePDF):
         return z.exp(lambda_ * (x - self._numerics_data_shift))
 
     def _set_numerics_data_shift(self, limits):
-        lower, upper = limits.limits
-        lower_val = min([lim[0] for lim in lower])
-        upper_val = max([lim[0] for lim in upper])
+        lower, upper = [], []
+        for limit in limits:
+            low, up = limit.rect_limits_np
+            lower.append(low)
+            upper.append(up)
+        lower_val = min(lower)
+        upper_val = max(upper)
 
         value = (upper_val + lower_val) / 2
+        value = z.unstable.gather(value, 0, axis=-1)  # removing the last dimension
 
         if max(abs(lower_val - value), abs(upper_val - value)) > 710:
             warnings.warn(
@@ -127,7 +127,10 @@ class Exponential(BasePDF):
         with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_normalization(limits, name)
 
+    # TODO: remove component_norm_range? But needed for integral?
     def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
+        if component_norm_range.limits_are_false:
+            component_norm_range = self.space
         if component_norm_range.limits is not None:
             with self._set_numerics_data_shift(limits=component_norm_range):
                 return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
@@ -146,36 +149,28 @@ class Exponential(BasePDF):
         with self._set_numerics_data_shift(limits=limits):
             return super()._single_hook_sample(n, limits, name)
 
-    # def _log_pdf(self, x, norm_range: Space):
-    #     lambda_ = self.params['lambda']
-    #     x = z.unstack_x(x)
-    #     func = x * lambda_
-    #     if norm_range.n_limits > 1:
-    #         raise DueToLazynessNotImplementedError(
-    #             "Not implemented, it's more of a hack. I Should implement log_pdf and "
-    #             "norm probarly")
-    #     (lower,), (upper,) = norm_range.limits
-    #     lower = lower[0]
-    #     upper = upper[0]
-    #
-    #     assert False, "WIP, add log integral"
-
 
 def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
-
-    def raw_integral(x):
-        return model._numerics_shifted_exp(x=x, lambda_=lambda_) / lambda_  # needed due to overflow in exp otherwise
-
-    (lower,), (upper,) = limits.limits
-    if lower[0] == - upper[0] == np.inf:
+    lower, upper = limits.rect_limits_np
+    if any(np.isinf([lower, upper])):
         raise NotImplementedError
+
+    integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
+    return integral[0]
+
+
+def _exp_integral_func_shifting(lambd, lower, upper, model):
+    def raw_integral(x):
+        return model._numerics_shifted_exp(x=x, lambda_=lambd) / lambd  # needed due to overflow in exp otherwise
+
     lower_int = raw_integral(x=z.constant(lower))
     upper_int = raw_integral(x=z.constant(upper))
-    return (upper_int - lower_int)[0]
+    integral = (upper_int - lower_int)
+    return integral
 
 
-# Exponential.register_inverse_analytic_integral()
+# Exponential.register_inverse_analytic_integral()  # TODO: register icdf for exponential
 
 
 limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
