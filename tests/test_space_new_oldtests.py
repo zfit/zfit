@@ -87,7 +87,7 @@ def test_sub_space():
                              # sub_arguments2,
                          ])
 def test_space(space, lower, upper, limit, axes, areas, n_limits):
-    assert space.rect_area() == pytest.approx(sum(areas), rel=1e-8)
+    assert space.rect_area == pytest.approx(sum(areas), rel=1e-8)
     # assert space.iter_areas() == pytest.approx(areas, rel=1e-8)
     # assert sum(space.iter_areas(rel=True)) == pytest.approx(1, rel=1e-7)
 

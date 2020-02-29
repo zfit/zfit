@@ -168,3 +168,13 @@ class WorkInProgressError(Exception):
 
 class BreakingAPIChangeError(Exception):
     pass
+
+
+class BehaviorUnderDiscussion(Exception):
+
+    def __init__(self, msg, *args: object) -> None:
+        default_msg = ("The behavior of the following is currently under discussion and ideas are well needed. "
+                       "Please open an issue at https://github.com/zfit/zfit/issues with your opinion about this.\n"
+                       "")
+        msg = default_msg + str(msg)
+        super().__init__(msg, *args)

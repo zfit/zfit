@@ -8,6 +8,7 @@ import tensorflow as tf
 
 import zfit
 from ..util import ztyping
+from ..util.exception import BreakingAPIChangeError
 
 
 class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
@@ -231,12 +232,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
-    # @abstractmethod
-    def iter_limits(self):
-        """Iterate through the limits by returning several observables/(lower, upper)-tuples.
-
-        """
-        raise NotImplementedError
 
     @property
     @abstractmethod

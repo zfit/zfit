@@ -270,7 +270,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             obs = self.obs
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
-        if self.space is not None:
+        if self.space is not None:  # e.g. not the first call
             space = space.with_coords(self.space)
         return space
 
