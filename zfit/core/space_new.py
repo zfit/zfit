@@ -968,21 +968,53 @@ class Space(BaseSpace):
 
         """
         limits_dict = defaultdict(dict)
-        if not isinstance(limit, dict):
-            if not isinstance(rect_limits, dict):
-                limit = Limit(limit_fn=limit, rect_limits=rect_limits, n_obs=n_obs)
-                i_old = 0
-                for lim in limit:  # split into smaller ones if possible
-                    i = i_old + lim.n_obs
-                    if obs is not None:
-                        limits_dict['obs'][obs[i_old:i]] = lim
-                    if axes is not None:
-                        limits_dict['axes'][axes[i_old:i]] = lim
-                    i_old = i
+        input_limits = limit
+        if not isinstance(input_limits, dict) and not isinstance(rect_limits, dict):
+            # if not input_limits and rect_limits:
+            #     input_limits = rect_limits
+            limit = Limit(limit_fn=limit, rect_limits=rect_limits, n_obs=n_obs)
+            i_old = 0
+            for lim in limit:  # split into smaller ones if possible
+                i = i_old + lim.n_obs
+                if obs is not None:
+                    limits_dict['obs'][obs[i_old:i]] = lim
+                if axes is not None:
+                    limits_dict['axes'][axes[i_old:i]] = lim
+                i_old = i
+            input_limits = limits_dict
+
+        if isinstance(rect_limits, dict):
+            input_limits = rect_limits
+
+        if not 'axes' in input_limits and not 'obs' in input_limits:
+            raise ValueError("Probably internal error: wrong format of limits_dict")
+
+        # check if obs is in the limits dict. If not, copy it from the axes
+        if obs:
+            if 'obs' in input_limits:
+                obs_limit_dict = input_limits['obs']
             else:
-                limits_dict = rect_limits
-        else:
-            limits_dict = limit
+                obs_limit_dict = {}
+                for axes_lim, lim in input_limits['axes'].items():
+                    obs_coords = tuple(obs[axes.index[ax]] for ax in axes_lim)
+                    obs_limit_dict[obs_coords] = lim
+            limits_dict['obs'] = obs_limit_dict
+
+        if axes:
+            if 'axes' in input_limits:
+                axes_limit_dict = input_limits['axes']
+            else:
+                axes_limit_dict = {}
+                for obs_lim, lim in input_limits['obs'].items():
+                    axes_coords = tuple(axes[obs.index[ob]] for ob in obs_lim)
+                    axes_limit_dict[axes_coords] = lim
+            limits_dict['axes'] = axes_limit_dict
+
+        if not axes and 'axes' in limits_dict:
+            limits_dict.pop('axes')
+
+        if not obs and 'obs' in limits_dict:
+            limits_dict.pop('obs')
 
         # TODO: extend input processing
         return limits_dict
@@ -1446,10 +1478,10 @@ class Space(BaseSpace):
         obs = self._check_convert_input_obs(obs=obs, allow_none=True)
         axes = self._check_convert_input_axes(axes=axes, allow_none=True)
         if obs is not None:
-            limits_dict = self._extract_limits(obs=obs)
+            limits_dict = {'obs': self._extract_limits(obs=obs)}
             new_coords = self.coords.with_obs(obs, allow_subset=True)
         else:
-            limits_dict = self._extract_limits(axes=axes)
+            limits_dict = {'axes': self._extract_limits(axes=axes)}
             new_coords = self.coords.with_axes(axes=axes, allow_subset=True)
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space

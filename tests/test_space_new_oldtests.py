@@ -5,6 +5,7 @@ import random
 from collections import OrderedDict
 
 import pytest
+import numpy as np
 
 from zfit.core.space_new import Space, convert_to_space
 # noinspection PyUnresolvedReferences
@@ -37,10 +38,10 @@ space1_obs = space11_obs + space12_obs
 # arguments1 = (space1, lower1, upper1, limit1_true, limit1_axes, limit1_areas, 2)
 arguments1 = []
 
-lower2 = (1, 2, 3), (-4, -5, 5)
-upper2 = (2, 4, 6), (-1, 5, 5.6)
-sub_lower2 = (1, 3), (-4, 5)
-sub_upper2 = (2, 6), (-1, 5.6)
+lower2 = (1, 2, 3)
+upper2 = (2, 4, 6)
+sub_lower2 = (1, 3)
+sub_upper2 = (2, 6)
 limit2 = lower2, upper2
 sub_limit2 = sub_lower2, sub_upper2
 limit2_areas = (6, 18)
@@ -65,12 +66,12 @@ sub_arguments2 = (sub_space2, sub_lower2, sub_upper2, sub_limit2, sub_limit2_axe
 def test_equality(space1, space2):
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
-    assert space1.limits == space2.limits
+    np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
     # TODO: reactivate below
-    # assert space1.iter_areas() == pytest.approx(space2.iter_areas(), rel=1e-8)
+    assert space1.rect_area.numpy() == pytest.approx(space2.rect_area.numpy(), rel=1e-8)
 
 
-@pytest.mark.skip  # eq missing
+# @pytest.mark.skip  # eq missing
 def test_sub_space():
     sub_space2_true_axes = Space(axes=sub_limit2_axes, limits=sub_limit2)
     assert sub_space2_true_axes == space2_subbed_axes
