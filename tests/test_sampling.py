@@ -262,11 +262,15 @@ def test_sampling_fixed_eventlimits():
     lower1, upper1 = -10, -9
     lower2, upper2 = 0, 1
     lower3, upper3 = 10, 11
-    lower = tf.convert_to_tensor(value=tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
-    upper = tf.convert_to_tensor(value=tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
-    lower = ((lower,),)
-    upper = ((upper,),)
-    limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
+    lower = tf.convert_to_tensor(value=tuple([lower1] * n_samples1
+                                             + [lower2] * n_samples2
+                                             + [lower3] * n_samples3))[:, None]
+    upper = tf.convert_to_tensor(value=tuple([upper1] * n_samples1
+                                             + [upper2] * n_samples2
+                                             + [upper3] * n_samples3))[:, None]
+
+    # limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
+    limits = zfit.Space(obs=obs1, limits=(lower, upper))
     gauss1 = GaussNoAnalyticSampling(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-12, 12)))
 
     sample = gauss1.sample(n=n_samples_tot, limits=limits)

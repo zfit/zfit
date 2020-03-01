@@ -217,9 +217,9 @@ def test_mc_integration(chunksize, limits):
     integral2 = num_integral2.numpy()
     integral3 = num_integral3.numpy()
 
-    assert not hasattr(integral, "__len__")
-    assert not hasattr(integral2, "__len__")
-    assert not hasattr(integral3, "__len__")
+    assert integral.shape == (1,)
+    assert integral2.shape == (1,)
+    assert integral3.shape == (1,)
     assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(integral,
                                                                               rel=0.1)
     assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
@@ -278,8 +278,8 @@ def test_analytic_integral():
         infinity = mt.inf
     except AttributeError:  # py34
         infinity = float('inf')
-    gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity), norm_range=False)
-    normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity), norm_range=False)
+    gauss_integral_infs = gauss_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
+    normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
                                          limits=Space(limits=limits3, axes=(0, 1)))

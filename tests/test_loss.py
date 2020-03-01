@@ -179,7 +179,7 @@ def test_add():
     assert simult_nll.model == pdfs
     assert simult_nll.data == datas
 
-    ranges[0] = Space(limits=ranges[0], obs=obs1,
+    ranges[0] = Space(limits=ranges[0], obs='obs1',
                       axes=(0,))  # for comparison, Space can only compare with Space
     ranges[1].coords._axes = (0,)
     ranges[2].coords._axes = (0,)

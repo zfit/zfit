@@ -294,14 +294,15 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         norm_range = self._check_input_norm_range(norm_range, caller_name=name)
         limits = self._check_input_limits(limits=limits)
         integral = self._single_hook_integrate(limits=limits, norm_range=norm_range, name=name)
-        if isinstance(integral, tf.Tensor):
-            if not integral.shape.as_list() == []:
-                raise ShapeIncompatibleError("Error in integral creation, should return an integral "
-                                             "with shape () (resp. [] as list), current shape "
-                                             "{}. If you registered an analytic integral which is used"
-                                             "now, make sure to return a scalar and not a tensor "
-                                             "(typically: shape is (1,) insead of () -> return tensor[0] "
-                                             "instead of tensor)".format(integral.shape.as_list()))
+        # TODO: allow integral values as arrays?
+        # if isinstance(integral, tf.Tensor):
+        #     if not integral.shape.as_list() == []:
+        #         raise ShapeIncompatibleError("Error in integral creation, should return an integral "
+        #                                      "with shape () (resp. [] as list), current shape "
+        #                                      "{}. If you registered an analytic integral which is used"
+        #                                      "now, make sure to return a scalar and not a tensor "
+        #                                      "(typically: shape is (1,) insead of () -> return tensor[0] "
+        #                                      "instead of tensor)".format(integral.shape.as_list()))
         return integral
 
     def _single_hook_integrate(self, limits, norm_range, name):
@@ -342,7 +343,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=axes)
 
         integral = None
-        if max_axes and integral:  # TODO improve handling of available analytic integrals
+        if max_axes and integral is None:  # TODO improve handling of available analytic integrals
             with suppress(NotImplementedError):
                 def part_int(x):
                     """Temporary partial integration function."""

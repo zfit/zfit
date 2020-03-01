@@ -167,11 +167,11 @@ class ComposedVariable:
 
     @property
     def name(self):
-        raise NotImplementedError
+        raise RuntimeError
 
     @property
     def shape(self):
-        raise NotImplementedError
+        raise RuntimeError
 
     @property
     def dtype(self):

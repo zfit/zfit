@@ -368,6 +368,10 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
     def __iter__(self):
         pass
 
+    @abstractmethod
+    def __len__(self):
+        raise NotImplementedError
+
 
 class ZfitDependentsMixin:
     @abstractmethod

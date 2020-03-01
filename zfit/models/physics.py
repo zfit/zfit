@@ -49,11 +49,12 @@ def crystalball_integral(limits, params, model):
     alpha = params['alpha']
     n = params['n']
 
-    (lower,), (upper,) = limits.limits
-    lower = lower[0]  # obs number 0
-    upper = upper[0]
+    lower, upper = limits.rect_limits
+    lower = lower
+    upper = upper
 
-    return crystalball_integral_func(mu, sigma, alpha, n, lower, upper)
+    integral = crystalball_integral_func(mu, sigma, alpha, n, lower, upper)
+    return integral
 
 
 @z.function_tf_input
@@ -125,6 +126,8 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
     # if_false_4()
     result = tf.cond(pred=tf.greater_equal(tmin, -abs_alpha), true_fn=if_true_4, false_fn=if_false_4)
+    if not result.shape.rank == 0:
+        result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
     return result
 
 
@@ -137,9 +140,7 @@ def double_crystalball_mu_integral(limits, params, model):
     alphar = -params["alphar"]
     nr = params["nr"]
 
-    (lower,), (upper,) = limits.limits
-    lower = lower[0]  # obs number 0
-    upper = upper[0]
+    lower, upper = limits.limits
 
     #
     return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,

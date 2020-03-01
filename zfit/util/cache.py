@@ -261,6 +261,7 @@ class FunctionCacheHolder(Cachable):
                 obj = (hash(object), id(object), obj.name)
             elif isinstance(obj, (tf.Tensor, tf.Variable)):
                 obj = self.IS_TENSOR
+            combined_cleaned.append(obj)
 
         return tuple(combined_cleaned)
 

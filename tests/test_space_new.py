@@ -1,6 +1,16 @@
 #  Copyright (c) 2020 zfit
+import numpy as np
+import zfit
 from zfit.core.space_new import Space, Limit
 
+obs1 = ('a', 'b', 'c', 'd', 'e')
+obs2 = ('b', 'c', 'd', 'e', 'a')
+axes1 = (0, 1, 2, 3, 4)
+axes2 = (1, 2, 3, 4, 0)
+limits1 = (np.linspace(-3, 2, 5), np.linspace(-1, 4, 5))
+
+
+# limits2 = (limits1)
 
 def test_extract_limits():
     obs1 = ['a']
@@ -53,3 +63,8 @@ def test_rect_limits():
     lower, upper = space1_lim.rect_limits
     assert lower == 0
     assert upper == 1
+
+
+def test_with_coords():
+    space1 = zfit.Space(obs1)
+    space2 = zfit.Space(obs2, axes=axes2)

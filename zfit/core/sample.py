@@ -35,9 +35,11 @@ class UniformSampleAndWeights:
             # lower = ztf.convert_to_tensor(lower, dtype=dtype)
             # upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
-            if isinstance(space, EventSpace):
-                lower = tf.transpose(a=lower)
-                upper = tf.transpose(a=upper)
+            # if isinstance(space, EventSpace):
+            #     lower = tf.transpose(a=lower)
+            #     upper = tf.transpose(a=upper)
+            # if tf.get_static_value(lower.shape[0]) == 1:
+            #     sample_shape = lower.shape[1:]
 
             sample_drawn = tf.random.uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                              # + 1 dim for the function value

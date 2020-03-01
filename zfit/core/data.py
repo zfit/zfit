@@ -19,7 +19,8 @@ from zfit.core.interfaces import ZfitSpace
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
-from .limits import Space, convert_to_space, convert_to_obs_str
+from .limits import Space, convert_to_space
+from .coordinates import convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import Cachable, invalidates_cache
