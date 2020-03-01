@@ -87,9 +87,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     for space in limits:
         lower, upper = space.rect_limits
         tf.debugging.assert_all_finite((lower, upper),
-                                       (
-                                           "MC integration does (currently) not support unbound limits (np.infty) as given here:"
-                                           "\n(lower, upper): ", lower, upper)
+                                       "MC integration does (currently) not support unbound limits (np.infty) as given here:"
+                                       "\nlower: {}, upper: {}".format(lower, upper)
                                        )
 
         # lower = z.convert_to_tensor(lower, dtype=dtype)

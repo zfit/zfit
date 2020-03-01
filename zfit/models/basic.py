@@ -131,7 +131,7 @@ class Exponential(BasePDF):
     def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
         if component_norm_range.limits_are_false:
             component_norm_range = self.space
-        if component_norm_range.limits is not None:
+        if component_norm_range.limits_are_set:
             with self._set_numerics_data_shift(limits=component_norm_range):
                 return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
         else:

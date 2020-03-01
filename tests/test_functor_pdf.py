@@ -28,7 +28,7 @@ def test_norm_range():
     assert sum1.norm_range == space1
 
     sum2 = zfit.pdf.SumPDF(pdfs=[gauss1, gauss3], fracs=0.34)
-    assert sum2.norm_range.limits is None
+    assert sum2.norm_range.limits_not_set
 
     sum2.set_norm_range(space2)
     with sum2.set_norm_range(space3):

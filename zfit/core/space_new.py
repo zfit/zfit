@@ -133,8 +133,8 @@ def filter_rect_limits(x, rect_limits):
 
 
 def convert_to_tensor_or_numpy(obj, dtype=None):
-    if isinstance(obj, (tf.Tensor, tf.Variable)):
-        return obj
+    if contains_tensor(obj):
+        return z.convert_to_tensor(obj, dtype=dtype)
     else:
         with suppress(AttributeError):
             dtype = dtype.as_numpy_dtype
@@ -2063,7 +2063,7 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
         return limits
     if space is not None:
         # set the limits if given
-        if limits is not None and (overwrite_limits or space.limits is None):
+        if limits is not None and (overwrite_limits or space.limits_not_set):
             if isinstance(limits, ZfitSpace):  # figure out if compatible if limits is `Space`
                 if not (limits.obs == space.obs or
                         (limits.axes == space.axes and limits.obs is None and space.obs is None)):
@@ -2083,7 +2083,7 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
         if one_dim_limits_only and space.n_obs > 1 and space.limits:
             raise LimitsUnderdefinedError(
                 "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `Space` instead.")
-        if simple_limits_only and space.limits and space.n_limits > 1:
+        if simple_limits_only and space.has_limits and space.n_limits > 1:
             raise LimitsUnderdefinedError("Limits with multiple limits cannot be auto-created"
                                           " from tuples. Use `Space` instead.")
     return space
@@ -2284,7 +2284,7 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     lowers = []
     uppers = []
     for space in spaces:
-        if space.limits is None:
+        if space.limits_not_set:
             continue
         for lower, upper in space:
             for other_lower, other_upper in zip(lowers, uppers):

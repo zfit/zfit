@@ -34,7 +34,7 @@ def create_loss():
     sampled_data = sum_pdf1.create_sampler(n=15000)
     sampled_data.resample()
 
-    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, fit_range=obs1)
+    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
 
     return loss, (a_param, b_param, c_param)
 

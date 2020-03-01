@@ -121,7 +121,7 @@ def test_unbinned_nll(weights, sigma):
 
     test_values = tf.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
-    nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, fit_range=(-np.infty, np.infty))
+    nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values)
     minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
@@ -133,7 +133,7 @@ def test_unbinned_nll(weights, sigma):
     constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
                                                observation=[mu_constr[0], sigma_constr[0]],
                                                uncertainty=sigma())
-    nll_object = UnbinnedNLL(model=gaussian2, data=test_values, fit_range=(-np.infty, np.infty),
+    nll_object = UnbinnedNLL(model=gaussian2, data=test_values,
                              constraints=constraints)
 
     minimizer = Minuit()

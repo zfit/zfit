@@ -144,7 +144,6 @@ def test_normalization(pdf_factory):
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
     with dist.set_norm_range(Space(obs1, limits=(low, high))):
-        samples.limits = low, high
         probs = dist.pdf(samples)
         probs_small = dist.pdf(small_samples)
         log_probs = dist.log_pdf(small_samples)
