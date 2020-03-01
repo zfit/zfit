@@ -49,7 +49,8 @@ def create_params3(nameadd=""):
     return mu3, sigma3, yield3
 
 
-obs1 = 'obs1'
+obs1 = zfit.Space('obs1', (np.min([test_values_np[:, 0], test_values_np2]) - 1.4,
+                           np.max([test_values_np[:, 0], test_values_np2]) + 2.4))
 
 mu_constr = [1.6, 0.2]  # mu, sigma
 sigma_constr = [3.8, 0.2]
@@ -101,7 +102,6 @@ def test_unbinned_simultaneous_nll():
     gaussian2, mu2, sigma2 = create_gauss2()
     nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
                                        data=[test_values, test_values2],
-                                       fit_range=[(-np.infty, np.infty), (-np.infty, np.infty)]
                                        )
     minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])

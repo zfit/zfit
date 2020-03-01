@@ -129,7 +129,6 @@ obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(1.3, 2.1))
               + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
-obs1 = obs1_split  # HACK
 
 
 @pytest.mark.order4

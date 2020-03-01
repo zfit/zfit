@@ -129,7 +129,7 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
 
-class ZfitLimit(abc.ABC, metaclass=ABCMeta):
+class ZfitLimit(abc.ABC):
 
     @property
     # @abstractmethod  # TODO(spaces): make abstract
@@ -179,6 +179,11 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def has_limits(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def limits_are_false(self):
         raise NotImplementedError
 
     @property

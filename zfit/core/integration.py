@@ -85,13 +85,15 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
     integrals = []
     for space in limits:
-        lower, upper = space.limits
-        if np.infty in upper[0] or -np.infty in lower[0]:
-            raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
-                             "\nlower: {}, upper: {}".format(lower, upper))
+        lower, upper = space.rect_limits
+        tf.debugging.assert_all_finite((lower, upper),
+                                       (
+                                           "MC integration does (currently) not support unbound limits (np.infty) as given here:"
+                                           "\n(lower, upper): ", lower, upper)
+                                       )
 
-        lower = z.convert_to_tensor(lower, dtype=dtype)
-        upper = z.convert_to_tensor(upper, dtype=dtype)
+        # lower = z.convert_to_tensor(lower, dtype=dtype)
+        # upper = z.convert_to_tensor(upper, dtype=dtype)
 
         n_samples = draws_per_dim
 

@@ -69,7 +69,7 @@ class Any(LimitRangeDefinition):
         return True
 
     # def __hash__(self):
-    #     return
+    #     return hash(id(self))
 
 
 class AnyLower(Any):
@@ -79,11 +79,11 @@ class AnyLower(Any):
     # def __eq__(self, other):
     #     return False
 
-    def __ge__(self, other):
-        return False
-
-    def __gt__(self, other):
-        return False
+    # def __ge__(self, other):
+    #     return False
+    #
+    # def __gt__(self, other):
+    #     return False
 
 
 class AnyUpper(Any):
@@ -93,11 +93,11 @@ class AnyUpper(Any):
     # def __eq__(self, other):
     #     return False
 
-    def __le__(self, other):
-        return False
-
-    def __lt__(self, other):
-        return False
+    # def __le__(self, other):
+    #     return False
+    #
+    # def __lt__(self, other):
+    #     return False
 
 
 ANY = Any()
@@ -564,11 +564,15 @@ class Limit(ZfitLimit):
 
     @property
     def limits_not_set(self):
-        return self.rect_limits is None
+        return self._rect_limits is None
+
+    @property
+    def limits_are_false(self):
+        return self._rect_limits is False
 
     @property
     def has_limits(self):
-        return self.rect_limits is not False and not self.limits_not_set
+        return not (self.limits_are_false or self.limits_not_set)
 
     @property
     def rect_lower(self):
@@ -645,8 +649,8 @@ def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
             lower_other, upper_other = limit2.rect_limits
 
     # TODO add tolerances
-    lower_limits_equal = z.unstable.reduce_all(z.unstable.allclose(lower, lower_other))
-    upper_limits_equal = z.unstable.reduce_all(z.unstable.allclose(upper, upper_other))
+    lower_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(lower, lower_other))
+    upper_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(upper, upper_other))
     rect_limits_equal = z.unstable.logical_and(lower_limits_equal, upper_limits_equal)
     funcs_equal = limit1.limit_fn == limit2.limit_fn
     return z.unstable.logical_and(rect_limits_equal, funcs_equal)
@@ -791,9 +795,9 @@ class BaseSpace(ZfitSpace, BaseObject):
         if not isinstance(other, ZfitSpace):
             return NotImplemented
         return equal_space(other, allow_graph=allow_graph)
-        limits_equal = self.rect_limits == other.rect_limits  # TODO: improve! What about 'inside'?
-        coords_equal = self.coords == other.coords
-        return z.unstable.logical_and(limits_equal, coords_equal)
+        # limits_equal = self.rect_limits == other.rect_limits  # TODO: improve! What about 'inside'?
+        # coords_equal = self.coords == other.coords
+        # return z.unstable.logical_and(limits_equal, coords_equal)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ZfitSpace):
@@ -1107,7 +1111,8 @@ class Space(BaseSpace):
 
     @property
     def limits_not_set(self):
-        return len(self._limits_dict) == 0
+        return all(limit.limits_not_set
+                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
 
     @property
     def limits_are_set(self):
@@ -1115,7 +1120,8 @@ class Space(BaseSpace):
 
     @property
     def limits_are_false(self):
-        return self.limits_are_set and not self.has_limits
+        return all(limit.limits_are_false
+                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
 
     @property
     @deprecated(date=None, instructions="Depreceated, use .rect_limits or .inside to check if a value is inside.")
@@ -1596,6 +1602,7 @@ def combine_spaces_new(*spaces: Iterable[Space]):
         raise LimitsIncompatibleError("Limits either have to be set, not set, or False for all spaces to be combined.")
     else:
         # TODO: how to handle multispaces?
+        # TODO: spaces that have multidim limits?
         limits_dict = {}
         for coord in all_coords:
             space_with_coord = [space for space in spaces if coord in get_coord(space, using_obs)]
@@ -1606,15 +1613,14 @@ def combine_spaces_new(*spaces: Iterable[Space]):
             for space in space_with_coord:
                 if type(space) == Space:  # has to be the exact type, we use an implementation detail here
                     limits_coord.append(space._extract_limits(obs=coord if using_obs else None,
-                                                              axes=coord if not using_obs else None)
-                                        for space in space_with_coord)
+                                                              axes=coord if not using_obs else None))
                 else:
-                    limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord)
-                                        for space in space_with_coord)
-            any_non_equal = any([limits_coord[0] != limit for limit in limits_coord[1:]])
+                    raise WorkInProgressError
+                    # limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord))
+            any_non_equal = any([limits_coord[0][(coord,)] != limit[(coord,)] for limit in limits_coord[1:]])
             if any_non_equal:
                 raise LimitsIncompatibleError(f"Limits in coord {coord} do not match for spaces {limits_coord}")
-            limits_dict[coord] = limits_coord[0]
+            limits_dict.update(limits_coord[0])
 
         limits = {'obs' if using_obs else 'axes': limits_dict}
 
@@ -1715,14 +1721,14 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
         if set(space1.obs) != set(space2.obs):
             return False
     # check limits
-    if space1.limits is None:
-        if space2.limits is None:
+    if space1.limits_not_set:
+        if space2.limits_not_set:
             return True
         else:
             return False
 
-    elif space1.limits is False:
-        if space2.limits is False:
+    elif space1.limits_are_false:
+        if space2.limits_are_false:
             return True
         else:
             return False
@@ -1737,20 +1743,21 @@ def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: 
 
     spaces_to_check2 = list(space2_reordered)
     spaces_to_check1 = list(space1)
-    for index1, space11 in enumerate(spaces_to_check1):
-        limit_is_le = False
+    pos_comp = False
+    # TODO: graph mode?
+    for space11 in spaces_to_check1:
         for index2, space22 in enumerate(spaces_to_check2):
             # each entry *has to* match the entry of the other limit, otherwise it's not the same
 
             axis_pos_comp = compare_limits_coords_dict(space11._limits_dict, space22._limits_dict,
                                                        comparator=comparator)
-            if axis_pos_comp:  # if not the same, don't test other dims
-                spaces_to_check2.pop(index1)
-                spaces_to_check1.pop(index2)
+            if axis_pos_comp:  # if the same, don't test other spaces
+                spaces_to_check2.pop(index2)
+                pos_comp = True
                 break
-            else:
-                limit_is_le = False  # no break -> all axes coincide
-        if not limit_is_le:  # for this `limit`, no other_limit matched
+        else:
+            pos_comp = False  # no break -> no positive comparison
+        if not pos_comp:  # for this `limit`, no other_limit matched
             return False
     return True
 
@@ -1761,15 +1768,13 @@ def compare_limits_coords_dict(limits1: Mapping[str, Mapping[Iterable, ZfitLimit
                                require_all_coord_types: bool = False) -> bool:
     if not limits1.keys() == limits2.keys() and require_all_coord_types:
         return False
-    equal = False
+    equal = []
     for coord_type, limit1_dict in limits1.items():
         limit2_dict = limits2.get(coord_type)
         if limit2_dict is None:
             continue
-        equal = compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator)
-        if equal is False:
-            break
-    return equal
+        equal.append(compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator))
+    return z.unstable.reduce_all(equal, axis=0)
 
 
 def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) -> bool:
@@ -1897,56 +1902,43 @@ class MultiSpace(BaseSpace):
     def has_rect_limits(self) -> bool:
         return all(space.has_rect_limits for space in self.spaces)
 
-    # @property
-    # def obs(self) -> ztyping.ObsTypeReturn:
-    #     """The observables ("axes with str")the space is defined in.
-    #
-    #     Returns:
-    #
-    #     """
-    #     return self._obs
-    #
-    # @property
-    # def axes(self) -> ztyping.AxesTypeReturn:
-    #     """The axes ("obs with int") the space is defined in.
-    #
-    #     Returns:
-    #
-    #     """
-    #     return self._axes
+    @property
+    def limits_are_false(self) -> bool:
+        return all(space.limits_are_false for space in self.spaces)
 
     # noinspection PyPropertyDefinition
     @property
     def limits(self) -> None:
-        if all(space.limits is None for space in self):
+        if all(space.limits_not_set for space in self):
             return None
         self._raise_limits_not_implemented()
 
     @property
     def has_limits(self):
         try:
-            return (not self.limits_not_set) and self.limits is not False
+            return (not self.limits_not_set) and not self.limits_are_false
         except MultipleLimitsNotImplementedError:
             return True
 
     @property
     def limits_not_set(self):
-        try:
-            return self.limits is None
-        except MultipleLimitsNotImplementedError:
-            return False
+        return all(space.limits_not_set for space in self.spaces)
+
+    @property
+    def limits_are_set(self):
+        return not self.limits_not_set
 
     # noinspection PyPropertyDefinition
     @property
     def lower(self) -> None:
-        if all(space.lower is None for space in self):
+        if all(space.limits_not_set for space in self):
             return None
         self._raise_limits_not_implemented()
 
     # noinspection PyPropertyDefinition
     @property
     def upper(self) -> None:
-        if all(space.upper is None for space in self):
+        if all(space.limits_not_set for space in self):
             return None
         self._raise_limits_not_implemented()
 
@@ -2115,7 +2107,7 @@ def no_norm_range(func):
     def new_func(*args, **kwargs):
         norm_range = kwargs.get('norm_range')
         if isinstance(norm_range, ZfitSpace):
-            norm_range_not_false = not (norm_range.limits is None or norm_range.limits is False)
+            norm_range_not_false = not norm_range.limits_are_false
         else:
             norm_range_not_false = not (norm_range is None or norm_range is False)
         if norm_range_index is not None:

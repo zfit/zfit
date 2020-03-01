@@ -32,7 +32,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
         # combine spaces and limits
         try:
-            models_space = combine_spaces([model.space for model in models])
+            models_space = combine_spaces(*[model.space for model in models])
         except LimitsIncompatibleError:  # then only add obs
             extracted_obs = _extract_common_obs(obs=tuple(model.obs for model in models))
             models_space = Space(obs=extracted_obs)
