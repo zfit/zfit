@@ -183,8 +183,13 @@ class Coordinates(ZfitOrderableDimensional):
         if obs is None:
             if axes is None:
                 raise CoordinatesUnderdefinedError("Neither obs nor axes specified")
+            else:
+                if any(not isinstance(ax, int) for ax in axes):
+                    raise ValueError(f"Axes have to be int. Currently: {axes}")
             n_obs = len(axes)
         else:
+            if any(not isinstance(ob, str) for ob in obs):
+                raise ValueError(f"Observables have to be strings. Currently: {obs}")
             n_obs = len(obs)
             if axes is not None:
                 if not len(obs) == len(axes):
@@ -455,14 +460,16 @@ class Limit(ZfitLimit):
         lower = self._sanitize_rect_limit(lower)
         upper = self._sanitize_rect_limit(upper)
 
-        lower_nobs = lower.shape[-1]
-        upper_nobs = upper.shape[-1]
-        # lower.shape.assert_is_compatible_with(upper.shape)
-        tf.assert_equal(lower_nobs, upper_nobs, message="Last dimension of lower and upper have to coincide.")
-        if n_obs is not None:
-            tf.assert_equal(lower_nobs, n_obs,
-                            message="Inferred last dimension (n_obs) does not coincide with given n_obs")
-        n_obs = tf.get_static_value(lower_nobs)
+        lower_nobs = tf.get_static_value(lower.shape[-1])
+        upper_nobs = tf.get_static_value(upper.shape[-1])
+
+        if not lower_nobs == upper_nobs:
+            raise ShapeIncompatibleError(
+                f"Last dimension of lower ({lower_nobs}) and upper ({upper_nobs}) have to coincide.")
+        if n_obs is not None and not lower_nobs == n_obs:
+            raise ShapeIncompatibleError(f"Inferred last dimension ({lower_nobs}) does not coincide with "
+                                         f"given n_obs ({n_obs})")
+        n_obs = lower_nobs  # in case it was None
         rect_limits = (lower, upper)
 
         # create sublimits to iterate if possible

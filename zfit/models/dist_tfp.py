@@ -42,7 +42,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     """
     if limits.n_limits > 1:
         raise NotImplementedError
-    (lower_bound,), (upper_bound,) = limits.limits
+    lower_bound, upper_bound = limits.rect_limits
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 

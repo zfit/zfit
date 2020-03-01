@@ -26,7 +26,7 @@ from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.cache import Cachable
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError)
+                              ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError)
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -923,7 +923,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         try:
             lower_bound, upper_bound = limits.rect_limits_np
         except CannotConvertToNumpyError as err:
-            raise NotImplementedError("Currently, analytic sampling with Tensors not supported."
+            raise WorkInProgressError("Currently, analytic sampling with Tensors not supported."
                                       " Needs implementation of analytic integrals with Tensors.") from err
         neg_infinities = (tuple((-float("inf"),) * limits.n_obs),)  # py34 change float("inf") to math.inf
         # to the cdf to get the limits for the inverse analytic integral
