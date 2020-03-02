@@ -5,11 +5,11 @@ zfit: scalable pythonic fitting
 |zfit_logo|
 
 
-.. |zfit_logo| image:: docs/images/zfit-fin_400x168.png
+.. |zfit_logo| image:: images/zfit-fin_400x168.png
    :target: https://github.com/zfit/zfit
    :alt: zfit logo
 
-.. |scikit-hep_logo| image:: docs/images/scikit-hep-logo_168x168.png
+.. |scikit-hep_logo| image:: images/scikit-hep-logo_168x168.png
    :target: https://scikit-hep.org/affiliated
    :alt: scikit-hep logo
 

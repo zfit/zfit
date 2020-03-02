@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.sample &#8212; zfit 0.4.3.dev7+g9153001 documentation</title>
+    <title>zfit.minimize &#8212; zfit 0.4.3.dev7+g9153001 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -359,36 +359,36 @@
   <div class="row">
     <div class="body span12 content" role="main">
       
-  <h1>Source code for zfit.sample</h1><div class="highlight"><pre>
-<span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+  <h1>Source code for zfit.minimize</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="c1"># from .minimizers.optimizers_tf import RMSPropMinimizer, GradientDescentMinimizer, AdagradMinimizer, AdadeltaMinimizer,</span>
+<span class="kn">from</span> <span class="nn">tensorflow_core.python</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
-<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitPDF</span>
-<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">NotExtendedPDFError</span>
-<span class="kn">from</span> <span class="nn">.util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">.minimizers.minimizer_minuit</span> <span class="kn">import</span> <span class="n">Minuit</span>
+<span class="kn">from</span> <span class="nn">.minimizers.minimizer_tfp</span> <span class="kn">import</span> <span class="n">BFGS</span>
+<span class="kn">from</span> <span class="nn">.minimizers.minimizers_scipy</span> <span class="kn">import</span> <span class="n">Scipy</span>
+<span class="kn">from</span> <span class="nn">.minimizers.optimizers_tf</span> <span class="kn">import</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">WrapOptimizer</span>
 
 
-<div class="viewcode-block" id="poisson"><a class="viewcode-back" href="../../api/zfit.sample.html#zfit.sample.poisson">[docs]</a><span class="k">def</span> <span class="nf">poisson</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pdfs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitPDF</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="ow">and</span> <span class="n">pdfs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify both, `n`, and `pdfs`, at the same time.&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AdamMinimizer"><a class="viewcode-back" href="../../api/zfit.minimize.html#zfit.minimize.AdamMinimizer">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use zfit.minimize.Adam instead.&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AdamMinimizer</span><span class="p">(</span><span class="n">Adam</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-    <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
-        <span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
-        <span class="n">not_extended</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">is_extended</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">not_extended</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">NotExtendedPDFError</span><span class="p">(</span><span class="s2">&quot;The following pdfs are not extended but need to be: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">not_extended</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;More then one model (currently) not supported.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># single pdf only implementation here</span>
-        <span class="n">yield_</span> <span class="o">=</span> <span class="n">pdfs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">yield_</span> <span class="o">=</span> <span class="n">n</span>
+<div class="viewcode-block" id="MinuitMinimizer"><a class="viewcode-back" href="../../api/zfit.minimize.html#zfit.minimize.MinuitMinimizer">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use zfit.minimize.Minuit instead.&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MinuitMinimizer</span><span class="p">(</span><span class="n">Minuit</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-    <span class="n">poisson_term</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">random_poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">yield_</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">poisson_term</span></div>
+
+<div class="viewcode-block" id="ScipyMinimizer"><a class="viewcode-back" href="../../api/zfit.minimize.html#zfit.minimize.ScipyMinimizer">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use zfit.minimize.Scipy instead.&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ScipyMinimizer</span><span class="p">(</span><span class="n">Scipy</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MinuitMinimizer&#39;</span><span class="p">,</span> <span class="s1">&#39;ScipyMinimizer&#39;</span><span class="p">,</span> <span class="s1">&#39;AdamMinimizer&#39;</span><span class="p">,</span>
+           <span class="s2">&quot;WrapOptimizer&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Adam&quot;</span><span class="p">,</span> <span class="s2">&quot;Minuit&quot;</span><span class="p">,</span> <span class="s2">&quot;Scipy&quot;</span><span class="p">,</span> <span class="s2">&quot;BFGS&quot;</span><span class="p">]</span>
 </pre></div>
 
     </div>
