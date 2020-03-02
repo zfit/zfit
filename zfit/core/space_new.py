@@ -328,6 +328,15 @@ class Limit(ZfitLimit):
         return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
 
     @property
+    def rect_limits_are_tensors(self):
+        try:
+            _ = self.rect_limits_np
+        except CannotConvertToNumpyError:
+            return True
+        else:
+            return False
+
+    @property
     def limits_not_set(self):
         return self._rect_limits is None
 
@@ -380,7 +389,19 @@ class Limit(ZfitLimit):
         return equal_limits(self, other, allow_graph=allow_graph)
 
 
+def rect_limits_are_any(limit):
+    if limit.rect_limits_are_tensors:
+        return False
+    if all(isinstance(ele, Any) for lim in limit.rect_limits_np for ele in lim.flatten()):
+        return True
+    else:
+        return False
+
+
 def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
+    if rect_limits_are_any(limit1) or rect_limits_are_any(limit2):
+        return True
+
     try:
         lower1, upper1 = limit1.rect_limits_np
         lower2, upper2 = limit2.rect_limits_np
@@ -712,6 +733,15 @@ class Space(BaseSpace):
     #                          "\nn_obs: {n_obs}".format(lower=lower, upper=upper, n_obs=self.n_obs))
     # return lower, upper
 
+    @property
+    def rect_limits_are_tensors(self):
+        try:
+            _ = self.rect_limits_np
+        except CannotConvertToNumpyError:
+            return True
+        else:
+            return False
+
     def _check_convert_input_limits(self, limit: Union[ztyping.LowerTypeInput, ztyping.UpperTypeInput],
                                     rect_limits, obs, axes, n_obs,
                                     replace=None) -> Union[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
@@ -904,7 +934,7 @@ class Space(BaseSpace):
 
     @property
     def has_limits(self):
-        return (not self.limits_not_set) and self.has_rect_limits is not False
+        return not (self.limits_not_set or self.limits_are_false)
 
     @property
     def limits_not_set(self):

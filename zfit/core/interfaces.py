@@ -177,6 +177,10 @@ class ZfitLimit(abc.ABC):
         raise NotImplementedError
 
     @property
+    def rect_limits_are_tensors(self):
+        raise NotImplementedError
+
+    @property
     @abstractmethod
     def has_limits(self):
         raise NotImplementedError
