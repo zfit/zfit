@@ -79,6 +79,13 @@ def reduce_all(input_tensor, axis=None):
         return np.all(input_tensor, axis)
 
 
+def reduce_any(input_tensor, axis=None):
+    if not SWITCH_ON or is_tensor(input_tensor):
+        return tf.reduce_any(input_tensor, axis)
+    else:
+        return np.any(input_tensor, axis)
+
+
 def logical_and(x, y):
     if not SWITCH_ON or is_tensor(x) or is_tensor(y):
         return tf.logical_and(x, y)

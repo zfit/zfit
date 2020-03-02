@@ -133,7 +133,7 @@ def filter_rect_limits(x, rect_limits):
     return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits))
 
 
-def convert_to_tensor_or_numpy(obj, dtype=None):
+def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
     if contains_tensor(obj):
         return z.convert_to_tensor(obj, dtype=dtype)
     else:
@@ -388,6 +388,9 @@ class Limit(ZfitLimit):
     def equal(self, other, allow_graph=True):
         return equal_limits(self, other, allow_graph=allow_graph)
 
+    def less_equal(self, other, allow_graph=True):
+        return less_equal_limits(self, other, allow_graph=allow_graph)
+
 
 def rect_limits_are_any(limit):
     if limit.rect_limits_are_tensors:
@@ -582,6 +585,11 @@ class BaseSpace(ZfitSpace, BaseObject):
             return NotImplemented
         return equal_space(self, other, allow_graph=allow_graph)
 
+    def less_equal(self, other, allow_graph=True):
+        if not isinstance(other, ZfitSpace):
+            return NotImplemented
+        return less_equal_space(self, other, allow_graph=allow_graph)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ZfitSpace):
             return NotImplemented
@@ -590,7 +598,7 @@ class BaseSpace(ZfitSpace, BaseObject):
     def __le__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
-        return less_equal_space(self, other)
+        return self.less_equal(other, allow_graph=False)
 
     def add(self, *other: ztyping.SpaceOrSpacesTypeInput):
         """Add the limits of the spaces. Only works for the same obs.
@@ -1569,29 +1577,23 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
 
 
 def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
-    if not len(tuple(space1)) == len(tuple(space2)):
+    if not len(space1) == len(space2):
+        return False
+    if not space1.has_limits and space2.has_limits:
         return False
     space2_reordered = space2.with_coords(space1)
 
-    spaces_to_check2 = list(space2_reordered)
-    spaces_to_check1 = list(space1)
-    pos_comp = False
-    # TODO: graph mode?
-    for space11 in spaces_to_check1:
-        for index2, space22 in enumerate(spaces_to_check2):
-            # each entry *has to* match the entry of the other limit, otherwise it's not the same
+    comparison = [[compare_limits_coords_dict(space11._limits_dict, space22._limits_dict, comparator=comparator)
+                   for space22 in space2_reordered]
+                  for space11 in space1]
+    comparison = convert_to_tensor_or_numpy(comparison, dtype=tf.bool)
+    space1_matches = z.unstable.reduce_any(comparison, axis=1)  # reduce over axis containing space2, has to match with
+    # at least one space2.
+    space2_matches = z.unstable.reduce_any(comparison, axis=0)
+    all_space1_match = z.unstable.reduce_all(space1_matches, axis=0)
+    all_space2_match = z.unstable.reduce_all(space2_matches, axis=0)
 
-            axis_pos_comp = compare_limits_coords_dict(space11._limits_dict, space22._limits_dict,
-                                                       comparator=comparator)
-            if axis_pos_comp:  # if the same, don't test other spaces
-                spaces_to_check2.pop(index2)
-                pos_comp = True
-                break
-        else:
-            pos_comp = False  # no break -> no positive comparison
-        if not pos_comp:  # for this `limit`, no other_limit matched
-            return False
-    return True
+    return z.unstable.logical_and(all_space1_match, all_space2_match)
 
 
 def compare_limits_coords_dict(limits1: Mapping[str, Mapping[Iterable, ZfitLimit]],
@@ -1610,11 +1612,13 @@ def compare_limits_coords_dict(limits1: Mapping[str, Mapping[Iterable, ZfitLimit
 
 
 def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) -> bool:
+    comparison = []
     for coord, limit1 in dict1.items():
         limit2 = dict2.get(coord)
-        if limit2 is None or not comparator(limit1, limit2):
+        if limit2 is None:
             return False
-    return True
+        comparison.append(comparator(limit1, limit2))
+    return z.unstable.reduce_all(comparison, axis=0)
 
 
 def flatten_spaces(spaces):
