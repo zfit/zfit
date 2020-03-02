@@ -43,7 +43,7 @@ def test_polynomials(poly_cfg, coeffs):
     polynomial2 = poly_pdf(obs=obs1, coeffs=coeffs)
 
     polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.)
-    lower, upper = obs1.limit1d
+    lower, upper = obs1.rect_limits
     x = np.random.uniform(size=(1000,), low=lower, high=upper)
     y_poly = polynomial.pdf(x)
     y_poly_u = polynomial.unnormalized_pdf(x)

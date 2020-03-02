@@ -245,7 +245,7 @@ class Chebyshev(RecursivePolynomial):
 
 
 def func_integral_chebyshev1(limits, norm_range, params, model):
-    lower, upper = limits.limit1d
+    lower, upper = limits.rect_limits
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
@@ -273,6 +273,7 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = tf.reshape(integral, shape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral = tf.gather(integral, indices=0, axis=-1)
     return integral
 
 

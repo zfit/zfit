@@ -231,8 +231,7 @@ def test_mc_integration(chunksize, limits):
 def test_mc_partial_integration():
     values = z.convert_to_tensor(func4_values)
     data1 = zfit.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))
-    limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'])
-    limits1._set_obs_axes({'obs1': 0, 'obs3': 2})
+    limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'], axes=(0, 2))
     num_integral = zintegrate.mc_integrate(x=data1,
                                            func=func4_3deps,
                                            limits=limits1)
@@ -242,8 +241,7 @@ def test_mc_partial_integration():
     vals_reshaped = tf.transpose(a=vals_tensor)
     data2 = zfit.Data.from_tensor(obs=['obs1', 'obs3'], tensor=vals_reshaped)
 
-    limits2 = Space(limits=limits4_1dim, obs=['obs2'])
-    limits2._set_obs_axes({'obs2': 1})
+    limits2 = Space(limits=limits4_1dim, obs=['obs2'], axes=1)
     num_integral2 = zintegrate.mc_integrate(x=data2,
                                             func=func4_3deps,
                                             limits=limits2,

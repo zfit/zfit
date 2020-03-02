@@ -310,7 +310,6 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
-        # TODO TF2 converion, remove control deps
         norm_range = self._check_input_norm_range(norm_range, caller_name=name, none_is_error=True)
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)

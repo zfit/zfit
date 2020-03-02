@@ -26,6 +26,11 @@ coords2axes = Coordinates(axes=axes2)
 limits1 = ([-2, -1, 0, 1, 2], [3, 4, 5, 6, 7])
 limits2 = ([0, -1, 1, 2, -2], [5, 4, 6, 7, 3])
 
+limits1vector = ([[-21, -11, 91, 11, 21], [-22, -12, 92, 12, 22], [-23, -13, 93, 13, 23]],
+                 [[31, 41, 51, 61, 71], [32, 42, 52, 62, 72], [33, 43, 53, 63, 73]])
+limits2vector = ([[91, -11, 11, 21, -21], [92, -12, 12, 22, -22], [93, -13, 13, 23, -23]],
+                 [[51, 41, 61, 71, 31], [52, 42, 62, 72, 32], [53, 43, 63, 73, 33]])
+
 limits1tf = (z.convert_to_tensor([-2, -1, 0, 1, 2]), z.convert_to_tensor([3, 4, 5, 6, 7]))
 limits2tf = (z.convert_to_tensor([0, -1, 1, 2, -2]), z.convert_to_tensor([5, 4, 6, 7, 3]))
 
@@ -36,7 +41,8 @@ limits1any = ([ANY] * 5, [ANY] * 5)
 limits2any = ([ANY] * 5, [ANY] * 5)
 
 limits_to_test = [[limits1, limits2], [limits1tf, limits2tf],
-                  [limits1mixed_any, limits2mixed_any], [limits1any, limits2any]]
+                  [limits1mixed_any, limits2mixed_any], [limits1any, limits2any],
+                  [limits1vector, limits2vector]]
 
 
 def test_extract_limits():
