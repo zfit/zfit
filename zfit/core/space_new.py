@@ -779,8 +779,10 @@ class Space(BaseSpace):
                 i_old = i
             input_limits = limits_dict
 
-        if isinstance(rect_limits, dict):
-            input_limits = rect_limits
+        if isinstance(input_limits, dict):
+            input_limits = input_limits.copy()
+        elif isinstance(rect_limits, dict):
+            input_limits = rect_limits.copy()
 
         if not 'axes' in input_limits and not 'obs' in input_limits:
             raise ValueError("Probably internal error: wrong format of limits_dict")
@@ -1130,12 +1132,13 @@ class Space(BaseSpace):
             if self.axes is None:
                 if not len(axes) == len(self.obs):
                     raise AxesIncompatibleError(f"Trying to set axes {axes} to object with obs {self.obs}")
-                new_limits = self._limits_dict['obs'].copy()
-                new_limits['axes'] = {}
-                for obs, limit in self._limits_dict['obs'].items():
-                    ax = tuple(axes[obs.index(ob)] for ob in obs)
-                    new_limits['axes'][ax] = limit
-                new_space = self.copy(axes=axes, limits=new_limits)
+                # new_limits = self._limits_dict.copy()
+                # new_limits['axes'] = {}
+                # for obs, limit in self._limits_dict['obs'].items():
+                #     ax = tuple(axes[obs.index(ob)] for ob in obs)
+                #     new_limits['axes'][ax] = limit
+                # new_space = self.copy(axes=axes, limits=new_limits)
+                new_space = self.copy(axes=axes, limits=self._limits_dict)
             else:
 
                 coords = self.coords.with_axes(axes=axes, allow_superset=allow_superset, allow_subset=allow_subset)
@@ -1185,8 +1188,7 @@ class Space(BaseSpace):
 
 
         Args:
-            coords (OrderedDict[str, int]): An ordered dict with {obs: axes}.
-            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
+            coords (OrderedDict[str, int]): an instance of `Coordinates`.
             allow_subset ():
 
         Returns:
@@ -1195,24 +1197,28 @@ class Space(BaseSpace):
         new_space_obs = None
         new_space_axes = None
         if self.obs is not None and coords.obs is not None:
-            coords_obs = coords.with_obs(self.obs)
-            if self.axes is not None and coords_obs.axes is not None:
-                if self.axes != coords_obs.axes:
-                    raise BehaviorUnderDiscussion(f"The axes of self {self.axes} and {coords_obs.axes} do not agree.")
-                coords_obs = Coordinates(obs=self.obs, axes=self.axes or coords_obs.axes)
+            coords_obs = self.coords.with_obs(coords.obs)
+            if coords_obs.axes is not None and coords.axes is not None:
+                if coords_obs.axes != coords.axes:
+                    raise BehaviorUnderDiscussion(f"The reordered axes of self {self.axes} and the new coordinates"
+                                                  f" {coords_obs.axes} do not agree.")
+                # coords_obs = Coordinates(obs=self.obs, axes=self.axes or coords_obs.axes)
             new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
             # new_space_obs.coords._axes = coords_obs.axes
-            # new_space_obs = new_space_obs.with_axes(coords_obs.axes) # are the same
+            if coords.axes is not None:
+                new_space_obs = new_space_obs.with_axes(coords.axes)  # are the same or self.axes is None
 
         if self.axes is not None and coords.axes is not None:
-            coords_axes = coords.with_axes(self.axes)
-            if self.obs is not None and coords_axes.obs is not None:
-                if self.obs != coords_axes.obs:
-                    raise BehaviorUnderDiscussion(f"The obs of self {self.obs} and {coords_axes.obs} do not agree.")
-                coords_axes = Coordinates(obs=self.obs or coords_axes.obs, axes=self.axes)
+            coords_axes = self.coords.with_axes(coords.axes)
+            if coords_axes.obs is not None and coords.obs is not None:
+                if coords_axes.obs != coords.obs:
+                    raise BehaviorUnderDiscussion(f"The reordered obs of self {coords_axes} and the new coordinates"
+                                                  f" {coords_axes.obs} do not agree.")
+                # coords_axes = Coordinates(obs=self.obs or coords_axes.obs, axes=self.axes)
             new_space_axes = self.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
             # new_space_axes.coords._obs = coords_axes.obs
-            # new_space_axes = new_space_axes.with_obs(coords_axes.obs)
+            if coords.obs is not None:
+                new_space_axes = new_space_axes.with_obs(coords.obs)
 
         if new_space_obs is not None and new_space_axes is not None:
             if new_space_obs.axes != new_space_axes.axes or new_space_obs.obs != new_space_axes.obs:
@@ -1220,6 +1226,9 @@ class Space(BaseSpace):
                                                    f" because the obs and axes assignement does not agree."
                                                    f" The ordering of the axes with respect to the obs"
                                                    f" is different.")
+        if new_space_obs is None and new_space_axes is None:
+            raise CoordinatesUnderdefinedError(f"Neither the axes nor the obs are specified in both objects"
+                                               f" {self} and {coords}")
 
         new_space = new_space_obs if new_space_axes is None else new_space_axes
         if new_space is None:
