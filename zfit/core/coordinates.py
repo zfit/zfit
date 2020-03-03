@@ -58,7 +58,7 @@ class Coordinates(ZfitOrderableDimensional):
     def n_obs(self):
         return self._n_obs
 
-    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False, allow_subset: bool = False):
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = True, allow_subset: bool = True):
         if obs is None:  # drop obs, check if there are axes
             if self.axes is None:
                 raise AxesIncompatibleError("cannot remove obs (using None) for a Space without axes")
@@ -84,8 +84,8 @@ class Coordinates(ZfitOrderableDimensional):
                 new_coords = type(self)(obs=new_obs, axes=new_axes)
         return new_coords
 
-    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
-                  allow_subset: bool = False) -> "zfit.Space":
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = True,
+                  allow_subset: bool = True) -> "zfit.Space":
         """Sort by `axes` and return the new instance. `None` drops the axes.
 
         Args:

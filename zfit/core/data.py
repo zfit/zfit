@@ -410,7 +410,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
     @invalidates_cache
-    def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = False):
+    def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
         if not allow_superset:
             if not frozenset(axes) <= frozenset(self.axes):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
@@ -434,7 +434,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
 
-        space = self.space.with_obs(obs=obs, allow_subset=True)
+        space = self.space.with_obs(obs=obs, allow_subset=True, allow_superset=allow_superset)
 
         def setter(value):
             self._space = value

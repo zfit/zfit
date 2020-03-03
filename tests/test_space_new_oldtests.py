@@ -2,16 +2,15 @@
 
 import copy
 import random
-from collections import OrderedDict
 
-import pytest
 import numpy as np
+import pytest
 
 from zfit.core.space_new import Space, convert_to_space
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import ObsNotSpecifiedError, AxesNotSpecifiedError, LimitsUnderdefinedError, \
-    CoordinatesUnderdefinedError, ObsIncompatibleError, ShapeIncompatibleError
+from zfit.util.exception import LimitsUnderdefinedError, \
+    CoordinatesUnderdefinedError, ShapeIncompatibleError, LimitsIncompatibleError
 
 lower11 = 1
 lower12 = 4
@@ -110,8 +109,8 @@ def test_space(space, lower, upper, limit, axes, areas, n_limits):
 
 @pytest.mark.parametrize("space,obs",
                          [
-                             # (space1_obs, limit1_obs),
-                             (space2_obs, limit12_obs)
+                             # (space1_obs, limit11_obs),
+                             (space2_obs, limit2_obs)
 
                          ])
 def test_setting_axes(space, obs):
@@ -121,8 +120,8 @@ def test_setting_axes(space, obs):
     while len(obs) > 1 and new_obs == list(obs):
         random.shuffle(new_obs)
     new_obs = tuple(new_obs)
-    true_lower = tuple(tuple(low[obs.index(o)] for o in new_obs) for low in lower)
-    true_upper = tuple(tuple(up[obs.index(o)] for o in new_obs) for up in upper)
+    true_lower = np.array(tuple(tuple(low[obs.index(o)] for o in new_obs) for low in lower))
+    true_upper = np.array(tuple(tuple(up[obs.index(o)] for o in new_obs) for up in upper))
     new_axes = tuple(range(len(new_obs)))
     coords = Space(obs=new_obs, axes=new_axes)
     # obs_axes = OrderedDict((o, ax) for o, ax in zip(new_obs, new_axes))
@@ -131,32 +130,26 @@ def test_setting_axes(space, obs):
         # make sure it was shuffled
         assert new_obs != obs
         assert new_axes != axes
-        assert true_lower != lower
-        assert true_upper != upper
+        assert np.any(true_lower != lower)
+        assert np.any(true_upper != upper)
 
     new_space = space.with_coords(coords)
     # check new object
     assert new_axes == new_space.axes
     assert new_obs == new_space.obs
-    assert true_lower == new_space.lower
-    assert true_upper == new_space.upper
+    assert np.all(true_lower == new_space.lower)
+    assert np.all(true_upper == new_space.upper)
 
     # check that old object didn't change
     assert axes == space.axes
     assert obs == space.obs
-    assert lower == space.lower
-    assert upper == space.upper
-
-    with space._set_obs_axes(obs_axes=obs_axes, ordered=True):
-        assert new_axes == space.axes
-        assert new_obs == space.obs
-        assert true_lower == space.lower
-        assert true_upper == space.upper
+    assert np.all(lower == space.lower)
+    assert np.all(upper == space.upper)
 
     assert axes == space.axes
     assert obs == space.obs
-    assert lower == space.lower
-    assert upper == space.upper
+    assert np.all(lower == space.lower)
+    assert np.all(upper == space.upper)
 
 
 def test_exception():
@@ -194,46 +187,17 @@ def test_dimensions():
     with pytest.raises(RuntimeError):
         space.limit1d
 
-    space = Space(obs='obs1', limits=(((1,), (2,)), ((2,), (3,))))
-    assert space.n_obs == 1
-    assert space.n_limits == 2
-    with pytest.raises(RuntimeError):
-        space.limit2d
+    with pytest.raises(LimitsIncompatibleError):
+        _ = Space(obs='obs1', limits=(((1,), (2,)), ((2,), (3,))))
 
-    space = Space(obs=['obs1', 'obs2'], limits=(((1, 5), (2, 4)), ((2, 3), (3, 2))))
+    space = Space(obs=['obs1', 'obs2'], limits=(((1, 5),), ((2, 3),)))
     assert space.n_obs == 2
-    assert space.n_limits == 2
     with pytest.raises(RuntimeError):
-        space.limit2d
-        space.limits1d
+        space.limit1d
 
     space = Space(obs='obs1', limits=(((1,),), ((2,),)))
     assert space.n_obs == 1
     assert space.n_limits == 1
-
-    space = Space(obs=['obs1', 'obs2'],
-                  limits=(((1, 5), (2, 4), (1, 5), (2, 4)), ((2, 3), (3, 2), (1, 5), (2, 4))))
-    assert space.n_obs == 2
-    assert space.n_limits == 4
-
-    space = Space(obs=['obs1', 'obs2', 'obs3', 'obs4'],
-                  limits=(((1, 5, 2, 4), (1, 5, 2, 4)), ((2, 3, 3, 2), (1, 5, 2, 4))))
-    assert space.n_obs == 4
-    assert space.n_limits == 2
-
-    lower1, lower2, upper1, upper2 = 1, 2, 2, 3
-    space = Space(axes=(1,), limits=(((lower1,), (lower2,)), ((upper1,), (upper2,))))
-    assert space.n_obs == 1
-    assert space.n_limits == 2
-    low1, low2, up1, up2 = space.limits1d
-    with pytest.raises(RuntimeError):
-        space.limit1d
-
-    space = Space(axes=(1, 2), limits=(((1, 5), (2, 4)), ((2, 3), (3, 2))))
-    assert space.n_obs == 2
-    assert space.n_limits == 2
-    with pytest.raises(RuntimeError):
-        space.limit1d
 
     lower1 = 1
     upper1 = 2
@@ -243,11 +207,6 @@ def test_dimensions():
     lower, upper = space.limit1d
     assert lower == lower1
     assert upper == upper1
-
-    space = Space(axes=(1, 2, 4, 5),
-                  limits=(((1, 5, 2, 4), (1, 5, 2, 4)), ((2, 3, 3, 2), (1, 5, 2, 4))))
-    assert space.n_obs == 4
-    assert space.n_limits == 2
 
 
 def test_autoconvert():

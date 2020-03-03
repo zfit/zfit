@@ -5,10 +5,24 @@ import numpy as np
 import zfit
 from zfit import z
 from zfit.core.coordinates import Coordinates
-from zfit.core.space_new import Space, Limit, ANY
+from zfit.core.space_new import Space, Limit, ANY, MultiSpace
 from zfit.util.exception import CoordinatesUnderdefinedError, BehaviorUnderDiscussion
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+
+setup_func_general = setup_function
+teardown_func_general = teardown_function
+
+
+def setup_function():
+    Limit._experimental_allow_vectors = True
+    setup_func_general()
+
+
+def teardown_function():
+    Limit._experimental_allow_vectors = False
+    teardown_func_general()
+
 
 obs1 = ('a', 'b', 'c', 'd', 'e')
 obs2 = ('c', 'b', 'd', 'e', 'a')
@@ -43,11 +57,14 @@ limits2mixed_any = ([0, ANY, ANY, 2, -2], [5, 4, ANY, 7, 3])
 limits1any = ([ANY] * 5, [ANY] * 5)
 limits2any = ([ANY] * 5, [ANY] * 5)
 
-limits_to_test = [[limits1, limits2], [limits1tf, limits2tf],
-                  [limits1mixed_any, limits2mixed_any], [limits1any, limits2any],
+limits_to_test = [[limits1, limits2],
+                  [limits1tf, limits2tf],
+                  [limits1mixed_any, limits2mixed_any],
+                  [limits1any, limits2any],
                   [limits1vector, limits2vector],
                   [{'multi': [limits1, limits3]}, {'multi': [limits2, limits4]}],
                   [{'multi': [limits1any, limits2any]}, {'multi': [limits1any, limits2any]}],
+                  [{'multi': [limits1, limits2any]}, {'multi': [limits1any, limits2]}],
                   ]
 
 
@@ -183,3 +200,129 @@ def test_with_coords(limits):
 
     space = space_used.with_coords(coords2axes)
     assert space == space2axes
+
+
+@pytest.mark.parametrize('limits', limits_to_test)
+def test_with_obs(limits):
+    limits1, limits2 = limits
+
+    space1obs = space_factory(obs1, limits=limits1)
+    space1 = space_factory(obs1, limits=limits1, axes=axes1)
+    space1axes = space_factory(limits=limits1, axes=axes1)
+    space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
+
+    space2obs = space_factory(obs2, limits=limits2)
+    space2 = space_factory(obs2, limits=limits2, axes=axes2)
+    space2axes = space_factory(limits=limits2, axes=axes2)
+    space2mixed = space_factory(obs2, limits=limits1, axes=axes1)
+
+    # define which space to use in this tests
+    space_used = space1obs
+
+    space = space_used.with_obs(obs1)
+    assert space == space1obs
+
+    space = space_used.with_obs(obs2)
+    assert space == space2obs
+
+    # define which space to use in this tests
+    space_used = space1
+
+    space = space_used.with_obs(obs1)
+    assert space == space1
+
+    space = space_used.with_obs(obs2)
+    assert space == space2
+
+    # define which space to use in this tests
+    space_used = space1axes
+
+    space = space_used.with_obs(obs1)
+    assert space == space1
+
+    space = space_used.with_obs(obs2)
+    assert space == space2mixed
+
+
+@pytest.mark.parametrize('limits', limits_to_test)
+def test_with_axes(limits):
+    limits1, limits2 = limits
+
+    space1obs = space_factory(obs1, limits=limits1)
+    space1 = space_factory(obs1, limits=limits1, axes=axes1)
+    space1axes = space_factory(limits=limits1, axes=axes1)
+    space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
+
+    space2obs = space_factory(obs2, limits=limits2)
+    space2 = space_factory(obs2, limits=limits2, axes=axes2)
+    space2axes = space_factory(limits=limits2, axes=axes2)
+
+    # define which space to use in this tests
+    space_used = space1obs
+
+    space = space_used.with_axes(axes1)
+    assert space == space1
+
+    space = space_used.with_axes(axes2)
+    assert space == space1mixed
+
+    # define which space to use in this tests
+    space_used = space1
+
+    space = space_used.with_axes(axes1)
+    assert space == space1
+
+    space = space_used.with_axes(axes2)
+    assert space == space2
+
+    # define which space to use in this tests
+    space_used = space1axes
+
+    space = space_used.with_axes(axes1)
+    assert space == space1axes
+
+    space = space_used.with_axes(axes2)
+    assert space == space2axes
+
+
+@pytest.mark.parametrize('limits', limits_to_test)
+def test_space_add(limits):
+    limits1, limits2 = limits
+
+    space1obs = space_factory(obs1, limits=limits1)
+    space1 = space_factory(obs1, limits=limits1, axes=axes1)
+    space1axes = space_factory(limits=limits1, axes=axes1)
+    space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
+
+    space2obs = space_factory(obs2, limits=limits2)
+    space2 = space_factory(obs2, limits=limits2, axes=axes2)
+    space2mixed = space_factory(obs2, limits=limits2, axes=axes1)
+    space2axes = space_factory(limits=limits2, axes=axes2)
+
+    space = space1 + space2
+    assert space.obs == obs1
+    assert space.axes == axes1
+    for spm, sp in zip(space, [*space1, *space2]):
+        assert spm == sp
+
+    space = space2 + space1
+    assert space.obs == obs2
+    assert space.axes == axes2
+    for spm, sp in zip(space, [*space2, *space1]):
+        assert spm == sp
+
+    space = space1obs + space2
+    assert space.obs == obs1
+    assert space.axes == None
+
+    space = space1axes + space2
+    assert space.obs == None
+    assert space.axes == axes1
+
+    space = space2obs + space1
+    assert space.obs == obs2
+    assert space.axes == None
+
+    space = space2axes + space1
+    assert space.obs == None
+    assert space.axes == axes2

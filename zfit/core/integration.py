@@ -344,7 +344,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
     def space(self) -> "zfit.Space":
         return self._space
 
-    def sort_by_axes(self, axes, allow_superset: bool = False):
+    def sort_by_axes(self, axes, allow_superset: bool = True):
         axes = convert_to_container(axes)
         new_reorder_list = [self._reorder_indices_list[self.space.axes.index(ax)] for ax in axes]
         value = self.space.with_axes(axes=axes), new_reorder_list
@@ -356,7 +356,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
 
         return TemporarilySet(value=value, getter=getter, setter=setter)
 
-    def sort_by_obs(self, obs, allow_superset: bool = False):
+    def sort_by_obs(self, obs, allow_superset: bool = True):
         obs = convert_to_container(obs)
         new_reorder_list = [self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs]
 

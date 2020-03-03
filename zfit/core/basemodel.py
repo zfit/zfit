@@ -268,7 +268,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         if self.space is not None:  # e.g. not the first call
-            space = space.with_coords(self.space)
+            space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
         return space
 
     # Integrals

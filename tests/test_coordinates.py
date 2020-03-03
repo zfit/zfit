@@ -77,11 +77,12 @@ def test_with_obs_or_axes(graph, testclass):
     obs1 = ('b', 'c', 'd', 'a')
     obs2 = ('d', 'a', 'b', 'c')
     sub_obs1 = ('c', 'a')
+    super_obs1 = ('a', 'y', 'b', 'v', 'c', 'd')
 
     axes = (0, 1, 2, 3)
     axes1 = (1, 2, 3, 0)
     axes2 = (3, 0, 1, 2)
-
+    super_axes1 = (0, 6, 1, 9, 2, 3)
     sub_axes1 = (2, 0)
 
     coords_obs = testclass(obs)
@@ -162,6 +163,20 @@ def test_with_obs_or_axes(graph, testclass):
     assert coords_axes2.axes == sub_axes1
     with pytest.raises(AxesIncompatibleError):
         coords_obs2 = coords.with_axes(axes=coords_axes, allow_subset=False)
+
+    coords_obs = super_obs1
+    coords_obs2 = coords.with_obs(obs=coords_obs, allow_subset=True, allow_superset=True)
+    assert coords_obs2.obs == obs
+    assert coords_obs2.axes == axes
+    with pytest.raises(ObsIncompatibleError):
+        coords_obs2 = coords.with_obs(obs=coords_obs, allow_superset=False)
+
+    coords_axes = super_axes1
+    coords_axes2 = coords.with_axes(axes=coords_axes, allow_superset=True, allow_subset=True)
+    assert coords_axes2.obs == obs
+    assert coords_axes2.axes == axes
+    with pytest.raises(AxesIncompatibleError):
+        coords_obs2 = coords.with_axes(axes=coords_axes, allow_superset=False)
 # if graph:
 #     test = z.function(test)
 # test()

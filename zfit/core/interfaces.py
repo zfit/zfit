@@ -8,7 +8,6 @@ import tensorflow as tf
 
 import zfit
 from ..util import ztyping
-from ..util.exception import BreakingAPIChangeError
 
 
 class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
@@ -54,8 +53,8 @@ class ZfitDimensional(ZfitObject):
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
-    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
-                 allow_subset: bool = False):
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = True,
+                 allow_subset: bool = True):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -67,8 +66,8 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
-                  allow_subset: bool = False):
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = True,
+                  allow_subset: bool = True):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -116,11 +115,11 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def sort_by_obs(self, obs, allow_superset: bool = False):
+    def sort_by_obs(self, obs, allow_superset: bool = True):
         raise NotImplementedError
 
     @abstractmethod
-    def sort_by_axes(self, axes, allow_superset: bool = False):
+    def sort_by_axes(self, axes, allow_superset: bool = True):
         raise NotImplementedError
 
     @property
@@ -241,7 +240,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
-
     @property
     @abstractmethod
     def lower(self) -> ztyping.LowerTypeReturn:
@@ -286,8 +284,8 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
     @abstractmethod
-    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = False,
-                 allow_subset: bool = False):
+    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = True,
+                 allow_subset: bool = True):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -299,8 +297,8 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
     @abstractmethod
-    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = False,
-                  allow_subset: bool = False):
+    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = True,
+                  allow_subset: bool = True):
         """Sort by `obs` and return the new instance.
 
         Args:
@@ -354,7 +352,8 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
     @abstractmethod
-    def with_coords(self, coords, allow_superset=False, allow_subset=True):
+    def with_coords(self, coords: ZfitOrderableDimensional, allow_superset: bool = True,
+                    allow_subset: bool = True) -> object:
         """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
 
 

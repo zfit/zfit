@@ -53,7 +53,7 @@ obs1 = zfit.Space('obs1', (np.min([test_values_np[:, 0], test_values_np2]) - 1.4
                            np.max([test_values_np[:, 0], test_values_np2]) + 2.4))
 
 mu_constr = [1.6, 0.2]  # mu, sigma
-sigma_constr = [3.8, 0.2]
+sigma_constr = [3.7, 0.1]
 constr = lambda: [mu_constr[1], sigma_constr[1]]
 constr_tf = lambda: z.convert_to_tensor(constr())
 covariance = lambda: np.array([[mu_constr[1] ** 0.5, -0.05], [-0.05, sigma_constr[1] ** 0.5]])
