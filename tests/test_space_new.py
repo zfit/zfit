@@ -26,6 +26,9 @@ coords2axes = Coordinates(axes=axes2)
 limits1 = ([-2, -1, 0, 1, 2], [3, 4, 5, 6, 7])
 limits2 = ([0, -1, 1, 2, -2], [5, 4, 6, 7, 3])
 
+limits3 = ([11, 12, 13, 14, 15], [31, 41, 51, 61, 71])
+limits4 = ([13, 12, 14, 15, 11], [51, 41, 61, 71, 31])
+
 limits1vector = ([[-21, -11, 91, 11, 21], [-22, -12, 92, 12, 22], [-23, -13, 93, 13, 23]],
                  [[31, 41, 51, 61, 71], [32, 42, 52, 62, 72], [33, 43, 53, 63, 73]])
 limits2vector = ([[91, -11, 11, 21, -21], [92, -12, 12, 22, -22], [93, -13, 13, 23, -23]],
@@ -42,7 +45,10 @@ limits2any = ([ANY] * 5, [ANY] * 5)
 
 limits_to_test = [[limits1, limits2], [limits1tf, limits2tf],
                   [limits1mixed_any, limits2mixed_any], [limits1any, limits2any],
-                  [limits1vector, limits2vector]]
+                  [limits1vector, limits2vector],
+                  [{'multi': [limits1, limits3]}, {'multi': [limits2, limits4]}],
+                  [{'multi': [limits1any, limits2any]}, {'multi': [limits1any, limits2any]}],
+                  ]
 
 
 def test_extract_limits():
@@ -98,61 +104,61 @@ def test_rect_limits():
     assert upper == 1
 
 
+def space_factory(*args, limits=None, **kwargs):
+    if isinstance(limits, dict):
+        limit1, limit3 = limits['multi']
+        space1 = zfit.Space(*args, limits=limit1, **kwargs)
+        space3 = zfit.Space(*args, limits=limit3, **kwargs)
+        return space1 + space3
+    else:
+        space = zfit.Space(*args, limits=limits, **kwargs)
+        return space
+
 @pytest.mark.parametrize('limits', limits_to_test)
 def test_with_coords(limits):
-    limits, limits2 = limits
-    space1obs = zfit.Space(obs1, limits=limits)
-    space1 = zfit.Space(obs1, limits=limits, axes=axes1)
-    space1axes = zfit.Space(limits=limits, axes=axes1)
-    space1mixed = zfit.Space(obs1, limits=limits, axes=axes2)
-    limits1 = space1obs.rect_limits_np
+    limits1, limits2 = limits
 
-    space2obs = zfit.Space(obs2, limits=limits2)
-    space2 = zfit.Space(obs2, limits=limits2, axes=axes2)
-    space2mixed = zfit.Space(obs2, limits=limits2, axes=axes1)
-    space2axes = zfit.Space(limits=limits2, axes=axes2)
-    limits2 = space2obs.rect_limits_np
+    space1obs = space_factory(obs1, limits=limits1)
+    space1 = space_factory(obs1, limits=limits1, axes=axes1)
+    space1axes = space_factory(limits=limits1, axes=axes1)
+    space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
+
+    space2obs = space_factory(obs2, limits=limits2)
+    space2 = space_factory(obs2, limits=limits2, axes=axes2)
+    space2mixed = space_factory(obs2, limits=limits2, axes=axes1)
+    space2axes = space_factory(limits=limits2, axes=axes2)
 
     # define which space to use in this tests
     space_used = space1obs
 
     space = space_used.with_coords(coords1obs)
-    assert space.obs == obs1
-    assert space.axes == None
-    np.testing.assert_equal(space.rect_limits_np, limits1)
+    assert space == space1obs
 
     space = space_used.with_coords(coords2obs)
-    assert space.obs == obs2
-    assert space.axes == None
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    assert space == space2obs
 
     coords = coords2
     space = space_used.with_coords(coords)
-    assert space.obs == coords.obs
-    assert space.axes == coords.axes
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    assert space == space2
 
     with pytest.raises(CoordinatesUnderdefinedError):
         space = space_used.with_coords(coords2axes)
+
+    space = space_used.with_coords(coords2mixed)
+    assert space.obs == coords2mixed.obs
+    assert space.axes == coords2mixed.axes
 
     # define which space to use in this tests
     space_used = space1
 
     space = space_used.with_coords(coords1obs)
-    assert space.obs == obs1
-    assert space.axes == axes1
-    np.testing.assert_equal(space.rect_limits_np, limits1)
+    assert space == space1
 
     space = space_used.with_coords(coords2obs)
-    assert space.obs == obs2
-    assert space.axes == axes2
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    assert space == space2
 
-    coords = coords2
-    space = space_used.with_coords(coords)
-    assert space.obs == obs2
-    assert space.axes == axes2
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    space = space_used.with_coords(coords2)
+    assert space == space2
 
     with pytest.raises(BehaviorUnderDiscussion):
         space_used.with_coords(coords2mixed)
@@ -161,28 +167,19 @@ def test_with_coords(limits):
         space_used.with_coords(coords1mixed)
 
     space = space_used.with_coords(coords2axes)
-    assert space.obs == obs2
-    assert space.axes == axes2
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    assert space == space2
 
     # define which space to use in this tests
     space_used = space1axes
 
     space = space_used.with_coords(coords1axes)
-    assert space.obs == None
-    assert space.axes == axes1
-    np.testing.assert_equal(space.rect_limits_np, limits1)
+    assert space == space1axes
 
     with pytest.raises(CoordinatesUnderdefinedError):
         space = space_used.with_coords(coords2obs)
 
-    coords = coords2
-    space = space_used.with_coords(coords)
-    assert space.obs == coords.obs
-    assert space.axes == coords.axes
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    space = space_used.with_coords(coords2)
+    assert space == space2
 
     space = space_used.with_coords(coords2axes)
-    assert space.obs == None
-    assert space.axes == coords.axes
-    np.testing.assert_equal(space.rect_limits_np, limits2)
+    assert space == space2axes

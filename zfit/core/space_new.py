@@ -1588,13 +1588,17 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
 def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
     if not len(space1) == len(space2):
         return False
-    if not space1.has_limits and space2.has_limits:
+    if not (space1.has_limits and space2.has_limits):
         return False
     space2_reordered = space2.with_coords(space1)
 
-    comparison = [[compare_limits_coords_dict(space11._limits_dict, space22._limits_dict, comparator=comparator)
-                   for space22 in space2_reordered]
-                  for space11 in space1]
+    comparison = []
+    for space11 in space1:
+        compare_spaces2 = []
+        for space22 in space2_reordered:
+            compare_spaces2.append(
+                compare_limits_coords_dict(space11._limits_dict, space22._limits_dict, comparator=comparator))
+        comparison.append(compare_spaces2)
     comparison = convert_to_tensor_or_numpy(comparison, dtype=tf.bool)
     space1_matches = z.unstable.reduce_any(comparison, axis=1)  # reduce over axis containing space2, has to match with
     # at least one space2.
@@ -1771,6 +1775,25 @@ class MultiSpace(BaseSpace):
             return None
         self._raise_limits_not_implemented()
 
+    # noinspection PyPropertyDefinition
+    @property
+    def rect_limits(self):
+        self._raise_limits_not_implemented()
+
+    # noinspection PyPropertyDefinition
+    @property
+    def rect_lower(self):
+        self._raise_limits_not_implemented()
+
+    # noinspection PyPropertyDefinition
+    @property
+    def rect_upper(self):
+        self._raise_limits_not_implemented()
+
+    @property
+    def rect_limits_are_tensors(self):
+        return all(space.limits_are_tensors for space in self)
+
     def with_limits(self, limits, name):
         self._raise_limits_not_implemented()
 
@@ -1829,7 +1852,7 @@ class MultiSpace(BaseSpace):
     def __eq__(self, other):
         if not isinstance(other, MultiSpace):
             return NotImplemented
-        all_equal = frozenset(self) == frozenset(other)
+        all_equal = equal_space(self, other, allow_graph=False)
         return all_equal
 
     def __hash__(self):
