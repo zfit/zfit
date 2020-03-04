@@ -40,12 +40,15 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         if obs is None:
             obs = models_space
         else:
+            # TODO: why is this here?
+
             if isinstance(obs, Space):
                 obs_str = obs.obs
             else:
                 obs_str = convert_to_container(value=obs, container=tuple)
             # if not frozenset(obs_str) == frozenset(models_space.obs):  # not needed, example projection
             #     raise ValueError("The given obs do not coincide with the obs from the daughter models.")
+
         return obs
 
     def _get_dependents(self):

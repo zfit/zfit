@@ -22,15 +22,19 @@ class UniformSampleAndWeights:
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
-        for space in limits:
+        n_produced = tf.constant(0)
+        for i, space in enumerate(limits):
             lower, upper = space.rect_limits  # TODO: remove new space
-            if isinstance(space, EventSpace):
-                frac = 1.  # TODO(Mayou36): remove hack for Eventspace
+            if i == len(limits) - 1:
+                n_partial_to_produce = n_to_produce - n_produced  # to prevent roundoff errors, shortcut for 1 space
             else:
-                tot_area = limits.rect_area
-                frac = (space.rect_area / tot_area)[0]
-            n_partial_to_produce = tf.cast(
-                ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
+                if isinstance(space, EventSpace):
+                    frac = 1.  # TODO(Mayou36): remove hack for Eventspace
+                else:
+                    tot_area = limits.rect_area
+                    frac = (space.rect_area / tot_area)[0]
+                n_partial_to_produce = tf.cast(
+                    ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 
             # lower = ztf.convert_to_tensor(lower, dtype=dtype)
             # upper = ztf.convert_to_tensor(upper, dtype=dtype)
@@ -51,6 +55,7 @@ class UniformSampleAndWeights:
             #     return rnd_sample, thresholds_unscaled
             rnd_samples.append(rnd_sample)
             thresholds_unscaled_list.append(thresholds_unscaled)
+            n_produced += n_partial_to_produce
 
         rnd_sample = tf.concat(rnd_samples, axis=0)
         thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)

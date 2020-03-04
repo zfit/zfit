@@ -68,7 +68,7 @@ def test_combine_spaces():
     none_limits_space = combine_spaces(space1, space1, space1)
     assert none_limits_space == space1  # with None limits
     assert none_limits_space.limits_not_set
-    with pytest.raises(LimitsNotSpecifiedError):
+    with pytest.raises(LimitsIncompatibleError):
         combine_spaces(space2d_2, space1)
 
     # same but different syntax
@@ -78,7 +78,7 @@ def test_combine_spaces():
     none_limits_space = space1.combine(space1, space1)
     assert none_limits_space == space1  # with None limits
     assert none_limits_space.limits_not_set
-    with pytest.raises(LimitsNotSpecifiedError):
+    with pytest.raises(LimitsIncompatibleError):
         space2d_2.combine(space1)
 
 

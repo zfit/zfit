@@ -6,7 +6,22 @@ import tensorflow as tf
 import zfit
 from zfit import z, Space
 # noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.space_new import Limit
+from zfit.core.testing import setup_function, teardown_function
+
+setup_func_general = setup_function
+teardown_func_general = teardown_function
+
+
+def setup_function():
+    Limit._experimental_allow_vectors = True
+    setup_func_general()
+
+
+def teardown_function():
+    Limit._experimental_allow_vectors = False
+    teardown_func_general()
+
 
 ztf = z
 from zfit.core.sample import accept_reject_sample

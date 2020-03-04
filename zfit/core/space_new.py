@@ -4,6 +4,8 @@
 
 import functools
 import inspect
+import itertools
+import warnings
 from abc import abstractmethod
 from collections import OrderedDict, defaultdict
 from contextlib import suppress
@@ -384,6 +386,14 @@ class Limit(ZfitLimit):
             return NotImplemented
         return self.equal(other, allow_graph=False)
 
+        # TODO: use below?
+        # try:
+        #     return self.equal(other, allow_graph=False)
+        # except IllegalInGraphModeError:
+        #     warnings.warn(f"Comparing instances ({self, other}) in graph mode (space/limit) contains Tensor. This returns"
+        #                   " identity tests. To prevent this, use numpy objects, not tensors, for limits if not needed.")
+        #     return self is other
+
     def __le__(self, other):
         if not isinstance(other, ZfitLimit):
             return NotImplemented
@@ -399,10 +409,6 @@ class Limit(ZfitLimit):
         objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
         return hash(tuple(objects))
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Limit):
-            return NotImplemented
-        return self.equal(other=other, allow_graph=False)
 
     def equal(self, other, allow_graph=True):
         return equal_limits(self, other, allow_graph=allow_graph)
@@ -1480,7 +1486,6 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     all_limits_false = all([space.limits_are_false for space in spaces])
     all_limits_not_set = all([space.limits_not_set for space in spaces])
     has_limits = [space.has_limits for space in spaces]
-    # limits_are_set = [space. for space in spaces]
     if all_limits_false:
         limits = False
     elif all_limits_not_set:
@@ -1488,6 +1493,11 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     elif not all(has_limits):
         raise LimitsIncompatibleError("Limits either have to be set, not set, or False for all spaces to be combined.")
     else:
+        space_combinations = tuple(itertools.product(*spaces))
+        if len(space_combinations) > 1:  # there are MultiSpaces in there
+            return MultiSpace(spaces=[combine_spaces_new(*spa) for spa in space_combinations],
+                              obs=all_obs,
+                              axes=all_axes)
         # TODO: how to handle multispaces?
         # TODO: spaces that have multidim limits?
         limits_dict = {}
@@ -1892,9 +1902,15 @@ class MultiSpace(BaseSpace):
 
     def __eq__(self, other):
         if not isinstance(other, MultiSpace):
-            return NotImplemented
+            raise MultipleLimitsNotImplementedError
         all_equal = equal_space(self, other, allow_graph=False)
         return all_equal
+
+    def __le__(self, other):
+        if not isinstance(other, MultiSpace):
+            raise MultipleLimitsNotImplementedError
+        all_less_equal = less_equal_space(self, other, allow_graph=False)
+        return all_less_equal
 
     def __hash__(self):
         return hash(self.spaces)
