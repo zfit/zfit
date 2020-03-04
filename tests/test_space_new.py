@@ -177,11 +177,13 @@ def test_with_coords(limits):
     space = space_used.with_coords(coords2)
     assert space == space2
 
-    with pytest.raises(BehaviorUnderDiscussion):
-        space_used.with_coords(coords2mixed)
+    space = space_used.with_coords(coords2mixed)
+    assert space.axes is None
+    assert space.obs == coords2mixed.obs
 
-    with pytest.raises(BehaviorUnderDiscussion):
-        space_used.with_coords(coords1mixed)
+    space = space_used.with_coords(coords1mixed)
+    assert space.obs == coords1mixed.obs
+    assert space.axes is None
 
     space = space_used.with_coords(coords2axes)
     assert space == space2
