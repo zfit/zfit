@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 zfit
 import pytest
-from sympy.printing.tests.test_tensorflow import tf
+import tensorflow as tf
 
 import zfit
 from zfit import z
