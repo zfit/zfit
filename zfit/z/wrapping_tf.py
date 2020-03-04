@@ -77,10 +77,6 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
     return check_op
 
 
-#
-# @functools.wraps(tf.reduce_sum)
-# def reduce_sum(*args, **kwargs):
-#     return tf.reduce_sum(*args, **kwargs)
 reduce_sum = tf.reduce_sum
 
 reduce_prod = tf.reduce_prod

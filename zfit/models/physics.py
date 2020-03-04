@@ -42,63 +42,7 @@ def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     return func
 
 
-# def _python_crystalball_integral(limits, params):  # not working with tf, used for autoconvert
-#     mu = params['mu']
-#     sigma = params['sigma']
-#     alpha = params['alpha']
-#     n = params['n']
-#
-#     (lower,), (upper,) = limits.limits
-#
-#     sqrt_pi_over_two = np.sqrt(np.pi / 2)
-#     sqrt2 = np.sqrt(2)
-#
-#     result = 0.0
-#     use_log = tf.abs(n - 1.0) < 1.0e-05
-#
-#     abs_sigma = tf.abs(sigma)
-#     abs_alpha = tf.abs(alpha)
-#
-#     tmin = (lower - mu) / abs_sigma
-#     tmax = (upper - mu) / abs_sigma
-#
-#     if alpha < 0:
-#         tmin, tmax = -tmax, -tmin
-#
-#     if tmin >= -abs_alpha:
-#         result += abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2)
-#                                                   - tf.erf(tmin / sqrt2))
-#
-#     elif tmax <= -abs_alpha:
-#         a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
-#
-#         b = n / abs_alpha - abs_alpha
-#
-#         if use_log:
-#             result += a * abs_sigma * (tf.log(b - tmin) - tf.log(b - tmax))
-#         else:
-#             result += a * abs_sigma / (1.0 - n) * (1.0 / (tf.pow(b - tmin, n - 1.0))
-#                                                    - 1.0 / (tf.pow(b - tmax, n - 1.0)))
-#     else:
-#         a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
-#         b = n / abs_alpha - abs_alpha
-#
-#         if use_log:
-#             term1 = a * abs_sigma * (tf.log(b - tmin) - tf.log(n / abs_alpha))
-#
-#         else:
-#             term1 = a * abs_sigma / (1.0 - n) * (1.0 / (tf.pow(b - tmin, n - 1.0))
-#                                                  - 1.0 / (tf.pow(n / abs_alpha, n - 1.0)))
-#
-#         term2 = abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2)
-#                                                 - tf.erf(-abs_alpha / sqrt2))
-#
-#         result += term1 + term2
-#
-#     return result
-
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
-
 def crystalball_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']

@@ -21,18 +21,6 @@ def create_data1():
     return zfit.Data.from_numpy(obs=obs1, array=example_data1)
 
 
-# def test_from_root_iter():
-#     from skhep_testdata import data_path
-#
-#     path_root = data_path("uproot-Zmumu.root")
-#
-#     branches = ['pt1', 'pt2']
-#
-#     data = zfit.Data.from_root(path=path_root, treepath='events', branches=branches)
-#
-#     x = data.value()
-
-
 @pytest.mark.parametrize("weights_factory", [lambda: None,
                                              lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
                                              lambda: np.random.normal(size=1000),

@@ -1,6 +1,5 @@
 #  Copyright (c) 2020 zfit
 
-# from .minimizers.optimizers_tf import RMSPropMinimizer, GradientDescentMinimizer, AdagradMinimizer, AdadeltaMinimizer,
 from tensorflow_core.python import deprecated
 
 from .minimizers.minimizer_minuit import Minuit
