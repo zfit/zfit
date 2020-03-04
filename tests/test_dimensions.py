@@ -6,7 +6,7 @@ import pytest
 
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import (LimitsIncompatibleError, LimitsNotSpecifiedError, SpaceIncompatibleError,
+from zfit.util.exception import (LimitsIncompatibleError, SpaceIncompatibleError,
                                  ObsIncompatibleError, MultipleLimitsNotImplementedError)
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -14,7 +14,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import zfit
 from zfit.core.dimension import limits_overlap
 from zfit.core.space_new import combine_spaces
-from zfit.core.space_new import limits_consistent, add_spaces
+from zfit.core.space_new import limits_consistent
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
@@ -80,33 +80,6 @@ def test_combine_spaces():
     assert none_limits_space.limits_not_set
     with pytest.raises(LimitsIncompatibleError):
         space2d_2.combine(space1)
-
-
-@pytest.mark.skip
-def test_add_spaces_old():
-    with pytest.raises(ValueError):
-        assert add_spaces(spaces=space1)
-    with pytest.raises(ValueError):
-        assert add_spaces(spaces=[space1])
-    with pytest.raises(ValueError):
-        assert add_spaces(spaces=[])
-    with pytest.raises(LimitsIncompatibleError):
-        assert add_spaces(spaces=[space2d_1, space2d_2])
-
-    assert add_spaces(spaces=[space1, space2]) == space1
-    assert add_spaces(spaces=[space1, space2, space3]) == space1
-    assert not add_spaces(spaces=[space1, space2, space3, space4])
-
-    assert space1 + space2 == space1
-    assert space1 + space2 + space3 == space1
-    assert not space1.add(space2, space3, space4)
-
-    assert not add_spaces(spaces=(space1d_2, space2d_1))
-    assert add_spaces(spaces=(space1d_2, space1d_1)).limits == space1d_2.limits
-
-    assert add_spaces(spaces=[space1d_12, space1d_22]).limits == combined_lim_1d_12_and_22
-    assert add_spaces(spaces=[space1d_12, space1d_12, space1d_22, space1d_12]).limits == combined_lim_1d_12_and_22
-    assert add_spaces(spaces=[space1d_12, space1d_12, space1d_12]).limits == (lower1d_12, upper1d_12)
 
 
 def test_add_spaces():

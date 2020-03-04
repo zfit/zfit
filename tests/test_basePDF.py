@@ -261,39 +261,40 @@ def test_copy():
     assert new_gauss is not gauss_params1
 
 
-@pytest.mark.skip  # unsure why it does not fully work...
 def test_projection_pdf():
-    # return  # HACK(Mayou36) check again on projection and dimensions. Why was there an expand_dims?
-    # x = zfit.Space("x", limits=(-5, 5))
-    # y = zfit.Space("y", limits=(-5, 5))
-    # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
-    # gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
-    # gauss_xy = ProductPDF([gauss_x, gauss_y])
-
     x = zfit.Space("x", limits=(-1, 1))
-    y = zfit.Space("y", limits=(-0.1, 1))
-    # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
-    # gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
-    # gauss_xy = ProductPDF([gauss_x, gauss_y])
-    import tensorflow as tf
-    # gauss_xy = ProductPDF([gauss_x, gauss_y])
+    y = zfit.Space("y", limits=(-1, 1))
 
     def correlated_func(self, x):
         x, y = x.unstack_x()
-        value = 1 / (tf.abs(x - y) + 0.1) ** 2
+        value = (((x - y ** 3) ** 2) + 0.1)
         return value
 
-    gauss_xy = SimplePDF(func=correlated_func, obs=x * y)
+    def correlated_func_integrate_x(y, limits):
+        lower, upper = limits.rect_limits
+
+        def integ(x, y):
+            return 0.333333333333333 * x ** 3 - 1.0 * x ** 2 * y ** 3 + x * (1.0 * y ** 6 + 0.1)
+
+        return integ(y, upper) - integ(y, lower)
+
+    def correlated_func_integrate_y(x, limits):
+        lower, upper = limits.rect_limits
+
+        def integ(x, y):
+            return -0.5 * x * y ** 4 + 0.142857142857143 * y ** 7 + y * (1.0 * x ** 2 + 0.1)
+
+        return (integ(x, upper) - integ(x, lower))[0]
+
+    obs = x * y
+    gauss_xy = SimplePDF(func=correlated_func, obs=obs)
     assert gauss_xy.create_projection_pdf(limits_to_integrate=y).norm_range == x
     proj_pdf = gauss_xy.create_projection_pdf(limits_to_integrate=y)
     test_values = np.array([-0.95603563, -0.84636306, -0.83895759, 2.62608006, 1.02336499,
                             -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
                             1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,
                             0.31566277, -1.55696965, 0.36304538, 0.77765786, 3.92630088])
-    true_probs = np.array([0.0198562, 0.02369336, 0.02399382, 0.00799939, 0.2583654, 0.01868723,
-                           0.01375734, 0.53971816, 0.00697152, 0.00438797, 0.03473656, 0.55963737,
-                           0.58296759, 0.00447878, 0.01517764, 0.59553535, 0.00943439, 0.59838703,
-                           0.56315399, 0.00312496])
+    true_probs = correlated_func_integrate_y(test_values, y) / gauss_xy.integrate(limits=obs, norm_range=False)
     probs = proj_pdf.pdf(x=test_values)
     probs = probs.numpy()
-    np.testing.assert_allclose(probs, true_probs, rtol=1e-5)  # MC normalization
+    np.testing.assert_allclose(probs, true_probs, rtol=1e-3)  # MC normalization
