@@ -80,6 +80,7 @@ def test_fmin(minimizer_class_and_kwargs):
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+@pytest.mark.flaky(2)  # odd graph problem...
 def test_covariance(minimizer_class_and_kwargs):
         
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)

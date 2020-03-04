@@ -1232,18 +1232,24 @@ class Space(BaseSpace):
             coords_obs = self.coords.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
             if coords_obs.axes is not None and coords.axes is not None:
                 if coords_obs.axes != coords.axes:
-                    raise BehaviorUnderDiscussion(f"The reordered axes of self {self.axes} and the new coordinates"
-                                                  f" {coords_obs.axes} do not agree.")
+                    pass
+                    # raise BehaviorUnderDiscussion(f"The reordered axes of self {coords.axes} and the new coordinates"
+                    #                               f" {coords_obs.axes} do not agree.")
             new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
             if coords.axes is not None:
-                # filter in case there are super/subsets
-                coords_axes = coords.with_obs(self.obs, allow_superset=allow_superset,
-                                              allow_subset=allow_subset).with_obs(coords.obs,
-                                                                                  allow_superset=allow_superset,
-                                                                                  allow_subset=allow_subset)
-                new_space_obs = new_space_obs.with_axes(coords_axes.axes)  # are the same or self.axes is None
+                if coords_obs.axes is not None and coords.axes is not None and (coords_obs.axes != coords.axes):
+                    axes_to_set = None  # drop since it's not clear what to use
+                else:
+                    # filter in case there are super/subsets
+                    coords_axes = coords.with_obs(self.obs, allow_superset=allow_superset,
+                                                  allow_subset=allow_subset).with_obs(coords.obs,
+                                                                                      allow_superset=allow_superset,
+                                                                                      allow_subset=allow_subset)
 
-        if self.axes is not None and coords.axes is not None:
+                    axes_to_set = coords_axes.axes
+                new_space_obs = new_space_obs.with_axes(axes_to_set)  # are the same or self.axes is None
+
+        elif self.axes is not None and coords.axes is not None:  # TODO: is elif fine? do obs if obs are there?
             coords_axes = self.coords.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
             if coords_axes.obs is not None and coords.obs is not None:
                 if coords_axes.obs != coords.obs:
