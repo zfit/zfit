@@ -239,8 +239,7 @@ class ComposedVariable:
 register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 
-class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
-    # class BaseParameter(ZfitParameter):
+class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
     @property
     def dtype(self) -> tf.DType:
         return self.value().dtype
@@ -261,9 +260,10 @@ class ZfitParameterMixin(BaseNumeric):
         self._name = name
         super().__init__(name=name, **kwargs)
 
-    @property
-    def name(self) -> str:
-        return self._name
+    #
+    # @property
+    # def name(self) -> str:
+    #     return self._name
 
     @property
     def floating(self):
@@ -563,6 +563,10 @@ class ConstantParameter(BaseZParameter):
 
     def __init__(self, name, value, dtype=ztypes.float):
         super().__init__(name=name, value_fn=lambda: value, params={}, dtype=dtype)
+
+    @property  # TODO: hacky way, proper name for params
+    def name(self):
+        return self._name
 
     @property
     def floating(self):

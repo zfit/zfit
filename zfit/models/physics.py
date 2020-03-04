@@ -49,7 +49,7 @@ def crystalball_integral(limits, params, model):
     alpha = params['alpha']
     n = params['n']
 
-    lower, upper = limits.rect_limits
+    lower, upper = limits.rect_limits_tf
     lower = lower
     upper = upper
 
@@ -57,7 +57,8 @@ def crystalball_integral(limits, params, model):
     return integral
 
 
-@z.function_tf_input
+# @z.function_tf_input
+# @tf.function  # BUG? TODO: problem with tf.function and input signature
 def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
@@ -140,12 +141,13 @@ def double_crystalball_mu_integral(limits, params, model):
     alphar = -params["alphar"]
     nr = params["nr"]
 
-    lower, upper = limits.limits
+    lower, upper = limits.rect_limits_tf
 
     return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
                                                lower=lower, upper=upper)
 
 
+# @tf.function
 @z.function_tf_input
 def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
     left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),

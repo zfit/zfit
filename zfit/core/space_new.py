@@ -1609,7 +1609,7 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     #     return False
     # else:
     #     limits = (new_lower, new_upper)
-    new_space = Space(obs=all_obs if using_obs else None, axes=all_axes if all_axes else None, limits=limits)
+    new_space = Space(obs=all_obs if using_obs else None, axes=None if using_obs else all_axes, limits=limits)
     # if new_space.n_limits > 1:
     #     new_space = MultiSpace(Space, obs=all_obs)
     return new_space

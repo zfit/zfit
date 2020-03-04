@@ -59,7 +59,7 @@ import tensorflow as tf
 
 from . import ztyping
 from .container import convert_to_container
-from ..core.interfaces import ZfitData, ZfitParameter
+from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 
 class ZfitCachable:
@@ -259,6 +259,8 @@ class FunctionCacheHolder(Cachable):
 
             elif isinstance(obj, ZfitParameter):
                 obj = (hash(obj), id(obj), obj.name)
+            elif isinstance(obj, ZfitSpace):
+                obj = (id(obj),)
             elif tf.is_tensor(obj):
                 obj = self.IS_TENSOR
             combined_cleaned.append(obj)
