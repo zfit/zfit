@@ -5,7 +5,6 @@
 import functools
 import inspect
 import itertools
-import warnings
 from abc import abstractmethod
 from collections import OrderedDict, defaultdict
 from contextlib import suppress
@@ -296,6 +295,16 @@ class Limit(ZfitLimit):
         rect_limits = self._rect_limits
         if rect_limits in (None, False):
             return rect_limits
+        # lower = z.convert_to_tensor(rect_limits[0])
+        # upper = z.convert_to_tensor(rect_limits[1])
+        # return lower, upper
+        return rect_limits
+
+    @property
+    def rect_limits_tf(self):
+        rect_limits = self._rect_limits
+        if rect_limits in (None, False):
+            return rect_limits
         lower = z.convert_to_tensor(rect_limits[0])
         upper = z.convert_to_tensor(rect_limits[1])
         return lower, upper
@@ -381,6 +390,10 @@ class Limit(ZfitLimit):
     def n_obs(self) -> int:
         return self._n_obs
 
+    @property
+    def nevents(self):
+        return self.rect_lower.shape[0]
+
     def __eq__(self, other):
         if not isinstance(other, ZfitLimit):
             return NotImplemented
@@ -408,7 +421,6 @@ class Limit(ZfitLimit):
     def __hash__(self) -> int:
         objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
         return hash(tuple(objects))
-
 
     def equal(self, other, allow_graph=True):
         return equal_limits(self, other, allow_graph=allow_graph)
@@ -894,6 +906,21 @@ class Space(BaseSpace):
         if not self.has_rect_limits:
             return False
         lower_ordered, upper_ordered = self._rect_limits_z()
+        # rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(upper_ordered)
+        rect_limits = lower_ordered, upper_ordered
+        return rect_limits
+
+    @property
+    def rect_limits_tf(self) -> ztyping.LimitsTypeReturn:
+        """Return the limits.
+
+        Returns:
+
+        """
+        # self._check_has_limits
+        if not self.has_rect_limits:
+            return False
+        lower_ordered, upper_ordered = self._rect_limits_z()
         rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(upper_ordered)
         return rect_limits
 
@@ -959,6 +986,10 @@ class Space(BaseSpace):
     def limits_are_false(self):
         return all(limit.limits_are_false
                    for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
+
+    @property
+    def nevents(self):
+        return self.rect_lower.shape[0]
 
     @property
     @deprecated(date=None, instructions="Depreceated, use .rect_limits or .inside to check if a value is inside.")
@@ -1839,6 +1870,11 @@ class MultiSpace(BaseSpace):
     @property
     def rect_upper(self):
         self._raise_limits_not_implemented()
+
+    # TODO: check nevents in init, coincide?
+    @property
+    def nevents(self):
+        return tuple(self)[0].rect_lower.shape[0]
 
     @property
     def rect_limits_are_tensors(self):

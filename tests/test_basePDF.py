@@ -11,7 +11,7 @@ import zfit.models.dist_tfp
 import zfit.settings
 from zfit import z
 from zfit.core.interfaces import ZfitParameter
-from zfit.core.limits import Space, ANY_UPPER
+from zfit.core.limits import Space, ANY_UPPER, MultiSpace
 from zfit.core.parameter import Parameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -239,7 +239,9 @@ def test_multiple_limits():
     simple_limits = (-3.2, 9.1)
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
-    multiple_limits_range = Space(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
+
+    multiple_limits_range = MultiSpace(
+        [Space(limits=(low, up), axes=dims) for low, up in zip(multiple_limits_lower, multiple_limits_upper)])
     integral_simp = gauss_params1.integrate(limits=simple_limits, norm_range=False)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm_range=False)
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)

@@ -52,7 +52,7 @@ def create_params3(nameadd=""):
 obs1 = zfit.Space('obs1', (np.min([test_values_np[:, 0], test_values_np2]) - 1.4,
                            np.max([test_values_np[:, 0], test_values_np2]) + 2.4))
 
-mu_constr = [1.6, 0.2]  # mu, sigma
+mu_constr = [1.6, 0.02]  # mu, sigma
 sigma_constr = [3.5, 0.01]
 constr = lambda: [mu_constr[1], sigma_constr[1]]
 constr_tf = lambda: z.convert_to_tensor(constr())

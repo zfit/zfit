@@ -261,9 +261,9 @@ class ZfitParameterMixin(BaseNumeric):
         self._name = name
         super().__init__(name=name, **kwargs)
 
-    # @property
-    # def name(self) -> str:
-    #     return self._name
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def floating(self):

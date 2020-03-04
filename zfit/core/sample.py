@@ -173,7 +173,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
-    multiple_limits = limits.n_limits > 1
+    multiple_limits = len(limits) > 1
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int32)
@@ -191,10 +191,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
     initial_is_sampled = tf.constant("EMPTY")
-    if isinstance(limits, EventSpace) and not limits.is_generator:
+    if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.nevents > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            assert_n_matches_limits_op = tf.compat.v1.assert_equal(tf.shape(input=limits.lower[0][0])[0], n)
+            assert_n_matches_limits_op = tf.compat.v1.assert_equal(limits.nevents, n)
             tfdeps = [assert_n_matches_limits_op]
         else:
             tfdeps = []
@@ -244,10 +244,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             if multiple_limits:
                 raise WorkInProgressError("Multiple limits for fixed event space not yet implemented")
             is_not_sampled = tf.logical_not(is_sampled)
-            (lower,), (upper,) = limits.limits
-            lower = tuple(tf.boolean_mask(tensor=low, mask=is_not_sampled) for low in lower)
-            upper = tuple(tf.boolean_mask(tensor=up, mask=is_not_sampled) for up in upper)
-            new_limits = limits.with_limits(limits=((lower,), (upper,)))
+            lower, upper = limits.rect_limits_tf
+            lower = tf.boolean_mask(tensor=lower, mask=is_not_sampled)
+            upper = tf.boolean_mask(tensor=upper, mask=is_not_sampled)
+            new_limits = limits.with_limits(limits=(lower, upper))
             draw_indices = tf.where(is_not_sampled)
 
         rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(

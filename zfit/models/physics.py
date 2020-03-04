@@ -142,7 +142,6 @@ def double_crystalball_mu_integral(limits, params, model):
 
     lower, upper = limits.limits
 
-    #
     return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
                                                lower=lower, upper=upper)
 

@@ -97,7 +97,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     # TODO: register integral
     @supports()
     def _analytic_integrate(self, limits, norm_range):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.rect_limits_tf
         tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
         # if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
         #     return z.to_real(1.)  # tfp distributions are normalized to 1
