@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.special &#8212; zfit 0.4.3.dev12+g219f744 documentation</title>
+    <title>zfit.models.special &#8212; zfit 0.4.3.dev13+ge51e6aa documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.3.dev12</b></span>
+        <span class="navbar-text pull-left"><b>0.4.3.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -365,7 +365,7 @@
 <span class="sd">simply define a non-normalizable function.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1">#  Copyright (c) 2019 zfit</span>
+<span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
@@ -390,7 +390,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_x_function</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SimplePDF.copy"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.special.SimplePDF.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">override_parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BasePDF&#39;</span><span class="p">:</span>
         <span class="n">override_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_unnormalized_prob_func</span><span class="p">)</span>
