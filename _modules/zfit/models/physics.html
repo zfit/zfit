@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.physics &#8212; zfit 0.4.3.dev10+g0482b92 documentation</title>
+    <title>zfit.models.physics &#8212; zfit 0.4.3.dev12+g219f744 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.3.dev10</b></span>
+        <span class="navbar-text pull-left"><b>0.4.3.dev12</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -404,63 +404,7 @@
     <span class="k">return</span> <span class="n">func</span>
 
 
-<span class="c1"># def _python_crystalball_integral(limits, params):  # not working with tf, used for autoconvert</span>
-<span class="c1">#     mu = params[&#39;mu&#39;]</span>
-<span class="c1">#     sigma = params[&#39;sigma&#39;]</span>
-<span class="c1">#     alpha = params[&#39;alpha&#39;]</span>
-<span class="c1">#     n = params[&#39;n&#39;]</span>
-<span class="c1">#</span>
-<span class="c1">#     (lower,), (upper,) = limits.limits</span>
-<span class="c1">#</span>
-<span class="c1">#     sqrt_pi_over_two = np.sqrt(np.pi / 2)</span>
-<span class="c1">#     sqrt2 = np.sqrt(2)</span>
-<span class="c1">#</span>
-<span class="c1">#     result = 0.0</span>
-<span class="c1">#     use_log = tf.abs(n - 1.0) &lt; 1.0e-05</span>
-<span class="c1">#</span>
-<span class="c1">#     abs_sigma = tf.abs(sigma)</span>
-<span class="c1">#     abs_alpha = tf.abs(alpha)</span>
-<span class="c1">#</span>
-<span class="c1">#     tmin = (lower - mu) / abs_sigma</span>
-<span class="c1">#     tmax = (upper - mu) / abs_sigma</span>
-<span class="c1">#</span>
-<span class="c1">#     if alpha &lt; 0:</span>
-<span class="c1">#         tmin, tmax = -tmax, -tmin</span>
-<span class="c1">#</span>
-<span class="c1">#     if tmin &gt;= -abs_alpha:</span>
-<span class="c1">#         result += abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2)</span>
-<span class="c1">#                                                   - tf.erf(tmin / sqrt2))</span>
-<span class="c1">#</span>
-<span class="c1">#     elif tmax &lt;= -abs_alpha:</span>
-<span class="c1">#         a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))</span>
-<span class="c1">#</span>
-<span class="c1">#         b = n / abs_alpha - abs_alpha</span>
-<span class="c1">#</span>
-<span class="c1">#         if use_log:</span>
-<span class="c1">#             result += a * abs_sigma * (tf.log(b - tmin) - tf.log(b - tmax))</span>
-<span class="c1">#         else:</span>
-<span class="c1">#             result += a * abs_sigma / (1.0 - n) * (1.0 / (tf.pow(b - tmin, n - 1.0))</span>
-<span class="c1">#                                                    - 1.0 / (tf.pow(b - tmax, n - 1.0)))</span>
-<span class="c1">#     else:</span>
-<span class="c1">#         a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))</span>
-<span class="c1">#         b = n / abs_alpha - abs_alpha</span>
-<span class="c1">#</span>
-<span class="c1">#         if use_log:</span>
-<span class="c1">#             term1 = a * abs_sigma * (tf.log(b - tmin) - tf.log(n / abs_alpha))</span>
-<span class="c1">#</span>
-<span class="c1">#         else:</span>
-<span class="c1">#             term1 = a * abs_sigma / (1.0 - n) * (1.0 / (tf.pow(b - tmin, n - 1.0))</span>
-<span class="c1">#                                                  - 1.0 / (tf.pow(n / abs_alpha, n - 1.0)))</span>
-<span class="c1">#</span>
-<span class="c1">#         term2 = abs_sigma * sqrt_pi_over_two * (tf.erf(tmax / sqrt2)</span>
-<span class="c1">#                                                 - tf.erf(-abs_alpha / sqrt2))</span>
-<span class="c1">#</span>
-<span class="c1">#         result += term1 + term2</span>
-<span class="c1">#</span>
-<span class="c1">#     return result</span>
-
 <span class="c1"># created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit</span>
-
 <div class="viewcode-block" id="crystalball_integral"><a class="viewcode-back" href="../../../api/zfit.models.physics.html#zfit.models.physics.crystalball_integral">[docs]</a><span class="k">def</span> <span class="nf">crystalball_integral</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
     <span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
