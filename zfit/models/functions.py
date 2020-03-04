@@ -28,7 +28,10 @@ class SimpleFunc(BaseFunc):
         self._value_func = self._check_input_x_function(func)
 
     def _func(self, x):
-        return self._value_func(self, x)
+        try:
+            return self._value_func(x)
+        except TypeError:  # self requested, TODO maybe check signature?
+            return self._value_func(self, x)
 
 
 class BaseFunctorFunc(FunctorMixin, BaseFunc):

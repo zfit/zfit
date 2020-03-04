@@ -93,7 +93,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
                         "{}, {}".format(param, func))
     from ..models.functions import SimpleFunc
 
-    def combined_func(self, x):
+    def combined_func(x):
         return param * func.func(x=x)
 
     params = {param.name: param}
@@ -200,7 +200,7 @@ def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParamet
 # Conversions
 
 def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFunc:
-    def value_func(self, x):
+    def value_func(x):
         return pdf.pdf(x, norm_range=norm_range)
 
     from ..models.functions import SimpleFunc
