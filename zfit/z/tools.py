@@ -13,5 +13,3 @@ def _auto_upcast(tensor: tf.Tensor):
         if new_dtype != tensor.dtype:
             tensor = tf.cast(x=tensor, dtype=new_dtype)
     return tensor
-
-# def _wrap_auto_upcast(func):

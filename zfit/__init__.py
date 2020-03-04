@@ -39,8 +39,6 @@ def _maybe_disable_warnings():
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-    # warnings.simplefilter(action='ignore', category=FutureWarning)
-    # warnings.simplefilter(action='ignore', category=DeprecationWarning)
     import tensorflow as tf
 
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -56,9 +54,6 @@ if int(tf.__version__[0]) < 2:
     warnings.warn(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
                   f" with TF >= 2 and will likely break with an older version. Please consider upgrading as this"
                   f" will raise an error in the future.")
-
-# EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY = False
-# tf.config.experimental_run_functions_eagerly(EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY)
 
 from . import z
 from . import z as ztf  # legacy

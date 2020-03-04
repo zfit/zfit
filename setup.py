@@ -31,7 +31,6 @@ test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip em
 
 setup(
     author="Jonas Eschle",
-    # author_email='zfit@physik.uzh.ch',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
@@ -62,8 +61,5 @@ setup(
     tests_require=test_requirements,
     url='https://github.com/zfit/zfit',
     use_scm_version=True,
-    # use_scm_version={
-    #     'git_describe_command': 'git describe --tags --long --first-parent $(git rev-list --tags --max-count=1)',
-    # },
     zip_safe=False,
 )

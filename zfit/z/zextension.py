@@ -127,9 +127,6 @@ def run_no_nan(func, x):
     return result
 
 
-# tf_function_deco = tf.function(autograph=False, experimental_relax_shapes=True)
-
-
 class FunctionWrapperRegistry:
     wrapped_functions = []
     registries = []
@@ -149,7 +146,6 @@ class FunctionWrapperRegistry:
         self._initial_user_kwargs = kwargs_user
         self.registries.append(self)
         self.reset(**self._initial_user_kwargs)
-        # self.inside_tracing = False
         self.currently_traced = set()
 
     def reset(self, **kwargs_user):
@@ -180,7 +176,6 @@ class FunctionWrapperRegistry:
             if not self.do_jit or func in self.currently_traced:
                 return call_correct_signature(func, args, kwargs)
 
-            # self.inside_tracing = True
             self.currently_traced.add(func)
             nonlocal wrapped_func
             function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
@@ -204,18 +199,14 @@ class FunctionWrapperRegistry:
 
         return concrete_func
 
-FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
-# FunctionWrapperRegistry2.do_jit = True
-# FunctionWrapperRegistry.do_jit = False
 
+FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
 
 tf_function = FunctionWrapperRegistry()
 
 function_tf = FunctionWrapperRegistry2()  # for only tensorflow inside
 function_sampling = tf_function
 
-
-# py_function = tf.py_function
 
 @functools.wraps(tf.py_function)
 def py_function(func, inp, Tout, name=None):
