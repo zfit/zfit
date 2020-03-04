@@ -217,11 +217,14 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         with tf.control_dependencies([print_op] if do_print else []):
             n_to_produce = tf.identity(n_to_produce)
         if dynamic_array_shape:
+            # TODO: move all this fixed numbers out into settings
             n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 10  # just to make sure
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-            max_produce_cap = tf.cast(8e5, dtype=tf.int32)
-            safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
-            n_to_produce = tf.minimum(safe_to_produce, max_produce_cap)  # introduce a cap to force serial
+            max_produce_cap = tf.constant(800000, dtype=tf.int32)
+            tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
+            # TODO: remove below? was there due to overflow in tf?
+            # safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
+            n_to_produce = tf.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
             new_limits = limits
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
