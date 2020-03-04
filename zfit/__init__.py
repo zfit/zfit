@@ -2,6 +2,7 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2020 zfit
+import inspect
 import warnings
 
 from pkg_resources import get_distribution
@@ -25,11 +26,17 @@ __all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", 
            "run", "settings"]
 
 #  Copyright (c) 2019 zfit
-warnings.warn(
-    """zfit has moved from TensorFlow 1.x to 2.x, which has some profound implications behind the scenes of zfit
-    and minor ones on the user side. Be sure to read the upgrade guide (can be found in the README at the top)
-     to have a seemless transition. If this is currently not doable (upgrading is highly recommended though)
-     you can downgrade zfit to <0.4. Feel free to contact us in case of problems in order to fix them ASAP.""")
+
+msg = inspect.cleandoc(
+    """zfit has moved from TensorFlow 1.x to 2.x, which has some profound
+    implications behind the scenes of zfit and minor ones on the user side.
+    Be sure to read the upgrade guide (can be found in the README at the top)
+    to have a seamless transition. If this is currently not doable you can
+    downgrade zfit to <0.4.
+    Feel free to contact us in case of problems in order to fix them ASAP.
+    """
+)
+warnings.warn(msg, stacklevel=2)
 
 
 def _maybe_disable_warnings():
