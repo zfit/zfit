@@ -275,13 +275,14 @@ class FunctionCacheHolder(Cachable):
         if not isinstance(other, FunctionCacheHolder):
             return False
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
-        from tensorflow_core.python.framework.errors_impl import OperatorNotAllowedInGraphError
         try:
             return all(np.equal(self.immutable_representation, other.immutable_representation))
         except ValueError:  # broadcasting does not work
             return False
-        except OperatorNotAllowedInGraphError:  # we have to assume they're not the same
+        except TypeError:  # OperatorNotAllowedError inherits from this
             return False
+        # except OperatorNotAllowedInGraphError:  # we have to assume they're not the same
+        #     return False
 
     def __repr__(self) -> str:
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"
