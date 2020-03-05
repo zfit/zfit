@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
@@ -23,7 +23,7 @@ def _minos_minuit(result, params, sigma=1.0):
         raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer than"
                         "`Minuit`.")
 
-    result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma) 
+    result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
               for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
     return result
@@ -71,7 +71,7 @@ class FitResult(ZfitResult):
     _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np}
     _default_error = "minuit_minos"
     _error_methods = {"minuit_minos": _minos_minuit}
-    
+
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):

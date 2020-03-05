@@ -255,10 +255,10 @@ class FunctionCacheHolder(Cachable):
         combined_cleaned = []
         for obj in combined:
             if isinstance(obj, ZfitData):
-                obj = (hash(obj), id(obj))
+                obj = (id(obj),)
 
             elif isinstance(obj, ZfitParameter):
-                obj = (hash(obj), id(obj), obj.name)
+                obj = (ZfitParameter, obj.name)
             elif isinstance(obj, ZfitSpace):
                 obj = (id(obj),)
             elif tf.is_tensor(obj):
