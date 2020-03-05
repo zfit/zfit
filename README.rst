@@ -186,8 +186,8 @@ Prerequisites
 ``zfit`` works with Python versions 3.6 and 3.7.
 The following packages (amongst others) are required:
 
-- `tensorflow <https://www.tensorflow.org/>`_ >= 1.10.0
-- `tensorflow_probability <https://www.tensorflow.org/probability>`_ >= 0.3.0
+- `tensorflow <https://www.tensorflow.org/>`_ >= 2.x
+- `tensorflow_probability <https://www.tensorflow.org/probability>`_
 - `scipy <https://www.scipy.org/>`_ >=1.2
 - `uproot <https://github.com/scikit-hep/uproot>`_
 - `iminuit <https://github.com/scikit-hep/iminuit>`_
