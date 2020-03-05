@@ -62,7 +62,10 @@ def reduce_prod(input_tensor, axis=None, keepdims=None):
     if not SWITCH_ON or is_tensor(input_tensor):
         return tf.reduce_prod(input_tensor, axis, keepdims=keepdims)
     else:
-        return np.prod(input_tensor, axis, keepdims=keepdims)
+        if keepdims is None:
+            return np.prod(input_tensor, axis)
+        else:
+            return np.prod(input_tensor, axis, keepdims=keepdims)
 
 
 def equal(x, y):
