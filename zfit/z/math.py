@@ -126,11 +126,11 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
         hesse_func = numdifftools.Hessian(wrapped_func)
     computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
                                       Tout=tf.float64)
-
+    n_params = params.shape[0]
     if hessian == 'diag':
-        computed_hessian.set_shape((len(param_vals),))
+        computed_hessian.set_shape((n_params,))
     else:
-        computed_hessian.set_shape((len(param_vals), len(param_vals)))
+        computed_hessian.set_shape((n_params, n_params))
 
     for param, val in zip(params, original_vals):
         param.set_value(val)
