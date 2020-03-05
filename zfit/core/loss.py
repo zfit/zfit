@@ -42,14 +42,14 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
     if is_container(model):
         nlls = [_unbinned_nll_tf(model=p, data=d, fit_range=r)
                 for p, d, r in zip(model, data, fit_range)]
-        nll_finished = tf.reduce_sum(input_tensor=nlls)
+        nll_finished = tf.reduce_sum(input_tensor=nlls, axis=0)
     else:
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
         log_probs = tf.math.log(probs)
         if data.weights is not None:
             log_probs *= data.weights  # because it's prob ** weights
-        nll = -tf.reduce_sum(input_tensor=log_probs)
+        nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
         nll_finished = nll
     return nll_finished
 
