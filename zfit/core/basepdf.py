@@ -63,7 +63,7 @@ from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
 from .basemodel import BaseModel
 from .interfaces import ZfitPDF, ZfitParameter
-from .limits import Space
+from .space import Space
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
 from ..util import ztyping

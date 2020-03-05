@@ -6,7 +6,7 @@ import tensorflow as tf
 import zfit
 from zfit import z, Space
 # noinspection PyUnresolvedReferences
-from zfit.core.space_new import Limit
+from zfit.core.space import Limit
 from zfit.core.testing import setup_function, teardown_function
 
 setup_func_general = setup_function

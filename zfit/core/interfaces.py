@@ -131,17 +131,17 @@ class ZfitData(ZfitDimensional):
 class ZfitLimit(abc.ABC):
 
     @property
-    # @abstractmethod  # TODO(spaces): make abstract
+    @abstractmethod  # TODO(spaces): make abstract
     def rect_limits(self):
         raise NotImplementedError
 
     @property
-    # @abstractmethod  # TODO(spaces): make abstract
+    @abstractmethod  # TODO(spaces): make abstract
     def rect_lower(self):
         raise NotImplementedError
 
     @property
-    # @abstractmethod  # TODO(spaces): make abstract
+    @abstractmethod  # TODO(spaces): make abstract
     def rect_upper(self):
         raise NotImplementedError
 
@@ -189,16 +189,11 @@ class ZfitLimit(abc.ABC):
     def limits_are_false(self):
         raise NotImplementedError
 
-    @property
-    # @abstractmethod  # TODO(spaces): make abstact
-    def limit_fn(self):
-        raise NotImplementedError
-
     def get_subspace(self, *_, **__):
         from zfit.util.exception import InvalidLimitSubspaceError
         raise InvalidLimitSubspaceError("ZfitLimits does not suppoert subspaces")
 
-    # @abstractmethod  # TODO(spaces)
+    @abstractmethod
     def equal(self, other, allow_graph):
         pass
 

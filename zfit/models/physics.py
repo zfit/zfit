@@ -8,7 +8,7 @@ import tensorflow as tf
 import zfit
 from zfit import z
 from ..core.basepdf import BasePDF
-from ..core.limits import ANY_UPPER, ANY_LOWER, Space
+from ..core.space import ANY_UPPER, ANY_LOWER, Space
 from ..settings import ztypes
 from ..util import ztyping
 
@@ -49,7 +49,7 @@ def crystalball_integral(limits, params, model):
     alpha = params['alpha']
     n = params['n']
 
-    lower, upper = limits.rect_limits_tf
+    lower, upper = limits._rect_limits_tf
     lower = lower
     upper = upper
 
@@ -141,7 +141,7 @@ def double_crystalball_mu_integral(limits, params, model):
     alphar = -params["alphar"]
     nr = params["nr"]
 
-    lower, upper = limits.rect_limits_tf
+    lower, upper = limits._rect_limits_tf
 
     return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
                                                lower=lower, upper=upper)

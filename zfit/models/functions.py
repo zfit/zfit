@@ -7,7 +7,7 @@ import tensorflow as tf
 from ..core.basefunc import BaseFunc
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.interfaces import ZfitModel, ZfitFunc
-from ..core.limits import supports
+from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container

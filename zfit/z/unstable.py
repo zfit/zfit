@@ -30,7 +30,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
         x = np.array(x)
         y = np.array(y)
         if any(ar.dtype == object for ar in (x, y)):
-            from zfit.core.space_new import LimitRangeDefinition
+            from zfit.core.space import LimitRangeDefinition
             equal = []
             for x1, y1 in zip(x[0], y[0]):
                 if isinstance(x1, LimitRangeDefinition) or isinstance(y1, LimitRangeDefinition):

@@ -10,7 +10,7 @@ import zfit
 import zfit.core.integration as zintegrate
 from zfit import z
 from zfit.core import basepdf as zbasepdf
-from zfit.core.limits import Space
+from zfit.core.space import Space
 from zfit.core.parameter import Parameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester

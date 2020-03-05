@@ -4,7 +4,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
-from zfit.core.space_new import Limit, ANY
+from zfit.core.space import Limit, ANY
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 

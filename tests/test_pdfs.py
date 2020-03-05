@@ -8,7 +8,7 @@ import tensorflow as tf
 import zfit
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
-from zfit.core.limits import Space
+from zfit.core.space import Space
 from zfit.core.parameter import Parameter
 from zfit.models.dist_tfp import Gauss
 from zfit.models.functor import SumPDF, ProductPDF

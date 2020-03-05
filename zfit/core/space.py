@@ -182,14 +182,16 @@ class Limit(ZfitLimit):
         self._n_obs = n_obs
         self._is_rect = is_rect
         self._sublimits = sublimits
-        # MARK: experimental
 
     def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
         if isinstance(limits_fn, ZfitLimit):
+            if not isinstance(Limit):
+                raise TypeError(
+                    "If limits_fn is an instance of ZfitLimit, it has to be an instance of Limit (currently)")
             if rect_limits is not None or n_obs:
                 raise OverdefinedError("limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified.")
             limit = limits_fn
-            return limit.limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits, (self,)
+            return limit._limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits, (self,)
         limits_are_rect = True
         return_limits_short = False
         if limits_fn is False:
@@ -301,7 +303,7 @@ class Limit(ZfitLimit):
         return rect_limits
 
     @property
-    def rect_limits_tf(self):
+    def _rect_limits_tf(self):
         rect_limits = self._rect_limits
         if rect_limits in (None, False):
             return rect_limits
@@ -911,7 +913,7 @@ class Space(BaseSpace):
         return rect_limits
 
     @property
-    def rect_limits_tf(self) -> ztyping.LimitsTypeReturn:
+    def _rect_limits_tf(self) -> ztyping.LimitsTypeReturn:
         """Return the limits.
 
         Returns:

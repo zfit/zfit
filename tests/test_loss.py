@@ -7,7 +7,7 @@ import zfit.core.basepdf
 import zfit.models.dist_tfp
 import zfit.settings
 from zfit import z
-from zfit.core.limits import Space
+from zfit.core.space import Space
 from zfit.core.loss import UnbinnedNLL
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester

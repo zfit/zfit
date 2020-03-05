@@ -13,7 +13,7 @@ from zfit.util import ztyping
 from zfit.util.exception import WorkInProgressError
 from .. import settings
 from ..util.container import convert_to_container
-from .limits import Space
+from .space import Space
 from ..settings import ztypes, run
 
 
@@ -244,7 +244,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             if multiple_limits:
                 raise WorkInProgressError("Multiple limits for fixed event space not yet implemented")
             is_not_sampled = tf.logical_not(is_sampled)
-            lower, upper = limits.rect_limits_tf
+            lower, upper = limits._rect_limits_tf
             lower = tf.boolean_mask(tensor=lower, mask=is_not_sampled)
             upper = tf.boolean_mask(tensor=upper, mask=is_not_sampled)
             new_limits = limits.with_limits(limits=(lower, upper))

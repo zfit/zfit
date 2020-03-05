@@ -5,7 +5,7 @@ import numpy as np
 import zfit
 from zfit import z
 from zfit.core.coordinates import Coordinates
-from zfit.core.space_new import Space, Limit, ANY, MultiSpace
+from zfit.core.space import Space, Limit, ANY, MultiSpace
 from zfit.util.exception import CoordinatesUnderdefinedError, BehaviorUnderDiscussion
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester

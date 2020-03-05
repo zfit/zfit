@@ -11,7 +11,7 @@ import zfit.models.dist_tfp
 import zfit.settings
 from zfit import z
 from zfit.core.interfaces import ZfitParameter
-from zfit.core.limits import Space, ANY_UPPER, MultiSpace
+from zfit.core.space import Space, ANY_UPPER, MultiSpace
 from zfit.core.parameter import Parameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester

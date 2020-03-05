@@ -17,7 +17,7 @@ import numpy as np
 
 from zfit import z
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
-from ..core.limits import no_norm_range, supports
+from ..core.space import no_norm_range, supports
 from ..core.basepdf import BasePDF
 from ..core.parameter import Parameter, convert_to_parameter, ComposedParameter
 from ..models.basefunctor import FunctorMixin

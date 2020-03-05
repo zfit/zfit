@@ -13,7 +13,7 @@ import tensorflow as tf
 
 from zfit import z
 from ..core.basepdf import BasePDF
-from ..core.limits import Space, ANY_LOWER, ANY_UPPER
+from ..core.space import Space, ANY_LOWER, ANY_UPPER
 from ..util import ztyping
 from ..util.temporary import TemporarilySet
 

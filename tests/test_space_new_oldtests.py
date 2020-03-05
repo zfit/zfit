@@ -6,7 +6,7 @@ import random
 import numpy as np
 import pytest
 
-from zfit.core.space_new import Space, convert_to_space
+from zfit.core.space import Space, convert_to_space
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import LimitsUnderdefinedError, \

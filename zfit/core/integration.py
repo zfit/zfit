@@ -17,7 +17,7 @@ from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from .limits import convert_to_space, Space, supports
+from .space import convert_to_space, Space, supports
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import WorkInProgressError
@@ -85,7 +85,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
     integrals = []
     for space in limits:
-        lower, upper = space.rect_limits_tf
+        lower, upper = space._rect_limits_tf
         tf.debugging.assert_all_finite((lower, upper),
                                        "MC integration does (currently) not support unbound limits (np.infty) as given here:"
                                        "\nlower: {}, upper: {}".format(lower, upper)

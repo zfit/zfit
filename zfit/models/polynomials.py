@@ -9,7 +9,7 @@ from zfit import z
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..settings import ztypes
-from ..core.limits import Space
+from ..core.space import Space
 from ..core.basepdf import BasePDF
 
 

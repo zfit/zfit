@@ -68,7 +68,7 @@ from .settings import ztypes
 
 from . import constraint, pdf, minimize, loss, core, data, func, param
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
-from .core.limits import Space, convert_to_space, supports
+from .core.space import Space, convert_to_space, supports
 # from .core.spaces import Space, convert_to_space, supports
 from .core.data import Data
 
