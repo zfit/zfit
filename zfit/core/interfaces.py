@@ -131,18 +131,24 @@ class ZfitData(ZfitDimensional):
 class ZfitLimit(abc.ABC):
 
     @property
-    @abstractmethod  # TODO(spaces): make abstract
-    def rect_limits(self):
+    @abstractmethod
+    def rect_limits(self) -> ztyping.RectLimitsReturnType:
+        """Return the rectangular limits as arrays/`tf.Tensor`.
+
+        Returns:
+            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor): The lower and upper limits.
+
+        """
         raise NotImplementedError
 
     @property
-    @abstractmethod  # TODO(spaces): make abstract
-    def rect_lower(self):
+    @abstractmethod
+    def rect_lower(self) -> ztyping.RectLowerReturnType:
         raise NotImplementedError
 
     @property
-    @abstractmethod  # TODO(spaces): make abstract
-    def rect_upper(self):
+    @abstractmethod
+    def rect_upper(self) -> ztyping.RectUpperReturnType:
         raise NotImplementedError
 
     @property

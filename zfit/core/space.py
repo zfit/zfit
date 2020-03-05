@@ -698,10 +698,44 @@ class Space(BaseSpace):
     ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
     ANY_UPPER = ANY_UPPER
 
-    def __init__(self, obs: Optional[ztyping.ObsTypeInput] = None, limits: Optional[ztyping.LimitsTypeInput] = None,
+    def __init__(self, obs: Optional[ztyping.ObsTypeInput] = None,
+                 limits: Optional[ztyping.LimitsTypeInput] = None,
                  axes=None, rect_limits=None,
                  name: Optional[str] = "Space"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
+
+        A space can be thought of as coordinates, possibly with the definition of a range (limits). For most use-cases,
+        it is sufficient to specify a `Space` via observables; simple string identifiers. They can be multidimensional.
+
+        Observables are like the columns of a spreadsheet/dataframe, and are therefore needed for any object that does
+        numerical operations or holds data in order to match the right axes. On object creation, the observables are
+        assigned using a `Space`. This is often used as the default space of an object and can be used as the
+        default `norm_range`, sampling limits etc.
+
+        Axes are the same concept as observables, but numbers, indexes, and are used *inside* an object. There,
+        axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).
+
+        Every space can have limits; they are either rectangular or an arbitrary function (together with rectangular
+        limits). Spaces can be combined (multiplied) to create higher dimensional spaces.
+        `Spaces` can be added, which combines them into one `Space` consisting of two disconnected limits.
+
+        So integrating over the space consisting of the two added disconnected ranges,
+        e.g. 0 to 1 and 2 to 3 will return the sum of the two separate integrals.
+
+        ```python
+        lower_band = zfit.Space('obs1', (0, 1))
+        upper_band = zfit.Space('obs1', (2, 3))
+        combined_obs = lower_band + upper_band
+        integral_comb = model.integrate(limits=combined_obs)
+        # which is equivalent to the lower
+        integral_sep = model.integrate(limits=lower_band) + model.integrate(limits=upper_band)
+        assert integral_comb == integral_sep
+        ```
+
+        In principle, the same behavior could also be achieved by specifying an arbitrary function. Using the addition
+        allows for certain optimizations inside.
+
+
 
         Args:
             obs (str, List[str,...]):
@@ -725,7 +759,8 @@ class Space(BaseSpace):
     @classmethod
     @deprecated(date=None, instructions="Use directly the class to create a Space")
     def from_axes(cls, axes: ztyping.AxesTypeInput,
-                  limits: Optional[ztyping.LimitsTypeInput] = None, rect_limits=None,
+                  limits: Optional[ztyping.LimitsTypeInput] = None,
+                  rect_limits=None,
                   name: str = None) -> "zfit.Space":
         """Create a space from `axes` instead of from `obs`.
 

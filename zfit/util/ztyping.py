@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Callable
 
@@ -84,3 +84,7 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
+
+RectLowerReturnType = np.ndarray
+RectUpperReturnType = RectLowerReturnType
+RectLimitsReturnType = Tuple[RectLowerReturnType, RectUpperReturnType]
