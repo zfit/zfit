@@ -132,34 +132,67 @@ class ZfitLimit(abc.ABC):
 
     @property
     @abstractmethod
+    def has_rect_limits(self) -> bool:
+        """If the limits are rectangular."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
-        """Return the rectangular limits as arrays/`tf.Tensor`.
+        """Return the rectangular limits as arrays/`tf.Tensor` or False/None.
+
+            The rectangular limits can be used for sampling. They do not in general represent the limits
+            of the object as a functional limit can be set and to check if something is inside the limits,
+            the method :py:meth:`~Limit.inside` should be used.
 
         Returns:
-            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor): The lower and upper limits.
+            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.
 
         """
         raise NotImplementedError
 
     @property
     @abstractmethod
+    def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
+        """Return the rectangular limits as `np.ndarray`. Raise error if not possible.
+
+        Rectangular limits are returned as numpy arrays which can be useful when doing checks that do not
+        need to be involved in the computation later on as they allow direct interaction with Python as
+        compared to `tf.Tensor` inside a graph function.
+
+
+        Returns:
+            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
+                dimension is always `n_obs`, the first can be vectorized. This allows unstacking
+                with `z.unstack_x()` as can be done with data.
+
+        Raises:
+            CannotConvertToNumpyError: In case the conversion fails.
+        """
+
+    @property
+    @abstractmethod
     def rect_lower(self) -> ztyping.RectLowerReturnType:
+        """The lower, rectangular limits, equivalent to `rect_limits[0]` with shape (..., n_obs)
+
+        Returns:
+            The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+        """
         raise NotImplementedError
 
     @property
     @abstractmethod
     def rect_upper(self) -> ztyping.RectUpperReturnType:
+        """The upper, rectangular limits, equivalent to `rect_limits[1]` with shape (..., n_obs)
+
+        Returns:
+            The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+        """
         raise NotImplementedError
 
-    @property
     @abstractmethod
-    def has_rect_limits(self) -> bool:
-        """If the limits are rectangular."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def rect_area(self) -> float:
-        """Return the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
         raise NotImplementedError
 
     @abstractmethod

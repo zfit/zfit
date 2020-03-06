@@ -7,7 +7,7 @@ import inspect
 import itertools
 import warnings
 from abc import abstractmethod
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from contextlib import suppress
 from typing import Callable, List, Optional, Tuple, Union, Iterable, Mapping
 
@@ -196,7 +196,20 @@ def is_range_definition(limit):
 class Limit(ZfitLimit):
     _experimental_allow_vectors = False
 
-    def __init__(self, limit_fn=None, rect_limits=None, n_obs=None):
+    def __init__(self, limit_fn: ztyping.LimitsFuncTypeInput = None,
+                 rect_limits: ztyping.LimitsTypeInput = None,
+                 n_obs: int = None):
+        """
+        Args:
+            limit_fn: Function that works as `inside`: return true if a point is inside of the limits.
+                The function should take one tensor-like argument with shape (..., n_obs) and should return
+                a shape without the last dimension.
+            rect_limits: Rectangular limits, a tuple of tensor-like objects with shape (typically) (1, n_obs) or similar
+                such as only a tuple/list of values that will be interpreted as the last dimension. They should cover an
+                area that includes `limit_fn` fully.
+            n_obs: dimensionality of the Limits, the last dimension.
+
+        """
         super().__init__()
         limit_fn, rect_limits, n_obs, is_rect, sublimits = self._check_convert_input_limits(limits_fn=limit_fn,
                                                                                             rect_limits=rect_limits,
@@ -209,7 +222,7 @@ class Limit(ZfitLimit):
 
     def _check_convert_input_limits(self, limits_fn, rect_limits, n_obs):
         if isinstance(limits_fn, ZfitLimit):
-            if not isinstance(Limit):
+            if not isinstance(Limit):  # because of the limit_fn, that is private. Maybe use `inside` instead?
                 raise TypeError(
                     "If limits_fn is an instance of ZfitLimit, it has to be an instance of Limit (currently)")
             if rect_limits is not None or n_obs:
@@ -217,6 +230,8 @@ class Limit(ZfitLimit):
             limit = limits_fn
             return limit._limit_fn, limit.rect_limits, limit.n_obs, limit.has_rect_limits, (self,)
         limits_are_rect = True
+
+        # if the limits are False or None, we can take a shortcut and don't need to do any preprocessing
         return_limits_short = False
         if limits_fn is False:
             if rect_limits in (False, None):
@@ -255,6 +270,8 @@ class Limit(ZfitLimit):
 
         lower = self._sanitize_rect_limit(lower)
         upper = self._sanitize_rect_limit(upper)
+
+        # vectors means more then one n_events, in the first dim
         if not self._experimental_allow_vectors:
             lower_nevents = tf.get_static_value(lower.shape[0])
             upper_nevents = tf.get_static_value(upper.shape[0])
@@ -276,6 +293,10 @@ class Limit(ZfitLimit):
         n_obs = lower_nobs  # in case it was None
         rect_limits = (lower, upper)
 
+        # It can be that there is a function that depends on multiple dimensions, e.g. if we have
+        # a `limit_fn` and n_obs > 1. But if we have only rectangular limits, we can split them up
+        # which allows later (the Space) to better combine and get subspaces
+
         # create sublimits to iterate if possible
         sublimits = []
         if limits_are_rect and n_obs > 1:
@@ -291,7 +312,7 @@ class Limit(ZfitLimit):
         return limits_fn, rect_limits, n_obs, limits_are_rect, sublimits
 
     @staticmethod
-    def _sanitize_rect_limit(limit):
+    def _sanitize_rect_limit(limit) -> ztyping.RectLowerReturnType:
         """Sanitize the input limit and return if it is numerical or not.
 
         Args:
@@ -300,7 +321,7 @@ class Limit(ZfitLimit):
         Returns:
             limit object, bool
         """
-        if is_range_definition(limit):
+        if is_range_definition(limit):  # as the above ANY
             dtype = object
         else:
             dtype = ztypes.float
@@ -313,21 +334,29 @@ class Limit(ZfitLimit):
 
     @property
     def has_rect_limits(self) -> bool:
+        """If the limits are rectangular."""
         return self.has_limits and self._is_rect
 
     @property
-    def rect_limits(self):
+    def rect_limits(self) -> ztyping.RectLimitsReturnType:
+        """Return the rectangular limits as arrays/`tf.Tensor` or False/None.
+
+            The rectangular limits can be used for sampling. They do not in general represent the limits
+            of the object as a functional limit can be set and to check if something is inside the limits,
+            the method :py:meth:`~Limit.inside` should be used.
+
+        Returns:
+            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.
+
+        """
 
         rect_limits = self._rect_limits
         if rect_limits in (None, False):
             return rect_limits
-        # lower = z.convert_to_tensor(rect_limits[0])
-        # upper = z.convert_to_tensor(rect_limits[1])
-        # return lower, upper
         return rect_limits
 
     @property
-    def _rect_limits_tf(self):
+    def _rect_limits_tf(self) -> ztyping.RectLimitsTFReturnType:
         rect_limits = self._rect_limits
         if rect_limits in (None, False):
             return rect_limits
@@ -336,11 +365,18 @@ class Limit(ZfitLimit):
         return lower, upper
 
     @property
-    def rect_limits_np(self):
-        """Return the rectangular limits as `np.ndarray`. Raises error if not possible.
+    def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
+        """Return the rectangular limits as `np.ndarray`. Raise error if not possible.
+
+        Rectangular limits are returned as numpy arrays which can be useful when doing checks that do not
+        need to be involved in the computation later on as they allow direct interaction with Python as
+        compared to `tf.Tensor` inside a graph function.
+
 
         Returns:
-            (lower, upper):
+            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
+                dimension is always `n_obs`, the first can be vectorized. This allows unstacking
+                with `z.unstack_x()` as can be done with data.
 
         Raises:
             CannotConvertToNumpyError: In case the conversion fails.
@@ -352,12 +388,28 @@ class Limit(ZfitLimit):
         return lower, upper
 
     @property
-    def limit_fn(self):
-        return self._limit_fn
+    def rect_lower(self) -> ztyping.RectLowerReturnType:
+        """The lower, rectangular limits, equivalent to `rect_limits[0] with shape (..., n_obs)`
 
-    def rect_area(self) -> float:
+        Returns:
+            The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+        """
+        return self.rect_limits[0]
+
+    @property
+    def rect_upper(self) -> ztyping.RectUpperReturnType:
+        """The upper, rectangular limits, equivalent to `rect_limits[1]` with shape (..., n_obs)
+
+        Returns:
+            The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+        """
+        return self.rect_limits[1]
+
+    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
         return calculate_rect_area(rect_limits=self.rect_limits)
 
+    # WORKHERE
     def inside(self, x, guarantee_limits=False):
         x = _sanitize_x_input(x, n_obs=self.n_obs)
         if guarantee_limits and self.has_rect_limits:
@@ -384,6 +436,10 @@ class Limit(ZfitLimit):
         return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
 
     @property
+    def limit_fn(self):
+        return self._limit_fn
+
+    @property
     def rect_limits_are_tensors(self):
         try:
             _ = self.rect_limits_np
@@ -403,14 +459,6 @@ class Limit(ZfitLimit):
     @property
     def has_limits(self):
         return not (self.limits_are_false or self.limits_not_set)
-
-    @property
-    def rect_lower(self):
-        return self.rect_limits[0]
-
-    @property
-    def rect_upper(self):
-        return self.rect_limits[1]
 
     @property
     def n_obs(self) -> int:

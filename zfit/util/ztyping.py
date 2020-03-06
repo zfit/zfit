@@ -7,16 +7,34 @@ import tensorflow as tf
 # space
 from ordered_set import OrderedSet
 
-LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
+LowerTypeInput = Union[tf.Tensor, np.ndarray, Iterable[float, ...], float]
+LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]
 
-UpperTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
+UpperTypeInput = LowerTypeInput
+UpperTypeReturn = LowerTypeReturn
+
+LowerRectTypeInput = Union[tf.Tensor, np.ndarray, Iterable[float, ...], float]
+LowerRectTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]
+
+UpperRectTypeInput = LowerTypeInput
+UpperRectTypeReturn = LowerTypeReturn
+
+RectLowerReturnType = Union[np.ndarray, tf.Tensor, float]
+RectUpperReturnType = RectLowerReturnType
+RectLimitsReturnType = Tuple[RectLowerReturnType, RectUpperReturnType]
+RectLimitsTFReturnType = Tuple[tf.Tensor, tf.Tensor]
+RectLimitsNPReturnType = Tuple[np.ndarray, np.ndarray]
+
+RectLimitsInputType = Union[LowerRectTypeInput, UpperRectTypeInput]
 
 LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
 LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
+
+LimitsTypeInput = Union["zfit.core.interfaces.ZfitLimit", RectLimitsInputType, bool, None]
+LimitsFuncTypeInput = Union[LimitsTypeInput, Callable]
+LimitsTypeReturn = Union[Tuple[np.ndarray, np.ndarray], None, bool]
 
 _IterLimitsTypeReturn = Union[Tuple['zfit.Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
@@ -84,7 +102,3 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
-
-RectLowerReturnType = np.ndarray
-RectUpperReturnType = RectLowerReturnType
-RectLimitsReturnType = Tuple[RectLowerReturnType, RectUpperReturnType]
