@@ -5,6 +5,7 @@
 import functools
 import inspect
 import itertools
+import warnings
 from abc import abstractmethod
 from collections import OrderedDict, defaultdict
 from contextlib import suppress
@@ -105,6 +106,29 @@ class AnyUpper(Any):
 ANY = Any()
 ANY_LOWER = AnyLower()
 ANY_UPPER = AnyUpper()
+
+
+# TODO(warning): set a changeable warning system in zfit
+def warn_or_fail_not_rect(func):
+    warned = False
+
+    def wrapped_func(*args, **kwargs):
+        self = args[0]
+        if self.has_limits and not self.has_rect_limits:
+            raise RuntimeError(f"Cannot call {func} as the space {self} has functional,"
+                               f" not rectangular limits. Use `rect_*` functions to obtain the"
+                               f" rectangular limits/area or `inside`/`filter` to test if values are"
+                               f" inside of the space.")
+        nonlocal warned
+        if not warned:
+            warnings.warn(f"The function {func} may does not return the actual area/limits"
+                          f" but rather the rectangular limits. {self} can also have functional"
+                          f" limits that are arbitrarily defined and lay inside the rect_limits."
+                          f" To test if a value is inside, use `inside` or `filter`.")
+            warned = True
+        return func(*args, **kwargs)
+
+    return wrapped_func
 
 
 @z.function_tf_input
@@ -325,7 +349,7 @@ class Limit(ZfitLimit):
 
         lower = z.unstable._try_convert_numpy(lower)
         upper = z.unstable._try_convert_numpy(upper)
-        return (lower, upper)
+        return lower, upper
 
     @property
     def limit_fn(self):
@@ -722,15 +746,16 @@ class Space(BaseSpace):
         So integrating over the space consisting of the two added disconnected ranges,
         e.g. 0 to 1 and 2 to 3 will return the sum of the two separate integrals.
 
-        ```python
-        lower_band = zfit.Space('obs1', (0, 1))
-        upper_band = zfit.Space('obs1', (2, 3))
-        combined_obs = lower_band + upper_band
-        integral_comb = model.integrate(limits=combined_obs)
-        # which is equivalent to the lower
-        integral_sep = model.integrate(limits=lower_band) + model.integrate(limits=upper_band)
-        assert integral_comb == integral_sep
-        ```
+        .. code-block:: python
+
+            lower_band = zfit.Space('obs1', (0, 1))
+            upper_band = zfit.Space('obs1', (2, 3))
+            combined_obs = lower_band + upper_band
+            integral_comb = model.integrate(limits=combined_obs)
+            # which is equivalent to the lower
+            integral_sep = model.integrate(limits=lower_band) + model.integrate(limits=upper_band)
+            assert integral_comb == integral_sep
+
 
         In principle, the same behavior could also be achieved by specifying an arbitrary function. Using the addition
         allows for certain optimizations inside.
@@ -754,70 +779,11 @@ class Space(BaseSpace):
 
     @property
     def has_rect_limits(self) -> bool:
+        """If the limits are rectangular."""
         return all(limit.has_rect_limits for limit in list(self._limits_dict.values())[0].values())
 
-    @classmethod
-    @deprecated(date=None, instructions="Use directly the class to create a Space")
-    def from_axes(cls, axes: ztyping.AxesTypeInput,
-                  limits: Optional[ztyping.LimitsTypeInput] = None,
-                  rect_limits=None,
-                  name: str = None) -> "zfit.Space":
-        """Create a space from `axes` instead of from `obs`.
-
-        Args:
-            axes ():
-            limits ():
-            name (str):
-
-        Returns:
-            :py:class:`~zfit.Space`
-        """
-        # TODO(v0.5):
-        # raise BreakingAPIChangeError("from_axes is not needed anymore, create a Space directly.")
-        axes = convert_to_container(value=axes, container=tuple)
-        if axes is None:
-            raise AxesNotSpecifiedError("Axes cannot be `None`")
-        new_space = cls(axes=axes, limits=limits, rect_limits=rect_limits, name=name)
-        return new_space
-
-    # def _check_set_limits(self, limits: ztyping.LimitsTypeInput):
-    #     raise NotImplementedError
-    #
-    # if limits is not None and limits is not False:
-    #     lower, upper = limits
-    #     limits = self._check_convert_input_lower_upper(lower=lower, upper=upper)
-    # self._limits = limits
-
-    # def _check_convert_input_lower_upper(self, lower, upper):  # Remove?
-    #     raise NotImplementedError
-    # lower = self._check_convert_input_limit(limit=lower)
-    # upper = self._check_convert_input_limit(limit=upper)
-    # lower_is_iterable = lower is not None or lower is not False
-    # upper_is_iterable = upper is not None or upper is not False
-    # if not (lower_is_iterable or upper_is_iterable) and lower is not upper:
-    #     ValueError("Lower and upper limits wrong:"
-    #                "\nlower = {lower}"
-    #                "\nupper = {upper}".format(lower=lower, upper=upper))
-    # if lower_is_iterable ^ upper_is_iterable:
-    #     raise ValueError("Lower and upper limits wrong:"
-    #                      "\nlower = {l}"
-    #                      "\nupper = {u}".format(l=lower, u=upper))
-    # if lower_is_iterable and upper_is_iterable:
-    #     if not shape_np_tf(lower) == shape_np_tf(upper) or (
-    #         len(shape_np_tf(lower)) not in (2, 3)):  # 3 for EventSpace eager
-    #         raise ValueError("Lower and/or upper limits invalid:"
-    #                          "\nlower: {lower}"
-    #                          "\nupper: {upper}".format(lower=lower, upper=upper))
-    #
-    #     if not shape_np_tf(lower)[1] == self.n_obs:
-    #         raise ValueError("Limits shape not compatible with number of obs/axes"
-    #                          "\nlower: {lower}"
-    #                          "\nupper: {upper}"
-    #                          "\nn_obs: {n_obs}".format(lower=lower, upper=upper, n_obs=self.n_obs))
-    # return lower, upper
-
     @property
-    def rect_limits_are_tensors(self):
+    def rect_limits_are_tensors(self) -> bool:
         try:
             _ = self.rect_limits_np
         except CannotConvertToNumpyError:
@@ -826,8 +792,8 @@ class Space(BaseSpace):
             return False
 
     def _check_convert_input_limits(self, limit: Union[ztyping.LowerTypeInput, ztyping.UpperTypeInput],
-                                    rect_limits, obs, axes, n_obs,
-                                    replace=None) -> Union[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
+                                    rect_limits, obs, axes, n_obs) -> Union[
+        ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
         """Check and sanitize the input limits as well as the rectangular limits.
 
         Args:
@@ -921,9 +887,10 @@ class Space(BaseSpace):
         return extract_limits_from_dict(self._limits_dict, obs=obs, axes=axes)
 
     @property
-    @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
-                                        " Use `inside` to check if an Tensor is inside the limits or"
-                                        " `rect_limits` if you need to retreave the rectangular limits.")
+    # @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
+    #                                     " Use `inside` to check if an Tensor is inside the limits or"
+    #                                     " `rect_limits` if you need to retreave the rectangular limits.")
+    @warn_or_fail_not_rect
     def limits(self) -> ztyping.LimitsTypeReturn:
         """Return the limits.
 
@@ -975,7 +942,7 @@ class Space(BaseSpace):
 
         lower = z.unstable._try_convert_numpy(lower)
         upper = z.unstable._try_convert_numpy(upper)
-        return (lower, upper)
+        return lower, upper
 
     def _rect_limits_z(self):
         limits_obs = []
@@ -1029,7 +996,9 @@ class Space(BaseSpace):
         return self.rect_lower.shape[0]
 
     @property
-    @deprecated(date=None, instructions="Depreceated, use .rect_limits or .inside to check if a value is inside.")
+    @deprecated(date=None, instructions="Depreceated, use .rect_limits or .inside to check if a value is inside or use"
+                                        "rect_limits to receive the rectangular limits.")
+    @warn_or_fail_not_rect
     def limit2d(self) -> Tuple[float, float, float, float]:
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
@@ -1057,12 +1026,12 @@ class Space(BaseSpace):
         Raises:
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
         """
-        return self.rect_limits
-        # raise BreakingAPIChangeError("This function is gone TODO alternative to use?")
+        raise BreakingAPIChangeError("This function is gone. Instead iterate through the space and get each limit out.")
 
     @property
-    @deprecated(date=None, instructions="Depreceated (currently) due to the unambiguous nature of the word."
-                                        " Use `rect_lower` instead.")
+    # @deprecated(date=None, instructions="Depreceated (currently) due to the unambiguous nature of the word."
+    #                                     " Use `rect_lower` instead.")
+    @warn_or_fail_not_rect
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
@@ -1082,8 +1051,9 @@ class Space(BaseSpace):
         return self.rect_limits[0]
 
     @property
-    @deprecated(date=None, instructions="depreceated (currently) due to the unambiguous nature of the word."
-                                        " Use `rect_upper` instead.")
+    # @deprecated(date=None, instructions="depreceated (currently) due to the unambiguous nature of the word."
+    #                                     " Use `rect_upper` instead.")
+    @warn_or_fail_not_rect
     def upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
 
@@ -1243,7 +1213,7 @@ class Space(BaseSpace):
         return new_indices
 
     def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
-        raise BreakingAPIChangeError("Simply get the coords if needed?")
+        raise BreakingAPIChangeError("Simply get the coords if needed")
 
     @property
     def obs_axes(self):
@@ -1257,7 +1227,7 @@ class Space(BaseSpace):
 
 
         Args:
-            coords (OrderedDict[str, int]): an instance of `Coordinates`.
+            coords (Coordinates): an instance of `Coordinates`.
             allow_subset ():
 
         Returns:
@@ -1343,7 +1313,8 @@ class Space(BaseSpace):
 
         return new_space
 
-    @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area.")
+    # @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area.")
+    @warn_or_fail_not_rect
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
         return self.rect_area
@@ -1400,8 +1371,6 @@ class Space(BaseSpace):
         new_space = type(self)(**kwargs)
         return new_space
 
-    # Operators
-
     @property
     def has_rect_limits(self):
         if self.obs is not None:
@@ -1413,6 +1382,8 @@ class Space(BaseSpace):
         rect_limits = [limit.has_rect_limits for limit in limits_dict.values()]
         all_rect_limits = all(rect_limits)
         return all_rect_limits and len(rect_limits) > 0
+
+    # Operators
 
     def _inside(self, x, guarantee_limits):  # TODO: add proper implementation, as with rect_limits
         xs_inside = []
@@ -1428,9 +1399,10 @@ class Space(BaseSpace):
         all_inside = tf.reduce_all(xs_inside, axis=0)
         return all_inside
 
-    @property
-    @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
-                                        " Use `inside` to check if an Tensor is inside the limits.")
+    @property  # TODO(discussion): depreceate 1d limits? or keep?
+    # @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
+    #                                     " Use `inside` to check if an Tensor is inside the limits.")
+    @warn_or_fail_not_rect
     def limit1d(self) -> Tuple[float, float]:
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
@@ -1446,6 +1418,30 @@ class Space(BaseSpace):
             raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
         lower, upper = self.rect_limits
         return lower[0], upper[0]
+
+    @classmethod
+    @deprecated(date=None, instructions="Use directly the class to create a Space. E.g. zfit.Space(axes=(0, 1), ...)")
+    def from_axes(cls, axes: ztyping.AxesTypeInput,
+                  limits: Optional[ztyping.LimitsTypeInput] = None,
+                  rect_limits=None,
+                  name: str = None) -> "zfit.Space":
+        """Create a space from `axes` instead of from `obs`.
+
+        Args:
+            axes ():
+            limits ():
+            name (str):
+
+        Returns:
+            :py:class:`~zfit.Space`
+        """
+        # TODO(v0.5):
+        # raise BreakingAPIChangeError("from_axes is not needed anymore, create a Space directly.")
+        axes = convert_to_container(value=axes, container=tuple)
+        if axes is None:
+            raise AxesNotSpecifiedError("Axes cannot be `None`")
+        new_space = cls(axes=axes, limits=limits, rect_limits=rect_limits, name=name)
+        return new_space
 
 
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):
@@ -1501,20 +1497,6 @@ def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
         raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
     return MultiSpace(spaces, name=name)
 
-
-# WORKHERE
-
-
-# def create_rect_limits_func(rect_limits):
-#     def inside(x: tf.Tensor):
-#         if not x.shape.ndims > 1:
-#             raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
-#                              " structures is (nevents, n_obs).")
-#         lower, upper = rect_limits
-#         below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
-#         above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
-#         inside = tf.logical_and(above_lower, below_upper)
-#         return inside
 
 def get_coord(space, obs_in_use=True):
     if obs_in_use:
@@ -1865,6 +1847,7 @@ class MultiSpace(BaseSpace):
 
     # noinspection PyPropertyDefinition
     @property
+    @warn_or_fail_not_rect
     def limits(self) -> None:
         if all(space.limits_not_set for space in self):
             return None
@@ -1887,6 +1870,7 @@ class MultiSpace(BaseSpace):
 
     # noinspection PyPropertyDefinition
     @property
+    @warn_or_fail_not_rect
     def lower(self) -> None:
         if all(space.limits_not_set for space in self):
             return None
@@ -1894,6 +1878,7 @@ class MultiSpace(BaseSpace):
 
     # noinspection PyPropertyDefinition
     @property
+    @warn_or_fail_not_rect
     def upper(self) -> None:
         if all(space.limits_not_set for space in self):
             return None
@@ -1926,7 +1911,8 @@ class MultiSpace(BaseSpace):
     def with_limits(self, limits, name):
         self._raise_limits_not_implemented()
 
-    @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area of the space.")
+    # @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area of the space.")
+    @warn_or_fail_not_rect
     def area(self) -> float:
         return self.rect_area
 
@@ -2159,22 +2145,22 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
     return create_deco_stack
 
 
-def contains_tensor(object):
-    tensor_found = tf.is_tensor(object)
+def contains_tensor(objects):
+    tensor_found = tf.is_tensor(objects)
     with suppress(TypeError):
 
-        for obj in object:
+        for obj in objects:
             if tensor_found:
                 break
             tensor_found += contains_tensor(obj)
     return tensor_found
 
 
-def shape_np_tf(object):
-    if contains_tensor(object):
-        shape = tuple(tf.convert_to_tensor(object).shape.as_list())
+def shape_np_tf(objects):
+    if contains_tensor(objects):
+        shape = tuple(tf.convert_to_tensor(objects).shape.as_list())
     else:
-        shape = np.shape(object)
+        shape = np.shape(objects)
     return shape
 
 
