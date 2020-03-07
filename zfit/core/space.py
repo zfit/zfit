@@ -410,8 +410,7 @@ class Limit(ZfitLimit):
         """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
         return calculate_rect_area(rect_limits=self.rect_limits)
 
-    # WORKHERE
-    def inside(self, x, guarantee_limits=False):
+    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
         x = _sanitize_x_input(x, n_obs=self.n_obs)
         if guarantee_limits and self.has_rect_limits:
             return tf.broadcast_to(True, x.shape)
