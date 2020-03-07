@@ -7,13 +7,13 @@ import tensorflow as tf
 # space
 from ordered_set import OrderedSet
 
-LowerTypeInput = Union[tf.Tensor, np.ndarray, Iterable[float, ...], float]
+LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]
 
 UpperTypeInput = LowerTypeInput
 UpperTypeReturn = LowerTypeReturn
 
-LowerRectTypeInput = Union[tf.Tensor, np.ndarray, Iterable[float, ...], float]
+LowerRectTypeInput = Union[tf.Tensor, np.ndarray, Iterable[float], float]
 LowerRectTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]
 
 UpperRectTypeInput = LowerTypeInput

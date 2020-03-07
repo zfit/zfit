@@ -124,7 +124,8 @@ def warn_or_fail_not_rect(func):
             warnings.warn(f"The function {func} may does not return the actual area/limits"
                           f" but rather the rectangular limits. {self} can also have functional"
                           f" limits that are arbitrarily defined and lay inside the rect_limits."
-                          f" To test if a value is inside, use `inside` or `filter`.")
+                          f" To test if a value is inside, use `inside` or `filter`.",
+                          stacklevel=2)
             warned = True
         return func(*args, **kwargs)
 
@@ -1935,6 +1936,11 @@ class MultiSpace(BaseSpace):
     # noinspection PyPropertyDefinition
     @property
     def rect_limits(self):
+        self._raise_limits_not_implemented()
+
+    # noinspection PyPropertyDefinition
+    @property
+    def rect_limits_np(self):
         self._raise_limits_not_implemented()
 
     # noinspection PyPropertyDefinition

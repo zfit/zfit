@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Union, List, Dict, Callable, Tuple, Optional
 
 import tensorflow as tf
+import numpy as np
 
 import zfit
 from ..util import ztyping
