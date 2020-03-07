@@ -55,7 +55,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
     def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
-        if norm_range.limits_not_set:
+        if not norm_range.limits_are_set:
             norm_range_candidat = self._infer_norm_range_from_daughters()
             # if norm_range_candidat is False:
             #     raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"

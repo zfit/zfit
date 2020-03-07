@@ -31,7 +31,7 @@ from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousErro
                               ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
                               IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
                               InvalidLimitSubspaceError, CannotConvertToNumpyError, BehaviorUnderDiscussion,
-                              LimitsNotSpecifiedError)
+                              LimitsNotSpecifiedError, NumberOfEventsIncompatibleError)
 
 
 class LimitRangeDefinition:
@@ -493,13 +493,13 @@ class Limit(ZfitLimit):
             return False
 
     @property
-    def limits_not_set(self) -> bool:
+    def limits_are_set(self) -> bool:
         """If the limits have never explicitly been set to a limit or to False.
 
         Returns:
             bool:
         """
-        return self._rect_limits is None
+        return self._rect_limits is not None
 
     @property
     def limits_are_false(self) -> bool:
@@ -517,7 +517,7 @@ class Limit(ZfitLimit):
         Returns:
             bool:
         """
-        return not (self.limits_are_false or self.limits_not_set)
+        return not (self.limits_are_false or (not self.limits_are_set))
 
     @property
     def n_obs(self) -> int:
@@ -536,6 +536,8 @@ class Limit(ZfitLimit):
             int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
                 it's vectorized.
         """
+        if not self.has_limits:
+            return 1
         return self.rect_lower.shape[0]
 
     def equal(self, other: object, allow_graph: bool = True) -> Union[bool, tf.Tensor]:
@@ -1278,16 +1280,6 @@ class Space(BaseSpace):
         return all_rect_limits and len(rect_limits) > 0
 
     @property
-    def limits_not_set(self) -> bool:
-        """If the limits have not been set to a limit or to are False.
-
-        Returns:
-            bool:
-        """
-        return all(limit.limits_not_set
-                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
-
-    @property
     def limits_are_false(self) -> bool:
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
@@ -1304,14 +1296,23 @@ class Space(BaseSpace):
         Returns:
             bool:
         """
-        return not (self.limits_not_set or self.limits_are_false)
+        return self.limits_are_set and not self.limits_are_false
 
     @property
     def limits_are_set(self):
-        return not self.limits_not_set
+        return all(limit.limits_are_set
+                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
 
     @property
-    def n_events(self):
+    def n_events(self) -> Union[int, None]:
+        """
+
+        Returns:
+            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+                it's vectorized.
+        """
+        if not self.has_limits:
+            return 1
         return self.rect_lower.shape[0]
 
     @property
@@ -1616,6 +1617,7 @@ class Space(BaseSpace):
             new_space = self
 
         return new_space
+
     # @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area.")
 
     @warn_or_fail_not_rect
@@ -1832,7 +1834,7 @@ def combine_spaces_new(*spaces: Iterable[Space]):
         raise CoordinatesUnderdefinedError("Neither `obs` nor `axes` exist in all spaces.")
 
     all_limits_false = all([space.limits_are_false for space in spaces])
-    all_limits_not_set = all([space.limits_not_set for space in spaces])
+    all_limits_not_set = all([not space.limits_are_set for space in spaces])
     has_limits = [space.has_limits for space in spaces]
     if all_limits_false:
         limits = False
@@ -1966,8 +1968,8 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
         if set(space1.obs) != set(space2.obs):
             return False
     # check limits
-    if space1.limits_not_set:
-        if space2.limits_not_set:
+    if not space1.limits_are_set:
+        if not space2.limits_are_set:
             return True
         else:
             return False
@@ -2036,7 +2038,8 @@ def flatten_spaces(spaces):
 
 class MultiSpace(BaseSpace):
 
-    def __new__(cls, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> Any:
+    def __new__(cls, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None) -> Union[
+        'Space', 'MultiSpace']:
         spaces, obs, axes = cls._check_convert_input_spaces_obs_axes(spaces, obs, axes)
         if len(spaces) == 1:
             return spaces[0]
@@ -2065,6 +2068,11 @@ class MultiSpace(BaseSpace):
         spaces = flatten_spaces(spaces)
         all_have_obs = all(space.obs is not None for space in spaces)
         all_have_axes = all(space.axes is not None for space in spaces)
+        n_events = [space.n_events in (spaces[0].n_events, None) for space in spaces]
+        all_nevents_compatible = all(n_events)
+        if not all_nevents_compatible:
+            raise NumberOfEventsIncompatibleError("The number of events of the spaces do not coincide")
+        n_events = None if None in n_events else n_events[0]  # since all are equal
         if all_have_axes:
             axes = spaces[0].axes if axes is None else convert_to_axes(axes)
 
@@ -2095,43 +2103,12 @@ class MultiSpace(BaseSpace):
 
         spaces = tuple(spaces)
 
-        # if axes is not None:
-        #     raise WorkInProgressError("Axes not yet implemented")
-        # spaces = convert_to_container(spaces, container=tuple)
-        # spaces = flatten_spaces(spaces)
-        # if obs is None:
-        #     obs = spaces[0].obs
-        # else:
-        #     obs = convert_to_obs_str(obs)
-        #
-        # all_have_obs = all(space.obs is not None for space in spaces)
-        # if all_have_obs:
-        #     if not all(frozenset(obs) == frozenset(space.obs) for space in spaces):
-        #         raise ObsIncompatibleError(f"observables of spaces do not coincide: {spaces}")
-        #     spaces = tuple(space.with_obs(obs) for space in spaces)
-        # else:
-        #     if any(space.obs is not None for space in spaces):
-        #         raise ObsIncompatibleError("Some spaces have obs, other don't")  # TODO, better check
-        #
-        # if axes is None:
-        #     axes = spaces[0].axes
-        # else:
-        #     axes = convert_to_axes(axes)
-        #
-        # all_have_axes = all(space.axes is not None for space in spaces)
-        # if all_have_axes:
-        #     if not all(frozenset(axes) == frozenset(space.axes) for space in spaces):
-        #         raise AxesIncompatibleError(f"observables of spaces do not coincide: {spaces}")
-        #     spaces = tuple(space.with_axes(axes) for space in spaces)
-        #
-        # else:
-        #     if any(space.axes is not None for space in spaces):
-        #         raise AxesIncompatibleError("Some spaces have axes, others don't")  # TODO, better check
         return spaces, obs, axes
 
     @property
-    def has_rect_limits(self) -> bool:
-        return all(space.has_rect_limits for space in self.spaces)
+    @warn_or_fail_not_rect
+    def limits(self) -> None:
+        self._raise_limits_not_implemented()
 
     @property
     def limits_are_false(self) -> bool:
@@ -2140,48 +2117,18 @@ class MultiSpace(BaseSpace):
     # noinspection PyPropertyDefinition
     @property
     @warn_or_fail_not_rect
-    def limits(self) -> None:
-        if all(space.limits_not_set for space in self):
-            return None
-        self._raise_limits_not_implemented()
-
-    @property
-    def has_limits(self):
-        try:
-            return (not self.limits_not_set) and not self.limits_are_false
-        except MultipleLimitsNotImplementedError:
-            return True
-
-    @property
-    def limits_not_set(self):
-        return all(space.limits_not_set for space in self.spaces)
-
-    @property
-    def limits_are_set(self):
-        return not self.limits_not_set
-
-    # noinspection PyPropertyDefinition
-    @property
-    @warn_or_fail_not_rect
     def lower(self) -> None:
-        if all(space.limits_not_set for space in self):
-            return None
         self._raise_limits_not_implemented()
 
-    # noinspection PyPropertyDefinition
     @property
     @warn_or_fail_not_rect
     def upper(self) -> None:
-        if all(space.limits_not_set for space in self):
-            return None
         self._raise_limits_not_implemented()
 
-    # noinspection PyPropertyDefinition
     @property
     def rect_limits(self):
         self._raise_limits_not_implemented()
 
-    # noinspection PyPropertyDefinition
     @property
     def rect_limits_np(self):
         self._raise_limits_not_implemented()
@@ -2196,14 +2143,48 @@ class MultiSpace(BaseSpace):
     def rect_upper(self):
         self._raise_limits_not_implemented()
 
-    # TODO: check nevents in init, coincide?
+    # noinspection PyPropertyDefinition
     @property
-    def nevents(self):
-        return tuple(self)[0].rect_lower.shape[0]
+    def has_rect_limits(self) -> bool:
+        """If there are limits and whether they are rectangular."""
+        return all(space.has_rect_limits for space in self.spaces)
 
     @property
-    def rect_limits_are_tensors(self):
+    def rect_limits_are_tensors(self) -> bool:
+        """Return True if the rectangular limits are tensors.
+
+        If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
+
+        Returns:
+            bool: if the rectangular limits are tensors.
+        """
         return all(space.limits_are_tensors for space in self)
+
+    # noinspection PyPropertyDefinition
+    @property
+    def limits_are_set(self) -> bool:
+        """If the limits have been set to a limit or are False.
+
+        Returns:
+            bool: Whether the limits have been set or not.
+        """
+        return all(space.limits_are_set for space in self.spaces)
+
+    @property
+    def has_limits(self) -> bool:
+        """Whether there are limits set and they are not false.
+
+        Returns:
+            bool:
+        """
+        try:
+            return self.limits_are_set and not self.limits_are_false
+        except MultipleLimitsNotImplementedError:
+            return True
+
+    @property
+    def n_events(self):
+        return tuple(self)[0].rect_lower.shape[0]
 
     def with_limits(self, limits, name):
         self._raise_limits_not_implemented()
@@ -2258,6 +2239,13 @@ class MultiSpace(BaseSpace):
         inside_limits = [space.inside(x, guarantee_limits=guarantee_limits) for space in self]
         inside = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
         return inside
+
+    @property
+    def n_events(self) -> Union[int, None]:
+        # get the first numeric n_events. Is None if a Tensor and not specified yet.
+        n_events_first = [space.n_events for space in self if space.n_events is not None]
+        n_events = None if not n_events_first else n_events_first[0]
+        return n_events
 
     def __iter__(self) -> ZfitSpace:
         yield from self.spaces
@@ -2315,7 +2303,7 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
         return limits
     if space is not None:
         # set the limits if given
-        if limits is not None and (overwrite_limits or space.limits_not_set):
+        if limits is not None and (overwrite_limits or not space.limits_are_set):
             if isinstance(limits, ZfitSpace):  # figure out if compatible if limits is `Space`
                 if not (limits.obs == space.obs or
                         (limits.axes == space.axes and limits.obs is None and space.obs is None)):
@@ -2497,7 +2485,7 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     lowers = []
     uppers = []
     for space in spaces:
-        if space.limits_not_set:
+        if not space.limits_are_set:
             continue
         for lower, upper in space:
             for other_lower, other_upper in zip(lowers, uppers):

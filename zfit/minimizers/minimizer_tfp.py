@@ -8,6 +8,7 @@ import tensorflow_probability as tfp
 
 from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy
 from .fitresult import FitResult
+from .. import z
 
 
 class BFGS(BaseMinimizer):
@@ -32,7 +33,7 @@ class BFGS(BaseMinimizer):
         params = tuple(params)
         do_print = self.verbosity > 5
 
-        @tf.function(autograph=False, experimental_relax_shapes=True)
+        @z.function
         def update_params_value_grad(loss, params, values):
             for param, value in zip(params, tf.unstack(values, axis=0)):
                 param.set_value(value)
@@ -54,11 +55,11 @@ class BFGS(BaseMinimizer):
 
         minimizer_kwargs = dict(
             initial_position=tf.stack(params),
-            # tolerance=1e-4,
-            f_relative_tolerance=self.tolerance * 1e-3,  # TODO: use edm for stopping criteria
+            x_tolerance=self.tolerance,
+            # f_relative_tolerance=self.tolerance * 1e-5,  # TODO: use edm for stopping criteria
             initial_inverse_hessian_estimate=initial_inv_hessian_est,
             parallel_iterations=1,
-            max_iterations=300
+            max_iterations=3000
         )
         minimizer_kwargs.update(self.options)
 

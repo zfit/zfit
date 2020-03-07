@@ -74,6 +74,12 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             nevents = self._get_nevents()
         return nevents
 
+    # TODO: which naming?
+
+    @property
+    def n_events(self):
+        return self.nevents
+
     @property
     def dtype(self):
         return self._dtype

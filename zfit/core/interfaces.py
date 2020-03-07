@@ -133,12 +133,6 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def has_rect_limits(self) -> bool:
-        """If there are limits and whether they are rectangular."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
         """Return the rectangular limits as `np.ndarray``tf.Tensor` if they are set and not false.
 
@@ -247,6 +241,12 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         """
 
     @property
+    @abstractmethod
+    def has_rect_limits(self) -> bool:
+        """If there are limits and whether they are rectangular."""
+        raise NotImplementedError
+
+    @property
     def rect_limits_are_tensors(self) -> bool:
         """Return True if the rectangular limits are tensors.
 
@@ -259,11 +259,11 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def limits_not_set(self) -> bool:
-        """If the limits have not been set to a limit or to are False.
+    def limits_are_set(self) -> bool:
+        """If the limits have been set to a limit or are False.
 
         Returns:
-            bool:
+            bool: Whether the limits have been set or not.
         """
         raise NotImplementedError
 
@@ -385,39 +385,18 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     @property
     @abstractmethod
-    def obs(self) -> Tuple[str, ...]:
-        """Return a list of the observable names.
-
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
     def n_limits(self) -> int:
         """Return the number of limits."""
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def axes(self) -> ztyping.AxesTypeReturn:
-        raise NotImplementedError
-
-    # TODO: remove below?
-    # @abstractmethod
-    # def get_axes(self, obs: Union[str, Tuple[str, ...]] = None, as_dict: bool = True):
-    #     """Return the axes number of the observable *if available* (set by `axes_by_obs`).
-    #
-    #     Raises:
-    #         AxesNotUnambiguousError: In case
-    #     """
-    #     raise NotImplementedError
-
+    # TODO: legacy?
     @property
     @abstractmethod
     def limits(self) -> Tuple[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
         """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
+    # TODO: legacy?
     @property
     @abstractmethod
     def lower(self) -> ztyping.LowerTypeReturn:
@@ -426,6 +405,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """
         raise NotImplementedError
 
+    # TODO: legacy?
     @property
     @abstractmethod
     def upper(self) -> ztyping.UpperTypeReturn:
@@ -438,15 +418,11 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
     def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "zfit.Space":
         raise NotImplementedError
 
+    # TODO: legacy?
     @abstractmethod
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
         raise NotImplementedError
-
-    # @abstractmethod
-    # def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
-    #     """Return the areas of each limit."""
-    #     raise NotImplementedError
 
     @abstractmethod
     def with_limits(self, limits, name):
@@ -455,32 +431,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         Args:
             limits ():
             name (str):
-
-        Returns:
-            :py:class:`~zfit.Space`
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = True,
-                 allow_subset: bool = True):
-        """Sort by `obs` and return the new instance.
-
-        Args:
-            obs ():
-
-        Returns:
-            `Space`
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = True,
-                  allow_subset: bool = True):
-        """Sort by `obs` and return the new instance.
-
-        Args:
-            axes ():
 
         Returns:
             :py:class:`~zfit.Space`
@@ -532,7 +482,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     @abstractmethod
     def __iter__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self):

@@ -117,6 +117,10 @@ class LimitsIncompatibleError(IncompatibleError):
     pass
 
 
+class NumberOfEventsIncompatibleError(ShapeIncompatibleError):
+    pass
+
+
 class InvalidLimitSubspaceError(Exception):
     pass
 
@@ -145,8 +149,10 @@ class NoSessionSpecifiedError(Exception):
 class IllegalInGraphModeError(Exception):
     pass
 
+
 class CannotConvertToNumpyError(Exception):
     pass
+
 
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):

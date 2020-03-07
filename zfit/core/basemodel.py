@@ -231,7 +231,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             Union[:py:class:`~zfit.Space`, False]:
 
         """
-        if norm_range is None or (isinstance(norm_range, ZfitSpace) and norm_range.limits_not_set):
+        if norm_range is None or (isinstance(norm_range, ZfitSpace) and not norm_range.limits_are_set):
             if none_is_error:
                 raise ValueError("Normalization range `norm_range` has to be specified when calling {name} or"
                                  "a default normalization range has to be set. Currently, both are None"
@@ -816,7 +816,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         limits = self._check_input_limits(limits=limits)
 
-        if limits.limits_not_set:
+        if not limits.limits_are_set:
             limits = self.space  # TODO(Mayou36): clean up, better norm_range?
             if not limits.has_limits:
                 raise ValueError("limits are False/None, have to be specified")
@@ -877,9 +877,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             n = tf.cast(n, dtype=tf.int32)
 
         limits = self._check_input_limits(limits=limits)
-        if limits.limits_not_set:
+        if not limits.limits_are_set:
             limits = self.space
-            if limits.limits_not_set or not limits.has_limits:
+            if not limits.has_limits:
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
 

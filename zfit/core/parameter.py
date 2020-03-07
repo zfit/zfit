@@ -49,17 +49,13 @@ def register_tensor_conversion(convertable, overload_operators=True, priority=1)
         convertable._OverloadAllOperators()
 
 
-# drop-in replacement for ResourceVariable
+# drop-in replacement for ResourceVariable, wrapping variable TODO: still needed?
 # class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
-class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade to tf2
+class ZfitBaseVariable(metaclass=MetaBaseParameter):
     # class ZfitBaseVariable:
 
     def __init__(self, variable: tf.Variable, **kwargs):
         self.variable = variable
-
-    # @property
-    # def name(self):
-    #     return self.variable.op.name
 
     @property
     def name(self):
@@ -129,32 +125,8 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):  # TODO(Mayou36): upgrade t
 register_tensor_conversion(ZfitBaseVariable, overload_operators=True)
 
 
-# def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
-#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
-#
-#
-# ops.register_tensor_conversion_function(ZfitBaseVariable, _dense_var_to_tensor)
-#
-# ZfitBaseVariable._OverloadAllOperators()
 
 
-# class ComposedResourceVariable(ResourceVariable):
-#     def __init__(self, name, initial_value, **kwargs):
-#         super().__init__(name=name, initial_value=initial_value, **kwargs)
-#         self._value_tensor = initial_value
-#
-#     def value(self):
-#         # with tf.control_dependencies([self._value_tensor]):
-#         # return 5.
-#         return self._value_tensor
-#
-#     def read_value(self):
-#         # raise RuntimeError()
-#         return self._value_tensor
-
-
-# class ComposedVariable(tf.Variable, metaclass=type(tf.Variable)):
-# class ComposedVariable(ResourceVariable, metaclass=type(tf.Variable)):
 # class ComposedVariable(metaclass=MetaBaseParameter):
 class ComposedVariable:
 

@@ -65,7 +65,7 @@ def test_less_equal(graph, testclass):
 
         assert not limit.has_rect_limits
         assert limit.has_limits
-        assert not limit.limits_not_set
+        assert limit.limits_are_set
         assert not limit.limits_are_false
         inside = limit.inside(2)
         inside2 = limit.inside(2, guarantee_limits=True)
@@ -73,7 +73,7 @@ def test_less_equal(graph, testclass):
 
         assert not limit2.has_rect_limits
         assert limit2.has_limits
-        assert not limit2.limits_not_set
+        assert limit2.limits_are_set
         assert not limit2.limits_are_false
         inside21 = limit2.inside(2)
         inside22 = limit2.inside(2, guarantee_limits=True)
@@ -107,7 +107,7 @@ def test_limits_1d(graph, testclass):
 
         assert not limit.has_rect_limits
         assert limit.has_limits
-        assert not limit.limits_not_set
+        assert limit.limits_are_set
         assert not limit.limits_are_false
         inside = limit.inside(2)
         inside2 = limit.inside(2, guarantee_limits=True)
@@ -115,7 +115,7 @@ def test_limits_1d(graph, testclass):
 
         assert not limit2.has_rect_limits
         assert limit2.has_limits
-        assert not limit2.limits_not_set
+        assert limit2.limits_are_set
         assert not limit2.limits_are_false
         inside21 = limit2.inside(2)
         inside22 = limit2.inside(2, guarantee_limits=True)

@@ -6,6 +6,7 @@ import random
 import numpy as np
 import pytest
 
+import zfit
 from zfit.core.space import Space, convert_to_space
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -67,7 +68,7 @@ def test_equality(space1, space2):
     assert space1.obs == space2.obs
     np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
     # TODO: reactivate below
-    assert space1.rect_area.numpy() == pytest.approx(space2.rect_area.numpy(), rel=1e-8)
+    assert zfit.run(space1.rect_area) == pytest.approx(zfit.run(space2.rect_area), rel=1e-8)
 
 
 # @pytest.mark.skip  # eq missing

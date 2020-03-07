@@ -189,7 +189,7 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
 #         raise LimitsIncompatibleError("Limits overlap")
 #
 #     for space in spaces:
-#         if space.limits_not_set:
+#         if not space.limits_are_set:
 #             continue
 #         lowers, uppers = space.limits
 #         lower = [tuple(low[space.obs.index(ob)] for low in lowers) if ob in space.obs else None for ob in all_obs]
