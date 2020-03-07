@@ -365,7 +365,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
-            nevents = dat.nevents if dat.weights is None else z.reduce_sum(dat.weights)
+            nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
             poisson_terms.append(-mod.get_yield() + z.to_real(nevents) * tf.math.log(mod.get_yield()))
         nll -= tf.reduce_sum(input_tensor=poisson_terms)
         return nll

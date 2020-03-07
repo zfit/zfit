@@ -111,7 +111,7 @@ def gather(x, indices=None, axis=None):
 
 
 def concat(values, axis, name=None):
-    if not SWITCH_ON or any(is_tensor(value) for value in values):
+    if not SWITCH_ON or is_tensor(values) or any(is_tensor(value) for value in values):
         return tf.concat(values=values, axis=axis, name=name)
     else:
         return np.concatenate(values, axis=axis)

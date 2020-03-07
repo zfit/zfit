@@ -191,10 +191,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
     initial_is_sampled = tf.constant("EMPTY")
-    if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.nevents > 1:
+    if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            assert_n_matches_limits_op = tf.compat.v1.assert_equal(limits.nevents, n)
+            assert_n_matches_limits_op = tf.compat.v1.assert_equal(limits.n_events, n)
             tfdeps = [assert_n_matches_limits_op]
         else:
             tfdeps = []

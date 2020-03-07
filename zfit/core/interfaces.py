@@ -134,21 +134,25 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def has_rect_limits(self) -> bool:
-        """If the limits are rectangular."""
+        """If there are limits and whether they are rectangular."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
-        """Return the rectangular limits as arrays/`tf.Tensor` or False/None.
+        """Return the rectangular limits as `np.ndarray``tf.Tensor` if they are set and not false.
 
             The rectangular limits can be used for sampling. They do not in general represent the limits
             of the object as a functional limit can be set and to check if something is inside the limits,
             the method :py:meth:`~Limit.inside` should be used.
 
+            In order to test if the limits are False or None, it is recommended to use the appropriate methods
+            `limits_are_false` and `limits_are_set`.
+
         Returns:
             tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.
-
+        Raises:
+            LimitsNotSpecifiedError: If there are not limits set or they are False.
         """
         raise NotImplementedError
 
@@ -161,6 +165,8 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         need to be involved in the computation later on as they allow direct interaction with Python as
         compared to `tf.Tensor` inside a graph function.
 
+        In order to test if the limits are False or None, it is recommended to use the appropriate methods
+        `limits_are_false` and `limits_are_set`.
 
         Returns:
             (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
@@ -169,7 +175,9 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
         Raises:
             CannotConvertToNumpyError: In case the conversion fails.
+            LimitsNotSpecifiedError: If the limits are not set or are false
         """
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -178,6 +186,8 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
         Returns:
             The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+        Raises:
+            LimitsNotSpecifiedError: If the limits are not set or are false
         """
         raise NotImplementedError
 
@@ -187,7 +197,9 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         """The upper, rectangular limits, equivalent to `rect_limits[1]` with shape (..., n_obs)
 
         Returns:
-            The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+            The upper, rectangular limits as `np.ndarray` or `tf.Tensor`
+        Raises:
+            LimitsNotSpecifiedError: If the limits are not set or are false
         """
         raise NotImplementedError
 
@@ -248,7 +260,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def limits_not_set(self) -> bool:
-        """If the limits have never explicitly been set to a limit or to False.
+        """If the limits have not been set to a limit or to are False.
 
         Returns:
             bool:
@@ -268,13 +280,14 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def has_limits(self) -> bool:
-        """If there are limits set and they are not false.
+        """Whether there are limits set and they are not false.
 
         Returns:
             bool:
         """
         raise NotImplementedError
 
+    # TODO: remove from API?
     def get_subspace(self, *_, **__):
         from zfit.util.exception import InvalidLimitSubspaceError
         raise InvalidLimitSubspaceError("ZfitLimits does not suppoert subspaces")
@@ -340,12 +353,11 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             bool: result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
-
         """
         raise NotImplementedError
 
     @abstractmethod
-    def __le__(self, other):
+    def __le__(self, other: object) -> bool:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -487,21 +499,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
             :py:class:`~zfit.Space`
         """
         raise NotImplementedError
-
-    # @classmethod
-    # @abstractmethod
-    # def from_axes(cls, axes, limits, name):
-    #     """Create a space from `axes` instead of from `obs`.
-    #
-    #     Args:
-    #         axes ():
-    #         limits ():
-    #         name (str):
-    #
-    #     Returns:
-    #         :py:class:`~zfit.Space`
-    #     """
-    #     pass
 
     @abstractmethod
     def get_subspace(self, obs, axes, name):
