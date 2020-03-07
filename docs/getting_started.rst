@@ -1,6 +1,6 @@
-=========================
-Getting started with zfit
-=========================
+===============
+Getting started
+===============
 
 The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
 
