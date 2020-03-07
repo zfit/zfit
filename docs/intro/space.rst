@@ -119,4 +119,4 @@ and so on.
 
 
 A working code example of :py:class:`~zfit.Space` handling is provided in `spaces.py` in
-:doc:`examples <../examples/spaces.py>`.
+:doc:`examples <../../examples/spaces.py>`.

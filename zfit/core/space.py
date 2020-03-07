@@ -155,8 +155,8 @@ def inside_rect_limits(x, rect_limits):
 
 
 @z.function_tf_input
-def filter_rect_limits(x, rect_limits):
-    return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits))
+def filter_rect_limits(x, rect_limits, axis=None):
+    return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis))
 
 
 def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
@@ -200,7 +200,8 @@ class Limit(ZfitLimit):
     def __init__(self, limit_fn: ztyping.LimitsFuncTypeInput = None,
                  rect_limits: ztyping.LimitsTypeInput = None,
                  n_obs: int = None):
-        """
+        """Specify a limit with rectangular limits (and possiblty an arbitrary function).
+
         Args:
             limit_fn: Function that works as `inside`: return true if a point is inside of the limits.
                 The function should take one tensor-like argument with shape (..., n_obs) and should return
@@ -410,7 +411,21 @@ class Limit(ZfitLimit):
         """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
         return calculate_rect_area(rect_limits=self.rect_limits)
 
-    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
+    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturnNoData:
+        """Test if `x` is inside the limits.
+
+        This function should be used to test if values are inside the limits. If the given x is already inside
+        the rectangular limits, e.g. because it was sampled from within them
+
+        Args:
+            x: Values to be checked whether they are inside of the limits. The shape is expected to have the last
+                dimension equal to n_obs.
+            guarantee_limits: Guarantee that the values are already inside the rectangular limits.
+
+        Returns:
+            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the
+                last dimension removed.
+        """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
         if guarantee_limits and self.has_rect_limits:
             return tf.broadcast_to(True, x.shape)
@@ -418,29 +433,54 @@ class Limit(ZfitLimit):
             return self._inside(x, guarantee_limits)
 
     def _inside(self, x, guarantee_limits):
+        del guarantee_limits
         if self.has_rect_limits:
             return inside_rect_limits(x, rect_limits=self.rect_limits)
         else:
             return self._limit_fn(x)
 
-    def filter(self, x, guarantee_limits):
+    def filter(self, x: ztyping.XTypeInput,
+               guarantee_limits: bool = False,
+               axis: Optional[int] = None
+               ) -> ztyping.XTypeReturnNoData:
+        """Filter `x` by removing the elements along `axis` that are not inside the limits.
+
+        This is similar to `tf.boolean_mask`.
+
+        Args:
+            x: Values to be checked whether they are inside of the limits. If not, the corresonding element (in the
+                specified `axis`) is removed. The shape is expected to have the last dimension equal to n_obs.
+            guarantee_limits: Guarantee that the values are already inside the rectangular limits.
+            axis: The axis to remove the elements from. Defaults to 0.
+
+        Returns:
+            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been
+                removed.
+        """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
+
+        # shortcut, everything already inside
         if guarantee_limits and self.has_rect_limits:
             return x
-        if self.has_rect_limits:
-            return filter_rect_limits(x, rect_limits=self.rect_limits)
-        else:
-            return self._filter(x, guarantee_limits)
 
-    def _filter(self, x, guarantee_limits):
-        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
+        return self._filter(x, guarantee_limits, axis=axis)
+
+    def _filter(self, x, guarantee_limits, axis):
+        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits), axis=axis)
 
     @property
     def limit_fn(self):
         return self._limit_fn
 
     @property
-    def rect_limits_are_tensors(self):
+    def rect_limits_are_tensors(self) -> bool:
+        """Return True if the rectangular limits are tensors.
+
+        If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
+
+        Returns:
+            bool: if the rectangular limits are tensors.
+        """
         try:
             _ = self.rect_limits_np
         except CannotConvertToNumpyError:
@@ -449,26 +489,77 @@ class Limit(ZfitLimit):
             return False
 
     @property
-    def limits_not_set(self):
+    def limits_not_set(self) -> bool:
+        """If the limits have never explicitly been set to a limit or to False.
+
+        Returns:
+            bool:
+        """
         return self._rect_limits is None
 
     @property
-    def limits_are_false(self):
+    def limits_are_false(self) -> bool:
+        """If the limits have been set to False, so the object on purpose does not contain limits.
+
+        Returns:
+            bool:
+        """
         return self._rect_limits is False
 
     @property
-    def has_limits(self):
+    def has_limits(self) -> bool:
+        """If there are limits set and they are not false.
+
+        Returns:
+            bool:
+        """
         return not (self.limits_are_false or self.limits_not_set)
 
     @property
     def n_obs(self) -> int:
+        """Dimensionality, the number of observables, of the limits. Equals to the last axis in rectangular limits.
+
+        Returns:
+            int: Dimensionality of the limits.
+        """
         return self._n_obs
 
     @property
-    def nevents(self):
+    def n_events(self) -> Union[int, None]:
+        """
+
+        Returns:
+            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+                it's vectorized.
+        """
         return self.rect_lower.shape[0]
 
-    def __eq__(self, other):
+    def equal(self, other: object, allow_graph: bool = True) -> Union[bool, tf.Tensor]:
+        """Compare the limits on equality. For ANY objects, this also returns true.
+
+        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
+
+        Args:
+            other: Any other object to compare with
+            allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
+
+        Returns:
+            bool, tf.Tensor: Either a Python boolean or a `tf.Tensor`
+         Raises:
+             IllegalInGraphModeError: if `allow_graph`
+        """
+        if not isinstance(other, ZfitLimit):
+            return False
+        return equal_limits(self, other, allow_graph=allow_graph)
+
+    def __eq__(self, other: object) -> bool:
+        """Compares two Limits for equality without graph mode allowed.
+
+        Returns:
+            bool:
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+        """
         if not isinstance(other, ZfitLimit):
             return NotImplemented
         return self.equal(other, allow_graph=False)
@@ -481,29 +572,59 @@ class Limit(ZfitLimit):
         #                   " identity tests. To prevent this, use numpy objects, not tensors, for limits if not needed.")
         #     return self is other
 
-    def __le__(self, other):
+    def less_equal(self, other: object, allow_graph: bool = True) -> Union[bool, tf.Tensor]:
+        """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
+
+        This can be used to determine whether a fitting range specification can handle another limit.
+
+        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
+
+
+        Args:
+            other: Any other object to compare with
+            allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
+
+        Returns:
+            bool: result of the comparison
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+
+        """
+        if not isinstance(other, ZfitLimit):
+            return False
+        return less_equal_limits(self, other, allow_graph=allow_graph)
+
+    def __le__(self, other: object) -> bool:
+        """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
+
+        This can be used to determine whether a fitting range specification can handle another limit.
+
+        Returns:
+            bool: result of the comparison
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+        """
         if not isinstance(other, ZfitLimit):
             return NotImplemented
         return self.less_equal(other, allow_graph=False)
 
-    def less_equal(self, other, allow_graph=True):
-        return less_equal_limits(self, other, allow_graph=allow_graph)
+    def get_sublimits(self) -> Iterable[ZfitLimit]:
+        """Splits itself into multiple sublimits with smaller n_obs.
 
-    def __iter__(self):
-        yield from self._sublimits
+        If this is not possible, if the limits are not rectangular, just returns itself.
+
+        Returns:
+            Iterable[ZfitLimits]: The sublimits if it was able to split.
+        """
+        return self._sublimits
 
     def __hash__(self) -> int:
         objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
         return hash(tuple(objects))
 
-    def equal(self, other, allow_graph=True):
-        return equal_limits(self, other, allow_graph=allow_graph)
 
-    def less_equal(self, other, allow_graph=True):
-        return less_equal_limits(self, other, allow_graph=allow_graph)
-
-
-def rect_limits_are_any(limit):
+def rect_limits_are_any(limit: ZfitLimit) -> bool:
+    """True if all limits in limit are ANY objects."""
     if limit.rect_limits_are_tensors:
         return False
     if all(isinstance(ele, Any) for lim in limit.rect_limits_np for ele in lim.flatten()):
@@ -859,7 +980,7 @@ class Space(BaseSpace):
             #     input_limits = rect_limits
             limit = Limit(limit_fn=limit, rect_limits=rect_limits, n_obs=n_obs)
             i_old = 0
-            for lim in limit:  # split into smaller ones if possible
+            for lim in limit.get_sublimits():  # split into smaller ones if possible
                 i = i_old + lim.n_obs
                 if obs is not None:
                     limits_dict['obs'][obs[i_old:i]] = lim
@@ -2032,25 +2153,6 @@ class MultiSpace(BaseSpace):
 
     def __hash__(self):
         return hash(self.spaces)
-
-
-#
-# class FunctionSpace(BaseSpace):
-#
-#     def __init__(self, obs=None, axes=None, limit_fn=None, rect_limits=None, name="FunctionSpace"):
-#         super().__init__(name, obs=obs, axes=axes, rect_limits=rect_limits, name=name)
-#         self.limit_fn = limit_fn
-#
-#     def _inside(self, x, guarantee_limits):
-#         return self.limit_fn(x)
-#
-#     @property
-#     def limits_not_set(self):
-#         return self.limit_fn is None
-#
-#     @property
-#     def has_limits(self):
-#         return not self.limits_not_set
 
 
 def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[ztyping.AxesTypeInput] = None,

@@ -136,7 +136,7 @@ def test_unbinned_nll(weights, sigma):
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values,
                              constraints=constraints)
 
-    minimizer = Minuit()
+    minimizer = Minuit(tolerance=1e-4)
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
     params = status.params
     if weights is None:

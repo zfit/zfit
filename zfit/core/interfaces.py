@@ -4,8 +4,8 @@ import abc
 from abc import ABCMeta, abstractmethod
 from typing import Union, List, Dict, Callable, Tuple, Optional
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 import zfit
 from ..util import ztyping
@@ -129,7 +129,7 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
 
-class ZfitLimit(abc.ABC):
+class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @property
     @abstractmethod
@@ -197,45 +197,176 @@ class ZfitLimit(abc.ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def inside(self, x, guarantee_limits):
+    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
+        """Test if `x` is inside the limits.
+
+        This function should be used to test if values are inside the limits. If the given x is already inside
+        the rectangular limits, e.g. because it was sampled from within them
+
+        Args:
+            x: Values to be checked whether they are inside of the limits. The shape is expected to have the last
+                dimension equal to n_obs.
+            guarantee_limits: Guarantee that the values are already inside the rectangular limits.
+
+        Returns:
+            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the
+                last dimension removed.
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def filter(self, x, guarantee_limits):
-        raise NotImplementedError
+    def filter(self, x: ztyping.XTypeInput,
+               guarantee_limits: bool = False,
+               axis: Optional[int] = None
+               ) -> ztyping.XTypeReturnNoData:
+        """Filter `x` by removing the elements along `axis` that are not inside the limits.
 
-    @property
-    @abstractmethod
-    def n_obs(self) -> int:
-        """Return the number of observables (axis)."""
-        raise NotImplementedError
+        This is similar to `tf.boolean_mask`.
 
-    @property
-    @abstractmethod
-    def limits_not_set(self):
-        raise NotImplementedError
+        Args:
+            x: Values to be checked whether they are inside of the limits. If not, the corresonding element (in the
+                specified `axis`) is removed. The shape is expected to have the last dimension equal to n_obs.
+            guarantee_limits: Guarantee that the values are already inside the rectangular limits.
+            axis: The axis to remove the elements from. Defaults to 0.
+
+        Returns:
+            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been
+                removed.
+        """
 
     @property
     def rect_limits_are_tensors(self) -> bool:
+        """Return True if the rectangular limits are tensors.
+
+        If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
+
+        Returns:
+            bool: if the rectangular limits are tensors.
+        """
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def has_limits(self):
+    def limits_not_set(self) -> bool:
+        """If the limits have never explicitly been set to a limit or to False.
+
+        Returns:
+            bool:
+        """
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def limits_are_false(self):
+    def limits_are_false(self) -> bool:
+        """If the limits have been set to False, so the object on purpose does not contain limits.
+
+        Returns:
+            bool:
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def has_limits(self) -> bool:
+        """If there are limits set and they are not false.
+
+        Returns:
+            bool:
+        """
         raise NotImplementedError
 
     def get_subspace(self, *_, **__):
         from zfit.util.exception import InvalidLimitSubspaceError
         raise InvalidLimitSubspaceError("ZfitLimits does not suppoert subspaces")
 
+    @property
     @abstractmethod
-    def equal(self, other, allow_graph):
-        pass
+    def n_obs(self) -> int:
+        """Dimensionality, the number of observables, of the limits. Equals to the last axis in rectangular limits.
+
+        Returns:
+            int: Dimensionality of the limits.
+        """
+        raise NotImplementedError
+
+    @property
+    def n_events(self) -> Union[int, None]:
+        """
+
+        Returns:
+            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+                it's vectorized.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def equal(self, other: object, allow_graph: bool) -> Union[bool, tf.Tensor]:
+        """Compare the limits on equality. For ANY objects, this also returns true.
+
+        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
+
+        Returns:
+            bool: result of the comparison
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __eq__(self, other: object) -> bool:
+        """Compares two Limits for equality without graph mode allowed.
+
+        Returns:
+            bool:
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def less_equal(self, other, allow_graph):
+        """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
+
+        This can be used to determine whether a fitting range specification can handle another limit.
+
+        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
+
+
+        Args:
+            other: Any other object to compare with
+            allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
+
+        Returns:
+            bool: result of the comparison
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __le__(self, other):
+        """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
+
+        This can be used to determine whether a fitting range specification can handle another limit.
+
+        Returns:
+            bool: result of the comparison
+        Raises:
+             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_sublimits(self):
+        """Splits itself into multiple sublimits with smaller n_obs.
+
+        If this is not possible, if the limits are not rectangular, just returns itself.
+
+        Returns:
+            Iterable[ZfitLimits]: The sublimits if it was able to split.
+        """
+        raise NotImplementedError
 
 
 class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMeta):

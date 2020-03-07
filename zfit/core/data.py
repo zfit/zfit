@@ -363,7 +363,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
     def _cut_data(self, value, obs=None):
         if self.data_range.has_limits:
             data_range = self.data_range.with_obs(obs=obs)
-            value = data_range.filter(value)
+            value = data_range.filter(value, )
 
         return value
 
