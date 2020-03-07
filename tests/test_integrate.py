@@ -210,7 +210,7 @@ def test_mc_integration(chunksize, limits):
                                             n_axes=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
                                             limits=Space(limits=limits3,
-                                                         axes=tuple(range(2))),
+                                                         axes=(0, 1)),
                                             n_axes=2)
 
     integral = num_integral.numpy()
