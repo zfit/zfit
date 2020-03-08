@@ -115,6 +115,7 @@ class BaseMinimizer(ZfitMinimizer):
         if minimizer_options is None:
             minimizer_options = {}
         self.minimizer_options = minimizer_options
+        self._max_steps = 5000
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
         if isinstance(params, (str, ZfitParameter)) or (not hasattr(params, "__len__") and params is not None):
@@ -242,6 +243,7 @@ class BaseMinimizer(ZfitMinimizer):
         n_old_vals = 10
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
+        n_steps = 0
 
         def step_fn(loss, params):
             try:
@@ -250,11 +252,12 @@ class BaseMinimizer(ZfitMinimizer):
                 self.step(loss, params)
             return loss.value()
 
-        while sum(sorted(changes)[-3:]) > self.tolerance:  # TODO: improve condition
+        while sum(sorted(changes)[-3:]) > self.tolerance and n_steps < self._max_steps:  # TODO: improve condition
             cur_val = step_fn(loss=loss, params=params)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
+            n_steps += 1
         fmin = cur_val
         edm = -999  # TODO: get edm
 

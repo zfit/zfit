@@ -281,8 +281,22 @@ class FunctionCacheHolder(Cachable):
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this
             return False
+        # TODO: activate the below? costly, but runs?
         # except OperatorNotAllowedInGraphError:  # we have to assume they're not the same
         #     return False
 
     def __repr__(self) -> str:
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"
+
+
+def clear_caches():
+    from zfit.z.zextension import FunctionWrapperRegistry, FunctionWrapperRegistry2
+    for func_registry in [FunctionWrapperRegistry, FunctionWrapperRegistry2]:
+        for registry in func_registry.registries:
+            registry.reset()
+        for method in FunctionWrapperRegistry.wrapped_functions:
+            method._created_variables = None
+            method._stateful_fn = None
+            method._stateless_fn = None
+            method._descriptor_cache.clear()
+    Cachable.old_graph_caching_methods.clear()
