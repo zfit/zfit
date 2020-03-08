@@ -16,7 +16,7 @@ true_lambda = -0.03
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", 4.2, -5., 9.,
+    mu_param = zfit.Parameter("mu", 4.3, -5., 9.,
                               step_size=0.03)
     sigma_param = zfit.Parameter("sigma", 1.7, 0.01, 10, step_size=0.03)
     lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
@@ -43,7 +43,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
      False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.1), False),
     (zfit.minimize.Minuit, {}, True),
-    (BFGS, {}, False),
+    (BFGS, {}, True),  # check for one not dependent on Minuit
     # (zfit.minimize.Scipy, {}, False),
 ]
 
@@ -82,52 +82,53 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, spaces):
     assert result.converged
 
     # Test Hesse
-    methods = ['hesse_np']
     if test_error:
-        methods.append('minuit_hesse')
-    for method in methods:
-        sigma_hesse = result.hesse(params=sigma_param, method=method)
-        assert tuple(sigma_hesse.keys()) == (sigma_param,)
-        errors = result.hesse()
-        sigma_hesse = sigma_hesse[sigma_param]
-        assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
-        assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965, abs=0.15)
-        assert abs(errors[lambda_param]['error']) == pytest.approx(0.01, abs=0.01)
+        methods = ['hesse_np']
+        if isinstance(minimizer, zfit.minimize.Minuit):
+            methods.append('minuit_hesse')
+        for method in methods:
+            sigma_hesse = result.hesse(params=sigma_param, method=method)
+            assert tuple(sigma_hesse.keys()) == (sigma_param,)
+            errors = result.hesse()
+            sigma_hesse = sigma_hesse[sigma_param]
+            assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+            assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965, abs=0.15)
+            assert abs(errors[lambda_param]['error']) == pytest.approx(0.01, abs=0.01)
 
-    if test_error:
-        # Test Error
-        a_errors = result.error(params=mu_param)
-        assert tuple(a_errors.keys()) == (mu_param,)
-        errors = result.error()
-        a_error = a_errors[mu_param]
-        assert a_error['lower'] == pytest.approx(-a_error['upper'], abs=0.1)
-        assert abs(a_error['lower']) == pytest.approx(0.015, abs=0.015)
-        assert abs(errors[sigma_param]['lower']) == pytest.approx(0.010, abs=0.01)
-        assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007, abs=0.15)
-        assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007, abs=0.15)
+        if isinstance(minimizer, zfit.minimize.Minuit):
+            # Test Error
+            a_errors = result.error(params=mu_param)
+            assert tuple(a_errors.keys()) == (mu_param,)
+            errors = result.error()
+            a_error = a_errors[mu_param]
+            assert a_error['lower'] == pytest.approx(-a_error['upper'], abs=0.1)
+            assert abs(a_error['lower']) == pytest.approx(0.015, abs=0.015)
+            assert abs(errors[sigma_param]['lower']) == pytest.approx(0.010, abs=0.01)
+            assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007, abs=0.15)
+            assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007, abs=0.15)
 
-        assert errors[mu_param]['lower'] == pytest.approx(a_error['lower'], rel=0.01)
-        assert errors[mu_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
+            assert errors[mu_param]['lower'] == pytest.approx(a_error['lower'], rel=0.01)
+            assert errors[mu_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
 
-        # Test Error method name
-        a_errors = result.error(params=mu_param, error_name='error1')
-        assert tuple(a_errors.keys()) == (mu_param,)
-        errors = result.error(error_name='error42')
-        a_error = a_errors[mu_param]
+            # Test Error method name
+            a_errors = result.error(params=mu_param, error_name='error1')
+            assert tuple(a_errors.keys()) == (mu_param,)
+            errors = result.error(error_name='error42')
+            a_error = a_errors[mu_param]
 
-        assert a_error['lower'] == pytest.approx(result.params[mu_param]['error42']['lower'], rel=0.001)
-        assert a_error['lower'] == pytest.approx(result.params[mu_param]['error1']['lower'], rel=0.001)
-        for param, errors2 in result.params.items():
-            assert errors[param]['lower'] == pytest.approx(errors2['error42']['lower'], rel=0.001)
-            assert errors[param]['upper'] == pytest.approx(errors2['error42']['upper'], rel=0.001)
+            assert a_error['lower'] == pytest.approx(result.params[mu_param]['error42']['lower'], rel=0.001)
+            assert a_error['lower'] == pytest.approx(result.params[mu_param]['error1']['lower'], rel=0.001)
+            for param, errors2 in result.params.items():
+                assert errors[param]['lower'] == pytest.approx(errors2['error42']['lower'], rel=0.001)
+                assert errors[param]['upper'] == pytest.approx(errors2['error42']['upper'], rel=0.001)
 
-        # test custom error
-        def custom_error_func(result, params, sigma):
-            return OrderedDict((param, {'myval': 42}) for param in params)
+            # test custom error
+            def custom_error_func(result, params, sigma):
+                return OrderedDict((param, {'myval': 42}) for param in params)
 
-        custom_errors = result.error(method=custom_error_func, error_name='custom_method1')
-        for param, errors2 in result.params.items():
-            assert custom_errors[param]['myval'] == 42
+            custom_errors = result.error(method=custom_error_func, error_name='custom_method1')
+            for param, errors2 in result.params.items():
+                assert custom_errors[param]['myval'] == 42
 
         # Test Hesse
 
