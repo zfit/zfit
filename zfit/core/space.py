@@ -1421,17 +1421,42 @@ class Space(BaseSpace):
     def reorder_x(self, x, x_obs=None, x_axes=None, func_obs=None, func_axes=None):
         return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
-    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = True,
-                 allow_subset: bool = True) -> "zfit.Space":
-        """Sort by `obs` and return the new instance.
+    def with_obs(self,
+                 obs: Optional[ztyping.ObsTypeInput],
+                 allow_superset: bool = True,
+                 allow_subset: bool = True) -> ZfitSpace:
+        """Create a new Space that has `obs`; sorted by or set or dropped.
+
+        The behavior is as follows:
+
+         * obs are already set:
+           * input obs are None: the observables will be dropped. If no axes are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input obs are not None: the instance will be sorted by the incoming obs. If axes or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned.
+             This can be used to take a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as
+             if the obs not contained in the instances obs were not in the input obs.
+         * obs are not set:
+           * if the input obs are None, the same object is returned.
+           * if the input obs are not None, they will be set as-is and now correspond to the already
+             existing axes in the object.
 
         Args:
-            obs ():
-            allow_superset (bool): Allow `axes` to be a superset of the `Spaces` axes
-            allow_subset (bool): Allow `axes` to be a subset of the `Spaces` axes
+            obs: Observables to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own observables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own observables is given, an error
+            is raised.
 
         Returns:
-            :py:class:`~zfit.Space`
+            :py:class:`~zfit.Space`: a copy of the object with the new ordering/observables
+
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            ObsIncompatibleError: if `obs` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         if obs is None:  # drop obs, check if there are axes
             if self.obs is None:
@@ -1446,16 +1471,41 @@ class Space(BaseSpace):
             new_space = type(self)(coords, limits=self._limits_dict)
         return new_space
 
-    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = True,
-                  allow_subset: bool = True) -> "zfit.Space":
-        """Sort by `axes` and return the new instance. `None` drops the axes.
+    def with_axes(self,
+                  axes: Optional[ztyping.AxesTypeInput],
+                  allow_superset: bool = True,
+                  allow_subset: bool = True) -> ZfitSpace:
+        """Create a new instance that has `axes`; sorted by or set or dropped.
 
-        Args:
-            axes ():
-            allow_superset (bool): Allow `axes` to be a superset of the `Spaces` axes
+            The behavior is as follows:
 
-        Returns:
-            :py:class:`~zfit.Space`
+             * axes are already set:
+               * input axes are None: the axes will be dropped. If no observables are set, an error
+                 will be raised, as no coordinates will be assigned to this instance anymore.
+               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+                 be used to retrieve a subspace of limits, data etc.
+                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+                 if the axes not contained in the instances axes were not present in the input axes.
+             * axes are not set:
+               * if the input axes are None, the same object is returned.
+               * if the input axes are not None, they will be set as-is and now correspond to the already
+                 existing obs in the object.
+
+            Args:
+                axes: Axes to sort/associate this instance with
+                allow_superset: if False and a strict superset of the own axeservables is given, an error
+                is raised.
+                allow_subset:if False and a strict subset of the own axeservables is given, an error
+                is raised.
+
+            Returns:
+                :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes
+            Raises:
+                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                    allow_allow_subset is False
         """
         if axes is None:  # drop axes
             if self.axes is None:

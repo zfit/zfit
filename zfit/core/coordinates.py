@@ -92,6 +92,11 @@ class Coordinates(ZfitOrderableDimensional):
 
         Returns:
             object: a copy of the object with the new ordering/observables
+
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            ObsIncompatibleError: if `obs` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         obs = convert_to_obs_str(obs)
         if obs is None:  # drop obs, check if there are axes
@@ -150,11 +155,15 @@ class Coordinates(ZfitOrderableDimensional):
 
             Returns:
                 object: a copy of the object with the new ordering/axes
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         axes = convert_to_axes(axes)
         if axes is None:  # drop axes
             if self.obs is None:
-                raise ObsIncompatibleError("Cannot remove axes (using None) for a Space without obs")
+                raise CoordinatesUnderdefinedError("Cannot remove axes (using None) for a Space without obs")
             new_coords = type(self)(obs=self.obs, axes=axes)
         else:
 

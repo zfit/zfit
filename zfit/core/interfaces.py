@@ -85,6 +85,11 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         Returns:
             object: a copy of the object with the new ordering/observables
+
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            ObsIncompatibleError: if `obs` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         raise NotImplementedError
 
@@ -120,6 +125,11 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
             Returns:
                 object: a copy of the object with the new ordering/axes
+
+            Raises:
+                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                    allow_allow_subset is False
         """
 
         raise NotImplementedError
@@ -528,16 +538,27 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
     @abstractmethod
     def with_coords(self, coords: ZfitOrderableDimensional, allow_superset: bool = True,
                     allow_subset: bool = True) -> object:
-        """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
+        """Create a new :py:class:`~zfit.Space` with reordered observables and/or axes.
 
+        The behavior is that _at least one coordinate (obs or axes) has to be set in both instances
+        (the space itself or in `coords`). If both match, observables is taken as the defining coordinate.
+        The space is sorted according to the defining coordinate and the other coordinate is sorted as well.
+        If either the space did not have the "weaker coordinate" (e.g. both have observables, but only coords
+        has axes), then the resulting Space will have both.
+        If both have both coordinates, obs and axes, and sorting for obs results in non-matchin axes results
+        in axes being dropped.
 
         Args:
-            coords (OrderedDict[str, int]): An ordered dict with {obs: axes}.
-            ordered (bool): If True (and the `obs_axes` is an `OrderedDict`), the
-            allow_subset ():
+            coords: An instance of :py:class:`Coordinates`
+            allow_superset: If false and a strict superset is given, an error is raised
+            allow_subset: If false and a strict subset is given, an error is raised
 
         Returns:
             :py:class:`~zfit.Space`:
+        Raises:
+            CoordinatesUnderdefinedError: if neither both obs or axes are specified.
+            CoordinatesIncompatibleError: if `coords` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         raise NotImplementedError
 
