@@ -35,52 +35,130 @@ class ZfitDimensional(ZfitObject):
     @property
     @abstractmethod
     def obs(self) -> ztyping.ObsTypeReturn:
-        """Return the observables."""
+        """Return the observables, string identifier for the coordinate system."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def axes(self) -> ztyping.AxesTypeReturn:
-        """Return the axes."""
+        """Return the axes, integer based identifier(indices) for the coordinate system."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def n_obs(self) -> int:
-        """Return the number of observables."""
+        """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
         raise NotImplementedError
 
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
-    def with_obs(self, obs: Optional[ztyping.ObsTypeInput], allow_superset: bool = True,
-                 allow_subset: bool = True):
-        """Sort by `obs` and return the new instance.
+    def with_obs(self,
+                 obs: Optional[ztyping.ObsTypeInput],
+                 allow_superset: bool = True,
+                 allow_subset: bool = True) -> "ZfitOrderableDimensional":
+        """Create a new instance that has `obs`; sorted by or set or dropped.
+
+        The behavior is as follows:
+
+         * obs are already set:
+           * input obs are None: the observables will be dropped. If no axes are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input obs are not None: the instance will be sorted by the incoming obs. If axes or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned.
+             This can be used to take a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as
+             if the obs not contained in the instances obs were not in the input obs.
+         * obs are not set:
+           * if the input obs are None, the same object is returned.
+           * if the input obs are not None, they will be set as-is and now correspond to the already
+             existing axes in the object.
 
         Args:
-            obs ():
+            obs: Observables to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own observables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own observables is given, an error
+            is raised.
 
         Returns:
-            `Space`
+            object: a copy of the object with the new ordering/observables
         """
         raise NotImplementedError
 
     @abstractmethod
-    def with_axes(self, axes: Optional[ztyping.AxesTypeInput], allow_superset: bool = True,
-                  allow_subset: bool = True):
-        """Sort by `obs` and return the new instance.
+    def with_axes(self,
+                  axes: Optional[ztyping.AxesTypeInput],
+                  allow_superset: bool = True,
+                  allow_subset: bool = True) -> "ZfitOrderableDimensional":
+        """Create a new instance that has `axes`; sorted by or set or dropped.
+
+            The behavior is as follows:
+
+             * axes are already set:
+               * input axes are None: the axes will be dropped. If no observables are set, an error
+                 will be raised, as no coordinates will be assigned to this instance anymore.
+               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+                 be used to retrieve a subspace of limits, data etc.
+                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+                 if the axes not contained in the instances axes were not present in the input axes.
+             * axes are not set:
+               * if the input axes are None, the same object is returned.
+               * if the input axes are not None, they will be set as-is and now correspond to the already
+                 existing obs in the object.
+
+            Args:
+                axes: Axes to sort/associate this instance with
+                allow_superset: if False and a strict superset of the own axeservables is given, an error
+                is raised.
+                allow_subset:if False and a strict subset of the own axeservables is given, an error
+                is raised.
+
+            Returns:
+                object: a copy of the object with the new ordering/axes
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    def with_autofill_axes(self, overwrite: bool) -> "ZfitOrderableDimensional":
+        """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
+
+        This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
+        similar. `overwrite` allows to remove the axis first in case there are already some set.
+
+        .. code-block::
+
+            object.obs -> ('x', 'z', 'y')
+            object.axes -> None
+
+            object.with_autofill_axes()
+
+            object.obs -> ('x', 'z', 'y')
+            object.axes -> (0, 1, 2)
+
 
         Args:
-            axes ():
+            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+                If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            :py:class:`~zfit.Space`
+            object: the object with the new axes
         """
         raise NotImplementedError
 
     @abstractmethod
-    def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
+    def reorder_x(self, x: Union[tf.Tensor, np.ndarray],
+                  *,
+                  x_obs: ztyping.ObsTypeInput = None,
+                  x_axes: ztyping.AxesTypeInput = None,
+                  func_obs: ztyping.ObsTypeInput = None,
+                  func_axes: ztyping.AxesTypeInput = None
+                  ) -> ztyping.XTypeReturnNoData:
         """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
 
         There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
@@ -104,7 +182,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 self.axes to be the axes of x.
 
         Returns:
-
+            tensor-like: the reordered array-like object
         """
         raise NotImplementedError
 
@@ -414,10 +492,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes=None, name=None) -> "zfit.Space":
-        raise NotImplementedError
-
     # TODO: legacy?
     @abstractmethod
     def area(self) -> float:
@@ -431,19 +505,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         Args:
             limits ():
             name (str):
-
-        Returns:
-            :py:class:`~zfit.Space`
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def with_autofill_axes(self, overwrite: bool):
-        """Return a :py:class:`~zfit.Space` with filled axes corresponding to range(len(n_obs)).
-
-        Args:
-            overwrite (bool): If `self.axes` is not None, replace the axes with the autofilled ones.
-                If axes is already set, don't do anything if `overwrite` is False.
 
         Returns:
             :py:class:`~zfit.Space`

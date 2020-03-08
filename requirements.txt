@@ -5,7 +5,6 @@ uproot
 pandas
 numpy>=1.16
 iminuit
-typing
 colorlog
 texttable
 ordered-set

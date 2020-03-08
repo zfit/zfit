@@ -1415,9 +1415,6 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        # self._check_convert_input_limits(limits=limits, rect_limits=rect_limits, obs=self.obs, axes=self.axes,
-        #                                  n_obs=self.n_obs)
-        # new_space = self.copy(limits=limits, rect_limits=rect_limits, name=name)
         new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits)
         return new_space
 
@@ -1436,13 +1433,12 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        # TODO: remove chekcs, move to coords?
         if obs is None:  # drop obs, check if there are axes
             if self.obs is None:
                 return self
             if self.axes is None:
-                raise AxesIncompatibleError("cannot remove obs (using None) for a Space without axes")
-            new_limits = self._limits_dict
+                raise AxesIncompatibleError("Cannot remove obs (using None) for a Space without axes")
+            new_limits = self._limits_dict.copy()
             new_space = self.copy(obs=obs, limits=new_limits)
         else:
             obs = _convert_obs_to_str(obs)
@@ -1461,7 +1457,6 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        # TODO: remove chekcs, move to coords?
         if axes is None:  # drop axes
             if self.axes is None:
                 return self
@@ -1474,12 +1469,6 @@ class Space(BaseSpace):
             if self.axes is None:
                 if not len(axes) == len(self.obs):
                     raise AxesIncompatibleError(f"Trying to set axes {axes} to object with obs {self.obs}")
-                # new_limits = self._limits_dict.copy()
-                # new_limits['axes'] = {}
-                # for obs, limit in self._limits_dict['obs'].items():
-                #     ax = tuple(axes[obs.index(ob)] for ob in obs)
-                #     new_limits['axes'][ax] = limit
-                # new_space = self.copy(axes=axes, limits=new_limits)
                 new_space = self.copy(axes=axes, limits=self._limits_dict)
             else:
 
