@@ -9,11 +9,10 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, List, Optional, Tuple, Union, Iterable, Mapping, Dict
+from typing import Callable, List, Optional, Tuple, Union, Iterable, Mapping
 
 import numpy as np
 import tensorflow as tf
-from sympy.codegen.fnodes import isign
 from tensorflow.python.util.deprecation import deprecated
 
 import zfit

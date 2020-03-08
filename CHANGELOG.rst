@@ -6,9 +6,12 @@ Changelog
 Develop
 =======
 
+Complete refactoring of Spaces. Now allows for arbitrary limits.
+
 
 Major Features and Improvements
 -------------------------------
+ -
 
 
 Behavioral changes
