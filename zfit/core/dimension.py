@@ -38,7 +38,6 @@ class BaseDimensional(ZfitDimensional):
         return self.space.n_obs
 
 
-@functools.lru_cache(maxsize=500)
 def get_same_obs(obs):
     deps = [set() for _ in range(len(obs))]
     for i, ob in enumerate(obs):

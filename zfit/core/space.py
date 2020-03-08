@@ -24,7 +24,7 @@ from .. import z
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AxesNotSpecifiedError, IntentionNotUnambiguousError, LimitsUnderdefinedError,
+from ..util.exception import (AxesNotSpecifiedError, IntentionAmbiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
                               OverdefinedError, WorkInProgressError,
                               BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
@@ -2652,7 +2652,7 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
             if isinstance(limits, ZfitSpace):  # figure out if compatible if limits is `Space`
                 if not (limits.obs == space.obs or
                         (limits.axes == space.axes and limits.obs is None and space.obs is None)):
-                    raise IntentionNotUnambiguousError(
+                    raise IntentionAmbiguousError(
                         "`obs`/`axes` is a `Space` as well as the `limits`, but the "
                         "obs/axes of them do not match")
                 elif limits.limits_are_false:

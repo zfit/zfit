@@ -82,8 +82,6 @@ def _maybe_disable_jit():
     experimental_enable_eager(do_jit)
 
 
-_maybe_disable_jit()
-
 # experimental flags
 from .util.warnings import warn_experimental_feature as _warn_experimental_feature
 
@@ -99,5 +97,8 @@ def experimental_enable_eager(eager: bool = True):
     """
     z.zextension.FunctionWrapperRegistry.do_jit = eager
     z.zextension.FunctionWrapperRegistry2.do_jit = eager
+
+
+_maybe_disable_jit()
 
 # EOF

@@ -18,7 +18,7 @@ from .baseobject import BaseObject
 from .dependents import BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
+from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
 from .constraint import BaseConstraint, SimpleConstraint
 
@@ -132,10 +132,10 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             fit_range = []
             for p, d in zip(pdf, data):
                 if not p.norm_range == d.data_range:
-                    raise IntentionNotUnambiguousError(f"No `fit_range` is specified and `pdf` {p} as "
-                                                       f"well as `data` {d} have different ranges they "
-                                                       f"are defined in. Either make them (all) consistent "
-                                                       f"or specify the `fit_range`")
+                    raise IntentionAmbiguousError(f"No `fit_range` is specified and `pdf` {p} as "
+                                                  f"well as `data` {d} have different ranges they "
+                                                  f"are defined in. Either make them (all) consistent "
+                                                  f"or specify the `fit_range`")
                 fit_range.append(p.norm_range)
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
@@ -423,8 +423,8 @@ class SimpleLoss(BaseLoss):
         return self._simple_func()
 
     def __add__(self, other):
-        raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
-                                           "Add them manually")
+        raise IntentionAmbiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
+                                      "Add them manually")
 
     def _cache_add_constraints(self, constraints):
         raise WorkInProgressError("Needed? will probably provided in future")

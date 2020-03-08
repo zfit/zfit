@@ -6,28 +6,58 @@ Changelog
 Develop
 =======
 
-Complete refactoring of Spaces. Now allows for arbitrary limits.
+Complete refactoring of Spaces.
+
 
 
 Major Features and Improvements
 -------------------------------
- -
+ - Arbitrary limits as well as vectorization (experimental)
+   is now fully supported. The new `Space` has an additional argument for a function that
+   tests if a vector x is inside.
+
+   To test if a value is inside a space, `Space.inside` can be used. To filter values, `Space.filter`.
+
+   The limits returned are now by default numpy arrays with the shape (1, n_obs). This corresponds well
+   to the old layout and can, using `z.unstack_x(lower)` be treated like `Data`. This has also some
+   consequences for the output format of `rect_area`: this is now a vector.
+
+   Due to the ambiguity of the name `limits`, `area` etc (since they do only reflect the rectangular case)
+   method with leading `rect_*` have been added (`rect_limits`, `rect_area` etc.) and are encouraged to be used.
 
 
-Behavioral changes
+Breaking changes
 ------------------
+ - Multiple limits are now handled by a MultiSpace class. Each Space has only "one limit"
+   and no complicated layout has to be remembered. If you want to have a space that is
+   defined in disconnected regions, use the `+` operator or functionally `zfit.dimension.add_spaces`
+
+   To extract limits from multiple limits, `MultiSpace` and `Space` are both iterables, returning
+   the containing spaces respectively itself (for the `Space` case).
 
 
 Bug fixes and small changes
 ---------------------------
+ - fix a (nasty, rounding) bug in sampling with multiple limits
+ - fix bug in numerical calculation
+ - fix bug in SimplePDF
 
+
+Experimental Features
+---------------------
+ - for debugging, it can be easier to run the code in eager mode, as if it were Numpy.
+   This can be activated via `zfit.experimental_enable_eager`. This is EXPERIMENTAL and
+   can fail/be removed any time without further notice.
 
 Requirement changes
 -------------------
+ - remove the outdated typing module
+
 
 
 Thanks
 ------
+To Johannes for code review and discussions.
 
 0.4.3 (11.3.2020)
 =================

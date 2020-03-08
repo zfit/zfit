@@ -15,7 +15,7 @@ from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.minimizer_minuit import Minuit
 from zfit.models.dist_tfp import Gauss
-from zfit.util.exception import IntentionNotUnambiguousError
+from zfit.util.exception import IntentionAmbiguousError
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -267,7 +267,7 @@ def test_simple_loss():
     assert loss.value().numpy() == loss_value_np
     assert loss_deps.value().numpy() == loss_value_np
 
-    with pytest.raises(IntentionNotUnambiguousError):
+    with pytest.raises(IntentionAmbiguousError):
         _ = loss + loss_deps
 
     minimizer = zfit.minimize.Minuit()

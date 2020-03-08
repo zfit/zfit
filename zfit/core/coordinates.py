@@ -5,11 +5,11 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import z
-from .interfaces import ZfitOrderableDimensional, ZfitSpace
+from .interfaces import ZfitOrderableDimensional, ZfitSpace, ZfitData
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import OverdefinedError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError, \
-    AxesIncompatibleError, ObsIncompatibleError, WorkInProgressError
+    AxesIncompatibleError, ObsIncompatibleError, WorkInProgressError, IntentionAmbiguousError
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -298,6 +298,7 @@ class Coordinates(ZfitOrderableDimensional):
         Returns:
             tensor-like: the reordered array-like object
         """
+
         x_reorder = x_obs is not None or x_axes is not None
         func_reorder = func_obs is not None or func_axes is not None
         if not (x_reorder ^ func_reorder):
@@ -314,6 +315,8 @@ class Coordinates(ZfitOrderableDimensional):
             else:
                 assert False, 'bug, should never be reached'
 
+
+
         elif axes_defined and self.axes:
             if x_reorder:
                 coord_old = x_axes
@@ -327,6 +330,13 @@ class Coordinates(ZfitOrderableDimensional):
             raise ValueError("Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined"
                              " coordinates.")
 
+        if isinstance(x, ZfitData) and not coord_old == x.obs if obs_defined else x.axes:
+            raise IntentionAmbiguousError("`reorder_x` is supposed to assume that the obs/axes of the given `x` are"
+                                          " either the one from the Space itself or the ones given. x is a ZfitData"
+                                          f" object that has obs/axes themselves {x.obs if obs_defined else x.axes}"
+                                          f" which do not coincied with the assumed obs/axes {coord_old}. Use"
+                                          f" x.value() to get the pure tensor out or rather sort Data accordingly"
+                                          f" (sort_by...).")
         new_indices = _reorder_indices(old=coord_old, new=coord_new)
 
         x = z.unstable.gather(x, indices=new_indices, axis=-1)

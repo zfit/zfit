@@ -35,11 +35,11 @@ class BasePDFSubclassingError(SubclassingError):
     pass
 
 
-class IntentionNotUnambiguousError(Exception):
+class IntentionAmbiguousError(Exception):
     pass
 
 
-class UnderdefinedError(IntentionNotUnambiguousError):
+class UnderdefinedError(IntentionAmbiguousError):
     pass
 
 
@@ -47,7 +47,7 @@ class LimitsUnderdefinedError(UnderdefinedError):
     pass
 
 
-class OverdefinedError(IntentionNotUnambiguousError):
+class OverdefinedError(IntentionAmbiguousError):
     pass
 
 
@@ -59,7 +59,7 @@ class CoordinatesUnderdefinedError(UnderdefinedError):
     pass
 
 
-class AxesNotUnambiguousError(IntentionNotUnambiguousError):
+class AxesAmbiguousError(IntentionAmbiguousError):
     pass
 
 

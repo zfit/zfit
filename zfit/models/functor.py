@@ -23,7 +23,7 @@ from ..core.parameter import Parameter, convert_to_parameter, ComposedParameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError,
+from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesAmbiguousError,
                               LimitsOverdefinedError,
                               ModelIncompatibleError, )
 from ..util.temporary import TemporarilySet
