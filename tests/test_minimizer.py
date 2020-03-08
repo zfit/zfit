@@ -42,7 +42,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1)),
      False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.1), False),
-    (zfit.minimize.Minuit, {}, False),
+    (zfit.minimize.Minuit, {}, True),
     (BFGS, {}, False),
     # (zfit.minimize.Scipy, {}, False),
 ]
