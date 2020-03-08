@@ -7,16 +7,15 @@ import zfit.core.basepdf
 import zfit.models.dist_tfp
 import zfit.settings
 from zfit import z
-from zfit.core.space import Space
 from zfit.core.loss import UnbinnedNLL
+from zfit.core.space import Space
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.minimizer_minuit import Minuit
 from zfit.models.dist_tfp import Gauss
 from zfit.util.exception import IntentionNotUnambiguousError
-
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -56,7 +55,7 @@ mu_constr = [1.6, 0.02]  # mu, sigma
 sigma_constr = [3.5, 0.01]
 constr = lambda: [mu_constr[1], sigma_constr[1]]
 constr_tf = lambda: z.convert_to_tensor(constr())
-covariance = lambda: np.array([[mu_constr[1] ** 0.5, -0.05], [-0.05, sigma_constr[1] ** 0.5]])
+covariance = lambda: np.array([[mu_constr[1] ** 2, 0], [0, sigma_constr[1] ** 2]])
 covariance_tf = lambda: z.convert_to_tensor(covariance())
 
 
@@ -114,7 +113,7 @@ def test_unbinned_simultaneous_nll():
 
 @pytest.mark.flaky(3)
 @pytest.mark.parametrize('weights', (None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])))
-@pytest.mark.parametrize('sigma', (constr, covariance, constr_tf))
+@pytest.mark.parametrize('sigma', (constr, constr_tf, covariance, covariance_tf))
 def test_unbinned_nll(weights, sigma):
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
@@ -122,7 +121,7 @@ def test_unbinned_nll(weights, sigma):
     test_values = tf.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values)
-    minimizer = Minuit()
+    minimizer = Minuit(tolerance=1e-5)
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
     rel_error = 0.005 if weights is None else 0.1  # more fluctuating with weights
@@ -140,7 +139,7 @@ def test_unbinned_nll(weights, sigma):
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
     params = status.params
     if weights is None:
-        assert params[mu2]['value'] > np.mean(test_values_np)
+        assert params[mu2]['value'] > np.average(test_values_np, weights=weights)
         assert params[sigma2]['value'] < np.std(test_values_np)
 
 

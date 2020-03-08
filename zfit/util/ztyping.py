@@ -103,3 +103,8 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
+
+LimitsDictAxes = Dict[Tuple[int], 'zfit.core.interfaces.ZfitLimit']
+LimitsDictObs = Dict[Tuple[str], 'zfit.core.interfaces.ZfitLimit']
+LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]
+LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]

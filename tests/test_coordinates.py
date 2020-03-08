@@ -119,7 +119,7 @@ def test_with_obs_or_axes(graph, testclass):
     assert coords1.axes == axes
     assert coords_obs.obs == obs1
     assert coords_obs.axes == axes
-    with pytest.raises(ValueError):
+    with pytest.raises(AxesIncompatibleError):
         coords.with_autofill_axes(overwrite=False)
 
     coords_obs = [f'{i}' if i % 2 == 1 else obs2[int(i / 2)] for i in range(len(obs2) * 2)]

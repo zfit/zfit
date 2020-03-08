@@ -135,7 +135,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def with_autofill_axes(self, overwrite: bool) -> "ZfitOrderableDimensional":
+    def with_autofill_axes(self, overwrite: bool = False) -> "ZfitOrderableDimensional":
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
@@ -158,6 +158,9 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         Returns:
             object: the object with the new axes
+
+        Raises:
+            AxesIncompatibleError: if the axes are already set and `overwrite` is False.
         """
         raise NotImplementedError
 
@@ -193,6 +196,27 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         Returns:
             tensor-like: the reordered array-like object
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_reorder_indices(self,
+                            obs: ztyping.ObsTypeInput = None,
+                            axes: ztyping.AxesTypeInput = None
+                            ) -> Tuple[int]:
+        """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
+
+        Args:
+            obs: Observables that the instances obs should be ordered to. Does not reorder, but just
+                return the indices that could be used to reorder.
+            axes: Axes that the instances obs should be ordered to. Does not reorder, but just
+                return the indices that could be used to reorder.
+
+        Returns:
+            tuple(int): New indices that would reorder the instances obs to be obs respectively axes.
+
+        Raises:
+            CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given
         """
         raise NotImplementedError
 
@@ -509,15 +533,21 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
     @abstractmethod
-    def with_limits(self, limits, name):
+    def with_limits(self,
+                    limits: ztyping.LimitsTypeInput = None,
+                    rect_limits: Optional[ztyping.RectLimitsInputType] = None,
+                    name: Optional[str] = None
+                    ) -> "ZfitSpace":
         """Return a copy of the space with the new `limits` (and the new `name`).
 
         Args:
-            limits ():
-            name (str):
+            limits: Limits to use. Can be rectangular, a function (requires to also specify `rect_limits`
+                or an instance of ZfitLimit.
+            rect_limits: Rectangular limits that will be assigned with the instance
+            name: Human readable name
 
         Returns:
-            :py:class:`~zfit.Space`
+            :py:class:`~zfit.Space`: Copy of the current object with the new limits.
         """
         raise NotImplementedError
 
@@ -536,7 +566,9 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
     @abstractmethod
-    def with_coords(self, coords: ZfitOrderableDimensional, allow_superset: bool = True,
+    def with_coords(self,
+                    coords: ZfitOrderableDimensional,
+                    allow_superset: bool = True,
                     allow_subset: bool = True) -> object:
         """Create a new :py:class:`~zfit.Space` with reordered observables and/or axes.
 
