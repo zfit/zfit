@@ -11,6 +11,7 @@ import numpy as np
 import tensorflow as tf
 
 from .container import DotDict, is_container
+from .warnings import warn_experimental_feature
 
 
 class RunManager:
@@ -116,6 +117,31 @@ class RunManager:
         if not was_container and values:
             values = values[0]
         return values
+
+    @staticmethod
+    @warn_experimental_feature
+    def experimental_enable_eager(eager: bool = False):
+        """EXPERIMENTAL! Enable eager makes tensorflow run like numpy. Useful for debugging.
+
+        Do NOT directly mix it with Numpy (and if, also enable the numberical gradient).
+
+        This can BREAK in the future.
+
+        """
+        from zfit import z
+        z.zextension.FunctionWrapperRegistry.do_jit = not eager
+        z.zextension.FunctionWrapperRegistry2.do_jit = not eager
+
+    @property
+    def experimental_is_eager(self):
+        from zfit import z
+        return not z.zextension.FunctionWrapperRegistry2.do_jit
+
+    @staticmethod
+    @warn_experimental_feature
+    def experimental_clear_caches():
+        from zfit.util.cache import clear_caches
+        clear_caches()
 
 
 def eval_object(obj: object) -> object:

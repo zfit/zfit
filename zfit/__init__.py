@@ -79,24 +79,11 @@ def _maybe_disable_jit():
     import os
     do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) and bool(
         int(os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT", True)))
-    experimental_enable_eager(do_jit)
+    run.experimental_enable_eager(not do_jit)
 
 
 # experimental flags
-from .util.warnings import warn_experimental_feature as _warn_experimental_feature
 
-
-@_warn_experimental_feature
-def experimental_enable_eager(eager: bool = True):
-    """EXPERIMENTAL! Enable eager makes tensorflow run like numpy. Useful for debugging.
-
-    Do NOT directly mix it with Numpy (and if, also enable the numberical gradient).
-
-    This can BREAK in the future.
-
-    """
-    z.zextension.FunctionWrapperRegistry.do_jit = eager
-    z.zextension.FunctionWrapperRegistry2.do_jit = eager
 
 
 _maybe_disable_jit()

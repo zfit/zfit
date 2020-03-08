@@ -46,9 +46,17 @@ Bug fixes and small changes
 
 Experimental Features
 ---------------------
+This features are EXPERIMENTAL and can fail/be removed any time without further notice.
+Feedback to this functionalities is very welcome!
  - for debugging, it can be easier to run the code in eager mode, as if it were Numpy.
-   This can be activated via `zfit.experimental_enable_eager`. This is EXPERIMENTAL and
-   can fail/be removed any time without further notice.
+   This can be activated via `zfit.run.experimental_enable_eager(True/False)`.
+ - zfit can get slow with certain repeated tasks, such as fits to many different datasets.
+   Either enabling eager (see above) can help or by cleaning the graph caches with
+   `zfit.run.experimental_clear_caches()`.
+ - moved experimental flag `zfit.loss.experimental_loss_penalty_nan()`, which adds a penalty to the loss in case the value is
+   nan. Can help with the optimisation.
+
+
 
 Requirement changes
 -------------------
