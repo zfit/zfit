@@ -330,7 +330,7 @@ class Coordinates(ZfitOrderableDimensional):
             raise ValueError("Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined"
                              " coordinates.")
 
-        if isinstance(x, ZfitData) and not coord_old == x.obs if obs_defined else x.axes:
+        if isinstance(x, ZfitData) and not (coord_old == x.obs if obs_defined else x.axes):
             raise IntentionAmbiguousError("`reorder_x` is supposed to assume that the obs/axes of the given `x` are"
                                           " either the one from the Space itself or the ones given. x is a ZfitData"
                                           f" object that has obs/axes themselves {x.obs if obs_defined else x.axes}"
