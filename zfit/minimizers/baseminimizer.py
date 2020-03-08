@@ -80,7 +80,7 @@ class DefaultStrategy(BaseStrategy):
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
                      values: Mapping = None) -> float:
         import zfit
-        if zfit.experimental_loss_penalty_nan:
+        if zfit.loss._experimental_loss_penalty_nan:
             last_loss = values.get('old_loss')
             loss_evaluated = last_loss + self._nan_penalty if last_loss is not None else values.get('loss')
             return loss_evaluated

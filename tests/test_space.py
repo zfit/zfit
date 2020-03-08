@@ -134,6 +134,12 @@ def test_rect_limits():
 
 
 def space_factory(*args, limits=None, **kwargs):
+    """
+    Args:
+        *args:
+        limits:
+        **kwargs:
+    """
     if isinstance(limits, dict):
         limit1, limit3 = limits['multi']
         space1 = zfit.Space(*args, limits=limit1, **kwargs)
@@ -154,6 +160,10 @@ def test_limits_from_space_error():
 
 @pytest.mark.parametrize('limits', limits_to_test)
 def test_with_coords(limits):
+    """
+    Args:
+        limits:
+    """
     limits1, limits2 = limits
 
     space1obs = space_factory(obs1, limits=limits1)
@@ -226,6 +236,10 @@ def test_with_coords(limits):
 
 @pytest.mark.parametrize('limits', limits_to_test)
 def test_with_obs(limits):
+    """
+    Args:
+        limits:
+    """
     limits1, limits2 = limits
 
     space1obs = space_factory(obs1, limits=limits1)
@@ -277,6 +291,10 @@ def test_with_obs(limits):
 
 @pytest.mark.parametrize('limits', limits_to_test)
 def test_with_axes(limits):
+    """
+    Args:
+        limits:
+    """
     limits1, limits2 = limits
 
     space1obs = space_factory(obs1, limits=limits1)
@@ -325,6 +343,10 @@ def test_with_axes(limits):
 
 @pytest.mark.parametrize('limits', limits_to_test)
 def test_space_add(limits):
+    """
+    Args:
+        limits:
+    """
     limits1, limits2 = limits
 
     space1obs = space_factory(obs1, limits=limits1)

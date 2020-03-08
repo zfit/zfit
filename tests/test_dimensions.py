@@ -1,20 +1,15 @@
 #  Copyright (c) 2020 zfit
 
-import os
-
 import pytest
-
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import (LimitsIncompatibleError, SpaceIncompatibleError,
-                                 ObsIncompatibleError, MultipleLimitsNotImplementedError)
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import zfit
 from zfit.core.dimension import limits_overlap
 from zfit.core.space import combine_spaces
 from zfit.core.space import limits_consistent
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.exception import (LimitsIncompatibleError, SpaceIncompatibleError,
+                                 ObsIncompatibleError, MultipleLimitsNotImplementedError)
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
@@ -83,8 +78,7 @@ def test_combine_spaces():
 
 
 def test_add_spaces():
-    # TODO: add more tests to test the new spaces
-    from zfit.core.space import add_spaces_new as add_spaces
+    from zfit.core.space import add_spaces as add_spaces
 
     # with pytest.raises(ValueError):
     #     assert add_spaces(space1)

@@ -20,7 +20,7 @@ __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
                "Albert Puig <apuignav@gmail.com",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
-__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
+__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
@@ -66,7 +66,7 @@ from . import z
 from . import z as ztf  # legacy
 from .settings import ztypes
 
-from . import constraint, pdf, minimize, loss, core, data, func, param
+from . import constraint, pdf, minimize, loss, core, data, func, param, dimension
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
 from .core.space import Space, convert_to_space, supports
 # from .core.spaces import Space, convert_to_space, supports
@@ -77,14 +77,27 @@ from .settings import run
 
 def _maybe_disable_jit():
     import os
-    z.zextension.FunctionWrapperRegistry.do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) and bool(
+    do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) and bool(
         int(os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT", True)))
-    z.zextension.FunctionWrapperRegistry2.do_jit = z.zextension.FunctionWrapperRegistry.do_jit
+    experimental_enable_eager(do_jit)
 
 
 _maybe_disable_jit()
 
 # experimental flags
-experimental_loss_penalty_nan = False
+from .util.warnings import warn_experimental_feature as _warn_experimental_feature
+
+
+@_warn_experimental_feature
+def experimental_enable_eager(eager: bool = True):
+    """EXPERIMENTAL! Enable eager makes tensorflow run like numpy. Useful for debugging.
+
+    Do NOT directly mix it with Numpy (and if, also enable the numberical gradient).
+
+    This can BREAK in the future.
+
+    """
+    z.zextension.FunctionWrapperRegistry.do_jit = eager
+    z.zextension.FunctionWrapperRegistry2.do_jit = eager
 
 # EOF

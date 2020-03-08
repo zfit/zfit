@@ -890,7 +890,7 @@ class BaseSpace(ZfitSpace, BaseObject):
     def __add__(self, other):
         if not isinstance(other, ZfitSpace):
             raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
-        return add_spaces_new(self, other)
+        return add_spaces(self, other)
 
     # TODO: implement properly, just sketch
     def get_sublimits(self):
@@ -909,7 +909,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             :py:class:`~zfit.Space`:
         """
         # other = convert_to_container(other, container=list)
-        new_space = add_spaces_new(self, *other)
+        new_space = add_spaces(self, *other)
         return new_space
 
     def combine(self, *other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
@@ -922,7 +922,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             :py:class:`~zfit.Space`:
         """
         # other = convert_to_container(other, container=list)
-        new_space = combine_spaces_new(self, *other)
+        new_space = combine_spaces(self, *other)
         return new_space
 
     def __mul__(self, other):
@@ -1640,17 +1640,31 @@ class Space(BaseSpace):
 
         return new_space
 
-    def with_coords(self, coords: ZfitOrderableDimensional, allow_superset: bool = True,
-                    allow_subset: bool = True) -> "zfit.Space":
-        """Return a new :py:class:`~zfit.Space` with reordered observables and set the `axes`.
+    def with_coords(self,
+                    coords: ZfitOrderableDimensional,
+                    allow_superset: bool = True,
+                    allow_subset: bool = True) -> "Space":
+        """Create a new :py:class:`~zfit.Space` with reordered observables and/or axes.
 
+        The behavior is that _at least one coordinate (obs or axes) has to be set in both instances
+        (the space itself or in `coords`). If both match, observables is taken as the defining coordinate.
+        The space is sorted according to the defining coordinate and the other coordinate is sorted as well.
+        If either the space did not have the "weaker coordinate" (e.g. both have observables, but only coords
+        has axes), then the resulting Space will have both.
+        If both have both coordinates, obs and axes, and sorting for obs results in non-matchin axes results
+        in axes being dropped.
 
         Args:
-            coords (Coordinates): an instance of `Coordinates`.
-            allow_subset ():
+            coords: An instance of :py:class:`Coordinates`
+            allow_superset: If `False` and a strict superset is given, an error is raised
+            allow_subset: If `False` and a strict subset is given, an error is raised
 
         Returns:
             :py:class:`~zfit.Space`:
+        Raises:
+            CoordinatesUnderdefinedError: if neither both obs or axes are specified.
+            CoordinatesIncompatibleError: if `coords` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         new_space_obs = None
         new_space_axes = None
@@ -1857,6 +1871,7 @@ class Space(BaseSpace):
         """Create a space from `axes` instead of from `obs`.
 
         Args:
+            rect_limits:
             axes ():
             limits ():
             name (str):
@@ -1909,7 +1924,7 @@ def extract_limits_from_dict(limits_dict, obs=None, axes=None):
     return limits_to_eval
 
 
-def add_spaces_new(*spaces: Iterable["ZfitSpace"], name=None):
+def add_spaces(*spaces: Iterable["ZfitSpace"], name=None):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
@@ -1934,7 +1949,7 @@ def get_coord(space, obs_in_use=True):
         return space.axes
 
 
-def combine_spaces_new(*spaces: Iterable[Space]):
+def combine_spaces(*spaces: Iterable[Space]):
     """Combine spaces with different `obs` and `limits` to one `space`.
 
     Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination
@@ -1980,7 +1995,7 @@ def combine_spaces_new(*spaces: Iterable[Space]):
     else:
         space_combinations = tuple(itertools.product(*spaces))
         if len(space_combinations) > 1:  # there are MultiSpaces in there
-            return MultiSpace(spaces=[combine_spaces_new(*spa) for spa in space_combinations],
+            return MultiSpace(spaces=[combine_spaces(*spa) for spa in space_combinations],
                               obs=all_obs,
                               axes=all_axes)
         # TODO: how to handle multispaces?
@@ -2130,7 +2145,7 @@ def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: 
         compare_spaces2 = []
         for space22 in space2_reordered:
             compare_spaces2.append(
-                compare_limits_coords_dict(space11._limits_dict, space22._limits_dict, comparator=comparator))
+                compare_limits_coords_dict(space11.get_limits(), space22.get_limits(), comparator=comparator))
         comparison.append(compare_spaces2)
     comparison = convert_to_tensor_or_numpy(comparison, dtype=tf.bool)
     space1_matches = z.unstable.reduce_any(comparison, axis=1)  # reduce over axis containing space2, has to match with
@@ -2784,7 +2799,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     return bool(new_space)
 
 
-def add_spaces(spaces: Iterable["zfit.Space"]):
+def add_spaces_old(spaces: Iterable["zfit.Space"]):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
@@ -2837,4 +2852,3 @@ def add_spaces(spaces: Iterable["zfit.Space"]):
     return new_space
 
 
-combine_spaces = combine_spaces_new

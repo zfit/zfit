@@ -385,7 +385,7 @@ def convert_to_axes(axes, container=tuple):
         if isinstance(axis, ZfitSpace):
             if len(axis) > 1:
                 raise WorkInProgressError("Not implemented, uniqueify?")
-            new_axes.extend(axis.obs)
+            new_axes.extend(axis.axes)
         else:
             new_axes.append(axis)
     return container(new_axes)

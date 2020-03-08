@@ -64,6 +64,11 @@ sub_arguments2 = (sub_space2, sub_lower2, sub_upper2, sub_limit2, sub_limit2_axe
     [space2_subbed_axes, sub_space2]
 ])
 def test_equality(space1, space2):
+    """
+    Args:
+        space1:
+        space2:
+    """
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
     np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
@@ -89,6 +94,16 @@ def test_sub_space():
                              # sub_arguments2,
                          ])
 def test_space(space, lower, upper, limit, axes, areas, n_limits):
+    """
+    Args:
+        space:
+        lower:
+        upper:
+        limit:
+        axes:
+        areas:
+        n_limits:
+    """
     assert space.rect_area() == pytest.approx(sum(areas), rel=1e-8)
     # assert space.iter_areas() == pytest.approx(areas, rel=1e-8)
     # assert sum(space.iter_areas(rel=True)) == pytest.approx(1, rel=1e-7)
@@ -115,6 +130,11 @@ def test_space(space, lower, upper, limit, axes, areas, n_limits):
 
                          ])
 def test_setting_axes(space, obs):
+    """
+    Args:
+        space:
+        obs:
+    """
     lower, upper = space.rect_limits
     axes = space.axes
     new_obs = list(copy.deepcopy(obs))
