@@ -8,6 +8,14 @@ import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+
+
+def teardown_function():
+    zfit.settings.options['numerical_grad'] = False
+    from zfit.core.testing import teardown_function as td_func
+    td_func()
+
+
 from zfit.minimizers.minimizer_tfp import BFGS
 
 true_mu = 4.5
@@ -55,12 +63,14 @@ obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
 
 @pytest.mark.order4
 @pytest.mark.parametrize("chunksize", [10000000, 3000])
+@pytest.mark.parametrize("num_grad", [False, True])
 @pytest.mark.parametrize("spaces", [obs1, obs1_split])
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizer_class_and_kwargs, chunksize, spaces):
+def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
+    zfit.settings.options['numerical_grad'] = num_grad
     # minimize_func(minimizer_class_and_kwargs, obs=spaces)
     obs = spaces
     loss, true_minimum, (mu_param, sigma_param, lambda_param) = create_loss(obs1=obs)

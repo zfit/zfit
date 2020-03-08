@@ -79,7 +79,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
                                Tout=tf.float64)
     if gradients.shape == ():
         gradients = tf.reshape(gradients, shape=(1,))
-    gradients.set_shape((param_vals.shape[0],))
+    gradients.set_shape(param_vals.shape)
     for param, val in zip(params, original_vals):
         param.set_value(val)
     return gradients
