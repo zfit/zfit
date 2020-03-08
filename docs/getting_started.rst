@@ -10,8 +10,7 @@ The first step is to naturally import ``zfit`` and verify if the installation ha
 
     >>> import tensorflow as tf
     >>> import zfit
-    >>> print("TensorFlow version:", tf.__version__)
-    TensorFlow version: 1.12.0
+
 
 Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
 
