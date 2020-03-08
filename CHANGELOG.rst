@@ -41,6 +41,7 @@ Bug fixes and small changes
  - fix a (nasty, rounding) bug in sampling with multiple limits
  - fix bug in numerical calculation
  - fix bug in SimplePDF
+ - fix wrong caching signature may lead to graph not being rebuild
 
 
 Experimental Features
