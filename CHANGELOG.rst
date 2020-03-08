@@ -58,7 +58,7 @@ Requirement changes
 
 Thanks
 ------
-To Johannes for code review and discussions.
+ - Johannes Lade for code review and discussions.
 
 0.4.3 (11.3.2020)
 =================
