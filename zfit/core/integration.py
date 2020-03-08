@@ -147,7 +147,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
             # TODO: importance sampling?
             # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-        integral = avg * tf.cast(z.convert_to_tensor(space.rect_area), dtype=avg.dtype)
+        integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
     # return z.to_real(integral, dtype=dtype)

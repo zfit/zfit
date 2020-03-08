@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import tensorflow as tf
 
@@ -35,7 +35,6 @@ class Adam(WrapOptimizer):
                  beta1=0.9,
                  beta2=0.999,
                  epsilon=1e-08,
-                 use_locking=False,
                  name='Adam', **kwargs):
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate,
                                              beta_1=beta1, beta_2=beta2,

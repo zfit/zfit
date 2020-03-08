@@ -1245,7 +1245,6 @@ class Space(BaseSpace):
         upper_ordered = self.reorder_x(upper_stacked, **reorder_kwargs)
         return lower_ordered, upper_ordered
 
-    @property
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
         """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
         return calculate_rect_area(rect_limits=self.rect_limits)
@@ -1623,7 +1622,7 @@ class Space(BaseSpace):
     @warn_or_fail_not_rect
     def area(self) -> float:
         """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
-        return self.rect_area
+        return self.rect_area()
 
     def get_subspace(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                      name: Optional[str] = None) -> "zfit.Space":
@@ -2072,7 +2071,6 @@ class MultiSpace(BaseSpace):
         all_nevents_compatible = all(n_events)
         if not all_nevents_compatible:
             raise NumberOfEventsIncompatibleError("The number of events of the spaces do not coincide")
-        n_events = None if None in n_events else n_events[0]  # since all are equal
         if all_have_axes:
             axes = spaces[0].axes if axes is None else convert_to_axes(axes)
 
@@ -2105,6 +2103,7 @@ class MultiSpace(BaseSpace):
 
         return spaces, obs, axes
 
+    # noinspection PyPropertyDefinition
     @property
     @warn_or_fail_not_rect
     def limits(self) -> None:
@@ -2143,6 +2142,10 @@ class MultiSpace(BaseSpace):
     def rect_upper(self):
         self._raise_limits_not_implemented()
 
+    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        return z.reduce_sum([space.rect_area() for space in self], axis=0)
+
     # noinspection PyPropertyDefinition
     @property
     def has_rect_limits(self) -> bool:
@@ -2161,6 +2164,7 @@ class MultiSpace(BaseSpace):
         return all(space.limits_are_tensors for space in self)
 
     # noinspection PyPropertyDefinition
+
     @property
     def limits_are_set(self) -> bool:
         """If the limits have been set to a limit or are False.
@@ -2183,20 +2187,26 @@ class MultiSpace(BaseSpace):
             return True
 
     @property
-    def n_events(self):
-        return tuple(self)[0].rect_lower.shape[0]
+    def n_events(self) -> Union[int, None]:
+        """Shape of the first dimension, usually reflects the number of events.
+
+        Returns:
+            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+                it's vectorized.
+        """
+        # get the first numeric n_events. Is None if a Tensor and not specified yet.
+        n_events_first = [space.n_events for space in self if space.n_events is not None]
+        n_events = None if not n_events_first else n_events_first[0]
+        return n_events
 
     def with_limits(self, limits, name):
         self._raise_limits_not_implemented()
 
     # @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area of the space.")
+
     @warn_or_fail_not_rect
     def area(self) -> float:
-        return self.rect_area
-
-    @property
-    def rect_area(self) -> float:
-        return z.reduce_sum([space.rect_area for space in self], axis=0)
+        return self.rect_area()
 
     def with_obs(self, obs, allow_superset: bool = True, allow_subset: bool = True):
         spaces = [space.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
@@ -2239,13 +2249,6 @@ class MultiSpace(BaseSpace):
         inside_limits = [space.inside(x, guarantee_limits=guarantee_limits) for space in self]
         inside = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
         return inside
-
-    @property
-    def n_events(self) -> Union[int, None]:
-        # get the first numeric n_events. Is None if a Tensor and not specified yet.
-        n_events_first = [space.n_events for space in self if space.n_events is not None]
-        n_events = None if not n_events_first else n_events_first[0]
-        return n_events
 
     def __iter__(self) -> ZfitSpace:
         yield from self.spaces

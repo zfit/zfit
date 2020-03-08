@@ -304,7 +304,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @property
     def n_events(self) -> Union[int, None]:
-        """
+        """Shape of the first dimension, usually reflects the number of events.
 
         Returns:
             int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,

@@ -16,9 +16,9 @@ true_lambda = -0.03
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", 4.3, -5., 9.,
+    mu_param = zfit.Parameter("mu", 4.2, -5., 9.,
                               step_size=0.03)
-    sigma_param = zfit.Parameter("sigma", 1.8, 0.01, 10, step_size=0.03)
+    sigma_param = zfit.Parameter("sigma", 1.7, 0.01, 10, step_size=0.03)
     lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
@@ -39,10 +39,10 @@ def create_loss(obs1):
 
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.4)),
+    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1)),
      False),
-    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.4), False),
-    (zfit.minimize.Minuit, {}, True),
+    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.1), False),
+    (zfit.minimize.Minuit, {}, False),
     (BFGS, {}, False),
     # (zfit.minimize.Scipy, {}, False),
 ]
@@ -65,7 +65,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, spaces):
     obs = spaces
     loss, true_minimum, (mu_param, sigma_param, lambda_param) = create_loss(obs1=obs)
 
-    parameter_tolerance = 0.25  # percent
+    parameter_tolerance = 0.04
     max_distance_to_min = 10.
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs

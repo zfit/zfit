@@ -68,7 +68,7 @@ def test_equality(space1, space2):
     assert space1.obs == space2.obs
     np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
     # TODO: reactivate below
-    assert zfit.run(space1.rect_area) == pytest.approx(zfit.run(space2.rect_area), rel=1e-8)
+    assert zfit.run(space1.rect_area()) == pytest.approx(zfit.run(space2.rect_area()), rel=1e-8)
 
 
 # @pytest.mark.skip  # eq missing
@@ -89,7 +89,7 @@ def test_sub_space():
                              # sub_arguments2,
                          ])
 def test_space(space, lower, upper, limit, axes, areas, n_limits):
-    assert space.rect_area == pytest.approx(sum(areas), rel=1e-8)
+    assert space.rect_area() == pytest.approx(sum(areas), rel=1e-8)
     # assert space.iter_areas() == pytest.approx(areas, rel=1e-8)
     # assert sum(space.iter_areas(rel=True)) == pytest.approx(1, rel=1e-7)
 
