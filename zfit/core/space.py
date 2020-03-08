@@ -583,7 +583,10 @@ class Limit(ZfitLimit):
         #                   " identity tests. To prevent this, use numpy objects, not tensors, for limits if not needed.")
         #     return self is other
 
-    def less_equal(self, other: object, allow_graph: bool = True) -> Union[bool, tf.Tensor]:
+    def less_equal(self,
+                   other: object,
+                   allow_graph: bool = True
+                   ) -> Union[bool, tf.Tensor]:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -594,6 +597,7 @@ class Limit(ZfitLimit):
         Args:
             other: Any other object to compare with
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
+
 
         Returns:
             bool: result of the comparison
@@ -663,11 +667,27 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
     lower_le = z.unstable.reduce_all(z.unstable.less_equal(lower1, lower2), axis=-1)
     upper_le = z.unstable.reduce_all(z.unstable.less_equal(upper1, upper2), axis=-1)
     rect_limits_le = z.unstable.logical_and(lower_le, upper_le)
-    funcs_equal = limit1.limit_fn == limit2.limit_fn
+    # if both are functional, they have to coincide
+    if not (limit1.has_rect_limits or limit2.has_rect_limits):
+        funcs_equal = limit1.limit_fn == limit2.limit_fn
+
+    # if one is functional, one is rect: the bigger one can be rect
+    elif not limit1.has_rect_limits and limit2.has_rect_limits:
+        funcs_equal = True
+    else:
+        funcs_equal = limit1.limit_fn == limit2.limit_fn
     return z.unstable.logical_and(rect_limits_le, funcs_equal)
 
 
 def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
+    # if both are functional, we just need to compare their functions; the rect limits are "irrelevant"
+    if not (limit1.has_rect_limits or limit2.has_rect_limits):
+        return limit1.limit_fn == limit2.limit_fn
+
+    # if one is functional, one is rect: they are not the same
+    elif limit1.has_rect_limits ^ limit2.has_rect_limits:
+        return False
+
     try:
         lower, upper = limit1.rect_limits_np
         lower_other, upper_other = limit2.rect_limits_np

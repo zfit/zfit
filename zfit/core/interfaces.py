@@ -449,7 +449,10 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def less_equal(self, other, allow_graph):
+    def less_equal(self,
+                   other: object,
+                   allow_graph: bool = True
+                   ) -> Union[bool, tf.Tensor]:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -465,6 +468,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             bool: result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
+
         """
         raise NotImplementedError
 
