@@ -32,6 +32,17 @@ jobs:
       run: |
           pip install -r requirements_dev.txt
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test
+          coverage report
           ZFIT_DO_JIT=0
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test
+          ZFIT_DO_JIT=1
+
+          bash utils/ci/test_examples.sh
+          bash utils/ci/test_tutorials.sh
+          bash utils/ci/testbuild_docs.sh
+          bash utils/ci/testbuild_package.sh
+
+          ZFIT_DO_JIT=0
+          bash utils/ci/test_examples.sh
+          bash utils/ci/test_tutorials.sh
           ZFIT_DO_JIT=1
