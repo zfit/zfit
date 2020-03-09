@@ -102,9 +102,6 @@ def test_add_spaces():
     with pytest.raises(MultipleLimitsNotImplementedError):
         add_spaces(space1d_2, space1d_1).limits
 
-    # assert add_spaces(space1d_12, space1d_22).limits == combined_lim_1d_12_and_22
-    # assert add_spaces(space1d_12, space1d_12, space1d_22, space1d_12).limits == combined_lim_1d_12_and_22
-    # assert add_spaces(space1d_12, space1d_12, space1d_12).limits == (lower1d_12, upper1d_12)
 
 
 def test_limits_consistent():
