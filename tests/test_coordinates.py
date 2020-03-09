@@ -177,6 +177,3 @@ def test_with_obs_or_axes(graph, testclass):
     assert coords_axes2.axes == axes
     with pytest.raises(AxesIncompatibleError):
         coords_obs2 = coords.with_axes(axes=coords_axes, allow_superset=False)
-# if graph:
-#     test = z.function(test)
-# test()
