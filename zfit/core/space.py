@@ -1860,7 +1860,7 @@ class Space(BaseSpace):
         if self.n_limits > 1:
             raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
         lower, upper = self.rect_limits
-        return lower[0], upper[0]
+        return lower[0][0], upper[0][0]
 
     @classmethod
     @deprecated(date=None, instructions="Use directly the class to create a Space. E.g. zfit.Space(axes=(0, 1), ...)")
