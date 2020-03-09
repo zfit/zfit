@@ -43,7 +43,7 @@ def create_mu_sigma_true_params():
     return mu_true_param, sigma_true_param
 
 
-class TestGaussian(zfit.pdf.BasePDF):
+class TmpGaussian(zfit.pdf.BasePDF):
 
     def __init__(self, obs: ztyping.ObsTypeInput, mu, sigma, params: Dict[str, ZfitParameter] = None,
                  dtype: Type = zfit.ztypes.float,
@@ -95,7 +95,7 @@ def create_gauss3(nameadd=""):
 
 def create_test_gauss1():
     mu, sigma = create_mu_sigma_true_params()
-    return TestGaussian(name="test_gauss1", mu=mu, sigma=sigma, obs=obs1)
+    return TmpGaussian(name="test_gauss1", mu=mu, sigma=sigma, obs=obs1)
 
 
 def create_wrapped_normal1(nameadd=""):
@@ -214,7 +214,7 @@ def test_sampling_multiple_limits():
 
 
 def test_analytic_sampling():
-    class SampleGauss(TestGaussian):
+    class SampleGauss(TmpGaussian):
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params, model: 2 * limits.upper[0][0],

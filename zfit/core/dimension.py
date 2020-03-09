@@ -1,12 +1,11 @@
 #  Copyright (c) 2020 zfit
 
-import functools
 from typing import Iterable, List, Union
 
 import numpy as np
+
 import zfit
 from zfit.util.exception import (SpaceIncompatibleError, )
-
 from .interfaces import ZfitDimensional
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -82,16 +81,16 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
                 index = space.obs.index(obs)
 
             for spa in space:
-                lower, upper = spa.lower[0], spa.upper[0]  # TODO: new space
-                low = lower[index]
-                up = upper[index]
+                lower, upper = spa.rect_limits  # TODO: new space
+                low = lower[:, index]
+                up = upper[:, index]
 
                 for other_lower, other_upper in zip(lowers, uppers):
                     if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
                         continue
                     # TODO(Mayou36): tolerance? add global flags?
-                    low_overlaps = other_lower - eps < low < other_upper - eps
-                    up_overlaps = other_lower + eps < up < other_upper + eps
+                    low_overlaps = np.all(other_lower - eps < low) and np.all(low < other_upper - eps)
+                    up_overlaps = np.all(other_lower + eps < up) and np.all(up < other_upper + eps)
                     overlap = low_overlaps or up_overlaps
                     if overlap:
                         return True
@@ -150,4 +149,3 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
             if ax not in all_axes:
                 all_axes.append(ax)
     return all_axes
-

@@ -53,7 +53,7 @@ def create_gauss1():
     return gauss_params1, mu, sigma
 
 
-class TestGaussian(zfit.pdf.BasePDF):
+class TmpGaussian(zfit.pdf.BasePDF):
 
     def __init__(self, obs, mu, sigma, params=None,
                  name: str = "BasePDF", **kwargs):
@@ -73,7 +73,7 @@ def create_test_gauss1():
     mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2., mu_true + 7.)
     sigma2 = zfit.Parameter("sigma2_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
 
-    test_gauss1 = TestGaussian(name="test_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
+    test_gauss1 = TmpGaussian(name="test_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
     return test_gauss1, mu2, sigma2
 
 
