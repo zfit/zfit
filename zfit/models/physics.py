@@ -132,7 +132,6 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     return result
 
 
-# @z.function_tf
 def double_crystalball_mu_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
@@ -147,7 +146,6 @@ def double_crystalball_mu_integral(limits, params, model):
                                                lower=lower, upper=upper)
 
 
-# @tf.function
 @z.function_tf_input
 def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
     left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),
