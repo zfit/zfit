@@ -1,4 +1,5 @@
 pip install matplotlib
+set -e
 for file in examples/*; do
     python $file
 #    below needed?

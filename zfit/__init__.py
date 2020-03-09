@@ -69,7 +69,6 @@ from .settings import ztypes
 from . import constraint, pdf, minimize, loss, core, data, func, param, dimension
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
 from .core.space import Space, convert_to_space, supports
-# from .core.spaces import Space, convert_to_space, supports
 from .core.data import Data
 
 from .settings import run
@@ -79,7 +78,8 @@ def _maybe_disable_jit():
     import os
     do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) and bool(
         int(os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT", True)))
-    run.experimental_enable_eager(not do_jit)
+    if not do_jit:
+        run.experimental_enable_eager(not do_jit)
 
 
 # experimental flags

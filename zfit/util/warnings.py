@@ -12,8 +12,8 @@ def warn_experimental_feature(func):
         if not warned:
             warnings.warn(f"The function {func} is EXPERIMENTAL and likely to break in the future!"
                           f" Use it with caution and feedback (Gitter, e-mail, "
-                          f"https://github.com/zfit/zfit/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)"
-                          f" is very welcome!")
+                          f"https://github.com/zfit/zfit/issues)"
+                          f" is very welcome!", stacklevel=2)
             warned = True
 
         return func(*args, **kwargs)
