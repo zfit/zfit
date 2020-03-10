@@ -43,18 +43,9 @@ def _hesse_np(result: "FitResult", params, sigma=1.0):
     if sigma != 1.0:
         raise ValueError("sigma other then 1 is not valid for hesse numpy.")
 
-    # check if no weights in data
-    if any([data.weights is not None for data in result.loss.data]):
-        raise WeightsNotImplementedError("Weights are not supported with hesse numpy.")
+    covariance = _covariance_np(result, params)
 
-    # minimizer = fitresult.minimizer
-    # from zfit.minimizers.minimizer_minuit import Minuit
-    # if not isinstance(minimizer, Minuit):
-    #     raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
-    #                     "`Minuit`.")
-    covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
-
-    hesse = OrderedDict((param, {"error": covariance[i, i] ** 0.5}) for i, param in enumerate(params))
+    hesse = OrderedDict((p, {"error": covariance[(p, p)] ** 0.5}) for p in params)
     return hesse
 
 
