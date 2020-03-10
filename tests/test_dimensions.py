@@ -80,13 +80,6 @@ def test_combine_spaces():
 def test_add_spaces():
     from zfit.core.space import add_spaces as add_spaces
 
-    # with pytest.raises(ValueError):
-    #     assert add_spaces(space1)
-    # with pytest.raises(ValueError):
-    #     assert add_spaces(spaces=[])
-    # with pytest.raises(LimitsIncompatibleError):
-    #     assert add_spaces(space2d_1, space2d_2)
-
     assert add_spaces(space1, space2) == space1
     assert add_spaces(space1, space2, space3) == space1
     with pytest.raises(ObsIncompatibleError):

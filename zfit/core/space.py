@@ -643,7 +643,7 @@ class Limit(ZfitLimit):
         elif self.limits_are_false:
             limits = False
         else:
-            if self.n_obs < 5:
+            if self.n_obs < 5 and not self.n_events > 1:
                 limits = self.rect_limits
             else:
                 limits = 'rectangular'
@@ -903,7 +903,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         elif self.limits_are_false:
             limits = False
         elif self.has_rect_limits:
-            if self.n_obs < 3:
+            if self.n_obs < 3 and not self.n_events > 1:
                 limits = self.rect_limits
             else:
                 limits = 'rectangular'
