@@ -49,9 +49,9 @@ def _hesse_np(result: "FitResult", params, sigma=1.0):
     # if not isinstance(minimizer, Minuit):
     #     raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
     #                     "`Minuit`.")
-    result_hesse = 2 * np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
+    covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
 
-    hesse = OrderedDict((param, {'error': result_hesse[i, i]}) for i, param in enumerate(params))
+    hesse = OrderedDict((param, {'error': covariance[i, i]**0.5}) for i, param in enumerate(params))
     return hesse
 
 
@@ -66,6 +66,43 @@ def _minos_minuit(result, params, sigma=1.0):
               for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
     return result
+    
+    
+def _covariance_minuit(result, params, as_dict=False):
+    fitresult = result
+    minimizer = fitresult.minimizer
+
+    from zfit.minimizers.minimizer_minuit import Minuit
+    if not isinstance(minimizer, Minuit):
+        raise TypeError("Cannot compute the covariance matrix with 'covariance_minuit' with a different minimizer then"
+                        "`Minuit`.")
+
+    covariance_dict = result.minimizer._minuit_minimizer.covariance
+    
+    cov = {}
+    for p1 in params:
+      for p2 in params:
+        key = (p1, p2)
+        cov[key] = covariance_dict[tuple(k.name for k in key)]
+    covariance_dict = cov
+
+    if as_dict:
+        return covariance_dict
+    else:
+        return dict_to_matrix(params, covariance_dict)
+        
+def _covariance_np(result, params, as_dict=False):
+    
+    # check if no weights in data
+    if any([data.weights is not None for data in result.loss.data]):
+        raise WeightsNotImplementedError("Weights are not supported with hesse numpy.")
+
+    covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
+
+    if as_dict:
+        return matrix_to_dict(covariance)
+    else:
+        return covariance
 
 
 class FitResult(ZfitResult):
@@ -73,6 +110,8 @@ class FitResult(ZfitResult):
     _hesse_methods = {'minuit_hesse': _hesse_minuit, 'hesse_np': _hesse_np}
     _default_error = 'minuit_minos'
     _error_methods = {"minuit_minos": _minos_minuit}
+    _default_covariance = 'covariance_np'
+    _covariance_methods = {'covariance_minuit': _covariance_minuit, 'covariance_np': _covariance_np}
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
@@ -267,7 +306,7 @@ class FitResult(ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
 
-    def covariance(self, params: ParamsTypeOpt = None, as_dict: bool = False):
+    def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
         """Calculate the covariance matrix for `params`.
 
             Args:
@@ -279,25 +318,27 @@ class FitResult(ZfitResult):
                 2D `numpy.array` of shape (N, N);
                 `dict`(param1, param2) -> covariance if `as_dict == True`.
         """
+        
+        if method is None:
+            # LEGACY START
+            method = self._default_hesse
+            from zfit.minimizers.minimizer_minuit import Minuit
+            if isinstance(self.minimizer, Minuit):
+                method = 'covariance_minuit'
+            # LEGACY END
+        
         params = self._input_check_params(params)
-
-        try:
-            covariance_dict = self.minimizer._minuit_minimizer.covariance
-        except AttributeError:
-            raise WorkInProgressError("Currently, only covariance from minuit is available. "
-                                      "Use `Minuit` or open an issue on GitHub.")
-
-        cov = {}
-        for p1 in params:
-            for p2 in params:
-                key = (p1, p2)
-                cov[key] = covariance_dict[tuple(k.name for k in key)]
-        covariance_dict = cov
-
-        if as_dict:
-            return covariance_dict
-        else:
-            return dict_to_matrix(params, covariance_dict)
+        return self._covariance(params=params, method=method, as_dict=as_dict)
+          
+    def _covariance(self, params, method, as_dict):
+      if not callable(method):
+          try:
+              method = self._covariance_methods[method]
+          except KeyError:
+              raise KeyError("The following method is not a valid, implemented method: {}".format(method))
+      return method(result=self, params=params, as_dict=as_dict)
+            
+        
 
 
 def dict_to_matrix(params, matrix_dict):
@@ -314,6 +355,23 @@ def dict_to_matrix(params, matrix_dict):
                 matrix[j, i] = matrix_dict[key]
 
     return matrix
+    
+    
+def matrix_to_dict(params, matrix):
+    nparams = len(params)
+    matrix_dict = {}
+    
+    for i in range(nparams):
+        pi = params[i]
+        for j in range(i, nparams):
+            pj = params[j]
+            key = (pi, pj)
+            matrix_dict[key] = matrix[i, j]
+            if i != j:
+                matrix_dict[key] = matrix[j, i]
+
+    return matrix_dict
+    
 
 # def set_error_method(self, method):
 #     if isinstance(method, str):
