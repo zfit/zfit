@@ -32,12 +32,16 @@ with or without limits.
 
 **Limit** The range on a certain axis. Typically defines an interval.
 
-Since every object has a well defined domain, it is possible to combine them in an unambiguous way
+Since every object has a well defined domain, it is possible to combine them in an unambiguous way.
+While not enforced, a space should usually be created with limits that define the default space of an object.
+This correspond for example to the default normalization range ``norm_range`` or sampling range.
 
 .. code:: python
 
-    obs1 = zfit.Space(['x', 'y'])
-    obs2 = zfit.Space(['z', 'y'])
+    lower1, upper1 = [0, 1], [2, 3]
+    lower2, upper2 = [-4, 1], [10, 3]
+    obs1 = zfit.Space(['x', 'y'], limits=(lower1, upper2))
+    obs2 = zfit.Space(['z', 'y'], limits=(lower2, upper2))
 
     model1 = zfit.pdf.Gauss(obs=obs1, ...)
     model2 = zfit.pdf.Gauss(obs=obs2, ...)
@@ -46,6 +50,8 @@ Since every object has a well defined domain, it is possible to combine them in 
     product = model1 * model2
     # OR, equivalently
     product = zfit.pdf.ProductPDF([model1, model2])
+
+    assert obs1 * obs2 = product.space
 
 The ``product`` is now defined in the space with observables `['x', 'y', 'z']`. Any :py:class:`~zfit.Data` object
 to be combined with ``product`` has to be specified in the same space.

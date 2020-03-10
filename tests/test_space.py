@@ -391,3 +391,14 @@ def test_space_add(limits):
     space = space2axes + space1
     assert space.obs == None
     assert space.axes == axes2
+
+
+def test_combine_spaces():
+    lower1, upper1 = [0, 1], [2, 3]
+    lower2, upper2 = [-4, 1], [10, 3]
+    obs1 = zfit.Space(['x', 'y'], limits=(lower1, upper2))
+    obs2 = zfit.Space(['z', 'y'], limits=(lower2, upper2))
+    space12 = zfit.Space(('x', 'y', 'z'), limits=([lower1[0], lower1[1], lower2[0]], [upper1[0], upper1[1], upper2[0]]))
+
+    obs12 = obs1 * obs2
+    assert obs12 == space12

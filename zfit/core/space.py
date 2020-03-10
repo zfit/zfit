@@ -1998,13 +1998,11 @@ def combine_spaces(*spaces: Iterable[Space]):
             return MultiSpace(spaces=[combine_spaces(*spa) for spa in space_combinations],
                               obs=all_obs,
                               axes=all_axes)
-        # TODO: how to handle multispaces?
         # TODO: spaces that have multidim limits?
         limits_dict = {}
         for coord in all_coords:
             space_with_coord = [space for space in spaces if coord in get_coord(space, using_obs)]
-            if any(isinstance(space, MultiSpace) for space in space_with_coord):
-                raise WorkInProgressError("Multispace combination is not yet implemented. Work in progress.")
+            assert not any(isinstance(space, MultiSpace) for space in space_with_coord), "bug, should be caught before."
             assert space_with_coord, "empty, cannot be. This is a bug."
             limits_coord = []
             for space in space_with_coord:
