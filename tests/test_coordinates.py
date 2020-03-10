@@ -122,17 +122,17 @@ def test_with_obs_or_axes(graph, testclass):
     with pytest.raises(AxesIncompatibleError):
         coords.with_autofill_axes(overwrite=False)
 
-    coords_obs = [f'{i}' if i % 2 == 1 else obs2[int(i / 2)] for i in range(len(obs2) * 2)]
+    coords_obs = [f'{i}' if i % 2 else obs2[int(i / 2)] for i in range(len(obs2) * 2)]
     coords_obs2 = coords.with_obs(obs=coords_obs, allow_superset=True)
     assert coords_obs2.obs == obs2
     assert coords_obs2.axes == axes2
 
-    coords_axes = [i + 10 if i % 2 == 1 else axes2[int(i / 2)] for i in range(len(axes2) * 2)]
+    coords_axes = [i + 10 if i % 2 else axes2[int(i / 2)] for i in range(len(axes2) * 2)]
     coords_axes2 = coords.with_axes(axes=coords_axes, allow_superset=True)
     assert coords_axes2.obs == obs2
     assert coords_axes2.axes == axes2
 
-    coords_obs = [f'{i}' if i % 2 == 1 else sub_obs1[int(i / 2)] for i in range(len(sub_obs1) * 2)]
+    coords_obs = [f'{i}' if i % 2 else sub_obs1[int(i / 2)] for i in range(len(sub_obs1) * 2)]
     coords_obs2 = coords.with_obs(obs=coords_obs, allow_superset=True, allow_subset=True)
     assert coords_obs2.obs == sub_obs1
     assert coords_obs2.axes == sub_axes1
@@ -141,7 +141,7 @@ def test_with_obs_or_axes(graph, testclass):
     with pytest.raises(ObsIncompatibleError):
         coords_obs2 = coords.with_obs(obs=coords_obs, allow_superset=True, allow_subset=False)
 
-    coords_axes = [f'{i}' if i % 2 == 1 else sub_axes1[int(i / 2)] for i in range(len(sub_axes1) * 2)]
+    coords_axes = [i + 10 if i % 2 else sub_axes1[int(i / 2)] for i in range(len(sub_axes1) * 2)]
     coords_axes2 = coords.with_axes(axes=coords_axes, allow_superset=True, allow_subset=True)
     assert coords_axes2.obs == sub_obs1
     assert coords_axes2.axes == sub_axes1

@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import z
-from .interfaces import ZfitOrderableDimensional, ZfitSpace, ZfitData
+from .interfaces import ZfitOrderableDimensional, ZfitSpace, ZfitData, ZfitDimensional
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import OverdefinedError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError, \
@@ -386,34 +386,43 @@ def _reorder_indices(old: Union[List, Tuple], new: Union[List, Tuple]) -> Tuple[
 def convert_to_axes(axes, container=tuple):
     """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.
 
+    Raises
+        TypeError: if the axes are not int
+
     """
     if axes is None:
         return axes
     axes = convert_to_container(value=axes, container=container)
-    new_axes = []
-    for axis in axes:
-        if isinstance(axis, ZfitSpace):
-            if len(axis) > 1:
-                raise WorkInProgressError("Not implemented, uniqueify?")
-            new_axes.extend(axis.axes)
-        else:
-            new_axes.append(axis)
+
+    if isinstance(axes, ZfitDimensional):
+        new_axes = axes.axes
+    else:
+        new_axes = []
+        for axis in axes:
+            if not isinstance(axis, int):
+                raise TypeError(f"Axes have to be int, not {axis} as in {axes}")
+            else:
+                new_axes.append(axis)
     return container(new_axes)
 
 
 def convert_to_obs_str(obs, container=tuple):
     """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.
 
+    Raises:
+        TypeError: if the observable is not a string
     """
     if obs is None:
         return obs
     obs = convert_to_container(value=obs, container=container)
-    new_obs = []
-    for ob in obs:
-        if isinstance(ob, ZfitSpace):
-            if len(ob) > 1:
-                raise WorkInProgressError("Not implemented, uniqueify?")
-            new_obs.extend(ob.obs)
-        else:
-            new_obs.append(ob)
+    if isinstance(obs, ZfitDimensional):
+        new_obs = obs.obs
+    else:
+        new_obs = []
+        for ob in obs:
+
+            if not isinstance(ob, str):
+                raise TypeError(f"Observables have to be string, not {ob} as in {obs}")
+            else:
+                new_obs.append(ob)
     return container(new_obs)

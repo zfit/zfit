@@ -7,7 +7,8 @@ from zfit.core.coordinates import Coordinates
 from zfit.core.space import Space, Limit, ANY
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import CoordinatesUnderdefinedError, AxesIncompatibleError, ObsIncompatibleError
+from zfit.util.exception import CoordinatesUnderdefinedError, AxesIncompatibleError, ObsIncompatibleError, \
+    LimitsIncompatibleError
 
 setup_func_general = setup_function
 teardown_func_general = teardown_function
@@ -394,11 +395,44 @@ def test_space_add(limits):
 
 
 def test_combine_spaces():
-    lower1, upper1 = [0, 1], [2, 3]
-    lower2, upper2 = [-4, 1], [10, 3]
-    obs1 = zfit.Space(['x', 'y'], limits=(lower1, upper2))
-    obs2 = zfit.Space(['z', 'y'], limits=(lower2, upper2))
-    space12 = zfit.Space(('x', 'y', 'z'), limits=([lower1[0], lower1[1], lower2[0]], [upper1[0], upper1[1], upper2[0]]))
+    shift = 30
 
-    obs12 = obs1 * obs2
-    assert obs12 == space12
+    lower1, upper1 = [0, 1], [2, 3]
+    lower1b, upper1b = [0 + shift, 1 + shift], [2 + shift, 3 + shift]
+    lower2, upper2 = [-4, 1], [10, 3]
+    lower2b, upper2b = [-4 + shift, 1 + shift], [10 + shift, 3 + shift]
+    lower3, upper3 = [9, 1, 0], [11, 3, 2]
+    obs1 = ['x', 'y']
+    space1a = zfit.Space(obs1, limits=(lower1, upper1))
+    space1b = zfit.Space(obs1, limits=(lower1b, upper1b))
+    obs2 = ['z', 'y']
+    space2a = zfit.Space(obs2, limits=(lower2, upper2))
+    space2b = zfit.Space(obs2, limits=(lower2b, upper2b))
+    obs3 = ['a', 'y', 'x']
+    space3 = zfit.Space(obs3, limits=(lower3, upper3))
+    space3inc = zfit.Space(obs3, limits=(lower3, upper3[::-1]))
+
+    lower12 = [lower1[0], lower1[1], lower2[0]]
+    upper12 = [upper1[0], upper1[1], upper2[0]]
+    space12a = zfit.Space(('x', 'y', 'z'), limits=(lower12, upper12))
+    space12b = zfit.Space(('x', 'y', 'z'), limits=([low + shift for low in lower12], [up + shift for up in upper12]))
+
+    # space3 = zfit.Space(('x', 'y', 'z'), limits=([lower1[0], lower1[1], lower2[0]], [upper1[0], upper1[1], upper2[0]]))
+    obs2inv = space2a.with_obs(['y', 'z'])
+
+    space = space1a * space2a
+    assert space == space12a
+    assert space == space12a * obs2inv
+    assert space == space12a * obs2inv * space12a
+
+    space = space3 * space1a
+    assert space == space3
+
+    with pytest.raises(LimitsIncompatibleError):
+        space1a * space3inc
+
+    space12 = space12a + space12b
+    space1 = space1a + space1b
+    space2 = space2a + space2b
+    space = space1 * space2
+    assert space == space12

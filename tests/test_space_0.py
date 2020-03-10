@@ -175,7 +175,7 @@ def test_setting_axes(space, obs):
 
 def test_exception():
     invalid_obs = (1, 4)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         Space(obs=invalid_obs)
     with pytest.raises(CoordinatesUnderdefinedError):
         Space(obs=None, limits=limit2)

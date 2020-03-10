@@ -26,8 +26,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (AxesNotSpecifiedError, IntentionAmbiguousError, LimitsUnderdefinedError,
                               MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                              OverdefinedError, WorkInProgressError,
-                              BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
+                              OverdefinedError, BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
                               ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
                               IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
                               InvalidLimitSubspaceError, CannotConvertToNumpyError, BehaviorUnderDiscussion,
@@ -637,6 +636,20 @@ class Limit(ZfitLimit):
         objects = (self._limit_fn, self.n_obs)  # not rect limits, not hashable and unprecise
         return hash(tuple(objects))
 
+    def __repr__(self) -> str:
+        class_name = str(self.__class__).split('.')[-1].split('\'')[0]
+        if not self.limits_are_set:
+            limits = None
+        elif self.limits_are_false:
+            limits = False
+        else:
+            if self.n_obs < 5:
+                limits = self.rect_limits
+            else:
+                limits = 'rectangular'
+
+        return f"<zfit {class_name} rect_limits={limits}, limit_fn={not self.has_rect_limits}>"
+
 
 def rect_limits_are_any(limit: ZfitLimit) -> bool:
     """True if all limits in limit are ANY objects."""
@@ -885,7 +898,18 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     def __repr__(self):
         class_name = str(self.__class__).split('.')[-1].split('\'')[0]
-        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={self.has_limits}>"
+        if not self.limits_are_set:
+            limits = None
+        elif self.limits_are_false:
+            limits = False
+        elif self.has_rect_limits:
+            if self.n_obs < 3:
+                limits = self.rect_limits
+            else:
+                limits = 'rectangular'
+        else:
+            limits = 'functional'
+        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}>"
 
     def __add__(self, other):
         if not isinstance(other, ZfitSpace):
@@ -1781,10 +1805,10 @@ class Space(BaseSpace):
         axes = self._check_convert_input_axes(axes=axes, allow_none=True)
         if obs is not None:
             limits_dict = {'obs': self.get_limits(obs=obs)}
-            new_coords = self.coords.with_obs(obs, allow_subset=True)
+            new_coords = self.coords.with_obs(obs, allow_subset=True, allow_superset=True)
         else:
             limits_dict = {'axes': self.get_limits(axes=axes)}
-            new_coords = self.coords.with_axes(axes=axes, allow_subset=True)
+            new_coords = self.coords.with_axes(axes=axes, allow_subset=True, allow_superset=True)
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
 
@@ -1965,21 +1989,25 @@ def combine_spaces(*spaces: Iterable[Space]):
     Raises:
         ValueError: if only one space is given
         LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
-        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.
+        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None or False.
     """
     spaces = convert_to_container(spaces, container=tuple)
     # if len(spaces) <= 1:
     #     return spaces
     # raise ValueError("Need at least two spaces to test limit consistency.")  # TODO: allow? usecase?
 
-    all_obs = common_obs(spaces=spaces)
-    all_axes = common_axes(spaces=spaces)
-    using_obs = bool(all_obs)
-    all_coords = all_obs if using_obs else all_axes
+    common_obs_ordered = common_obs(spaces=spaces)
+    common_axes_ordered = common_axes(spaces=spaces)
+    using_obs = bool(common_obs_ordered)
+    common_coords_ordered = common_obs_ordered if using_obs else common_axes_ordered
+
+    # sort the spaces
     if using_obs:
-        spaces = tuple(space.with_obs(all_obs, allow_superset=True) for space in spaces)
-    elif all_axes:
-        spaces = tuple(space.with_axes(all_axes, allow_superset=True) for space in spaces)
+        spaces = tuple(space.with_obs(common_obs_ordered, allow_superset=True) for space in spaces)
+        all_coords = [space.obs for space in spaces]
+    elif common_axes_ordered:
+        spaces = tuple(space.with_axes(common_axes_ordered, allow_superset=True) for space in spaces)
+        all_coords = [space.axes for space in spaces]
     else:
         raise CoordinatesUnderdefinedError("Neither `obs` nor `axes` exist in all spaces.")
 
@@ -1991,31 +2019,79 @@ def combine_spaces(*spaces: Iterable[Space]):
     elif all_limits_not_set:
         limits = None
     elif not all(has_limits):
-        raise LimitsIncompatibleError("Limits either have to be set, not set, or False for all spaces to be combined.")
+        raise LimitsNotSpecifiedError("Limits either have to be set, not set, or False for all spaces to be combined.")
     else:
         space_combinations = tuple(itertools.product(*spaces))
         if len(space_combinations) > 1:  # there are MultiSpaces in there
-            return MultiSpace(spaces=[combine_spaces(*spa) for spa in space_combinations],
-                              obs=all_obs,
-                              axes=all_axes)
+            all_combinations = []
+            for spa in space_combinations:
+                with suppress(LimitsIncompatibleError):
+                    all_combinations.append(combine_spaces(*spa))
+                if not all_combinations:
+                    raise LimitsIncompatibleError(f"The limits of {spaces} are all not compatible to be combined.")
+            # filter, as can be False: non-overlapping limits e.g. if we have two MultiSpace
+            filtered_combinations = [space for space in all_combinations if space is not False]
+
+            return MultiSpace(spaces=all_combinations,
+                              obs=common_obs_ordered if common_obs_ordered else None,
+                              axes=common_axes_ordered if common_axes_ordered else None)
         # TODO: spaces that have multidim limits?
         limits_dict = {}
-        for coord in all_coords:
-            space_with_coord = [space for space in spaces if coord in get_coord(space, using_obs)]
-            assert not any(isinstance(space, MultiSpace) for space in space_with_coord), "bug, should be caught before."
-            assert space_with_coord, "empty, cannot be. This is a bug."
-            limits_coord = []
-            for space in space_with_coord:
-                if type(space) == Space:  # has to be the exact type, we use an implementation detail here
-                    limits_coord.append(space.get_limits(obs=coord if using_obs else None,
-                                                         axes=coord if not using_obs else None))
-                else:
-                    raise WorkInProgressError
-                    # limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord))
-            any_non_equal = any([limits_coord[0][(coord,)] != limit[(coord,)] for limit in limits_coord[1:]])
-            if any_non_equal:
-                raise LimitsIncompatibleError(f"Limits in coord {coord} do not match for spaces {limits_coord}")
-            limits_dict.update(limits_coord[0])
+
+        non_unique_coords = set()
+        unique_coords = set()
+        for coord in common_coords_ordered:
+            if sum(coord in coords for coords in all_coords) > 1:
+                non_unique_coords.add(coord)
+            else:
+                unique_coords.add(coord)
+
+        for coord in common_coords_ordered:
+            if coord in unique_coords:
+                space = [space for space in spaces if coord in get_coord(space, using_obs)][0]
+                space = space.get_subspace(obs=unique_coords if using_obs else None,
+                                           axes=None if using_obs else unique_coords)
+                limits_dict.update(space.get_limits()['obs' if using_obs else 'axes'])
+                for coord in get_coord(space, using_obs):
+                    unique_coords.remove(coord)
+            elif coord in non_unique_coords:
+                non_unique_spaces = [space for space in spaces if coord in get_coord(space, using_obs)]
+                common_coords_non_unique = list(set.intersection(*[set(get_coord(space, using_obs))
+                                                                   for space in non_unique_spaces]))
+                # do the below to check if we can take the subspace
+                non_unique_subspaces = [space.get_subspace(obs=common_coords_non_unique if using_obs else None,
+                                                           axes=None if using_obs else common_coords_non_unique)
+                                        for space in non_unique_spaces]
+
+                # TODO compare limits
+                any_non_equal = any([non_unique_subspaces[0] != space for space in non_unique_subspaces[1:]])
+                if any_non_equal:
+                    raise LimitsIncompatibleError(f"Limits in coord {common_coords_non_unique} do not match for spaces"
+                                                  f" {non_unique_subspaces}")
+
+                non_unique_subspace = non_unique_subspaces[0]
+                limits_dict.update(non_unique_subspace.get_limits()['obs' if using_obs else 'axes'])
+                for coord in get_coord(non_unique_subspace, using_obs):
+                    non_unique_coords.remove(coord)
+            else:
+                pass  # fine, since it is already satisfied by a space
+        #
+        # for coord in common_coords_ordered:
+        #     space_with_coord = [space for space in spaces if coord in get_coord(space, using_obs)]
+        #     assert not any(isinstance(space, MultiSpace) for space in space_with_coord), "bug, should be caught before."
+        #     assert space_with_coord, "empty, cannot be. This is a bug."
+        #     limits_coord = []
+        #     for space in space_with_coord:
+        #         if type(space) == Space:  # has to be the exact type, we use an implementation detail here
+        #             limits_coord.append(space.get_limits(obs=coord if using_obs else None,
+        #                                                  axes=coord if not using_obs else None))
+        #         else:
+        #             raise WorkInProgressError
+        #             # limits_coord.append(space.with_obs(obs=coord) if using_obs else space.with_axes(axes=coord))
+        #     any_non_equal = any([limits_coord[0][(coord,)] != limit[(coord,)] for limit in limits_coord[1:]])
+        #     if any_non_equal:
+        #         raise LimitsIncompatibleError(f"Limits in coord {coord} do not match for spaces {limits_coord}")
+        #     limits_dict.update(limits_coord[0])
 
         limits = {'obs' if using_obs else 'axes': limits_dict}
 
@@ -2076,7 +2152,8 @@ def combine_spaces(*spaces: Iterable[Space]):
     #     return False
     # else:
     #     limits = (new_lower, new_upper)
-    new_space = Space(obs=all_obs if using_obs else None, axes=None if using_obs else all_axes, limits=limits)
+    new_space = Space(obs=common_obs_ordered if using_obs else None, axes=None if using_obs else common_axes_ordered,
+                      limits=limits)
     # if new_space.n_limits > 1:
     #     new_space = MultiSpace(Space, obs=all_obs)
     return new_space
@@ -2848,5 +2925,3 @@ def add_spaces_old(spaces: Iterable["zfit.Space"]):
         limits = lowers, uppers
     new_space = zfit.Space(obs=spaces[0].obs, limits=limits)
     return new_space
-
-

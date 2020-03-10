@@ -9,7 +9,7 @@ from zfit.core.space import limits_consistent
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import (LimitsIncompatibleError, SpaceIncompatibleError,
-                                 ObsIncompatibleError, MultipleLimitsNotImplementedError)
+                                 ObsIncompatibleError, MultipleLimitsNotImplementedError, LimitsNotSpecifiedError)
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
@@ -63,7 +63,7 @@ def test_combine_spaces():
     none_limits_space = combine_spaces(space1, space1, space1)
     assert none_limits_space == space1  # with None limits
     assert not none_limits_space.limits_are_set
-    with pytest.raises(LimitsIncompatibleError):
+    with pytest.raises(LimitsNotSpecifiedError):
         combine_spaces(space2d_2, space1)
 
     # same but different syntax
@@ -73,7 +73,7 @@ def test_combine_spaces():
     none_limits_space = space1.combine(space1, space1)
     assert none_limits_space == space1  # with None limits
     assert not none_limits_space.limits_are_set
-    with pytest.raises(LimitsIncompatibleError):
+    with pytest.raises(LimitsNotSpecifiedError):
         space2d_2.combine(space1)
 
 
