@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
+import itertools
 
 import numpy as np
 
@@ -24,15 +25,20 @@ def _hesse_minuit(result: "FitResult", params, sigma=1.0):
 
     minimizer = fitresult.minimizer
     from zfit.minimizers.minimizer_minuit import Minuit
+
     if not isinstance(minimizer, Minuit):
         raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
                         "`Minuit`.")
+
     params_name = OrderedDict((param.name, param) for param in params)
     result_hesse = minimizer._minuit_minimizer.hesse()
-    result_hesse = OrderedDict((res['name'], res) for res in result_hesse)
+    result_hesse = OrderedDict((res["name"], res) for res in result_hesse)
 
-    result = OrderedDict((params_name[p_name], {'error': res['error']})
-                         for p_name, res in result_hesse.items() if p_name in params_name)
+    result = OrderedDict(
+        (params_name[p_name], {"error": res["error"]})
+        for p_name, res in result_hesse.items()
+        if p_name in params_name
+    )
     return result
 
 
@@ -51,7 +57,9 @@ def _hesse_np(result: "FitResult", params, sigma=1.0):
     #                     "`Minuit`.")
     covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
 
-    hesse = OrderedDict((param, {'error': covariance[i, i]**0.5}) for i, param in enumerate(params))
+    hesse = OrderedDict(
+        (param, {"error": covariance[i, i] ** 0.5}) for i, param in enumerate(params)
+    )
     return hesse
 
 
@@ -59,40 +67,42 @@ def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
     minimizer = fitresult.minimizer
     from zfit.minimizers.minimizer_minuit import Minuit
+
     if not isinstance(minimizer, Minuit):
         raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer than"
                         "`Minuit`.")
-    result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
-              for p in params][-1]  # returns every var
+
+    result = [
+        minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma) for p in params
+    ][
+        -1
+    ]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
     return result
 
 
-def _covariance_minuit(result, params, as_dict=False):
+def _covariance_minuit(result, params):
     fitresult = result
     minimizer = fitresult.minimizer
 
     from zfit.minimizers.minimizer_minuit import Minuit
+
     if not isinstance(minimizer, Minuit):
         raise TypeError("Cannot compute the covariance matrix with 'covariance_minuit' with a different"
                         " minimizer than `Minuit`.")
 
-    covariance_dict = result.minimizer._minuit_minimizer.covariance
+    covariance = result.minimizer._minuit_minimizer.covariance
 
-    cov = {}
+    covariance_dict = {}
     for p1 in params:
         for p2 in params:
             key = (p1, p2)
-            cov[key] = covariance_dict[tuple(k.name for k in key)]
-    covariance_dict = cov
+            covariance_dict[key] = covariance[tuple(k.name for k in key)]
 
-    if as_dict:
-        return covariance_dict
-    else:
-        return dict_to_matrix(params, covariance_dict)
+    return covariance_dict
 
 
-def _covariance_np(result, params, as_dict=False):
+def _covariance_np(result, params):
 
     # check if no weights in data
     if any([data.weights is not None for data in result.loss.data]):
@@ -100,19 +110,19 @@ def _covariance_np(result, params, as_dict=False):
 
     covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
 
-    if as_dict:
-        return matrix_to_dict(covariance)
-    else:
-        return covariance
+    return matrix_to_dict(params, covariance)
 
 
 class FitResult(ZfitResult):
-    _default_hesse = 'hesse_np'
-    _hesse_methods = {'minuit_hesse': _hesse_minuit, 'hesse_np': _hesse_np}
-    _default_error = 'minuit_minos'
+    _default_hesse = "hesse_np"
+    _hesse_methods = {"minuit_hesse": _hesse_minuit, "hesse_np": _hesse_np}
+    _default_error = "minuit_minos"
     _error_methods = {"minuit_minos": _minos_minuit}
-    _default_covariance = 'covariance_np'
-    _covariance_methods = {'covariance_minuit': _covariance_minuit, 'covariance_np': _covariance_np}
+    _default_covariance = "covariance_np"
+    _covariance_methods = {
+        "covariance_minuit": _covariance_minuit,
+        "covariance_np": _covariance_np,
+    }
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
@@ -150,7 +160,7 @@ class FitResult(ZfitResult):
         # self.param_hesse = OrderedDict((p, {}) for p in params)
 
     def _input_convert_params(self, params):
-        params = OrderedDict((p, {'value': v}) for p, v in params.items())
+        params = OrderedDict((p, {"value": v}) for p, v in params.items())
         return params
 
     def _get_uncached_params(self, params, method_name):
@@ -211,7 +221,7 @@ class FitResult(ZfitResult):
         return params
 
     def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None,
-              error_name: Optional[str] = None, sigma=1.) -> OrderedDict:
+              error_name: Optional[str] = None, sigma=1.0) -> OrderedDict:
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
         Args:
@@ -232,18 +242,24 @@ class FitResult(ZfitResult):
             # LEGACY START
             method = self._default_hesse
             from zfit.minimizers.minimizer_minuit import Minuit
+
             if isinstance(self.minimizer, Minuit):
-                method = 'minuit_hesse'
+                method = "minuit_hesse"
             # LEGACY END
         if error_name is None:
             if not isinstance(method, str):
-                raise ValueError("Need to specify `error_name` or use a string as `method`")
+                raise ValueError(
+                    "Need to specify `error_name` or use a string as `method`"
+                )
             error_name = method
-        params = self._input_check_params(params)
-        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+
+        all_params = list(self.params.keys())
+        uncached_params = self._get_uncached_params(params=all_params, method_name=error_name)
+
         if uncached_params:
             error_dict = self._hesse(params=uncached_params, method=method, sigma=sigma)
             self._cache_errors(error_name=error_name, errors=error_dict)
+
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
 
@@ -260,7 +276,7 @@ class FitResult(ZfitResult):
         return method(result=self, params=params, sigma=sigma)
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
-              sigma: float = 1.) -> OrderedDict:
+              sigma: float = 1.0) -> OrderedDict:
 
         """Calculate and set for `params` the asymmetric error using the set error method.
 
@@ -287,11 +303,15 @@ class FitResult(ZfitResult):
             method = self._default_error
         if error_name is None:
             if not isinstance(method, str):
-                raise ValueError("Need to specify `error_name` or use a string as `method`")
+                raise ValueError(
+                    "Need to specify `error_name` or use a string as `method`"
+                )
             error_name = method
 
         params = self._input_check_params(params)
-        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+        uncached_params = self._get_uncached_params(
+            params=params, method_name=error_name
+        )
 
         if uncached_params:
             error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
@@ -307,38 +327,45 @@ class FitResult(ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
 
-    def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None,
-                   as_dict: bool = False):
+    def covariance(self, params: ParamsTypeOpt = None, method: str = None, as_dict: bool = False):
         """Calculate the covariance matrix for `params`.
 
             Args:
                 params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
+                method (str): The method to use to calculate the covariance matrix. Valid choices are
+                    {'covariance_minuit', 'covariance_np'}.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
             Returns:
                 2D `numpy.array` of shape (N, N);
                 `dict`(param1, param2) -> covariance if `as_dict == True`.
         """
-
         if method is None:
             # LEGACY START
-            method = self._default_hesse
+            method = self._default_covariance
             from zfit.minimizers.minimizer_minuit import Minuit
+
             if isinstance(self.minimizer, Minuit):
-                method = 'covariance_minuit'
+                method = "covariance_minuit"
             # LEGACY END
 
         params = self._input_check_params(params)
-        return self._covariance(params=params, method=method, as_dict=as_dict)
+        covariance = self._covariance(method=method)
+        covariance = {k: covariance[k] for k in itertools.product(params, params)}
 
-    def _covariance(self, params, method, as_dict):
-        if not callable(method):
-            try:
-                method = self._covariance_methods[method]
-            except KeyError:
-                raise KeyError("The following method is not a valid, implemented method: {}".format(method))
-        return method(result=self, params=params, as_dict=as_dict)
+        if as_dict:
+            return covariance
+        else:
+            return dict_to_matrix(params, covariance)
+
+    def _covariance(self, method):
+        params = list(self.params.keys())
+        try:
+            method = self._covariance_methods[method]
+        except KeyError:
+            raise KeyError("The following method is not a valid, implemented method: {}".format(method))
+        return method(result=self, params=params)
 
 
 def dict_to_matrix(params, matrix_dict):
@@ -349,10 +376,9 @@ def dict_to_matrix(params, matrix_dict):
         pi = params[i]
         for j in range(i, nparams):
             pj = params[j]
-            key = (pi, pj)
-            matrix[i, j] = matrix_dict[key]
+            matrix[i, j] = matrix_dict[(pi, pj)]
             if i != j:
-                matrix[j, i] = matrix_dict[key]
+                matrix[j, i] = matrix_dict[(pi, pj)]
 
     return matrix
 
@@ -365,10 +391,9 @@ def matrix_to_dict(params, matrix):
         pi = params[i]
         for j in range(i, nparams):
             pj = params[j]
-            key = (pi, pj)
-            matrix_dict[key] = matrix[i, j]
+            matrix_dict[(pi, pj)] = matrix[i, j]
             if i != j:
-                matrix_dict[key] = matrix[j, i]
+                matrix_dict[(pj, pi)] = matrix[i, j]
 
     return matrix_dict
 
