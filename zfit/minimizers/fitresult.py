@@ -34,11 +34,8 @@ def _hesse_minuit(result: "FitResult", params, sigma=1.0):
     result_hesse = minimizer._minuit_minimizer.hesse()
     result_hesse = OrderedDict((res["name"], res) for res in result_hesse)
 
-    result = OrderedDict(
-        (params_name[p_name], {"error": res["error"]})
-        for p_name, res in result_hesse.items()
-        if p_name in params_name
-    )
+    result = OrderedDict((params_name[p_name], {"error": res["error"]})
+                         for p_name, res in result_hesse.items() if p_name in params_name)
     return result
 
 
@@ -57,9 +54,7 @@ def _hesse_np(result: "FitResult", params, sigma=1.0):
     #                     "`Minuit`.")
     covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
 
-    hesse = OrderedDict(
-        (param, {"error": covariance[i, i] ** 0.5}) for i, param in enumerate(params)
-    )
+    hesse = OrderedDict((param, {"error": covariance[i, i] ** 0.5}) for i, param in enumerate(params))
     return hesse
 
 
@@ -72,11 +67,8 @@ def _minos_minuit(result, params, sigma=1.0):
         raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer than"
                         "`Minuit`.")
 
-    result = [
-        minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma) for p in params
-    ][
-        -1
-    ]  # returns every var
+    result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma) 
+              for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
     return result
 
@@ -248,9 +240,7 @@ class FitResult(ZfitResult):
             # LEGACY END
         if error_name is None:
             if not isinstance(method, str):
-                raise ValueError(
-                    "Need to specify `error_name` or use a string as `method`"
-                )
+                raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
 
         all_params = list(self.params.keys())
@@ -304,15 +294,11 @@ class FitResult(ZfitResult):
             method = self._default_error
         if error_name is None:
             if not isinstance(method, str):
-                raise ValueError(
-                    "Need to specify `error_name` or use a string as `method`"
-                )
+                raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
 
         params = self._input_check_params(params)
-        uncached_params = self._get_uncached_params(
-            params=params, method_name=error_name
-        )
+        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
         if uncached_params:
             error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
