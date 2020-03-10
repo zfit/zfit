@@ -260,6 +260,7 @@ class FitResult(ZfitResult):
             error_dict = self._hesse(params=uncached_params, method=method, sigma=sigma)
             self._cache_errors(error_name=error_name, errors=error_dict)
 
+        params = self._input_check_params(params)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
 
