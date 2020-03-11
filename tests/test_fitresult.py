@@ -82,14 +82,13 @@ def test_fmin(minimizer_class_and_kwargs):
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(2)  # odd graph problem...
 def test_covariance(minimizer_class_and_kwargs):
-        
+
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     hesse = result.hesse()
     a = results['a_param']
     b = results['b_param']
     c = results['c_param']
-    
 
     cov_mat_3 = result.covariance(params=[a, b, c])
     cov_mat_2 = result.covariance(params=[c, b])
@@ -107,5 +106,5 @@ def test_covariance(minimizer_class_and_kwargs):
     assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_2[0, 0])
 
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
-    
-    assert np.allclose(cov_mat_3, cov_mat_3_np, rtol=0.05)
+
+    assert np.allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)

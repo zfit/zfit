@@ -178,8 +178,9 @@ def test_subdata():
     assert data1.obs == obs1
     np.testing.assert_array_equal(example_data1, data1.value())
 
-
-def test_data_range():
+@pytest.mark.parametrize("weights_factory", [lambda: None,
+                                             lambda: np.random.normal(size=5), ])
+def test_data_range(weights_factory):
     data1 = np.array([[1., 2],
                       [0, 1],
                       [-2, 1],
@@ -194,12 +195,18 @@ def test_data_range():
     data_range = space1 + space2
     cut_data1 = data1[np.array((0, 2)), :]
 
-    dataset = zfit.Data.from_tensor(obs=obs, tensor=data1)
+    weights = weights_factory()
+    if weights is not None:
+        cut_weights = weights[np.array((0, 2))]
+
+    dataset = zfit.Data.from_tensor(obs=obs, tensor=data1, weights=weights)
     value_uncut = dataset.value()
     np.testing.assert_equal(data1, value_uncut.numpy())
     with dataset.set_data_range(data_range):
         value_cut = dataset.value()
         np.testing.assert_equal(cut_data1, value_cut.numpy())
+        if dataset.has_weights:
+            np.testing.assert_equal(cut_weights, dataset.weights.numpy())
         np.testing.assert_equal(data1, value_uncut.numpy())  # check  that the original did NOT change
 
     np.testing.assert_equal(cut_data1, value_cut.numpy())

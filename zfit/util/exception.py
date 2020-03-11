@@ -133,6 +133,8 @@ class ModelIncompatibleError(IncompatibleError):
 class WeightsNotImplementedError(Exception):
     pass
 
+class DataIsBatchedError(Exception):
+    pass
 
 # Minimizer errors
 

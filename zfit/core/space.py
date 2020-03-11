@@ -435,6 +435,8 @@ class Limit(ZfitLimit):
                 last dimension removed.
         """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
+        if not self.has_limits:
+            raise LimitsNotSpecifiedError("Cannot call `inside` without limits defined.")
         if guarantee_limits and self.has_rect_limits:
             return tf.broadcast_to(True, x.shape)
         else:
@@ -465,6 +467,9 @@ class Limit(ZfitLimit):
             tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been
                 removed.
         """
+
+        if not self.has_limits:
+            raise LimitsNotSpecifiedError("Cannot call `filter` without limits defined.")
         x = _sanitize_x_input(x, n_obs=self.n_obs)
 
         # shortcut, everything already inside
