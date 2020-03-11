@@ -1,6 +1,6 @@
-=========================
-Getting started with zfit
-=========================
+===============
+Getting started
+===============
 
 The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
 
@@ -10,8 +10,7 @@ The first step is to naturally import ``zfit`` and verify if the installation ha
 
     >>> import tensorflow as tf
     >>> import zfit
-    >>> print("TensorFlow version:", tf.__version__)
-    TensorFlow version: 1.12.0
+
 
 Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
 
