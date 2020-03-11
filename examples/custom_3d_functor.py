@@ -1,8 +1,9 @@
 #  Copyright (c) 2019 zfit
 
-# Functors are an advanced feature of zfit. You can use them to define your own way to combine PDFs.
+# Functors are PDfs and Functions that depend on other PDFs or Functions. They can be used to define
+# in a custom way combinations of PDFs or wrapping a single PDF.
 # An example would be to create the sum of two PDFs. Of course this is already implemented in zfit
-# as the functor SumPDF([pdf1, pdf2]) or simply pdf1 + pdf2. Should this not be enough, then you
+# as the functor SumPDF([pdf1, pdf2], fracs=...). For advanced uses, you
 # can define your own functor as demonstrated below.
 
 import zfit
