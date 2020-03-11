@@ -14,41 +14,6 @@ from ..util.container import convert_to_container
 from ..util.ztyping import ParamsTypeOpt
 
 
-def _hesse_minuit(result: "FitResult", params, sigma=1.0):
-    if sigma != 1.0:
-        raise ValueError("sigma other then 1 is not valid for minuit hesse.")
-    fitresult = result
-
-    # check if no weights in data
-    if any([data.weights is not None for data in result.loss.data]):
-        raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
-
-    minimizer = fitresult.minimizer
-    from zfit.minimizers.minimizer_minuit import Minuit
-
-    if not isinstance(minimizer, Minuit):
-        raise TypeError("Cannot perform hesse error calculation 'minuit' with a different minimizer then"
-                        "`Minuit`.")
-
-    params_name = OrderedDict((param.name, param) for param in params)
-    result_hesse = minimizer._minuit_minimizer.hesse()
-    result_hesse = OrderedDict((res["name"], res) for res in result_hesse)
-
-    result = OrderedDict((params_name[p_name], {"error": res["error"]})
-                         for p_name, res in result_hesse.items() if p_name in params_name)
-    return result
-
-
-def _hesse_np(result: "FitResult", params, sigma=1.0):
-    if sigma != 1.0:
-        raise ValueError("sigma other then 1 is not valid for hesse numpy.")
-
-    covariance = _covariance_np(result, params)
-
-    hesse = OrderedDict((p, {"error": covariance[(p, p)] ** 0.5}) for p in params)
-    return hesse
-
-
 def _minos_minuit(result, params, sigma=1.0):
     fitresult = result
     minimizer = fitresult.minimizer
@@ -65,6 +30,11 @@ def _minos_minuit(result, params, sigma=1.0):
 
 
 def _covariance_minuit(result, params):
+
+    # check if no weights in data
+    if any([data.weights is not None for data in result.loss.data]):
+        raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
+
     fitresult = result
     minimizer = fitresult.minimizer
 
@@ -98,14 +68,10 @@ def _covariance_np(result, params):
 
 class FitResult(ZfitResult):
     _default_hesse = "hesse_np"
-    _hesse_methods = {"minuit_hesse": _hesse_minuit, "hesse_np": _hesse_np}
+    _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np}
     _default_error = "minuit_minos"
     _error_methods = {"minuit_minos": _minos_minuit}
-    _default_covariance = "covariance_np"
-    _covariance_methods = {
-        "covariance_minuit": _covariance_minuit,
-        "covariance_np": _covariance_np,
-    }
+    
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
@@ -204,13 +170,13 @@ class FitResult(ZfitResult):
         return params
 
     def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None,
-              error_name: Optional[str] = None, sigma=1.0) -> OrderedDict:
-        """Calculate for `params` the symmetric error using the Hessian matrix.
+              error_name: Optional[str] = None) -> OrderedDict:
+        """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
             params (list(:py:class:`~zfit.Parameter`)): The parameters  to calculate the
                 Hessian symmetric error. If None, use all parameters.
-            method (str): the method to calculate the hessian. Can be {'minuit'} or a callable.
+            method (str): the method to calculate the covariance matrix. Can be {'minuit_hesse', 'hesse_np'} or a callable.
             error_name (str): The name for the error in the dictionary.
 
         Returns:
@@ -238,7 +204,7 @@ class FitResult(ZfitResult):
         uncached_params = self._get_uncached_params(params=all_params, method_name=error_name)
 
         if uncached_params:
-            error_dict = self._hesse(params=uncached_params, method=method, sigma=sigma)
+            error_dict = self._hesse(params=uncached_params, method=method)
             self._cache_errors(error_name=error_name, errors=error_dict)
 
         params = self._input_check_params(params)
@@ -249,17 +215,12 @@ class FitResult(ZfitResult):
         for param, errors in errors.items():
             self.params[param][error_name] = errors
 
-    def _hesse(self, params, method, sigma):
-        if not callable(method):
-            try:
-                method = self._hesse_methods[method]
-            except KeyError:
-                raise KeyError("The following method is not a valid, implemented method: {}".format(method))
-        return method(result=self, params=params, sigma=sigma)
+    def _hesse(self, params, method):
+        covariance_dict = self.covariance(params, method, as_dict=True)
+        return OrderedDict((p, {"error": covariance_dict[(p, p)] ** 0.5}) for p in params)
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
-
         """Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
@@ -312,7 +273,7 @@ class FitResult(ZfitResult):
                 params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
                 method (str): The method to use to calculate the covariance matrix. Valid choices are
-                    {'covariance_minuit', 'covariance_np'}.
+                    {'minuit_hesse', 'hesse_np'}.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
             Returns:
@@ -321,11 +282,11 @@ class FitResult(ZfitResult):
         """
         if method is None:
             # LEGACY START
-            method = self._default_covariance
+            method = self._default_hesse
             from zfit.minimizers.minimizer_minuit import Minuit
 
             if isinstance(self.minimizer, Minuit):
-                method = "covariance_minuit"
+                method = "minuit_hesse"
             # LEGACY END
 
         params = self._input_check_params(params)
@@ -338,11 +299,13 @@ class FitResult(ZfitResult):
             return dict_to_matrix(params, covariance)
 
     def _covariance(self, method):
+        if not callable(method):
+            try:
+                method = self._hesse_methods[method]
+            except KeyError:
+                raise KeyError("The following method is not a valid, implemented method: {}".format(method))
+
         params = list(self.params.keys())
-        try:
-            method = self._covariance_methods[method]
-        except KeyError:
-            raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params)
 
 
