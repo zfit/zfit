@@ -26,6 +26,32 @@ Requirement changes
 Thanks
 ------
 
+0.4.3 (11.3.2020)
+=================
+
+
+Major Features and Improvements
+-------------------------------
+
+ - refactor `hesse_np` with covariance matrix, make it available to all minimizers
+
+Behavioral changes
+------------------
+
+
+Bug fixes and small changes
+---------------------------
+
+ - fix bug in `hesse_np`
+
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
 
 0.4.2 (27.2.2020)
 =================
