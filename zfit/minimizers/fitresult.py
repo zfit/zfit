@@ -266,14 +266,14 @@ class FitResult(ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
         return method(result=self, params=params, sigma=sigma)
 
-    def covariance(self, params: ParamsTypeOpt = None, method: str = None, as_dict: bool = False):
+    def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
         """Calculate the covariance matrix for `params`.
 
             Args:
                 params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
-                method (str): The method to use to calculate the covariance matrix. Valid choices are
-                    {'minuit_hesse', 'hesse_np'}.
+                method (str or Callbel): The method to use to calculate the covariance matrix. Valid choices are
+                    {'minuit_hesse', 'hesse_np'} or a Callable.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
             Returns:
