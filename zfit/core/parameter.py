@@ -2,7 +2,7 @@
 #  Copyright (c) 2020 zfit
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable
+from typing import Callable, Iterable, Union
 
 import numpy as np
 import tensorflow as tf
@@ -22,7 +22,7 @@ from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidates_cache
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    WorkInProgressError
+    WorkInProgressError, ParameterNotIndependentError
 from ..util.temporary import TemporarilySet
 
 
@@ -123,8 +123,6 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):
 
 
 register_tensor_conversion(ZfitBaseVariable, overload_operators=True)
-
-
 
 
 # class ComposedVariable(metaclass=MetaBaseParameter):
@@ -719,3 +717,35 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
             value = Parameter(name=name, value=value)
 
     return value
+
+
+def set_values(params: Union[Parameter, Iterable[Parameter]],
+               values: Union[ztyping.NumericalScalarType,
+                             Iterable[ztyping.NumericalScalarType]]):
+    """Set the values (using a context manager or not) of multiple parameters.
+
+    Args:
+        params: Parameters to set the values
+        values: list-like object that supports indexing
+
+    Returns:
+
+    """
+    params = convert_to_container(params)
+    if len(params) > 1:
+        if not tf.is_tensor(values) or isinstance(values, np.ndarray):
+            values = convert_to_container(values)
+            if not len(params) == len(values):
+                raise ValueError(f"Incompatible length of parameters and values: {params}, {values}")
+    if not all(param.independent for param in params):
+        raise ParameterNotIndependentError(f'tryping to set parameters that are not independend '
+                                           f'{[param for param in params if not param.independent]}')
+
+    def setter(values):
+        for i, param in enumerate(params):
+            param.set_value(values[i])
+
+    def getter():
+        return [param.read_value() for param in params]
+
+    return TemporarilySet(values, setter=setter, getter=getter)

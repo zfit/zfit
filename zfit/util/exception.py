@@ -136,6 +136,11 @@ class WeightsNotImplementedError(Exception):
 class DataIsBatchedError(Exception):
     pass
 
+# Parameter errors
+class ParameterNotIndependentError(Exception):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):
@@ -144,8 +149,6 @@ class NotMinimizedError(Exception):
 
 # Runtime Errors
 
-class NoSessionSpecifiedError(Exception):
-    pass
 
 
 class IllegalInGraphModeError(Exception):
