@@ -17,20 +17,21 @@ import zfit
 from zfit import z
 from zfit.core.interfaces import ZfitSpace
 from .baseobject import BaseObject
+from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
 from .space import Space, convert_to_space
-from .coordinates import convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import Cachable, invalidates_cache
 from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
-    ObsIncompatibleError
+    ObsIncompatibleError, DataIsBatchedError
 from ..util.temporary import TemporarilySet
 
 
 class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
+    BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
                  name: str = None, weights=None, iterator_feed_dict: Dict = None,
@@ -49,8 +50,8 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         if dtype is None:
             dtype = ztypes.float
         super().__init__(name=name)
-        if iterator_feed_dict is None:
-            iterator_feed_dict = {}
+        # if iterator_feed_dict is None:
+        #     iterator_feed_dict = {}
         self._permutation_indices_data = None
         self._next_batch = None
         self._dtype = dtype
@@ -59,9 +60,10 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
         self._data_range = None
         self._set_space(obs)
-        self._original_obs = self.space.obs
+        self._original_space = self.space
         self._data_range = self.space  # TODO proper data cuts: currently set so that the cuts in all dims are applied
-        self.dataset = dataset
+        self.batch_size = self.BATCH_SIZE
+        self.dataset = dataset.batch(self.batch_size)
         self._name = name
         self.iterator_feed_dict = iterator_feed_dict
         self.iterator = None
@@ -74,11 +76,15 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             nevents = self._get_nevents()
         return nevents
 
-    # TODO: which naming?
+    # TODO: which naming? nevents or n_events
 
     @property
     def n_events(self):
         return self.nevents
+
+    @property
+    def has_weights(self):
+        return self._weights is not None
 
     @property
     def dtype(self):
@@ -99,8 +105,6 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @invalidates_cache
     def set_data_range(self, data_range):
-        # warnings.warn("Setting the data_range may currently has an unexpected behavior and does not affect the range."
-        #               "If you set it once in the beginning, it's ok. Otherwise, it's currently unsafe.")
         data_range = self._check_input_data_range(data_range=data_range)
 
         def setter(value):
@@ -113,7 +117,14 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
     @property
     def weights(self):
-        return self._weights
+        # TODO: refactor below more general, when to apply a cut?
+        if self.data_range.has_limits and self.has_weights:
+            raw_values = self._value_internal(obs=self.data_range.obs, filter=False)
+            is_inside = self.data_range.inside(raw_values)
+            weights = self._weights[is_inside]
+        else:
+            weights = self._weights
+        return weights
 
     @invalidates_cache
     def set_weights(self, weights: ztyping.WeightsInputType):
@@ -141,20 +152,17 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
     @property
     def space(self) -> "ZfitSpace":
         space = self._space
-        # if space.limits is None:
-        #     if self._data_range is not None:
-        #         space = self._data_range
         return space
 
-    @property
-    def iterator(self):
-        if self._iterator is None:
-            self.initialize()
-        return self._iterator
-
-    @iterator.setter
-    def iterator(self, value):
-        self._iterator = value
+    # @property
+    # def iterator(self):
+    #     if self._iterator is None:
+    #         self.initialize()
+    #     return self._iterator
+    #
+    # @iterator.setter
+    # def iterator(self, value):
+    #     self._iterator = value
 
     # constructors
     @classmethod
@@ -293,14 +301,6 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             dtype = ztypes.float
         tensor = tf.cast(array, dtype=dtype)
         return cls.from_tensor(obs=obs, tensor=tensor, weights=weights, name=name, dtype=dtype)
-        # np_placeholder = tf.compat.v1.placeholder(dtype=array.dtype, shape=array.shape)
-        # iterator_feed_dict = {np_placeholder: array}
-        # dataset = tf.data.Dataset.from_tensors(np_placeholder)
-        #
-        # dataset = dataset.batch(len(array))
-        # dataset = dataset.repeat()
-        # return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype,
-        #             iterator_feed_dict=iterator_feed_dict)
 
     @classmethod
     def from_tensor(cls, obs: ztyping.ObsTypeInput, tensor: tf.Tensor, weights: ztyping.WeightsInputType = None,
@@ -315,7 +315,17 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             zfit.core.Data:
         """
-        dataset = LightDataset.from_tensor(tensor=tensor)
+        # dataset = LightDataset.from_tensor(tensor=tensor)
+        if dtype is None:
+            dtype = ztypes.float
+        tensor = tf.cast(tensor, dtype=dtype)
+        if len(tensor.shape) == 0:
+            tensor = tf.expand_dims(tensor, -1)
+        if len(tensor.shape) == 1:
+            tensor = tf.expand_dims(tensor, -1)
+        # dataset = tf.data.Dataset.from_tensor_slices(tensor)
+        dataset = LightDataset.from_tensor(tensor)
+
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
@@ -335,19 +345,6 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         df = pd.DataFrame(data=values, columns=obs_str)
         return df
 
-    def initialize(self):
-        iterator = tf.compat.v1.data.make_initializable_iterator(self.dataset)
-        # TODO(Mayou36): TF2 convert correct
-        self.sess.run(iterator.initializer, self.iterator_feed_dict)
-        self.iterator = iterator
-
-    def get_iteration(self):
-        if isinstance(self.dataset, LightDataset):
-            return self.dataset.value()
-        if self._next_batch is None:
-            self._next_batch = self.iterator.get_next()
-        return self._next_batch
-
     def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list: bool = False):
         """Return the unstacked data: a list of tensors or a single Tensor.
 
@@ -358,10 +355,21 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             List(tf.Tensor)
         """
-        return z.unstack_x(self._value_internal(obs=obs))
+        return z.unstack_x(self.value(obs=obs))
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         return self._value_internal(obs=obs)
+        # TODO: proper iterations
+        # value_iter = self._value_internal(obs=obs)
+        # value = next(value_iter)
+        # try:
+        #     next(value_iter)
+        # except StopIteration:  # it's ok, we're not batched
+        #     return value
+        # else:
+        #     raise DataIsBatchedError(
+        #         f"Data {self} is batched, cannot return only the value. Iterate through it (WIP, make"
+        #         f"an issue on Github if this feature is needed now)")
 
     def numpy(self):
         return self.value().numpy()
@@ -369,30 +377,32 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
     def _cut_data(self, value, obs=None):
         if self.data_range.has_limits:
             data_range = self.data_range.with_obs(obs=obs)
-            value = data_range.filter(value, )
+            value = data_range.filter(value)
 
         return value
 
-    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
         if obs is not None:
             obs = convert_to_obs_str(obs)
-        raw_value = self._value()
-        value = self._cut_data(raw_value, obs=self._original_obs)
+        # for raw_value in self.dataset:
+        # value = self._check_convert_value(raw_value)
+        value = self.dataset.value()
+        if filter:
+            value = self._cut_data(value, obs=self._original_space.obs)
         value_sorted = self._sort_value(value=value, obs=obs)
         return value_sorted
 
-    def _value(self):
-        values = self.get_iteration()
+    def _check_convert_value(self, value):
         # TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?
-        if len(values.shape.as_list()) == 0:
-            values = tf.expand_dims(values, -1)
-        if len(values.shape.as_list()) == 1:
-            values = tf.expand_dims(values, -1)
+        if len(value.shape.as_list()) == 0:
+            value = tf.expand_dims(value, -1)
+        if len(value.shape.as_list()) == 1:
+            value = tf.expand_dims(value, -1)
 
         # cast data to right type
-        if not values.dtype == self.dtype:
-            values = tf.cast(values, dtype=self.dtype)
-        return values
+        if not value.dtype == self.dtype:
+            value = tf.cast(value, dtype=self.dtype)
+        return value
 
     def _sort_value(self, value, obs: Tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
@@ -407,7 +417,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             perm_indices = self.space.get_reorder_indices(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
-            value = z.unstack_x(value)
+            value = z.unstack_x(value, always_list=True)
             value = list(value[i] for i in perm_indices)
             value = z.stack_x(value)
 
@@ -680,6 +690,12 @@ class LightDataset:
         if not isinstance(tensor, (tf.Tensor, tf.Variable)):
             tensor = z.convert_to_tensor(tensor)
         self.tensor = tensor
+
+    def batch(self, batch_size):  # ad-hoc just empty
+        return self
+
+    def __iter__(self):
+        yield self.value()
 
     @classmethod
     def from_tensor(cls, tensor):

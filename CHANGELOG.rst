@@ -44,6 +44,8 @@ Bug fixes and small changes
  - fix wrong caching signature may lead to graph not being rebuild
  - add :py:func:`zfit.param.set_values` method that allows to set the values of multiple
    parameters with one command. Can, as the `set_value` method be used with a context manager.
+ - wrong size of weights when applying cuts in a dataset
+
 
 Experimental Features
 ---------------------

@@ -133,7 +133,7 @@ class FunctionWrapperRegistry:
     do_jit = True
 
     @classmethod
-    def check_wrapped_functions_registered(cls):
+    def all_wrapped_functions_registered(cls):
         return all((func.zfit_graph_cache_registered for func in cls.wrapped_functions))
 
     def __init__(self, **kwargs_user) -> None:
@@ -180,11 +180,8 @@ class FunctionWrapperRegistry:
             nonlocal wrapped_func
             function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
 
-            try:
+            if function_holder in cache:
                 func_holder_index = cache.index(function_holder)
-            except ValueError:  # not in cache
-                cache.append(function_holder)
-            else:
                 func_holder_cached = cache[func_holder_index]
                 if func_holder_cached.is_valid:
                     function_holder = func_holder_cached
@@ -192,6 +189,8 @@ class FunctionWrapperRegistry:
                     wrapped_func = self.tf_function(func)  # update nonlocal wrapped function
                     function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
                     cache[func_holder_index] = function_holder
+            else:
+                cache.append(function_holder)
             func_to_run = function_holder.wrapped_func
             result = call_correct_signature(func_to_run, args, kwargs)
             self.currently_traced.remove(func)

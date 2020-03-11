@@ -87,9 +87,9 @@ def test_extended_unbinned_nll():
     minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object)
     params = status.params
-    assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
-    assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
-    assert params[yield3]['value'] == pytest.approx(yield_true, rel=0.005)
+    assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.007)
+    assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.007)
+    assert params[yield3]['value'] == pytest.approx(yield_true, rel=0.007)
 
 
 def test_unbinned_simultaneous_nll():
