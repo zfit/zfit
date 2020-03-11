@@ -5,7 +5,7 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
 import itertools
@@ -17,13 +17,13 @@ import numpy as np
 
 from zfit import z
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
-from ..core.limits import no_norm_range, supports
+from ..core.space import no_norm_range, supports
 from ..core.basepdf import BasePDF
 from ..core.parameter import Parameter, convert_to_parameter, ComposedParameter
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesNotUnambiguousError,
+from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesAmbiguousError,
                               LimitsOverdefinedError,
                               ModelIncompatibleError, )
 from ..util.temporary import TemporarilySet
@@ -43,7 +43,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
     def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
-        if norm_range.limits in (False, None):
+        if not norm_range.has_limits:
             if self._get_component_norm_range() is None:
                 raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
                                    "`component_norm_range`.")
@@ -55,7 +55,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
     def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
-        if norm_range.limits is None:
+        if not norm_range.limits_are_set:
             norm_range_candidat = self._infer_norm_range_from_daughters()
             # if norm_range_candidat is False:
             #     raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
@@ -76,7 +76,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
             return False
 
     def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
-        if component_norm_range.limits is not None:
+        if component_norm_range.limits_are_set:
             with self._set_component_norm_range(norm_range=component_norm_range):
                 return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
         else:

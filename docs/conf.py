@@ -34,6 +34,10 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 # build the API documentation
 def setup(app):
+    """
+    Args:
+        app:
+    """
     cmd_autodoc = 'MAKE_DOCS_PATH="$(pwd -P)" &&'
     cmd_autodoc += "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
                    "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"

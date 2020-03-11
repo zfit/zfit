@@ -24,9 +24,9 @@ from ..util import ztyping
 from ..settings import ztypes
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitParameter, ZfitData
-from ..core.limits import no_norm_range, supports
+from ..core.space import no_norm_range, supports
 from ..core.parameter import convert_to_parameter
-from ..core.limits import Space
+from ..core.space import Space
 
 
 def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeInput):
@@ -42,7 +42,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     """
     if limits.n_limits > 1:
         raise NotImplementedError
-    (lower_bound,), (upper_bound,) = limits.limits
+    lower_bound, upper_bound = limits.rect_limits
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 
@@ -97,11 +97,12 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     # TODO: register integral
     @supports()
     def _analytic_integrate(self, limits, norm_range):
-        lower, upper = limits.limits
-        if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
-            return z.to_real(1.)  # tfp distributions are normalized to 1
-        lower = z.to_real(lower[0], dtype=self.dtype)
-        upper = z.to_real(upper[0], dtype=self.dtype)
+        lower, upper = limits._rect_limits_tf
+        tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
+        # if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
+        #     return z.to_real(1.)  # tfp distributions are normalized to 1
+        # lower = z.to_real(lower[0], dtype=self.dtype)
+        # upper = z.to_real(upper[0], dtype=self.dtype)
         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
         return integral[0]
 

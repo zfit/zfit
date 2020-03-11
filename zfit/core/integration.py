@@ -17,7 +17,7 @@ from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from .limits import convert_to_space, Space, supports
+from .space import convert_to_space, Space, supports
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import WorkInProgressError
@@ -57,7 +57,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
     Args:
         func (callable): The function to be integrated over
-        limits (:py:class:`~zfit.Space`): The limits of the integral
+        limits (:py:class:`~ZfitSpace`): The limits of the integral
         axes (tuple(int)): The row to integrate over. None means integration over all value
         x (numeric): If a partial integration is performed, this are the value where x will be evaluated.
         n_axes (int): the number of total dimensions (old?)
@@ -83,69 +83,73 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     if n_axes is not None and axes is None:
         axes = tuple(range(n_axes))
 
-    lower, upper = limits.limits
-    if np.infty in upper[0] or -np.infty in lower[0]:
-        raise ValueError("MC integration does (currently) not support unbound limits (np.infty) as given here:"
-                         "\nlower: {}, upper: {}".format(lower, upper))
+    integrals = []
+    for space in limits:
+        lower, upper = space._rect_limits_tf
+        tf.debugging.assert_all_finite((lower, upper),
+                                       "MC integration does (currently) not support unbound limits (np.infty) as given here:"
+                                       "\nlower: {}, upper: {}".format(lower, upper)
+                                       )
 
-    lower = z.convert_to_tensor(lower, dtype=dtype)
-    upper = z.convert_to_tensor(upper, dtype=dtype)
+        # lower = z.convert_to_tensor(lower, dtype=dtype)
+        # upper = z.convert_to_tensor(upper, dtype=dtype)
 
-    n_samples = draws_per_dim
+        n_samples = draws_per_dim
 
-    chunked_normalization = zfit.run.chunksize < n_samples
-    # chunked_normalization = True
-    if chunked_normalization and partial:
-        print("NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked.")
-    if chunked_normalization and not partial:
-        n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
-        chunksize = int(np.ceil(n_samples / n_chunks))
-        # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
-        avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
-                                    num_batches=n_chunks, batch_size=chunksize, space=limits)
+        chunked_normalization = zfit.run.chunksize < n_samples
+        # chunked_normalization = True
+        if chunked_normalization and partial:
+            print("NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked.")
+        if chunked_normalization and not partial:
+            n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
+            chunksize = int(np.ceil(n_samples / n_chunks))
+            # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
+            avg = normalization_chunked(func=func, n_axes=n_axes, dtype=dtype, x=x,
+                                        num_batches=n_chunks, batch_size=chunksize, space=space)
 
-    else:
-        # TODO: deal with n_obs properly?
-
-        samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
-                                    dtype=dtype)
-        # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
-        # samples_normed = tf.expand_dims(samples_normed, axis=0)
-        samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-        # samples = tf.transpose(samples, perm=[2, 0, 1])
-
-        if partial:  # TODO(Mayou36): shape of partial integral?
-            data_obs = x.obs
-            new_obs = []
-            x = x.value()
-            value_list = []
-            index_samples = 0
-            index_values = 0
-            if len(x.shape) == 1:
-                x = tf.expand_dims(x, axis=1)
-            for i in range(n_axes + x.shape[-1]):
-                if i in axes:
-                    new_obs.append(limits.obs[index_samples])
-                    value_list.append(samples[:, index_samples])
-                    index_samples += 1
-                else:
-                    new_obs.append(data_obs[index_values])
-                    value_list.append(tf.expand_dims(x[:, index_values], axis=1))
-                    index_values += 1
-            value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-            x = PartialIntegralSampleData(sample=value_list,
-                                          space=Space(obs=new_obs))
         else:
-            x = samples
+            # TODO: deal with n_obs properly?
 
-        # convert rnd samples with value to feedable vector
-        reduce_axis = 1 if partial else None
-        avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
-        # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
-        # TODO: importance sampling?
-        # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
-    integral = avg * tf.cast(z.convert_to_tensor(limits.area()), dtype=avg.dtype)
-    return integral
+            samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
+                                        dtype=dtype)
+            # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
+            # samples_normed = tf.expand_dims(samples_normed, axis=0)
+            samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+            # samples = tf.transpose(samples, perm=[2, 0, 1])
+
+            if partial:  # TODO(Mayou36): shape of partial integral?
+                data_obs = x.obs
+                new_obs = []
+                x = x.value()
+                value_list = []
+                index_samples = 0
+                index_values = 0
+                if len(x.shape) == 1:
+                    x = tf.expand_dims(x, axis=1)
+                for i in range(n_axes + x.shape[-1]):
+                    if i in axes:
+                        new_obs.append(space.obs[index_samples])
+                        value_list.append(samples[:, index_samples])
+                        index_samples += 1
+                    else:
+                        new_obs.append(data_obs[index_values])
+                        value_list.append(tf.expand_dims(x[:, index_values], axis=1))
+                        index_values += 1
+                value_list = [tf.cast(val, dtype=dtype) for val in value_list]
+                x = PartialIntegralSampleData(sample=value_list,
+                                              space=Space(obs=new_obs))
+            else:
+                x = samples
+
+            # convert rnd samples with value to feedable vector
+            reduce_axis = 1 if partial else None
+            avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
+            # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
+            # TODO: importance sampling?
+            # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
+        integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
+        integrals.append(integral)
+    return z.reduce_sum(integrals, axis=0)
     # return z.to_real(integral, dtype=dtype)
 
 
@@ -340,7 +344,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
     def space(self) -> "zfit.Space":
         return self._space
 
-    def sort_by_axes(self, axes, allow_superset: bool = False):
+    def sort_by_axes(self, axes, allow_superset: bool = True):
         axes = convert_to_container(axes)
         new_reorder_list = [self._reorder_indices_list[self.space.axes.index(ax)] for ax in axes]
         value = self.space.with_axes(axes=axes), new_reorder_list
@@ -352,7 +356,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
 
         return TemporarilySet(value=value, getter=getter, setter=setter)
 
-    def sort_by_obs(self, obs, allow_superset: bool = False):
+    def sort_by_obs(self, obs, allow_superset: bool = True):
         obs = convert_to_container(obs)
         new_reorder_list = [self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs]
 
@@ -391,8 +395,8 @@ class AnalyticIntegral:
         Returns:
             Tuple[int]:
         """
-        if not isinstance(limits, Space):
-            raise TypeError("`limits` have to be a `Space`")
+        if not isinstance(limits, ZfitSpace):
+            raise TypeError("`limits` have to be a `ZfitSpace`")
         # limits = convert_to_space(limits=limits)
 
         return self._get_max_axes_limits(limits, out_of_axes=limits.axes)[0]  # only axes
@@ -419,7 +423,7 @@ class AnalyticIntegral:
         """Return the integral over the `limits` with `axes` (or a subset of them).
 
         Args:
-            limits (:py:class:`~zfit.Space`):
+            limits (:py:class:`~zfit.ZfitSpace`):
             axes (Tuple[int]):
 
         Returns:
@@ -441,7 +445,7 @@ class AnalyticIntegral:
         Args:
             func (callable): The integral function. Takes 1 argument.
             axes (tuple): |dims_arg_descr|
-            limits (:py:class:`~zfit.Space`): |limits_arg_descr| `Limits` can be None if `func` works for any
+            limits (:py:class:`~zfit.ZfitSpace`): |limits_arg_descr| `Limits` can be None if `func` works for any
             possible limits
             priority (int): If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
@@ -457,15 +461,15 @@ class AnalyticIntegral:
         # else:
         #     limits = convert_to_space(axes=self.axes, limits=limits)
         # limits = limits.get_limits()
-        if not isinstance(limits, Space):
-            raise TypeError("Limits for registering an integral have to be `Space`")
+        if not isinstance(limits, ZfitSpace):
+            raise TypeError("Limits for registering an integral have to be `ZfitSpace`")
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
         func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
         limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
-        self._integrals[axes][limits.limits] = Integral(func=func, limits=limits,
-                                                        priority=priority)  # TODO improve with
+        self._integrals[axes][limits] = Integral(func=func, limits=limits,
+                                                 priority=priority)  # TODO improve with
         # database-like access
 
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
@@ -476,7 +480,7 @@ class AnalyticIntegral:
         Args:
             x (numeric): If a partial integration is made, x are the value to be evaluated for the partial
                 integrated function. If a full integration is performed, this should be `None`.
-            limits (:py:class:`~zfit.Space`): The limits to integrate
+            limits (:py:class:`~zfit.ZfitSpace`): The limits to integrate
             axes (Tuple[int]): The dimensions to integrate over
             norm_range (bool): |norm_range_arg_descr|
             params (dict): The parameters of the function
@@ -511,7 +515,7 @@ class AnalyticIntegral:
 
 
 class Integral:  # TODO analytic integral
-    def __init__(self, func: Callable, limits: "zfit.Space", priority: Union[int, float]):
+    def __init__(self, func: Callable, limits: "ZfitSpace", priority: Union[int, float]):
         """A lightweight holder for the integral function."""
         self.limits = limits
         self.integrate = func

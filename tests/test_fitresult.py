@@ -34,7 +34,7 @@ def create_loss():
     sampled_data = sum_pdf1.create_sampler(n=15000)
     sampled_data.resample()
 
-    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, fit_range=obs1)
+    loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
 
     return loss, (a_param, b_param, c_param)
 
@@ -80,6 +80,7 @@ def test_fmin(minimizer_class_and_kwargs):
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+@pytest.mark.flaky(2)  # odd graph problem...
 def test_covariance(minimizer_class_and_kwargs):
         
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)

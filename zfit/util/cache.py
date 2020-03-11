@@ -56,10 +56,11 @@ from abc import abstractmethod
 from typing import Iterable, Union, Mapping
 
 import tensorflow as tf
+import numpy as np
 
 from . import ztyping
 from .container import convert_to_container
-from ..core.interfaces import ZfitData, ZfitParameter
+from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 
 class ZfitCachable:
@@ -255,12 +256,15 @@ class FunctionCacheHolder(Cachable):
         combined_cleaned = []
         for obj in combined:
             if isinstance(obj, ZfitData):
-                obj = (hash(object), id(object))
+                obj = (id(obj),)
 
             elif isinstance(obj, ZfitParameter):
-                obj = (hash(object), id(object), obj.name)
-            elif isinstance(obj, (tf.Tensor, tf.Variable)):
+                obj = (ZfitParameter, obj.name)
+            elif isinstance(obj, ZfitSpace):
+                obj = (id(obj),)
+            elif tf.is_tensor(obj):
                 obj = self.IS_TENSOR
+            combined_cleaned.append(obj)
 
         return tuple(combined_cleaned)
 
@@ -271,11 +275,28 @@ class FunctionCacheHolder(Cachable):
         if not isinstance(other, FunctionCacheHolder):
             return False
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
-        import numpy as np
         try:
             return all(np.equal(self.immutable_representation, other.immutable_representation))
         except ValueError:  # broadcasting does not work
             return False
+        except TypeError:  # OperatorNotAllowedError inherits from this
+            return False
+        # TODO: activate the below? costly, but runs?
+        # except OperatorNotAllowedInGraphError:  # we have to assume they're not the same
+        #     return False
 
     def __repr__(self) -> str:
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"
+
+
+def clear_caches():
+    from zfit.z.zextension import FunctionWrapperRegistry, FunctionWrapperRegistry2
+    for func_registry in [FunctionWrapperRegistry, FunctionWrapperRegistry2]:
+        for registry in func_registry.registries:
+            registry.reset()
+        for method in FunctionWrapperRegistry.wrapped_functions:
+            method._created_variables = None
+            method._stateful_fn = None
+            method._stateless_fn = None
+            method._descriptor_cache.clear()
+    Cachable.old_graph_caching_methods.clear()

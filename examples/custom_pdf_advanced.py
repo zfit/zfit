@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import tensorflow as tf
 import zfit
@@ -48,8 +48,8 @@ def integral_full(x, limits, norm_range, params, model):
 # define the space over which it is defined. Here, we use the axes
 lower_full = ((-10, zfit.Space.ANY_LOWER),)
 upper_full = ((10, zfit.Space.ANY_UPPER),)
-integral_full_limits = zfit.Space.from_axes(axes=(0, 1),
-                                            limits=(lower_full, upper_full))
+integral_full_limits = zfit.Space(axes=(0, 1),
+                                  limits=(lower_full, upper_full))
 
 CustomPDF2D.register_analytic_integral(func=integral_full,
                                        limits=integral_full_limits)
@@ -75,8 +75,8 @@ def integral_axis1(x, limits, norm_range, params, model):
 # define the space over which it is defined. Here, we use the axes
 lower_axis1 = ((-5,),)
 upper_axis1 = ((zfit.Space.ANY_UPPER,),)
-integral_axis1_limits = zfit.Space.from_axes(axes=(1,),
-                                             limits=(lower_axis1, upper_axis1))
+integral_axis1_limits = zfit.Space(axes=(1,),
+                                   limits=(lower_axis1, upper_axis1))
 
 CustomPDF2D.register_analytic_integral(func=integral_axis1,
                                        limits=integral_axis1_limits)

@@ -23,18 +23,18 @@ limits1 = zfit.Space(obs=obs1, limits=(-0.3, 1.5))
 
 
 def create_gauss():
-    mu1 = Parameter("mu1a", mu1_true)
-    mu2 = Parameter("mu2a", mu2_true)
-    mu3 = Parameter("mu3a", mu3_true)
-    sigma1 = Parameter("sigma1a", sigma1_true)
-    sigma2 = Parameter("sigma2a", sigma2_true)
-    sigma3 = Parameter("sigma3a", sigma3_true)
-    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1a")
-    normal1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="normal1a")
-    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2a")
-    normal2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="normal2a")
-    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3a")
-    normal3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="normal3a")
+    mu1 = Parameter("mu1", mu1_true)
+    mu2 = Parameter("mu2", mu2_true)
+    mu3 = Parameter("mu3", mu3_true)
+    sigma1 = Parameter("sigma1", sigma1_true)
+    sigma2 = Parameter("sigma2", sigma2_true)
+    sigma3 = Parameter("sigma3", sigma3_true)
+    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1")
+    normal1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="normal1")
+    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2")
+    normal2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="normal2")
+    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3")
+    normal3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="normal3")
     return gauss1, gauss2, gauss3, normal1, normal2, normal3
 
 

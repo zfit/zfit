@@ -6,7 +6,22 @@ import tensorflow as tf
 import zfit
 from zfit import z, Space
 # noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.space import Limit
+from zfit.core.testing import setup_function, teardown_function
+
+setup_func_general = setup_function
+teardown_func_general = teardown_function
+
+
+def setup_function():
+    Limit._experimental_allow_vectors = True
+    setup_func_general()
+
+
+def teardown_function():
+    Limit._experimental_allow_vectors = False
+    teardown_func_general()
+
 
 ztf = z
 from zfit.core.sample import accept_reject_sample
@@ -38,7 +53,7 @@ def create_gauss1():
     return gauss_params1, mu, sigma
 
 
-class TestGaussian(zfit.pdf.BasePDF):
+class TmpGaussian(zfit.pdf.BasePDF):
 
     def __init__(self, obs, mu, sigma, params=None,
                  name: str = "BasePDF", **kwargs):
@@ -58,7 +73,7 @@ def create_test_gauss1():
     mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2., mu_true + 7.)
     sigma2 = zfit.Parameter("sigma2_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
 
-    test_gauss1 = TestGaussian(name="test_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
+    test_gauss1 = TmpGaussian(name="test_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
     return test_gauss1, mu2, sigma2
 
 
@@ -262,11 +277,15 @@ def test_sampling_fixed_eventlimits():
     lower1, upper1 = -10, -9
     lower2, upper2 = 0, 1
     lower3, upper3 = 10, 11
-    lower = tf.convert_to_tensor(value=tuple([lower1] * n_samples1 + [lower2] * n_samples2 + [lower3] * n_samples3))
-    upper = tf.convert_to_tensor(value=tuple([upper1] * n_samples1 + [upper2] * n_samples2 + [upper3] * n_samples3))
-    lower = ((lower,),)
-    upper = ((upper,),)
-    limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
+    lower = tf.convert_to_tensor(value=tuple([lower1] * n_samples1
+                                             + [lower2] * n_samples2
+                                             + [lower3] * n_samples3))[:, None]
+    upper = tf.convert_to_tensor(value=tuple([upper1] * n_samples1
+                                             + [upper2] * n_samples2
+                                             + [upper3] * n_samples3))[:, None]
+
+    # limits = zfit.core.sample.EventSpace(obs=obs1, limits=(lower, upper))
+    limits = zfit.Space(obs=obs1, limits=(lower, upper))
     gauss1 = GaussNoAnalyticSampling(mu=0.3, sigma=4, obs=zfit.Space(obs=obs1, limits=(-12, 12)))
 
     sample = gauss1.sample(n=n_samples_tot, limits=limits)

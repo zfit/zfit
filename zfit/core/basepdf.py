@@ -63,7 +63,7 @@ from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
 from .basemodel import BaseModel
 from .interfaces import ZfitPDF, ZfitParameter
-from .limits import Space
+from .space import Space
 from .parameter import Parameter, convert_to_parameter
 from ..settings import ztypes, run
 from ..util import ztyping
@@ -310,7 +310,6 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
-        # TODO TF2 converion, remove control deps
         norm_range = self._check_input_norm_range(norm_range, caller_name=name, none_is_error=True)
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
@@ -337,7 +336,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _fallback_pdf(self, x, norm_range):
         pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf")
-        if norm_range.limits is not False:  # identity check!
+        if norm_range.has_limits:  # needed?
             pdf /= self._hook_normalization(limits=norm_range)
         return pdf
 
@@ -395,7 +394,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return tf.stack(gradients)
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
-        if self.is_extended and norm_range.limits is not False:
+        if self.is_extended and not norm_range.limits_are_false:
             if log:
                 value += tf.math.log(self.get_yield())
             else:
@@ -514,7 +513,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         def partial_integrate_wrapped(self_simple, x):
             norm_range = self_simple._get_component_norm_range()
-            if norm_range not in (None, False) and norm_range.limits not in (None, False):
+            if norm_range not in (None, False) and norm_range.has_limits:
                 from zfit.models.functor import BaseFunctor
 
                 if isinstance(self, BaseFunctor):

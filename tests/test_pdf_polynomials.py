@@ -7,7 +7,7 @@ import tensorflow as tf
 
 import zfit
 # noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit import z
 
 # obs1_random = zfit.Space(obs="obs1", limits=(-1.05, 1.05))
 obs1_random = zfit.Space(obs="obs1", limits=(-1.5, 1.2))
@@ -43,7 +43,7 @@ def test_polynomials(poly_cfg, coeffs):
     polynomial2 = poly_pdf(obs=obs1, coeffs=coeffs)
 
     polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.)
-    lower, upper = obs1.limit1d
+    lower, upper = obs1.rect_limits
     x = np.random.uniform(size=(1000,), low=lower, high=upper)
     y_poly = polynomial.pdf(x)
     y_poly_u = polynomial.unnormalized_pdf(x)
@@ -80,6 +80,6 @@ def test_polynomials(poly_cfg, coeffs):
     assert pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
 
     lower, upper = obs1_random.limit1d
-    test_integral = np.average(polynomial.unnormalized_pdf(tf.random.uniform((n_sampling,), lower, upper))) \
-                    * obs1_random.area()
+    sample = tf.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
+    test_integral = np.average(polynomial.unnormalized_pdf(sample)) * obs1_random.rect_area()
     assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral

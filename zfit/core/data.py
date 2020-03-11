@@ -3,7 +3,6 @@
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
-from types import MethodType
 from typing import List, Tuple, Union, Dict, Mapping, Callable
 
 import numpy as np
@@ -20,8 +19,8 @@ from zfit.core.interfaces import ZfitSpace
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
-from .limits import Space, convert_to_space, convert_to_obs_str
-from .sample import EventSpace
+from .space import Space, convert_to_space
+from .coordinates import convert_to_obs_str
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import Cachable, invalidates_cache
@@ -74,6 +73,12 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         if nevents is None:
             nevents = self._get_nevents()
         return nevents
+
+    # TODO: which naming?
+
+    @property
+    def n_events(self):
+        return self.nevents
 
     @property
     def dtype(self):
@@ -362,23 +367,9 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         return self.value().numpy()
 
     def _cut_data(self, value, obs=None):
-        if self.data_range.limits is not None:
+        if self.data_range.has_limits:
             data_range = self.data_range.with_obs(obs=obs)
-
-            inside_limits = []
-            # value = tf.transpose(value)
-            for lower, upper in data_range.iter_limits():
-                if isinstance(data_range, EventSpace):  # TODO(Mayou36): remove EventSpace hack once more general
-                    upper = tf.cast(tf.transpose(upper), dtype=self.dtype)
-                    lower = tf.cast(tf.transpose(lower), dtype=self.dtype)
-
-                below_upper = tf.reduce_all(input_tensor=tf.less_equal(value, upper), axis=1)  # if all obs inside
-                above_lower = tf.reduce_all(input_tensor=tf.greater_equal(value, lower), axis=1)
-                inside_limits.append(tf.logical_and(above_lower, below_upper))
-            inside_any_limit = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
-
-            value = tf.boolean_mask(tensor=value, mask=inside_any_limit)
-            # value = tf.transpose(value)
+            value = data_range.filter(value, )
 
         return value
 
@@ -413,7 +404,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
-            perm_indices = self.space.get_axes(obs=obs)
+            perm_indices = self.space.get_reorder_indices(obs=obs)
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
             value = z.unstack_x(value)
@@ -425,13 +416,13 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
     @invalidates_cache
-    def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = False):
+    def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
         if not allow_superset:
             if not frozenset(axes) <= frozenset(self.axes):
                 raise ValueError("The observable(s) {} are not contained in the dataset. "
                                  "Only the following are: {}".format(frozenset(axes) - frozenset(self.axes),
                                                                      self.axes))
-        space = self.space.with_axes(axes=axes)
+        space = self.space.with_axes(axes=axes, allow_subset=True)
 
         def setter(value):
             self._space = value
@@ -449,7 +440,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                                  "Only the following are: {}".format(frozenset(obs) - frozenset(self.obs),
                                                                      self.obs))
 
-        space = self.space.with_obs(obs=obs)
+        space = self.space.with_obs(obs=obs, allow_subset=True, allow_superset=allow_superset)
 
         def setter(value):
             self._space = value
@@ -532,9 +523,8 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             obs = self.obs
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
-        self_space = self._space
-        if self_space is not None:
-            space = space.with_obs_axes(self_space.get_obs_axes(), ordered=True, allow_subset=True)
+        if self.space is not None:
+            space = space.with_coords(self.space, allow_subset=True)
         return space
 
     def _get_nevents(self):

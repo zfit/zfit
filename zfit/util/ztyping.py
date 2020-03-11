@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Callable
 
@@ -7,16 +7,34 @@ import tensorflow as tf
 # space
 from ordered_set import OrderedSet
 
-LowerTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-LowerTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
+LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]
+LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]
 
-UpperTypeInput = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], float]
-UpperTypeReturn = Union[Tuple[Tuple[float, ...]], None, bool]
+UpperTypeInput = LowerTypeInput
+UpperTypeReturn = LowerTypeReturn
+
+LowerRectTypeInput = Union[tf.Tensor, np.ndarray, Iterable[float], float]
+LowerRectTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]
+
+UpperRectTypeInput = LowerTypeInput
+UpperRectTypeReturn = LowerTypeReturn
+
+RectLowerReturnType = Union[np.ndarray, tf.Tensor, float]
+RectUpperReturnType = RectLowerReturnType
+RectLimitsReturnType = Tuple[RectLowerReturnType, RectUpperReturnType]
+RectLimitsTFReturnType = Tuple[tf.Tensor, tf.Tensor]
+RectLimitsNPReturnType = Tuple[np.ndarray, np.ndarray]
+
+RectLimitsInputType = Union[LowerRectTypeInput, UpperRectTypeInput]
 
 LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
 LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
+
+LimitsTypeInput = Union["zfit.core.interfaces.ZfitLimit", RectLimitsInputType, bool, None]
+LimitsFuncTypeInput = Union[LimitsTypeInput, Callable]
+LimitsTypeReturn = Union[Tuple[np.ndarray, np.ndarray], None, bool]
 
 _IterLimitsTypeReturn = Union[Tuple['zfit.Space'], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]
 
@@ -33,7 +51,8 @@ SpaceType = "zfit.Space"
 # Data
 XType = Union[float, tf.Tensor]
 XTypeInput = Union[np.ndarray, tf.Tensor, "zfit.Data"]
-XTypeReturn = Union[tf.Tensor, "zfit.Data"]
+XTypeReturnNoData = Union[np.ndarray, tf.Tensor]
+XTypeReturn = Union[XTypeReturnNoData, "zfit.Data"]
 NumericalTypeReturn = Union[tf.Tensor, np.array]
 
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]
@@ -84,3 +103,8 @@ try:
     from typing import OrderedDict
 except ImportError:  # < python 3.7
     OrderedDict = Dict
+
+LimitsDictAxes = Dict[Tuple[int], 'zfit.core.interfaces.ZfitLimit']
+LimitsDictObs = Dict[Tuple[str], 'zfit.core.interfaces.ZfitLimit']
+LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]
+LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]

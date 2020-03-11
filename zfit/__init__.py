@@ -20,7 +20,7 @@ __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
                "Albert Puig <apuignav@gmail.com",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
-__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
+__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
@@ -66,9 +66,9 @@ from . import z
 from . import z as ztf  # legacy
 from .settings import ztypes
 
-from . import constraint, pdf, minimize, loss, core, data, func, param
+from . import constraint, pdf, minimize, loss, core, data, func, param, dimension
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
-from .core.limits import Space, convert_to_space, supports
+from .core.space import Space, convert_to_space, supports
 from .core.data import Data
 
 from .settings import run
@@ -76,12 +76,16 @@ from .settings import run
 
 def _maybe_disable_jit():
     import os
-    z.zextension.FunctionWrapperRegistry.do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True)))
+    do_jit = bool(int(os.environ.get("ZFIT_DO_JIT", True))) and bool(
+        int(os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT", True)))
+    if not do_jit:
+        run.experimental_enable_eager(not do_jit)
+
+
+# experimental flags
+
 
 
 _maybe_disable_jit()
-
-# experimental flags
-experimental_loss_penalty_nan = False
 
 # EOF

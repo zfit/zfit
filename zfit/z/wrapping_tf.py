@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import functools
 from typing import Any
@@ -24,6 +24,7 @@ def exp(x, name=None):
 
 @functools.wraps(tf.convert_to_tensor)
 def convert_to_tensor(value, dtype=ztypes.float, name=None, preferred_dtype=ztypes.float):
+    value = tf.cast(value, dtype=dtype)
     return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
 
 

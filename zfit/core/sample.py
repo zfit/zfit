@@ -13,7 +13,7 @@ from zfit.util import ztyping
 from zfit.util.exception import WorkInProgressError
 from .. import settings
 from ..util.container import convert_to_container
-from .limits import Space
+from .space import Space
 from ..settings import ztypes, run
 
 
@@ -22,17 +22,28 @@ class UniformSampleAndWeights:
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
+        n_produced = tf.constant(0)
+        for i, space in enumerate(limits):
+            lower, upper = space.rect_limits  # TODO: remove new space
+            if i == len(limits) - 1:
+                n_partial_to_produce = n_to_produce - n_produced  # to prevent roundoff errors, shortcut for 1 space
+            else:
+                if isinstance(space, EventSpace):
+                    frac = 1.  # TODO(Mayou36): remove hack for Eventspace
+                else:
+                    tot_area = limits.rect_area()
+                    frac = (space.rect_area() / tot_area)[0]
+                n_partial_to_produce = tf.cast(
+                    ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 
-        for (lower, upper), area in zip(limits.iter_limits(as_tuple=True), limits.iter_areas(rel=True)):
-            n_partial_to_produce = tf.cast(
-                ztf.to_real(n_to_produce) * ztf.to_real(area), dtype=tf.int32)  # TODO(Mayou36): split right!
+            # lower = ztf.convert_to_tensor(lower, dtype=dtype)
+            # upper = ztf.convert_to_tensor(upper, dtype=dtype)
 
-            lower = ztf.convert_to_tensor(lower, dtype=dtype)
-            upper = ztf.convert_to_tensor(upper, dtype=dtype)
-
-            if isinstance(limits, EventSpace):
-                lower = tf.transpose(a=lower)
-                upper = tf.transpose(a=upper)
+            # if isinstance(space, EventSpace):
+            #     lower = tf.transpose(a=lower)
+            #     upper = tf.transpose(a=upper)
+            # if tf.get_static_value(lower.shape[0]) == 1:
+            #     sample_shape = lower.shape[1:]
 
             sample_drawn = tf.random.uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                              # + 1 dim for the function value
@@ -44,6 +55,7 @@ class UniformSampleAndWeights:
             #     return rnd_sample, thresholds_unscaled
             rnd_samples.append(rnd_sample)
             thresholds_unscaled_list.append(thresholds_unscaled)
+            n_produced += n_partial_to_produce
 
         rnd_sample = tf.concat(rnd_samples, axis=0)
         thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
@@ -55,11 +67,12 @@ class UniformSampleAndWeights:
 class EventSpace(Space):
     """EXPERIMENTAL SPACE CLASS!"""
 
-    def __init__(self, obs: ztyping.ObsTypeInput, limits: ztyping.LimitsTypeInput, factory=None,
+    def __init__(self, obs: ztyping.ObsTypeInput, limits: ztyping.LimitsTypeInput, factory=None, dtype=ztypes.float,
                  name: Optional[str] = "Space"):
         if limits is None:
             raise ValueError("Limits cannot be None for EventSpaces (currently)")
         self._limits_tensor = None
+        self.dtype = dtype
         self._factory = factory
         super().__init__(obs, limits, name)
 
@@ -160,7 +173,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
-    multiple_limits = limits.n_limits > 1
+    multiple_limits = len(limits) > 1
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int32)
@@ -178,10 +191,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
     initial_is_sampled = tf.constant("EMPTY")
-    if isinstance(limits, EventSpace) and not limits.is_generator:
+    if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            assert_n_matches_limits_op = tf.compat.v1.assert_equal(tf.shape(input=limits.lower[0][0])[0], n)
+            assert_n_matches_limits_op = tf.compat.v1.assert_equal(limits.n_events, n)
             tfdeps = [assert_n_matches_limits_op]
         else:
             tfdeps = []
@@ -231,10 +244,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             if multiple_limits:
                 raise WorkInProgressError("Multiple limits for fixed event space not yet implemented")
             is_not_sampled = tf.logical_not(is_sampled)
-            (lower,), (upper,) = limits.limits
-            lower = tuple(tf.boolean_mask(tensor=low, mask=is_not_sampled) for low in lower)
-            upper = tuple(tf.boolean_mask(tensor=up, mask=is_not_sampled) for up in upper)
-            new_limits = limits.with_limits(limits=((lower,), (upper,)))
+            lower, upper = limits._rect_limits_tf
+            lower = tf.boolean_mask(tensor=lower, mask=is_not_sampled)
+            upper = tf.boolean_mask(tensor=upper, mask=is_not_sampled)
+            new_limits = limits.with_limits(limits=(lower, upper))
             draw_indices = tf.where(is_not_sampled)
 
         rnd_sample, thresholds_unscaled, weights, weights_max, n_drawn = sample_and_weights(
@@ -347,6 +360,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             indices = tf.range(n_produced, n_produced_new)
 
+        # TODO: pack into tf.function to speedup considerable the eager sampling? Is bottleneck currently
         sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get

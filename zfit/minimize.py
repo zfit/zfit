@@ -1,6 +1,8 @@
 #  Copyright (c) 2020 zfit
-
-from tensorflow_core.python import deprecated
+try:
+    from tensorflow.python import deprecated
+except ImportError:  # TF < 2.2
+    from tensorflow_core.python import deprecated
 
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_tfp import BFGS

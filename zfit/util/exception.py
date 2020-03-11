@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
 
@@ -35,10 +35,11 @@ class BasePDFSubclassingError(SubclassingError):
     pass
 
 
-class IntentionNotUnambiguousError(Exception):
+class IntentionAmbiguousError(Exception):
     pass
 
-class UnderdefinedError(IntentionNotUnambiguousError):
+
+class UnderdefinedError(IntentionAmbiguousError):
     pass
 
 
@@ -46,7 +47,7 @@ class LimitsUnderdefinedError(UnderdefinedError):
     pass
 
 
-class OverdefinedError(IntentionNotUnambiguousError):
+class OverdefinedError(IntentionAmbiguousError):
     pass
 
 
@@ -54,7 +55,11 @@ class LimitsOverdefinedError(OverdefinedError):
     pass
 
 
-class AxesNotUnambiguousError(IntentionNotUnambiguousError):
+class CoordinatesUnderdefinedError(UnderdefinedError):
+    pass
+
+
+class AxesAmbiguousError(IntentionAmbiguousError):
     pass
 
 
@@ -95,11 +100,28 @@ class ShapeIncompatibleError(IncompatibleError):
 class ObsIncompatibleError(IncompatibleError):
     pass
 
+
+class AxesIncompatibleError(IncompatibleError):
+    pass
+
+
+class CoordinatesIncompatibleError(IncompatibleError):
+    pass
+
+
 class SpaceIncompatibleError(IncompatibleError):
     pass
 
 
 class LimitsIncompatibleError(IncompatibleError):
+    pass
+
+
+class NumberOfEventsIncompatibleError(ShapeIncompatibleError):
+    pass
+
+
+class InvalidLimitSubspaceError(Exception):
     pass
 
 
@@ -124,6 +146,14 @@ class NoSessionSpecifiedError(Exception):
     pass
 
 
+class IllegalInGraphModeError(Exception):
+    pass
+
+
+class CannotConvertToNumpyError(Exception):
+    pass
+
+
 # PDF class internal handling errors
 class NormRangeNotImplementedError(Exception):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
@@ -144,3 +174,13 @@ class WorkInProgressError(Exception):
 
 class BreakingAPIChangeError(Exception):
     pass
+
+
+class BehaviorUnderDiscussion(Exception):
+
+    def __init__(self, msg, *args: object) -> None:
+        default_msg = ("The behavior of the following is currently under discussion and ideas are well needed. "
+                       "Please open an issue at https://github.com/zfit/zfit/issues with your opinion about this.\n"
+                       "")
+        msg = default_msg + str(msg)
+        super().__init__(msg, *args)

@@ -79,7 +79,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
                                Tout=tf.float64)
     if gradients.shape == ():
         gradients = tf.reshape(gradients, shape=(1,))
-    gradients.set_shape((param_vals.shape[0],))
+    gradients.set_shape(param_vals.shape)
     for param, val in zip(params, original_vals):
         param.set_value(val)
     return gradients
@@ -189,7 +189,8 @@ def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"])
         Returns:
             tuple(`tf.Tensor`, `tf.Tensor`): value and gradient
     """
-    with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
+    with tf.GradientTape(persistent=True,  # needs to be persistent for a call from hessian.
+                         watch_accessed_variables=False) as tape:
         tape.watch(params)
         value = func()
     gradients = tape.gradient(value, sources=params)
@@ -245,10 +246,12 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
         else:
             loss, gradients = autodiff_value_gradients(func=func, params=params)
         if hessian != 'diag':
-            gradients_tf = z.convert_to_tensor(gradients)
+            gradients_tf = tf.stack(gradients)
     if hessian == 'diag':
-        computed_hessian = z.convert_to_tensor(
+        computed_hessian = tf.stack(
             [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])
     else:
-        computed_hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params))
+        computed_hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params,
+                                                             experimental_use_pfor=False  # causes TF bug
+                                                             ))
     return loss, gradients, computed_hessian

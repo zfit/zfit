@@ -8,7 +8,7 @@ import tensorflow as tf
 import zfit
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
-from zfit.core.limits import Space
+from zfit.core.space import Space
 from zfit.core.parameter import Parameter
 from zfit.models.dist_tfp import Gauss
 from zfit.models.functor import SumPDF, ProductPDF
@@ -181,7 +181,7 @@ def test_normalization_prod_gauss():
 def test_exp():
     lambda_true = 0.31
     lambda_ = zfit.Parameter('lambda1', lambda_true)
-    exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs='obs1')
+    exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs=zfit.Space('obs1', (-11, 11)))
     sample = exp1.sample(n=1000, limits=(-10, 10))
     sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))

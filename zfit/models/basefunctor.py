@@ -1,12 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
 from typing import List, Union, Tuple
 
 from ..core.basemodel import BaseModel
-from ..core.dimension import get_same_obs, combine_spaces
+from ..core.dimension import get_same_obs
+from ..core.space import combine_spaces
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel
-from ..core.limits import Space
+from ..core.space import Space
 from ..util.container import convert_to_container
 from ..util.exception import NormRangeNotSpecifiedError, LimitsIncompatibleError
 
@@ -31,7 +32,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
         # combine spaces and limits
         try:
-            models_space = combine_spaces([model.space for model in models])
+            models_space = combine_spaces(*[model.space for model in models])
         except LimitsIncompatibleError:  # then only add obs
             extracted_obs = _extract_common_obs(obs=tuple(model.obs for model in models))
             models_space = Space(obs=extracted_obs)
@@ -39,12 +40,15 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         if obs is None:
             obs = models_space
         else:
+            # TODO: why is this here?
+
             if isinstance(obs, Space):
                 obs_str = obs.obs
             else:
                 obs_str = convert_to_container(value=obs, container=tuple)
             # if not frozenset(obs_str) == frozenset(models_space.obs):  # not needed, example projection
             #     raise ValueError("The given obs do not coincide with the obs from the daughter models.")
+
         return obs
 
     def _get_dependents(self):
