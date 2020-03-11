@@ -254,10 +254,10 @@ def test_mc_partial_integration():
     assert len(integral2) == len(func4_2values[0])
     assert func4_3deps_0and2_integrated(x=func4_values,
                                         limits=limits4_2dim) == pytest.approx(integral,
-                                                                              rel=0.03)
+                                                                              rel=0.05)
 
     assert func4_3deps_1_integrated(x=func4_2values,
-                                    limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
+                                    limits=limits4_1dim) == pytest.approx(integral2, rel=0.05)
 
 
 def test_analytic_integral():

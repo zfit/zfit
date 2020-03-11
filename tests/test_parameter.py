@@ -164,3 +164,24 @@ def test_fixed_param():
 
 def test_convert_to_parameter():
     pass  # TODO(Mayou36): add tests
+
+
+def test_set_values():
+    init_values = [1, 2, 3]
+    second_values = [5, 6, 7]
+    params = [zfit.Parameter(f'param_{i}', val) for i, val in enumerate(init_values)]
+
+    with zfit.param.set_values(params, second_values):
+        for param, val in zip(params, second_values):
+            assert param.value().numpy() == val
+
+    for param, val in zip(params, init_values):
+        assert param.value().numpy() == val
+
+    zfit.param.set_values(params, second_values)
+    for param, val in zip(params, second_values):
+        assert param.value().numpy() == val
+
+    zfit.param.set_values(params, init_values)
+    for param, val in zip(params, init_values):
+        assert param.value().numpy() == val
