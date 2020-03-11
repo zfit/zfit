@@ -115,8 +115,8 @@ def test_sampling_fixed(gauss_factory):
     sampled_gauss2_full = gauss_full_sample2.numpy()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
-    assert mu_sampled == pytest.approx(mu_true - 1.0, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+    assert mu_sampled == pytest.approx(mu_true - 1.0, rel=0.08)
+    assert sigma_sampled == pytest.approx(sigma_true, rel=0.08)
 
     gauss_full_sample2.resample(param_values={sigma: sigma_true + 1.0})
     sampled_gauss2_full = gauss_full_sample2.numpy()

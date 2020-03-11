@@ -3,7 +3,7 @@ Special PDFs are provided in this module. One example is a normal function `Func
 simply define a non-normalizable function.
 """
 
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import functools
 from types import MethodType
@@ -28,7 +28,10 @@ class SimplePDF(BasePDF):
         self._unnormalized_prob_func = self._check_input_x_function(func)
 
     def _unnormalized_pdf(self, x):
-        return self._unnormalized_prob_func(self, x)
+        try:
+            return self._unnormalized_prob_func(x)
+        except TypeError:
+            return self._unnormalized_prob_func(self, x)
 
     def copy(self, **override_parameters) -> 'BasePDF':
         override_parameters.update(func=self._unnormalized_prob_func)

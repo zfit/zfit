@@ -79,7 +79,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
                                Tout=tf.float64)
     if gradients.shape == ():
         gradients = tf.reshape(gradients, shape=(1,))
-    gradients.set_shape((len(param_vals),))
+    gradients.set_shape((param_vals.shape[0],))
     for param, val in zip(params, original_vals):
         param.set_value(val)
     return gradients
@@ -126,11 +126,11 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
         hesse_func = numdifftools.Hessian(wrapped_func)
     computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
                                       Tout=tf.float64)
-
+    n_params = param_vals.shape[0]
     if hessian == 'diag':
-        computed_hessian.set_shape((len(param_vals),))
+        computed_hessian.set_shape((n_params,))
     else:
-        computed_hessian.set_shape((len(param_vals), len(param_vals)))
+        computed_hessian.set_shape((n_params, n_params))
 
     for param, val in zip(params, original_vals):
         param.set_value(val)
@@ -215,9 +215,9 @@ def autodiff_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian
     return automatic_value_gradients_hessian(func, params, hessian=hessian)[2]
 
 
-def automatic_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian=None) -> [tf.Tensor,
-                                                                                                            tf.Tensor,
-                                                                                                            tf.Tensor]:
+def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["zfit.Parameter"] = None,
+                                      value_grad_func=None,
+                                      hessian=None) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate using autodiff the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
@@ -232,10 +232,18 @@ def automatic_value_gradients_hessian(func: Callable, params: Iterable["zfit.Par
         Returns:
             tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
     """
+    if params is None:
+        raise ValueError("Parameters have to be specified, are currently None.")
+    if func is None and value_grad_func is None:
+        ValueError("Either `func` or `value_grad_func` has to be specified.")
+
     from .. import z
     with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
         tape.watch(params)
-        loss, gradients = autodiff_value_gradients(func=func, params=params)
+        if callable(value_grad_func):
+            loss, gradients = value_grad_func(params)
+        else:
+            loss, gradients = autodiff_value_gradients(func=func, params=params)
         if hessian != 'diag':
             gradients_tf = z.convert_to_tensor(gradients)
     if hessian == 'diag':

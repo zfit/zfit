@@ -11,19 +11,14 @@ from ..util import ztyping
 
 
 class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
-    # class ZfitObject:
-    # class ZfitObject:
     @property
-    # @abc.abstractmethod
     def name(self) -> str:
         """Name prepended to all ops created by this `model`."""
         raise NotImplementedError
 
-    # @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
-    # @abc.abstractmethod
     def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
         raise NotImplementedError
 

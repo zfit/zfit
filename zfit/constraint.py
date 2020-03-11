@@ -24,13 +24,3 @@ def nll_gaussian(params: ztyping.ParamTypeInput, observation: ztyping.NumericalS
     """
 
     return GaussianConstraint(params=params, observation=observation, uncertainty=uncertainty)
-
-# def nll_pdf(constraints: dict):
-#     if not constraints:
-#         return z.constant(0.)  # adding 0 to nll
-#     probs = []
-#     for param, dist in constraints.items():
-#         probs.append(dist.pdf(param))
-#     # probs = [dist.pdf(param) for param, dist in constraints.items()]
-#     constraints_neg_log_prob = -tf.reduce_sum(tf.log(probs))
-#     return constraints_neg_log_prob

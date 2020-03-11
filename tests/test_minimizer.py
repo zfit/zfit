@@ -100,13 +100,15 @@ def minimize_func(minimizer_class_and_kwargs):
         for param, errors2 in result.params.items():
             assert custom_errors[param]['myval'] == 42
 
-        # Test Hesse
+        # Test Hesse        
+
         for method in ['minuit_hesse', 'hesse_np']:
             b_hesses = result.hesse(params=b_param, method=method)
             assert tuple(b_hesses.keys()) == (b_param,)
             errors = result.hesse()
             b_hesse = b_hesses[b_param]
             assert abs(b_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+            assert abs(b_hesse['error']) == pytest.approx(abs(errors[b_param]['error']), rel=0.1)
             assert abs(errors[b_param]['error']) == pytest.approx(0.0965, abs=0.15)
             assert abs(errors[c_param]['error']) == pytest.approx(0.1, abs=0.15)
 
