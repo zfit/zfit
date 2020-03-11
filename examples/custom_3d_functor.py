@@ -1,12 +1,19 @@
 #  Copyright (c) 2019 zfit
 
+# Functors are an advanced feature of zfit. You can use them to define your own way to combine PDFs.
+# An example would be to create the sum of two PDFs. Of course this is already implemented in zfit
+# as the functor SumPDF([pdf1, pdf2]) or simply pdf1 + pdf2. Should this not be enough, then you
+# can define your own functor as demonstrated below.
+
 import zfit
 import numpy as np
 
 
 class CombinePolynomials(zfit.pdf.BaseFunctor):
-    """Example of a functor pdf that uses three adds three polynomials
-    DEMONSTRATION PURPOSE ONLY, DO **NOT** USE IN REAL CASE."""
+    """Example of a functor pdf that adds three polynomials.
+    
+    DEMONSTRATION PURPOSE ONLY, DO **NOT** USE IN REAL CASE.
+    """
 
     def __init__(self, angle1, angle2, angle3, name="3dPolynomial"):
         pdfs = [angle1, angle2, angle3]
