@@ -42,6 +42,7 @@ Bug fixes and small changes
  - fix bug in numerical calculation
  - fix bug in SimplePDF
  - fix wrong caching signature may lead to graph not being rebuild
+ - wrong size of weights when applying cuts in a dataset
 
 
 Experimental Features
