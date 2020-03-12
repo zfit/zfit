@@ -154,15 +154,6 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
         space = self._space
         return space
 
-    # @property
-    # def iterator(self):
-    #     if self._iterator is None:
-    #         self.initialize()
-    #     return self._iterator
-    #
-    # @iterator.setter
-    # def iterator(self, value):
-    #     self._iterator = value
 
     # constructors
     @classmethod
@@ -179,29 +170,9 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
                 yield data
 
         dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
-        dataset.prefetch(2)
+        dataset.prefetch(1)
         return Data(dataset=dataset, name=name)
 
-    # @classmethod
-    # def from_root(cls, path, treepath, branches=None, branches_alias=None, name=None, root_dir_options=None):
-    #     if branches_alias is None:
-    #         branches_alias = {}
-    #
-    #     branches = convert_to_container(branches)
-    #     if root_dir_options is None:
-    #         root_dir_options = {}
-    #
-    #     def uproot_generator():
-    #         root_tree = uproot.open(path, **root_dir_options)[treepath]
-    #         data = root_tree.arrays(branches)
-    #         data = np.array([data[branch] for branch in branches])
-    #         yield data
-    #
-    #     dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
-    #
-    #     dataset = dataset.repeat()
-    #     obs = [branches_alias.get(branch, branch) for branch in branches]
-    #     return Data(dataset=dataset, obs=obs, name=name)
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
