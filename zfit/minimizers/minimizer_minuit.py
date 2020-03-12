@@ -44,11 +44,6 @@ class Minuit(BaseMinimizer, Cachable):
         self._use_tfgrad = not use_minuit_grad
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
-        # loss_val = loss.value()
-        # gradients = loss.gradients(params)
-        # self._check_gradients(params=params, gradients=gradients)
-
-        # load_params = self._extract_load_method(params=params)  REMOVE
 
         # create options
         minimizer_options = self.minimizer_options.copy()
@@ -139,6 +134,7 @@ class Minuit(BaseMinimizer, Cachable):
                 info_values = {}
                 info_values['loss'] = loss_value
                 info_values['old_loss'] = current_loss
+                # but loss value not needed here
                 loss_value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
                                                         values=info_values)
             else:
@@ -192,7 +188,6 @@ class Minuit(BaseMinimizer, Cachable):
 
     def copy(self):
         tmp_minimizer = self._minuit_minimizer
-        self._minuit_minimizer = None
         new_minimizer = super().copy()
         new_minimizer._minuit_minimizer = tmp_minimizer
         return new_minimizer
