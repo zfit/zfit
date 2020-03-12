@@ -19,3 +19,18 @@ def warn_experimental_feature(func):
         return func(*args, **kwargs)
 
     return wrapped_func
+
+
+class AdvancedFeatureWarning(UserWarning):
+    pass
+
+
+def warn_advanced_feature(message, identifier):
+    from .. import settings
+
+    if settings.advanced_warnings[identifier] and settings.advanced_warnings.all:
+        warnings.warn(
+            "Either you're using an advanced feature OR causing unwanted behavior. "
+            "To turn this warning off, use `zfit.settings.advanced_warnings.{identifier}` = False`\n"
+            " or 'all' (dangerous) with `zfit.settings.advanced_warnings.all = False"
+            + message, category=AdvancedFeatureWarning, stacklevel=2)

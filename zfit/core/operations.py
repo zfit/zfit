@@ -7,8 +7,8 @@ import tensorflow as tf
 from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
 from .parameter import convert_to_parameter
 from ..util import ztyping
-from ..util.exception import (AlreadyExtendedPDFError, IntentionAmbiguousError,
-                              ModelIncompatibleError, )
+from ..util.exception import (IntentionAmbiguousError,
+                              ModelIncompatibleError, BreakingAPIChangeError)
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:
@@ -78,13 +78,19 @@ def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_f
 
 
 def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:
-    if not (isinstance(param, ZfitParameter) and isinstance(pdf, ZfitPDF)):
-        raise TypeError("`param` and `model` need to be `ZfitParameter` resp. `ZfitPDF` and not "
-                        "{}, {}".format(param, pdf))
-    if pdf.is_extended:
-        raise AlreadyExtendedPDFError()
-    new_pdf = pdf.create_extended(param, name_addition="_autoextended")
-    return new_pdf
+    # TODO(SUM): remove it completely?
+    raise BreakingAPIChangeError(
+        "Unfortunately, it is not allowed anymore to multiply pdfs with `frac * pdf + other_pdf` syntax"
+        "due to ambiguity. Use the `zfit.pdf.SumPDF([pdf, other_pdf], frac)` syntax instead.")
+
+    # if not (isinstance(param, ZfitParameter) and isinstance(pdf, ZfitPDF)):
+    #     raise TypeError("`param` and `model` need to be `ZfitParameter` resp. `ZfitPDF` and not "
+    #                     "{}, {}".format(param, pdf))
+    # if pdf.is_extended:
+    #     raise AlreadyExtendedPDFError()
+    #
+    # new_pdf = pdf.create_extended(param, name_addition="_autoextended")
+    # return new_pdf
 
 
 def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
@@ -168,6 +174,9 @@ def _convert_to_known(object1, object2):
 def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "SumPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
+    if not pdf1.is_extended and pdf2.is_extended:
+        raise BreakingAPIChangeError("Adding (non-extended) pdfs is not allowed anymore due to disambiguity."
+                                     "Use the `zfit.pdf.SumPDF([pdf, other_pdf], frac)` syntax instead.")
     from ..models.functor import SumPDF
 
     return SumPDF(pdfs=[pdf1, pdf2], name=name)
@@ -191,10 +200,8 @@ def add_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
 def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
         raise TypeError("`param1` and `param2` need to be `ZfitParameter` and not {}, {}".format(param1, param2))
-    raise NotImplementedError()  # use the default behavior of variables
-    # param = param1 + param2
-    # return ComposedParameter(name=param1.name + "_add_" + param2.name, tensor=param)
-    # return param
+    # use the default behavior of variables
+    return param1 + param2
 
 
 # Conversions

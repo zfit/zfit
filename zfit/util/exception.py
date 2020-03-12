@@ -11,6 +11,10 @@ class LogicalUndefinedOperationError(Exception):
     pass
 
 
+class OperationNotAllowedError(Exception):
+    pass
+
+
 class ExtendedPDFError(Exception):
     pass
 
@@ -133,8 +137,10 @@ class ModelIncompatibleError(IncompatibleError):
 class WeightsNotImplementedError(Exception):
     pass
 
+
 class DataIsBatchedError(Exception):
     pass
+
 
 # Parameter errors
 class ParameterNotIndependentError(Exception):
@@ -148,7 +154,6 @@ class NotMinimizedError(Exception):
 
 
 # Runtime Errors
-
 
 
 class IllegalInGraphModeError(Exception):
