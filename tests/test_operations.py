@@ -31,7 +31,7 @@ def test_not_allowed():
     pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
 
-    with pytest.raises(ModelIncompatibleError):
+    with pytest.raises(BreakingAPIChangeError):
         pdf1 + pdf2
 
     ext_pdf1 = pdf1.create_extended(param1)

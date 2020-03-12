@@ -174,7 +174,7 @@ def _convert_to_known(object1, object2):
 def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "SumPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
-    if not pdf1.is_extended and pdf2.is_extended:
+    if not (pdf1.is_extended and pdf2.is_extended):
         raise BreakingAPIChangeError("Adding (non-extended) pdfs is not allowed anymore due to disambiguity."
                                      "Use the `zfit.pdf.SumPDF([pdf, other_pdf], frac)` syntax instead.")
     from ..models.functor import SumPDF

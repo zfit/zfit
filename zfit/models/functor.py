@@ -171,6 +171,7 @@ class SumPDF(BaseFunctor):
                                   f" This will ignore the yields of the already extended pdfs and the result will"
                                   f" be a not extended SumPDF.", identifier='sum_extended_frac')
 
+
         # catch if args don't fit known case
 
         if fracs:
@@ -179,7 +180,7 @@ class SumPDF(BaseFunctor):
                                              f" the same length as pdf or one less.")
 
             # create fracs if one is missing
-            elif len(pdfs) == len(fracs) - 1:
+            elif len(fracs) == len(pdfs) - 1:
                 remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
                 remaining_frac = convert_to_parameter(remaining_frac_func,
                                                       dependents=fracs)
@@ -188,7 +189,7 @@ class SumPDF(BaseFunctor):
                                                      f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
 
                 param_fracs = fracs + [remaining_frac]
-                fracs = param_fracs
+                fracs_cleaned = param_fracs  # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
 
         # for the extended case, take the yields, normalize them, in case no fracs are given.
         if all_extended and not fracs:
@@ -202,18 +203,18 @@ class SumPDF(BaseFunctor):
             yield_fracs = [convert_to_parameter(lambda yield_=yield_: yield_ / sum_yields, dependents=yield_)
                            for yield_ in yields]
 
-            fracs = None
+            fracs_cleaned = None
             param_fracs = yield_fracs
 
         self.pdfs = pdfs
-        self.fracs = fracs  # they can be None!
+        self._fracs = tuple(fracs_cleaned) if fracs_cleaned else fracs_cleaned  # they can be None!
 
         params = OrderedDict()
         for i, frac in enumerate(param_fracs):
             params['frac_{}'.format(i)] = frac
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
-        if all_extended and fracs:
+        if all_extended and not fracs_cleaned:
             self._set_yield_inplace(sum_yields)
             # self.set_yield(sum_yields)  # TODO(SUM): why not the public method below?
 

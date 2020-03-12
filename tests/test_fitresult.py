@@ -29,7 +29,7 @@ def create_loss():
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
 
-    sum_pdf1 = 0.9 * gauss1 + exp1
+    sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.9)
 
     sampled_data = sum_pdf1.create_sampler(n=15000)
     sampled_data.resample()

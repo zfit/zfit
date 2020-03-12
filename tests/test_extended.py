@@ -23,10 +23,10 @@ def test_extract_extended_pdfs():
     yield1 = zfit.Parameter('yield123' + str(np.random.random()), 200.)
 
     # sum1 = 0.3 * gauss1 + gauss2
-    gauss3_ext = 45. * gauss3
-    gauss4_ext = 100. * gauss4
+    gauss3_ext = gauss3.create_extended(45)
+    gauss4_ext = gauss4.create_extended(100)
     sum2_ext_daughters = gauss3_ext + gauss4_ext
-    sum3 = 0.4 * gauss5 + gauss6
+    sum3 = zfit.pdf.SumPDF((gauss5, gauss6), 0.4)
     sum3_ext = sum3.create_extended(yield1)
 
     sum_all = zfit.pdf.SumPDF(pdfs=[sum2_ext_daughters, sum3_ext])
