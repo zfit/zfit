@@ -12,6 +12,7 @@ from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util.container import convert_to_container
 from ..util.ztyping import ParamsTypeOpt
+from .errors import compute_errors
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -71,7 +72,6 @@ class FitResult(ZfitResult):
     _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np}
     _default_error = "minuit_minos"
     _error_methods = {"minuit_minos": _minos_minuit}
-
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
