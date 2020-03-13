@@ -1,3 +1,4 @@
+# import numpy as np
 from scipy import optimize
 from ..param import set_values
 from ..util.container import convert_to_container
@@ -28,42 +29,83 @@ def set_params_to_result(params, result):
         param.set_value(result.params[param]["value"])
 
 
-def get_crossing_value(result, params, direction, sigma):
+def get_crossing_value(result, params, direction, sigma, rootf):
 
     all_params = list(result.params.keys())
     loss = result.loss
     up = loss.errordef
     fmin = result.fmin
-    minimizer = result.minimizer
+    minimizer = result.minimizer.copy()
+    minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
+    minimizer.tolerance = 0.01
+    rtol = 0.0005
+
+    set_params_to_result(all_params, result)
+
+    covariance = result.covariance(as_dict=True)
     sigma = sigma * direction
 
     to_return = {}
     for param in params:
-        set_params_to_result(all_params, result)
+        cache = {}
         param_error = result.hesse(params=param)[param]["error"]
         param_value = result.params[param]["value"]
+        param_value_sigma = param_value + sigma * param_error
 
-        if direction == -1:
-            lower_bound = param_value + 2 * param_error * sigma
-            upper_bound = param_value
+        for ap in all_params:
+            if ap == param:
+                continue
+
+            ap_value = result.params[ap]["value"]
+            ap_error = covariance[(ap, ap)] ** 0.5
+            ap_value += sigma ** 2 * covariance[(param, ap)] / ap_error
+            ap.set_value(ap_value)
+
+        def shifted_pll(v):
+            if v not in cache:
+                cache[v] = pll(minimizer, loss, param, v) - fmin - up
+
+            return cache[v]
+
+        exp_shifted_pll = shifted_pll(param_value_sigma)
+
+        def linear_interp(y):
+            return param_value + (y + up) * (param_value_sigma - param_value) / (exp_shifted_pll + up)
+        bound_interp = linear_interp(0)
+
+        if exp_shifted_pll > 0.:
+            lower_bound = param_value_sigma
+            upper_bound = bound_interp
         else:
-            lower_bound = param_value
-            upper_bound = param_value + 2 * param_error * sigma
+            lower_bound = bound_interp
+            upper_bound = param_value_sigma
 
-        root, results = optimize.toms748(f=lambda v: pll(minimizer, loss, param, v) - fmin - up,
-                                         a=lower_bound, b=upper_bound, full_output=True, k=2)
+        if direction == 1:
+            lower_bound, upper_bound = upper_bound, lower_bound
+
+        root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol, full_output=True)
+
         to_return[param] = root
 
     return to_return
 
 
-def compute_errors(result, params, sigma=1):
+# def _rootf(**kwargs):
+#     return optimize.toms748(k=2, **kwargs)
+
+def _rootf(**kwargs):
+    return optimize.brentq(**kwargs)
+
+
+def compute_errors(result, params, sigma=1, rootf=_rootf):
 
     params = convert_to_container(params)
 
-    upper_values = get_crossing_value(result=result, params=params, direction=1, sigma=sigma)
+    upper_values = get_crossing_value(result=result, params=params, direction=1, sigma=sigma,
+                                      rootf=rootf)
 
-    lower_values = get_crossing_value(result=result, params=params, direction=-1, sigma=sigma)
+    lower_values = get_crossing_value(result=result, params=params, direction=-1, sigma=sigma,
+                                      rootf=rootf)
 
     to_return = {}
     for param in params:
