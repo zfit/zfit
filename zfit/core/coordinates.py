@@ -414,10 +414,11 @@ def convert_to_obs_str(obs, container=tuple):
     """
     if obs is None:
         return obs
-    obs = convert_to_container(value=obs, container=container)
     if isinstance(obs, ZfitDimensional):
         new_obs = obs.obs
+
     else:
+        obs = convert_to_container(value=obs, container=container)
         new_obs = []
         for ob in obs:
 

@@ -41,10 +41,10 @@ def test_combine_range():
     gauss4 = zfit.pdf.Gauss(1., 4., obs=space4)
     gauss5 = zfit.pdf.Gauss(1., 4., obs=space4)
 
-    sum1 = zfit.pdf.SumPDF(pdfs=[gauss1, gauss4], fracs=0.4)
-    assert sum1.obs == (obs1, obs2)
-    assert sum1.norm_range == space5
+    product = zfit.pdf.ProductPDF(pdfs=[gauss1, gauss4])
+    assert product.obs == (obs1, obs2)
+    assert product.norm_range == space5
 
-    sum1 = zfit.pdf.SumPDF(pdfs=[gauss1, gauss4, gauss5], fracs=[0.4, 0.1])
-    assert sum1.obs == (obs1, obs2)
-    assert sum1.norm_range == space5
+    product = zfit.pdf.ProductPDF(pdfs=[gauss1, gauss4, gauss5])
+    assert product.obs == (obs1, obs2)
+    assert product.norm_range == space5

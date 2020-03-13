@@ -13,6 +13,7 @@ from typing import List, Optional
 import tensorflow as tf
 
 from ..core.basepdf import BasePDF
+from ..core.coordinates import convert_to_obs_str
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
 from ..core.parameter import convert_to_parameter
 from ..core.space import supports
@@ -23,6 +24,7 @@ from ..util.container import convert_to_container
 from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError)
 from ..util.temporary import TemporarilySet
 from ..util.warnings import warn_advanced_feature
+from ..z.random import counts_multinomial
 
 
 class BaseFunctor(FunctorMixin, BasePDF):
@@ -167,6 +169,7 @@ class SumPDF(BaseFunctor):
         if len(pdfs) < 2:
             raise ValueError(f"Cannot build a sum of a single pdf {pdfs}")
         common_obs = obs if obs is not None else pdfs[0].obs
+        common_obs = convert_to_obs_str(common_obs)
         if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
             raise ObsIncompatibleError("Currently, sums are only supported in the same observables")
 
@@ -225,7 +228,8 @@ class SumPDF(BaseFunctor):
             param_fracs = yield_fracs
 
         self.pdfs = pdfs
-        self._fracs = tuple(fracs_cleaned) if fracs_cleaned else fracs_cleaned  # they can be None!
+        self._fracs = param_fracs
+        self._original_fracs = fracs_cleaned
 
         params = OrderedDict()
         for i, frac in enumerate(param_fracs):
@@ -259,7 +263,7 @@ class SumPDF(BaseFunctor):
     def _pdf(self, x, norm_range):
         pdfs = self.pdfs
         fracs = self.params.values()
-        prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
+        prob = tf.math.accumulate_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
         return prob
 
     # TODO(SUM): remove the below? Not needed anymore?
@@ -332,6 +336,18 @@ class SumPDF(BaseFunctor):
                                                                           error=original_error))
         partial_integral = tf.math.accumulate_n(partial_integral)
         return partial_integral
+
+    @supports(multiple_limits=True)
+    def _sample(self, n, limits):
+        if (isinstance(n, str)):
+            n = [n] * len(self.pdfs)
+        else:
+            n = tf.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
+
+        samples = [pdf.sample(n=n_sample, limits=limits).value()
+                   for pdf, n_sample in zip(self.pdfs, n)]
+        sample = tf.concat(samples, axis=0)
+        return sample
 
     # TODO(SUM): maybe add improved sampling?
 

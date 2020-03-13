@@ -873,7 +873,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
         if not isinstance(n, str):
-            n = tf.convert_to_tensor(n) if not isinstance(n, str) else n
+            n = tf.convert_to_tensor(n)
             n = tf.cast(n, dtype=tf.int32)
 
         limits = self._check_input_limits(limits=limits)
