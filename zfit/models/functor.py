@@ -20,7 +20,7 @@ from ..models.basefunctor import FunctorMixin
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ModelIncompatibleError, )
+from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError)
 from ..util.temporary import TemporarilySet
 from ..util.warnings import warn_advanced_feature
 
@@ -136,6 +136,18 @@ class SumPDF(BaseFunctor):
         If *all* pdfs are extended, the fracs is optional and the (normalized) yields will be used as fracs.
         If fracs is given, this will be used as the fractions, regardless of whether the pdfs have a yield or not.
 
+        The parameters of the SumPDF are the fractions that are used to multiply the output of each daughter pdf.
+        They can be accessed with `pdf.params` and have names f"frac_{i}" with i starting from 0 and going to the number
+        of pdfs given.
+
+        To get the component outputs of this pdf, e.g. to plot it, use `pdf.params.values()` to iterate through the
+        fracs and `pdfs` to get the pdfs. For example
+
+        .. code-block:: python
+
+            for pdf, frac in zip(sumpdf.pdfs, sumpdf.params.values()):
+                frac_integral = pdf.integrate(...) * frac
+
         Args:
             pdfs (pdf): The pdfs to be added.
             fracs (iterable): coefficients for the linear combination of the pdfs. Optional if *all* pdfs are extended.
@@ -154,6 +166,9 @@ class SumPDF(BaseFunctor):
         self.pdfs = pdfs
         if len(pdfs) < 2:
             raise ValueError(f"Cannot build a sum of a single pdf {pdfs}")
+        common_obs = obs if obs is not None else pdfs[0].obs
+        if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
+            raise ObsIncompatibleError("Currently, sums are only supported in the same observables")
 
         # check if all extended
         are_extended = [pdf.is_extended for pdf in pdfs]
@@ -171,7 +186,6 @@ class SumPDF(BaseFunctor):
                                   f" This will ignore the yields of the already extended pdfs and the result will"
                                   f" be a not extended SumPDF.", identifier='sum_extended_frac')
 
-
         # catch if args don't fit known case
 
         if fracs:
@@ -188,8 +202,12 @@ class SumPDF(BaseFunctor):
                     tf.debugging.assert_non_negative(remaining_frac, tf.constant(0., dtype=ztypes.float),
                                                      f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
 
-                param_fracs = fracs + [remaining_frac]
-                fracs_cleaned = param_fracs  # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
+                # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
+                fracs_cleaned = fracs + [remaining_frac]
+
+            else:
+                fracs_cleaned = fracs
+            param_fracs = fracs_cleaned
 
         # for the extended case, take the yields, normalize them, in case no fracs are given.
         if all_extended and not fracs:
