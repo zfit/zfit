@@ -47,9 +47,9 @@ def create_loss(obs1):
 
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
-    (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.1)),
-     False),
-    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.1), False),
+    # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
+    #  False),
+    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05), False),
     (zfit.minimize.Minuit, {}, True),
     (BFGS, {}, True),  # check for one not dependent on Minuit
     # (zfit.minimize.Scipy, {}, False),
@@ -152,10 +152,10 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
                 assert tuple(b_hesses.keys()) == (sigma_param,)
                 errors = result.hesse()
                 b_hesse = b_hesses[sigma_param]
-                assert abs(b_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+                assert abs(b_hesse['error']) == pytest.approx(0.0965, abs=0.105)
                 assert abs(b_hesse['error']) == pytest.approx(abs(errors[sigma_param]['error']), rel=0.1)
-                assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965, abs=0.15)
-                assert abs(errors[lambda_param]['error']) == pytest.approx(0.1, abs=0.15)
+                assert abs(errors[sigma_param]['error']) == pytest.approx(0.010, abs=0.015)
+                assert abs(errors[lambda_param]['error']) == pytest.approx(0.007, abs=0.015)
 
     else:
         with pytest.raises(TypeError):

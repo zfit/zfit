@@ -415,7 +415,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         step_size = self._step_size
         if step_size is None:
             # auto-infer from limits
-            step_splits = 1e4
+            step_splits = 1e5
             if self.has_limits:
                 step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
             else:
