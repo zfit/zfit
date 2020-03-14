@@ -50,5 +50,6 @@ options = DotDict({'epsilon': 1e-8,
 
 advanced_warnings = DotDict({
     'sum_extended_frac': True,
+    'exp_shift': True,
     'all': True,
 })

@@ -8,13 +8,12 @@ import tensorflow as tf
 import zfit
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
-from zfit.core.space import Space
 from zfit.core.parameter import Parameter
-from zfit.models.dist_tfp import Gauss
-from zfit.models.functor import SumPDF, ProductPDF
-
+from zfit.core.space import Space
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.models.dist_tfp import Gauss
+from zfit.models.functor import SumPDF, ProductPDF
 
 low, high = -0.64, 5.9
 
@@ -81,7 +80,8 @@ def product_gauss_3d(name=""):
     gauss23 = Gauss(mu=mu2, sigma=sigma2, obs='b', name="gauss2a")
     gauss33 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
-    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=['a', 'b', 'c'])
+    obs = zfit.Space(['a', 'b', 'c'], limits=([-3, -4, -5], [6, 4, 5]))
+    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=obs)
     return prod_gauss_3d
 
     # prod_gauss_3d.update_integration_options(draws_per_dim=33)
@@ -94,7 +94,9 @@ def product_gauss_4d():
     gauss22 = Gauss(mu=mu2, sigma=sigma2, obs='a', name="gauss22a")
     gauss32 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss32a")
     gauss_dists2 = [gauss12, gauss22, gauss32]
-    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [product_gauss_3d("4d")], obs=['a', 'b', 'c', 'd'])
+    obs = zfit.Space(['a', 'b', 'c', 'd'], limits=([-3, -4, -5, -3.5], [6, 4, 5, 8]))
+
+    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [product_gauss_3d("4d")], obs=obs)
     return prod_gauss_4d
 
 
@@ -185,47 +187,48 @@ def test_exp():
     sample = exp1.sample(n=1000, limits=(-10, 10))
     sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))
-    probs1 = exp1.pdf(x=np.random.normal(size=842), norm_range=(-5, 5))
-    probs2 = exp1.pdf(x=np.linspace(5300, 5700, num=1100), norm_range=(5250, 5750))
-    probs1_np, probs2_np = [probs1.numpy(), probs2.numpy()]
-    assert not any(np.isnan(probs1_np))
+
+    exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs=zfit.Space('obs1', (5250, 5750)))
+    probs2 = exp1.pdf(x=np.linspace(5300, 5700, num=1100))
+    probs2_np = probs2.numpy()
     assert not any(np.isnan(probs2_np))
-    normalization_testing(exp1)
+    normalization_testing(exp1, limits=(5400, 5800))
 
 
-def normalization_testing(pdf):
-    with pdf.set_norm_range(Space(obs=obs1, limits=(low, high))):
-        samples = tf.cast(np.random.uniform(low=low, high=high, size=(40000, pdf.n_obs)),
+def normalization_testing(pdf, limits=None):
+    limits = (low, high) if limits is None else limits
+    space = Space(obs=obs1, limits=limits)
+    with pdf.set_norm_range(space):
+        samples = tf.cast(np.random.uniform(low=space.lower, high=space.upper, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
         samples = zfit.Data.from_tensor(obs=pdf.obs, tensor=samples)
         probs = pdf.pdf(samples)
         result = probs.numpy()
-        result = np.average(result) * (high - low)
+        result = np.average(result) * space.rect_area().numpy()
         assert pytest.approx(result, rel=0.07) == 1
 
 
 def test_extended_gauss():
-    with tf.compat.v1.name_scope("gauss_params2"):
-        mu1 = Parameter("mu11", 1.)
-        mu2 = Parameter("mu21", 12.)
-        mu3 = Parameter("mu31", 3.)
-        sigma1 = Parameter("sigma11", 1.)
-        sigma2 = Parameter("sigma21", 12.)
-        sigma3 = Parameter("sigma31", 33.)
-        yield1 = Parameter("yield11", 150.)
-        yield2 = Parameter("yield21", 550.)
-        yield3 = Parameter("yield31", 2500.)
+    mu1 = Parameter("mu11", 1.)
+    mu2 = Parameter("mu21", 12.)
+    mu3 = Parameter("mu31", 3.)
+    sigma1 = Parameter("sigma11", 1.)
+    sigma2 = Parameter("sigma21", 12.)
+    sigma3 = Parameter("sigma31", 33.)
+    yield1 = Parameter("yield11", 150.)
+    yield2 = Parameter("yield21", 550.)
+    yield3 = Parameter("yield31", 2500.)
 
-        gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss11")
-        gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss21")
-        gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss31")
-        gauss1 = gauss1.create_extended(yield1)
-        gauss2 = gauss2.create_extended(yield2)
-        gauss3 = gauss3.create_extended(yield3)
+    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss11")
+    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss21")
+    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss31")
+    gauss1 = gauss1.create_extended(yield1)
+    gauss2 = gauss2.create_extended(yield2)
+    gauss3 = gauss3.create_extended(yield3)
 
-        gauss_dists = [gauss1, gauss2, gauss3]
+    gauss_dists = [gauss1, gauss2, gauss3]
 
-        sum_gauss = SumPDF(pdfs=gauss_dists, obs=obs1)
+    sum_gauss = SumPDF(pdfs=gauss_dists, obs=obs1)
 
     normalization_testing(pdf=sum_gauss)
 

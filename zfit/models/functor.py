@@ -58,8 +58,9 @@ class BaseFunctor(FunctorMixin, BasePDF):
             norm_range = extract_daughter_input_obs(obs=norm_range,
                                                     spaces=[model.space for model in self.models])
         if not norm_range.limits_are_set:
-            raise NormRangeUnderdefinedError("Daughter pdfs do not agree on a `norm_range` and/or no `norm_range`"
-                                             "has been explicitly set.")
+            raise NormRangeUnderdefinedError(
+                f"Daughter pdfs {self.pdfs} do not agree on a `norm_range` and/or no `norm_range`"
+                "has been explicitly set.")
 
         self.set_norm_range(norm_range)
 
@@ -310,20 +311,19 @@ class SumPDF(BaseFunctor):
         return sample
 
 
-class ProductPDF(BaseFunctor):  # TODO: unfinished
+class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disasembling components subsets of obs
     def __init__(self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
 
-        norm_range = self._get_component_norm_range()
-        return tf.math.reduce_prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
+        return tf.math.reduce_prod([pdf.unnormalized_pdf(x)
                                     for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_obs):
 
-            probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in self.pdfs]
+            probs = [pdf.pdf(x=x) for pdf in self.pdfs]
             return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
             raise NotImplementedError

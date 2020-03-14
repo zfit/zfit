@@ -43,8 +43,8 @@ def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitS
             obs = obs
         else:
             obs = Space(obs=obs)
-        if not frozenset(obs.obs) == frozenset(models_space.obs):  # not needed, example projection
-            raise SpaceIncompatibleError("The given obs do not coincide with the obs from the daughter models.")
+        # if not frozenset(obs.obs) == frozenset(models_space.obs):  # not needed, example projection
+        #     raise SpaceIncompatibleError("The given obs do not coincide with the obs from the daughter models.")
         if not obs.obs == models_space.obs and not obs.limits_are_set:
             obs = models_space.with_obs(obs.obs)
 

@@ -64,7 +64,7 @@ def test_frac_behavior(yields):
         if isinstance(fracs, list) and len(fracs) == 3:
             assert sumpdf2.params['frac_2'] == frac3
 
-
+@pytest.mark.flaky(2)  # ks test
 def test_sampling():
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
 

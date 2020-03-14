@@ -272,14 +272,13 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             :py:class:`tf.Tensor`: 1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
         """
-        # if component_norm_range is None:
-        #     component_norm_range = self._get
+        if component_norm_range is not None:
+            raise BreakingAPIChangeError("component norm range should not be given anymore. If you want to set the norm"
+                                         " range for the components, use `set_norm_range(..., propagate=True)")
         with self._convert_sort_x(x) as x:
-            component_norm_range = self._check_input_norm_range(component_norm_range, caller_name=name,
-                                                                none_is_error=False)
-            return self._single_hook_unnormalized_pdf(x, component_norm_range, name)
+            return self._single_hook_unnormalized_pdf(x, name)
 
-    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
+    def _single_hook_unnormalized_pdf(self, x, name):
         return self._call_unnormalized_pdf(x=x, name=name)
 
     def _call_unnormalized_pdf(self, x, name):
@@ -509,12 +508,7 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
-            norm_range = self_simple._get_component_norm_range()
-            if norm_range not in (None, False) and norm_range.has_limits:
-                from zfit.models.functor import BaseFunctor
 
-                if isinstance(self, BaseFunctor):
-                    self._set_component_norm_range(norm_range)
             return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs

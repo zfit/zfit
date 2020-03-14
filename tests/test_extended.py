@@ -8,7 +8,7 @@ from zfit.core.sample import extract_extended_pdfs, extended_sampling
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
-obs1 = 'obs1'
+obs1 = zfit.Space('obs1', limits=(-3, 4))
 
 
 @pytest.mark.flaky(reruns=3)  # poissonian sampling
