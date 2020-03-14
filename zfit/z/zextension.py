@@ -144,7 +144,9 @@ class FunctionWrapperRegistry:
         """
         super().__init__()
         self._initial_user_kwargs = kwargs_user
+
         self.registries.append(self)
+        self.function_cache = defaultdict(list)
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
 
@@ -154,27 +156,20 @@ class FunctionWrapperRegistry:
         kwargs.update(kwargs_user)
 
         self.tf_function = tf.function(**kwargs)
-        self.function_cache = defaultdict(list)
+        for value in self.function_cache.values():
+            value.clear()
+        self.function_cache.clear()
+        # self.function_cache = defaultdict(list)
 
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
         cache = self.function_cache[func]
         from zfit.util.cache import FunctionCacheHolder
 
-        def call_correct_signature(func, args, kwargs):
-            if args == [] and kwargs != {}:
-                return func(**kwargs)
-            elif args != [] and kwargs == {}:
-                return func(*args)
-            elif args == [] and kwargs == {}:
-                return func()
-            elif args != [] and kwargs != {}:
-                return func(*args, **kwargs)
-
         def concrete_func(*args, **kwargs):
 
             if not self.do_jit or func in self.currently_traced:
-                return call_correct_signature(func, args, kwargs)
+                return func(*args, **kwargs)
 
             self.currently_traced.add(func)
             nonlocal wrapped_func
@@ -192,7 +187,7 @@ class FunctionWrapperRegistry:
             else:
                 cache.append(function_holder)
             func_to_run = function_holder.wrapped_func
-            result = call_correct_signature(func_to_run, args, kwargs)
+            result = func_to_run(*args, **kwargs)
             self.currently_traced.remove(func)
             return result
 

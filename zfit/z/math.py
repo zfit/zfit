@@ -189,7 +189,7 @@ def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"])
         Returns:
             tuple(`tf.Tensor`, `tf.Tensor`): value and gradient
     """
-    with tf.GradientTape(persistent=True,  # needs to be persistent for a call from hessian.
+    with tf.GradientTape(persistent=False,  # needs to be persistent for a call from hessian.
                          watch_accessed_variables=False) as tape:
         tape.watch(params)
         value = func()
@@ -239,7 +239,8 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
         ValueError("Either `func` or `value_grad_func` has to be specified.")
 
     from .. import z
-    with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
+    persistant = hessian == 'diag' or tf.executing_eagerly()  # currently needed, TODO: can we better parallelize that?
+    with tf.GradientTape(persistent=persistant, watch_accessed_variables=False) as tape:
         tape.watch(params)
         if callable(value_grad_func):
             loss, gradients = value_grad_func(params)
@@ -249,9 +250,13 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
             gradients_tf = tf.stack(gradients)
     if hessian == 'diag':
         computed_hessian = tf.stack(
-            [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])
+            # tape.gradient(gradients_tf, sources=params)
+            # computed_hessian = tf.stack(tf.vectorized_map(lambda grad: tape.gradient(grad, sources=params), gradients))
+            [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)]
+        )
     else:
         computed_hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params,
-                                                             experimental_use_pfor=False  # causes TF bug
+                                                             experimental_use_pfor=False  # causes TF bug? Slow..
                                                              ))
+    del tape
     return loss, gradients, computed_hessian
