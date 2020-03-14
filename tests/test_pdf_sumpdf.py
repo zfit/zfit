@@ -1,5 +1,7 @@
 #  Copyright (c) 2020 zfit
+import numpy as np
 import pytest
+import scipy.stats
 
 import zfit
 # noinspection PyUnresolvedReferences
@@ -61,3 +63,72 @@ def test_frac_behavior(yields):
 
         if isinstance(fracs, list) and len(fracs) == 3:
             assert sumpdf2.params['frac_2'] == frac3
+
+
+def test_sampling():
+    class SimpleSampleSumPDF(zfit.pdf.SumPDF):
+
+        @zfit.supports()
+        def _sample(self, n, limits):
+            raise NotImplementedError  # fallback to the default sampling
+
+    sample_size = 100000
+    tolerance = 0.1
+    mu1, mu2 = 0, 10
+    frac = 0.9
+    true_mu = mu1 * frac + mu2 * (1 - frac)
+
+    obs = zfit.Space('obs1', (mu1 - 5, mu2 + 5))
+    gauss1 = zfit.pdf.Gauss(obs=obs, mu=mu1, sigma=1)
+    gauss2 = zfit.pdf.Gauss(obs=obs, mu=mu2, sigma=1)
+
+    sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
+    sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
+
+    sample = sumpdf.sample(sample_size).value().numpy()[:, 0]
+    sample_true = sumpdf_true.sample(sample_size).value().numpy()[:, 0]
+
+    assert true_mu == pytest.approx(np.mean(sample_true),
+                                    abs=tolerance)  # if this is not True, it's a problem, the test is flawed
+    assert true_mu == pytest.approx(np.mean(sample), abs=tolerance)
+    assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tolerance)
+
+    assert scipy.stats.ks_2samp(sample_true, sample).pvalue > 0.05
+
+
+@pytest.mark.flaky(2)  # mc integration
+def test_integrate():
+    class SimpleSampleSumPDF(zfit.pdf.SumPDF):
+
+        @zfit.supports()
+        def _integrate(self, limits, norm_range):
+            raise NotImplementedError  # fallback to the default sampling
+
+        @zfit.supports()
+        def _analytic_integrate(self, limits, norm_range):
+            raise NotImplementedError
+
+        @zfit.supports()
+        def _numeric_integrate(self, limits, norm_range):
+            raise NotImplementedError
+
+    mu1, mu2 = 0, 1.7
+    frac = 0.7
+
+    obs = zfit.Space('obs1', (mu1 - 0.5, mu2 + 1))
+    limits = zfit.Space('obs1', (mu1 - 0.3, mu2 + 0.1))
+    gauss1 = zfit.pdf.Gauss(obs=obs, mu=mu1, sigma=0.93)
+    gauss2 = zfit.pdf.Gauss(obs=obs, mu=mu2, sigma=1.2)
+
+    sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
+    sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
+
+    integral = sumpdf.integrate(limits=limits, norm_range=False).numpy()
+    integral_true = sumpdf_true.integrate(limits=limits, norm_range=False).numpy()
+
+    assert integral_true == pytest.approx(integral, rel=0.03)
+    assert integral_true < 0.85
+
+    analytic_integral = sumpdf.analytic_integrate(limits=limits, norm_range=False).numpy()
+
+    assert integral_true == pytest.approx(analytic_integral, rel=0.03)

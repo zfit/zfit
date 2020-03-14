@@ -1,55 +1,75 @@
 #  Copyright (c) 2020 zfit
 
 import abc
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Iterable
 
 from ..core.basemodel import BaseModel
 from ..core.dimension import get_same_obs
-from ..core.space import combine_spaces
-from ..core.interfaces import ZfitFunctorMixin, ZfitModel
+from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
 from ..core.space import Space
+from ..core.space import combine_spaces
+from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import NormRangeNotSpecifiedError, LimitsIncompatibleError
+from ..util.exception import NormRangeNotSpecifiedError, LimitsIncompatibleError, SpaceIncompatibleError
+
+
+def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:
+    """Extract the common space from `spaces` by combining them, test against obs.
+
+    The `obs` are assumed to be the obs given to a functor while the `spaces` are the spaces of the daughters.
+    First, the combined space from the daughters is extracted. If no `obs` are given, this is returned.
+    If `obs` are given, it is checked whether they agree. If they agree, and no limit is set on `obs` (i.e. they
+    are pure strings), the inferred limits are used, sorted by obs. Otherwise, obs is directly used.
+
+    Args:
+        obs:
+        spaces:
+
+    Returns:
+
+    """
+    spaces = convert_to_container(spaces)
+    # combine spaces and limits
+    try:
+        models_space = combine_spaces(*spaces)
+    except LimitsIncompatibleError:  # then only add obs
+        extracted_obs = _extract_common_obs(obs=tuple(space.obs for space in spaces))
+        models_space = Space(obs=extracted_obs)
+
+    if obs is None:
+        obs = models_space
+    else:
+        if isinstance(obs, Space):
+            obs = obs
+        else:
+            obs = Space(obs=obs)
+        if not frozenset(obs.obs) == frozenset(models_space.obs):  # not needed, example projection
+            raise SpaceIncompatibleError("The given obs do not coincide with the obs from the daughter models.")
+        if not obs.obs == models_space.obs and not obs.limits_are_set:
+            obs = models_space.with_obs(obs.obs)
+
+    return obs
 
 
 class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     def __init__(self, models, obs, **kwargs):
         models = convert_to_container(models, container=list)
-        obs = self._check_extract_input_obs(obs=obs, models=models)
+        obs = extract_daughter_input_obs(obs=obs, spaces=[model.space for model in models])
 
         super().__init__(obs=obs, **kwargs)
+        # TODO: needed? remove below
         self._model_obs = tuple(model.obs for model in models)
 
-    def _infer_obs_from_daughters(self):
-        obs = set(self._model_obs)
-        if len(obs) == 1:
-            return obs.pop()
-        else:
-            return False
-
-    def _check_extract_input_obs(self, obs, models):
-
-        # combine spaces and limits
-        try:
-            models_space = combine_spaces(*[model.space for model in models])
-        except LimitsIncompatibleError:  # then only add obs
-            extracted_obs = _extract_common_obs(obs=tuple(model.obs for model in models))
-            models_space = Space(obs=extracted_obs)
-
-        if obs is None:
-            obs = models_space
-        else:
-            # TODO: why is this here?
-
-            if isinstance(obs, Space):
-                obs_str = obs.obs
-            else:
-                obs_str = convert_to_container(value=obs, container=tuple)
-            # if not frozenset(obs_str) == frozenset(models_space.obs):  # not needed, example projection
-            #     raise ValueError("The given obs do not coincide with the obs from the daughter models.")
-
-        return obs
+    # def _infer_space_from_daughters(self):
+    #     space = set(model.space for model in self.models)
+    #     obs = set(norm_range.obs for norm_range in space)
+    #     if len(space) == 1:
+    #         return space.pop()
+    #     elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
+    #         return None
+    #     else:
+    #         return False
 
     def _get_dependents(self):
         dependents = super()._get_dependents()  # get the own parameter dependents

@@ -51,6 +51,10 @@ class LimitsUnderdefinedError(UnderdefinedError):
     pass
 
 
+class NormRangeUnderdefinedError(UnderdefinedError):
+    pass
+
+
 class OverdefinedError(IntentionAmbiguousError):
     pass
 

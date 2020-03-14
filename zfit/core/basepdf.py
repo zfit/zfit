@@ -69,7 +69,7 @@ from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (AlreadyExtendedPDFError,
-                              NotExtendedPDFError, )
+                              NotExtendedPDFError, BreakingAPIChangeError)
 from ..util.temporary import TemporarilySet
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
@@ -418,9 +418,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @invalidates_cache
     def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
-        """Make the model extended by (temporarily) setting a yield.
+        """Make the model extended by setting a yield.
 
-        This alters the behavior of `model` and similar and `integrate` and similar. If there is a
+        This does not alter the general behavior of the PDF. If there is a
         `norm_range` given, the output of the above functions does not represent a normalized
         probability density function anymore but corresponds to a number probability.
 
@@ -428,14 +428,8 @@ class BasePDF(ZfitPDF, BaseModel):
             value ():
         """
 
-        # TODO(Mayou36): check input for yield?
-        def setter(value):
-            self._set_yield(value=value)
+        self._set_yield(value=value)
 
-        def getter():
-            return self.get_yield()
-
-        return TemporarilySet(value=value, setter=setter, getter=getter)
 
     def create_extended(self, yield_: ztyping.ParamTypeInput, name_addition="_extended") -> "ZfitPDF":
         """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
@@ -459,9 +453,12 @@ class BasePDF(ZfitPDF, BaseModel):
         new_pdf._set_yield_inplace(value=yield_)
         return new_pdf
 
-    def _set_yield(self, value: Union[Parameter, None]):
-        if value is not None:
-            value = convert_to_parameter(value)
+    def _set_yield(self, value: ztyping.ParamTypeInput):
+        if value is None:
+            raise BreakingAPIChangeError("Cannot unset a yield (anymore).")
+        if self.is_extended:
+            raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
+        value = convert_to_parameter(value)
         self._yield = value
 
     @property

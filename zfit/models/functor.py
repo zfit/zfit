@@ -14,15 +14,14 @@ import tensorflow as tf
 
 from ..core.basepdf import BasePDF
 from ..core.coordinates import convert_to_obs_str
-from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
+from ..core.interfaces import ZfitPDF, ZfitModel, ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.space import supports
-from ..models.basefunctor import FunctorMixin
+from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError)
-from ..util.temporary import TemporarilySet
+from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError, NormRangeUnderdefinedError)
 from ..util.warnings import warn_advanced_feature
 from ..z.random import counts_multinomial
 
@@ -33,91 +32,48 @@ class BaseFunctor(FunctorMixin, BasePDF):
         self.pdfs = convert_to_container(pdfs)
         super().__init__(models=self.pdfs, name=name, **kwargs)
         self._set_norm_range_from_daugthers()
-        self._component_norm_range_holder = None
 
-    def _get_component_norm_range(self):
-        return self._component_norm_range_holder
+    # TODO: remove?
+    # def _get_component_norm_range(self):
+    #     return self._component_norm_range_holder
 
-    def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
-        norm_range = self._check_input_norm_range(norm_range=norm_range)
-        if not norm_range.has_limits:
-            if self._get_component_norm_range() is None:
-                raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
-                                   "`component_norm_range`.")
-
-        def setter(value):
-            self._component_norm_range_holder = value
-
-        return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
+    # TODO: remove?
+    # def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
+    #     norm_range = self._check_input_norm_range(norm_range=norm_range)
+    #
+    #     # TODO: remove completely? cleanup functor, norm_range?
+    #     # if not norm_range.has_limits:
+    #     #     if self._get_component_norm_range() is None:
+    #     #         raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
+    #     #                            "`component_norm_range`.")
+    #
+    #     def setter(value):
+    #         self._component_norm_range_holder = value
+    #
+    #     return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
 
     def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
         if not norm_range.limits_are_set:
-            norm_range_candidat = self._infer_norm_range_from_daughters()
-            # if norm_range_candidat is False:
-            #     raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
-            #                                  "has been explicitly set.")
-            if isinstance(norm_range_candidat, ZfitSpace):  # TODO(Mayou36, #77): different obs?
-                norm_range = norm_range_candidat
+            norm_range = extract_daughter_input_obs(obs=norm_range,
+                                                    spaces=[model.space for model in self.models])
+        if not norm_range.limits_are_set:
+            raise NormRangeUnderdefinedError("Daughter pdfs do not agree on a `norm_range` and/or no `norm_range`"
+                                             "has been explicitly set.")
 
-        self._norm_range = norm_range
+        self.set_norm_range(norm_range)
 
-    def _infer_norm_range_from_daughters(self):
-        norm_ranges = set(model.norm_range for model in self.models)
-        obs = set(norm_range.obs for norm_range in norm_ranges)
-        if len(norm_ranges) == 1:
-            return norm_ranges.pop()
-        elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
-            return None
-        else:
-            return False
-
-    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
-        if component_norm_range.limits_are_set:
-            with self._set_component_norm_range(norm_range=component_norm_range):
-                return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
-        else:
-            return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
-
-    def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_integrate(limits, norm_range, name)
-
-    def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_analytic_integrate(limits, norm_range, name)
-
-    def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_numeric_integrate(limits, norm_range, name)
-
-    def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_partial_integrate(x, limits, norm_range, name)
-
-    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)
-
-    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)
-
-    def _single_hook_normalization(self, limits, name="_hook_normalization"):
-        with self._set_component_norm_range(norm_range=limits):
-            return super()._single_hook_normalization(limits, name)
-
-    def _single_hook_pdf(self, x, norm_range, name="_hook_pdf"):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_pdf(x, norm_range, name)
-
-    def _single_hook_log_pdf(self, x, norm_range, name):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_log_pdf(x, norm_range, name)
-
-    def _single_hook_sample(self, n, limits, name):
-        with self._set_component_norm_range(norm_range=limits):
-            return super()._single_hook_sample(n, limits, name)
+    # TODO: remove below?
+    #
+    # def _infer_space_from_daughters(self):
+    #     space = set(model.space for model in self.models)
+    #     obs = set(norm_range.obs for norm_range in space)
+    #     if len(space) == 1:
+    #         return space.pop()
+    #     elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
+    #         return None
+    #     else:
+    #         return False
 
     @property
     def pdfs_extended(self):
@@ -251,20 +207,20 @@ class SumPDF(BaseFunctor):
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def _unnormalized_pdf(self, x):
-        norm_range = self._get_component_norm_range()
-        return self._pdf(x=x, norm_range=norm_range)
+
+        # TODO: cleanup component ranges
+        # norm_range = self._get_component_norm_range()
+        # return self._pdf(x=x, norm_range=norm_range)
+        pdfs = self.pdfs
+        fracs = self.params.values()
+        prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
+        return prob
         # raise NotImplementedError
         # pdfs = self.pdfs
         # fracs = self.fracs
         # func = tf.accumulate_n(
         #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
         # return func
-
-    def _pdf(self, x, norm_range):
-        pdfs = self.pdfs
-        fracs = self.params.values()
-        prob = tf.math.accumulate_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
-        return prob
 
     # TODO(SUM): remove the below? Not needed anymore?
     # def _set_yield(self, value: Union[Parameter, None]):
@@ -279,27 +235,27 @@ class SumPDF(BaseFunctor):
     #     else:
     #         super()._set_yield(value=value)
 
-    @supports(norm_range=True, multiple_limits=True)
+    @supports(multiple_limits=True)
     def _integrate(self, limits, norm_range):
         pdfs = self.pdfs
         fracs = self.params.values()
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
-        integrals = [frac * pdf.integrate(limits=limits, norm_range=norm_range)
+        integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
                      for pdf, frac in zip(pdfs, fracs)]
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals, axis=0)
-        integral = tf.math.accumulate_n(input_tensor=integrals)
+        integral = tf.math.accumulate_n(integrals)
         return integral
 
-    @supports(norm_range=True, multiple_limits=True)
+    @supports(multiple_limits=True)
     def _analytic_integrate(self, limits, norm_range):
         pdfs = self.pdfs
         fracs = self.params.values()
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         try:
-            integrals = [frac * pdf.integrate(limits=limits, norm_range=norm_range)
+            integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
                          for pdf, frac in zip(pdfs, fracs)]
         except NotImplementedError as original_error:
             raise NotImplementedError(f"analytic_integrate of pdf {self.name} is not implemented in this"
@@ -308,26 +264,26 @@ class SumPDF(BaseFunctor):
 
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals)
-        integral = tf.math.accumulate_n(input_tensor=integrals)
+        integral = tf.math.accumulate_n(integrals)
         return integral
 
-    @supports(norm_range=True, multiple_limits=True)
+    @supports(multiple_limits=True)
     def _partial_integrate(self, x, limits, norm_range):
 
         pdfs = self.pdfs
         fracs = self.params.values()
 
-        partial_integral = [pdf.partial_integrate(x=x, limits=limits, norm_range=norm_range)
+        partial_integral = [pdf.partial_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
                             for pdf in zip(pdfs, fracs)]
         partial_integral = tf.math.accumulate_n(partial_integral)
         return partial_integral
 
-    @supports(norm_range=True, multiple_limits=True)
+    @supports(multiple_limits=True)
     def _partial_analytic_integrate(self, x, limits, norm_range):
         pdfs = self.pdfs
         fracs = self.params.values()
         try:
-            partial_integral = [pdf.analytic_integrate(x=x, limits=limits, norm_range=norm_range)
+            partial_integral = [pdf.partial_analytic_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
                                 for pdf in zip(pdfs, fracs)]
         except NotImplementedError as original_error:
             raise NotImplementedError("partial_analytic_integrate of pdf {name} is not implemented in this"
@@ -344,12 +300,14 @@ class SumPDF(BaseFunctor):
         else:
             n = tf.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
 
-        samples = [pdf.sample(n=n_sample, limits=limits).value()
-                   for pdf, n_sample in zip(self.pdfs, n)]
+        samples = []
+        for pdf, n_sample in zip(self.pdfs, n):
+            sub_sample = pdf.sample(n=n_sample, limits=limits)
+            if isinstance(sub_sample, ZfitData):
+                sub_sample = sub_sample.value()
+            samples.append(sub_sample)
         sample = tf.concat(samples, axis=0)
         return sample
-
-    # TODO(SUM): maybe add improved sampling?
 
 
 class ProductPDF(BaseFunctor):  # TODO: unfinished

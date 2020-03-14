@@ -19,6 +19,7 @@ from zfit.models.dist_tfp import Gauss
 from zfit.models.special import SimplePDF
 # from zfit.z import
 from zfit.util import ztyping
+from zfit.util.exception import AlreadyExtendedPDFError, BreakingAPIChangeError
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -260,6 +261,17 @@ def test_copy():
     assert new_gauss == gauss_params1
     assert new_gauss is not gauss_params1
 
+
+def test_set_yield():
+    gauss_params1 = create_gauss1()
+    assert not gauss_params1.is_extended
+    gauss_params1._set_yield(10)
+    assert gauss_params1.is_extended
+    with pytest.raises(AlreadyExtendedPDFError):
+        gauss_params1._set_yield(15)
+
+    with pytest.raises(BreakingAPIChangeError):
+        gauss_params1._set_yield(None)
 
 def test_projection_pdf():
     x = zfit.Space("x", limits=(-1, 1))
