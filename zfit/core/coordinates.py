@@ -44,6 +44,8 @@ class Coordinates(ZfitOrderableDimensional):
             if axes is not None:
                 if not len(obs) == len(axes):
                     raise CoordinatesIncompatibleError("obs and axes do not have the same length.")
+        if not (obs or axes):
+            raise CoordinatesUnderdefinedError(f"Neither obs {obs} nor axes {axes} are defined.")
         return obs, axes, n_obs
 
     @property
@@ -108,6 +110,9 @@ class Coordinates(ZfitOrderableDimensional):
             if self.obs is None:
                 new_coords = type(self)(obs=obs, axes=self.axes)
             else:
+                if not set(obs).intersection(self.obs):
+                    raise ObsIncompatibleError(f"The requested obs {obs} are not compatible with the current obs "
+                                               f"{self.obs}")
 
                 if not frozenset(obs) == frozenset(self.obs):
 
@@ -173,6 +178,9 @@ class Coordinates(ZfitOrderableDimensional):
             if self.axes is None:
                 new_coords = type(self)(obs=self.obs, axes=axes)
             else:
+                if not set(axes).intersection(self.axes):
+                    raise AxesIncompatibleError(f"The requested axes {axes} are not compatible with the current axes "
+                                                f"{self.axes}")
                 if not frozenset(axes) == frozenset(self.axes):
                     if not allow_superset and set(axes) - set(self.axes):
                         raise AxesIncompatibleError(

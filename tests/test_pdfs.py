@@ -26,6 +26,10 @@ sigma3_true = 1.8
 
 fracs = [0.3, 0.15]
 
+obs1 = zfit.Space('obs1', (-3, 6))
+obs2 = zfit.Space('obs2', (-2, 5))
+obs3 = zfit.Space('obs3', (-3.5, 4))
+
 
 def true_gaussian_sum(x):
     def norm(sigma):
@@ -37,7 +41,6 @@ def true_gaussian_sum(x):
     return sum_gauss
 
 
-obs1 = Space(obs='obs1')
 
 
 def create_params(name_add=""):
@@ -76,12 +79,11 @@ def product_gauss_3d(name=""):
     # Gauss for product, independent
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params('3d' + name)
 
-    gauss13 = Gauss(mu=mu1, sigma=sigma1, obs='a', name="gauss1a")
-    gauss23 = Gauss(mu=mu2, sigma=sigma2, obs='b', name="gauss2a")
-    gauss33 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss3a")
+    gauss13 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1a")
+    gauss23 = Gauss(mu=mu2, sigma=sigma2, obs=obs2, name="gauss2a")
+    gauss33 = Gauss(mu=mu3, sigma=sigma3, obs=obs3, name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
-    obs = zfit.Space(['a', 'b', 'c'], limits=([-3, -4, -5], [6, 4, 5]))
-    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=obs)
+    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3)
     return prod_gauss_3d
 
     # prod_gauss_3d.update_integration_options(draws_per_dim=33)
@@ -90,27 +92,29 @@ def product_gauss_3d(name=""):
 def product_gauss_4d():
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params("4d")
 
-    gauss12 = Gauss(mu=mu1, sigma=sigma1, obs='d', name="gauss12a")
-    gauss22 = Gauss(mu=mu2, sigma=sigma2, obs='a', name="gauss22a")
-    gauss32 = Gauss(mu=mu3, sigma=sigma3, obs='c', name="gauss32a")
+    obs4 = zfit.Space('obs4', (-4.5, 4.7))
+    gauss12 = Gauss(mu=mu1, sigma=sigma1, obs=obs4, name="gauss12a")
+    gauss22 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss22a")
+    gauss32 = Gauss(mu=mu3, sigma=sigma3, obs=obs3, name="gauss32a")
     gauss_dists2 = [gauss12, gauss22, gauss32]
-    obs = zfit.Space(['a', 'b', 'c', 'd'], limits=([-3, -4, -5, -3.5], [6, 4, 5, 8]))
+    obs = zfit.Space(['obs1', 'obs2', 'obs3', 'obs4'])
 
-    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [product_gauss_3d("4d")], obs=obs)
+    prod_3d = product_gauss_3d("4d")
+    prod_gauss_4d = ProductPDF(pdfs=gauss_dists2 + [prod_3d], obs=obs)
     return prod_gauss_4d
 
 
 def test_prod_gauss_nd():
     test_values = np.random.random(size=(10, 3))
-    lower = ((-5, -5, -5),)
-    upper = ((4, 4, 4),)
-    obs1 = ['a', 'b', 'c']
-    norm_range_3d = Space(obs=obs1, limits=(lower, upper))
-    test_values_data = Data.from_tensor(obs=obs1, tensor=test_values)
+    test_values_data = Data.from_tensor(obs=obs1 * obs2 * obs3, tensor=test_values)
     product_pdf = product_gauss_3d()
-    probs = product_pdf.pdf(x=test_values_data, norm_range=norm_range_3d)
+    assert product_pdf.n_obs == 3
+    probs = product_pdf.pdf(x=test_values_data)
+    gaussians = create_gaussians()
+    for gauss, space in zip(gaussians, [obs1, obs2, obs3]):
+        gauss.set_norm_range(space.rect_limits)
     true_probs = np.prod(
-        [gauss.pdf(test_values[:, i], norm_range=(-5, 4)) for i, gauss in enumerate(create_gaussians())], axis=0)
+        [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0)
     probs_np = probs.numpy()
     np.testing.assert_allclose(true_probs, probs_np, rtol=1e-2)
 
@@ -121,7 +125,7 @@ def test_prod_gauss_nd_mixed():
     low, high = norm_range
     test_values = np.random.uniform(low=low, high=high, size=(1000, 4))
 
-    obs4d = ['a', 'b', 'c', 'd']
+    obs4d = ['obs1', 'obs2', 'obs3', 'obs4']
     test_values_data = Data.from_tensor(obs=obs4d, tensor=test_values)
     # prod_gauss_4d.update_integration_options(draws_per_dim=10)
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
@@ -142,7 +146,7 @@ def test_prod_gauss_nd_mixed():
         true_prob += [gauss3.pdf(values[:, 2])]
         true_prob += [prod_gauss_3d.pdf(values[:, 0:3],
                                         norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
-                                                         obs=['a', 'b', 'c']))]
+                                                         obs=['obs1', 'obs2', 'obs3']))]
         return tf.math.reduce_prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
@@ -181,7 +185,7 @@ def test_normalization_prod_gauss():
 
 
 def test_exp():
-    lambda_true = 0.31
+    lambda_true = 0.031
     lambda_ = zfit.Parameter('lambda1', lambda_true)
     exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs=zfit.Space('obs1', (-11, 11)))
     sample = exp1.sample(n=1000, limits=(-10, 10))
@@ -201,11 +205,11 @@ def normalization_testing(pdf, limits=None):
     with pdf.set_norm_range(space):
         samples = tf.cast(np.random.uniform(low=space.lower, high=space.upper, size=(40000, pdf.n_obs)),
                           dtype=tf.float64)
-        samples = zfit.Data.from_tensor(obs=pdf.obs, tensor=samples)
+        samples = zfit.Data.from_tensor(obs=space, tensor=samples)
         probs = pdf.pdf(samples)
         result = probs.numpy()
-        result = np.average(result) * space.rect_area().numpy()
-        assert pytest.approx(result, rel=0.07) == 1
+        result = zfit.run(np.average(result) * space.rect_area())
+        assert pytest.approx(result, rel=0.03) == 1
 
 
 def test_extended_gauss():
@@ -228,9 +232,9 @@ def test_extended_gauss():
 
     gauss_dists = [gauss1, gauss2, gauss3]
 
-    sum_gauss = SumPDF(pdfs=gauss_dists, obs=obs1)
+    sum_gauss = SumPDF(pdfs=gauss_dists)
 
-    normalization_testing(pdf=sum_gauss)
+    normalization_testing(pdf=sum_gauss, limits=obs1)
 
 
 if __name__ == '__main__':

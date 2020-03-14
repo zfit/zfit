@@ -510,6 +510,10 @@ class BaseComposedParameter(BaseZParameter):
         super().__init__(value_fn=value_fn, name=name, params=params, **kwargs)
         # self.params = params
 
+    @property  # TODO: hacky way, proper name for params
+    def name(self):
+        return self._name
+
     def _get_dependents(self):
         dependents = self._extract_dependents(list(self.params.values()))
         return dependents

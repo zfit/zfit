@@ -19,7 +19,8 @@ from zfit.models.dist_tfp import Gauss
 from zfit.models.special import SimplePDF
 # from zfit.z import
 from zfit.util import ztyping
-from zfit.util.exception import AlreadyExtendedPDFError, BreakingAPIChangeError
+from zfit.util.exception import AlreadyExtendedPDFError, BreakingAPIChangeError, SpaceIncompatibleError, \
+    CoordinatesUnderdefinedError, ObsIncompatibleError
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -27,7 +28,7 @@ mu_true = 1.4
 sigma_true = 1.8
 low, high = -4.3, 1.9
 
-obs1 = 'obs1'
+obs1 = zfit.Space('obs1', (low, high))
 
 
 def create_gauss1(nameadd=""):
@@ -117,6 +118,13 @@ def test_gradient():
     tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = tensor_grad.numpy()
     np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
+
+
+def test_input_space():
+    gauss3 = create_gauss3()
+    space = zfit.Space('nonexisting_obs', (-3, 5))
+    with pytest.raises(ObsIncompatibleError):
+        gauss3.set_norm_range(space)
 
 
 def test_func():

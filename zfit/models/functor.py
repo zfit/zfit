@@ -239,7 +239,7 @@ class SumPDF(BaseFunctor):
     @supports(multiple_limits=True)
     def _integrate(self, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self.params.values()
+        fracs = self.fracs
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
@@ -252,7 +252,7 @@ class SumPDF(BaseFunctor):
     @supports(multiple_limits=True)
     def _analytic_integrate(self, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self.params.values()
+        fracs = self.fracs
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         try:
@@ -272,7 +272,7 @@ class SumPDF(BaseFunctor):
     def _partial_integrate(self, x, limits, norm_range):
 
         pdfs = self.pdfs
-        fracs = self.params.values()
+        fracs = self.fracs
 
         partial_integral = [pdf.partial_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
                             for pdf in zip(pdfs, fracs)]
@@ -282,7 +282,7 @@ class SumPDF(BaseFunctor):
     @supports(multiple_limits=True)
     def _partial_analytic_integrate(self, x, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self.params.values()
+        fracs = self.fracs
         try:
             partial_integral = [pdf.partial_analytic_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
                                 for pdf in zip(pdfs, fracs)]

@@ -201,7 +201,7 @@ def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParamet
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
         raise TypeError("`param1` and `param2` need to be `ZfitParameter` and not {}, {}".format(param1, param2))
     # use the default behavior of variables
-    return param1 + param2
+    return tf.add(param1, param2)
 
 
 # Conversions

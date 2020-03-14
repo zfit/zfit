@@ -26,7 +26,8 @@ from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
 from ..util.cache import Cachable
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError)
+                              ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError,
+                              SpaceIncompatibleError)
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -265,6 +266,9 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         """
         if obs is None:  # for simple limits to convert them
             obs = self.obs
+        elif not set(obs).intersection(self.obs):
+            raise SpaceIncompatibleError("The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
+                                         " they are disjoint.")
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         if self.space is not None:  # e.g. not the first call
