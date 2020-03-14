@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 zfit
 
-from typing import Iterable, List, Union
+from typing import Iterable, List, Union, Dict, Set
 
 import numpy as np
 
@@ -149,3 +149,26 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
             if ax not in all_axes:
                 all_axes.append(ax)
     return all_axes
+
+
+def obs_subsets(dimensionals: Iterable[ZfitDimensional]) -> Dict[Set[str], ZfitDimensional]:
+    """Split `dimensionals` into the smallest subgroup of obs and return a dict.
+
+    Args:
+        dimensionals: An Iterable containing two or more ZfitDimensional that should be split into the smallest subset.
+
+    Returns:
+        dict: dict with the keys being sets of observables and the values, an iterable, containing the ZfitDimensional
+    """
+    obs_dims = {}
+    for dim in dimensionals:
+        for obs in obs_dims:
+            if obs.intersection(dim.obs):
+                union = obs.union(dim.obs)
+                obs_dims[union] = obs_dims.pop(obs)
+                obs_dims[union].append(dim)
+                break  # we had a match, go to the next dim
+        else:
+            obs_dims[frozenset(dim.obs)] = [dim]
+
+    return obs_dims
