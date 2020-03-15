@@ -121,9 +121,14 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
     original_vals = [param.read_value() for param in params]
 
     if hessian == 'diag':
-        hesse_func = numdifftools.Hessdiag(wrapped_func, step=1e-4)
+        hesse_func = numdifftools.Hessdiag(wrapped_func,
+                                           # TODO: maybe add step to remove numerical problems?
+                                           # step=1e-4
+                                           )
     else:
-        hesse_func = numdifftools.Hessian(wrapped_func, base_step=1e-4)
+        hesse_func = numdifftools.Hessian(wrapped_func,
+                                          # base_step=1e-4
+                                          )
     computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
                                       Tout=tf.float64)
     n_params = param_vals.shape[0]

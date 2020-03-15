@@ -59,12 +59,13 @@ def _covariance_np(result, params):
     if any([data.weights is not None for data in result.loss.data]):
         raise WeightsNotImplementedError("Weights are not supported with hesse numpy.")
 
-    numgrad_was_none = settings.options.numerical_grad is None
-    if numgrad_was_none:
-        settings.options.numerical_grad = True
+    # TODO: maybe activate again? currently fails due to numerical problems
+    # numgrad_was_none = settings.options.numerical_grad is None
+    # if numgrad_was_none:
+    #     settings.options.numerical_grad = True
     covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
-    if numgrad_was_none:
-        settings.options.numerical_grad = None
+    # if numgrad_was_none:
+    #     settings.options.numerical_grad = None
 
     return matrix_to_dict(params, covariance)
 
