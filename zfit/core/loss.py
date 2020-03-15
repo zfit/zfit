@@ -7,20 +7,19 @@ from typing import Optional, Union, List, Callable, Iterable, Tuple
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-
-from .. import z, settings
-from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
-    automatic_value_gradients_hessian, numerical_value_gradients_hessian
-from ..util import ztyping
-from ..util.cache import Cachable
-from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
 from .baseobject import BaseObject
+from .constraint import BaseConstraint, SimpleConstraint
 from .dependents import BaseDependentsMixin
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
+from .. import z, settings
+from ..util import ztyping
+from ..util.cache import Cachable
+from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
-from .constraint import BaseConstraint, SimpleConstraint
+from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
+    automatic_value_gradients_hessian, numerical_value_gradients_hessian
 
 
 # @z.function
@@ -246,7 +245,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         return self._value_gradients(params=params)
 
-    @z.function
     def _value_gradients(self, params):
         if settings.options['numerical_grad']:
             value, gradients = numerical_value_gradients(self.value, params=params)
@@ -256,22 +254,18 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
-        vals = self._value_gradients_hessian(params=params, hessian=hessian)
-        if vals is ZfitNotImplemented:
-            vals = self._value_gradients_hessian_fallback(params=params, hessian=hessian)
+        numerical = settings.options['numerical_grad']
+        vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numerical)
+
         return vals
 
     @z.function
-    def _value_gradients_hessian_fallback(self, params, hessian):
-
-        if settings.options['numerical_grad']:
+    def _value_gradients_hessian(self, params, hessian, numerical=False):
+        if numerical:
             result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessian)
         else:
             result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
         return result
-
-    def _value_gradients_hessian(self, params, hessian):
-        return ZfitNotImplemented
 
 
 class CachedLoss(BaseLoss):
