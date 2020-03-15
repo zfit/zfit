@@ -1,9 +1,9 @@
 #  Copyright (c) 2020 zfit
+import numpy as np
 import pytest
 
 import zfit
 from zfit import z
-import numpy as np
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.cache import Cachable, invalidates_cache
@@ -76,6 +76,10 @@ class GraphCreator1(Cachable):
         self.retrace_runs += 1
         return x + self.value + CONST
 
+    def calc_no_cache(self, x):
+        self.retrace_runs += 1
+        return x + self.value + CONST
+
     @invalidates_cache
     def change_value(self, value):
         self.value = value
@@ -108,7 +112,9 @@ def test_graph_cache():
     CONST = 50
     assert graph1.calc(add).numpy() == new_value + add + 40  # old const
     zfit.run.experimental_clear_caches()
-    assert graph1.calc(add).numpy() == new_value + add + CONST  # old const
+    graph1.change_value(new_value)
+    assert graph1.calc_no_cache(add) == new_value + add + CONST
+    assert graph1.calc(add).numpy() == new_value + add + CONST
     graph1.retrace_runs = 0  # reset
 
     graph1.change_value_no_invalidation(10)
