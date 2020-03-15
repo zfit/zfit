@@ -96,7 +96,6 @@ class ZfitCachable:
 
 class Cachable(ZfitCachable):
     graph_caching_methods = []
-    old_graph_caching_methods = []
 
     def __init__(self, *args, **kwargs):
         self._cache = {}
@@ -299,4 +298,4 @@ def clear_caches():
             method._stateful_fn = None
             method._stateless_fn = None
             method._descriptor_cache.clear()
-    Cachable.old_graph_caching_methods.clear()
+    Cachable.graph_caching_methods.clear()
