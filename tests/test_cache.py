@@ -10,7 +10,7 @@ from zfit.util.cache import Cachable, invalidates_cache, clear_caches
 from zfit.z.zextension import FunctionWrapperRegistry
 
 
-class Test1(Cachable):
+class Example1(Cachable):
 
     def value(self):
         value = self._cache.get("value")
@@ -24,7 +24,7 @@ class Test1(Cachable):
         return None
 
 
-class MotherTest1(Cachable):
+class MotherExample1(Cachable):
 
     def __init__(self, test1, test2):
         super().__init__()
@@ -45,7 +45,7 @@ class MotherTest1(Cachable):
 
 
 def test_simple_cache():
-    test1 = Test1()
+    test1 = Example1()
     assert test1.value() == test1.value()
     value1 = test1.value()
     test1.change_param(24)
@@ -53,8 +53,8 @@ def test_simple_cache():
 
 
 def test_mother_cache():
-    test1, test2 = Test1(), Test1()
-    mother_test = MotherTest1(test1, test2)
+    test1, test2 = Example1(), Example1()
+    mother_test = MotherExample1(test1, test2)
     assert mother_test.mother_value() == mother_test.mother_value()
     mother_value = mother_test.mother_value()
     test1.change_param(12)
@@ -77,7 +77,7 @@ class GraphCreator1(Cachable):
         self.retrace_runs += 1
         return x + self.value + CONST
 
-    @z.function(wraps='something')
+    @z.function(wraps='tensor')
     def calc_variable(self, x):
         return x + self.value + CONST
 
@@ -117,7 +117,7 @@ def test_graph_cache(graph_holder):
     add = 5
     new_value = 8
     result = 47 + CONST
-    assert FunctionWrapperRegistry.do_jit_types['something']  # should be true by default
+    assert FunctionWrapperRegistry.do_jit_types['tensor']  # should be true by default
     assert graph1.calc(add).numpy() == result
     assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs > 0  # simple
@@ -130,9 +130,9 @@ def test_graph_cache(graph_holder):
     assert graph1.calc(add).numpy() == result
     assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs == 0  # no retracing must have occurred
-    FunctionWrapperRegistry.do_jit_types['something'] = False
+    FunctionWrapperRegistry.do_jit_types['tensor'] = False
     assert graph1.calc_variable(add) == 10 + add + CONST
-    FunctionWrapperRegistry.do_jit_types['something'] = True
+    FunctionWrapperRegistry.do_jit_types['tensor'] = True
     graph1.change_value(new_value)
     assert graph1.calc(add).numpy() == new_value + add + CONST
     assert graph1.calc_variable(add).numpy() == new_value + add + CONST

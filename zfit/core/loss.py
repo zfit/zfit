@@ -259,7 +259,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
         return vals
 
-    @z.function
+    @z.function(wraps='loss')
     def _value_gradients_hessian(self, params, hessian, numerical=False):
         if numerical:
             result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessian)
@@ -317,7 +317,7 @@ class UnbinnedNLL(BaseLoss):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
 
-    @z.function
+    @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         # with tf.GradientTape(persistent=True) as tape:
         nll = self._loss_func_watched(constraints, data, fit_range, model)
@@ -335,7 +335,7 @@ class UnbinnedNLL(BaseLoss):
         # self.computed_gradients[param] = grad
         return nll
 
-    @z.function
+    @z.function(wraps='loss')
     def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
@@ -352,7 +352,7 @@ class UnbinnedNLL(BaseLoss):
 class ExtendedUnbinnedNLL(UnbinnedNLL):
     """An Unbinned Negative Log Likelihood with an additional poisson term for the"""
 
-    @z.function
+    @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
         poisson_terms = []
@@ -383,7 +383,7 @@ class SimpleLoss(BaseLoss):
             raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
-        @z.function
+        @z.function(wraps='loss')
         def wrapped_func():
             return func()
 

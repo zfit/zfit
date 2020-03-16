@@ -281,7 +281,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _integrate(self, limits, norm_range):
         raise NotImplementedError()
 
-    # @z.function
+    @z.function(wraps='model')
     def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
                   name: str = "integrate") -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
@@ -534,7 +534,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    # @z.function
+    @z.function(wraps='model')
     def partial_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                           norm_range: ztyping.LimitsType = None,
                           name: str = "partial_integrate") -> ztyping.XTypeReturn:
@@ -617,7 +617,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_analytic_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    # @z.function
+    @z.function(wraps='model')
     def partial_analytic_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
                                    norm_range: ztyping.LimitsType = None,
                                    name: str = "partial_analytic_integrate") -> ztyping.XTypeReturn:
@@ -697,7 +697,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
     def _partial_numeric_integrate(self, x, limits, norm_range):
         raise NotImplementedError
 
-    # @z.function
+    @z.function(wraps='model')
     def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
                                   norm_range: ztyping.LimitsType = None,
                                   name: str = "partial_numeric_integrate") -> ztyping.XType:
@@ -758,7 +758,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, norm_range=norm_range, x=x)
 
     @no_norm_range
-    # @z.function
+    @z.function(wraps='model')
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
         integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x, norm_range=norm_range,
                                    # auto from self
@@ -836,7 +836,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
 
         return sample_data
 
-    @z.function
+    @z.function(wraps='model')
     def _create_sampler_tensor(self, limits, n, name):
         # limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
         # needed to be able to change the number of events in resampling
@@ -883,7 +883,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
         limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)
 
-        @z.function
+        @z.function(wraps='model_sampling')
         def run_tf(n, limits):
             sample = self._single_hook_sample(n=n, limits=limits, name=name)
             return sample

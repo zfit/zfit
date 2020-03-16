@@ -134,8 +134,11 @@ class FunctionWrapperRegistry:
     do_jit_types = {
         None: True,
         'model': False,
+        'loss': True,
+        'sample': True,
+        'model_sampling': True,
+        'zfit_tensor': True,
         'tensor': True,
-        'loss': True
     }
 
     @classmethod
@@ -155,6 +158,7 @@ class FunctionWrapperRegistry:
         self.wrapped_func = []
 
         if not wraps in self.do_jit_types:
+            # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
             self.do_jit_types[wraps] = True
         self.wraps = wraps
         self.function_cache = defaultdict(list)

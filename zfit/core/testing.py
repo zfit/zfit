@@ -26,7 +26,6 @@ def teardown_function():
     ZfitParameterMixin._existing_names.clear()
 
     clear_caches()
-    # tf.compat.v1.reset_default_graph()
 
 
 class BaseTester:

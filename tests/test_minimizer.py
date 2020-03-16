@@ -61,7 +61,7 @@ obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
 
 
-@pytest.mark.order4
+# @pytest.mark.run(order=4)
 @pytest.mark.parametrize("chunksize", [3000, 100000])
 @pytest.mark.parametrize("num_grad", [False, True])
 @pytest.mark.parametrize("spaces", [obs1, obs1_split])
