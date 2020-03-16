@@ -91,9 +91,6 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                                        "\nlower: {}, upper: {}".format(lower, upper)
                                        )
 
-        # lower = z.convert_to_tensor(lower, dtype=dtype)
-        # upper = z.convert_to_tensor(upper, dtype=dtype)
-
         n_samples = draws_per_dim
 
         chunked_normalization = zfit.run.chunksize < n_samples
@@ -112,10 +109,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
             samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
                                         dtype=dtype)
-            # samples_normed = tf.reshape(samples_normed, shape=(n_vals, int(n_samples / n_vals), n_axes))
-            # samples_normed = tf.expand_dims(samples_normed, axis=0)
             samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
-            # samples = tf.transpose(samples, perm=[2, 0, 1])
 
             if partial:  # TODO(Mayou36): shape of partial integral?
                 data_obs = x.obs
@@ -156,7 +150,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 # TODO(Mayou36): Make more flexible for sampling
 # @z.function
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
-    upper, lower = space.limits
+    upper, lower = space.rect_limits
     lower = z.convert_to_tensor(lower, dtype=dtype)
     upper = z.convert_to_tensor(upper, dtype=dtype)
 
@@ -181,19 +175,12 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
             if len(func_vals.shape) == 1:
                 func_vals = tf.expand_dims(func_vals, -1)
         batch_mean = tf.reduce_mean(input_tensor=func_vals, axis=reduce_axis)  # if there are gradients
-        # batch_mean = tf.reduce_mean(sample)
-        # batch_mean = tf.guarantee_const(batch_mean)
-        # with tf.control_dependencies([batch_mean]):
         err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
-        # err_weight /= err_weight + 1
-        # print_op = tf.print(batch_mean)
+
         do_print = False
         if do_print:
-            deps = [tf.print(batch_num + 1)]
-        else:
-            deps = []
-        with tf.control_dependencies(deps):
-            return batch_num + 1, mean + err_weight * (batch_mean - mean)
+            tf.print(batch_num + 1)
+        return batch_num + 1, mean + err_weight * (batch_mean - mean)
 
     cond = lambda batch_num, _: batch_num < num_batches
 
@@ -268,18 +255,14 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
 
             batch_mean = tf.reduce_mean(input_tensor=sample)
             batch_mean = tf.guarantee_const(batch_mean)
-            # with tf.control_dependencies([batch_mean]):
             err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
             # err_weight /= err_weight + 1
             # print_op = tf.print(batch_mean)
             do_print = False
             if do_print:
-                deps = [tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))]
-            else:
-                deps = []
-            with tf.control_dependencies(deps):
-                return batch_num + 1, mean + err_weight * (batch_mean - mean)
-            # return batch_num + 1, tf.guarantee_const(mean + err_weight * (batch_mean - mean))
+                tf.print(batch_num + 1, mean, err_weight * (batch_mean - mean))
+
+            return batch_num + 1, mean + err_weight * (batch_mean - mean)
 
         cond = lambda batch_num, _: batch_num < num_batches
 
@@ -308,11 +291,9 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
 
         do_print = False
         if do_print:
-            deps = [tf.print(final_mean)]
-        else:
-            deps = []
-        with tf.control_dependencies(deps):
-            return tf.guarantee_const(final_mean), dummy_grad_with_var
+            tf.print("Total mean calculated = ", final_mean)
+
+        return final_mean, dummy_grad_with_var
 
     try:
         return dummy_func(fake_x)

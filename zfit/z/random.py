@@ -1,19 +1,17 @@
 #  Copyright (c) 2020 zfit
 
-from typing import Union, Iterable, Sized
+from typing import Union, Iterable
 
-import tensorflow_probability as tfp
 import tensorflow as tf
-from .zextension import tf_function as function
+import tensorflow_probability as tfp
 
-from .wrapping_tf import convert_to_tensor
-from ..util.container import convert_to_container
+from .zextension import tf_function as function
 
 __all__ = ["counts_multinomial"]
 
 
 def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union[float, tf.Tensor]] = None,
-                       logits: Iterable[Union[float, tf.Tensor]] = None, dtype=tf.int32) -> tf.Tensor:
+                       logits: Iterable[Union[float, tf.Tensor]] = None, dtype=tf.int64) -> tf.Tensor:
     """Get the number of counts for different classes with given probs/logits.
 
     Args:
@@ -29,42 +27,25 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     probs = tf.convert_to_tensor(probs) if probs is not None else probs
     logits = tf.convert_to_tensor(logits) if logits is not None else logits
 
-    control_deps = []
     if probs is not None:
-        # if not isinstance(probs, (tf.Tensor, tf.Variable)):
-        #     probs = convert_to_container(probs)
-        #     if len(probs) < 2:
-        #         raise ValueError("`probs` has to have length 2 at least.")
-        #     probs = tf.convert_to_tensor(value=probs)
-        probs = tf.cast(probs, tf.float32)
-        # control_deps.append(probs)
-        # probs_logits_shape = tf.shape(probs)
+        probs = tf.cast(probs, dtype=tf.float64)
+        float_dtype = probs.dtype
     elif logits is not None:
-
-        # if not isinstance(logits, (tf.Tensor, tf.Variable)):
-        #     logits = convert_to_container(logits)
-        #     if len(logits) < 2:
-        #         raise ValueError("`logits` has to have length 2 at least.")
-        #     logits = tf.convert_to_tensor(value=logits, dtype=None)
-        logits = tf.cast(logits, tf.float32)
-        # control_deps.append(logits)
-        # probs_logits_shape = tf.shape(logits)
+        logits = tf.cast(logits, tf.float64)
+        float_dtype = logits.dtype
     else:
         raise ValueError("Exactly one of `probs` or`logits` have to be specified")
-    # if not isinstance(total_count, tf.Variable):
-    #     total_count = convert_to_tensor(total_count, dtype=None)
-    total_count = tf.cast(total_count, dtype=tf.float32)
-    control_deps.append(total_count)
+    total_count = tf.cast(total_count, dtype=float_dtype)
 
     # needed since otherwise shape of sample will be (1, n_probs)
     # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
 
     @function
-    def wrapped_func(control_deps, dtype, logits, probs, total_count):
-        with tf.control_dependencies(control_deps):
-            dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
-            counts = dist.sample()
+    def wrapped_func(dtype, logits, probs, total_count):
+
+        dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
+        counts = dist.sample()
         counts = tf.cast(counts, dtype=dtype)
         return counts
 
-    return wrapped_func(control_deps, dtype, logits, probs, total_count)
+    return wrapped_func(dtype, logits, probs, total_count)

@@ -36,15 +36,6 @@ class UniformSampleAndWeights:
                 n_partial_to_produce = tf.cast(
                     ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 
-            # lower = ztf.convert_to_tensor(lower, dtype=dtype)
-            # upper = ztf.convert_to_tensor(upper, dtype=dtype)
-
-            # if isinstance(space, EventSpace):
-            #     lower = tf.transpose(a=lower)
-            #     upper = tf.transpose(a=upper)
-            # if tf.get_static_value(lower.shape[0]) == 1:
-            #     sample_shape = lower.shape[1:]
-
             sample_drawn = tf.random.uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                              # + 1 dim for the function value
                                              dtype=ztypes.float)
@@ -178,10 +169,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int32)
     if run.numeric_checks:
-        assert_valid_n_op = tf.compat.v1.assert_non_negative(n)
-        deps = [assert_valid_n_op]
-    else:
-        deps = []
+        tf.debugging.assert_non_negative(n)
+
     # whether we may produce more then n, we normally do (except for EventSpace which is not a generator)
     # we cannot cut inside the while loop as soon as we have produced enough because we may sample from
     # multiple limits and therefore need to randomly remove events, otherwise we are biased because the
@@ -194,20 +183,16 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            assert_n_matches_limits_op = tf.compat.v1.assert_equal(limits.n_events, n)
-            tfdeps = [assert_n_matches_limits_op]
-        else:
-            tfdeps = []
-        with tf.control_dependencies(tfdeps):  # TODO(Mayou36): good check? could be 1d
-            initial_is_sampled = tf.fill(value=False, dims=(n,))
+            tf.debugging.assert_equal(limits.n_events, n)
+
+        initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
-    with tf.control_dependencies(deps):
-        inital_n_produced = tf.constant(0, dtype=tf.int32)
-        initial_n_drawn = tf.constant(0, dtype=tf.int32)
-        with tf.control_dependencies([n]):
-            sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
-                                    clear_after_read=True,  # we read only once at end to tensor
-                                    element_shape=(limits.n_obs,))
+
+    inital_n_produced = tf.constant(0, dtype=tf.int32)
+    initial_n_drawn = tf.constant(0, dtype=tf.int32)
+    sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
+                            clear_after_read=True,  # we read only once at end to tensor
+                            element_shape=(limits.n_obs,))
 
     @z.function
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
@@ -224,11 +209,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         do_print = settings.get_verbosity() > 5
         if do_print:
-            print_op = tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff,
-                                " with total produced ", n_produced, " and total drawn ", n_total_drawn,
-                                " with weights scaling", weights_scaling)
-        with tf.control_dependencies([print_op] if do_print else []):
-            n_to_produce = tf.identity(n_to_produce)
+            tf.print("Number of samples to produce:", n_to_produce, " with efficiency ", eff,
+                     " with total produced ", n_produced, " and total drawn ", n_total_drawn,
+                     " with weights scaling", weights_scaling)
+
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
             n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 10  # just to make sure
@@ -256,25 +240,14 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             dtype=dtype)
 
         n_drawn = tf.cast(n_drawn, dtype=tf.int32)
-        if run.numeric_checks:
-            assert_op_n_drawn = tf.compat.v1.assert_non_negative(n_drawn)
-            tfdeps = [assert_op_n_drawn]
-        else:
-            tfdeps = []
-        with tf.control_dependencies(tfdeps):
-            n_total_drawn += n_drawn
-
-            probabilities = prob(rnd_sample)
+        if run.numeric_checks: tf.debugging.assert_non_negative(n_drawn)
+        n_total_drawn += n_drawn
+        probabilities = prob(rnd_sample)
         shape_rnd_sample = tf.shape(input=rnd_sample)[0]
         if run.numeric_checks:
-            assert_prob_rnd_sample_op = tf.compat.v1.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
-            tfdeps = [assert_prob_rnd_sample_op]
-        else:
-            tfdeps = []
-        # assert_weights_rnd_sample_op = tf.assert_equal(tf.shape(weights), shape_rnd_sample)
-        # print_op = tf.print("shapes: ", tf.shape(weights), shape_rnd_sample, "shapes end")
-        with tf.control_dependencies(tfdeps):
-            probabilities = tf.identity(probabilities)
+            tf.debugging.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
+
+        probabilities = tf.identity(probabilities)
         if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
             # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
             # correctly. A bug report on will be filled (WIP).
@@ -303,7 +276,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
         else:
             weights_scaling = prob_max / weights_max
-            min_prob_weights_ratio = weights_scaling
 
         weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
@@ -312,23 +284,22 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             failed_weights = tf.boolean_mask(tensor=weights_scaled, mask=invalid_probs_weights)
             failed_probs = tf.boolean_mask(tensor=probabilities, mask=invalid_probs_weights)
 
-            def bias_print():
-                tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
-                         " Failed weights:", failed_weights, " failed probs", failed_probs)
+            # def bias_print():
+            #     tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
+            #              " Failed weights:", failed_weights, " failed probs", failed_probs)
 
             # tf.cond(tf.not_equal(tf.shape(input=failed_weights), [0]), bias_print, lambda: None)
 
-            assert_no_failed_probs = tf.compat.v1.assert_equal(tf.shape(input=failed_weights), [0])
-            # assert_op = [print_op]
-            assert_op = [assert_no_failed_probs]
+            tf.debugging.assert_equal(tf.shape(input=failed_weights), [0])
+
             # for weights scaled more then ratio_threshold
-            # assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,
-            #                                      data=[tf.shape(failed_weights), failed_weights, failed_probs],
-            #                                      message="Not all weights are >= probs so the sampling "
-            #                                              "will be biased. If a custom `sample_and_weights` "
-            #                                              "was used, make sure that either the shape of the "
-            #                                              "custom sampler (resp. it's weights) overlap better "
-            #                                              "or decrease the `max_weight`")]
+            if run.numeric_checks:
+                tf.debugging.assert_greater_equal(x=weights_scaled, y=probabilities,
+                                                  message="Not all weights are >= probs so the sampling "
+                                                          "will be biased. If a custom `sample_and_weights` "
+                                                          "was used, make sure that either the shape of the "
+                                                          "custom sampler (resp. it's weights) overlap better "
+                                                          "or decrease the `max_weight`")
             #
             # # check disabled (below not added to deps)
             # assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, z.constant(ratio_threshold),
@@ -339,10 +310,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             #                                    f"Use importance sampling or, to disable this check, do"
             #                                    f"zfit.run.numeric_checks = False")
             # assert_op.append(assert_scaling_op)
-        else:
-            assert_op = []
-        with tf.control_dependencies(assert_op):
-            take_or_not = probabilities > random_thresholds
+
+        take_or_not = probabilities > random_thresholds
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(tensor=rnd_sample, mask=take_or_not, axis=0)
 
