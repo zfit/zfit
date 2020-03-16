@@ -105,3 +105,22 @@ def test_covariance(minimizer_class_and_kwargs):
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
 
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
+
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_errors(minimizer_class_and_kwargs):
+
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results['result']
+    a = results['a_param']
+    b = results['b_param']
+    c = results['c_param']
+
+    z_errors = result.error(method="zfit_error")
+    minos_errors = result.error(method="minuit_minos")
+
+    for param in [a, b, c]:
+        z_error_param = z_errors[param]
+        minos_errors_param = minos_errors[param]
+        for dir in ["lower", "upper"]:
+            assert pytest.approx(z_error_param[dir], rel=0.01) == minos_errors_param[dir]
