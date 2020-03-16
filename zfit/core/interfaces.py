@@ -12,16 +12,16 @@ from ..util import ztyping
 
 
 class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
-    @property
-    def name(self) -> str:
-        """Name prepended to all ops created by this `model`."""
-        raise NotImplementedError
+    # @property
+    # def name(self) -> str:
+    #     """Name prepended to all ops created by this `model`."""
+    #     raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
-    def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
-        raise NotImplementedError
+    # def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
+    #     raise NotImplementedError
 
 
 class ZfitDimensional(ZfitObject):
@@ -635,6 +635,11 @@ class ZfitParameter(ZfitNumeric):
 
     @property
     @abstractmethod
+    def name(self) -> str:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
     def floating(self) -> bool:
         raise NotImplementedError
 
@@ -647,24 +652,84 @@ class ZfitParameter(ZfitNumeric):
     def value(self) -> tf.Tensor:
         raise NotImplementedError
 
+    @abstractmethod
+    def read_value(self) -> tf.Tensor:
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def independent(self) -> bool:
         raise NotImplementedError
 
-    @property
-    @abc.abstractmethod
-    def shape(self):
+    # TODO: shape to numeric?
+    # @property
+    # @abc.abstractmethod
+    # def shape(self):
+    #     raise NotImplementedError
+
+
+class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
+    @abstractmethod
+    def randomize(self, minval, maxval, sampler):
+        """Update the parameter with a randomised value between minval and maxval and return it.
+
+
+        Args:
+            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler (): A sampler with the same interface as `tf.random.uniform`
+
+        Returns:
+            `tf.Tensor`: The sampled value
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_value(self, value):
+        """Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).
+
+        This operation won't, compared to the assign, return the read value but an object that *can* act as a context
+        manager.
+
+        Args:
+            value (float): The value the parameter will take on.
+        """
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
-    def dtype(self) -> tf.DType:
+    @abstractmethod
+    def has_limits(self) -> bool:
+        """If the parameter has limits set or not
+
+        Returns:
+            bool
+        """
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def at_limit(self) -> tf.Tensor:
+        """If the value is at the limit (or over it).
 
-class ZfitIndependentParameter(ZfitParameter):
-    pass
+        Returns:
+            `tf.Tensor`: Boolean `tf.Tensor` that tells whether the value is at the limits.
+
+        """
+        raise NotImplementedError
+
+    @property
+    def step_size(self) -> tf.Tensor:
+        """Step size of the parameter, the estimated order of magnitude of the uncertainty.
+
+        This can be crucial to tune for the minimization. A too large `step_size` can produce NaNs, a too small won't
+        converge.
+
+        If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
+
+        Returns:
+            :py:class:`tf.Tensor`: the step size
+        """
+        raise NotImplementedError
 
 
 class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):

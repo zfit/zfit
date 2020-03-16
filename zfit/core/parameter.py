@@ -235,18 +235,6 @@ class ZfitParameterMixin(BaseNumeric):
     def name(self) -> str:
         return self._own_name
 
-    @property
-    def floating(self):
-        if self._floating and not self.trainable:
-            raise RuntimeError("Floating is set to true but tf Variable is not trainable.")
-        return self._floating
-
-    @floating.setter
-    def floating(self, value):
-        if not isinstance(value, bool):
-            raise TypeError("floating has to be a boolean.")
-        self._floating = value
-
     def __del__(self):
         with suppress(NotImplementedError):  # PY36 bug, gets stuck
             if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
@@ -290,7 +278,11 @@ class ZfitParameterMixin(BaseNumeric):
 
 
 class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
-    pass
+
+    # Needed, otherwise tf variable complains about the name not having a ':' in there
+    @property
+    def _shared_name(self):
+        return self.name
 
 
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
@@ -325,71 +317,76 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         value = tf.cast(value, dtype=ztypes.float)
 
         def constraint(x):
-            return tfp.math.clip_by_value_preserve_gradient(x, clip_value_min=self.lower_limit,
-                                                            clip_value_max=self.upper_limit)
-
-        # self.constraint = constraint
+            return tfp.math.clip_by_value_preserve_gradient(x, clip_value_min=self.lower,
+                                                            clip_value_max=self.upper)
 
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
-        # self._true_name = name
 
-        self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
-        self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
-        # value = tf.cast(value, dtype=ztypes.float)  # TODO: init value mandatory?
+        self.lower = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
+        self.upper = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
         self.floating = floating
         self.step_size = step_size
-        # zfit.run.auto_initialize(self)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
 
-    # @property
-    # def name(self):
-    #     return self._true_name
-
-    def _hack_set_tf_name(self):
-        def setter(name):
-            self._true_name = name
-
-        def getter():
-            return self.name
-
-        return TemporarilySet(value=super().name, getter=getter, setter=setter)
-
     @property
-    def lower_limit(self):
+    def lower(self):
         limit = self._lower_limit
         if limit is None:
             limit = self._lower_limit_neg_inf
         return limit
 
-    @lower_limit.setter
+    @lower.setter
     @invalidates_cache
-    def lower_limit(self, value):
+    def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
         self._lower_limit = value
 
     @property
-    def upper_limit(self):
+    def upper(self):
         limit = self._upper_limit
         if limit is None:
             limit = self._upper_limit_neg_inf
         return limit
 
-    @upper_limit.setter
+    @upper.setter
     @invalidates_cache
-    def upper_limit(self, value):
+    def upper(self, value):
         if value is None and self._upper_limit_neg_inf is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
         self._upper_limit = value
 
     @property
-    def has_limits(self):
+    def has_limits(self) -> bool:
+        """If the parameter has limits set or not
+
+        Returns:
+            bool
+        """
         no_limits = self._lower_limit is None and self._upper_limit is None
         return not no_limits
+
+    @property
+    def at_limit(self) -> tf.Tensor:
+        """If the value is at the limit (or over it).
+
+        The precision is up to 1e-5 relative.
+
+        Returns:
+            `tf.Tensor`: Boolean `tf.Tensor` that tells whether the value is at the limits.
+
+        """
+        if not self.has_limits:
+            return tf.constant(False)
+
+        # Adding a slight tolerance to make sure we're not tricked by numerics
+        at_lower = z.unstable.less_equal(self.value(), self.lower + (tf.math.abs(self.lower * 1e-5)))
+        at_upper = z.unstable.greater_equal(self.value(), self.upper - (tf.math.abs(self.upper * 1e-5)))
+        return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
         value = super().value()
@@ -403,6 +400,18 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             value = self.constraint(value)
         return value
 
+    @property
+    def floating(self):
+        if self._floating and not self.trainable:
+            raise RuntimeError("Floating is set to true but tf Variable is not trainable.")
+        return self._floating
+
+    @floating.setter
+    def floating(self, value):
+        if not isinstance(value, bool):
+            raise TypeError("floating has to be a boolean.")
+        self._floating = value
+
     def _get_dependents(self):
         return {self}
 
@@ -411,22 +420,32 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return self._independent
 
     @property
-    def step_size(self):  # TODO: improve default step_size?
+    def step_size(self) -> tf.Tensor:  # TODO: improve default step_size?
+        """Step size of the parameter, the estimated order of magnitude of the uncertainty.
+
+        This can be crucial to tune for the minimization. A too large `step_size` can produce NaNs, a too small won't
+        converge.
+
+        If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
+
+        Returns:
+            :py:class:`tf.Tensor`: the step size
+        """
         step_size = self._step_size
         if step_size is None:
-            # auto-infer from limits
-            step_splits = 1e5
-            if self.has_limits:
-                step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
-            else:
-                step_size = self.DEFAULT_STEP_SIZE
-            if np.isnan(step_size):
-                if self.lower_limit == -np.infty or self.upper_limit == np.infty:
-                    step_size = self.DEFAULT_STEP_SIZE
-                else:
-                    raise ValueError("Could not set step size. Is NaN.")
-            # step_size = z.to_real(step_size)
-            self.step_size = step_size
+            #     # auto-infer from limits
+            #     step_splits = 1e5
+            #     if self.has_limits:
+            #         step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
+            #     else:
+            #         step_size = self.DEFAULT_STEP_SIZE
+            #     if np.isnan(step_size):
+            #         if self.lower_limit == -np.infty or self.upper_limit == np.infty:
+            #             step_size = self.DEFAULT_STEP_SIZE
+            #         else:
+            #             raise ValueError("Could not set step size. Is NaN.")
+            #     # step_size = z.to_real(step_size)
+            #     self.step_size = step_size
             step_size = z.convert_to_tensor(self.DEFAULT_STEP_SIZE)
         return step_size
 
@@ -439,6 +458,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     def set_value(self, value: ztyping.NumericalScalarType):
         """Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).
+
+        This operation won't, compared to the assign, return the read value but an object that *can* act as a context
+        manager.
 
         Args:
             value (float): The value the parameter will take on.
@@ -454,34 +476,32 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
     # TODO: make it a random variable? return tensor that evaluates new all the time?
-    def randomize(self, minval=None, maxval=None, sampler=tf.random.uniform):
-        """Update the value with a randomised value between minval and maxval.
+    def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
+                  maxval: Optional[ztyping.NumericalScalarType] = None,
+                  sampler: Callable = tf.random.uniform) -> tf.Tensor:
+        """Update the parameter with a randomised value between minval and maxval and return it.
+
 
         Args:
-            minval (Numerical):
-            maxval (Numerical):
-            sampler ():
+            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler (): A sampler with the same interface as `tf.random.uniform`
+
+        Returns:
+            `tf.Tensor`: The sampled value
         """
         if not run.experimental_is_eager():
             raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
                                           " what is ")
         if minval is None:
-            minval = self.lower_limit
-            # minval = self.sess.run(self.lower_limit)
-        # else:
-        #     minval = tf.cast(minval, dtype=self.dtype)
+            minval = self.lower
+        else:
+            minval = tf.cast(minval, dtype=self.dtype)
         if maxval is None:
-            maxval = self.upper_limit
-            # maxval = self.sess.run(self.upper_limit)
-        # else:
-        #     maxval = tf.cast(maxval, dtype=self.dtype)
+            maxval = self.upper
+        else:
+            maxval = tf.cast(maxval, dtype=self.dtype)
 
-        # value = z.random_uniform(shape=self.shape, minval=minval, maxval=maxval, dtype=self.dtype)
-        shape = self.shape.as_list()
-        # if shape == []:
-        #     size = 1
-        # eps = 1e-8
-        # value = sampler(size=self.shape, low=minval + eps, high=maxval - eps)
         value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)
@@ -498,6 +518,23 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             value = "graph-node"
         return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value:.4g}>"
 
+    # LEGACY, deprecate?
+    @property
+    def lower_limit(self):
+        return self.lower
+
+    @lower_limit.setter
+    def lower_limit(self, value):
+        self.lower = value
+
+    @property
+    def upper_limit(self):
+        return self.upper
+
+    @upper_limit.setter
+    def upper_limit(self, value):
+        self.upper = value
+
 
 class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
     pass
@@ -508,13 +545,13 @@ class BaseComposedParameter(BaseZParameter):
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
         if 'value' in kwargs:
-            raise BreakingAPIChangeError("'value' cannot be provided any longer, `value_fn` tois needed.")
+            raise BreakingAPIChangeError("'value' cannot be provided any longer, `value_fn` is needed.")
         super().__init__(value_fn=value_fn, name=name, params=params, **kwargs)
         # self.params = params
 
-    @property  # TODO: hacky way, proper name for params
-    def name(self):
-        return self._name
+    # @property  # TODO: hacky way, proper name for params
+    # def name(self):
+    #     return self._name
 
     def _get_dependents(self):
         dependents = self._extract_dependents(list(self.params.values()))
@@ -544,9 +581,9 @@ class ConstantParameter(BaseZParameter):
     def __init__(self, name, value, dtype=ztypes.float):
         super().__init__(name=name, value_fn=lambda: value, params={}, dtype=dtype)
 
-    @property  # TODO: hacky way, proper name for params
-    def name(self):
-        return self._name
+    # @property  # TODO: hacky way, proper name for params
+    # def name(self):
+    #     return self._name
 
     @property
     def floating(self):
@@ -565,17 +602,10 @@ class ConstantParameter(BaseZParameter):
 
     def __repr__(self):
         value = self.value()
-        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
+        return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
 register_tensor_conversion(ConstantParameter, overload_operators=True)
-
-
-# from tensorflow.python import _pywrap_utils
-
-# ConstantParameter._OverloadAllOperators()  # pylint: disable=protected-access
-# _pywrap_utils.RegisterType("Variable", Variable)
-# _pywrap_utils.RegisterType("ConstantParameter", ConstantParameter)
 
 
 class ComposedParameter(BaseComposedParameter):
@@ -678,8 +708,7 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None,
-                         graph_mode=False) -> "ZfitParameter":
+def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None) -> "ZfitParameter":
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:

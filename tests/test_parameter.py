@@ -106,12 +106,20 @@ def test_param_limits():
     param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
     param2 = Parameter('param2', 2.)
 
-    param1.load(upper + 0.5)
+    assert param1.has_limits
+    assert not param2.has_limits
+
+    param1.set_value(upper + 0.5)
     assert upper == param1.value().numpy()
-    param1.load(lower - 1.1)
+    assert param1.at_limit
+    param1.set_value(lower - 1.1)
     assert lower == param1.value().numpy()
-    param2.lower_limit = lower
-    param2.load(lower - 1.1)
+    assert param1.at_limit
+    param1.set_value(upper - 0.1)
+    assert not param1.at_limit
+
+    param2.lower = lower
+    param2.set_value(lower - 1.1)
     assert lower == param2.value().numpy()
 
 
@@ -138,7 +146,7 @@ def test_set_value():
     value2 = 2.
     value3 = 3.
     value4 = 4.
-    param1 = zfit.Parameter(name="test_set_value15", value=value1)
+    param1 = zfit.Parameter(name="param1", value=value1)
     assert param1.numpy() == value1
     with param1.set_value(value2):
         assert param1.numpy() == value2
