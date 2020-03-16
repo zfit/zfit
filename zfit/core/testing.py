@@ -8,6 +8,7 @@ from collections import OrderedDict
 from typing import Callable, Tuple, List, Union, Iterable
 
 import scipy.stats
+import tensorflow as tf
 
 from .interfaces import ZfitPDF
 from .parameter import ZfitParameterMixin
@@ -25,6 +26,7 @@ def teardown_function():
     ZfitParameterMixin._existing_names.clear()
 
     clear_caches()
+    tf.compat.v1.reset_default_graph()
 
 
 class BaseTester:

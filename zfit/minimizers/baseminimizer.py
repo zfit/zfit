@@ -299,5 +299,5 @@ def print_gradients(params, values, gradients, loss=None):
     for param, value, grad in zip(params, values, gradients):
         table.add_row([param.name, value, grad])
     if loss is not None:
-        table.add_row(["Loss value:", loss])
+        table.add_row(["Loss value:", loss, "|"])
     print(table.draw())

@@ -43,6 +43,7 @@ AxesTypeReturn = Union[Tuple[int], None]
 
 ObsTypeInput = Union[str, Iterable[str], "zfit.Space"]
 ObsTypeReturn = Union[Tuple[str, ...], None]
+ObsType = Tuple[str]
 
 # Space
 SpaceOrSpacesTypeInput = Union["zfit.Space", Iterable["zfit.Space"]]

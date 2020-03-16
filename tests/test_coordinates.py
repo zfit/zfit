@@ -177,3 +177,10 @@ def test_with_obs_or_axes(graph, testclass):
     assert coords_axes2.axes == axes
     with pytest.raises(AxesIncompatibleError):
         coords_obs2 = coords.with_axes(axes=coords_axes, allow_superset=False)
+
+    # check non-overlaping obs
+    with pytest.raises(ObsIncompatibleError):
+        coords_obs2.with_obs(['er', 'te', 'qwer', 'fd', 'asd'])
+
+    with pytest.raises(AxesIncompatibleError):
+        coords_obs2.with_axes(list(range(10, 15)))

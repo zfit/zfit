@@ -2,7 +2,7 @@
 #  Copyright (c) 2020 zfit
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable, Iterable, Union
+from typing import Callable, Iterable, Union, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -300,8 +300,12 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
     _independent_params = []
     DEFAULT_STEP_SIZE = 0.001
 
-    def __init__(self, name, value, lower_limit=None, upper_limit=None, step_size=None, floating=True,
-                 dtype=ztypes.float, **kwargs):
+    def __init__(self, name: str, value: ztyping.NumericalScalarType,
+                 lower_limit: Optional[ztyping.NumericalScalarType] = None,
+                 upper_limit: Optional[ztyping.NumericalScalarType] = None,
+                 step_size: Optional[ztyping.NumericalScalarType] = None,
+                 floating: bool = True,
+                 dtype: tf.DType = ztypes.float, **kwargs):
         """
             name : name of the parameter,
             value : starting value
@@ -411,7 +415,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         step_size = self._step_size
         if step_size is None:
             # auto-infer from limits
-            step_splits = 1e4
+            step_splits = 1e5
             if self.has_limits:
                 step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
             else:
@@ -506,6 +510,10 @@ class BaseComposedParameter(BaseZParameter):
         super().__init__(value_fn=value_fn, name=name, params=params, **kwargs)
         # self.params = params
 
+    @property  # TODO: hacky way, proper name for params
+    def name(self):
+        return self._name
+
     def _get_dependents(self):
         dependents = self._extract_dependents(list(self.params.values()))
         return dependents
@@ -552,6 +560,10 @@ class ConstantParameter(BaseZParameter):
 
     def _get_dependents(self) -> ztyping.DependentsType:
         return OrderedSet()
+
+    def __repr__(self):
+        value = self.value()
+        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
 register_tensor_conversion(ConstantParameter, overload_operators=True)

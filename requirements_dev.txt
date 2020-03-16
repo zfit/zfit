@@ -10,7 +10,7 @@ sphinx_bootstrap_theme
 twine>=1.10.0
 setuptools>=30.3.0
 
-pytest>=3.4.2
+pytest>=3.4.2,<5.4  # breaks unittests
 pytest-runner>=2.11.1
 pytest-rerunfailures>=6
 pytest-xdist

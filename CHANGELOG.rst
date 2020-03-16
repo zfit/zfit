@@ -6,7 +6,7 @@ Changelog
 Develop
 =======
 
-Complete refactoring of Spaces.
+Complete refactoring of Spaces. New behavior with extended. SumPDF refactoring
 
 
 
@@ -25,6 +25,18 @@ Major Features and Improvements
    Due to the ambiguity of the name `limits`, `area` etc (since they do only reflect the rectangular case)
    method with leading `rect_*` have been added (`rect_limits`, `rect_area` etc.) and are encouraged to be used.
 
+ - Extending a PDF is more straightforward and removes any "magic". The philosophy is: a PDF can be extended
+   or not. But it does not change the fundamental behavior of functions.
+
+ - SumPDF has been refactored and behaves now as follows:
+   - Giving in pdfs (extended or not or mixed) *and* fracs (either length pdfs or one less) will create a
+     non-extended SumPDF using the fracs. The fact that the pdfs are maybe extended is ignored.
+     This will lead to highly consistent behavior.
+     If the number of fracs given equals the number of pdfs, it is up to the user (currently) to take care of
+     the normalization.
+     *Only* if *all* pdfs are extended **and** no fracs are given, the sumpdf will be using the yields as
+     normalized fracs and be extended.
+
 
 Breaking changes
 ------------------
@@ -34,6 +46,8 @@ Breaking changes
 
    To extract limits from multiple limits, `MultiSpace` and `Space` are both iterables, returning
    the containing spaces respectively itself (for the `Space` case).
+ - SumPDF changed in the behavior. Read above in the Major Features and Improvement.
+ - Integrals of extended PDFs are not extended anymore.
 
 
 Bug fixes and small changes
