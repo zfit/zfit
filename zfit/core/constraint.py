@@ -67,14 +67,6 @@ class SimpleConstraint(BaseConstraint):
 
         super().__init__(name="SimpleConstraint", params=params)
 
-    # def _get_dependents(self):
-    #     dependents = self._simple_func_dependents
-    #     if dependents is None:
-    #         independent_params = tf.compat.v1.get_collection("zfit_independent")
-    #         dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-    #         self._simple_func_dependents = dependents
-    #     return dependents
-
     def _value(self):
         return self._simple_func()
 

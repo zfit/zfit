@@ -1,7 +1,6 @@
 #  Copyright (c) 2020 zfit
 import numpy as np
 import pytest
-import tensorflow as tf
 
 import zfit
 from zfit import z
@@ -14,17 +13,16 @@ true_c = -0.3
 
 
 def create_loss():
-    with tf.compat.v1.variable_scope("func1"):
-        a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
-                                 step_size=z.constant(0.1))
-        b_param = zfit.Parameter("variable_b15151", 3.5)
-        c_param = zfit.Parameter("variable_c15151", -0.04)
-        obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
+    a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
+                             step_size=z.constant(0.1))
+    b_param = zfit.Parameter("variable_b15151", 3.5)
+    c_param = zfit.Parameter("variable_c15151", -0.04)
+    obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
-        # load params for sampling
-        a_param.load(true_a)
-        b_param.load(true_b)
-        c_param.load(true_c)
+    # load params for sampling
+    a_param.load(true_a)
+    b_param.load(true_b)
+    c_param.load(true_c)
 
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
@@ -43,7 +41,6 @@ def create_fitresult(minimizer_class_and_kwargs):
     loss, (a_param, b_param, c_param) = create_loss()
 
     true_minimum = loss.value().numpy()
-
 
     for param in [a_param, b_param, c_param]:
         param.assign(param.initialized_value())  # reset the value
@@ -79,7 +76,6 @@ def test_fmin(minimizer_class_and_kwargs):
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_covariance(minimizer_class_and_kwargs):
-
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     hesse = result.hesse()

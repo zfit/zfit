@@ -118,7 +118,7 @@ def run_no_nan(func, x):
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
         value_with_nans = tf.math.real(value_with_nans) + tf.math.imag(value_with_nans)  # we care only about NaN or not
     finite_bools = tf.math.is_finite(tf.cast(value_with_nans, dtype=tf.float64))
-    finite_indices = tf.compat.v1.where(finite_bools)
+    finite_indices = tf.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
     vals_no_nan = func(x=new_x)

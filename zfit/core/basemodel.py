@@ -335,8 +335,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_integrate(self, limits, norm_range, name):
-        with self._name_scope(name, values=[limits, norm_range]):
-            with suppress(NotImplementedError):
+
+        with suppress(NotImplementedError):
                 return self._integrate(limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
                 return self._hook_analytic_integrate(limits=limits, norm_range=norm_range)
@@ -464,7 +464,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_analytic_integrate(self, limits, norm_range, name):
-        with self._name_scope(name, values=[limits, norm_range]):
             with suppress(NotImplementedError):
                 return self._analytic_integrate(limits=limits, norm_range=norm_range)
             return self._fallback_analytic_integrate(limits=limits, norm_range=norm_range)
@@ -524,7 +523,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_numeric_integrate(self, limits, norm_range, name):
-        with self._name_scope(name, values=[limits, norm_range]):
             with suppress(NotImplementedError):
                 return self._numeric_integrate(limits=limits, norm_range=norm_range)
             return self._fallback_numeric_integrate(limits=limits, norm_range=norm_range)
@@ -588,8 +586,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_partial_integrate(self, x, limits, norm_range, name):
-        with self._name_scope(name, values=[x, limits, norm_range]):
-            with suppress(NotImplementedError):
+
+        with suppress(NotImplementedError):
                 return self._partial_integrate(x=x, limits=limits, norm_range=norm_range)
             with suppress(NotImplementedError):
                 return self._hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
@@ -687,7 +685,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_partial_analytic_integrate(self, x, limits, norm_range, name):
-        with self._name_scope(name, values=[x, limits, norm_range]):
             with suppress(NotImplementedError):
                 return self._partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
             return self._fallback_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
@@ -753,7 +750,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_partial_numeric_integrate(self, x, limits, norm_range, name):
-        with self._name_scope(name, values=[x, limits, norm_range]):
             with suppress(NotImplementedError):
                 return self._partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range)
             return self._fallback_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range)
@@ -913,7 +909,6 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             raise NotImplementedError("MultipleLimits auto handling in sample currently not supported.")
 
     def _call_sample(self, n, limits, name):
-        with self._name_scope(name, values=[n, limits]):
             with suppress(NotImplementedError):
                 return self._sample(n=n, limits=limits)
             with suppress(NotImplementedError):
@@ -958,13 +953,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                                               sample_and_weights_factory=self._sample_and_weights)
         return sample
 
-    @contextlib.contextmanager
-    def _name_scope(self, name=None, values=None):
-        """Helper function to standardize op scope."""
 
-        # with tf.name_scope(self.name):
-        with tf.compat.v1.name_scope(name, values=([] if values is None else values)) as scope:
-            yield scope
 
     @classmethod
     def register_additional_repr(cls, **kwargs):

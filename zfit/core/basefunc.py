@@ -64,8 +64,8 @@ class BaseFunc(BaseModel, ZfitFunc):
         return self._call_value(x=x, name=name)
 
     def _call_value(self, x, name):
-        with self._name_scope(name, values=[x]):
-            try:
+
+        try:
                 return self._func(x=x)
             except ValueError as error:
                 raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"

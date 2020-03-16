@@ -5,6 +5,7 @@ from typing import Dict, Type
 import numpy as np
 import pytest
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 import zfit.core.basepdf
 import zfit.models.dist_tfp
@@ -84,7 +85,7 @@ def create_mu_sigma_2(nameadd=""):
 def create_wrapped_gauss(nameadd=""):
     mu2, sigma2 = create_mu_sigma_2(nameadd)
     gauss_params = dict(loc=mu2, scale=sigma2)
-    tf_gauss = tf.compat.v1.distributions.Normal
+    tf_gauss = tfp.distributions.Normal
     return zfit.models.dist_tfp.WrapDistribution(tf_gauss, dist_params=gauss_params, obs=obs1, name="tf_gauss1")
 
 

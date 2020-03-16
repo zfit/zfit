@@ -14,7 +14,7 @@ def set_seed(seed):
       Set random seed for numpy
     """
     np.random.seed(seed)
-    tf.compat.v1.random.set_random_seed(seed)
+    tf.random.set_seed(seed)
 
 
 _verbosity = 5

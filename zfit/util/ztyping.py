@@ -87,9 +87,6 @@ ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]
 ParametersType = Dict[str, "zfit.core.interfaces.ZfitParameter"]
 ParamTypeInput = Union['zfit.core.interfaces.ZfitParameter', NumericalScalarType]
 
-# TensorFlow specific
-SessionType = Optional[tf.compat.v1.Session]
-
 # Zfit Structure
 BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',
                        'zfit.core.interfaces.ZfitFunction',

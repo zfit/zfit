@@ -246,7 +246,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_normalization(self, limits, name):
         # TODO: caching? alternative
-        with self._name_scope(name, values=[limits]):
             with suppress(NotImplementedError):
                 return self._normalization(limits=limits)
             return self._fallback_normalization(limits)
@@ -282,7 +281,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_unnormalized_pdf(x=x, name=name)
 
     def _call_unnormalized_pdf(self, x, name):
-        with self._name_scope(name, values=[x]):
             # try:
             return self._unnormalized_pdf(x)
         # except ValueError as error:
@@ -326,7 +324,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_pdf(x=x, norm_range=norm_range, name=name)
 
     def _call_pdf(self, x, norm_range, name):
-        with self._name_scope(name, values=[x, norm_range]):
             with suppress(NotImplementedError):
                 return self._pdf(x, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -370,7 +367,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_log_pdf(x=x, norm_range=norm_range, name=name)
 
     def _call_log_pdf(self, x, norm_range, name):
-        with self._name_scope(name, values=[x, norm_range]):
             with suppress(NotImplementedError):
                 return self._log_pdf(x=x, norm_range=norm_range)
             with suppress(NotImplementedError):
@@ -381,16 +377,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
 
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
-        warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
-                      "respect to the loss function.")
-        if params is not None:
-            params = convert_to_container(params)
-        if params is None or isinstance(params[0], str):
-            params = self.get_params(only_floating=False, names=params)
-
-        probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(ys=prob, xs=params) for prob in z.unstack_x(probs, always_list=True)]
-        return tf.stack(gradients)
+        raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and not norm_range.limits_are_false:

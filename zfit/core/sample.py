@@ -253,7 +253,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # correctly. A bug report on will be filled (WIP).
             # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
             # a value smaller by a factor of 1e-14
-            # with tf.control_dependencies([probabilities]):
             # UPDATE: this works now? Was it just a one-time bug?
 
             # safety margin, predicting future, improve for small samples?
@@ -261,9 +260,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             weights_clipped = tf.maximum(weights, weights_maximum * 1e-5)
             # prob_weights_ratio = probabilities / weights
             prob_weights_ratio = probabilities / weights_clipped
-            # min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)
             max_prob_weights_ratio = tf.reduce_max(input_tensor=prob_weights_ratio)
-            ratio_threshold = 50000000.
             # clipping means that we don't scale more for a certain threshold
             # to properly account for very small numbers, the thresholds should be scaled to match the ratio
             # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
