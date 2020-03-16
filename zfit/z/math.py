@@ -1,7 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import itertools
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Optional
 
 import numdifftools
 import tensorflow as tf
