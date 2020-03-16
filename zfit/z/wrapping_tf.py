@@ -3,7 +3,7 @@
 import functools
 from typing import Any
 
-from tensorflow.compat.v1 import DType
+
 import tensorflow as tf
 
 
@@ -36,7 +36,7 @@ def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, 
     return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
 
-def random_poisson(lam: Any, shape: Any, dtype: DType = ztypes.float, seed: Any = None, name: Any = None):
+def random_poisson(lam: Any, shape: Any, dtype: tf.DType = ztypes.float, seed: Any = None, name: Any = None):
     return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
 
 
