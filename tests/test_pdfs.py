@@ -167,7 +167,7 @@ def test_func_sum():
     # vals = vals.numpy()
     vals = zfit.run(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])
-    np.testing.assert_allclose(vals, true_gaussian_sum(test_values), rtol=1e-2)  # MC integral
+    np.testing.assert_allclose(vals, true_gaussian_sum(test_values), rtol=3e-2)  # MC integral
 
 
 def test_normalization_sum_gauss():
