@@ -52,11 +52,12 @@ Example with a pdf that caches the normalization:
 #  Copyright (c) 2020 zfit
 
 import functools
+import weakref
 from abc import abstractmethod
 from typing import Iterable, Union, Mapping
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from . import ztyping
 from .container import convert_to_container
@@ -96,12 +97,13 @@ class ZfitCachable:
 
 class Cachable(ZfitCachable):
     graph_caching_methods = []
-    old_graph_caching_methods = []
+    instances = weakref.WeakSet()
 
     def __init__(self, *args, **kwargs):
         self._cache = {}
         self._cachers = {}
         self.reset_cache_self()
+        self.instances.add(self)
         super().__init__(*args, **kwargs)
 
     def __init_subclass__(cls) -> None:
@@ -111,7 +113,7 @@ class Cachable(ZfitCachable):
             if not func_name.startswith("__"):
                 func = getattr(cls, func_name)
                 if callable(func) and hasattr(func, 'zfit_graph_cache_registered'):
-                    assert hasattr(func, "_descriptor_cache"), "TensorFlow internals have changed. Need to update cache"
+                    # assert hasattr(func, "_descriptor_cache"), "TensorFlow internals have changed. Need to update cache"
                     func.zfit_graph_cache_registered = True
                     graph_caching_methods.append(func)
         cls.graph_caching_methods = graph_caching_methods
@@ -157,7 +159,8 @@ class Cachable(ZfitCachable):
         self.reset_cache_self()
 
     def _clean_cache(self):
-        # pass
+        # for func_holder in self.graph_caching_methods:
+        #     func_holder.reset
         self._cache = {}
         return
 
@@ -226,9 +229,9 @@ class FunctionCacheHolder(Cachable):
         cachables_values = convert_to_container(cachables_mapping.values(), container=list)
         cachables_all = cachables + cachables_values
         self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
-        super().__init__()
+        super().__init__()  # resets the cache
         self.add_cache_dependents(cachables_all)
-        self.is_valid = True
+        self.is_valid = True  # needed to make the cache valid again
 
     def reset_cache_self(self):
         self.is_valid = False
@@ -293,10 +296,16 @@ def clear_caches():
     from zfit.z.zextension import FunctionWrapperRegistry, FunctionWrapperRegistry2
     for func_registry in [FunctionWrapperRegistry, FunctionWrapperRegistry2]:
         for registry in func_registry.registries:
+            for all_meth in registry.function_cache.values():
+                for wrapped_meth in all_meth:
+                    wrapped_meth = wrapped_meth.wrapped_func
+                    wrapped_meth._created_variables = None
+                    wrapped_meth._stateful_fn = None
+                    wrapped_meth._stateless_fn = None
+                    wrapped_meth._descriptor_cache.clear()
+
+        for registry in func_registry.registries:
             registry.reset()
-        for method in FunctionWrapperRegistry.wrapped_functions:
-            method._created_variables = None
-            method._stateful_fn = None
-            method._stateless_fn = None
-            method._descriptor_cache.clear()
-    Cachable.old_graph_caching_methods.clear()
+    for instance in Cachable.instances:
+        instance.reset_cache('global')
+    # Cachable.graph_caching_methods.clear()

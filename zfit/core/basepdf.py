@@ -69,7 +69,7 @@ from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (AlreadyExtendedPDFError,
-                              NotExtendedPDFError, )
+                              NotExtendedPDFError, BreakingAPIChangeError)
 from ..util.temporary import TemporarilySet
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
@@ -146,34 +146,34 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _single_hook_integrate(self, limits, norm_range, name='hook_integrate'):
         integral = super()._single_hook_integrate(limits=limits, norm_range=norm_range, name=name)
-        integral = self.apply_yield(integral, norm_range=norm_range)
+        # integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
     def _single_hook_analytic_integrate(self, limits, norm_range, name='hook_analytic_integrate'):
         integral = super()._single_hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
-        integral = self.apply_yield(integral, norm_range=norm_range)
+        # integral = self.apply_yield(integral, norm_range=norm_range)
         return integral
 
     def _single_hook_numeric_integrate(self, limits, norm_range, name='hook_numeric_integrate'):
         numeric_integral = super()._single_hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
-        numeric_integral = self.apply_yield(numeric_integral, norm_range=norm_range)
+        # numeric_integral = self.apply_yield(numeric_integral, norm_range=norm_range)
         return numeric_integral
 
     def _single_hook_partial_integrate(self, x, limits, norm_range, name='hook_partial_integrate'):
         partial_integral = super()._single_hook_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
-        partial_integral = self.apply_yield(partial_integral, norm_range=norm_range)
+        # partial_integral = self.apply_yield(partial_integral, norm_range=norm_range)
         return partial_integral
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='hook_partial_analytic_integrate'):
         part_analytic_int = super()._single_hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range,
                                                                             name=name)
-        part_analytic_int = self.apply_yield(part_analytic_int, norm_range=norm_range)
+        # part_analytic_int = self.apply_yield(part_analytic_int, norm_range=norm_range)
         return part_analytic_int
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='hook_partial_numeric_integrate'):
         part_numeric_int = super()._single_hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range,
                                                                           name=name)
-        part_numeric_int = self.apply_yield(part_numeric_int, norm_range=norm_range)
+        # part_numeric_int = self.apply_yield(part_numeric_int, norm_range=norm_range)
         return part_numeric_int
 
     @property
@@ -272,14 +272,13 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             :py:class:`tf.Tensor`: 1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
         """
-        # if component_norm_range is None:
-        #     component_norm_range = self._get
+        if component_norm_range is not None:
+            raise BreakingAPIChangeError("component norm range should not be given anymore. If you want to set the norm"
+                                         " range for the components, use `set_norm_range(..., propagate=True)")
         with self._convert_sort_x(x) as x:
-            component_norm_range = self._check_input_norm_range(component_norm_range, caller_name=name,
-                                                                none_is_error=False)
-            return self._single_hook_unnormalized_pdf(x, component_norm_range, name)
+            return self._single_hook_unnormalized_pdf(x, name)
 
-    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
+    def _single_hook_unnormalized_pdf(self, x, name):
         return self._call_unnormalized_pdf(x=x, name=name)
 
     def _call_unnormalized_pdf(self, x, name):
@@ -418,9 +417,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @invalidates_cache
     def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
-        """Make the model extended by (temporarily) setting a yield.
+        """Make the model extended by setting a yield.
 
-        This alters the behavior of `model` and similar and `integrate` and similar. If there is a
+        This does not alter the general behavior of the PDF. If there is a
         `norm_range` given, the output of the above functions does not represent a normalized
         probability density function anymore but corresponds to a number probability.
 
@@ -428,14 +427,8 @@ class BasePDF(ZfitPDF, BaseModel):
             value ():
         """
 
-        # TODO(Mayou36): check input for yield?
-        def setter(value):
-            self._set_yield(value=value)
+        self._set_yield(value=value)
 
-        def getter():
-            return self.get_yield()
-
-        return TemporarilySet(value=value, setter=setter, getter=getter)
 
     def create_extended(self, yield_: ztyping.ParamTypeInput, name_addition="_extended") -> "ZfitPDF":
         """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
@@ -459,9 +452,12 @@ class BasePDF(ZfitPDF, BaseModel):
         new_pdf._set_yield_inplace(value=yield_)
         return new_pdf
 
-    def _set_yield(self, value: Union[Parameter, None]):
-        if value is not None:
-            value = convert_to_parameter(value)
+    def _set_yield(self, value: ztyping.ParamTypeInput):
+        if value is None:
+            raise BreakingAPIChangeError("Cannot unset a yield (anymore).")
+        if self.is_extended:
+            raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
+        value = convert_to_parameter(value)
         self._yield = value
 
     @property
@@ -512,12 +508,7 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
-            norm_range = self_simple._get_component_norm_range()
-            if norm_range not in (None, False) and norm_range.has_limits:
-                from zfit.models.functor import BaseFunctor
 
-                if isinstance(self, BaseFunctor):
-                    self._set_component_norm_range(norm_range)
             return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs

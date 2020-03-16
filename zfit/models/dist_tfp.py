@@ -91,20 +91,22 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
         value = x.value()
-        return tf.reshape(self.distribution.prob(value=value, name="unnormalized_pdf"),
-                          shape=(-1,))  # TODO batch shape just removed
+        probs = tf.reshape(self.distribution.prob(value=value, name="unnormalized_pdf"), shape=(-1,))
+        return probs  # TODO batch shape just removed
 
     # TODO: register integral
     @supports()
     def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits._rect_limits_tf
+        lower = z.unstack_x(lower)
+        upper = z.unstack_x(upper)
         tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
         # if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
         #     return z.to_real(1.)  # tfp distributions are normalized to 1
         # lower = z.to_real(lower[0], dtype=self.dtype)
         # upper = z.to_real(upper[0], dtype=self.dtype)
         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
-        return integral[0]
+        return integral
 
     def _analytic_sample(self, n, limits: Space):
         return tfd_analytic_sample(n=n, dist=self.distribution, limits=limits)

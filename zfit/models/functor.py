@@ -8,26 +8,22 @@ Their implementation is often non-trivial.
 #  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
-import itertools
-from typing import Union, List, Optional
+from typing import List, Optional
 
 import tensorflow as tf
 
-import numpy as np
-
-from zfit import z
-from ..core.interfaces import ZfitPDF, ZfitModel, ZfitSpace
-from ..core.space import no_norm_range, supports
 from ..core.basepdf import BasePDF
-from ..core.parameter import Parameter, convert_to_parameter, ComposedParameter
-from ..models.basefunctor import FunctorMixin
+from ..core.coordinates import convert_to_obs_str
+from ..core.interfaces import ZfitPDF, ZfitModel, ZfitData
+from ..core.parameter import convert_to_parameter
+from ..core.space import supports
+from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
+from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ExtendedPDFError, AlreadyExtendedPDFError, AxesAmbiguousError,
-                              LimitsOverdefinedError,
-                              ModelIncompatibleError, )
-from ..util.temporary import TemporarilySet
-from ..settings import ztypes, run
+from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError, NormRangeUnderdefinedError)
+from ..util.warnings import warn_advanced_feature
+from ..z.random import counts_multinomial
 
 
 class BaseFunctor(FunctorMixin, BasePDF):
@@ -36,91 +32,49 @@ class BaseFunctor(FunctorMixin, BasePDF):
         self.pdfs = convert_to_container(pdfs)
         super().__init__(models=self.pdfs, name=name, **kwargs)
         self._set_norm_range_from_daugthers()
-        self._component_norm_range_holder = None
 
-    def _get_component_norm_range(self):
-        return self._component_norm_range_holder
+    # TODO: remove?
+    # def _get_component_norm_range(self):
+    #     return self._component_norm_range_holder
 
-    def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
-        norm_range = self._check_input_norm_range(norm_range=norm_range)
-        if not norm_range.has_limits:
-            if self._get_component_norm_range() is None:
-                raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
-                                   "`component_norm_range`.")
-
-        def setter(value):
-            self._component_norm_range_holder = value
-
-        return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
+    # TODO: remove?
+    # def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
+    #     norm_range = self._check_input_norm_range(norm_range=norm_range)
+    #
+    #     # TODO: remove completely? cleanup functor, norm_range?
+    #     # if not norm_range.has_limits:
+    #     #     if self._get_component_norm_range() is None:
+    #     #         raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
+    #     #                            "`component_norm_range`.")
+    #
+    #     def setter(value):
+    #         self._component_norm_range_holder = value
+    #
+    #     return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
 
     def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
         if not norm_range.limits_are_set:
-            norm_range_candidat = self._infer_norm_range_from_daughters()
-            # if norm_range_candidat is False:
-            #     raise LimitsOverdefinedError("Daughter pdfs do not agree on a `norm_range` and no `norm_range`"
-            #                                  "has been explicitly set.")
-            if isinstance(norm_range_candidat, ZfitSpace):  # TODO(Mayou36, #77): different obs?
-                norm_range = norm_range_candidat
+            norm_range = extract_daughter_input_obs(obs=norm_range,
+                                                    spaces=[model.space for model in self.models])
+        if not norm_range.limits_are_set:
+            raise NormRangeUnderdefinedError(
+                f"Daughter pdfs {self.pdfs} do not agree on a `norm_range` and/or no `norm_range`"
+                "has been explicitly set.")
 
-        self._norm_range = norm_range
+        self.set_norm_range(norm_range)
 
-    def _infer_norm_range_from_daughters(self):
-        norm_ranges = set(model.norm_range for model in self.models)
-        obs = set(norm_range.obs for norm_range in norm_ranges)
-        if len(norm_ranges) == 1:
-            return norm_ranges.pop()
-        elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
-            return None
-        else:
-            return False
-
-    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
-        if component_norm_range.limits_are_set:
-            with self._set_component_norm_range(norm_range=component_norm_range):
-                return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
-        else:
-            return super()._single_hook_unnormalized_pdf(x, component_norm_range, name)
-
-    def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_integrate(limits, norm_range, name)
-
-    def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_analytic_integrate(limits, norm_range, name)
-
-    def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_numeric_integrate(limits, norm_range, name)
-
-    def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_partial_integrate(x, limits, norm_range, name)
-
-    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)
-
-    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)
-
-    def _single_hook_normalization(self, limits, name="_hook_normalization"):
-        with self._set_component_norm_range(norm_range=limits):
-            return super()._single_hook_normalization(limits, name)
-
-    def _single_hook_pdf(self, x, norm_range, name="_hook_pdf"):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_pdf(x, norm_range, name)
-
-    def _single_hook_log_pdf(self, x, norm_range, name):
-        with self._set_component_norm_range(norm_range=norm_range):
-            return super()._single_hook_log_pdf(x, norm_range, name)
-
-    def _single_hook_sample(self, n, limits, name):
-        with self._set_component_norm_range(norm_range=limits):
-            return super()._single_hook_sample(n, limits, name)
+    # TODO: remove below?
+    #
+    # def _infer_space_from_daughters(self):
+    #     space = set(model.space for model in self.models)
+    #     obs = set(norm_range.obs for norm_range in space)
+    #     if len(space) == 1:
+    #         return space.pop()
+    #     elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
+    #         return None
+    #     else:
+    #         return False
 
     @property
     def pdfs_extended(self):
@@ -136,155 +90,116 @@ class SumPDF(BaseFunctor):
     def __init__(self, pdfs: List[ZfitPDF], fracs: Optional[ztyping.ParamTypeInput] = None,
                  obs: ztyping.ObsTypeInput = None,
                  name: str = "SumPDF"):
-        """Create the sum of the `pdfs` with `fracs` as coefficients.
+        """Create the sum of the `pdfs` with `fracs` as coefficients or the yields, if extended pdfs are given.
+
+        If *all* pdfs are extended, the fracs is optional and the (normalized) yields will be used as fracs.
+        If fracs is given, this will be used as the fractions, regardless of whether the pdfs have a yield or not.
+
+        The parameters of the SumPDF are the fractions that are used to multiply the output of each daughter pdf.
+        They can be accessed with `pdf.params` and have names f"frac_{i}" with i starting from 0 and going to the number
+        of pdfs given.
+
+        To get the component outputs of this pdf, e.g. to plot it, use `pdf.params.values()` to iterate through the
+        fracs and `pdfs` to get the pdfs. For example
+
+        .. code-block:: python
+
+            for pdf, frac in zip(sumpdf.pdfs, sumpdf.params.values()):
+                frac_integral = pdf.integrate(...) * frac
 
         Args:
-            pdfs (pdf): The pdfs to add.
-            fracs (iterable): coefficients for the linear combination of the pdfs. If pdfs are
-                extended, this throws an error.
-
+            pdfs (pdf): The pdfs to be added.
+            fracs (iterable): coefficients for the linear combination of the pdfs. Optional if *all* pdfs are extended.
                   - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                     The last coefficient will equal to 1 - sum(frac)
-                  - len(frac) == len(pdf) each pdf in `pdfs` will become an extended pdf with the
-                    given yield.
+                  - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
             name (str):
+
+        Raises
+            ModelIncompatibleError: if
         """
-        # Check user input, improve TODO
+        # Check user input
         self._fracs = None
 
-        set_yield_at_end = False
         pdfs = convert_to_container(pdfs)
         self.pdfs = pdfs
         if len(pdfs) < 2:
-            raise ValueError("Cannot build a sum of a single pdf")
-        if fracs is not None:
-            fracs = convert_to_container(fracs)
-            fracs = [convert_to_parameter(frac) for frac in fracs]
+            raise ValueError(f"Cannot build a sum of a single pdf {pdfs}")
+        common_obs = obs if obs is not None else pdfs[0].obs
+        common_obs = convert_to_obs_str(common_obs)
+        if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
+            raise ObsIncompatibleError("Currently, sums are only supported in the same observables")
 
         # check if all extended
-        extended_pdfs = self.pdfs_extended
-        implicit = None
-        extended = None
-        if all(extended_pdfs):
-            implicit = True
-            extended = True
+        are_extended = [pdf.is_extended for pdf in pdfs]
+        all_extended = all(are_extended)
+        no_extended = not any(are_extended)
 
-        # all extended except one -> fraction
-        elif sum(extended_pdfs) == len(extended_pdfs) - 1:
-            implicit = True
-            extended = False
+        fracs = convert_to_container(fracs)
+        if fracs:  # not None or empty list
+            fracs = [convert_to_parameter(frac) for frac in fracs]
+        elif not all_extended:
+            raise ModelIncompatibleError(f"Not all pdf {pdfs} are extended and no fracs {fracs} are provided.")
 
-        # no pdf is extended -> using `fracs`
-        elif not any(extended_pdfs) and fracs is not None:
-            # make extended
-            if len(fracs) == len(pdfs):
-                implicit = False
-                extended = True
-            elif len(fracs) == len(pdfs) - 1:
-                implicit = False
-                extended = False
+        if not no_extended and fracs:
+            warn_advanced_feature(f"This SumPDF is built with fracs {fracs} and (some or all) pdf extended {pdfs}."
+                                  f" This will ignore the yields of the already extended pdfs and the result will"
+                                  f" be a not extended SumPDF.", identifier='sum_extended_frac')
 
         # catch if args don't fit known case
-        value_error = implicit is None or extended is None
-        if (implicit and fracs is not None) or value_error:
-            raise ModelIncompatibleError("Wrong arguments. Either"
-                                         "\n a) `pdfs` are not extended and `fracs` is given with length pdfs "
-                                         "(-> pdfs get extended) or pdfs - 1 (fractions)"
-                                         "\n b) all or all except 1 `pdfs` are extended and fracs is None.")
 
-        # create fracs if one is not extended
-        if not extended and implicit:
-            fracs = []
-            not_extended_position = None
-            new_pdfs = []
-            for i, pdf in enumerate(pdfs):
-                if pdf.is_extended:
-                    fracs.append(pdf.get_yield())
-                    pdf = pdf.copy()
-                    pdf._set_yield_inplace(None)  # make non-extended
+        if fracs:
+            if not len(fracs) in (len(pdfs), len(pdfs) - 1):
+                raise ModelIncompatibleError(f"If all PDFs are not extended {pdfs}, the fracs {fracs} have to be of"
+                                             f" the same length as pdf or one less.")
 
-                else:
-                    fracs.append(tf.constant(0., dtype=ztypes.float))
-                    not_extended_position = i
-                new_pdfs.append(pdf)
-            pdfs = new_pdfs
-            copied_fracs = fracs.copy()
-            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(copied_fracs)
-            remaining_frac = convert_to_parameter(remaining_frac_func,
-                                                  dependents=[convert_to_parameter(f) for f in copied_fracs])
-            if run.numeric_checks:
-                assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
-                                      data=[remaining_frac])  # check fractions
-                deps = [assert_op]
+            # create fracs if one is missing
+            elif len(fracs) == len(pdfs) - 1:
+                remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+                remaining_frac = convert_to_parameter(remaining_frac_func,
+                                                      dependents=fracs)
+                if run.numeric_checks:
+                    tf.debugging.assert_non_negative(remaining_frac, tf.constant(0., dtype=ztypes.float),
+                                                     f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
+
+                # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
+                fracs_cleaned = fracs + [remaining_frac]
+
             else:
-                deps = []
-            fracs[not_extended_position] = remaining_frac
-            implicit = False  # now it's explicit
+                fracs_cleaned = fracs
+            param_fracs = fracs_cleaned
 
-        elif not extended and not implicit:
-            # remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
-            copied_fracs = fracs.copy()
-
-            def remaining_frac_func():
-                return tf.constant(1., dtype=ztypes.float) - tf.add_n(copied_fracs)
-
-            remaining_frac = convert_to_parameter(remaining_frac_func,
-                                                  dependents=[convert_to_parameter(f) for f in copied_fracs])
-            if run.numeric_checks:
-                assert_op = tf.Assert(tf.greater_equal(remaining_frac, tf.constant(0., dtype=ztypes.float)),
-                                      data=[remaining_frac])  # check fractions
-                deps = [assert_op]
-            else:
-                deps = []
-            fracs.append(remaining_frac)
-
-        # make extended
-        elif extended and not implicit:
-            yields = fracs
-            pdfs = [pdf.create_extended(yield_) for pdf, yield_ in zip(pdfs, yields)]
-
-            implicit = True
-
-        elif extended and implicit:
+        # for the extended case, take the yields, normalize them, in case no fracs are given.
+        if all_extended and not fracs:
             yields = [pdf.get_yield() for pdf in pdfs]
 
-        if extended:
-            # TODO(Mayou36): convert to correct dtype
             def sum_yields_func():
                 return tf.reduce_sum(
-                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields.copy()])
+                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
 
             sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
             yield_fracs = [convert_to_parameter(lambda yield_=yield_: yield_ / sum_yields, dependents=yield_)
                            for yield_ in yields]
 
-            self.fracs = yield_fracs
-            set_yield_at_end = True
-            self._maybe_extended_fracs = [tf.constant(1, dtype=ztypes.float)] * len(self.pdfs)
-        else:
-            self._maybe_extended_fracs = fracs
+            fracs_cleaned = None
+            param_fracs = yield_fracs
 
         self.pdfs = pdfs
+        self._fracs = param_fracs
+        self._original_fracs = fracs_cleaned
 
         params = OrderedDict()
-        # TODO(Mayou36): this is not right. Where to create the params if extended? The correct fracs?
-        for i, frac in enumerate(self._maybe_extended_fracs):
+        for i, frac in enumerate(param_fracs):
             params['frac_{}'.format(i)] = frac
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
-        if set_yield_at_end:
+        if all_extended and not fracs_cleaned:
             self._set_yield_inplace(sum_yields)
+            # self.set_yield(sum_yields)  # TODO(SUM): why not the public method below?
 
     @property
     def fracs(self):
-        fracs = self._fracs
-        if fracs is None:
-            fracs = self._maybe_extended_fracs
-        return fracs
-
-    @fracs.setter
-    def fracs(self, value):
-        self._fracs = value
+        return self._fracs
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool):
         if all(self.pdfs_extended):
@@ -293,8 +208,14 @@ class SumPDF(BaseFunctor):
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
     def _unnormalized_pdf(self, x):
-        norm_range = self._get_component_norm_range()
-        return self._pdf(x=x, norm_range=norm_range)
+
+        # TODO: cleanup component ranges
+        # norm_range = self._get_component_norm_range()
+        # return self._pdf(x=x, norm_range=norm_range)
+        pdfs = self.pdfs
+        fracs = self.params.values()
+        prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
+        return prob
         # raise NotImplementedError
         # pdfs = self.pdfs
         # fracs = self.fracs
@@ -302,85 +223,107 @@ class SumPDF(BaseFunctor):
         #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
         # return func
 
-    def _pdf(self, x, norm_range):
-        pdfs = self.pdfs
-        fracs = self.fracs
-        prob = tf.add_n([pdf.pdf(x, norm_range=norm_range) * frac for pdf, frac in zip(pdfs, fracs)])
-        return prob
+    # TODO(SUM): remove the below? Not needed anymore?
+    # def _set_yield(self, value: Union[Parameter, None]):
+    #     # TODO: what happens now with the daughters?
+    #     if all(self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
+    #         raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
+    #     # TODO(SUM): why was that needed?
+    #     # elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
+    #     #     reciprocal_yield = convert_to_parameter(lambda: tf.math.reciprocal(self.get_yield()),
+    #     #                                             dependents=self.get_yield())
+    #     #     self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
+    #     else:
+    #         super()._set_yield(value=value)
 
-    def _set_yield(self, value: Union[Parameter, None]):
-        # TODO: what happens now with the daughters?
-        if all(self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
-            # beginning
-            raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
-        elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
-            reciprocal_yield = convert_to_parameter(lambda: tf.math.reciprocal(self.get_yield()),
-                                                    dependents=self.get_yield())
-            self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
-        else:
-            super()._set_yield(value=value)
-
-    @supports(norm_range=True, multiple_limits=True)
+    @supports(multiple_limits=True)
     def _integrate(self, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self._maybe_extended_fracs
-        assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
-        integrals = [pdf.integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
-        integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
-        integral = tf.reduce_sum(input_tensor=integrals)
+        fracs = self.fracs
+        # TODO(SUM): why was this needed?
+        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
+                     for pdf, frac in zip(pdfs, fracs)]
+        # TODO(SUM): change the below? broadcast integrals?
+        # integral = tf.reduce_sum(input_tensor=integrals, axis=0)
+        integral = tf.math.accumulate_n(integrals)
         return integral
 
-    @supports(norm_range=True, multiple_limits=True)
+    @supports(multiple_limits=True)
     def _analytic_integrate(self, limits, norm_range):
         pdfs = self.pdfs
-        fracs = self._maybe_extended_fracs
-        assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        fracs = self.fracs
+        # TODO(SUM): why was this needed?
+        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         try:
-            integrals = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
+            integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
+                         for pdf, frac in zip(pdfs, fracs)]
         except NotImplementedError as original_error:
-            raise NotImplementedError("analytic_integrate of pdf {name} is not implemented in this"
+            raise NotImplementedError(f"analytic_integrate of pdf {self.name} is not implemented in this"
+                                      f" SumPDF, as at least one sub-pdf does not implement it."
+                                      f"Original message:\n{original_error}")
+
+        # TODO(SUM): change the below? broadcast integrals?
+        # integral = tf.reduce_sum(input_tensor=integrals)
+        integral = tf.math.accumulate_n(integrals)
+        return integral
+
+    @supports(multiple_limits=True)
+    def _partial_integrate(self, x, limits, norm_range):
+
+        pdfs = self.pdfs
+        fracs = self.fracs
+
+        partial_integral = [pdf.partial_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
+                            for pdf in zip(pdfs, fracs)]
+        partial_integral = tf.math.accumulate_n(partial_integral)
+        return partial_integral
+
+    @supports(multiple_limits=True)
+    def _partial_analytic_integrate(self, x, limits, norm_range):
+        pdfs = self.pdfs
+        fracs = self.fracs
+        try:
+            partial_integral = [pdf.partial_analytic_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
+                                for pdf in zip(pdfs, fracs)]
+        except NotImplementedError as original_error:
+            raise NotImplementedError("partial_analytic_integrate of pdf {name} is not implemented in this"
                                       " SumPDF, as at least one sub-pdf does not implement it."
                                       "Original message:\n{error}".format(name=self.name,
                                                                           error=original_error))
+        partial_integral = tf.math.accumulate_n(partial_integral)
+        return partial_integral
 
-        integrals = [integral * frac for integral, frac in zip(integrals, fracs)]
-        integral = tf.reduce_sum(input_tensor=integrals)
-        return integral
+    @supports(multiple_limits=True)
+    def _sample(self, n, limits):
+        if (isinstance(n, str)):
+            n = [n] * len(self.pdfs)
+        else:
+            n = tf.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
 
-    @supports(norm_range=True, multiple_limits=True)
-    def _partial_integrate(self, x, limits, norm_range):
-        raise RuntimeError("Currently not available, cleanup with yields expected.")
-
-    # @supports()
-    # def _partial_analytic_integrate(self, x, limits, norm_range):
-    #     pdfs = self.pdfs
-    #     frac = self.fracs
-    #     try:
-    #         partial_integral = [pdf.analytic_integrate(limits=limits, norm_range=norm_range) for pdf in pdfs]
-    #     except NotImplementedError as original_error:
-    #         raise NotImplementedError("partial_analytic_integrate of pdf {name} is not implemented in this"
-    #                                   " SumPDF, as at least one sub-pdf does not implement it."
-    #                                   "Original message:\n{error}".format(name=self.name,
-    #                                                                       error=original_error))
-    #     partial_integral = tf.stack([partial_integral * s for pdf, s in zip(partial_integral, frac)])
-    #     partial_integral = tf.reduce_sum(partial_integral, axis=0)
-    #     return partial_integral
+        samples = []
+        for pdf, n_sample in zip(self.pdfs, n):
+            sub_sample = pdf.sample(n=n_sample, limits=limits)
+            if isinstance(sub_sample, ZfitData):
+                sub_sample = sub_sample.value()
+            samples.append(sub_sample)
+        sample = tf.concat(samples, axis=0)
+        return sample
 
 
-class ProductPDF(BaseFunctor):  # TODO: unfinished
+class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disasembling components subsets of obs
     def __init__(self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
 
-        norm_range = self._get_component_norm_range()
-        return tf.math.reduce_prod([pdf.unnormalized_pdf(x, component_norm_range=norm_range.get_subspace(obs=pdf.obs))
+        return tf.math.reduce_prod([pdf.unnormalized_pdf(x)
                                     for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):
         if all(not dep for dep in self._model_same_obs):
 
-            probs = [pdf.pdf(x=x, norm_range=norm_range.get_subspace(obs=pdf.obs)) for pdf in self.pdfs]
+            probs = [pdf.pdf(x=x) for pdf in self.pdfs]
             return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
             raise NotImplementedError
