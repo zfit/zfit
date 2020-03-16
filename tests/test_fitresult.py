@@ -76,7 +76,7 @@ def test_fmin(minimizer_class_and_kwargs):
     assert pytest.approx(results['cur_val']) == result.fmin
 
 
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_covariance(minimizer_class_and_kwargs):
 
