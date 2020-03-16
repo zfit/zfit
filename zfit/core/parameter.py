@@ -12,7 +12,7 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 from tensorflow.python import ops, array_ops
 from tensorflow.python.client.session import register_session_run_conversion_functions
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBaseVariable
+from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
 
 from zfit import z
 from zfit.util.container import convert_to_container
@@ -108,12 +108,19 @@ register_tensor_conversion(OverloadableMixin, overload_operators=True)
 
 class WrappedVariable(metaclass=MetaBaseParameter):
 
-    def __init__(self, variable: tf.Variable):
-        self.variable = variable
+    def __init__(self, initial_value, constraint, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+        self.variable = tf.Variable(initial_value=initial_value, constraint=constraint, name=self.name,
+                                    dtype=self.dtype)
 
     @property
     def name(self):
         raise NotImplementedError
+
+    @property
+    def constraint(self):
+        return self.variable.constraint
 
     @property
     def dtype(self):
@@ -128,6 +135,9 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     @property
     def shape(self):
         return self.variable.shape
+
+    def numpy(self):
+        return self.variable.numpy()
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         return self.variable.assign(value=value, use_locking=use_locking,
@@ -180,8 +190,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 
 
 register_tensor_conversion(WrappedVariable, overload_operators=True)
-
-ComposedVariable = OverloadableMixin
 
 
 # class ComposedVariable(metaclass=MetaBaseParameter):
@@ -338,7 +346,8 @@ class ZfitParameterMixin(BaseNumeric):
         return id(self)
 
 
-class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
+class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
+    # class TFBaseVariable(WrappedVariable, metaclass=MetaBaseParameter):
 
     # Needed, otherwise tf variable complains about the name not having a ':' in there
     @property
@@ -353,7 +362,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     _independent_params = []
     DEFAULT_STEP_SIZE = 0.001
 
-    def __init__(self, name: str, value: ztyping.NumericalScalarType,
+    def __init__(self, name: str,
+                 value: ztyping.NumericalScalarType,
                  lower_limit: Optional[ztyping.NumericalScalarType] = None,
                  upper_limit: Optional[ztyping.NumericalScalarType] = None,
                  step_size: Optional[ztyping.NumericalScalarType] = None,
@@ -374,7 +384,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype)
         if upper_limit is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype)
-        # no_limits = -lower_limit == upper_limit == np.infty
         value = tf.cast(value, dtype=ztypes.float)
 
         def constraint(x):
@@ -463,7 +472,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     @property
     def floating(self):
-        if self._floating and not self.trainable:
+        if self._floating and (hasattr(self, 'trainable') and not self.trainable):
             raise RuntimeError("Floating is set to true but tf Variable is not trainable.")
         return self._floating
 
@@ -596,7 +605,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.upper = value
 
 
-class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
+class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter):
 
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
