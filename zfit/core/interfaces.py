@@ -638,6 +638,11 @@ class ZfitParameter(ZfitNumeric):
     def name(self) -> str:
         raise NotImplementedError
 
+    # TODO: maybe add to numerics?
+    @property
+    def shape(self):
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def floating(self) -> bool:

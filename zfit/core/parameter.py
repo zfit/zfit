@@ -1,5 +1,6 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2020 zfit
+import functools
 from collections import OrderedDict
 from contextlib import suppress
 from typing import Callable, Iterable, Union, Optional
@@ -49,12 +50,65 @@ def register_tensor_conversion(convertable, overload_operators=True, priority=1)
         convertable._OverloadAllOperators()
 
 
-# drop-in replacement for ResourceVariable, wrapping variable TODO: still needed?
-# class ZfitBaseVariable(metaclass=type(TFBaseVariable)):
-class ZfitBaseVariable(metaclass=MetaBaseParameter):
-    # class ZfitBaseVariable:
+class OverloadableMixin(ZfitParameter):
 
-    def __init__(self, variable: tf.Variable, **kwargs):
+    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+        del name
+        if dtype and not dtype.is_compatible_with(self.dtype):
+            raise ValueError(
+                "Incompatible type conversion requested to type '%s' for variable "
+                "of type '%s'" % (dtype.name, self.dtype.name))
+        if as_ref:
+            if hasattr(self, '_ref'):
+                return self._ref()
+            else:
+                raise RuntimeError("Why is this needed?")
+        else:
+            return self.value()
+
+    def _AsTensor(self):
+        return self.value()
+
+    @classmethod
+    def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
+        """Register overloads for all operators."""
+        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+            cls._OverloadOperator(operator)
+        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
+        # instead)
+        # pylint: disable=protected-access
+        setattr(cls, "__getitem__", array_ops._SliceHelperVar)
+
+    @classmethod
+    def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
+        """Defer an operator overload to `ops.Tensor`.
+        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
+        Args:
+          operator: string. The operator name.
+        """
+        # We can't use the overload mechanism on __eq__ & __ne__ since __eq__ is
+        # called when adding a variable to sets. As a result we call a.value() which
+        # causes infinite recursion when operating within a GradientTape
+        # TODO(gjn): Consider removing this
+        if operator == "__eq__" or operator == "__ne__":
+            return
+
+        tensor_oper = getattr(ops.Tensor, operator)
+
+        def _run_op(a, *args, **kwargs):
+            # pylint: disable=protected-access
+            return tensor_oper(a.value(), *args, **kwargs)
+
+        functools.update_wrapper(_run_op, tensor_oper)
+        setattr(cls, operator, _run_op)
+
+
+register_tensor_conversion(OverloadableMixin, overload_operators=True)
+
+
+class WrappedVariable(metaclass=MetaBaseParameter):
+
+    def __init__(self, variable: tf.Variable):
         self.variable = variable
 
     @property
@@ -67,6 +121,9 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):
 
     def value(self):
         return self.variable.value()
+
+    def read_valu(self):
+        return self.variable.read_value()
 
     @property
     def shape(self):
@@ -92,11 +149,11 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):
     def _OverloadAllOperators():  # pylint: disable=invalid-name
         """Register overloads for all operators."""
         for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
-            ZfitBaseVariable._OverloadOperator(operator)
+            WrappedVariable._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
         # pylint: disable=protected-access
-        setattr(ZfitBaseVariable, "__getitem__", array_ops._SliceHelperVar)
+        setattr(WrappedVariable, "__getitem__", array_ops._SliceHelperVar)
 
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
@@ -119,104 +176,108 @@ class ZfitBaseVariable(metaclass=MetaBaseParameter):
         except AttributeError:
             pass
 
-        setattr(ZfitBaseVariable, operator, _run_op)
+        setattr(WrappedVariable, operator, _run_op)
 
 
-register_tensor_conversion(ZfitBaseVariable, overload_operators=True)
+register_tensor_conversion(WrappedVariable, overload_operators=True)
+
+ComposedVariable = OverloadableMixin
 
 
 # class ComposedVariable(metaclass=MetaBaseParameter):
-class ComposedVariable:
-
-    def __init__(self, name: str, value_fn: Callable, **kwargs):
-        super().__init__(name=name, **kwargs)
-
-        if not callable(value_fn):
-            raise TypeError("`value_fn` is not callable.")
-        self._value_fn = value_fn
-
-    @property
-    def name(self):
-        raise RuntimeError
-
-    @property
-    def shape(self):
-        raise RuntimeError
-
-    @property
-    def dtype(self):
-        raise NotImplementedError
-
-    def value(self):
-        return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
-
-    def read_value(self):
-        return self.value()
-
-    def numpy(self):
-        return self.value().numpy()
-
-    def assign(self, value, use_locking=False, name=None, read_value=True):
-        raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
-
-    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
-        del name
-        if dtype is not None and dtype != self.dtype:
-            return NotImplemented
-        if as_ref:
-            # return "NEVER READ THIS"
-            raise LogicalUndefinedOperationError("There is no ref for the fixed/composed parameter")
-        else:
-            return self.value()
-
-    def _AsTensor(self):
-        return self.value()
-
-    @staticmethod
-    def _OverloadAllOperators():  # pylint: disable=invalid-name
-        """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
-            ComposedVariable._OverloadOperator(operator)
-        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
-        # instead)
-        # pylint: disable=protected-access
-        setattr(ComposedVariable, "__getitem__", array_ops._SliceHelperVar)
-
-    @staticmethod
-    def _OverloadOperator(operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
-        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
-        Args:
-          operator: string. The operator name.
-        """
-
-        tensor_oper = getattr(ops.Tensor, operator)
-
-        def _run_op(a, *args):
-            # pylint: disable=protected-access
-            value = a._AsTensor()
-            return tensor_oper(value, *args)
-
-        # Propagate __doc__ to wrapper
-        try:
-            _run_op.__doc__ = tensor_oper.__doc__
-        except AttributeError:
-            pass
-
-        setattr(ComposedVariable, operator, _run_op)
-
-
-register_tensor_conversion(ComposedVariable, overload_operators=True)
+# class ComposedVariable:
+#
+#     def __init__(self, name: str, value_fn: Callable, **kwargs):
+#         super().__init__(name=name, **kwargs)
+#
+#         if not callable(value_fn):
+#             raise TypeError("`value_fn` is not callable.")
+#         self._value_fn = value_fn
+#
+#     @property
+#     def name(self):
+#         raise RuntimeError
+#
+#     @property
+#     def shape(self):
+#         raise RuntimeError
+#
+#     @property
+#     def dtype(self):
+#         raise NotImplementedError
+#
+#     def value(self):
+#         return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
+#
+#     def read_value(self):
+#         return tf.identity(self.value())
+#
+#     def numpy(self):
+#         return self.value().numpy()
+#
+#     # TODO: move to userwarning class?
+#     def assign(self, value, use_locking=False, name=None, read_value=True):
+#         raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
+#
+#     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+#         del name
+#         if dtype is not None and dtype != self.dtype:
+#             return NotImplemented
+#         if as_ref:
+#             # return "NEVER READ THIS"
+#             raise LogicalUndefinedOperationError("There is no ref for the fixed/composed parameter")
+#         else:
+#             return self.value()
+#
+#     def _AsTensor(self):
+#         return self.value()
+#
+#     @staticmethod
+#     def _OverloadAllOperators():  # pylint: disable=invalid-name
+#         """Register overloads for all operators."""
+#         for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+#             ComposedVariable._OverloadOperator(operator)
+#         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
+#         # instead)
+#         # pylint: disable=protected-access
+#         setattr(ComposedVariable, "__getitem__", array_ops._SliceHelperVar)
+#
+#     @staticmethod
+#     def _OverloadOperator(operator):  # pylint: disable=invalid-name
+#         """Defer an operator overload to `ops.Tensor`.
+#         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
+#         Args:
+#           operator: string. The operator name.
+#         """
+#
+#         tensor_oper = getattr(ops.Tensor, operator)
+#
+#         def _run_op(a, *args):
+#             # pylint: disable=protected-access
+#             value = a._AsTensor()
+#             return tensor_oper(value, *args)
+#
+#         # Propagate __doc__ to wrapper
+#         try:
+#             _run_op.__doc__ = tensor_oper.__doc__
+#         except AttributeError:
+#             pass
+#
+#         setattr(ComposedVariable, operator, _run_op)
+#
+#
+# register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 
 class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
-    @property
-    def dtype(self) -> tf.DType:
-        return self.value().dtype
-
-    @property
-    def shape(self):
-        return self.value().shape
+    pass
+    # @property
+    # def dtype(self) -> tf.DType:
+    #     return self.value().dtype
+    #
+    # @property
+    # def shape(self):
+    #     return self.value().shape
 
 
 class ZfitParameterMixin(BaseNumeric):
@@ -475,7 +536,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    # TODO: make it a random variable? return tensor that evaluates new all the time?
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
                   sampler: Callable = tf.random.uniform) -> tf.Tensor:
@@ -536,22 +596,16 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.upper = value
 
 
-class BaseZParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
-    pass
-
-
-class BaseComposedParameter(BaseZParameter):
+class BaseComposedParameter(ZfitParameterMixin, ComposedVariable, BaseParameter):
 
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
         if 'value' in kwargs:
             raise BreakingAPIChangeError("'value' cannot be provided any longer, `value_fn` is needed.")
-        super().__init__(value_fn=value_fn, name=name, params=params, **kwargs)
-        # self.params = params
-
-    # @property  # TODO: hacky way, proper name for params
-    # def name(self):
-    #     return self._name
+        super().__init__(name=name, params=params, **kwargs)
+        if not callable(value_fn):
+            raise TypeError("`value_fn` is not callable.")
+        self._value_fn = value_fn
 
     def _get_dependents(self):
         dependents = self._extract_dependents(list(self.params.values()))
@@ -565,33 +619,45 @@ class BaseComposedParameter(BaseZParameter):
     def params(self):
         return self._params
 
-    @params.setter
-    def params(self, value):
-        if not isinstance(value, dict):
-            raise TypeError("Parameters has to be a dict")
-        self._params = value
+    def value(self):
+        return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
+
+    def read_value(self):
+        return tf.identity(self.value())
+
+    def numpy(self):
+        return self.value().numpy()
 
     @property
     def independent(self):
         return False
 
 
-class ConstantParameter(BaseZParameter):
+class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
 
     def __init__(self, name, value, dtype=ztypes.float):
-        super().__init__(name=name, value_fn=lambda: value, params={}, dtype=dtype)
+        super().__init__(name=name, params={}, dtype=dtype)
+        static_value = tf.get_static_value(value, partial=True)
+        if static_value is None:
+            raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
+                               " on Github: https://github.com/zfit/zfit")
+        self._value_np = static_value
 
-    # @property  # TODO: hacky way, proper name for params
-    # def name(self):
-    #     return self._name
+        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
+
+    @property
+    def shape(self):
+        return self.value().shape
+
+    def value(self) -> tf.Tensor:
+        return self._value
+
+    def read_value(self) -> tf.Tensor:
+        return self.value()
 
     @property
     def floating(self):
         return False
-
-    @floating.setter
-    def floating(self, value):
-        raise LogicalUndefinedOperationError("Cannot set a fixed parameter.")
 
     @property
     def independent(self) -> bool:
@@ -601,7 +667,7 @@ class ConstantParameter(BaseZParameter):
         return OrderedSet()
 
     def __repr__(self):
-        value = self.value()
+        value = self._value_np
         return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
@@ -619,10 +685,7 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params, value_fn=value_fn, name=name, dtype=dtype, **kwargs)
 
     def __repr__(self):
-        if hasattr(self, "numpy"):  # more explicit: we check for exactly this attribute, nothing inside numpy
-            value = self.numpy()
-        else:
-            value = "graph-node"
+        value = self.value()
         return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
