@@ -156,10 +156,9 @@ class FunctionWrapperRegistry:
         kwargs.update(kwargs_user)
 
         self.tf_function = tf.function(**kwargs)
-        for value in self.function_cache.values():
-            value.clear()
-        self.function_cache.clear()
-        # self.function_cache = defaultdict(list)
+        for cache in self.function_cache.values():
+            cache.clear()
+        # self.function_cache.clear()
 
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
@@ -170,6 +169,8 @@ class FunctionWrapperRegistry:
 
             if not self.do_jit or func in self.currently_traced:
                 return func(*args, **kwargs)
+
+            assert self.all_wrapped_functions_registered()
 
             self.currently_traced.add(func)
             nonlocal wrapped_func
@@ -191,6 +192,7 @@ class FunctionWrapperRegistry:
             self.currently_traced.remove(func)
             return result
 
+        concrete_func.zfit_graph_cache_registered = False
         return concrete_func
 
 
