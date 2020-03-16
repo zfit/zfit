@@ -64,14 +64,14 @@ class BaseFunc(BaseModel, ZfitFunc):
         return self._call_value(x=x, name=name)
 
     def _call_value(self, x, name):
-        with self._name_scope(name, values=[x]):
-            try:
-                return self._func(x=x)
-            except ValueError as error:
-                raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
-                                             "does not coincide with the `n_obs` from the `space`/`obs`"
-                                             "it received on initialization."
-                                             "Original Error: {}".format(error))
+
+        try:
+            return self._func(x=x)
+        except ValueError as error:
+            raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
+                                         "does not coincide with the `n_obs` from the `space`/`obs`"
+                                         "it received on initialization."
+                                         "Original Error: {}".format(error))
 
     def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
         """Create a PDF out of the function
