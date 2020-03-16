@@ -132,6 +132,25 @@ class RunManager:
         z.zextension.FunctionWrapperRegistry.allow_jit = not eager
         z.zextension.FunctionWrapperRegistry2.allow_jit = not eager
 
+    def experimental_set_all_jit(self):
+        jit_types = self.experimental_get_jit()
+        for key in list(jit_types):
+            jit_types[key] = True
+
+    def experimental_set_default_jit(self):
+        from zfit import z
+        z.zextension.FunctionWrapperRegistry.do_jit_types = z.zextension.FunctionWrapperRegistry._DEFAULT_DO_JIT_TYPES.copy()
+
+    def experimental_set_jit(self, **update_jit):
+        from zfit import z
+
+        z.zextension.FunctionWrapperRegistry.do_jit_types.update(update_jit)
+
+    def experimental_get_jit(self):
+        from zfit import z
+
+        return z.zextension.FunctionWrapperRegistry.do_jit_types
+
     @property
     def experimental_is_eager(self):
         from zfit import z

@@ -131,7 +131,7 @@ class FunctionWrapperRegistry:
     all_wrapped_functions = []
     registries = []
     allow_jit = True
-    do_jit_types = {
+    _DEFAULT_DO_JIT_TYPES = {
         None: True,
         'model': False,
         'loss': True,
@@ -140,6 +140,8 @@ class FunctionWrapperRegistry:
         'zfit_tensor': True,
         'tensor': True,
     }
+
+    do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
     @classmethod
     def all_wrapped_functions_registered(cls):

@@ -101,7 +101,7 @@ class Cachable(ZfitCachable):
 
     def __init__(self, *args, **kwargs):
         self._cache = {}
-        self._cachers = {}
+        self._cachers = weakref.WeakKeyDictionary()
         self.reset_cache_self()
         self.instances.add(self)
         super().__init__(*args, **kwargs)
@@ -229,6 +229,7 @@ class FunctionCacheHolder(Cachable):
         cachables_values = convert_to_container(cachables_mapping.values(), container=list)
         cachables_all = cachables + cachables_values
         self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
+        # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
         self.add_cache_dependents(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
@@ -267,6 +268,8 @@ class FunctionCacheHolder(Cachable):
                 obj = (id(obj),)
             elif tf.is_tensor(obj):
                 obj = self.IS_TENSOR
+            elif isinstance(obj, np.ndarray):
+                obj = (obj,) if sum(obj.shape) < 20 else id(obj)
             combined_cleaned.append(obj)
 
         return tuple(combined_cleaned)
