@@ -662,10 +662,6 @@ class ZfitParameter(ZfitNumeric):
     def dtype(self) -> tf.DType:
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def value(self):
-        raise NotImplementedError
-
 
 class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
 
