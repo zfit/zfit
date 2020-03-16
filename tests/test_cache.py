@@ -4,6 +4,8 @@ import pytest
 
 import zfit
 from zfit import z
+import numpy as np
+
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.cache import Cachable, invalidates_cache, clear_caches

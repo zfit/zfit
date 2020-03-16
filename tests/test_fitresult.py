@@ -29,7 +29,7 @@ def create_loss():
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
 
-    sum_pdf1 = 0.9 * gauss1 + exp1
+    sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.7)
 
     sampled_data = sum_pdf1.create_sampler(n=15000)
     sampled_data.resample()
@@ -44,8 +44,6 @@ def create_fitresult(minimizer_class_and_kwargs):
 
     true_minimum = loss.value().numpy()
 
-    parameter_tolerance = 0.25  # percent
-    max_distance_to_min = 10.
 
     for param in [a_param, b_param, c_param]:
         param.assign(param.initialized_value())  # reset the value
@@ -80,7 +78,6 @@ def test_fmin(minimizer_class_and_kwargs):
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.flaky(2)  # odd graph problem...
 def test_covariance(minimizer_class_and_kwargs):
 
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
@@ -107,4 +104,4 @@ def test_covariance(minimizer_class_and_kwargs):
 
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
 
-    assert np.allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
+    np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)

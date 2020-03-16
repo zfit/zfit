@@ -1,17 +1,17 @@
 #  Copyright (c) 2020 zfit
 
+import itertools
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
-import itertools
 
 import numpy as np
 
-import zfit
-from zfit.util.exception import WeightsNotImplementedError, WorkInProgressError
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util.container import convert_to_container
+from ..util.exception import WeightsNotImplementedError
 from ..util.ztyping import ParamsTypeOpt
+from .. import settings
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -30,7 +30,6 @@ def _minos_minuit(result, params, sigma=1.0):
 
 
 def _covariance_minuit(result, params):
-
     # check if no weights in data
     if any([data.weights is not None for data in result.loss.data]):
         raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
@@ -56,12 +55,17 @@ def _covariance_minuit(result, params):
 
 
 def _covariance_np(result, params):
-
     # check if no weights in data
     if any([data.weights is not None for data in result.loss.data]):
         raise WeightsNotImplementedError("Weights are not supported with hesse numpy.")
 
+    # TODO: maybe activate again? currently fails due to numerical problems
+    # numgrad_was_none = settings.options.numerical_grad is None
+    # if numgrad_was_none:
+    #     settings.options.numerical_grad = True
     covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
+    # if numgrad_was_none:
+    #     settings.options.numerical_grad = None
 
     return matrix_to_dict(params, covariance)
 
@@ -71,7 +75,6 @@ class FitResult(ZfitResult):
     _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np}
     _default_error = "minuit_minos"
     _error_methods = {"minuit_minos": _minos_minuit}
-
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
@@ -337,7 +340,6 @@ def matrix_to_dict(params, matrix):
                 matrix_dict[(pj, pi)] = matrix[i, j]
 
     return matrix_dict
-
 
 # def set_error_method(self, method):
 #     if isinstance(method, str):

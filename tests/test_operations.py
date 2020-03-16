@@ -3,14 +3,12 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-import zfit
 from zfit import Parameter, z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.functions import SimpleFunc
-from zfit.models.functor import SumPDF
 from zfit.models.special import SimplePDF
-from zfit.util.exception import AlreadyExtendedPDFError, ModelIncompatibleError
+from zfit.util.exception import ModelIncompatibleError, BreakingAPIChangeError
 
 rnd_test_values = np.array([1., 0.01, -14.2, 0., 1.5, 152, -0.1, 12])
 
@@ -21,7 +19,6 @@ def test_not_allowed():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
-    param4 = Parameter('param4', 4.)
 
     def func1_pure(self, x):
         return param1 * x
@@ -30,13 +27,18 @@ def test_not_allowed():
         return param2 * x + param3
 
     func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
-    func2 = SimpleFunc(func=func2_pure, obs=obs1, p2=param2, p3=param3)
 
     pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
 
-    with pytest.raises(ModelIncompatibleError):
+    with pytest.raises(BreakingAPIChangeError):
         pdf1 + pdf2
+
+    ext_pdf1 = pdf1.create_extended(param1)
+    with pytest.raises(BreakingAPIChangeError):
+        ext_pdf1 + pdf2
+    with pytest.raises(BreakingAPIChangeError):
+        param2 * pdf1
     with pytest.raises(ValueError):
         param1 + func1
     with pytest.raises(NotImplementedError):
@@ -70,7 +72,6 @@ def test_func_func():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
-    param4 = Parameter('param4', 4.)
 
     def func1_pure(self, x):
         x = z.unstack_x(x)
@@ -97,73 +98,3 @@ def test_func_func():
     true_prod_values = true_prod_values.numpy()
     np.testing.assert_allclose(true_added_values, added_values)
     np.testing.assert_allclose(true_prod_values, prod_values)
-
-
-def test_param_pdf():
-    param1 = Parameter('param1', 12.)
-    param2 = Parameter('param2', 22.)
-    yield1 = Parameter('yield1', 21.)
-    yield2 = Parameter('yield2', 22.)
-    pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
-    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
-    assert not pdf1.is_extended
-    extended_pdf = yield1 * pdf1
-    assert extended_pdf.is_extended
-    with pytest.raises(ModelIncompatibleError):
-        _ = pdf2 * yield2
-    with pytest.raises(AlreadyExtendedPDFError):
-        _ = yield2 * extended_pdf
-
-
-def test_implicit_extended():
-    param1 = Parameter('param1', 12.)
-    yield1 = Parameter('yield1', 21.)
-    param2 = Parameter('param2', 13., floating=False)
-    yield2 = Parameter('yield2', 31., floating=False)
-    pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
-    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
-    extended_pdf = yield1 * pdf1 + yield2 * pdf2
-    with pytest.raises(ModelIncompatibleError):
-        true_extended_pdf = SumPDF(pdfs=[pdf1, pdf2], obs=obs1)
-    assert isinstance(extended_pdf, SumPDF)
-    assert extended_pdf.is_extended
-
-
-def test_implicit_sumpdf():
-    norm_range = (-5.7, 13.6)
-    param1 = Parameter('param13s', 1.1)
-    frac1 = 0.11
-    frac1_param = Parameter('frac13s', frac1)
-    frac2 = 0.56
-    frac2_param = Parameter('frac23s', frac2)
-    frac3 = 1 - frac1 - frac2  # -frac1_param -frac2_param
-
-    param2 = Parameter('param23s', 1.5, floating=False)
-    param3 = Parameter('param33s', 0.4, floating=False)
-    pdf1 = SimplePDF(func=lambda self, x: x * param1 ** 2, obs=obs1)
-    pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
-    pdf3 = SimplePDF(func=lambda self, x: x * 2 + param3, obs=obs1)
-
-    # sugar 1
-    # sum_pdf = frac1_param * pdf1 + frac2_param * pdf2 + pdf3  # TODO(Mayou36): deps, correct copy
-    sum_pdf = zfit.pdf.SumPDF(pdfs=[pdf1, pdf2, pdf3], fracs=[frac1_param, frac2_param])
-
-    true_values = pdf1.pdf(rnd_test_values, norm_range=norm_range)
-    true_values *= frac1_param
-    true_values += pdf2.pdf(rnd_test_values, norm_range=norm_range) * frac2_param
-    true_values += pdf3.pdf(rnd_test_values, norm_range=norm_range) * z.constant(frac3)
-
-    assert isinstance(sum_pdf, SumPDF)
-    assert not sum_pdf.is_extended
-
-    assert sum(sum_pdf._maybe_extended_fracs).numpy() == 1.
-    true_values = true_values.numpy()
-    test_values = sum_pdf.pdf(rnd_test_values, norm_range=norm_range).numpy()
-    np.testing.assert_allclose(true_values, test_values, rtol=5e-2)  # it's MC normalized
-
-    # sugar 2
-    sum_pdf2_part1 = frac1 * pdf1 + frac2 * pdf3
-    # sum_pdf2 = sum_pdf2_part1 + pdf2  # TODO(Mayou36): deps copy
-
-    # test_values2 = sum_pdf2.pdf(rnd_test_values, norm_range=norm_range)  # TODO(Mayou36): deps copy
-    # np.testing.assert_allclose(true_values, test_values2, rtol=1e-2)  # it's MC normalized  # TODO(Mayou36): deps copy

@@ -2191,11 +2191,12 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
     obs_not_none = space1.obs is not None and space2.obs is not None
     if not (axes_not_none or obs_not_none):  # if both are None
         return False
-    if axes_not_none:
-        if set(space1.axes) != set(space2.axes):
-            return False
+
     if obs_not_none:
         if set(space1.obs) != set(space2.obs):
+            return False
+    elif axes_not_none:  # axes only matter if there are no obs
+        if set(space1.axes) != set(space2.axes):
             return False
     # check limits
     if not space1.limits_are_set:
