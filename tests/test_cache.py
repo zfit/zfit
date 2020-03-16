@@ -4,11 +4,10 @@ import pytest
 
 import zfit
 from zfit import z
-import numpy as np
-
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.cache import Cachable, invalidates_cache, clear_caches
+from zfit.z.zextension import FunctionWrapperRegistry
 
 
 class Test1(Cachable):
@@ -78,6 +77,10 @@ class GraphCreator1(Cachable):
         self.retrace_runs += 1
         return x + self.value + CONST
 
+    @z.function(wraps='something')
+    def calc_variable(self, x):
+        return x + self.value + CONST
+
     def calc_no_cache(self, x):
         self.retrace_runs += 1
         return x + self.value + CONST
@@ -90,34 +93,62 @@ class GraphCreator1(Cachable):
         self.value = value
 
 
-@pytest.mark.skipif(not zfit.z.zextension.FunctionWrapperRegistry.do_jit,
+class GraphCreator2(GraphCreator1):
+    @z.function(experimental_relax_shapes=False)
+    def calc(self, x):
+        self.retrace_runs += 1
+        return x + self.value + CONST
+
+
+graph_creators = [
+    GraphCreator2,
+    GraphCreator1,
+
+]
+
+
+@pytest.mark.skipif(not zfit.z.zextension.FunctionWrapperRegistry.allow_jit,
                     reason="no caching in eager mode expected")
-def test_graph_cache():
-    graph1 = GraphCreator1()
+@pytest.mark.parametrize('graph_holder', graph_creators)
+def test_graph_cache(graph_holder):
+    graph1 = graph_holder()
     global CONST
-    initial = 42
+    CONST = 40
     add = 5
     new_value = 8
     result = 47 + CONST
+    assert FunctionWrapperRegistry.do_jit_types['something']  # should be true by default
     assert graph1.calc(add).numpy() == result
+    assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs > 0  # simple
     graph1.retrace_runs = 0  # reset
     assert graph1.calc(add).numpy() == result
+    assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs == 0  # no retracing must have occurred
 
     graph1.change_value_no_invalidation(10)
     assert graph1.calc(add).numpy() == result
+    assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs == 0  # no retracing must have occurred
+    FunctionWrapperRegistry.do_jit_types['something'] = False
+    assert graph1.calc_variable(add) == 10 + add + CONST
+    FunctionWrapperRegistry.do_jit_types['something'] = True
     graph1.change_value(new_value)
     assert graph1.calc(add).numpy() == new_value + add + CONST
+    assert graph1.calc_variable(add).numpy() == new_value + add + CONST
     assert graph1.retrace_runs > 0
     CONST = 50
     assert graph1.calc(add).numpy() == new_value + add + 40  # old const
+    assert graph1.calc_variable(add).numpy() == new_value + add + 40  # old const
     clear_caches()
+    FunctionWrapperRegistry.do_jit_types['something'] = False
     assert graph1.calc_no_cache(add) == new_value + add + CONST
+    assert graph1.calc_variable(add) == new_value + add + CONST
     assert graph1.calc(add).numpy() == new_value + add + CONST
     graph1.retrace_runs = 0  # reset
 
     graph1.change_value_no_invalidation(10)
     assert graph1.calc(add).numpy() == new_value + add + CONST
     assert graph1.retrace_runs == 0  # no retracing must have occurred
+    CONST = 40
+    FunctionWrapperRegistry.do_jit_types['something'] = True  # should be true by default

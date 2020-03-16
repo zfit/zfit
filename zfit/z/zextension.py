@@ -128,15 +128,21 @@ def run_no_nan(func, x):
 
 
 class FunctionWrapperRegistry:
-    wrapped_functions = []
+    all_wrapped_functions = []
     registries = []
-    do_jit = True
+    allow_jit = True
+    do_jit_types = {
+        None: True,
+        'model': False,
+        'tensor': True,
+        'loss': True
+    }
 
     @classmethod
     def all_wrapped_functions_registered(cls):
-        return all((func.zfit_graph_cache_registered for func in cls.wrapped_functions))
+        return all((func.zfit_graph_cache_registered for func in cls.all_wrapped_functions))
 
-    def __init__(self, **kwargs_user) -> None:
+    def __init__(self, wraps=None, **kwargs_user) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
@@ -146,9 +152,18 @@ class FunctionWrapperRegistry:
         self._initial_user_kwargs = kwargs_user
 
         self.registries.append(self)
+        self.wrapped_func = []
+
+        if not wraps in self.do_jit_types:
+            self.do_jit_types[wraps] = True
+        self.wraps = wraps
         self.function_cache = defaultdict(list)
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
+
+    @property
+    def do_jit(self):
+        return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
         kwargs = dict(autograph=False, experimental_relax_shapes=True)
@@ -198,7 +213,18 @@ class FunctionWrapperRegistry:
 
 FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
 
-tf_function = FunctionWrapperRegistry()
+
+def function_factory(func=None, **kwargs):
+    if callable(func):
+        wrapper = FunctionWrapperRegistry()
+        return wrapper(func)
+    elif func:
+        raise ValueError("All argument have to be key-word only. `func` must not be used")
+    else:
+        return FunctionWrapperRegistry(**kwargs)
+
+
+tf_function = function_factory
 
 function_tf_input = FunctionWrapperRegistry2()  # for only tensorflow inside
 function_sampling = tf_function

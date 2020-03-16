@@ -129,13 +129,13 @@ class RunManager:
 
         """
         from zfit import z
-        z.zextension.FunctionWrapperRegistry.do_jit = not eager
-        z.zextension.FunctionWrapperRegistry2.do_jit = not eager
+        z.zextension.FunctionWrapperRegistry.allow_jit = not eager
+        z.zextension.FunctionWrapperRegistry2.allow_jit = not eager
 
     @property
     def experimental_is_eager(self):
         from zfit import z
-        return not z.zextension.FunctionWrapperRegistry2.do_jit
+        return not z.zextension.FunctionWrapperRegistry2.allow_jit
 
     @staticmethod
     @warn_experimental_feature
