@@ -242,10 +242,10 @@ class FitResult(ZfitResult):
 
 
             Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
                     contains (next to probably more things) two keys 'lower' and 'upper',
                     holding the calculated errors.
-                    Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
+                    Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         """
         if method is None:
             method = self._default_error
