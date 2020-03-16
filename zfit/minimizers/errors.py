@@ -1,4 +1,4 @@
-# import numpy as np
+import numpy as np
 from scipy import optimize
 from ..param import set_values
 from ..util.container import convert_to_container
@@ -36,7 +36,8 @@ def get_crossing_value(result, params, direction, sigma, rootf):
     up = loss.errordef
     fmin = result.fmin
     minimizer = result.minimizer.copy()
-    minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
+    if "strategy" in minimizer.minimizer_options:
+        minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
     minimizer.tolerance = 0.01
     rtol = 0.0005
 
@@ -82,6 +83,21 @@ def get_crossing_value(result, params, direction, sigma, rootf):
 
         if direction == 1:
             lower_bound, upper_bound = upper_bound, lower_bound
+
+        i = 1
+        while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
+            if direction == -1:
+                if np.sign(shifted_pll(lower_bound)) == -1:
+                    lower_bound = param_value - (i + 1) * param_error
+                else:
+                    upper_bound = param_value
+            else:
+                if np.sign(shifted_pll(lower_bound)) == -1:
+                    upper_bound = param_value - (2 + 1) * param_error
+                else:
+                    lower_bound = param_value
+
+            i += 1
 
         root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol, full_output=True)
 
