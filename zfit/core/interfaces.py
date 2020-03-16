@@ -663,6 +663,10 @@ class ZfitParameter(ZfitNumeric):
         raise NotImplementedError
 
 
+class ZfitIndependentParameter(ZfitParameter):
+    pass
+
+
 class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
 
     @abstractmethod

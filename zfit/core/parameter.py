@@ -16,13 +16,13 @@ from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFBa
 from zfit import z
 from zfit.util.container import convert_to_container
 from . import interfaces as zinterfaces
-from .interfaces import ZfitModel, ZfitParameter
+from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidates_cache
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    WorkInProgressError, ParameterNotIndependentError
+    WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError
 from ..util.temporary import TemporarilySet
 
 
@@ -293,7 +293,7 @@ class TFBaseVariable(TFBaseVariable, metaclass=MetaBaseParameter):
     pass
 
 
-class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
+class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -449,7 +449,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             return self.value()
 
         def setter(value):
-            super_assign(value=value)
+            super_assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
@@ -462,6 +462,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
             maxval (Numerical):
             sampler ():
         """
+        if not run.experimental_is_eager():
+            raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
+                                          " what is ")
         if minval is None:
             minval = self.sess.run(self.lower_limit)
         # else:
@@ -482,7 +485,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter):
         # value = np.random.uniform(size=size, low=minval, high=maxval)
         # if shape == []:
         #     value = value[0]
-        self.load(value=value)
+        self.set_value(value=value)
         return value
 
     def __del__(self):
