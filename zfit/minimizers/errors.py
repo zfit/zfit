@@ -37,10 +37,10 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
     errordef = loss.errordef
     fmin = result.fmin
     minimizer = result.minimizer.copy()
-    if "strategy" in minimizer.minimizer_options:
+    # if "strategy" in minimizer.minimizer_options:
         # With the `Minuit` minimizer. The decrease of the strategy increases the speed
         # of the profile likelihood scan
-        minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
+        # minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
     minimizer.tolerance = minimizer.tolerance * 0.5
     rtol *= errordef
 
@@ -73,6 +73,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.
             """
             if v not in cache:
+                # shift parameters, other than param, using covariance matrix
                 cache[v] = pll(minimizer, loss, param, v) - fmin - errordef
 
             return cache[v]
