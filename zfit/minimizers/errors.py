@@ -25,6 +25,7 @@ def pll(minimizer, loss, params, values) -> float:
 
 
 def set_params_to_result(params, result):
+    """Set parameters values to the values in the fitted value in the result."""
     for param in params:
         param.set_value(result.params[param]["value"])
 
@@ -37,6 +38,8 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
     fmin = result.fmin
     minimizer = result.minimizer.copy()
     if "strategy" in minimizer.minimizer_options:
+        # With the `Minuit` minimizer. The decrease of the strategy increases the speed
+        # of the profile likelihood scan
         minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
     minimizer.tolerance = minimizer.tolerance * 0.5
     rtol *= errordef
@@ -95,20 +98,22 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
         if direction == 1:
             lower_bound, upper_bound = upper_bound, lower_bound
 
-        i = 1
+        # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
+        # If they have the same sign, the window given to the root finding algorithm is increased.
+        nsigma = 1.5
         while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
             if direction == -1:
                 if np.sign(shifted_pll(lower_bound)) == -1:
-                    lower_bound = param_value - (i + 1) * param_error
+                    lower_bound = param_value - nsigma * param_error
                 else:
                     upper_bound = param_value
             else:
                 if np.sign(shifted_pll(lower_bound)) == -1:
-                    upper_bound = param_value - (i + 1) * param_error
+                    upper_bound = param_value - nsigma * param_error
                 else:
                     lower_bound = param_value
 
-            i += 1
+            nsigma += 0.5
 
         root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol, full_output=True)
 
@@ -154,7 +159,6 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
     for param in params:
         fitted_value = result.params[param]["value"]
         to_return[param] = {"lower": lower_values[param] - fitted_value,
-                            "upper": upper_values[param] - fitted_value,
-                            }
+                            "upper": upper_values[param] - fitted_value}
 
     return to_return

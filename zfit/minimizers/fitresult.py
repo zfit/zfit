@@ -75,8 +75,8 @@ def _covariance_np(result, params):
 class FitResult(ZfitResult):
     _default_hesse = "hesse_np"
     _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np}
-    _default_error = "minuit_minos"
-    _error_methods = {"minuit_minos": _minos_minuit}
+    _default_error = "zfit_error"
+    _error_methods = {"minuit_minos": _minos_minuit, "zfit_error": compute_errors}
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
