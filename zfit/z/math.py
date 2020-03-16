@@ -1,7 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import itertools
-from typing import Iterable, Callable, Optional
+from typing import Iterable, Callable
 
 import numdifftools
 import tensorflow as tf
@@ -143,7 +143,7 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
 
 
 def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"],
-                                      hessian=Optional[str]) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+                                      hessian: Optional[str] = None) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
         Args:
