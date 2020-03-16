@@ -220,25 +220,25 @@ class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_names = OrderedDict()
+    _existing_params = OrderedDict()
 
     def __init__(self, name, **kwargs):
-        if name in self._existing_names:
+        if name in self._existing_params:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
-        self._existing_names.update({name: self})
-        self._own_name = name
+        self._existing_params.update({name: self})
+        self._name = name
         super().__init__(name=name, **kwargs)
 
     # property needed here to overwrite the name of tf.Variable
     @property
     def name(self) -> str:
-        return self._own_name
+        return self._name
 
     def __del__(self):
         with suppress(NotImplementedError):  # PY36 bug, gets stuck
-            if self.name in self._existing_names:  # bug, creates segmentation fault in unittests
-                del self._existing_names[self.name]
+            if self.name in self._existing_params:  # bug, creates segmentation fault in unittests
+                del self._existing_params[self.name]
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
