@@ -63,11 +63,10 @@ from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidates_cache
 from .basemodel import BaseModel
 from .interfaces import ZfitPDF, ZfitParameter
-from .space import Space
 from .parameter import Parameter, convert_to_parameter
+from .space import Space
 from ..settings import ztypes, run
 from ..util import ztyping
-from ..util.container import convert_to_container
 from ..util.exception import (AlreadyExtendedPDFError,
                               NotExtendedPDFError, BreakingAPIChangeError)
 from ..util.temporary import TemporarilySet
@@ -246,9 +245,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_normalization(self, limits, name):
         # TODO: caching? alternative
-            with suppress(NotImplementedError):
-                return self._normalization(limits=limits)
-            return self._fallback_normalization(limits)
+        with suppress(NotImplementedError):
+            return self._normalization(limits=limits)
+        return self._fallback_normalization(limits)
 
     def _fallback_normalization(self, limits):
         return self._hook_integrate(limits=limits, norm_range=False)
@@ -281,13 +280,14 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_unnormalized_pdf(x=x, name=name)
 
     def _call_unnormalized_pdf(self, x, name):
-            # try:
-            return self._unnormalized_pdf(x)
-        # except ValueError as error:
-        #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
-        #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
-        #                                  "it received on initialization."
-        #                                  "Original Error: {}".format(error))
+        # try:
+        return self._unnormalized_pdf(x)
+
+    # except ValueError as error:
+    #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
+    #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
+    #                                  "it received on initialization."
+    #                                  "Original Error: {}".format(error))
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -324,11 +324,11 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_pdf(x=x, norm_range=norm_range, name=name)
 
     def _call_pdf(self, x, norm_range, name):
-            with suppress(NotImplementedError):
-                return self._pdf(x, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
-            return self._fallback_pdf(x=x, norm_range=norm_range)
+        with suppress(NotImplementedError):
+            return self._pdf(x, norm_range=norm_range)
+        with suppress(NotImplementedError):
+            return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
+        return self._fallback_pdf(x=x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):
         pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf")
@@ -367,11 +367,11 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_log_pdf(x=x, norm_range=norm_range, name=name)
 
     def _call_log_pdf(self, x, norm_range, name):
-            with suppress(NotImplementedError):
-                return self._log_pdf(x=x, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return tf.math.log(self._pdf(x=x, norm_range=norm_range))
-            return self._fallback_log_pdf(x=x, norm_range=norm_range)
+        with suppress(NotImplementedError):
+            return self._log_pdf(x=x, norm_range=norm_range)
+        with suppress(NotImplementedError):
+            return tf.math.log(self._pdf(x=x, norm_range=norm_range))
+        return self._fallback_log_pdf(x=x, norm_range=norm_range)
 
     def _fallback_log_pdf(self, x, norm_range):
         return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
@@ -415,7 +415,6 @@ class BasePDF(ZfitPDF, BaseModel):
         """
 
         self._set_yield(value=value)
-
 
     def create_extended(self, yield_: ztyping.ParamTypeInput, name_addition="_extended") -> "ZfitPDF":
         """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
@@ -495,7 +494,6 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
-
             return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
