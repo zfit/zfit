@@ -227,13 +227,13 @@ class ZfitParameterMixin(BaseNumeric):
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
         self._existing_names.update({name: self})
-        self._name = name
+        self._own_name = name
         super().__init__(name=name, **kwargs)
 
-    #
-    # @property
-    # def name(self) -> str:
-    #     return self._name
+    # property needed here to overwrite the name of tf.Variable
+    @property
+    def name(self) -> str:
+        return self._own_name
 
     @property
     def floating(self):
@@ -332,7 +332,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={}, **kwargs)
-        self._true_name = name
+        # self._true_name = name
 
         self.lower_limit = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
         self.upper_limit = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
@@ -345,9 +345,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
 
-    @property
-    def name(self):
-        return self._true_name
+    # @property
+    # def name(self):
+    #     return self._true_name
 
     def _hack_set_tf_name(self):
         def setter(name):
@@ -454,7 +454,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
     # TODO: make it a random variable? return tensor that evaluates new all the time?
-    def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):
+    def randomize(self, minval=None, maxval=None, sampler=tf.random.uniform):
         """Update the value with a randomised value between minval and maxval.
 
         Args:
@@ -466,11 +466,13 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
                                           " what is ")
         if minval is None:
-            minval = self.sess.run(self.lower_limit)
+            minval = self.lower_limit
+            # minval = self.sess.run(self.lower_limit)
         # else:
         #     minval = tf.cast(minval, dtype=self.dtype)
         if maxval is None:
-            maxval = self.sess.run(self.upper_limit)
+            maxval = self.upper_limit
+            # maxval = self.sess.run(self.upper_limit)
         # else:
         #     maxval = tf.cast(maxval, dtype=self.dtype)
 
@@ -478,13 +480,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         shape = self.shape.as_list()
         # if shape == []:
         #     size = 1
-        # value = self.sess.run(value)
         # eps = 1e-8
         # value = sampler(size=self.shape, low=minval + eps, high=maxval - eps)
         value = sampler(size=self.shape, low=minval, high=maxval)
-        # value = np.random.uniform(size=size, low=minval, high=maxval)
-        # if shape == []:
-        #     value = value[0]
+
         self.set_value(value=value)
         return value
 
