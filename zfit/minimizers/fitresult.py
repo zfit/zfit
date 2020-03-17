@@ -28,7 +28,8 @@ def _minos_minuit(result, params, sigma=1.0):
     result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
               for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
-    return result
+    new_result = None
+    return result, new_result
 
 
 def _covariance_minuit(result, params):
@@ -257,11 +258,19 @@ class FitResult(ZfitResult):
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
+        new_result = None
+
         if uncached_params:
-            error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
-            self._cache_errors(error_name=error_name, errors=error_dict)
+            error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
+            if new_result is None:
+                self._cache_errors(error_name=error_name, errors=error_dict)
+            else:
+                msg = "Invalid, a new minimum was found."
+                self._cache_errors(error_name=error_name, errors={p: msg for p in params})
+                new_result._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
-        return all_errors
+
+        return all_errors, new_result
 
     def _error(self, params, method, sigma):
         if not callable(method):

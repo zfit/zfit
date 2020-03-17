@@ -32,6 +32,7 @@ def set_params_to_result(params, result):
 
 def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 
+    new_result = None
     all_params = list(result.params.keys())
     loss = result.loss
     errordef = loss.errordef
@@ -104,8 +105,11 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             if any(shifted_pll(b) < -errordef for b in [lower_bound, upper_bound]):
                 print("New minimum found.")
 
-                new_minimum = minimizer.minimize(loss=loss)
-                return get_crossing_value(new_minimum, params, direction, sigma, rootf, rtol)
+                new_result = minimizer.minimize(loss=loss)
+                to_return, new_result_ = get_crossing_value(new_result, params, direction, sigma, rootf, rtol)
+                if new_result_ is not None:
+                    new_result = new_result_
+                break
 
             # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
             # If they have the same sign, the window given to the root finding algorithm is increased.
@@ -128,7 +132,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 
         to_return[param] = root
 
-    return to_return
+    return to_return, new_result
 
 
 def _rootf(**kwargs):
@@ -158,11 +162,18 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
 
     params = convert_to_container(params)
 
-    upper_values = get_crossing_value(result=result, params=params, direction=1, sigma=sigma,
-                                      rootf=rootf, rtol=rtol)
+    upper_values, new_result_up = get_crossing_value(result=result, params=params, direction=1,
+                                                     sigma=sigma, rootf=rootf, rtol=rtol)
 
-    lower_values = get_crossing_value(result=result, params=params, direction=-1, sigma=sigma,
-                                      rootf=rootf, rtol=rtol)
+    if new_result_up is not None:
+        result = new_result_up
+
+    lower_values, new_result_low = get_crossing_value(result=result, params=params, direction=-1,
+                                                      sigma=sigma, rootf=rootf, rtol=rtol)
+    if new_result_low is not None:
+        new_result = new_result_low
+    else:
+        new_result = new_result_up
 
     to_return = {}
     for param in params:
@@ -170,4 +181,4 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
         to_return[param] = {"lower": lower_values[param] - fitted_value,
                             "upper": upper_values[param] - fitted_value}
 
-    return to_return
+    return to_return, new_result
