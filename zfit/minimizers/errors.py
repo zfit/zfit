@@ -47,13 +47,12 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
     set_params_to_result(all_params, result)
 
     covariance = result.covariance(as_dict=True)
-    sigma = sigma * direction
 
     to_return = {}
     for param in params:
         param_error = result.hesse(params=param)[param]["error"]
         param_value = result.params[param]["value"]
-        exp_root = param_value + sigma * param_error  # expected root
+        exp_root = param_value + sigma * direction * param_error  # expected root
 
         for ap in all_params:
             if ap == param:
@@ -62,7 +61,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             # shift parameters, other than param, using covariance matrix
             ap_value = result.params[ap]["value"]
             ap_error = covariance[(ap, ap)] ** 0.5
-            ap_value += sigma ** 2 * covariance[(param, ap)] / ap_error
+            ap_value += sigma * direction * covariance[(param, ap)] / ap_error
             ap.set_value(ap_value)
 
         cache = {}
@@ -73,50 +72,59 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.
             """
             if v not in cache:
-                # shift parameters, other than param, using covariance matrix
                 cache[v] = pll(minimizer, loss, param, v) - fmin - errordef
 
             return cache[v]
 
         exp_shifted_pll = shifted_pll(exp_root)
 
-        def linear_interp(y):
-            """
-            Linear interpolation between the minimum of the `shifted_pll` curve and its expected root,
-            assuming it is a parabolic curve.
-            """
-            slope = (exp_root - param_value) / (exp_shifted_pll + errordef)
-            return param_value + (y + errordef) * slope
-        bound_interp = linear_interp(0)
+        if np.allclose(0., exp_shifted_pll, atol=0.0005):
+            root = exp_root
 
-        if exp_shifted_pll > 0.:
-            lower_bound = exp_root
-            upper_bound = bound_interp
         else:
-            lower_bound = bound_interp
-            upper_bound = exp_root
+            def linear_interp(y):
+                """
+                Linear interpolation between the minimum of the `shifted_pll` curve and its expected root,
+                assuming it is a parabolic curve.
+                """
+                slope = (exp_root - param_value) / (exp_shifted_pll + errordef)
+                return param_value + (y + errordef) * slope
+            bound_interp = linear_interp(0)
 
-        if direction == 1:
-            lower_bound, upper_bound = upper_bound, lower_bound
-
-        # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
-        # If they have the same sign, the window given to the root finding algorithm is increased.
-        nsigma = 1.5
-        while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
-            if direction == -1:
-                if np.sign(shifted_pll(lower_bound)) == -1:
-                    lower_bound = param_value - nsigma * param_error
-                else:
-                    upper_bound = param_value
+            if exp_shifted_pll > 0.:
+                lower_bound = exp_root
+                upper_bound = bound_interp
             else:
-                if np.sign(shifted_pll(lower_bound)) == -1:
-                    upper_bound = param_value - nsigma * param_error
+                lower_bound = bound_interp
+                upper_bound = exp_root
+
+            if direction == 1:
+                lower_bound, upper_bound = upper_bound, lower_bound
+
+            if any(shifted_pll(b) < -errordef for b in [lower_bound, upper_bound]):
+                print("New minimum found.")
+
+                new_minimum = minimizer.minimize(loss=loss)
+                return get_crossing_value(new_minimum, params, direction, sigma, rootf, rtol)
+
+            # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
+            # If they have the same sign, the window given to the root finding algorithm is increased.
+            nsigma = 1.5
+            while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
+                if direction == -1:
+                    if np.sign(shifted_pll(lower_bound)) == -1:
+                        lower_bound = param_value - nsigma * param_error
+                    else:
+                        upper_bound = param_value
                 else:
-                    lower_bound = param_value
+                    if np.sign(shifted_pll(lower_bound)) == -1:
+                        upper_bound = param_value + nsigma * param_error
+                    else:
+                        lower_bound = param_value
 
-            nsigma += 0.5
+                nsigma += 0.5
 
-        root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol, full_output=True)
+            root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol, full_output=True)
 
         to_return[param] = root
 

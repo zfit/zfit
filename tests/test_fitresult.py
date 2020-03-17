@@ -13,6 +13,7 @@ true_c = -0.3
 
 
 def create_loss():
+
     a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
                              step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151", 3.5)
@@ -20,9 +21,9 @@ def create_loss():
     obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
     # load params for sampling
-    a_param.load(true_a)
-    b_param.load(true_b)
-    c_param.load(true_c)
+    a_param.set_value(true_a)
+    b_param.set_value(true_b)
+    c_param.set_value(true_c)
 
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
@@ -112,11 +113,11 @@ def test_errors(minimizer_class_and_kwargs):
     b = results['b_param']
     c = results['c_param']
 
-    z_errors = result.error(method="zfit_error")
     minos_errors = result.error(method="minuit_minos")
+    z_errors = result.error(method="zfit_error")
 
     for param in [a, b, c]:
         z_error_param = z_errors[param]
         minos_errors_param = minos_errors[param]
         for dir in ["lower", "upper"]:
-            assert pytest.approx(z_error_param[dir], rel=0.01) == minos_errors_param[dir]
+            assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
