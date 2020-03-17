@@ -96,11 +96,25 @@ def logical_and(x, y):
         return np.logical_and(x, y)
 
 
+def logical_or(x, y):
+    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+        return tf.logical_or(x, y)
+    else:
+        return np.logical_or(x, y)
+
+
 def less_equal(x, y):
     if not SWITCH_ON or is_tensor(x) or is_tensor(y):
         return tf.less_equal(x, y)
     else:
         return np.less_equal(x, y)
+
+
+def greater_equal(x, y):
+    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+        return tf.greater_equal(x, y)
+    else:
+        return np.greater_equal(x, y)
 
 
 def gather(x, indices=None, axis=None):
