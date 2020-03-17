@@ -83,7 +83,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     # Currently not working, stop the test here. Memory leak?
-    if isinstance(minimizer, BFGS) and num_grad and not zfit.run.get_mode()['graph']:
+    if isinstance(minimizer, BFGS) and num_grad and not zfit.run.mode['graph']:
         return
 
     result = minimizer.minimize(loss=loss)

@@ -107,7 +107,7 @@ graph_creators = [
 ]
 
 
-@pytest.mark.skipif(zfit.run.get_mode()['graph'] is False,
+@pytest.mark.skipif(zfit.run.mode['graph'] is False,
                     reason="no caching in eager mode expected")
 @pytest.mark.parametrize('graph_holder', graph_creators)
 def test_graph_cache(graph_holder):

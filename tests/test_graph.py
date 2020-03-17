@@ -1,8 +1,9 @@
 #  Copyright (c) 2020 zfit
 
+import tensorflow as tf
+
 import zfit
 from zfit import z
-import tensorflow as tf
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
@@ -14,7 +15,7 @@ def test_modes():
     def func(x):
         nonlocal counts
         counts += 1
-        return tf.random.uniform(shape=())
+        return tf.random.uniform(shape=()) * x
 
     func(5)
     func(5)
@@ -31,4 +32,11 @@ def test_modes():
     assert counts == 2
     zfit.run.clear_graph_cache()
     func(5)
+    func(5)
+    func(5)
     assert counts == 3
+
+    zfit.run.set_mode(auto_grad=False)
+    assert zfit.settings.options.numerical_grad
+    zfit.run.set_default_mode()
+    assert not zfit.settings.options.numerical_grad

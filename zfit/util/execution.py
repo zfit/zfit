@@ -127,7 +127,7 @@ class RunManager:
     @staticmethod
     @deprecated(date=None, instructions="Use `set_mode(graph=False)`")
     def experimental_enable_eager(eager: bool = False):
-        """EXPERIMENTAL! Enable eager makes tensorflow run like numpy. Useful for debugging.
+        """DEPRECEATED! Enable eager makes tensorflow run like numpy. Useful for debugging.
 
         Do NOT directly mix it with Numpy (and if, also enable the numberical gradient).
 
@@ -138,6 +138,14 @@ class RunManager:
         jit._set_all(not eager)
 
     def set_mode(self, graph: Optional[Union[bool, str, dict]] = None, auto_grad: Optional[bool] = None):
+        """Set the policy for graph building and the usage of automatic vs numerical gradients.
+
+
+
+        Args:
+            graph:
+            auto_grad:
+        """
         jit_mode = graph
         from .. import jit as jit_obj
 
@@ -176,9 +184,9 @@ class RunManager:
             raise RuntimeError("This code is ont supposed to run inside a graph.")
 
     @property
-    @deprecated(None, "Use `not run.get_mode()['graph']")
+    @deprecated(None, "Use `not run.mode['graph']")
     def experimental_is_eager(self):
-        return not self.get_mode()['graph']
+        return not self.mode['graph']
 
     @deprecated(date=None, instructions="Use clear_graph_caches instead.")
     def experimental_clear_caches(self):
