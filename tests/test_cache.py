@@ -6,7 +6,7 @@ import zfit
 from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.cache import Cachable, invalidates_cache, clear_caches
+from zfit.util.cache import Cachable, invalidates_cache, clear_graph_cache
 from zfit.z.zextension import FunctionWrapperRegistry
 
 
@@ -107,7 +107,7 @@ graph_creators = [
 ]
 
 
-@pytest.mark.skipif(not zfit.z.zextension.FunctionWrapperRegistry.allow_jit,
+@pytest.mark.skipif(zfit.run.get_mode()['graph'] is False,
                     reason="no caching in eager mode expected")
 @pytest.mark.parametrize('graph_holder', graph_creators)
 def test_graph_cache(graph_holder):
@@ -140,7 +140,7 @@ def test_graph_cache(graph_holder):
     CONST = 50
     assert graph1.calc(add).numpy() == new_value + add + 40  # old const
     assert graph1.calc_variable(add).numpy() == new_value + add + 40  # old const
-    clear_caches()
+    clear_graph_cache()
     FunctionWrapperRegistry.do_jit_types['something'] = False
     assert graph1.calc_no_cache(add) == new_value + add + CONST
     assert graph1.calc_variable(add) == new_value + add + CONST

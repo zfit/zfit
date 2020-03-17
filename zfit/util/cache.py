@@ -236,9 +236,6 @@ class FunctionCacheHolder(Cachable):
 
     def reset_cache_self(self):
         self.is_valid = False
-        # if self.parent_cache and self.delete_from_cache:
-        #     with suppress(KeyError):
-        #         del self.parent_cache[self.caching_func]
 
     def create_immutable(self, args, kwargs):
         """Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
@@ -295,20 +292,20 @@ class FunctionCacheHolder(Cachable):
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"
 
 
-def clear_caches():
-    from zfit.z.zextension import FunctionWrapperRegistry, FunctionWrapperRegistry2
-    for func_registry in [FunctionWrapperRegistry, FunctionWrapperRegistry2]:
-        for registry in func_registry.registries:
-            for all_meth in registry.function_cache.values():
-                for wrapped_meth in all_meth:
-                    wrapped_meth = wrapped_meth.wrapped_func
-                    wrapped_meth._created_variables = None
-                    wrapped_meth._stateful_fn = None
-                    wrapped_meth._stateless_fn = None
-                    wrapped_meth._descriptor_cache.clear()
+def clear_graph_cache():
+    from zfit.z.zextension import FunctionWrapperRegistry
 
-        for registry in func_registry.registries:
-            registry.reset()
+    for registry in FunctionWrapperRegistry.registries:
+        for all_meth in registry.function_cache.values():
+            for wrapped_meth in all_meth:
+                wrapped_meth = wrapped_meth.wrapped_func
+                wrapped_meth._created_variables = None
+                wrapped_meth._stateful_fn = None
+                wrapped_meth._stateless_fn = None
+                wrapped_meth._descriptor_cache.clear()
+
+    for registry in FunctionWrapperRegistry.registries:
+        registry.reset()
     for instance in Cachable.instances:
         instance.reset_cache('global')
     # Cachable.graph_caching_methods.clear()

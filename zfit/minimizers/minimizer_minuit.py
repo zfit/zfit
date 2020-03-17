@@ -6,10 +6,10 @@ from typing import List
 import iminuit
 import numpy as np
 
-from zfit.core.interfaces import ZfitLoss
 from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
 from .fitresult import FitResult
 from ..core.parameter import Parameter
+from ..core.interfaces import ZfitLoss
 from ..util.cache import Cachable
 
 

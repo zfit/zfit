@@ -14,6 +14,7 @@ from .. import z
 class BFGS(BaseMinimizer):
 
     def __init__(self, strategy: ZfitStrategy = None, tolerance: float = 1e-5, verbosity: int = 5,
+                 max_calls: int = 3000,
                  name: str = "BFGS_TFP", options: Mapping = None) -> None:
         """
 
@@ -21,10 +22,12 @@ class BFGS(BaseMinimizer):
             strategy (ZfitStrategy): Strategy that handles NaN and more (to come, experimental)
             tolerance (float): Difference between the function value that suffices to stop minimization
             verbosity: The higher, the more is printed. Between 1 and 10 typically
+            max_calls (int): Maximum number of calls, approximate
             name: Name of the Minimizer
             options: A `dict` containing the options given to the minimization function, overriding the default
         """
         self.options = {} if options is None else options
+        self.max_calls = max_calls
         super().__init__(strategy=strategy, tolerance=tolerance, verbosity=verbosity, name=name,
                          minimizer_options={})
 
@@ -59,7 +62,7 @@ class BFGS(BaseMinimizer):
             # f_relative_tolerance=self.tolerance * 1e-5,  # TODO: use edm for stopping criteria
             initial_inverse_hessian_estimate=initial_inv_hessian_est,
             parallel_iterations=1,
-            max_iterations=3000
+            max_iterations=self.max_calls
         )
         minimizer_kwargs.update(self.options)
 

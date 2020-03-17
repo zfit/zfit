@@ -5,16 +5,18 @@ import multiprocessing
 import os
 import sys
 import warnings
-from typing import List, Union
+from typing import List, Union, Optional
 
 import numpy as np
 import tensorflow as tf
+from tensorflow_core.python import deprecated
 
 from .container import DotDict, is_container
-from .warnings import warn_experimental_feature
 
 
 class RunManager:
+    DEFAULT_MODE = {'graph': 'auto',
+                    'auto_grad': True}
 
     def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
@@ -26,7 +28,7 @@ class RunManager:
         self._intra_cpus = None
         self._strict = False
         self.numeric_checks = True
-
+        self._mode = self.DEFAULT_MODE.copy()
         self.set_n_cpu(n_cpu=n_cpu)
 
         # HACK
@@ -36,6 +38,10 @@ class RunManager:
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
         self.chunking.max_n_points = 1000000
+
+    @property
+    def mode(self):
+        return self._mode
 
     @property
     def chunksize(self):
@@ -119,7 +125,7 @@ class RunManager:
         return values
 
     @staticmethod
-    @warn_experimental_feature
+    @deprecated(date=None, instructions="Use `set_mode(graph=False)`")
     def experimental_enable_eager(eager: bool = False):
         """EXPERIMENTAL! Enable eager makes tensorflow run like numpy. Useful for debugging.
 
@@ -128,39 +134,55 @@ class RunManager:
         This can BREAK in the future.
 
         """
-        from zfit import z
-        z.zextension.FunctionWrapperRegistry.allow_jit = not eager
-        z.zextension.FunctionWrapperRegistry2.allow_jit = not eager
+        from zfit import jit
+        jit._set_all(not eager)
 
-    def experimental_set_all_jit(self):
-        jit_types = self.experimental_get_jit()
-        for key in list(jit_types):
-            jit_types[key] = True
+    def set_mode(self, graph: Optional[Union[bool, str, dict]] = None, auto_grad: Optional[bool] = None):
+        jit_mode = graph
+        from .. import jit as jit_obj
 
-    def experimental_set_default_jit(self):
-        from zfit import z
-        z.zextension.FunctionWrapperRegistry.do_jit_types = z.zextension.FunctionWrapperRegistry._DEFAULT_DO_JIT_TYPES.copy()
+        if graph is None and auto_grad is None:
+            raise ValueError("Both graph and auto_grad are None. Specify at least one.")
 
-    def experimental_set_jit(self, **update_jit):
-        from zfit import z
+        if jit_mode is True:
+            jit_obj._set_all(True)
+        elif jit_mode is False:
+            jit_obj._set_all(False)
+        elif jit_mode == 'auto':
+            jit_obj._set_default()
+        elif isinstance(jit_mode, dict):
+            jit_obj._update_allowed(jit_mode)
+        elif jit_mode is not None:
+            raise ValueError(f"{jit_mode} is not a valid keyword to the `jit` behavior. Use either "
+                             f"True, False, 'default' or a dict. You can read more about it in the docs.")
+        if jit_mode is not None:
+            self._mode['graph'] = graph
 
-        z.zextension.FunctionWrapperRegistry.do_jit_types.update(update_jit)
+        if auto_grad is not None:
+            from zfit import settings
+            settings.options.numerical_grad = not auto_grad
+            self._mode['auto_grad'] = auto_grad
 
-    def experimental_get_jit(self):
-        from zfit import z
+    def set_default_mode(self):
+        """Reset the mode to the default of `graph` = 'auto' and `auto_grad` = True."""
+        self.set_mode(**self.DEFAULT_MODE)
 
-        return z.zextension.FunctionWrapperRegistry.do_jit_types
+    def clear_graph_cache(self):
+        from zfit.util.cache import clear_graph_cache
+        clear_graph_cache()
+
+    def assert_executing_eagerly(self):
+        if not tf.executing_eagerly():
+            raise RuntimeError("This code is ont supposed to run inside a graph.")
 
     @property
+    @deprecated(None, "Use `not run.get_mode()['graph']")
     def experimental_is_eager(self):
-        from zfit import z
-        return not z.zextension.FunctionWrapperRegistry2.allow_jit
+        return not self.get_mode()['graph']
 
-    @staticmethod
-    @warn_experimental_feature
-    def experimental_clear_caches():
-        from zfit.util.cache import clear_caches
-        clear_caches()
+    @deprecated(date=None, instructions="Use clear_graph_caches instead.")
+    def experimental_clear_caches(self):
+        self.clear_graph_cache()
 
 
 def eval_object(obj: object) -> object:

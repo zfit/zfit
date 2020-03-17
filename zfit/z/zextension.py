@@ -1,5 +1,4 @@
 #  Copyright (c) 2020 zfit
-import copy
 import functools
 import math as _mt
 from collections import defaultdict
@@ -9,6 +8,8 @@ import numpy as np
 import tensorflow as tf
 
 from ..settings import ztypes
+from ..util.exception import BreakingAPIChangeError
+from ..util.warnings import warn_advanced_feature
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
@@ -131,7 +132,8 @@ class FunctionWrapperRegistry:
     all_wrapped_functions = []
     registries = []
     allow_jit = True
-    _DEFAULT_DO_JIT_TYPES = {
+    _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
+    _DEFAULT_DO_JIT_TYPES.update({
         None: True,
         'model': False,
         'loss': True,
@@ -139,7 +141,7 @@ class FunctionWrapperRegistry:
         'model_sampling': True,
         'zfit_tensor': True,
         'tensor': True,
-    }
+    })
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
@@ -157,7 +159,7 @@ class FunctionWrapperRegistry:
         self._initial_user_kwargs = kwargs_user
 
         self.registries.append(self)
-        self.wrapped_func = []
+        self.wrapped_func = None
 
         if not wraps in self.do_jit_types:
             # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
@@ -179,7 +181,6 @@ class FunctionWrapperRegistry:
         self.tf_function = tf.function(**kwargs)
         for cache in self.function_cache.values():
             cache.clear()
-        # self.function_cache.clear()
 
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
@@ -217,9 +218,6 @@ class FunctionWrapperRegistry:
         return concrete_func
 
 
-FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
-
-
 def function_factory(func=None, **kwargs):
     if callable(func):
         wrapper = FunctionWrapperRegistry()
@@ -232,17 +230,26 @@ def function_factory(func=None, **kwargs):
 
 tf_function = function_factory
 
-function_tf_input = FunctionWrapperRegistry2()  # for only tensorflow inside
-function_sampling = tf_function
+
+# legacy, remove 0.6
+def function_tf_input(*_, **__):
+    raise BreakingAPIChangeError("This function has been removed. Use `z.function(wraps='zfit_tensor') or your"
+                                 "own category")
+
+
+# legacy, remove 0.6
+def function_sampling(*_, **__):
+    raise BreakingAPIChangeError("This function has been removed. Use `z.function(wraps='zfit_sampling') or your"
+                                 "own category")
 
 
 @functools.wraps(tf.py_function)
 def py_function(func, inp, Tout, name=None):
     from .. import settings
     if not settings.options['numerical_grad']:
-        raise RuntimeError("Running a py_function without using the numerical gradient will result in wrong gradient"
-                           " calculation. Will be more fine-grained in the future. To switch to numerical calculation"
-                           " (even if the gradients are not calculated at all), do"
-                           " `zfit.settings.options['numerical_grad'] = True`")
+        warn_advanced_feature("Using py_function without numerical gradients. If the Python code does not contain any"
+                              " parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case"
+                              " it depends on those, you may want to set `zfit.run.set_mode(auto_grad=False)`.",
+                              identifier="py_func_autograd")
 
     return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)
