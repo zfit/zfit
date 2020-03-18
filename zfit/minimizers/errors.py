@@ -4,6 +4,11 @@ from ..param import set_values
 from ..util.container import convert_to_container
 
 
+class NewMinimum(Exception):
+    """Exception class for cases where a new minimum is found"""
+    pass
+
+
 def pll(minimizer, loss, params, values) -> float:
     """Compute minimum profile likelihood for given parameters and values."""
     params = convert_to_container(params)
@@ -49,88 +54,100 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 
     covariance = result.covariance(as_dict=True)
 
-    to_return = {}
-    for param in params:
-        param_error = result.hesse(params=param)[param]["error"]
-        param_value = result.params[param]["value"]
-        exp_root = param_value + sigma * direction * param_error  # expected root
+    step_size_dict = {ap: ap.step_size for ap in all_params}
+    for ap in all_params:
+        ap.step_size = covariance[(ap, ap)] ** 0.5
 
-        for ap in all_params:
-            if ap == param:
-                continue
+    try:
+        to_return = {}
+        for param in params:
+            param_error = result.hesse(params=param)[param]["error"]
+            param_value = result.params[param]["value"]
+            exp_root = param_value + sigma * direction * param_error  # expected root
 
-            # shift parameters, other than param, using covariance matrix
-            ap_value = result.params[ap]["value"]
-            ap_error = covariance[(ap, ap)] ** 0.5
-            ap_value += sigma * direction * covariance[(param, ap)] / ap_error
-            ap.set_value(ap_value)
+            for ap in all_params:
+                if ap == param:
+                    continue
 
-        cache = {}
-        def shifted_pll(v):
-            """
-            Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a
-            given parameter.
-            `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.
-            """
-            if v not in cache:
-                cache[v] = pll(minimizer, loss, param, v) - fmin - errordef
+                # shift parameters, other than param, using covariance matrix
+                ap_value = result.params[ap]["value"]
+                ap_error = covariance[(ap, ap)] ** 0.5
+                ap_value += sigma * direction * covariance[(param, ap)] / ap_error
+                ap.set_value(ap_value)
 
-            return cache[v]
-
-        exp_shifted_pll = shifted_pll(exp_root)
-
-        if np.allclose(0., exp_shifted_pll, atol=0.0005):
-            root = exp_root
-
-        else:
-            def linear_interp(y):
+            cache = {}
+            def shifted_pll(v):
                 """
-                Linear interpolation between the minimum of the `shifted_pll` curve and its expected root,
-                assuming it is a parabolic curve.
-                """
-                slope = (exp_root - param_value) / (exp_shifted_pll + errordef)
-                return param_value + (y + errordef) * slope
-            bound_interp = linear_interp(0)
+                Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a
+                given parameter.
+                `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.
 
-            if exp_shifted_pll > 0.:
-                lower_bound = exp_root
-                upper_bound = bound_interp
+                The function raises a `NewMinimum` exception if the value of the shifted `pll` is less than
+                `- errordef`.
+                """
+                if v not in cache:
+                    cache[v] = pll(minimizer, loss, param, v) - fmin - errordef
+                    if cache[v] < -errordef:
+                        raise NewMinimum("A new is minimum found.")
+
+                return cache[v]
+
+            exp_shifted_pll = shifted_pll(exp_root)
+
+            if np.allclose(0., exp_shifted_pll, atol=0.0005):
+                root = exp_root
+
             else:
-                lower_bound = bound_interp
-                upper_bound = exp_root
+                def linear_interp(y):
+                    """
+                    Linear interpolation between the minimum of the `shifted_pll` curve and its expected root,
+                    assuming it is a parabolic curve.
+                    """
+                    slope = (exp_root - param_value) / (exp_shifted_pll + errordef)
+                    return param_value + (y + errordef) * slope
+                bound_interp = linear_interp(0)
 
-            if direction == 1:
-                lower_bound, upper_bound = upper_bound, lower_bound
-
-            if any(shifted_pll(b) < -errordef for b in [lower_bound, upper_bound]):
-                print("New minimum found.")
-
-                new_result = minimizer.minimize(loss=loss)
-                to_return, new_result_ = get_crossing_value(new_result, params, direction, sigma, rootf, rtol)
-                if new_result_ is not None:
-                    new_result = new_result_
-                break
-
-            # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
-            # If they have the same sign, the window given to the root finding algorithm is increased.
-            nsigma = 1.5
-            while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
-                if direction == -1:
-                    if np.sign(shifted_pll(lower_bound)) == -1:
-                        lower_bound = param_value - nsigma * param_error
-                    else:
-                        upper_bound = param_value
+                if exp_shifted_pll > 0.:
+                    lower_bound = exp_root
+                    upper_bound = bound_interp
                 else:
-                    if np.sign(shifted_pll(lower_bound)) == -1:
-                        upper_bound = param_value + nsigma * param_error
+                    lower_bound = bound_interp
+                    upper_bound = exp_root
+
+                if direction == 1:
+                    lower_bound, upper_bound = upper_bound, lower_bound
+
+                # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
+                # If they have the same sign, the window given to the root finding algorithm is increased.
+                nsigma = 1.5
+                while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
+                    if direction == -1:
+                        if np.sign(shifted_pll(lower_bound)) == -1:
+                            lower_bound = param_value - nsigma * param_error
+                        else:
+                            upper_bound = param_value
                     else:
-                        lower_bound = param_value
+                        if np.sign(shifted_pll(lower_bound)) == -1:
+                            upper_bound = param_value + nsigma * param_error
+                        else:
+                            lower_bound = param_value
 
-                nsigma += 0.5
+                    nsigma += 0.5
 
-            root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol, full_output=True)
+                root, results = rootf(f=shifted_pll, a=lower_bound, b=upper_bound, rtol=rtol,
+                                      full_output=True)
 
-        to_return[param] = root
+            to_return[param] = root
+
+    except NewMinimum as e:
+        print(e)
+        new_result = minimizer.minimize(loss=loss)
+        to_return, new_result_ = get_crossing_value(new_result, params, direction, sigma, rootf, rtol)
+        if new_result_ is not None:
+            new_result = new_result_
+
+    for ap in all_params:
+        ap.step_size = step_size_dict[ap]
 
     return to_return, new_result
 
@@ -144,7 +161,7 @@ def _rootf(**kwargs):
 
 def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
     """
-    Compute asymmetric errors of parameters by profiling the loss function in the fit result.
+    Computes asymmetric errors of parameters by profiling the loss function in the fit result.
 
     Args:
         result (`FitResult`): fit result

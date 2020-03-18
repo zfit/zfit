@@ -16,8 +16,8 @@ def create_loss():
 
     a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
                              step_size=z.constant(0.1))
-    b_param = zfit.Parameter("variable_b15151", 3.5)
-    c_param = zfit.Parameter("variable_c15151", -0.04)
+    b_param = zfit.Parameter("variable_b15151", 3.5, 0, 20)
+    c_param = zfit.Parameter("variable_c15151", -0.04, -1, 0.)
     obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
     # load params for sampling
@@ -113,11 +113,48 @@ def test_errors(minimizer_class_and_kwargs):
     b = results['b_param']
     c = results['c_param']
 
-    minos_errors = result.error(method="minuit_minos")
-    z_errors = result.error(method="zfit_error")
+    z_errors, new_result = result.error(method="zfit_error")
+    if new_result is not None:
+        result = new_result
+    minos_errors, _ = result.error(method="minuit_minos")
 
     for param in [a, b, c]:
         z_error_param = z_errors[param]
         minos_errors_param = minos_errors[param]
         for dir in ["lower", "upper"]:
             assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
+
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_new_minimum(minimizer_class_and_kwargs):
+
+    loss, params = create_loss()
+
+    minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
+    minimizer = minimizer_class(**minimizer_kwargs)
+
+    if not test_error:
+        pass
+
+    ntoys = 1000
+    params_random_values = {p: np.random.uniform(p.lower_limit, p.upper_limit, ntoys) for p in params}
+
+    new_minimum_found = False
+
+    for n in range(ntoys):
+
+        try:
+            zfit.param.set_values(params, [params_random_values[p][n] for p in params])
+            result_n = minimizer.minimize(loss=loss)
+            errors, new_result_n = result_n.error()
+
+            if new_result_n is not None:
+                new_minimum_found = True
+                break
+
+        except RuntimeError:
+            continue
+
+    assert new_minimum_found
+    for p in params:
+        assert errors[p] == "Invalid, a new minimum was found."
