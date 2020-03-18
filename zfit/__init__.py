@@ -72,7 +72,7 @@ from .core.space import Space, convert_to_space, supports
 from .core.data import Data
 
 from .settings import run
-from .util.graph import jit
+from .util.graph import jit as _jit
 
 
 def _maybe_disable_jit():
@@ -92,7 +92,6 @@ def _maybe_disable_jit():
 
 
 # experimental flags
-
 
 
 _maybe_disable_jit()

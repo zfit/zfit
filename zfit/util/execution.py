@@ -134,13 +134,19 @@ class RunManager:
         This can BREAK in the future.
 
         """
-        from zfit import jit
+
+        from .graph import jit
         jit._set_all(not eager)
 
     def set_mode(self, graph: Optional[Union[bool, str, dict]] = None, autograd: Optional[bool] = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
 
-        zfit runs on top of TensorFlow, a modern, powerful computing engine. It has two ways to be run where the first
+        zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
+        An interactive tutorial can be found at https://github.com/zfit/zfit-tutorials
+
+        **Graph building**
+
+        It has two ways to be run where the first
         defaults to the normal mode we are in except inside a :py:func:`~zfit.z.function` decorated function. Setting
         the mode allows to control the behavior of decorated functions to not always trigger a graph building.
 
@@ -211,6 +217,24 @@ class RunManager:
                for everything to have the same behavior in the pdf as when the loss is called.
 
 
+        **automatic gradient**
+
+        Another strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient
+        by successively applying the chain rule to all of its operations. This is *independent* of whether the code
+        is run in graph or eager execution, but requires all operations that are dynamic to be `tf.*` operations.
+        For example, multiplying by a constant (constant as in *not chaning ever*) does not require the constant to
+        be a `tf.constant(...)` but can be a Python scalar. For example, it is also fine to use a fixed template shape
+        using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a
+        `z.py_function` to work, but this is another story about graph mode or not).
+
+        To allow to have dynamic numpy operations in a component, preferably wrapped with `z.py_function` instead of
+        forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
+        In general, this can be achieved by setting the `autograd` to False. Any derivative received will then be
+        numerically computed. Furthermore, some minimizers (e.g. :py:class:`~zfit.minimize.Minuit`) have their own way
+        of calculating gradients, which can be faster.
+        Disabling `autograd` and using the zfit builting numerical way of calculating the gradients and hessian can
+        be less stable and may raises errors.
+
 
 
         Args:
@@ -226,10 +250,11 @@ class RunManager:
               - (**advanced and experimental!**): a dictionary containing the string of a wrapped function identifier
                 (see also :py:func:`~zfit.z.function` for more information about this) with a boolean that switches
                 explicitly on/off the graph building for this type of decorated functions.
-            autograd:
+            autograd: Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure
+              instead. If any non-constant Python (numpy, scipy,...) code is used inside, this should be switched on.
         """
         jit_mode = graph
-        from .. import jit as jit_obj
+        from .graph import jit as jit_obj
 
         if graph is None and autograd is None:
             raise ValueError("Both graph and autograd are None. Specify at least one.")
@@ -253,18 +278,19 @@ class RunManager:
             settings.options.numerical_grad = not autograd
             self._mode['autograd'] = autograd
 
-    def current_policy_graph(self):
+    def current_policy_graph(self) -> Union[bool, str]:
         """Return the current policy for graph building.
 
         Returns:
-
+            bool, str: The current policy. For more information, check :py:meth:`~zfit.run.set_mode`.
         """
         return self.mode['graph']
 
-    def current_policy_autograd(self):
+    def current_policy_autograd(self) -> bool:
         """The current policy for using the automatic gradient or falling back to the numerical
 
         Returns:
+            bool: If autograd is being used.
 
         """
         return self.mode['autograd']
@@ -274,20 +300,39 @@ class RunManager:
         self.set_mode(**self.DEFAULT_MODE)
 
     def clear_graph_cache(self):
+        """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
+
+        In a simple fit scenario, this is not used. But if several fits are performed with different python objects
+        such as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and
+        therefore invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough
+        the already scanned ranges are not needed anymore.
+
+        To clean, this function can be invoked. The only effect should be to speed up things, but should not have
+        any side-effects other than that.
+
+        """
         from zfit.util.cache import clear_graph_cache
         clear_graph_cache()
 
     def assert_executing_eagerly(self):
+        """Assert that the execution is eager and Python side effects are taken into account.
+
+        This can be placed inside a model _in case python side-effects are necessary_ and no other way is possible.
+
+        """
         if not tf.executing_eagerly():
             raise RuntimeError("This code is not supposed to run inside a graph.")
 
     @property
-    @deprecated(None, "Use `not run.mode['graph']")
+    @deprecated(None, "Use `current_policy_graph() is False`")
     def experimental_is_eager(self):
         return not self.mode['graph']
 
     @deprecated(date=None, instructions="Use clear_graph_caches instead.")
     def experimental_clear_caches(self):
+        """DEPRECATED! Use `clear_graph_caches` instead.
+
+        """
         self.clear_graph_cache()
 
 
