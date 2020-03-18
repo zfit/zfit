@@ -249,7 +249,7 @@ def py_function(func, inp, Tout, name=None):
     if not settings.options['numerical_grad']:
         warn_advanced_feature("Using py_function without numerical gradients. If the Python code does not contain any"
                               " parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case"
-                              " it depends on those, you may want to set `zfit.run.set_mode(auto_grad=False)`.",
+                              " it depends on those, you may want to set `zfit.run.set_mode(autograd=False)`.",
                               identifier="py_func_autograd")
 
     return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)

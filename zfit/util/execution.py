@@ -16,7 +16,7 @@ from .container import DotDict, is_container
 
 class RunManager:
     DEFAULT_MODE = {'graph': 'auto',
-                    'auto_grad': True}
+                    'autograd': True}
 
     def __init__(self, n_cpu='auto'):
         """Handle the resources and runtime specific options. The `run` method is equivalent to `sess.run`"""
@@ -137,20 +137,102 @@ class RunManager:
         from zfit import jit
         jit._set_all(not eager)
 
-    def set_mode(self, graph: Optional[Union[bool, str, dict]] = None, auto_grad: Optional[bool] = None):
+    def set_mode(self, graph: Optional[Union[bool, str, dict]] = None, autograd: Optional[bool] = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
+
+        zfit runs on top of TensorFlow, a modern, powerful computing engine. It has two ways to be run where the first
+        defaults to the normal mode we are in except inside a :py:func:`~zfit.z.function` decorated function. Setting
+        the mode allows to control the behavior of decorated functions to not always trigger a graph building.
+
+         - **numpy-like/eager**: in this mode, the syntax slightly differs from pure numpy but is similar. For example,
+            `tf.sqrt`, `tf.math.log` etc. The return values are `EagerTensors` that represent "wrapped Numpy arrays" and
+            can directly be used with any Numpy function. They can explicitly be converted to a Numpy array with
+            `zfit.run(EagerTensor)`, which takes also care of nested structures and already existing `np.ndarrays`,
+            or just a `.numpy()` method.
+            The difference to Numpy is that TensorFlow tries to optimize the calculation slightly beforehand and may
+            also executes on the GPU. This will result in a slight performance penalty for *very small* computations
+            compared to Numpy, on the other hand an improved performance for larger computations.
+
+         - **graph**: a function can be decorated with :py:func:`~zfit.z.function`, which will *not* execute its
+            content immediately, but first trace it and build a graph. This is done by *recording all `tf.*` operations
+            and adding them to the graph while any Python operation, e.g. `np.random.*` will use a fixed value added
+            to the graph. Building a graph greatly reduces the flexibility, since only `tf.*` operations can
+            effectively be used to have dynamics in there, on the other hand it can greatly increase the performance.
+            When the graph is built, it is cached (for later re-use), optimized and then executed.
+            Calling a `tf.function` decorated
+            function does therefore not make an actualy difference *for the caller*. But it is a difference on how the
+            function behaves.
+
+            .. code-block:: python
+
+                @z.function
+                def add_rnd(x):
+                     res1 = x + np.random.uniform()  # returns a Python scalar. This exact scalar will be constant
+                     res2 = x + z.random.uniform(shape=())  # returns a tf.Tensor. This will be flexible
+                     return res1, res2
+
+                res_np1, res_tf1 = add_rnd(5)
+                res_np2, res_tf2 = add_rnd(5)
+
+                assert res_np1 == res_np2  # they will be the same!
+                assert res_tf1 != res_tf2  # these differ
+
+            While writing TensorFlow is just like Numpy, if we build a graph, only `tf.*` dynamics "survives".
+            Important: while values are usually constant, changing a :py:class:`zfit.Parameter` value with
+            :py:meth:`~zfit.Parameter.set_value(...)` *will* change the value in the graph as well.
+
+                        .. code-block:: python
+
+                @z.function
+                def add(x, param):
+                     return x + param
+
+                param = zfit.Parameter('param1', 36)
+                assert add_rnd(5, param) == 41
+                param.set_value(6)
+                assert add_rnd(5, param) == 42  # the value changed!
+
+            Every graph generation takes some additional time and is stored, consuming memory and slowing down the
+            overall execution process.
+            To clear all caches and force a rebuild of the graph, `zfit.run.clear_graph_cache()` can be used.
+
+            If a function is not decorated with `z.function`, this does not guarantee that it is executed in eager,
+            as an outer function may uses a decorator. A typical case is the loss, which is decorated. Therefore,
+            any Model called inside will be evaluated with a graph building first.
+
+
+            **When to use what**:
+             - Any repeated call (as a typical call to the loss function in the minimization process) is usually
+               better suited within a `z.function`.
+             - A single call (e.g. for plotting) or repeated calls *with different arguments* should rather be run
+               *without* a graph built first
+             - Debugging is usually way easier without graph building. Therefore, set the graph mode to `False`
+             - If the minimization fails but the pdf works without graph, maybe the graph mode can be switched on
+               for everything to have the same behavior in the pdf as when the loss is called.
+
 
 
 
         Args:
-            graph:
-            auto_grad:
+            graph: Policy for when to build a graph with which function. Currently allowed values are
+              - `True`: this will make all :py:func:`zfit.z.function` decorated function to be traced. Useful
+                to have a consistent behavior overall, as e.g. a PDF may not be traced if `pdf` or `integrate` is
+                called, but may be traced when inside a loss.
+              - `False`: this will make everything execute immediately, like Numpy (this is **not enough** to be
+                fully Numpy compatible in the sense of using `, also see the `autograd` option)
+              - 'auto': Something in between, where sampling (currently) and the loss builds a graph but
+                all model methods, such as `pdf`, `integrate` (except of `*sample*`) do not and are executed
+                eagerly.
+              - (**advanced and experimental!**): a dictionary containing the string of a wrapped function identifier
+                (see also :py:func:`~zfit.z.function` for more information about this) with a boolean that switches
+                explicitly on/off the graph building for this type of decorated functions.
+            autograd:
         """
         jit_mode = graph
         from .. import jit as jit_obj
 
-        if graph is None and auto_grad is None:
-            raise ValueError("Both graph and auto_grad are None. Specify at least one.")
+        if graph is None and autograd is None:
+            raise ValueError("Both graph and autograd are None. Specify at least one.")
 
         if jit_mode is True:
             jit_obj._set_all(True)
@@ -166,13 +248,29 @@ class RunManager:
         if jit_mode is not None:
             self._mode['graph'] = graph
 
-        if auto_grad is not None:
+        if autograd is not None:
             from zfit import settings
-            settings.options.numerical_grad = not auto_grad
-            self._mode['auto_grad'] = auto_grad
+            settings.options.numerical_grad = not autograd
+            self._mode['autograd'] = autograd
 
-    def set_default_mode(self):
-        """Reset the mode to the default of `graph` = 'auto' and `auto_grad` = True."""
+    def current_policy_graph(self):
+        """Return the current policy for graph building.
+
+        Returns:
+
+        """
+        return self.mode['graph']
+
+    def current_policy_autograd(self):
+        """The current policy for using the automatic gradient or falling back to the numerical
+
+        Returns:
+
+        """
+        return self.mode['autograd']
+
+    def set_mode_default(self):
+        """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
         self.set_mode(**self.DEFAULT_MODE)
 
     def clear_graph_cache(self):
@@ -181,7 +279,7 @@ class RunManager:
 
     def assert_executing_eagerly(self):
         if not tf.executing_eagerly():
-            raise RuntimeError("This code is ont supposed to run inside a graph.")
+            raise RuntimeError("This code is not supposed to run inside a graph.")
 
     @property
     @deprecated(None, "Use `not run.mode['graph']")

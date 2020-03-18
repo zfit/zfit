@@ -940,7 +940,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         except NotImplementedError:
             raise NotImplementedError("analytic sampling not possible because the analytic integral is not"
                                       " implemented for the boundaries:".format(limits.limits))
-        prob_sample = z.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
+        prob_sample = z.random.uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
                                        maxval=upper_prob_lim)
         # with self._convert_sort_x(prob_sample) as x:
         x = prob_sample
