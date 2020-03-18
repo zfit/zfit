@@ -133,28 +133,26 @@ def test_new_minimum(minimizer_class_and_kwargs):
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
 
-    if not test_error:
-        pass
+    if test_error:
+        ntoys = 1000
+        params_random_values = {p: np.random.uniform(p.lower_limit, p.upper_limit, ntoys) for p in params}
 
-    ntoys = 1000
-    params_random_values = {p: np.random.uniform(p.lower_limit, p.upper_limit, ntoys) for p in params}
+        new_minimum_found = False
 
-    new_minimum_found = False
+        for n in range(ntoys):
 
-    for n in range(ntoys):
+            try:
+                zfit.param.set_values(params, [params_random_values[p][n] for p in params])
+                result_n = minimizer.minimize(loss=loss)
+                errors, new_result_n = result_n.error()
 
-        try:
-            zfit.param.set_values(params, [params_random_values[p][n] for p in params])
-            result_n = minimizer.minimize(loss=loss)
-            errors, new_result_n = result_n.error()
+                if new_result_n is not None:
+                    new_minimum_found = True
+                    break
 
-            if new_result_n is not None:
-                new_minimum_found = True
-                break
+            except RuntimeError:
+                continue
 
-        except RuntimeError:
-            continue
-
-    assert new_minimum_found
-    for p in params:
-        assert errors[p] == "Invalid, a new minimum was found."
+        assert new_minimum_found
+        for p in params:
+            assert errors[p] == "Invalid, a new minimum was found."
