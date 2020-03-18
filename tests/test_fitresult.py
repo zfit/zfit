@@ -154,5 +154,13 @@ def test_new_minimum(minimizer_class_and_kwargs):
                 continue
 
         assert new_minimum_found
+
+        assert result_n.valid is False
         for p in params:
             assert errors[p] == "Invalid, a new minimum was found."
+
+        assert new_result_n.valid is True
+        errors, _ = new_result_n.error()
+        for param in params:
+            assert errors[param]["lower"] < 0
+            assert errors[param]["upper"] > 0
