@@ -111,6 +111,7 @@ class FitResult(ZfitResult):
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
+        self._valid = True
         # self.param_error = OrderedDict((p, {}) for p in params)
         # self.param_hesse = OrderedDict((p, {}) for p in params)
 
@@ -167,6 +168,10 @@ class FitResult(ZfitResult):
     @property
     def converged(self):
         return self._converged
+
+    @property
+    def valid(self):
+        return self._valid
 
     def _input_check_params(self, params):
         if params is not None:
@@ -267,6 +272,7 @@ class FitResult(ZfitResult):
             else:
                 msg = "Invalid, a new minimum was found."
                 self._cache_errors(error_name=error_name, errors={p: msg for p in params})
+                self._valid = False
                 new_result._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
 

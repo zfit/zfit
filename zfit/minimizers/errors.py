@@ -5,7 +5,7 @@ from ..util.container import convert_to_container
 
 
 class NewMinimum(Exception):
-    """Exception class for cases where a new minimum is found"""
+    """Exception class for cases where a new minimum is found."""
     pass
 
 
@@ -36,6 +36,10 @@ def set_params_to_result(params, result):
 
 
 def get_crossing_value(result, params, direction, sigma, rootf, rtol):
+    """Find the crossing point between the profiled loss function, for given parameters, and the value of
+    `errordef` for a given direction (positive / negative).
+    `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.
+    """
 
     new_result = None
     all_params = list(result.params.keys())
@@ -43,10 +47,6 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
     errordef = loss.errordef
     fmin = result.fmin
     minimizer = result.minimizer.copy()
-    # if "strategy" in minimizer.minimizer_options:
-        # With the `Minuit` minimizer. The decrease of the strategy increases the speed
-        # of the profile likelihood scan
-        # minimizer.minimizer_options["strategy"] = max(0, minimizer.minimizer_options["strategy"] - 1)
     minimizer.tolerance = minimizer.tolerance * 0.5
     rtol *= errordef
 
