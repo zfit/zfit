@@ -6,7 +6,7 @@ import zfit
 from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.cache import Cachable, invalidates_cache, clear_graph_cache
+from zfit.util.cache import Cachable, invalidate_graph, clear_graph_cache
 from zfit.z.zextension import FunctionWrapperRegistry
 
 
@@ -18,7 +18,7 @@ class Example1(Cachable):
             self._cache['value'] = np.random.random()
         return self._cache['value']
 
-    @invalidates_cache
+    @invalidate_graph
     def change_param(self, new_param):
         # invalidates cache
         return None
@@ -39,7 +39,7 @@ class MotherExample1(Cachable):
         self._cache['mother_value'] = value
         return value
 
-    @invalidates_cache
+    @invalidate_graph
     def change_param(self):
         return None
 
@@ -85,7 +85,7 @@ class GraphCreator1(Cachable):
         self.retrace_runs += 1
         return x + self.value + CONST
 
-    @invalidates_cache
+    @invalidate_graph
     def change_value(self, value):
         self.value = value
 

@@ -23,7 +23,7 @@ from .interfaces import ZfitData
 from .space import Space, convert_to_space
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.cache import Cachable, invalidates_cache
+from ..util.cache import Cachable, invalidate_graph
 from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
     ObsIncompatibleError, DataIsBatchedError
@@ -103,7 +103,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             data_range = self.space
         return data_range
 
-    @invalidates_cache
+    @invalidate_graph
     def set_data_range(self, data_range):
         data_range = self._check_input_data_range(data_range=data_range)
 
@@ -126,7 +126,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
             weights = self._weights
         return weights
 
-    @invalidates_cache
+    @invalidate_graph
     def set_weights(self, weights: ztyping.WeightsInputType):
         """Set (temporarily) the weights of the dataset.
 
@@ -396,7 +396,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
-    @invalidates_cache
+    @invalidate_graph
     def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
         if not allow_superset:
             if not frozenset(axes) <= frozenset(self.axes):
@@ -413,7 +413,7 @@ class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
 
-    @invalidates_cache
+    @invalidate_graph
     def sort_by_obs(self, obs: ztyping.ObsTypeInput, allow_superset: bool = False):
         if not allow_superset:
             if not frozenset(obs) <= frozenset(self.obs):

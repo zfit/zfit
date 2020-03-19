@@ -169,7 +169,7 @@ class Cachable(ZfitCachable):
             cacher.reset_cache(reseter=self)
 
 
-def invalidates_cache(func):
+def invalidate_graph(func):
     @functools.wraps(func)
     def wrapped_func(*args, **kwargs):
         self = args[0]
